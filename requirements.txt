@@ -1,0 +1,5 @@
+aiohttp==3.6.2
+requests==2.23.0
+##FIXME: googleapis-common-protos and protobuf install order seem to matter, if inverted, Module protobuf is not found
+googleapis-common-protos==1.51.0
+protobuf==3.11.3
