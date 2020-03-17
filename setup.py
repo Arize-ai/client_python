@@ -18,7 +18,7 @@ install_requires = [x.strip() for x in all_reqs if 'git+' not in x]
 dependency_links = [x.strip().replace('git+', '') for x in all_reqs if x.startswith('git+')]
 
 setup(
-    name='arizeai',
+    name='arize',
     version=__version__,
     description='A CLI and library to interact with Arize AI APIs',
     long_description=long_description,

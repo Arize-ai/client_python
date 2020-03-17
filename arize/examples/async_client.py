@@ -2,7 +2,7 @@ import random
 import time
 from asyncio import get_event_loop
 
-from arizeai.api import AsyncAPI
+from arize.api import AsyncAPI
 
 CALLS = 100_000
 

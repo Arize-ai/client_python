@@ -31,9 +31,9 @@ class API(object):
         """ 
         :param model_id: (str) Unique identifier for a given model.
         :param prediction_id: (str) Unique indetifier for specific prediction. This is the key which latent truth events must tie back to.
-        :param prediction_value: Mutually exclusive with truth_value. Output value for prediction (or latent truth). Can be bool, str, float, int.
+        :param prediction_value: (bool | str | float | int) Mutually exclusive with truth_value. Output value for prediction (or latent truth).
         :param truth_value: See prediction_value.
-        :param labels: (string, string) String dictionary containing prediction labels and/or metadata
+        :param labels: (str, str) String dictionary containing prediction labels and/or metadata
         """
         assert model_id, 'model_id must be present when logging an event'
         assert prediction_id, 'prediction_id must be present when logging an event'

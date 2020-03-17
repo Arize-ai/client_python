@@ -1,5 +1,5 @@
-import arizeai.api as api
-import arizeai.protocol_pb2 as protocol__pb2
+import arize.api as api
+import arize.protocol_pb2 as protocol__pb2
 
 expected = {'model':'model_v0',
     'api_key': 'API_KEY',

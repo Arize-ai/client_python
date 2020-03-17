@@ -14,7 +14,7 @@ Installation / Usage
 
 To install use pip:
 
-    $ pip install arizeai
+    $ pip install arize
 
 
 Or clone the repo:
@@ -31,7 +31,7 @@ Example
 -------
 
 ```python
-from arizeai.api import AsyncAPI
+from arize.api import AsyncAPI
 
 arize = AsyncAPI(account_id=1234, api_key='API_KEY')
 

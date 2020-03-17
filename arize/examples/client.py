@@ -1,7 +1,7 @@
 import random
 import time
-import arizeai
-from arizeai.api import API
+import arize
+from arize.api import API
 
 CALLS = 10
 
