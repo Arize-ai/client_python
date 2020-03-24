@@ -15,17 +15,17 @@ def test_api_initialization():
     try:
         api.API()
     except Exception as e:
-        assert isinstance(e, AssertionError)
+        assert isinstance(e, TypeError)
 
     try:
         api.API(api_key='test')
     except Exception as client_id_exception:
-        assert isinstance(client_id_exception, AssertionError)
+        assert isinstance(client_id_exception, TypeError)
     
     try:
         api.API(account_id='test')
     except Exception as account_id_exception:
-        assert isinstance(account_id_exception, AssertionError)
+        assert isinstance(account_id_exception, TypeError)
 
 def setup_client():
     return api.API(account_id=expected['account_id'], api_key=expected['api_key'])

@@ -2,17 +2,23 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
+import sys
+
 __version__ = '0.0.1'
 
-here = path.abspath(path.dirname(__file__))
+if sys.version_info < (3, 7):
+    sys.exit('Sorry, Python < 3.7 is not supported')
 
 # Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open('README.md', encoding='utf-8') as f:
     long_description = f.read()
 
 # get the dependencies and installs
-with open(path.join(here, 'requirements.txt'), encoding='utf-8') as f:
-    all_reqs = f.read().split('\n')
+with open('requirements.txt', encoding='utf-8') as f:
+    all_reqs = f.read().splitlines()
+
+with open('requirements-dev.txt', encoding='utf-8') as f:
+    all_reqs += f.read().splitlines()
 
 install_requires = [x.strip() for x in all_reqs if 'git+' not in x]
 dependency_links = [x.strip().replace('git+', '') for x in all_reqs if x.startswith('git+')]
@@ -37,5 +43,5 @@ setup(
     author='Arize Dev',
     install_requires=install_requires,
     dependency_links=dependency_links,
-    author_email='gabe@arize.com'
+    author_email='support@arize.com'
 )

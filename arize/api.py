@@ -1,25 +1,23 @@
 import logging
 import requests
 from requests.exceptions import HTTPError
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ClientResponseError, ClientTimeout
 from asyncio import get_event_loop
 
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.protobuf.json_format import MessageToDict
 
-from . import protocol_pb2 as protocol__pb2
+from arize import protocol_pb2 as protocol__pb2
 
 class API(object):
     """ 
     Synchronous API class to report model predictions and latent truths to Arize AI platform
     """
-    def __init__(self, retry_attempts=3, timeout=200, api_key=None, account_id=None, uri='api.arize.com/v1/log'):
+    def __init__(self, api_key: str, account_id: int, uri='https://api.arize.com/v1/log', retry_attempts=3, timeout=200):
         """
             :params api_key: (str) api key associated with your account with Arize AI
-            :params account_id: (str) account id in Arize AI
-        """
-        assert api_key, 'API Key is required'
-        assert account_id, 'Account ID is required'
+            :params account_id: (int) account id in Arize AI
+        """ 
         self._retry_attempts = retry_attempts
         self._uri = uri
         self._api_key = api_key
@@ -27,7 +25,7 @@ class API(object):
         self._timeout = timeout
         self._LOGGER = logging.getLogger(__name__)
 
-    def log(self, model_id: str, prediction_id: str, prediction_value=None, truth_value=None, labels={}):
+    def log(self, model_id: str, prediction_id: str, prediction_value=None, truth_value=None, labels=None):
         """ 
         :param model_id: (str) Unique identifier for a given model.
         :param prediction_id: (str) Unique indetifier for specific prediction. This is the key which latent truth events must tie back to.
@@ -35,11 +33,11 @@ class API(object):
         :param truth_value: See prediction_value.
         :param labels: (str, str) String dictionary containing prediction labels and/or metadata
         """
-        assert model_id, 'model_id must be present when logging an event'
-        assert prediction_id, 'prediction_id must be present when logging an event'
-        record = self._build_record(model_id, prediction_id, prediction_value, truth_value, labels)
-        json_record = MessageToDict(message=record, including_default_value_fields=False, preserving_proto_field_name=True)
         try:
+            assert model_id, 'model_id must be present when logging an event'
+            assert prediction_id, 'prediction_id must be present when logging an event'
+            record = self._build_record(model_id, prediction_id, prediction_value, truth_value, labels)
+            json_record = MessageToDict(message=record, including_default_value_fields=False, preserving_proto_field_name=True)
             response = requests.post(
                 self._uri,
                 headers={'Authorization': self._api_key},
@@ -47,12 +45,10 @@ class API(object):
                 json=json_record
             )
             response.raise_for_status()
-        except HTTPError as http_err:
-            self._process_exception(http_err)
         except Exception as err:
-            self._LOGGER.error(f'Other error occurred: {err}') 
+            self._handle_exception(err) 
 
-    def _build_record(self, model_id: str, prediction_id: str, prediction_value=None, truth_value=None, labels={}):
+    def _build_record(self, model_id, prediction_id, prediction_value=None, truth_value=None, labels=None):
         record = None
         if prediction_value:
             record = self._build_prediction_record(
@@ -71,7 +67,7 @@ class API(object):
             raise ValueError('prediction_value or truth_value must be present')
         return record
 
-    def _build_prediction_record(self, model_id: str, prediction_id: str, prediction_value=None, labels={}):
+    def _build_prediction_record(self, model_id, prediction_id, prediction_value=None, labels=None):
         prediction =  protocol__pb2.Prediction(
             timestamp = self._get_time(),
             account_id = self._account_id,
@@ -82,7 +78,7 @@ class API(object):
         )
         return protocol__pb2.Record(prediction=prediction)
 
-    def _build_truth_record(self, model_id: str, prediction_id: str, truth_value=None):
+    def _build_truth_record(self, model_id, prediction_id, truth_value=None):
         truth = protocol__pb2.Truth(
             timestamp = self._get_time(),
             account_id = self._account_id,
@@ -92,11 +88,23 @@ class API(object):
         )
         return protocol__pb2.Record(truth=truth)
 
-    #TODO(gabe): Need to do something besides just log this
-    def _process_exception(self, error):
-        self._LOGGER.error(f"http error, while execute request:\n{error}") 
+    #TODO(gabe): Instrument metrics and expose to client
+    def _handle_exception(self, err):
+        type_ = type(err)
+        if type_ is HTTPError:
+            self._LOGGER.error(f"Http error, while executing request {err}")
+        elif type_ is ClientResponseError:
+            if err.status == 403:
+                self._LOGGER.error(f'Invalid API key for account_id {self._account_id}: {err}')
+        elif type_ is TypeError:
+            self._LOGGER.error(f'Type error: {err}')
+        elif type_ is AssertionError:
+            self._LOGGER.error(f'Assertion error: {err}')
+        elif type_ is ValueError:
+            self._LOGGER.error(f'Value error: {err}')
+        else:
+            self._LOGGER.error(f'Unexpected error occured: {err}')
 
-    ## TODO(gabe): Think of a better way to accomplish this, specifically I dont raising an exception, it's not very elegant
     @staticmethod
     def _get_value(value):
         if type(value) == bool:
@@ -125,21 +133,27 @@ class AsyncAPI(API):
             :params account_id: (str) account id in Arize AI
         """
         super(AsyncAPI, self).__init__(*args,**kwargs)
-        self.session = ClientSession(raise_for_status=True)
+        self._session = None
         self._loop = get_event_loop()
+    
+    async def _get_session(self):
+        if self._session is None:
+            timeout = ClientTimeout(total=60)
+            self._session = ClientSession(timeout=timeout, raise_for_status=True)
+        return self._session
 
     async def _post(self, json_record):
-        response = await self.session.post(
+        session = await self._get_session()
+        async with session.post(
             self._uri,
             headers={'Authorization': self._api_key},
             timeout=self._timeout,
             json=json_record
-        )
-        async with response:
-            assert response.status == 200
+        ) as response:
+            if response.status != 200:
+                self._LOGGER.error(f'Response Error: {response}')
 
-
-    def log(self, model_id: str, prediction_id: str, prediction_value=None, truth_value=None, labels={}):
+    def log(self, model_id: str, prediction_id: str, prediction_value=None, truth_value=None, labels=None):
         """ 
         :param model_id: (str) Unique identifier for a given model.
         :param prediction_id: (str) Unique indetifier for specific prediction. This is the key which latent truth events must tie back to.
@@ -147,8 +161,11 @@ class AsyncAPI(API):
         :param truth_value: See prediction_value.
         :param labels: (string, string) String dictionary containing prediction labels and/or metadata
         """
-        assert model_id, 'model_id must be present when logging an event'
-        assert prediction_id, 'prediction_id must be present when logging an event'
-        record = self._build_record(model_id, prediction_id, prediction_value, truth_value, labels)
-        json_record = MessageToDict(message=record, including_default_value_fields=False, preserving_proto_field_name=True)
-        self._loop.create_task(self._post(json_record))
+        try: 
+            assert model_id, 'model_id must be present when logging an event'
+            assert prediction_id, 'prediction_id must be present when logging an event'
+            record = self._build_record(model_id, prediction_id, prediction_value, truth_value, labels)
+            json_record = MessageToDict(message=record, including_default_value_fields=False, preserving_proto_field_name=True)
+            self._loop.run_until_complete(self._post(json_record))
+        except Exception as err:
+            self._handle_exception(err)
