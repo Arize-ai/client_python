@@ -4,13 +4,13 @@ import functools
 
 from asyncio import get_event_loop
 
-from arize.api import AsyncAPI
+from arize.api import AsyncClient
 
 ITERATIONS = 10
 CALLS = 10
 times = []
 
-arize = AsyncAPI(account_id=0, api_key='0000', uri='https://dev.arize.com/v1/log')
+arize = AsyncClient(account_id=0, api_key='0000', uri='https://dev.arize.com/v1/log')
 
 for j in range(ITERATIONS) :
     start = time.time() * 1000

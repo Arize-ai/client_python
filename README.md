@@ -2,8 +2,8 @@
   <img src="docs/assets/arize-logo-white.jpg" width="600" /><br><br>
 </div>
 
-# Arize AI [![PyPI version](https://badge.fury.io/py/arize.svg)](https://badge.fury.io/py/arize) ![CI](https://github.com/Arize-ai/arize/workflows/CI/badge.svg)
-
+Arize AI [![PyPI version](https://badge.fury.io/py/arize.svg)](https://badge.fury.io/py/arize) ![CI](https://github.com/Arize-ai/arize/workflows/CI/badge.svg)
+================
 ### Overview
 
 A helper library to interact with Arize AI APIs
@@ -15,19 +15,19 @@ Instrument your model to log predictions and latent truth events. The logged eve
 Start logging with the following steps.
 
 ### 1. Create your account
-Sign up for a free account on our site [sign up page](https://app.arize.com/login?signup=true).
+Sign up for a free account by reaching out to <contacts@arize.com>.
 
 <div align="center">
   <img src="docs/assets/arize-home.png" /><br><br>
 </div>
 
 ### 2. Get your service key
-When you create an account, we generate a service api key. You will need this API Key and account id for logging authentication. You can view those [here](https://app.arize.com/services).
+When you create an account, we generate a service api key. You will need this API Key and account id for logging authentication.
 
 
 ### 3. Instrument your code
 ### Python Client
-> If you are using our python client, add a few lines to your code to log predictions and truths. Logs are sent to Arize asynchrously. 
+If you are using our python client, add a few lines to your code to log predictions and truths. Logs are sent to Arize asynchrously. 
 
 ### Install Library
 
@@ -47,12 +47,13 @@ $ python setup.py install
 
 Initialize `arize` at the start of your sevice using your previously created Account ID and API Key
 
-> We suggest adding the API via as secrets or an environment variable
+> **_NOTE:_** We suggest adding the API KEY as secrets or an environment variable
 
 ```python
-from arize.api import AsyncAPI
+from arize.api import AsyncClient
 
-arize = AsyncAPI(account_id=1234, api_key=os.environ.get('API_KEY'))
+API_KEY = os.environ.get('ARIZE_API_KEY')
+arize = AsyncClient(account_id=1234, api_key=API_KEY)
 ```
 
 ### Collect your model input features and labels you'd like to track
@@ -80,7 +81,7 @@ arize.log(
     )
 ```
 
-> We automatically discover new models logged over time based on the model ID sent on each prediction.
+We automatically discover new models logged over time based on the model ID sent on each prediction.
 
 ### Log Truths
 ```python
@@ -90,24 +91,24 @@ arize.log(
     truth_value=True,
     )
 ```
->Once a truth for a prediction is determined, you can log those to Arize and evaluate your metrics over time. What links the truch to the original prediction is the prediction_id for a model_id
+Once a truth for a prediction is determined, you can log those to Arize and evaluate your metrics over time. What links the truch to the original prediction is the prediction_id for a model_id
 
 ### 4. Log In for Analytics
 That's it! Once your service is deployed and predictions are logged you'll be able to log into your Arize account and dive into your data. Slicing it by feature labels, models, time, etc.
 
-#### Dashboard
+#### Analytics Dashboard
 <div align="center">
-  <img src="docs/assets/arize-home.png" /><br><br>
+  <img src="docs/assets/arize-dark-Mixed-Graph.png" /><br><br>
 </div>
 
 ---
 ## Other languages
-> If you are using a different language, you'll be able to post an HTTP request to our Arize edge-servers to log your events.
+If you are using a different language, you'll be able to post an HTTP request to our Arize edge-servers to log your events.
 
 ### HTTP post request to Arize
 
 ```bash 
-curl -X POST -H "Authorization: API_KEY" "https://api.arize.com/v1/log" -d'{"prediction":{"account_id": 0, "model_id": "test_model_1", "prediction_id":"test100", "labels":{"state":"CO", "type":"restaurant"}, "prediction_value": {"binary_value": false}}}'
+curl -X POST -H "Authorization: API_KEY" "https://api.arize.com/v1/log" -d'{"account_id": 0, "model_id": "test_model_1", "prediction_id":"test100", "prediction":{"labels":{"state":"CO", "type":"restaurant"}, "prediction_value": {"binary_value": false}}}'
 ```
 ---
 ## Contributing

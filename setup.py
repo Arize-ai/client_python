@@ -4,7 +4,7 @@ from os import path
 
 import sys
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 if sys.version_info < (3, 7):
     sys.exit('Sorry, Python < 3.7 is not supported')

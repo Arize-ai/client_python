@@ -2,13 +2,13 @@ import random
 import time
 import functools 
 
-from arize.api import API
+from arize.api import Client
 
 ITERATIONS = 10
 CALLS = 10
 times = []
 
-arize = API(account_id=0, api_key='0000', uri='https://dev.arize.com/v1/log')
+arize = Client(account_id=0, api_key='0000', uri='https://dev.arize.com/v1/log')
 
 for j in range(ITERATIONS) :
     start = time.time() * 1000

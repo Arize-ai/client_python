@@ -9,9 +9,9 @@ from google.protobuf.json_format import MessageToDict
 
 from arize import protocol_pb2 as protocol__pb2
 
-class API(object):
+class Client(object):
     """ 
-    Synchronous API class to report model predictions and latent truths to Arize AI platform
+    Synchronous API Client to report model predictions and latent truths to Arize AI platform
     """
     def __init__(self, api_key: str, account_id: int, uri='https://api.arize.com/v1/log', retry_attempts=3, timeout=200):
         """
@@ -49,41 +49,33 @@ class API(object):
             self._handle_exception(err) 
 
     def _build_record(self, model_id, prediction_id, prediction_value=None, truth_value=None, labels=None):
-        record = None
         if prediction_value:
             record = self._build_prediction_record(
-                model_id = model_id,
-                prediction_id = prediction_id,
                 prediction_value = prediction_value,
                 labels = labels
             )
         elif truth_value:
             record = self._build_truth_record(
-                model_id = model_id,
-                prediction_id = prediction_id,
                 truth_value = truth_value
             )
-        if record is None:
+        else:
             raise ValueError('prediction_value or truth_value must be present')
+        record.account_id = self._account_id
+        record.model_id = model_id
+        record.prediction_id = prediction_id
         return record
 
-    def _build_prediction_record(self, model_id, prediction_id, prediction_value=None, labels=None):
+    def _build_prediction_record(self, prediction_value=None, labels=None):
         prediction =  protocol__pb2.Prediction(
             timestamp = self._get_time(),
-            account_id = self._account_id,
-            model_id = model_id,
-            prediction_id = prediction_id,
             prediction_value = self._get_value(prediction_value),
             labels = labels
         )
         return protocol__pb2.Record(prediction=prediction)
 
-    def _build_truth_record(self, model_id, prediction_id, truth_value=None):
+    def _build_truth_record(self, truth_value=None):
         truth = protocol__pb2.Truth(
             timestamp = self._get_time(),
-            account_id = self._account_id,
-            model_id = model_id,
-            prediction_id = prediction_id,
             truth_value = self._get_value(truth_value)
         )
         return protocol__pb2.Record(truth=truth)
@@ -123,16 +115,16 @@ class API(object):
         return ts
 
 
-class AsyncAPI(API):
+class AsyncClient(Client):
     """ 
-    Asynchronous API class to report model predictions and latent truths to Arize AI platform
+    Asynchronous API Client to report model predictions and latent truths to Arize AI platform
     """
     def __init__(self, *args, **kwargs):
         """
             :params api_key: (str) api key associated with your account with Arize AI
             :params account_id: (str) account id in Arize AI
         """
-        super(AsyncAPI, self).__init__(*args,**kwargs)
+        super(AsyncClient, self).__init__(*args,**kwargs)
         self._session = None
         self._loop = get_event_loop()
     

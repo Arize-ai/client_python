@@ -13,22 +13,22 @@ expected = {'model':'model_v0',
 
 def test_api_initialization():
     try:
-        api.API()
+        api.Client()
     except Exception as e:
         assert isinstance(e, TypeError)
 
     try:
-        api.API(api_key='test')
+        api.Client(api_key='test')
     except Exception as client_id_exception:
         assert isinstance(client_id_exception, TypeError)
     
     try:
-        api.API(account_id='test')
+        api.Client(account_id='test')
     except Exception as account_id_exception:
         assert isinstance(account_id_exception, TypeError)
 
 def setup_client():
-    return api.API(account_id=expected['account_id'], api_key=expected['api_key'])
+    return api.Client(account_id=expected['account_id'], api_key=expected['api_key'])
 
 def test_build_record_binary_prediction():
 
@@ -39,8 +39,9 @@ def test_build_record_binary_prediction():
     assert type(record.prediction) == protocol__pb2.Prediction
     assert type(record.prediction.prediction_value) == protocol__pb2.Value
 
-    assert record.prediction.account_id == 1234
-    assert record.prediction.model_id == expected['model']
+    assert record.account_id == expected['account_id']
+    assert record.model_id == expected['model']
+    assert record.prediction_id == expected['prediction_id']
     assert record.prediction.labels == expected['label']
     assert record.prediction.prediction_value.binary_value == expected['value_binary']
 
@@ -53,8 +54,9 @@ def test_build_record_categorical_prediction():
     assert type(record.prediction) == protocol__pb2.Prediction
     assert type(record.prediction.prediction_value) == protocol__pb2.Value
 
-    assert record.prediction.account_id == 1234
-    assert record.prediction.model_id == expected['model']
+    assert record.account_id == expected['account_id']
+    assert record.model_id == expected['model']
+    assert record.prediction_id == expected['prediction_id']
     assert record.prediction.labels == expected['label']
     assert record.prediction.prediction_value.categorical_value == expected['value_categorical']
 
@@ -67,8 +69,9 @@ def test_build_record_numeric_prediction():
     assert type(record.prediction) == protocol__pb2.Prediction
     assert type(record.prediction.prediction_value) == protocol__pb2.Value
     
-    assert record.prediction.account_id == 1234
-    assert record.prediction.model_id == expected['model']
+    assert record.account_id == expected['account_id']
+    assert record.model_id == expected['model']
+    assert record.prediction_id == expected['prediction_id']
     assert record.prediction.labels == expected['label']
     assert record.prediction.prediction_value.numeric_value == expected['value_numeric']
 
@@ -81,8 +84,9 @@ def test_build_record_numeric_truth():
     assert type(record.truth) == protocol__pb2.Truth
     assert type(record.truth.truth_value) == protocol__pb2.Value
 
-    assert record.truth.account_id == 1234
-    assert record.truth.model_id == expected['model']
+    assert record.account_id == expected['account_id']
+    assert record.model_id == expected['model']
+    assert record.prediction_id == expected['prediction_id']
     assert record.truth.truth_value.numeric_value == expected['value_numeric']
 
 def test_build_record_categorical_truth():
@@ -94,8 +98,9 @@ def test_build_record_categorical_truth():
     assert type(record.truth) == protocol__pb2.Truth
     assert type(record.truth.truth_value) == protocol__pb2.Value
     
-    assert record.truth.account_id == 1234
-    assert record.truth.model_id == expected['model']
+    assert record.account_id == expected['account_id']
+    assert record.model_id == expected['model']
+    assert record.prediction_id == expected['prediction_id']
     assert record.truth.truth_value.categorical_value == expected['value_categorical']
 
 def test_build_record_binary_truth():
@@ -107,8 +112,9 @@ def test_build_record_binary_truth():
     assert type(record.truth) == protocol__pb2.Truth
     assert type(record.truth.truth_value) == protocol__pb2.Value
     
-    assert record.truth.account_id == 1234
-    assert record.truth.model_id == expected['model']
+    assert record.account_id == expected['account_id']
+    assert record.model_id == expected['model']
+    assert record.prediction_id == expected['prediction_id']
     assert record.truth.truth_value.binary_value == expected['value_binary']
 
 def test_build_record_no_value():
