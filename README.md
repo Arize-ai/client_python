@@ -47,13 +47,13 @@ $ python setup.py install
 
 Initialize `arize` at the start of your sevice using your previously created Account ID and API Key
 
-> **_NOTE:_** We suggest adding the API KEY as secrets or an environment variable
+> **_NOTE:_** We suggest adding the API KEY as secrets or an environment variable.
 
 ```python
 from arize.api import AsyncClient
 
 API_KEY = os.environ.get('ARIZE_API_KEY')
-arize = AsyncClient(account_id=1234, api_key=API_KEY)
+arize = AsyncClient(account_id=1234, api_key=API_KEY, uri='https://dev.arize.com/v1/log')
 ```
 
 ### Collect your model input features and labels you'd like to track
@@ -108,7 +108,7 @@ If you are using a different language, you'll be able to post an HTTP request to
 ### HTTP post request to Arize
 
 ```bash 
-curl -X POST -H "Authorization: API_KEY" "https://api.arize.com/v1/log" -d'{"account_id": 0, "model_id": "test_model_1", "prediction_id":"test100", "prediction":{"labels":{"state":"CO", "type":"restaurant"}, "prediction_value": {"binary_value": false}}}'
+curl -X POST -H "Authorization: API_KEY" "https://dev.arize.com/v1/log" -d'{"account_id": 0, "model_id": "test_model_1", "prediction_id":"test100", "prediction":{"labels":{"state":"CO", "type":"restaurant"}, "prediction_value": {"binary_value": false}}}'
 ```
 ---
 ## Contributing
