@@ -98,7 +98,7 @@ That's it! Once your service is deployed and predictions are logged you'll be ab
 
 #### Analytics Dashboard
 <div align="center">
-  <img src="docs/assets/arize-dark-Mixed-Graph.png" /><br><br>
+  <img src="docs/assets/arize-home.png" /><br><br>
 </div>
 
 ---
