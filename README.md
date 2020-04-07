@@ -74,7 +74,8 @@ labels = {
 ### Log Predictions
 ```python
 arize.log(
-    model_id='sample-model-v1.43.56',
+    model_id='sample-model-1',
+    model_version='v1.23.64', //Optional
     prediction_id='plED4eERDCasd9797ca34',
     prediction_value=True,
     labels=labels,
@@ -86,7 +87,7 @@ We automatically discover new models logged over time based on the model ID sent
 ### Log Truths
 ```python
 arize.log(
-    model_id='sample-model-v1.43.56',
+    model_id='sample-model-1',
     prediction_id='plED4eERDCasd9797ca34',
     truth_value=True,
     )
@@ -108,7 +109,7 @@ If you are using a different language, you'll be able to post an HTTP request to
 ### HTTP post request to Arize
 
 ```bash 
-curl -X POST -H "Authorization: API_KEY" "https://dev.arize.com/v1/log" -d'{"account_id": 0, "model_id": "test_model_1", "prediction_id":"test100", "prediction":{"labels":{"state":"CO", "type":"restaurant"}, "prediction_value": {"binary_value": false}}}'
+curl -X POST -H "Authorization: API_KEY" "https://dev.arize.com/v1/log" -d'{"account_id": 0, "model_id": "test_model_1", "prediction_id":"test100", "prediction":{"model_version": "v1.23.64", "labels":{"state":"CO", "type":"restaurant"}, "prediction_value": {"binary_value": false}}}'
 ```
 ---
 ## Contributing

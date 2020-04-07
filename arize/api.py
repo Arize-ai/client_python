@@ -25,18 +25,19 @@ class Client(object):
         self._timeout = timeout
         self._LOGGER = logging.getLogger(__name__)
 
-    def log(self, model_id: str, prediction_id: str, prediction_value=None, truth_value=None, labels=None):
+    def log(self, model_id: str, prediction_id: str, model_version=None, prediction_value=None, truth_value=None, labels=None):
         """ 
         :param model_id: (str) Unique identifier for a given model.
         :param prediction_id: (str) Unique indetifier for specific prediction. This is the key which latent truth events must tie back to.
-        :param prediction_value: (bool | str | float | int) Mutually exclusive with truth_value. Output value for prediction (or latent truth).
-        :param truth_value: See prediction_value.
+        :param model_version: (str) Optional field used to group together a subset of predictions and truths for a given model_id.
+        :param prediction_value: Mutually exclusive to truth_value. Output value for prediction (or latent truth). Can be bool, str, float, int.
+        :param truth_value: Mutually exclusive to prediction_value. Latent truth value. Must be same type as original prediction_value (related by prediction_id).
         :param labels: (str, str) String dictionary containing prediction labels and/or metadata
         """
         try:
             assert model_id, 'model_id must be present when logging an event'
             assert prediction_id, 'prediction_id must be present when logging an event'
-            record = self._build_record(model_id, prediction_id, prediction_value, truth_value, labels)
+            record = self._build_record(model_id, prediction_id, model_version, prediction_value, truth_value, labels)
             json_record = MessageToDict(message=record, including_default_value_fields=False, preserving_proto_field_name=True)
             response = requests.post(
                 self._uri,
@@ -48,9 +49,10 @@ class Client(object):
         except Exception as err:
             self._handle_exception(err) 
 
-    def _build_record(self, model_id, prediction_id, prediction_value=None, truth_value=None, labels=None):
+    def _build_record(self, model_id: str, prediction_id: str, model_version=None, prediction_value=None, truth_value=None, labels=None):
         if prediction_value:
             record = self._build_prediction_record(
+                model_version = model_version,
                 prediction_value = prediction_value,
                 labels = labels
             )
@@ -65,15 +67,16 @@ class Client(object):
         record.prediction_id = prediction_id
         return record
 
-    def _build_prediction_record(self, prediction_value=None, labels=None):
+    def _build_prediction_record(self, model_version, prediction_value, labels):
         prediction =  protocol__pb2.Prediction(
             timestamp = self._get_time(),
+            model_version = model_version,
             prediction_value = self._get_value(prediction_value),
             labels = labels
         )
         return protocol__pb2.Record(prediction=prediction)
 
-    def _build_truth_record(self, truth_value=None):
+    def _build_truth_record(self, truth_value):
         truth = protocol__pb2.Truth(
             timestamp = self._get_time(),
             truth_value = self._get_value(truth_value)
@@ -145,18 +148,19 @@ class AsyncClient(Client):
             if response.status != 200:
                 self._LOGGER.error(f'Response Error: {response}')
 
-    def log(self, model_id: str, prediction_id: str, prediction_value=None, truth_value=None, labels=None):
+    def log(self, model_id: str, prediction_id: str, model_version=None, prediction_value=None, truth_value=None, labels=None):
         """ 
         :param model_id: (str) Unique identifier for a given model.
         :param prediction_id: (str) Unique indetifier for specific prediction. This is the key which latent truth events must tie back to.
-        :param prediction_value: Mutually exclusive with truth_value. Output value for prediction (or latent truth). Can be bool, str, float, int.
-        :param truth_value: See prediction_value.
+        :param model_version: (str) Optional field used to group together a subset of predictions and truths for a given model_id.
+        :param prediction_value: Mutually exclusive to truth_value. Output value for prediction (or latent truth). Can be bool, str, float, int.
+        :param truth_value: Mutually exclusive to prediction_value. Latent truth value. Must be same type as original prediction_value (related by prediction_id).
         :param labels: (string, string) String dictionary containing prediction labels and/or metadata
         """
         try: 
             assert model_id, 'model_id must be present when logging an event'
             assert prediction_id, 'prediction_id must be present when logging an event'
-            record = self._build_record(model_id, prediction_id, prediction_value, truth_value, labels)
+            record = self._build_record(model_id, prediction_id, model_version, prediction_value, truth_value, labels)
             json_record = MessageToDict(message=record, including_default_value_fields=False, preserving_proto_field_name=True)
             self._loop.run_until_complete(self._post(json_record))
         except Exception as err:
