@@ -4,10 +4,10 @@ from os import path
 
 import sys
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
-if sys.version_info < (3, 7):
-    sys.exit('Sorry, Python < 3.7 is not supported')
+if sys.version_info < (3, 5, 3):
+    sys.exit('Sorry, Python < 3.5.3 is not supported')
 
 # Get the long description from the README file
 with open('README.md', encoding='utf-8') as f:
@@ -34,7 +34,7 @@ setup(
     author='Arize AI',
     author_email='support@arize.com',
     license='BSD',
-    python_requires='>=3.7',
+    python_requires='>=3.5.3',
     classifiers=[
       'Development Status :: 3 - Alpha',
       'Intended Audience :: Developers',
