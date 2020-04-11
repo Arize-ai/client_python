@@ -1,5 +1,6 @@
 import logging
 import requests
+import nest_asyncio
 from requests.exceptions import HTTPError
 from aiohttp import ClientSession, ClientResponseError, ClientTimeout
 from asyncio import get_event_loop
@@ -127,10 +128,13 @@ class AsyncClient(Client):
             :params api_key: (str) api key associated with your account with Arize AI
             :params account_id: (str) account id in Arize AI
         """
-        super(AsyncClient, self).__init__(*args,**kwargs)
+        super(AsyncClient, self).__init__(*args, **kwargs)
+        loop = get_event_loop()
+        if loop.is_running():
+            nest_asyncio.apply()
         self._session = None
-        self._loop = get_event_loop()
-    
+        self._loop = loop
+
     async def _get_session(self):
         if self._session is None:
             timeout = ClientTimeout(total=60)
