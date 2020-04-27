@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/assets/arize-logo-white.jpg" width="600" /><br><br>
+  <img src="https://storage.googleapis.com/arize-public/assets/arize-logo-white.jpg" width="600" /><br><br>
 </div>
 
 Arize AI [![PyPI version](https://badge.fury.io/py/arize.svg)](https://badge.fury.io/py/arize) ![CI](https://github.com/Arize-ai/arize/workflows/CI/badge.svg)
@@ -18,7 +18,7 @@ Start logging with the following steps.
 Sign up for a free account by reaching out to <contacts@arize.com>.
 
 <div align="center">
-  <img src="docs/assets/arize-home.png" /><br><br>
+  <img src="https://storage.googleapis.com/arize-public/assets/arize-home.png" /><br><br>
 </div>
 
 ### 2. Get your service key
@@ -52,20 +52,23 @@ Initialize `arize` at the start of your sevice using your previously created Acc
 ```python
 from arize.api import AsyncClient
 
-API_KEY = os.environ.get('ARIZE_API_KEY')
+API_KEY = os.environ.get('ARIZE_API_KEY') #If passing api_key via env vars
+
 arize = AsyncClient(account_id=1234, api_key=API_KEY, uri='https://dev.arize.com/v1/log')
 ```
 
 ### Collect your model input features and labels you'd like to track
 
-You can track all input features used to at prediction time by logging it via a string:string dictionary.
+You can track all input features used to at prediction time by logging it via a key:value dictionary.
 
 ```python
 labels = {
     'state': 'ca',
     'city': 'berkeley',
-    'lat': '37.8717',
-    'lng': '-122.2579',
+    'lat': 37.8717,
+    'lng': -122.2579,
+    'pos_approved': True,
+    'item_count': 10,
     'merchant_type': 'educational',
     'charge_amount': '20.11',
     }
@@ -75,7 +78,7 @@ labels = {
 ```python
 arize.log(
     model_id='sample-model-1',
-    model_version='v1.23.64', //Optional
+    model_version='v1.23.64', ## Optional
     prediction_id='plED4eERDCasd9797ca34',
     prediction_value=True,
     labels=labels,
@@ -99,7 +102,7 @@ That's it! Once your service is deployed and predictions are logged you'll be ab
 
 #### Analytics Dashboard
 <div align="center">
-  <img src="docs/assets/arize-home.png" /><br><br>
+  <img src="https://storage.googleapis.com/arize-public/assets/arize-home.png" /><br><br>
 </div>
 
 ---
@@ -109,7 +112,7 @@ If you are using a different language, you'll be able to post an HTTP request to
 ### HTTP post request to Arize
 
 ```bash 
-curl -X POST -H "Authorization: API_KEY" "https://dev.arize.com/v1/log" -d'{"account_id": 0, "model_id": "test_model_1", "prediction_id":"test100", "prediction":{"model_version": "v1.23.64", "labels":{"state":"CO", "type":"restaurant"}, "prediction_value": {"binary_value": false}}}'
+curl -X POST -H "Authorization: API_KEY" "https://dev.arize.com/v1/log" -d'{"account_id": 0, "model_id": "test_model_1", "prediction_id":"test100", "prediction":{"model_version": "v1.23.64", "labels":{"state":{"string_label": "CO"}, "item_count":{"int_label": 10}, "charge_amt":{"label_float": 12.34}, "physical_card":{"string_label": true}}, "prediction_value": {"binary_value": false}}}'
 ```
 ---
 ## Contributing
