@@ -46,7 +46,7 @@ def setup_client():
                       api_key=expected['api_key'])
 
 
-def test_build_record_binary_prediction():
+def test_build_record_labels():
 
     client = setup_client()
     record = client._build_record(model_id=expected['model'],
@@ -70,10 +70,14 @@ def test_build_record_binary_prediction():
     assert record.prediction.prediction_value.binary_value == expected[
         'value_binary']
 
-    assert record.prediction.labels['label_bool'] == BOOL_VAL
-    assert record.prediction.labels['label_str'] == STR_VAL
-    assert record.prediction.labels['label_float'] == NUM_VAL
-    assert record.prediction.labels['label_int'] == INT_VAL
+    assert record.prediction.labels['label_bool'].WhichOneof(
+        'label_value') == 'string_label'
+    assert record.prediction.labels['label_str'].WhichOneof(
+        'label_value') == 'string_label'
+    assert record.prediction.labels['label_float'].WhichOneof(
+        'label_value') == 'double_label'
+    assert record.prediction.labels['label_int'].WhichOneof(
+        'label_value') == 'int_label'
 
 
 def test_build_record_binary_prediction():
