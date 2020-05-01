@@ -1,9 +1,5 @@
 import logging
-import requests
-import nest_asyncio
-from requests.exceptions import HTTPError
-from aiohttp import ClientSession, ClientResponseError, ClientTimeout
-from asyncio import get_event_loop
+from requests_futures.sessions import FuturesSession
 
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.protobuf.json_format import MessageToDict
@@ -13,7 +9,7 @@ from arize import protocol_pb2 as protocol__pb2
 
 class Client(object):
     """ 
-    Synchronous API Client to report model predictions and latent truths to Arize AI platform
+    Arize API Client to report model predictions and latent truths to Arize AI platform
     """
 
     def __init__(self,
@@ -32,6 +28,7 @@ class Client(object):
         self._account_id = account_id
         self._timeout = timeout
         self._LOGGER = logging.getLogger(__name__)
+        self._session = FuturesSession()
 
     def log(self,
             model_id: str,
@@ -40,13 +37,14 @@ class Client(object):
             prediction_value=None,
             truth_value=None,
             labels=None):
-        """ 
+        """ Logs an event with Arize via a POST request. Returns :class:`Future` object.
         :param model_id: (str) Unique identifier for a given model.
         :param prediction_id: (str) Unique indetifier for specific prediction. This is the key which latent truth events must tie back to.
         :param model_version: (str) Optional field used to group together a subset of predictions and truths for a given model_id.
         :param prediction_value: Mutually exclusive to truth_value. Output value for prediction (or latent truth). Can be bool, str, float, int.
         :param truth_value: Mutually exclusive to prediction_value. Latent truth value. Must be same type as original prediction_value (related by prediction_id).
         :param labels: (str, <value>) Dictionary containing prediction labels and/or metadata. Keys must be strings, values oneof string, boolean, float, long.
+        :rtype : concurrent.futures.Future
         """
         try:
             assert model_id, 'model_id must be present when logging an event'
@@ -56,11 +54,12 @@ class Client(object):
             json_record = MessageToDict(message=record,
                                         including_default_value_fields=False,
                                         preserving_proto_field_name=True)
-            response = requests.post(self._uri,
-                                     headers={'Authorization': self._api_key},
-                                     timeout=self._timeout,
-                                     json=json_record)
-            response.raise_for_status()
+            response = self._session.post(
+                self._uri,
+                headers={'Authorization': self._api_key},
+                timeout=self._timeout,
+                json=json_record)
+            return response
         except Exception as err:
             self._handle_exception(err)
 
@@ -107,13 +106,7 @@ class Client(object):
     # TODO(gabe): Instrument metrics and expose to client
     def _handle_exception(self, err):
         type_ = type(err)
-        if type_ is HTTPError:
-            self._LOGGER.error(f"Http error, while executing request {err}")
-        elif type_ is ClientResponseError:
-            if err.status == 403:
-                self._LOGGER.error(
-                    f'Invalid API key for account_id {self._account_id}: {err}')
-        elif type_ is TypeError:
+        if type_ is TypeError:
             self._LOGGER.error(f'Type error: {err}')
         elif type_ is AssertionError:
             self._LOGGER.error(f'Assertion error: {err}')
@@ -151,64 +144,3 @@ class Client(object):
         ts = Timestamp()
         ts.GetCurrentTime()
         return ts
-
-
-class AsyncClient(Client):
-    """ 
-    Asynchronous API Client to report model predictions and latent truths to Arize AI platform
-    """
-
-    def __init__(self, *args, **kwargs):
-        """
-            :params api_key: (str) api key associated with your account with Arize AI
-            :params account_id: (str) account id in Arize AI
-        """
-        super(AsyncClient, self).__init__(*args, **kwargs)
-        loop = get_event_loop()
-        if loop.is_running():
-            nest_asyncio.apply()
-        self._session = None
-        self._loop = loop
-
-    async def _get_session(self):
-        if self._session is None:
-            timeout = ClientTimeout(total=60)
-            self._session = ClientSession(timeout=timeout,
-                                          raise_for_status=True)
-        return self._session
-
-    async def _post(self, json_record):
-        session = await self._get_session()
-        async with session.post(self._uri,
-                                headers={'Authorization': self._api_key},
-                                timeout=self._timeout,
-                                json=json_record) as response:
-            if response.status != 200:
-                self._LOGGER.error(f'Response Error: {response}')
-
-    def log(self,
-            model_id: str,
-            prediction_id: str,
-            model_version=None,
-            prediction_value=None,
-            truth_value=None,
-            labels=None):
-        """ 
-        :param model_id: (str) Unique identifier for a given model.
-        :param prediction_id: (str) Unique indetifier for specific prediction. This is the key which latent truth events must tie back to.
-        :param model_version: (str) Optional field used to group together a subset of predictions and truths for a given model_id.
-        :param prediction_value: Mutually exclusive to truth_value. Output value for prediction (or latent truth). Can be bool, str, float, int.
-        :param truth_value: Mutually exclusive to prediction_value. Latent truth value. Must be same type as original prediction_value (related by prediction_id).
-        :param labels: (str, <value>) Dictionary containing prediction labels and/or metadata. Keys must be strings, values oneof string, boolean, float, long.
-        """
-        try:
-            assert model_id, 'model_id must be present when logging an event'
-            assert prediction_id, 'prediction_id must be present when logging an event'
-            record = self._build_record(model_id, prediction_id, model_version,
-                                        prediction_value, truth_value, labels)
-            json_record = MessageToDict(message=record,
-                                        including_default_value_fields=False,
-                                        preserving_proto_field_name=True)
-            self._loop.run_until_complete(self._post(json_record))
-        except Exception as err:
-            self._handle_exception(err)

@@ -1,0 +1,29 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@python_deps//:requirements.bzl", "requirement")
+
+py_library(
+    name = "arize",
+    srcs = ["arize/api.py","arize/protocol_pb2.py"],
+    deps = [
+        requirement("requests_futures"),
+        requirement("googleapis-common-protos"),
+        requirement("protobuf"),
+    ],
+)
+
+py_test(
+    name = "test_api",
+    srcs = ["tests/test_api.py"],
+    deps = [":arize"],
+    imports = ["."],
+    main = "test_api.py",
+)
+
+
+### Examples
+py_library(
+    name = "client",
+    srcs = ["arize/examples/client.py"],
+    deps = [":arize"],
+)

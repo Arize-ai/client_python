@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://storage.googleapis.com/arize-public/assets/arize-logo-white.jpg" width="600" /><br><br>
+  <img src="https://storage.googleapis.com/arize-assets/arize-logo-white.jpg" width="600" /><br><br>
 </div>
 
 Arize AI [![PyPI version](https://badge.fury.io/py/arize.svg)](https://badge.fury.io/py/arize) ![CI](https://github.com/Arize-ai/arize/workflows/CI/badge.svg)
@@ -18,7 +18,7 @@ Start logging with the following steps.
 Sign up for a free account by reaching out to <contacts@arize.com>.
 
 <div align="center">
-  <img src="https://storage.googleapis.com/arize-public/assets/arize-home.png" /><br><br>
+  <img src="https://storage.googleapis.com/arize-assets/arize-home.png" /><br><br>
 </div>
 
 ### 2. Get your service key
@@ -50,7 +50,7 @@ Initialize `arize` at the start of your sevice using your previously created Acc
 > **_NOTE:_** We suggest adding the API KEY as secrets or an environment variable.
 
 ```python
-from arize.api import AsyncClient
+from arize.api import Client
 
 API_KEY = os.environ.get('ARIZE_API_KEY') #If passing api_key via env vars
 
@@ -76,20 +76,25 @@ labels = {
 
 ### Log Predictions
 ```python
-arize.log(
+## Returns a concurrent.futures.Future
+response = arize.log(
     model_id='sample-model-1',
     model_version='v1.23.64', ## Optional
     prediction_id='plED4eERDCasd9797ca34',
     prediction_value=True,
     labels=labels,
     )
+
+## NB: This is a blocking call
+res = response.result()
 ```
+Arize log returns a response future object for asyncronous behavior. To capture the logging response, you can await the resolved future. If you desire a fire-and-forget pattern you can disreguard the reponse altogether.
 
 We automatically discover new models logged over time based on the model ID sent on each prediction.
 
 ### Log Truths
 ```python
-arize.log(
+response = arize.log(
     model_id='sample-model-1',
     prediction_id='plED4eERDCasd9797ca34',
     truth_value=True,
@@ -102,7 +107,7 @@ That's it! Once your service is deployed and predictions are logged you'll be ab
 
 #### Analytics Dashboard
 <div align="center">
-  <img src="https://storage.googleapis.com/arize-public/assets/arize-home.png" /><br><br>
+  <img src="https://storage.googleapis.com/arize-assets/arize-home.png" /><br><br>
 </div>
 
 ---

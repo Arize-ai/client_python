@@ -3,15 +3,15 @@
 # C extensions
 *.so
 
-# pycharm
+# IDEs
 .idea/
-.idea
+.vscode/
 
 # Packages
 *.egg
 *.egg-info
+.eggs/
 build
-eggs
 parts
 bin
 var
@@ -39,3 +39,5 @@ docs/_build
 
 # Cookiecutter
 output/
+
+.workon
