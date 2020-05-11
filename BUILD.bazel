@@ -4,7 +4,10 @@ load("@python_deps//:requirements.bzl", "requirement")
 
 py_library(
     name = "arize",
-    srcs = ["arize/api.py","arize/protocol_pb2.py"],
+    srcs = [
+        "arize/api.py",
+        "arize/protocol_pb2.py",
+    ],
     deps = [
         requirement("requests_futures"),
         requirement("googleapis-common-protos"),
@@ -19,7 +22,6 @@ py_test(
     imports = ["."],
     main = "test_api.py",
 )
-
 
 ### Examples
 py_library(

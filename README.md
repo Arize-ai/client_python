@@ -54,7 +54,7 @@ from arize.api import Client
 
 API_KEY = os.environ.get('ARIZE_API_KEY') #If passing api_key via env vars
 
-arize = AsyncClient(account_id=1234, api_key=API_KEY, uri='https://dev.arize.com/v1/log')
+arize = Client(account_id=1234, api_key=API_KEY, uri='https://dev.arize.com/v1/log')
 ```
 
 ### Collect your model input features and labels you'd like to track
