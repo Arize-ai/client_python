@@ -4,7 +4,7 @@ import arize.protocol_pb2 as protocol__pb2
 NUM_VAL = 20.20
 STR_VAL = 'arize'
 BOOL_VAL = True
-INT_VAL = 10
+INT_VAL = 0
 
 expected = {
     'model': 'model_v0',

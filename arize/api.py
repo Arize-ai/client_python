@@ -8,7 +8,7 @@ from arize import protocol_pb2 as protocol__pb2
 
 
 class Client(object):
-    """ 
+    """
     Arize API Client to report model predictions and latent truths to Arize AI platform
     """
 
@@ -70,12 +70,12 @@ class Client(object):
                       prediction_value=None,
                       truth_value=None,
                       labels=None):
-        if prediction_value:
+        if prediction_value is not None:
             record = self._build_prediction_record(
                 model_version=model_version,
                 prediction_value=prediction_value,
                 labels=labels)
-        elif truth_value:
+        elif truth_value is not None:
             record = self._build_truth_record(truth_value=truth_value)
         else:
             raise ValueError('prediction_value or truth_value must be present')
