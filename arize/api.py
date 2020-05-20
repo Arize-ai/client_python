@@ -5,22 +5,27 @@ from google.protobuf.timestamp_pb2 import Timestamp
 from google.protobuf.json_format import MessageToDict
 
 from arize import protocol_pb2 as protocol__pb2
+from arize.bounded_executor import BoundedExecutor
 
 
 class Client(object):
     """
     Arize API Client to report model predictions and latent truths to Arize AI platform
     """
-
     def __init__(self,
                  api_key: str,
                  account_id: int,
                  uri='https://api.arize.com/v1/log',
+                 max_workers=40,
+                 max_queue_bound=5000,
                  retry_attempts=3,
                  timeout=200):
         """
             :params api_key: (str) api key associated with your account with Arize AI
             :params account_id: (int) account id in Arize AI
+            :params max_workers: (int) number of max concurrent requests to Arize. Default: 40
+            :max_queue_bound: (int) number of maximum concurrent future objects being generated for publishing to Arize. Default: 5000
+
         """
         self._retry_attempts = retry_attempts
         self._uri = uri
@@ -28,7 +33,8 @@ class Client(object):
         self._account_id = account_id
         self._timeout = timeout
         self._LOGGER = logging.getLogger(__name__)
-        self._session = FuturesSession()
+        self._session = FuturesSession(
+            executor=BoundedExecutor(max_queue_bound, max_workers))
 
     def log(self,
             model_id: str,
@@ -78,29 +84,33 @@ class Client(object):
         elif truth_value is not None:
             record = self._build_truth_record(truth_value=truth_value)
         else:
-            raise ValueError('prediction_value or truth_value must be present')
+            raise ValueError(
+                'prediction_value or truth_value must be present. Values passed in as NoneType'
+            )
         record.account_id = self._account_id
         record.model_id = model_id
         record.prediction_id = prediction_id
         return record
 
-    def _build_prediction_record(self, model_version, prediction_value, labels):
+    def _build_prediction_record(self, model_version, prediction_value,
+                                 labels):
         prediction = protocol__pb2.Prediction(
             timestamp=self._get_time(),
             model_version=model_version,
-            prediction_value=self._get_value(prediction_value),
+            prediction_value=self._get_value(prediction_value, True),
             labels=self._build_label_map(labels))
         return protocol__pb2.Record(prediction=prediction)
 
     def _build_label_map(self, labels):
         formatted_labels = {}
         for k, v in labels.items():
-            formatted_labels[k] = self._get_label_value(v)
+            formatted_labels[k] = self._get_label_value(v, k)
         return formatted_labels
 
     def _build_truth_record(self, truth_value):
         truth = protocol__pb2.Truth(timestamp=self._get_time(),
-                                    truth_value=self._get_value(truth_value))
+                                    truth_value=self._get_value(
+                                        truth_value, False))
         return protocol__pb2.Record(truth=truth)
 
     # TODO(gabe): Instrument metrics and expose to client
@@ -116,31 +126,45 @@ class Client(object):
             self._LOGGER.error(f'Unexpected error occured: {err}')
 
     @staticmethod
-    def _get_value(value):
-        if type(value) == bool:
-            return protocol__pb2.Value(binary_value=value)
-        if type(value) == str:
-            return protocol__pb2.Value(categorical_value=value)
-        if type(value) == float or int:
-            return protocol__pb2.Value(numeric_value=value)
+    def _get_value(value, isPred):
+        val, value_type = Client._convert_value(value)
+        if value_type == bool:
+            return protocol__pb2.Value(binary_value=val)
+        if value_type == str:
+            return protocol__pb2.Value(categorical_value=val)
+        if value_type == float or int:
+            return protocol__pb2.Value(numeric_value=val)
         else:
-            raise TypeError('Value must be oneof bool, str, float/int')
+            err = None
+            if isPred:
+                err = f'Invalid prediction_value {value} of type {value_type}. Must be one of bool, str, float/int'
+            else:
+                err = f'Invalid truth_value {value} of type {value_type}. Must be one of bool, str, float/int'
+            raise TypeError(err)
 
     @staticmethod
-    def _get_label_value(label_value):
-        if type(label_value) == str:
+    def _get_label_value(value, label_name):
+        label_value, label_type = Client._convert_value(value)
+        if label_type == str:
             return protocol__pb2.Label(string_label=label_value)
-        if type(label_value) == int:
+        if label_type == int:
             return protocol__pb2.Label(int_label=label_value)
-        if type(label_value) == float:
+        if label_type == float:
             return protocol__pb2.Label(double_label=label_value)
-        if type(label_value) == bool:
+        if label_type == bool:
             return protocol__pb2.Label(string_label=str(label_value).lower())
         else:
-            raise TypeError('Label value must be oneof bool, str, float/int')
+            err = f'Invalid label_value {label_value} of type {label_type} for label "{label_name}". Must be one of bool, str, float/int.'
+            raise TypeError(err)
 
     @staticmethod
     def _get_time():
         ts = Timestamp()
         ts.GetCurrentTime()
         return ts
+
+    @staticmethod
+    def _convert_value(value):
+        converted_value = getattr(value, "tolist", lambda: value)()
+        type_ = type(converted_value)
+        return converted_value, type_

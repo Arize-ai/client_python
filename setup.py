@@ -3,7 +3,7 @@ from codecs import open
 
 import sys
 
-__version__ = '0.0.9'
+__version__ = '0.0.10'
 
 if sys.version_info < (3, 5, 3):
     sys.exit('Sorry, Python < 3.5.3 is not supported')
