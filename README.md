@@ -54,12 +54,13 @@ from arize.api import Client
 
 API_KEY = os.environ.get('ARIZE_API_KEY') #If passing api_key via env vars
 
-arize = Client(account_id=1234, api_key=API_KEY, uri='https://dev.arize.com/v1/log')
+arize = Client(account_id=1234, api_key=API_KEY, uri='https://dev.arize.com/v1')
 ```
 
 ### Collect your model input features and labels you'd like to track
 
-You can track all input features used to at prediction time by logging it via a key:value dictionary.
+#### Real-time single prediction:
+For real-time single prediction process, you can track all input features used to at prediction time by logging it via a key:value dictionary.
 
 ```python
 labels = {
@@ -74,33 +75,63 @@ labels = {
     }
 ```
 
-### Log Predictions
+#### Bulk predictions:
+When dealing with bulk predictions, you can pass in input features, prediction/truth values, and prediction_ids via a Pandas Dataframe where df.coloumns contain label names.
 ```python
-## Returns a concurrent.futures.Future
-response = arize.log(
+## e.g. labels from a CSV. Labels must be 2-D data frames where df.columns correspond to the label name
+labels = pd.read_csv('path/to/file.csv')
+
+values = pd.DataFrame(np.random.randint(1, 100, size=(labels.shape[0], 1)))
+
+ids = pd.DataFrame([str(uuid.uuid4()) for _ in range(len(values.index))])
+```
+
+### Log Predictions
+#### Single real-time precition:
+```python
+## Returns an array of concurrent.futures.Future
+responses = arize.log(
     model_id='sample-model-1',
     model_version='v1.23.64', ## Optional
-    prediction_id='plED4eERDCasd9797ca34',
-    prediction_value=True,
+    prediction_ids='plED4eERDCasd9797ca34',
+    values=True,
     labels=labels,
+    is_latent_truth=False
     )
-
-## NB: This is a blocking call
-res = response.result()
 ```
+
+#### Bulk upload:
+```python
+responses = arize.log(
+    model_id='sample-model-1',
+    model_version='v1.23.64', ## Optional
+    prediction_ids=ids,
+    values=values,
+    labels=labels,
+    is_latent_truth=False
+    )
+```
+#### Awaiting for futures to resolve (optional):
+```python
+## NB: This is a blocking call
+for response in responses:
+  res = response.result()
+```
+
 Arize log returns a response future object for asyncronous behavior. To capture the logging response, you can await the resolved future. If you desire a fire-and-forget pattern you can disreguard the reponse altogether.
 
 We automatically discover new models logged over time based on the model ID sent on each prediction.
 
-### Log Truths
+### Logging Latent Truths
 ```python
 response = arize.log(
     model_id='sample-model-1',
-    prediction_id='plED4eERDCasd9797ca34',
-    truth_value=True,
+    prediction_ids='plED4eERDCasd9797ca34',
+    values=True,
+    is_latent_truth=True
     )
 ```
-Once a truth for a prediction is determined, you can log those to Arize and evaluate your metrics over time. What links the truch to the original prediction is the prediction_id for a model_id
+Once a truth for a prediction is determined, you can send those to Arize and evaluate your metrics over time. What links the truth to the original prediction is the prediction_id for a model_id
 
 ### 4. Log In for Analytics
 That's it! Once your service is deployed and predictions are logged you'll be able to log into your Arize account and dive into your data. Slicing it by feature labels, models, time, etc.

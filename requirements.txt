@@ -1,4 +1,13 @@
 numpy==1.18.4
+pandas==1.0.3
 requests_futures==1.0.0
 googleapis-common-protos==1.51.0
 protobuf==3.11.3
+##TODO: Transitive requirements, add skylark extension to fix this issue in rules_python
+urllib3==1.25.9
+chardet==3.0.4
+certifi==2020.4.5.1
+pytz==2020.1
+python-dateutil==2.8.1
+six==1.15.0
+idna==2.9

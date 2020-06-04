@@ -20,11 +20,70 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='protocol',
   syntax='proto3',
   serialized_options=b'Z/github.com/Arize-ai/arize/pkg/receiver/protocol',
-  serialized_pb=b'\n\x0eprotocol.proto\x12\x08protocol\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\"\xaa\x01\n\x06Record\x12\x12\n\naccount_id\x18\x01 \x01(\x03\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rprediction_id\x18\x03 \x01(\t\x12*\n\nprediction\x18\x04 \x01(\x0b\x32\x14.protocol.PredictionH\x00\x12 \n\x05truth\x18\x05 \x01(\x0b\x32\x0f.protocol.TruthH\x00\x42\x15\n\x13prediction_or_truth\"i\n\x05Value\x12\x16\n\x0c\x62inary_value\x18\x01 \x01(\x08H\x00\x12\x1b\n\x11\x63\x61tegorical_value\x18\x02 \x01(\tH\x00\x12\x17\n\rnumeric_value\x18\x03 \x01(\x01H\x00\x42\x12\n\x10\x63lassifier_value\"\xef\x01\n\nPrediction\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12)\n\x10prediction_value\x18\x03 \x01(\x0b\x32\x0f.protocol.Value\x12\x30\n\x06labels\x18\x04 \x03(\x0b\x32 .protocol.Prediction.LabelsEntry\x1a>\n\x0bLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1e\n\x05value\x18\x02 \x01(\x0b\x32\x0f.protocol.Label:\x02\x38\x01\"[\n\x05Label\x12\x16\n\x0cstring_label\x18\x01 \x01(\tH\x00\x12\x13\n\tint_label\x18\x02 \x01(\x03H\x00\x12\x16\n\x0c\x64ouble_label\x18\x03 \x01(\x01H\x00\x42\r\n\x0blabel_value\"\\\n\x05Truth\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12$\n\x0btruth_value\x18\x02 \x01(\x0b\x32\x0f.protocol.Value\"\x10\n\x0eReceiverResult\"\x0f\n\rHealthRequest\"\x10\n\x0eHealthResponse2\xa5\x01\n\x08Receiver\x12\x45\n\x03Log\x12\x10.protocol.Record\x1a\x18.protocol.ReceiverResult\"\x12\x82\xd3\xe4\x93\x02\x0c\"\x07/v1/log:\x01*\x12R\n\tGetHealth\x12\x17.protocol.HealthRequest\x1a\x18.protocol.HealthResponse\"\x12\x82\xd3\xe4\x93\x02\x0c\x12\n/v1/healthB1Z/github.com/Arize-ai/arize/pkg/receiver/protocolb\x06proto3'
+  serialized_pb=b'\n\x0eprotocol.proto\x12\x08protocol\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\"\x9b\x01\n\nBulkRecord\x12\x12\n\naccount_id\x18\x01 \x01(\x03\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rmodel_version\x18\x03 \x01(\t\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12!\n\x07records\x18\x05 \x03(\x0b\x32\x10.protocol.Record\"\xaa\x01\n\x06Record\x12\x12\n\naccount_id\x18\x01 \x01(\x03\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rprediction_id\x18\x03 \x01(\t\x12*\n\nprediction\x18\x04 \x01(\x0b\x32\x14.protocol.PredictionH\x00\x12 \n\x05truth\x18\x05 \x01(\x0b\x32\x0f.protocol.TruthH\x00\x42\x15\n\x13prediction_or_truth\"i\n\x05Value\x12\x16\n\x0c\x62inary_value\x18\x01 \x01(\x08H\x00\x12\x1b\n\x11\x63\x61tegorical_value\x18\x02 \x01(\tH\x00\x12\x17\n\rnumeric_value\x18\x03 \x01(\x01H\x00\x42\x12\n\x10\x63lassifier_value\"\xef\x01\n\nPrediction\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12)\n\x10prediction_value\x18\x03 \x01(\x0b\x32\x0f.protocol.Value\x12\x30\n\x06labels\x18\x04 \x03(\x0b\x32 .protocol.Prediction.LabelsEntry\x1a>\n\x0bLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1e\n\x05value\x18\x02 \x01(\x0b\x32\x0f.protocol.Label:\x02\x38\x01\"[\n\x05Label\x12\x16\n\x0cstring_label\x18\x01 \x01(\tH\x00\x12\x13\n\tint_label\x18\x02 \x01(\x03H\x00\x12\x16\n\x0c\x64ouble_label\x18\x03 \x01(\x01H\x00\x42\r\n\x0blabel_value\"\\\n\x05Truth\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12$\n\x0btruth_value\x18\x02 \x01(\x0b\x32\x0f.protocol.Value\"\x10\n\x0eReceiverResult\"\x0f\n\rHealthRequest\"\x10\n\x0eHealthResponse2\xf5\x01\n\x08Receiver\x12\x45\n\x03Log\x12\x10.protocol.Record\x1a\x18.protocol.ReceiverResult\"\x12\x82\xd3\xe4\x93\x02\x0c\"\x07/v1/log:\x01*\x12N\n\x07\x42ulkLog\x12\x14.protocol.BulkRecord\x1a\x18.protocol.ReceiverResult\"\x13\x82\xd3\xe4\x93\x02\r\"\x08/v1/bulk:\x01*\x12R\n\tGetHealth\x12\x17.protocol.HealthRequest\x1a\x18.protocol.HealthResponse\"\x12\x82\xd3\xe4\x93\x02\x0c\x12\n/v1/healthB1Z/github.com/Arize-ai/arize/pkg/receiver/protocolb\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,google_dot_api_dot_annotations__pb2.DESCRIPTOR,])
 
 
+
+
+_BULKRECORD = _descriptor.Descriptor(
+  name='BulkRecord',
+  full_name='protocol.BulkRecord',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='account_id', full_name='protocol.BulkRecord.account_id', index=0,
+      number=1, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='model_id', full_name='protocol.BulkRecord.model_id', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='model_version', full_name='protocol.BulkRecord.model_version', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='timestamp', full_name='protocol.BulkRecord.timestamp', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='records', full_name='protocol.BulkRecord.records', index=4,
+      number=5, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=92,
+  serialized_end=247,
+)
 
 
 _RECORD = _descriptor.Descriptor(
@@ -84,8 +143,8 @@ _RECORD = _descriptor.Descriptor(
       name='prediction_or_truth', full_name='protocol.Record.prediction_or_truth',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=92,
-  serialized_end=262,
+  serialized_start=250,
+  serialized_end=420,
 )
 
 
@@ -132,8 +191,8 @@ _VALUE = _descriptor.Descriptor(
       name='classifier_value', full_name='protocol.Value.classifier_value',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=264,
-  serialized_end=369,
+  serialized_start=422,
+  serialized_end=527,
 )
 
 
@@ -170,8 +229,8 @@ _PREDICTION_LABELSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=549,
-  serialized_end=611,
+  serialized_start=707,
+  serialized_end=769,
 )
 
 _PREDICTION = _descriptor.Descriptor(
@@ -221,8 +280,8 @@ _PREDICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=372,
-  serialized_end=611,
+  serialized_start=530,
+  serialized_end=769,
 )
 
 
@@ -269,8 +328,8 @@ _LABEL = _descriptor.Descriptor(
       name='label_value', full_name='protocol.Label.label_value',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=613,
-  serialized_end=704,
+  serialized_start=771,
+  serialized_end=862,
 )
 
 
@@ -307,8 +366,8 @@ _TRUTH = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=706,
-  serialized_end=798,
+  serialized_start=864,
+  serialized_end=956,
 )
 
 
@@ -331,8 +390,8 @@ _RECEIVERRESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=800,
-  serialized_end=816,
+  serialized_start=958,
+  serialized_end=974,
 )
 
 
@@ -355,8 +414,8 @@ _HEALTHREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=818,
-  serialized_end=833,
+  serialized_start=976,
+  serialized_end=991,
 )
 
 
@@ -379,10 +438,12 @@ _HEALTHRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=835,
-  serialized_end=851,
+  serialized_start=993,
+  serialized_end=1009,
 )
 
+_BULKRECORD.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_BULKRECORD.fields_by_name['records'].message_type = _RECORD
 _RECORD.fields_by_name['prediction'].message_type = _PREDICTION
 _RECORD.fields_by_name['truth'].message_type = _TRUTH
 _RECORD.oneofs_by_name['prediction_or_truth'].fields.append(
@@ -416,6 +477,7 @@ _LABEL.oneofs_by_name['label_value'].fields.append(
 _LABEL.fields_by_name['double_label'].containing_oneof = _LABEL.oneofs_by_name['label_value']
 _TRUTH.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _TRUTH.fields_by_name['truth_value'].message_type = _VALUE
+DESCRIPTOR.message_types_by_name['BulkRecord'] = _BULKRECORD
 DESCRIPTOR.message_types_by_name['Record'] = _RECORD
 DESCRIPTOR.message_types_by_name['Value'] = _VALUE
 DESCRIPTOR.message_types_by_name['Prediction'] = _PREDICTION
@@ -425,6 +487,13 @@ DESCRIPTOR.message_types_by_name['ReceiverResult'] = _RECEIVERRESULT
 DESCRIPTOR.message_types_by_name['HealthRequest'] = _HEALTHREQUEST
 DESCRIPTOR.message_types_by_name['HealthResponse'] = _HEALTHRESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+BulkRecord = _reflection.GeneratedProtocolMessageType('BulkRecord', (_message.Message,), {
+  'DESCRIPTOR' : _BULKRECORD,
+  '__module__' : 'protocol_pb2'
+  # @@protoc_insertion_point(class_scope:protocol.BulkRecord)
+  })
+_sym_db.RegisterMessage(BulkRecord)
 
 Record = _reflection.GeneratedProtocolMessageType('Record', (_message.Message,), {
   'DESCRIPTOR' : _RECORD,
@@ -500,8 +569,8 @@ _RECEIVER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=854,
-  serialized_end=1019,
+  serialized_start=1012,
+  serialized_end=1257,
   methods=[
   _descriptor.MethodDescriptor(
     name='Log',
@@ -513,9 +582,18 @@ _RECEIVER = _descriptor.ServiceDescriptor(
     serialized_options=b'\202\323\344\223\002\014\"\007/v1/log:\001*',
   ),
   _descriptor.MethodDescriptor(
+    name='BulkLog',
+    full_name='protocol.Receiver.BulkLog',
+    index=1,
+    containing_service=None,
+    input_type=_BULKRECORD,
+    output_type=_RECEIVERRESULT,
+    serialized_options=b'\202\323\344\223\002\r\"\010/v1/bulk:\001*',
+  ),
+  _descriptor.MethodDescriptor(
     name='GetHealth',
     full_name='protocol.Receiver.GetHealth',
-    index=1,
+    index=2,
     containing_service=None,
     input_type=_HEALTHREQUEST,
     output_type=_HEALTHRESPONSE,

@@ -11,7 +11,7 @@
 *.egg
 *.egg-info
 .eggs/
-build
+# build
 parts
 bin
 var

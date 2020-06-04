@@ -7,12 +7,21 @@ py_library(
     srcs = [
         "arize/api.py",
         "arize/protocol_pb2.py",
-        "arize/bounded_executor.py"
+        "arize/bounded_executor.py",
     ],
     deps = [
         requirement("requests_futures"),
         requirement("googleapis-common-protos"),
         requirement("protobuf"),
+        requirement("numpy"),
+        requirement("pandas"),
+        requirement("pytz"),
+        requirement("python-dateutil"),
+        requirement("six"),
+        requirement("urllib3"),
+        requirement("chardet"),
+        requirement("certifi"),
+        requirement("idna"),
     ],
 )
 

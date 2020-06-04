@@ -1,4 +1,8 @@
 import logging
+import pandas as pd
+
+import math
+
 from requests_futures.sessions import FuturesSession
 
 from google.protobuf.timestamp_pb2 import Timestamp
@@ -15,103 +19,177 @@ class Client(object):
     def __init__(self,
                  api_key: str,
                  account_id: int,
-                 uri='https://api.arize.com/v1/log',
-                 max_workers=40,
+                 model_id=None,
+                 model_version=None,
+                 uri='https://api.arize.com/v1',
+                 max_workers=8,
                  max_queue_bound=5000,
                  retry_attempts=3,
                  timeout=200):
         """
             :params api_key: (str) api key associated with your account with Arize AI
             :params account_id: (int) account id in Arize AI
-            :params max_workers: (int) number of max concurrent requests to Arize. Default: 40
+            :params model_id: (str) model id
+            :params model_version: (str) model version
+            :params max_workers: (int) number of max concurrent requests to Arize. Default: 20
             :max_queue_bound: (int) number of maximum concurrent future objects being generated for publishing to Arize. Default: 5000
 
         """
         self._retry_attempts = retry_attempts
-        self._uri = uri
+        self._uri = uri + '/log'
+        self._bulk_url = uri + '/bulk'
         self._api_key = api_key
         self._account_id = account_id
+        self._model_id = model_id
+        self._model_version = model_version
         self._timeout = timeout
         self._LOGGER = logging.getLogger(__name__)
         self._session = FuturesSession(
             executor=BoundedExecutor(max_queue_bound, max_workers))
 
     def log(self,
-            model_id: str,
-            prediction_id: str,
-            model_version=None,
-            prediction_value=None,
-            truth_value=None,
-            labels=None):
+            prediction_ids,
+            values,
+            labels,
+            is_latent_truth,
+            model_id=None,
+            model_version=None):
         """ Logs an event with Arize via a POST request. Returns :class:`Future` object.
+        :param prediction_ids: (str) Unique indetifier for specific prediction. This is the key which latent truth events must tie back to. For bulk uploads, pass in a 1-D pandas df where values are ids corresponding to label values in the same index.
+        :param values: The prediction or latent truth value which can be joined via prediction id. Can be bool, str, float, int. For bulk uploads, pass in a 1-D pandas data frame where values correspond to the label values in the same index.
+        :param labels: (str, <value>) Dictionary or 2-D Pandas dataframe. containing prediction labels and/or metadata. For dict keys must be strings, values oneof string, boolean, float, long for a single prediction. For bulk uploads, pass in a 2-D pandas dataframe where df.columns contain label names.
+        :param is_latent_truth: (bool) Flag identifying if values being logged are latent truths
         :param model_id: (str) Unique identifier for a given model.
-        :param prediction_id: (str) Unique indetifier for specific prediction. This is the key which latent truth events must tie back to.
         :param model_version: (str) Optional field used to group together a subset of predictions and truths for a given model_id.
-        :param prediction_value: Mutually exclusive to truth_value. Output value for prediction (or latent truth). Can be bool, str, float, int.
-        :param truth_value: Mutually exclusive to prediction_value. Latent truth value. Must be same type as original prediction_value (related by prediction_id).
-        :param labels: (str, <value>) Dictionary containing prediction labels and/or metadata. Keys must be strings, values oneof string, boolean, float, long.
         :rtype : concurrent.futures.Future
         """
         try:
-            assert model_id, 'model_id must be present when logging an event'
-            assert prediction_id, 'prediction_id must be present when logging an event'
-            record = self._build_record(model_id, prediction_id, model_version,
-                                        prediction_value, truth_value, labels)
-            json_record = MessageToDict(message=record,
-                                        including_default_value_fields=False,
+            if values is None:
+                raise ValueError('a value is required')
+            uri = None
+            records = []
+            if model_id is None:
+                model_id = self._model_id
+            if model_version is None:
+                model_version = self._model_version
+            if isinstance(labels, pd.DataFrame):
+                uri = self._bulk_url
+                records = self._build_bulk_record(
+                    model_id=model_id,
+                    model_version=model_version,
+                    prediction_ids=prediction_ids,
+                    values=values,
+                    labels=labels,
+                    latent_truth=is_latent_truth)
+            elif isinstance(labels, dict):
+                uri = self._uri
+                records.append(
+                    self._build_record(model_id=model_id,
+                                       model_version=model_version,
+                                       prediction_id=prediction_ids,
+                                       values=values,
+                                       labels=labels,
+                                       latent_truth=is_latent_truth))
+            responses = []
+            for record in records:
+                payload = MessageToDict(message=record,
                                         preserving_proto_field_name=True)
-            response = self._session.post(
-                self._uri,
-                headers={'Authorization': self._api_key},
-                timeout=self._timeout,
-                json=json_record)
-            return response
+                response = self._session.post(
+                    uri,
+                    headers={'Authorization': self._api_key},
+                    timeout=self._timeout,
+                    json=payload)
+                responses.append(response)
+            return responses
         except Exception as err:
             self._handle_exception(err)
+
+    def _build_bulk_record(self,
+                           model_id: str,
+                           latent_truth: bool,
+                           prediction_ids=None,
+                           model_version=None,
+                           values=None,
+                           labels=None):
+        records = []
+        ids = prediction_ids.to_numpy()
+        value_df = values.applymap(lambda x: self._get_value(x)).to_numpy()
+        record = None
+        if latent_truth:
+            for i, v in enumerate(value_df):
+                truth = protocol__pb2.Truth(truth_value=v[0])
+                record = protocol__pb2.Record(prediction_id=ids[i][0],
+                                              truth=truth)
+                records.append(record)
+        else:
+            labels_df = self._build_label_map(labels).to_dict('records')
+            for i, v in enumerate(value_df):
+                pred = protocol__pb2.Prediction(
+                    prediction_value=v[0],
+                    labels=labels_df[i],
+                )
+                record = protocol__pb2.Record(prediction_id=ids[i][0],
+                                              prediction=pred)
+                records.append(record)
+        total_bytes = 0
+        for r in records:
+            total_bytes += r.ByteSize()
+        num_of_bulk = math.ceil(total_bytes / 100000)
+        recs_per_msg = math.ceil(len(records) / num_of_bulk)
+        recs = [
+            records[i:i + recs_per_msg]
+            for i in range(0, len(records), recs_per_msg)
+        ]
+        results = [
+            protocol__pb2.BulkRecord(records=r,
+                                     account_id=self._account_id,
+                                     model_id=model_id,
+                                     model_version=model_version,
+                                     timestamp=self._get_time()) for r in recs
+        ]
+        return results
 
     def _build_record(self,
                       model_id: str,
                       prediction_id: str,
+                      latent_truth: bool,
                       model_version=None,
-                      prediction_value=None,
-                      truth_value=None,
+                      values=None,
                       labels=None):
-        if prediction_value is not None:
-            record = self._build_prediction_record(
-                model_version=model_version,
-                prediction_value=prediction_value,
-                labels=labels)
-        elif truth_value is not None:
-            record = self._build_truth_record(truth_value=truth_value)
+
+        account_id = self._account_id
+        val = self._get_value(values)
+        ts = self._get_time()
+        if model_version is None:
+            model_version = self._model_version
+        if latent_truth:
+            record = self._build_truth_record(ts=ts,
+                                              account_id=account_id,
+                                              model_id=model_id,
+                                              prediction_id=prediction_id,
+                                              value=val)
         else:
-            raise ValueError(
-                'prediction_value or truth_value must be present. Values passed in as NoneType'
-            )
-        record.account_id = self._account_id
-        record.model_id = model_id
-        record.prediction_id = prediction_id
+            record = self._build_prediction_record(
+                ts=ts,
+                model_version=model_version,
+                value=val,
+                labels=self._build_label_map(labels),
+                account_id=account_id,
+                model_id=model_id,
+                prediction_id=prediction_id)
         return record
 
-    def _build_prediction_record(self, model_version, prediction_value,
-                                 labels):
-        prediction = protocol__pb2.Prediction(
-            timestamp=self._get_time(),
-            model_version=model_version,
-            prediction_value=self._get_value(prediction_value, True),
-            labels=self._build_label_map(labels))
-        return protocol__pb2.Record(prediction=prediction)
-
     def _build_label_map(self, labels):
-        formatted_labels = {}
-        for k, v in labels.items():
-            formatted_labels[k] = self._get_label_value(v, k)
+        formatted_labels = None
+        if isinstance(labels, dict):
+            formatted_labels = {
+                k: self._get_label_value(v, k)
+                for (k, v) in labels.items()
+            }
+        elif isinstance(labels, pd.DataFrame):
+            formatted_labels = labels.apply(
+                lambda y: y.apply(lambda x: self._get_label_value(x, y.name)))
         return formatted_labels
-
-    def _build_truth_record(self, truth_value):
-        truth = protocol__pb2.Truth(timestamp=self._get_time(),
-                                    truth_value=self._get_value(
-                                        truth_value, False))
-        return protocol__pb2.Record(truth=truth)
 
     # TODO(gabe): Instrument metrics and expose to client
     def _handle_exception(self, err):
@@ -126,35 +204,49 @@ class Client(object):
             self._LOGGER.error(f'Unexpected error occured: {err}')
 
     @staticmethod
-    def _get_value(value, isPred):
-        val, value_type = Client._convert_value(value)
-        if value_type == bool:
+    def _build_prediction_record(ts, model_version, value, labels, account_id,
+                                 model_id, prediction_id):
+        prediction = protocol__pb2.Prediction(timestamp=ts,
+                                              model_version=model_version,
+                                              prediction_value=value,
+                                              labels=labels)
+        return protocol__pb2.Record(account_id=account_id,
+                                    model_id=model_id,
+                                    prediction_id=prediction_id,
+                                    prediction=prediction)
+
+    @staticmethod
+    def _build_truth_record(ts, account_id, model_id, prediction_id, value):
+        truth = protocol__pb2.Truth(timestamp=ts, truth_value=value)
+        return protocol__pb2.Record(account_id=account_id,
+                                    model_id=model_id,
+                                    prediction_id=prediction_id,
+                                    truth=truth)
+
+    @staticmethod
+    def _get_value(value):
+        val = Client._convert_value(value)
+        if isinstance(val, bool):
             return protocol__pb2.Value(binary_value=val)
-        if value_type == str:
+        if isinstance(val, str):
             return protocol__pb2.Value(categorical_value=val)
-        if value_type == float or int:
+        if isinstance(val, (int, float)):
             return protocol__pb2.Value(numeric_value=val)
         else:
-            err = None
-            if isPred:
-                err = f'Invalid prediction_value {value} of type {value_type}. Must be one of bool, str, float/int'
-            else:
-                err = f'Invalid truth_value {value} of type {value_type}. Must be one of bool, str, float/int'
+            err = f'Invalid prediction value {value} of type {type(value)}. Must be one of bool, str, float/int'
             raise TypeError(err)
 
     @staticmethod
     def _get_label_value(value, label_name):
-        label_value, label_type = Client._convert_value(value)
-        if label_type == str:
-            return protocol__pb2.Label(string_label=label_value)
-        if label_type == int:
-            return protocol__pb2.Label(int_label=label_value)
-        if label_type == float:
-            return protocol__pb2.Label(double_label=label_value)
-        if label_type == bool:
-            return protocol__pb2.Label(string_label=str(label_value).lower())
+        val = Client._convert_value(value)
+        if isinstance(val, (str, bool)):
+            return protocol__pb2.Label(string_label=str(val))
+        if isinstance(val, int):
+            return protocol__pb2.Label(int_label=val)
+        if isinstance(val, float):
+            return protocol__pb2.Label(double_label=val)
         else:
-            err = f'Invalid label_value {label_value} of type {label_type} for label "{label_name}". Must be one of bool, str, float/int.'
+            err = f'Invalid value {value} of type {type(value)} for label "{label_name}". Must be one of bool, str, float/int.'
             raise TypeError(err)
 
     @staticmethod
@@ -165,6 +257,4 @@ class Client(object):
 
     @staticmethod
     def _convert_value(value):
-        converted_value = getattr(value, "tolist", lambda: value)()
-        type_ = type(converted_value)
-        return converted_value, type_
+        return getattr(value, "tolist", lambda: value)()

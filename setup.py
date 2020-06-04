@@ -1,28 +1,39 @@
 from setuptools import setup, find_packages
 from codecs import open
 
-import sys
+import sys, os
 
-__version__ = '0.0.10'
+
+def read(rel_path):
+    here = os.path.abspath(os.path.dirname(__file__))
+    with open(os.path.join(here, rel_path), encoding='utf-8') as fp:
+        return fp.read()
+
+
+def get_version(rel_path):
+    for line in read(rel_path).splitlines():
+        if line.startswith('__version__'):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    else:
+        raise RuntimeError("Unable to find version string.")
+
 
 if sys.version_info < (3, 5, 3):
     sys.exit('Sorry, Python < 3.5.3 is not supported')
 
-# Get the long description from the README file
-with open('README.md', encoding='utf-8') as f:
-    long_description = f.read()
+long_description = read('README.md')
 
 # get the dependencies and installs
-with open('requirements.txt', encoding='utf-8') as f:
-    all_reqs = f.read().splitlines()
-
-with open('requirements-dev.txt', encoding='utf-8') as f:
-    all_reqs += f.read().splitlines()
+all_reqs = read('requirements.txt').splitlines()
+all_reqs += read('requirements-dev.txt').splitlines()
 
 install_requires = [x.strip() for x in all_reqs if 'git+' not in x]
 dependency_links = [
     x.strip().replace('git+', '') for x in all_reqs if x.startswith('git+')
 ]
+
+__version__ = get_version("arize/__init__.py")
 
 setup(
     name='arize',
@@ -40,7 +51,10 @@ setup(
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
-        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
     keywords='arize',
     packages=find_packages(exclude=['docs', 'tests*']),
