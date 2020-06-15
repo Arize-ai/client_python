@@ -8,9 +8,9 @@ import concurrent.futures as cf
 from arize.api import Client
 
 ITERATIONS = 5000
-LABELS = 5
+NUM_FEATURES = 5
 
-arize = Client(account_id=1,
+arize = Client(organization_id=1,
                api_key=os.environ.get('ARIZE_API_KEY'),
                max_queue_bound=5000,
                max_workers=8,
@@ -19,26 +19,27 @@ arize = Client(account_id=1,
                uri='https://dev.arize.com/v1')
 
 
-def get_labels(label_counts):
-    labels = {}
-    for i in range(label_counts):
-        labels['label_' + str(i) + '_bool'] = True
-        labels['label_' + str(i) + '_str'] = 'str val'
-        labels['label_' + str(i) + '_float'] = random()
-        labels['label_' + str(i) + '_np'] = numpy.float_(random())
-        labels['label_' + str(i) + '_np_ll'] = numpy.longlong(random() * 100)
-    return labels
+def get_features(feature_counts):
+    features = {}
+    for i in range(feature_counts):
+        features['feature_' + str(i) + '_bool'] = True
+        features['feature_' + str(i) + '_str'] = 'str val'
+        features['feature_' + str(i) + '_float'] = random()
+        features['feature_' + str(i) + '_np'] = numpy.float_(random())
+        features['feature_' + str(i) + '_np_ll'] = numpy.longlong(random() *
+                                                                  100)
+    return features
 
 
-labels = get_labels(LABELS)
+features = get_features(NUM_FEATURES)
 resps = []
 start = time.time_ns()
 for j in range(ITERATIONS):
     id_ = str(uuid.uuid4())
     fut = arize.log(prediction_ids=id_,
-                    values=True,
-                    labels=labels,
-                    is_latent_truth=False)
+                    prediction_labels=True,
+                    features=features,
+                    actual_labels=None)
     resps += fut
 end_sending = time.time_ns()
 print(

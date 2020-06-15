@@ -12,6 +12,7 @@ NUM_VAL = 20.20
 STR_VAL = 'arize'
 BOOL_VAL = True
 INT_VAL = 0
+file_to_open = Path(__file__).parent / "fixtures/mpg.csv"
 
 expected = {
     'model': 'model_v0',
@@ -21,12 +22,12 @@ expected = {
     'value_binary': BOOL_VAL,
     'value_categorical': STR_VAL,
     'value_numeric': NUM_VAL,
-    'account_id': 1234,
-    'label': {
-        'label_bool': BOOL_VAL,
-        'label_str': STR_VAL,
-        'label_float': NUM_VAL,
-        'label_int': INT_VAL
+    'organization_id': 1234,
+    'features': {
+        'feature_str': STR_VAL,
+        'feature_double': NUM_VAL,
+        'feature_int': INT_VAL,
+        'feature_bool': BOOL_VAL
     }
 }
 
@@ -43,248 +44,379 @@ def test_api_initialization():
         assert isinstance(client_id_exception, TypeError)
 
     try:
-        api.Client(account_id='test')
-    except Exception as account_id_exception:
-        assert isinstance(account_id_exception, TypeError)
+        api.Client(organization_id='test')
+    except Exception as organization_id_exception:
+        assert isinstance(organization_id_exception, TypeError)
 
 
 def setup_client():
-    return api.Client(account_id=expected['account_id'],
+    return api.Client(organization_id=expected['organization_id'],
                       api_key=expected['api_key'],
                       model_id=expected['model'],
                       model_version=expected['model_version'])
 
 
 def mock_dataframes(file):
-    labels = pd.read_csv(file)
-    values = pd.DataFrame(np.random.randint(1, 100, size=(labels.shape[0], 1)))
-    ids = pd.DataFrame([str(uuid.uuid4()) for _ in range(len(values.index))])
-    return labels, values, ids
+    features = pd.read_csv(file)
+    labels = pd.DataFrame(
+        np.random.randint(1, 100, size=(features.shape[0], 1)))
+    ids = pd.DataFrame([str(uuid.uuid4()) for _ in range(len(labels.index))])
+    return features, labels, ids
 
 
-def test_build_record_labels():
-
+def test_build_prediction_record_features():
     client = setup_client()
     record = client._build_record(model_id=expected['model'],
                                   model_version=expected['model_version'],
-                                  latent_truth=False,
                                   prediction_id=expected['prediction_id'],
-                                  values=expected['value_binary'],
-                                  labels=expected['label'])
+                                  prediction_label=expected['value_binary'],
+                                  features=expected['features'],
+                                  actual_label=None)
 
-    assert type(record) == protocol__pb2.Record
-    assert type(record.prediction) == protocol__pb2.Prediction
-    assert type(record.prediction.prediction_value) == protocol__pb2.Value
-    assert type(record.prediction.labels['label_bool']) == protocol__pb2.Label
-    assert type(record.prediction.labels['label_str']) == protocol__pb2.Label
-    assert type(record.prediction.labels['label_float']) == protocol__pb2.Label
-    assert type(record.prediction.labels['label_int']) == protocol__pb2.Label
-
-    assert record.account_id == expected['account_id']
+    assert isinstance(record, protocol__pb2.Record)
+    assert isinstance(record.prediction, protocol__pb2.Prediction)
+    assert isinstance(record.prediction.label, protocol__pb2.Label)
+    for feature in record.prediction.features:
+        assert isinstance(record.prediction.features[feature],
+                          protocol__pb2.Value)
+    assert record.organization_id == expected['organization_id']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
     assert record.prediction.model_version == expected['model_version']
-    assert record.prediction.prediction_value.binary_value == expected[
-        'value_binary']
-
-    assert record.prediction.labels['label_bool'].WhichOneof(
-        'label_value') == 'string_label'
-    assert record.prediction.labels['label_str'].WhichOneof(
-        'label_value') == 'string_label'
-    assert record.prediction.labels['label_float'].WhichOneof(
-        'label_value') == 'double_label'
-    assert record.prediction.labels['label_int'].WhichOneof(
-        'label_value') == 'int_label'
+    assert record.prediction.label.binary == expected['value_binary']
+    assert record.prediction.features['feature_str'].WhichOneof(
+        'data') == 'string'
+    assert record.prediction.features['feature_double'].WhichOneof(
+        'data') == 'double'
+    assert record.prediction.features['feature_int'].WhichOneof(
+        'data') == 'int'
+    assert record.prediction.features['feature_bool'].WhichOneof(
+        'data') == 'string'
 
 
 def test_build_record_binary_prediction():
-
     client = setup_client()
     record = client._build_record(model_id=expected['model'],
                                   model_version=expected['model_version'],
-                                  latent_truth=False,
                                   prediction_id=expected['prediction_id'],
-                                  values=expected['value_binary'],
-                                  labels=expected['label'])
-
-    assert type(record) == protocol__pb2.Record
-    assert type(record.prediction) == protocol__pb2.Prediction
-    assert type(record.prediction.prediction_value) == protocol__pb2.Value
-
-    assert record.account_id == expected['account_id']
+                                  prediction_label=expected['value_binary'],
+                                  features=expected['features'],
+                                  actual_label=None)
+    assert isinstance(record, protocol__pb2.Record)
+    assert isinstance(record.prediction, protocol__pb2.Prediction)
+    assert isinstance(record.prediction.label, protocol__pb2.Label)
+    assert record.organization_id == expected['organization_id']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
     assert record.prediction.model_version == expected['model_version']
-    assert record.prediction.labels is not None
-    assert record.prediction.prediction_value.binary_value == expected[
-        'value_binary']
+    assert bool(record.prediction.features)
+    assert record.prediction.label.binary == expected['value_binary']
 
 
 def test_build_record_categorical_prediction():
-
     client = setup_client()
-    record = client._build_record(model_id=expected['model'],
-                                  model_version=expected['model_version'],
-                                  latent_truth=False,
-                                  prediction_id=expected['prediction_id'],
-                                  values=expected['value_categorical'],
-                                  labels=expected['label'])
+    record = client._build_record(
+        model_id=expected['model'],
+        model_version=expected['model_version'],
+        prediction_id=expected['prediction_id'],
+        prediction_label=expected['value_categorical'],
+        features=expected['features'],
+        actual_label=None)
 
-    assert type(record) == protocol__pb2.Record
-    assert type(record.prediction) == protocol__pb2.Prediction
-    assert type(record.prediction.prediction_value) == protocol__pb2.Value
-
-    assert record.account_id == expected['account_id']
+    assert isinstance(record, protocol__pb2.Record)
+    assert isinstance(record.prediction, protocol__pb2.Prediction)
+    assert isinstance(record.prediction.label, protocol__pb2.Label)
+    assert record.organization_id == expected['organization_id']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
     assert record.prediction.model_version == expected['model_version']
-    assert record.prediction.labels is not None
-    assert record.prediction.prediction_value.categorical_value == expected[
-        'value_categorical']
+    assert bool(record.prediction.features)
+    assert record.prediction.label.categorical == expected['value_categorical']
 
 
 def test_build_record_numeric_prediction():
-
     client = setup_client()
     record = client._build_record(model_id=expected['model'],
-                                  latent_truth=False,
-                                  prediction_id=expected['prediction_id'],
                                   model_version=expected['model_version'],
-                                  values=expected['value_numeric'],
-                                  labels=expected['label'])
+                                  prediction_id=expected['prediction_id'],
+                                  prediction_label=expected['value_numeric'],
+                                  features=expected['features'],
+                                  actual_label=None)
 
-    assert type(record) == protocol__pb2.Record
-    assert type(record.prediction) == protocol__pb2.Prediction
-    assert type(record.prediction.prediction_value) == protocol__pb2.Value
+    assert isinstance(record, protocol__pb2.Record)
+    assert isinstance(record.prediction, protocol__pb2.Prediction)
+    assert isinstance(record.prediction.label, protocol__pb2.Label)
 
-    assert record.account_id == expected['account_id']
+    assert record.organization_id == expected['organization_id']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
     assert record.prediction.model_version == expected['model_version']
-    assert record.prediction.labels is not None
-    assert record.prediction.prediction_value.numeric_value == expected[
-        'value_numeric']
+    assert bool(record.prediction.features)
+    assert record.prediction.label.numeric == expected['value_numeric']
 
 
-def test_build_record_numeric_truth():
-
+def test_build_record_numeric_actual():
     client = setup_client()
     record = client._build_record(model_id=expected['model'],
-                                  latent_truth=True,
+                                  model_version=None,
                                   prediction_id=expected['prediction_id'],
-                                  values=expected['value_numeric'],
-                                  labels=expected['label'])
-
-    assert type(record) == protocol__pb2.Record
-    assert type(record.truth) == protocol__pb2.Truth
-    assert type(record.truth.truth_value) == protocol__pb2.Value
-
-    assert record.account_id == expected['account_id']
+                                  prediction_label=None,
+                                  features=None,
+                                  actual_label=expected['value_numeric'])
+    assert isinstance(record, protocol__pb2.Record)
+    assert isinstance(record.actual, protocol__pb2.Actual)
+    assert isinstance(record.actual.label, protocol__pb2.Label)
+    assert record.organization_id == expected['organization_id']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
-    assert record.truth.truth_value.numeric_value == expected['value_numeric']
+    assert record.actual.label.numeric == expected['value_numeric']
 
 
-def test_build_record_categorical_truth():
-
+def test_build_record_categorical_actual():
     client = setup_client()
     record = client._build_record(model_id=expected['model'],
-                                  latent_truth=True,
+                                  model_version=None,
                                   prediction_id=expected['prediction_id'],
-                                  values=expected['value_categorical'],
-                                  labels=expected['label'])
-
-    assert type(record) == protocol__pb2.Record
-    assert type(record.truth) == protocol__pb2.Truth
-    assert type(record.truth.truth_value) == protocol__pb2.Value
-
-    assert record.account_id == expected['account_id']
+                                  prediction_label=None,
+                                  features=None,
+                                  actual_label=expected['value_categorical'])
+    assert isinstance(record, protocol__pb2.Record)
+    assert isinstance(record.actual, protocol__pb2.Actual)
+    assert isinstance(record.actual.label, protocol__pb2.Label)
+    assert record.organization_id == expected['organization_id']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
-    assert record.truth.truth_value.categorical_value == expected[
-        'value_categorical']
+    assert record.actual.label.categorical == expected['value_categorical']
 
 
-def test_build_record_binary_truth():
-
+def test_build_record_binary_actual():
     client = setup_client()
     record = client._build_record(model_id=expected['model'],
+                                  model_version=None,
                                   prediction_id=expected['prediction_id'],
-                                  latent_truth=True,
-                                  values=expected['value_binary'],
-                                  labels=expected['label'])
-
-    assert type(record) == protocol__pb2.Record
-    assert type(record.truth) == protocol__pb2.Truth
-    assert type(record.truth.truth_value) == protocol__pb2.Value
-
-    assert record.account_id == expected['account_id']
+                                  prediction_label=None,
+                                  features=None,
+                                  actual_label=expected['value_binary'])
+    assert isinstance(record, protocol__pb2.Record)
+    assert isinstance(record.actual, protocol__pb2.Actual)
+    assert isinstance(record.actual.label, protocol__pb2.Label)
+    assert record.organization_id == expected['organization_id']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
-    assert record.truth.truth_value.binary_value == expected['value_binary']
+    assert record.actual.label.binary == expected['value_binary']
 
 
-def test_build_record_no_value():
+def test_build_bulk_records_predictions():
     client = setup_client()
-    try:
-        client._build_record(model_id=expected['model'],
-                             latent_truth=False,
-                             prediction_id=expected['prediction_id'],
-                             labels=expected['label'])
-    except TypeError as e:
-        assert isinstance(e, TypeError)
-
-
-def test_build_bulk_records():
-    client = setup_client()
-    file_to_open = Path(__file__).parent / "fixtures/mpg.csv"
-    labels, values, ids = mock_dataframes(file_to_open)
+    features, labels, ids = mock_dataframes(file_to_open)
     bulk_records = client._build_bulk_record(
         model_id=expected['model'],
         model_version=expected['model_version'],
-        latent_truth=False,
         prediction_ids=ids,
-        values=values,
-        labels=labels)
+        prediction_labels=labels,
+        actual_labels=None,
+        features=features)
     record_count = 0
     for bulk in bulk_records:
-        assert bulk.account_id == expected['account_id']
+        assert bulk.organization_id == expected['organization_id']
         assert bulk.model_id == expected['model']
         assert bulk.model_version == expected['model_version']
         assert isinstance(bulk.timestamp, Timestamp)
         for i in range(len(bulk.records)):
             record = bulk.records[i]
-            assert type(record) == protocol__pb2.Record
-            assert type(
-                record.prediction.prediction_value) == protocol__pb2.Value
-            assert len(record.prediction.labels) == labels.shape[1]
-            assert record.prediction.prediction_value.WhichOneof(
-                'classifier_value') == 'numeric_value'
+            assert isinstance(record, protocol__pb2.Record)
+            assert isinstance(record.prediction.label, protocol__pb2.Label)
+            assert len(record.prediction.features) == features.shape[1]
+            assert record.prediction.label.WhichOneof('data') == 'numeric'
             record_count += 1
     assert record_count == len(ids)
 
 
-def test_build_bulk_records_truth():
+def test_build_bulk_records_actuals():
     client = setup_client()
-    file_to_open = Path(__file__).parent / "fixtures/mpg.csv"
-    labels, values, ids = mock_dataframes(file_to_open)
+    _, labels, ids = mock_dataframes(file_to_open)
     bulk_records = client._build_bulk_record(
         model_id=expected['model'],
         model_version=expected['model_version'],
-        latent_truth=True,
         prediction_ids=ids,
-        values=values)
+        prediction_labels=None,
+        actual_labels=labels,
+        features=None)
     record_count = 0
     for bulk in bulk_records:
-        assert bulk.account_id == expected['account_id']
+        assert bulk.organization_id == expected['organization_id']
         assert bulk.model_id == expected['model']
         assert isinstance(bulk.timestamp, Timestamp)
         for i in range(len(bulk.records)):
             record = bulk.records[i]
-            assert type(record) == protocol__pb2.Record
-            assert type(record.truth.truth_value) == protocol__pb2.Value
+            assert isinstance(record, protocol__pb2.Record)
+            assert isinstance(record.actual.label, protocol__pb2.Label)
             assert record.prediction_id == ids[0][record_count]
-            assert record.truth.truth_value.WhichOneof(
-                'classifier_value') == 'numeric_value'
+            assert record.actual.label.WhichOneof('data') == 'numeric'
             record_count += 1
     assert record_count == len(ids)
+
+
+def test_handle_log_single_actual():
+    client = setup_client()
+    record, uri = client._handle_log(model_id=expected['model'],
+                                     model_version=None,
+                                     prediction_ids=expected['prediction_id'],
+                                     prediction_labels=None,
+                                     features=None,
+                                     actual_labels=expected['value_binary'])
+    assert len(record) == 1
+    assert isinstance(record[0].actual, protocol__pb2.Actual)
+    assert uri == 'https://api.arize.com/v1/log'
+
+
+def test_handle_log_single_prediction_with_features():
+    client = setup_client()
+    record, uri = client._handle_log(
+        model_id=expected['model'],
+        model_version=None,
+        prediction_ids=expected['prediction_id'],
+        prediction_labels=expected['value_binary'],
+        features=expected['features'],
+        actual_labels=None)
+    assert len(record) == 1
+    assert isinstance(record[0].prediction, protocol__pb2.Prediction)
+    assert bool(record[0].prediction.features)
+    assert uri == 'https://api.arize.com/v1/log'
+
+
+def test_handle_log_single_prediction_no_features():
+    client = setup_client()
+    record, uri = client._handle_log(
+        model_id=expected['model'],
+        model_version=None,
+        prediction_ids=expected['prediction_id'],
+        prediction_labels=expected['value_binary'],
+        features=None,
+        actual_labels=None)
+    assert len(record) == 1
+    assert isinstance(record[0].prediction, protocol__pb2.Prediction)
+    assert not bool(record[0].prediction.features)
+    assert uri == 'https://api.arize.com/v1/log'
+
+
+def test_handle_log_batch_prediction_with_features():
+    client = setup_client()
+    features, labels, ids = mock_dataframes(file_to_open)
+    records, uri = client._handle_log(model_id=expected['model'],
+                                      model_version=None,
+                                      prediction_ids=ids,
+                                      prediction_labels=labels,
+                                      features=features,
+                                      actual_labels=None)
+    assert len(records) > 0
+    for bulk in records:
+        assert isinstance(bulk, protocol__pb2.BulkRecord)
+        for r in bulk.records:
+            assert isinstance(r, protocol__pb2.Record)
+            assert not bool(r.organization_id)
+            assert not bool(r.model_id)
+            assert bool(r.prediction.features)
+    assert uri == 'https://api.arize.com/v1/bulk'
+
+
+def test_handle_log_batch_prediction_with_no_features():
+    client = setup_client()
+    features, labels, ids = mock_dataframes(file_to_open)
+    records, uri = client._handle_log(model_id=expected['model'],
+                                      model_version=None,
+                                      prediction_ids=ids,
+                                      prediction_labels=labels,
+                                      features=None,
+                                      actual_labels=None)
+    assert len(records) > 0
+    for bulk in records:
+        assert isinstance(bulk, protocol__pb2.BulkRecord)
+        for r in bulk.records:
+            assert isinstance(r, protocol__pb2.Record)
+            assert not bool(r.organization_id)
+            assert not bool(r.model_id)
+            assert not bool(r.prediction.features)
+    assert uri == 'https://api.arize.com/v1/bulk'
+
+
+def test_handle_log_batch_actuals_only():
+    client = setup_client()
+    features, labels, ids = mock_dataframes(file_to_open)
+    records, uri = client._handle_log(model_id=expected['model'],
+                                      model_version=None,
+                                      prediction_ids=ids,
+                                      prediction_labels=None,
+                                      features=None,
+                                      actual_labels=labels)
+    assert len(records) > 0
+    for bulk in records:
+        assert isinstance(bulk, protocol__pb2.BulkRecord)
+        for r in bulk.records:
+            assert isinstance(r, protocol__pb2.Record)
+            assert not bool(r.organization_id)
+            assert not bool(r.model_id)
+            assert bool(r.actual.label)
+    assert uri == 'https://api.arize.com/v1/bulk'
+
+
+def test_handle_log_batch_actuals_and_predictions():
+    client = setup_client()
+    features, labels, ids = mock_dataframes(file_to_open)
+    records, uri = client._handle_log(model_id=expected['model'],
+                                      model_version=None,
+                                      prediction_ids=ids,
+                                      prediction_labels=labels,
+                                      features=features,
+                                      actual_labels=labels)
+    assert len(records) > 0
+    actuals = 0
+    predictions = 0
+    for bulk in records:
+        assert isinstance(bulk, protocol__pb2.BulkRecord)
+        for r in bulk.records:
+            assert isinstance(r, protocol__pb2.Record)
+            assert not bool(r.organization_id)
+            assert not bool(r.model_id)
+            assert isinstance(
+                getattr(r, r.WhichOneof('prediction_or_actual')).label,
+                protocol__pb2.Label)
+            if r.WhichOneof('prediction_or_actual') == 'prediction':
+                predictions += 1
+            if r.WhichOneof('prediction_or_actual') == 'prediction':
+                actuals += 1
+    assert uri == 'https://api.arize.com/v1/bulk'
+    print(predictions)
+    assert actuals == predictions == labels.shape[0]
+
+
+def test_handle_log_batch_actuals_and_predictions_missmatched_shapes():
+    client = setup_client()
+    features, labels, ids = mock_dataframes(file_to_open)
+    try:
+        records, uri = client._handle_log(model_id=expected['model'],
+                                          model_version=None,
+                                          prediction_ids=ids[0:10],
+                                          prediction_labels=labels,
+                                          features=features,
+                                          actual_labels=labels)
+    except Exception as err:
+        assert isinstance(err, ValueError)
+    try:
+        records, uri = client._handle_log(model_id=expected['model'],
+                                          model_version=None,
+                                          prediction_ids=ids,
+                                          prediction_labels=labels,
+                                          features=features[0:10],
+                                          actual_labels=labels)
+    except Exception as err:
+        assert isinstance(err, ValueError)
+    try:
+        records, uri = client._handle_log(model_id=expected['model'],
+                                          model_version=None,
+                                          prediction_ids=ids,
+                                          prediction_labels=labels,
+                                          features=features,
+                                          actual_labels=labels[0:10])
+    except Exception as err:
+        assert isinstance(err, ValueError)

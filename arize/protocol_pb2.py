@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='protocol',
   syntax='proto3',
   serialized_options=b'Z/github.com/Arize-ai/arize/pkg/receiver/protocol',
-  serialized_pb=b'\n\x0eprotocol.proto\x12\x08protocol\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\"\x9b\x01\n\nBulkRecord\x12\x12\n\naccount_id\x18\x01 \x01(\x03\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rmodel_version\x18\x03 \x01(\t\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12!\n\x07records\x18\x05 \x03(\x0b\x32\x10.protocol.Record\"\xaa\x01\n\x06Record\x12\x12\n\naccount_id\x18\x01 \x01(\x03\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rprediction_id\x18\x03 \x01(\t\x12*\n\nprediction\x18\x04 \x01(\x0b\x32\x14.protocol.PredictionH\x00\x12 \n\x05truth\x18\x05 \x01(\x0b\x32\x0f.protocol.TruthH\x00\x42\x15\n\x13prediction_or_truth\"i\n\x05Value\x12\x16\n\x0c\x62inary_value\x18\x01 \x01(\x08H\x00\x12\x1b\n\x11\x63\x61tegorical_value\x18\x02 \x01(\tH\x00\x12\x17\n\rnumeric_value\x18\x03 \x01(\x01H\x00\x42\x12\n\x10\x63lassifier_value\"\xef\x01\n\nPrediction\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12)\n\x10prediction_value\x18\x03 \x01(\x0b\x32\x0f.protocol.Value\x12\x30\n\x06labels\x18\x04 \x03(\x0b\x32 .protocol.Prediction.LabelsEntry\x1a>\n\x0bLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1e\n\x05value\x18\x02 \x01(\x0b\x32\x0f.protocol.Label:\x02\x38\x01\"[\n\x05Label\x12\x16\n\x0cstring_label\x18\x01 \x01(\tH\x00\x12\x13\n\tint_label\x18\x02 \x01(\x03H\x00\x12\x16\n\x0c\x64ouble_label\x18\x03 \x01(\x01H\x00\x42\r\n\x0blabel_value\"\\\n\x05Truth\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12$\n\x0btruth_value\x18\x02 \x01(\x0b\x32\x0f.protocol.Value\"\x10\n\x0eReceiverResult\"\x0f\n\rHealthRequest\"\x10\n\x0eHealthResponse2\xf5\x01\n\x08Receiver\x12\x45\n\x03Log\x12\x10.protocol.Record\x1a\x18.protocol.ReceiverResult\"\x12\x82\xd3\xe4\x93\x02\x0c\"\x07/v1/log:\x01*\x12N\n\x07\x42ulkLog\x12\x14.protocol.BulkRecord\x1a\x18.protocol.ReceiverResult\"\x13\x82\xd3\xe4\x93\x02\r\"\x08/v1/bulk:\x01*\x12R\n\tGetHealth\x12\x17.protocol.HealthRequest\x1a\x18.protocol.HealthResponse\"\x12\x82\xd3\xe4\x93\x02\x0c\x12\n/v1/healthB1Z/github.com/Arize-ai/arize/pkg/receiver/protocolb\x06proto3'
+  serialized_pb=b'\n\x0eprotocol.proto\x12\x08protocol\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\"\xa0\x01\n\nBulkRecord\x12\x17\n\x0forganization_id\x18\x01 \x01(\x03\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rmodel_version\x18\x03 \x01(\t\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12!\n\x07records\x18\x05 \x03(\x0b\x32\x10.protocol.Record\"\xb2\x01\n\x06Record\x12\x17\n\x0forganization_id\x18\x01 \x01(\x03\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rprediction_id\x18\x03 \x01(\t\x12*\n\nprediction\x18\x04 \x01(\x0b\x32\x14.protocol.PredictionH\x00\x12\"\n\x06\x61\x63tual\x18\x05 \x01(\x0b\x32\x10.protocol.ActualH\x00\x42\x16\n\x14prediction_or_actual\"K\n\x05Label\x12\x10\n\x06\x62inary\x18\x01 \x01(\x08H\x00\x12\x15\n\x0b\x63\x61tegorical\x18\x02 \x01(\tH\x00\x12\x11\n\x07numeric\x18\x03 \x01(\x01H\x00\x42\x06\n\x04\x64\x61ta\"\xea\x01\n\nPrediction\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12\x1e\n\x05label\x18\x03 \x01(\x0b\x32\x0f.protocol.Label\x12\x34\n\x08\x66\x65\x61tures\x18\x04 \x03(\x0b\x32\".protocol.Prediction.FeaturesEntry\x1a@\n\rFeaturesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1e\n\x05value\x18\x02 \x01(\x0b\x32\x0f.protocol.Value:\x02\x38\x01\"B\n\x05Value\x12\x10\n\x06string\x18\x01 \x01(\tH\x00\x12\r\n\x03int\x18\x02 \x01(\x03H\x00\x12\x10\n\x06\x64ouble\x18\x03 \x01(\x01H\x00\x42\x06\n\x04\x64\x61ta\"W\n\x06\x41\x63tual\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1e\n\x05label\x18\x02 \x01(\x0b\x32\x0f.protocol.Label\"\x10\n\x0eReceiverResult\"\x0f\n\rHealthRequest\"\x10\n\x0eHealthResponse2\xf5\x01\n\x08Receiver\x12\x45\n\x03Log\x12\x10.protocol.Record\x1a\x18.protocol.ReceiverResult\"\x12\x82\xd3\xe4\x93\x02\x0c\"\x07/v1/log:\x01*\x12N\n\x07\x42ulkLog\x12\x14.protocol.BulkRecord\x1a\x18.protocol.ReceiverResult\"\x13\x82\xd3\xe4\x93\x02\r\"\x08/v1/bulk:\x01*\x12R\n\tGetHealth\x12\x17.protocol.HealthRequest\x1a\x18.protocol.HealthResponse\"\x12\x82\xd3\xe4\x93\x02\x0c\x12\n/v1/healthB1Z/github.com/Arize-ai/arize/pkg/receiver/protocolb\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,google_dot_api_dot_annotations__pb2.DESCRIPTOR,])
 
@@ -35,7 +35,7 @@ _BULKRECORD = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='account_id', full_name='protocol.BulkRecord.account_id', index=0,
+      name='organization_id', full_name='protocol.BulkRecord.organization_id', index=0,
       number=1, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -82,7 +82,7 @@ _BULKRECORD = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=92,
-  serialized_end=247,
+  serialized_end=252,
 )
 
 
@@ -94,7 +94,7 @@ _RECORD = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='account_id', full_name='protocol.Record.account_id', index=0,
+      name='organization_id', full_name='protocol.Record.organization_id', index=0,
       number=1, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -122,7 +122,7 @@ _RECORD = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='truth', full_name='protocol.Record.truth', index=4,
+      name='actual', full_name='protocol.Record.actual', index=4,
       number=5, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -140,37 +140,37 @@ _RECORD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
     _descriptor.OneofDescriptor(
-      name='prediction_or_truth', full_name='protocol.Record.prediction_or_truth',
+      name='prediction_or_actual', full_name='protocol.Record.prediction_or_actual',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=250,
-  serialized_end=420,
+  serialized_start=255,
+  serialized_end=433,
 )
 
 
-_VALUE = _descriptor.Descriptor(
-  name='Value',
-  full_name='protocol.Value',
+_LABEL = _descriptor.Descriptor(
+  name='Label',
+  full_name='protocol.Label',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='binary_value', full_name='protocol.Value.binary_value', index=0,
+      name='binary', full_name='protocol.Label.binary', index=0,
       number=1, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='categorical_value', full_name='protocol.Value.categorical_value', index=1,
+      name='categorical', full_name='protocol.Label.categorical', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='numeric_value', full_name='protocol.Value.numeric_value', index=2,
+      name='numeric', full_name='protocol.Label.numeric', index=2,
       number=3, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
@@ -188,30 +188,30 @@ _VALUE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
     _descriptor.OneofDescriptor(
-      name='classifier_value', full_name='protocol.Value.classifier_value',
+      name='data', full_name='protocol.Label.data',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=422,
-  serialized_end=527,
+  serialized_start=435,
+  serialized_end=510,
 )
 
 
-_PREDICTION_LABELSENTRY = _descriptor.Descriptor(
-  name='LabelsEntry',
-  full_name='protocol.Prediction.LabelsEntry',
+_PREDICTION_FEATURESENTRY = _descriptor.Descriptor(
+  name='FeaturesEntry',
+  full_name='protocol.Prediction.FeaturesEntry',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='protocol.Prediction.LabelsEntry.key', index=0,
+      name='key', full_name='protocol.Prediction.FeaturesEntry.key', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='value', full_name='protocol.Prediction.LabelsEntry.value', index=1,
+      name='value', full_name='protocol.Prediction.FeaturesEntry.value', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -229,8 +229,8 @@ _PREDICTION_LABELSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=707,
-  serialized_end=769,
+  serialized_start=683,
+  serialized_end=747,
 )
 
 _PREDICTION = _descriptor.Descriptor(
@@ -255,14 +255,14 @@ _PREDICTION = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='prediction_value', full_name='protocol.Prediction.prediction_value', index=2,
+      name='label', full_name='protocol.Prediction.label', index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='labels', full_name='protocol.Prediction.labels', index=3,
+      name='features', full_name='protocol.Prediction.features', index=3,
       number=4, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -271,7 +271,7 @@ _PREDICTION = _descriptor.Descriptor(
   ],
   extensions=[
   ],
-  nested_types=[_PREDICTION_LABELSENTRY, ],
+  nested_types=[_PREDICTION_FEATURESENTRY, ],
   enum_types=[
   ],
   serialized_options=None,
@@ -280,34 +280,34 @@ _PREDICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=530,
-  serialized_end=769,
+  serialized_start=513,
+  serialized_end=747,
 )
 
 
-_LABEL = _descriptor.Descriptor(
-  name='Label',
-  full_name='protocol.Label',
+_VALUE = _descriptor.Descriptor(
+  name='Value',
+  full_name='protocol.Value',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='string_label', full_name='protocol.Label.string_label', index=0,
+      name='string', full_name='protocol.Value.string', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='int_label', full_name='protocol.Label.int_label', index=1,
+      name='int', full_name='protocol.Value.int', index=1,
       number=2, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='double_label', full_name='protocol.Label.double_label', index=2,
+      name='double', full_name='protocol.Value.double', index=2,
       number=3, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
@@ -325,30 +325,30 @@ _LABEL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
     _descriptor.OneofDescriptor(
-      name='label_value', full_name='protocol.Label.label_value',
+      name='data', full_name='protocol.Value.data',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=771,
-  serialized_end=862,
+  serialized_start=749,
+  serialized_end=815,
 )
 
 
-_TRUTH = _descriptor.Descriptor(
-  name='Truth',
-  full_name='protocol.Truth',
+_ACTUAL = _descriptor.Descriptor(
+  name='Actual',
+  full_name='protocol.Actual',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='timestamp', full_name='protocol.Truth.timestamp', index=0,
+      name='timestamp', full_name='protocol.Actual.timestamp', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='truth_value', full_name='protocol.Truth.truth_value', index=1,
+      name='label', full_name='protocol.Actual.label', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -366,8 +366,8 @@ _TRUTH = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=864,
-  serialized_end=956,
+  serialized_start=817,
+  serialized_end=904,
 )
 
 
@@ -390,8 +390,8 @@ _RECEIVERRESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=958,
-  serialized_end=974,
+  serialized_start=906,
+  serialized_end=922,
 )
 
 
@@ -414,8 +414,8 @@ _HEALTHREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=976,
-  serialized_end=991,
+  serialized_start=924,
+  serialized_end=939,
 )
 
 
@@ -438,51 +438,51 @@ _HEALTHRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=993,
-  serialized_end=1009,
+  serialized_start=941,
+  serialized_end=957,
 )
 
 _BULKRECORD.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _BULKRECORD.fields_by_name['records'].message_type = _RECORD
 _RECORD.fields_by_name['prediction'].message_type = _PREDICTION
-_RECORD.fields_by_name['truth'].message_type = _TRUTH
-_RECORD.oneofs_by_name['prediction_or_truth'].fields.append(
+_RECORD.fields_by_name['actual'].message_type = _ACTUAL
+_RECORD.oneofs_by_name['prediction_or_actual'].fields.append(
   _RECORD.fields_by_name['prediction'])
-_RECORD.fields_by_name['prediction'].containing_oneof = _RECORD.oneofs_by_name['prediction_or_truth']
-_RECORD.oneofs_by_name['prediction_or_truth'].fields.append(
-  _RECORD.fields_by_name['truth'])
-_RECORD.fields_by_name['truth'].containing_oneof = _RECORD.oneofs_by_name['prediction_or_truth']
-_VALUE.oneofs_by_name['classifier_value'].fields.append(
-  _VALUE.fields_by_name['binary_value'])
-_VALUE.fields_by_name['binary_value'].containing_oneof = _VALUE.oneofs_by_name['classifier_value']
-_VALUE.oneofs_by_name['classifier_value'].fields.append(
-  _VALUE.fields_by_name['categorical_value'])
-_VALUE.fields_by_name['categorical_value'].containing_oneof = _VALUE.oneofs_by_name['classifier_value']
-_VALUE.oneofs_by_name['classifier_value'].fields.append(
-  _VALUE.fields_by_name['numeric_value'])
-_VALUE.fields_by_name['numeric_value'].containing_oneof = _VALUE.oneofs_by_name['classifier_value']
-_PREDICTION_LABELSENTRY.fields_by_name['value'].message_type = _LABEL
-_PREDICTION_LABELSENTRY.containing_type = _PREDICTION
+_RECORD.fields_by_name['prediction'].containing_oneof = _RECORD.oneofs_by_name['prediction_or_actual']
+_RECORD.oneofs_by_name['prediction_or_actual'].fields.append(
+  _RECORD.fields_by_name['actual'])
+_RECORD.fields_by_name['actual'].containing_oneof = _RECORD.oneofs_by_name['prediction_or_actual']
+_LABEL.oneofs_by_name['data'].fields.append(
+  _LABEL.fields_by_name['binary'])
+_LABEL.fields_by_name['binary'].containing_oneof = _LABEL.oneofs_by_name['data']
+_LABEL.oneofs_by_name['data'].fields.append(
+  _LABEL.fields_by_name['categorical'])
+_LABEL.fields_by_name['categorical'].containing_oneof = _LABEL.oneofs_by_name['data']
+_LABEL.oneofs_by_name['data'].fields.append(
+  _LABEL.fields_by_name['numeric'])
+_LABEL.fields_by_name['numeric'].containing_oneof = _LABEL.oneofs_by_name['data']
+_PREDICTION_FEATURESENTRY.fields_by_name['value'].message_type = _VALUE
+_PREDICTION_FEATURESENTRY.containing_type = _PREDICTION
 _PREDICTION.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
-_PREDICTION.fields_by_name['prediction_value'].message_type = _VALUE
-_PREDICTION.fields_by_name['labels'].message_type = _PREDICTION_LABELSENTRY
-_LABEL.oneofs_by_name['label_value'].fields.append(
-  _LABEL.fields_by_name['string_label'])
-_LABEL.fields_by_name['string_label'].containing_oneof = _LABEL.oneofs_by_name['label_value']
-_LABEL.oneofs_by_name['label_value'].fields.append(
-  _LABEL.fields_by_name['int_label'])
-_LABEL.fields_by_name['int_label'].containing_oneof = _LABEL.oneofs_by_name['label_value']
-_LABEL.oneofs_by_name['label_value'].fields.append(
-  _LABEL.fields_by_name['double_label'])
-_LABEL.fields_by_name['double_label'].containing_oneof = _LABEL.oneofs_by_name['label_value']
-_TRUTH.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
-_TRUTH.fields_by_name['truth_value'].message_type = _VALUE
+_PREDICTION.fields_by_name['label'].message_type = _LABEL
+_PREDICTION.fields_by_name['features'].message_type = _PREDICTION_FEATURESENTRY
+_VALUE.oneofs_by_name['data'].fields.append(
+  _VALUE.fields_by_name['string'])
+_VALUE.fields_by_name['string'].containing_oneof = _VALUE.oneofs_by_name['data']
+_VALUE.oneofs_by_name['data'].fields.append(
+  _VALUE.fields_by_name['int'])
+_VALUE.fields_by_name['int'].containing_oneof = _VALUE.oneofs_by_name['data']
+_VALUE.oneofs_by_name['data'].fields.append(
+  _VALUE.fields_by_name['double'])
+_VALUE.fields_by_name['double'].containing_oneof = _VALUE.oneofs_by_name['data']
+_ACTUAL.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_ACTUAL.fields_by_name['label'].message_type = _LABEL
 DESCRIPTOR.message_types_by_name['BulkRecord'] = _BULKRECORD
 DESCRIPTOR.message_types_by_name['Record'] = _RECORD
-DESCRIPTOR.message_types_by_name['Value'] = _VALUE
-DESCRIPTOR.message_types_by_name['Prediction'] = _PREDICTION
 DESCRIPTOR.message_types_by_name['Label'] = _LABEL
-DESCRIPTOR.message_types_by_name['Truth'] = _TRUTH
+DESCRIPTOR.message_types_by_name['Prediction'] = _PREDICTION
+DESCRIPTOR.message_types_by_name['Value'] = _VALUE
+DESCRIPTOR.message_types_by_name['Actual'] = _ACTUAL
 DESCRIPTOR.message_types_by_name['ReceiverResult'] = _RECEIVERRESULT
 DESCRIPTOR.message_types_by_name['HealthRequest'] = _HEALTHREQUEST
 DESCRIPTOR.message_types_by_name['HealthResponse'] = _HEALTHRESPONSE
@@ -502,28 +502,6 @@ Record = _reflection.GeneratedProtocolMessageType('Record', (_message.Message,),
   })
 _sym_db.RegisterMessage(Record)
 
-Value = _reflection.GeneratedProtocolMessageType('Value', (_message.Message,), {
-  'DESCRIPTOR' : _VALUE,
-  '__module__' : 'protocol_pb2'
-  # @@protoc_insertion_point(class_scope:protocol.Value)
-  })
-_sym_db.RegisterMessage(Value)
-
-Prediction = _reflection.GeneratedProtocolMessageType('Prediction', (_message.Message,), {
-
-  'LabelsEntry' : _reflection.GeneratedProtocolMessageType('LabelsEntry', (_message.Message,), {
-    'DESCRIPTOR' : _PREDICTION_LABELSENTRY,
-    '__module__' : 'protocol_pb2'
-    # @@protoc_insertion_point(class_scope:protocol.Prediction.LabelsEntry)
-    })
-  ,
-  'DESCRIPTOR' : _PREDICTION,
-  '__module__' : 'protocol_pb2'
-  # @@protoc_insertion_point(class_scope:protocol.Prediction)
-  })
-_sym_db.RegisterMessage(Prediction)
-_sym_db.RegisterMessage(Prediction.LabelsEntry)
-
 Label = _reflection.GeneratedProtocolMessageType('Label', (_message.Message,), {
   'DESCRIPTOR' : _LABEL,
   '__module__' : 'protocol_pb2'
@@ -531,12 +509,34 @@ Label = _reflection.GeneratedProtocolMessageType('Label', (_message.Message,), {
   })
 _sym_db.RegisterMessage(Label)
 
-Truth = _reflection.GeneratedProtocolMessageType('Truth', (_message.Message,), {
-  'DESCRIPTOR' : _TRUTH,
+Prediction = _reflection.GeneratedProtocolMessageType('Prediction', (_message.Message,), {
+
+  'FeaturesEntry' : _reflection.GeneratedProtocolMessageType('FeaturesEntry', (_message.Message,), {
+    'DESCRIPTOR' : _PREDICTION_FEATURESENTRY,
+    '__module__' : 'protocol_pb2'
+    # @@protoc_insertion_point(class_scope:protocol.Prediction.FeaturesEntry)
+    })
+  ,
+  'DESCRIPTOR' : _PREDICTION,
   '__module__' : 'protocol_pb2'
-  # @@protoc_insertion_point(class_scope:protocol.Truth)
+  # @@protoc_insertion_point(class_scope:protocol.Prediction)
   })
-_sym_db.RegisterMessage(Truth)
+_sym_db.RegisterMessage(Prediction)
+_sym_db.RegisterMessage(Prediction.FeaturesEntry)
+
+Value = _reflection.GeneratedProtocolMessageType('Value', (_message.Message,), {
+  'DESCRIPTOR' : _VALUE,
+  '__module__' : 'protocol_pb2'
+  # @@protoc_insertion_point(class_scope:protocol.Value)
+  })
+_sym_db.RegisterMessage(Value)
+
+Actual = _reflection.GeneratedProtocolMessageType('Actual', (_message.Message,), {
+  'DESCRIPTOR' : _ACTUAL,
+  '__module__' : 'protocol_pb2'
+  # @@protoc_insertion_point(class_scope:protocol.Actual)
+  })
+_sym_db.RegisterMessage(Actual)
 
 ReceiverResult = _reflection.GeneratedProtocolMessageType('ReceiverResult', (_message.Message,), {
   'DESCRIPTOR' : _RECEIVERRESULT,
@@ -561,7 +561,7 @@ _sym_db.RegisterMessage(HealthResponse)
 
 
 DESCRIPTOR._options = None
-_PREDICTION_LABELSENTRY._options = None
+_PREDICTION_FEATURESENTRY._options = None
 
 _RECEIVER = _descriptor.ServiceDescriptor(
   name='Receiver',
@@ -569,8 +569,8 @@ _RECEIVER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=1012,
-  serialized_end=1257,
+  serialized_start=960,
+  serialized_end=1205,
   methods=[
   _descriptor.MethodDescriptor(
     name='Log',

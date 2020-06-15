@@ -14,11 +14,11 @@ from arize.bounded_executor import BoundedExecutor
 
 class Client(object):
     """
-    Arize API Client to report model predictions and latent truths to Arize AI platform
+    Arize API Client to report model predictions and actuals to Arize AI platform
     """
     def __init__(self,
                  api_key: str,
-                 account_id: int,
+                 organization_id: int,
                  model_id=None,
                  model_version=None,
                  uri='https://api.arize.com/v1',
@@ -28,7 +28,7 @@ class Client(object):
                  timeout=200):
         """
             :params api_key: (str) api key associated with your account with Arize AI
-            :params account_id: (int) account id in Arize AI
+            :params organization_id: (int) organization id in Arize AI
             :params model_id: (str) model id
             :params model_version: (str) model version
             :params max_workers: (int) number of max concurrent requests to Arize. Default: 20
@@ -39,7 +39,7 @@ class Client(object):
         self._uri = uri + '/log'
         self._bulk_url = uri + '/bulk'
         self._api_key = api_key
-        self._account_id = account_id
+        self._organization_id = organization_id
         self._model_id = model_id
         self._model_version = model_version
         self._timeout = timeout
@@ -49,47 +49,24 @@ class Client(object):
 
     def log(self,
             prediction_ids,
-            values,
-            labels,
-            is_latent_truth,
+            prediction_labels,
+            actual_labels,
+            features=None,
             model_id=None,
             model_version=None):
         """ Logs an event with Arize via a POST request. Returns :class:`Future` object.
-        :param prediction_ids: (str) Unique indetifier for specific prediction. This is the key which latent truth events must tie back to. For bulk uploads, pass in a 1-D pandas df where values are ids corresponding to label values in the same index.
-        :param values: The prediction or latent truth value which can be joined via prediction id. Can be bool, str, float, int. For bulk uploads, pass in a 1-D pandas data frame where values correspond to the label values in the same index.
-        :param labels: (str, <value>) Dictionary or 2-D Pandas dataframe. containing prediction labels and/or metadata. For dict keys must be strings, values oneof string, boolean, float, long for a single prediction. For bulk uploads, pass in a 2-D pandas dataframe where df.columns contain label names.
-        :param is_latent_truth: (bool) Flag identifying if values being logged are latent truths
+        :param prediction_ids: (str) Unique string indetifier for specific prediction or actual label. These values are needed to match latent actual labels to their original prediction labels. For bulk uploads, pass in a 1-D Pandas Series where values are ids corresponding to feature values of the same index.
+        :param prediction_labels: The predicted values for a given model input. Individual labels can be joined against actual_labels by the corresponding prediction id. For individual events, input values can be bool, str, float, int. For bulk uploads, the client accepts a 1-D pandas data frame where values are associates to the label values in the same index. Must be the same shape as actual_labels.
+        :param actual_labels: The actual expected values for a given model input. Individual labels can be joined against prediction_labels by the corresponding prediction id. For individual events, input values can be bool, str, float, int. For bulk uploads, the client accepts a 1-D pandas data frame where values are associates to the label values in the same index. Must be the same shape as prediction_labels.
+        :param features: (str, <value>) Dictionary or 2-D Pandas dataframe. Containing human readable and debuggable model features. For dict keys must be strings, values one of string, boolean, float, long for a single prediction. For bulk uploads, pass in a 2-D pandas dataframe where df.columns contain feature names. Must have same number of rows as prediction_ids, prediction_labels, actual_labels.
         :param model_id: (str) Unique identifier for a given model.
-        :param model_version: (str) Optional field used to group together a subset of predictions and truths for a given model_id.
+        :param model_version: (str) Optional field used to group together a subset of predictions and actuals for a given model_id.
         :rtype : concurrent.futures.Future
         """
         try:
-            if values is None:
-                raise ValueError('a value is required')
-            uri = None
-            records = []
-            if model_id is None:
-                model_id = self._model_id
-            if model_version is None:
-                model_version = self._model_version
-            if isinstance(labels, pd.DataFrame):
-                uri = self._bulk_url
-                records = self._build_bulk_record(
-                    model_id=model_id,
-                    model_version=model_version,
-                    prediction_ids=prediction_ids,
-                    values=values,
-                    labels=labels,
-                    latent_truth=is_latent_truth)
-            elif isinstance(labels, dict):
-                uri = self._uri
-                records.append(
-                    self._build_record(model_id=model_id,
-                                       model_version=model_version,
-                                       prediction_id=prediction_ids,
-                                       values=values,
-                                       labels=labels,
-                                       latent_truth=is_latent_truth))
+            records, uri = self._handle_log(prediction_ids, prediction_labels,
+                                            actual_labels, features, model_id,
+                                            model_version)
             responses = []
             for record in records:
                 payload = MessageToDict(message=record,
@@ -104,92 +81,122 @@ class Client(object):
         except Exception as err:
             self._handle_exception(err)
 
-    def _build_bulk_record(self,
-                           model_id: str,
-                           latent_truth: bool,
-                           prediction_ids=None,
-                           model_version=None,
-                           values=None,
-                           labels=None):
+    def _handle_log(self, prediction_ids, prediction_labels, actual_labels,
+                    features, model_id, model_version):
+        uri = None
+        records = []
+        if model_id is None:
+            model_id = self._model_id
+        if model_version is None:
+            model_version = self._model_version
+        if isinstance(prediction_ids, pd.DataFrame):
+            if prediction_labels is not None:
+                self._validate_bulk_prediction_inputs(prediction_ids,
+                                                      prediction_labels,
+                                                      features)
+            if actual_labels is not None:
+                self._validate_bulk_actuals_inputs(prediction_ids,
+                                                   actual_labels)
+            uri = self._bulk_url
+            records = self._build_bulk_record(
+                model_id=model_id,
+                model_version=model_version,
+                prediction_ids=prediction_ids,
+                prediction_labels=prediction_labels,
+                actual_labels=actual_labels,
+                features=features)
+        else:
+            uri = self._uri
+            records.append(
+                self._build_record(model_id=model_id,
+                                   model_version=model_version,
+                                   prediction_id=str(prediction_ids),
+                                   prediction_label=prediction_labels,
+                                   features=features,
+                                   actual_label=actual_labels))
+        return records, uri
+
+    def _build_bulk_record(self, model_id, model_version, prediction_ids,
+                           prediction_labels, actual_labels, features):
         records = []
         ids = prediction_ids.to_numpy()
-        value_df = values.applymap(lambda x: self._get_value(x)).to_numpy()
-        record = None
-        if latent_truth:
-            for i, v in enumerate(value_df):
-                truth = protocol__pb2.Truth(truth_value=v[0])
-                record = protocol__pb2.Record(prediction_id=ids[i][0],
-                                              truth=truth)
-                records.append(record)
-        else:
-            labels_df = self._build_label_map(labels).to_dict('records')
-            for i, v in enumerate(value_df):
-                pred = protocol__pb2.Prediction(
-                    prediction_value=v[0],
-                    labels=labels_df[i],
-                )
-                record = protocol__pb2.Record(prediction_id=ids[i][0],
-                                              prediction=pred)
-                records.append(record)
-        total_bytes = 0
-        for r in records:
-            total_bytes += r.ByteSize()
-        num_of_bulk = math.ceil(total_bytes / 100000)
-        recs_per_msg = math.ceil(len(records) / num_of_bulk)
+        pred_labels_df = None
+        actual_labels_df = None
+        features_df = None
+        if prediction_labels is not None:
+            pred_labels_df = prediction_labels.applymap(
+                lambda x: self._get_label(x)).to_numpy()
+        if actual_labels is not None:
+            actual_labels_df = actual_labels.applymap(
+                lambda x: self._get_label(x)).to_numpy()
+        if features is not None:
+            features_df = self._build_value_map(features).to_dict('records')
+
+        for i, v in enumerate(ids):
+            f = None
+            if features_df is not None:
+                f = features_df[i]
+            if pred_labels_df is not None:
+                records.append(
+                    self._build_prediction_record(ts=None,
+                                                  organization_id=None,
+                                                  model_id=None,
+                                                  model_version=None,
+                                                  prediction_id=v[0],
+                                                  label=pred_labels_df[i][0],
+                                                  features=f))
+            if actual_labels_df is not None:
+                records.append(
+                    self._build_actuals_record(ts=None,
+                                               organization_id=None,
+                                               model_id=None,
+                                               prediction_id=v[0],
+                                               label=actual_labels_df[i][0]))
+
+        recs_per_msg = self._num_chuncks(records)
         recs = [
             records[i:i + recs_per_msg]
             for i in range(0, len(records), recs_per_msg)
         ]
         results = [
             protocol__pb2.BulkRecord(records=r,
-                                     account_id=self._account_id,
+                                     organization_id=self._organization_id,
                                      model_id=model_id,
                                      model_version=model_version,
                                      timestamp=self._get_time()) for r in recs
         ]
         return results
 
-    def _build_record(self,
-                      model_id: str,
-                      prediction_id: str,
-                      latent_truth: bool,
-                      model_version=None,
-                      values=None,
-                      labels=None):
-
-        account_id = self._account_id
-        val = self._get_value(values)
+    def _build_record(self, model_id, model_version, prediction_id,
+                      prediction_label, features, actual_label):
+        organization_id = self._organization_id
         ts = self._get_time()
-        if model_version is None:
-            model_version = self._model_version
-        if latent_truth:
-            record = self._build_truth_record(ts=ts,
-                                              account_id=account_id,
-                                              model_id=model_id,
-                                              prediction_id=prediction_id,
-                                              value=val)
+        if actual_label:
+            record = self._build_actuals_record(
+                ts=ts,
+                organization_id=organization_id,
+                model_id=model_id,
+                prediction_id=prediction_id,
+                label=self._get_label(actual_label))
         else:
             record = self._build_prediction_record(
                 ts=ts,
-                model_version=model_version,
-                value=val,
-                labels=self._build_label_map(labels),
-                account_id=account_id,
+                organization_id=organization_id,
                 model_id=model_id,
-                prediction_id=prediction_id)
+                model_version=model_version,
+                prediction_id=prediction_id,
+                label=self._get_label(prediction_label),
+                features=self._build_value_map(features))
         return record
 
-    def _build_label_map(self, labels):
-        formatted_labels = None
-        if isinstance(labels, dict):
-            formatted_labels = {
-                k: self._get_label_value(v, k)
-                for (k, v) in labels.items()
-            }
-        elif isinstance(labels, pd.DataFrame):
-            formatted_labels = labels.apply(
-                lambda y: y.apply(lambda x: self._get_label_value(x, y.name)))
-        return formatted_labels
+    def _build_value_map(self, vals):
+        formatted = None
+        if isinstance(vals, dict):
+            formatted = {k: self._get_value(v, k) for (k, v) in vals.items()}
+        elif isinstance(vals, pd.DataFrame):
+            formatted = vals.apply(
+                lambda y: y.apply(lambda x: self._get_value(x, y.name)))
+        return formatted
 
     # TODO(gabe): Instrument metrics and expose to client
     def _handle_exception(self, err):
@@ -204,49 +211,61 @@ class Client(object):
             self._LOGGER.error(f'Unexpected error occured: {err}')
 
     @staticmethod
-    def _build_prediction_record(ts, model_version, value, labels, account_id,
-                                 model_id, prediction_id):
-        prediction = protocol__pb2.Prediction(timestamp=ts,
-                                              model_version=model_version,
-                                              prediction_value=value,
-                                              labels=labels)
-        return protocol__pb2.Record(account_id=account_id,
-                                    model_id=model_id,
-                                    prediction_id=prediction_id,
-                                    prediction=prediction)
+    def _build_prediction_record(ts, organization_id, model_id, model_version,
+                                 prediction_id, label, features):
+        p = protocol__pb2.Prediction(label=label, features=features)
+        if isinstance(ts, Timestamp):
+            p.timestamp.MergeFrom(ts)
+        if model_version is not None:
+            p.model_version = model_version
+        rec = protocol__pb2.Record(prediction_id=prediction_id, prediction=p)
+        if organization_id is not None:
+            rec.organization_id = organization_id
+        if model_id is not None:
+            rec.model_id = model_id
+        return rec
 
     @staticmethod
-    def _build_truth_record(ts, account_id, model_id, prediction_id, value):
-        truth = protocol__pb2.Truth(timestamp=ts, truth_value=value)
-        return protocol__pb2.Record(account_id=account_id,
-                                    model_id=model_id,
-                                    prediction_id=prediction_id,
-                                    truth=truth)
+    def _build_actuals_record(ts, organization_id, model_id, prediction_id,
+                              label):
+        actual = protocol__pb2.Actual(label=label)
+        if isinstance(ts, Timestamp):
+            actual.timestamp.MergeFrom(ts)
+        rec = protocol__pb2.Record(prediction_id=prediction_id, actual=actual)
+        if organization_id is not None:
+            rec.organization_id = organization_id
+        if model_id is not None:
+            rec.model_id = model_id
+        return rec
 
     @staticmethod
-    def _get_value(value):
-        val = Client._convert_value(value)
+    def _get_label(value):
+        if isinstance(value, protocol__pb2.Label):
+            return value
+        val = Client._convert_element(value)
         if isinstance(val, bool):
-            return protocol__pb2.Value(binary_value=val)
+            return protocol__pb2.Label(binary=val)
         if isinstance(val, str):
-            return protocol__pb2.Value(categorical_value=val)
+            return protocol__pb2.Label(categorical=val)
         if isinstance(val, (int, float)):
-            return protocol__pb2.Value(numeric_value=val)
+            return protocol__pb2.Label(numeric=val)
         else:
-            err = f'Invalid prediction value {value} of type {type(value)}. Must be one of bool, str, float/int'
+            err = f'Invalid prediction/actual value {value} of type {type(value)}. Must be one of bool, str, float/int'
             raise TypeError(err)
 
     @staticmethod
-    def _get_label_value(value, label_name):
-        val = Client._convert_value(value)
+    def _get_value(value, name):
+        if isinstance(value, protocol__pb2.Value):
+            return value
+        val = Client._convert_element(value)
         if isinstance(val, (str, bool)):
-            return protocol__pb2.Label(string_label=str(val))
+            return protocol__pb2.Value(string=str(val))
         if isinstance(val, int):
-            return protocol__pb2.Label(int_label=val)
+            return protocol__pb2.Value(int=val)
         if isinstance(val, float):
-            return protocol__pb2.Label(double_label=val)
+            return protocol__pb2.Value(double=val)
         else:
-            err = f'Invalid value {value} of type {type(value)} for label "{label_name}". Must be one of bool, str, float/int.'
+            err = f'Invalid value {value} of type {type(value)} for feature "{name}". Must be one of bool, str, float/int.'
             raise TypeError(err)
 
     @staticmethod
@@ -256,5 +275,39 @@ class Client(object):
         return ts
 
     @staticmethod
-    def _convert_value(value):
+    def _convert_element(value):
         return getattr(value, "tolist", lambda: value)()
+
+    @staticmethod
+    def _validate_bulk_prediction_inputs(prediction_ids, prediction_labels,
+                                         features):
+        if prediction_ids is None:
+            raise ValueError('at least one prediction id is required')
+        if prediction_labels is None:
+            raise ValueError('at least one prediction label is required')
+        if prediction_labels.shape[0] != prediction_ids.shape[0]:
+            msg = f'prediction_labels shaped {prediction_labels.shape[0]} must have the same number of rows as predictions_ids shaped {prediction_ids.shape[0]}.'
+            raise ValueError(msg)
+        if features is not None and features.shape[0] != prediction_ids.shape[
+                0]:
+            msg = f'features shaped {features.shape[0]} must have the same number of rows as predictions_ids shaped {prediction_ids.shape[0]}.'
+            raise ValueError(msg)
+
+    @staticmethod
+    def _validate_bulk_actuals_inputs(prediction_ids, actual_labels):
+        if prediction_ids is None:
+            raise ValueError('at least one prediction id is required')
+        if actual_labels is None:
+            raise ValueError('at least one actual label is required')
+        if actual_labels.shape[0] != prediction_ids.shape[0]:
+            msg = f'actual_labels shaped {actual_labels.shape[0]} must have the same number of rows as predictions_ids shaped {prediction_ids.shape[0]}.'
+            raise ValueError(msg)
+
+    @staticmethod
+    def _num_chuncks(records):
+        total_bytes = 0
+        for r in records:
+            total_bytes += r.ByteSize()
+        num_of_bulk = math.ceil(total_bytes / 100000)
+        recs_per_msg = math.ceil(len(records) / num_of_bulk)
+        return recs_per_msg

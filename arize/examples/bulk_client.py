@@ -10,7 +10,7 @@ from arize.api import Client
 ITERATIONS = 1
 NUM_RECORDS = 2
 
-arize = Client(account_id=1,
+arize = Client(organization_id=1,
                api_key=os.environ.get('ARIZE_API_KEY'),
                model_id='benchmark_bulk_client',
                model_version="v0.1",
@@ -19,16 +19,18 @@ arize = Client(account_id=1,
                uri='https://dev.arize.com/v1',
                timeout=500)
 
-labels = pd.DataFrame(np.random.randint(0, 100000000, size=(NUM_RECORDS, 25)),
-                      columns=list('ABCDEFGHIJKLMNOPQRSTUVXYZ'))
-pred_val = pd.DataFrame(np.random.randint(0, 100000000, size=(NUM_RECORDS, 1)))
+features = pd.DataFrame(np.random.randint(0, 100000000,
+                                          size=(NUM_RECORDS, 25)),
+                        columns=list('ABCDEFGHIJKLMNOPQRSTUVXYZ'))
+pred_labels = pd.DataFrame(
+    np.random.randint(0, 100000000, size=(NUM_RECORDS, 1)))
 ids = pd.DataFrame([str(uuid.uuid4()) for _ in range(NUM_RECORDS)])
 
 start = time.time_ns()
 resps = arize.log(prediction_ids=ids,
-                  is_latent_truth=False,
-                  values=pred_val,
-                  labels=labels)
+                  prediction_labels=pred_labels,
+                  features=features,
+                  actual_labels=None)
 end_sending = time.time_ns()
 complete = 0
 failed = 0
