@@ -49,9 +49,10 @@ class Client(object):
 
     def log(self,
             prediction_ids,
-            prediction_labels,
-            actual_labels,
+            prediction_labels=None,
+            actual_labels=None,
             features=None,
+            features_name_overwrite=None,
             model_id=None,
             model_version=None):
         """ Logs an event with Arize via a POST request. Returns :class:`Future` object.
@@ -59,6 +60,7 @@ class Client(object):
         :param prediction_labels: The predicted values for a given model input. Individual labels can be joined against actual_labels by the corresponding prediction id. For individual events, input values can be bool, str, float, int. For bulk uploads, the client accepts a 1-D pandas data frame where values are associates to the label values in the same index. Must be the same shape as actual_labels.
         :param actual_labels: The actual expected values for a given model input. Individual labels can be joined against prediction_labels by the corresponding prediction id. For individual events, input values can be bool, str, float, int. For bulk uploads, the client accepts a 1-D pandas data frame where values are associates to the label values in the same index. Must be the same shape as prediction_labels.
         :param features: (str, <value>) Dictionary or 2-D Pandas dataframe. Containing human readable and debuggable model features. For dict keys must be strings, values one of string, boolean, float, long for a single prediction. For bulk uploads, pass in a 2-D pandas dataframe where df.columns contain feature names. Must have same number of rows as prediction_ids, prediction_labels, actual_labels.
+        :param features_name_overwrite: (list<str>) Optional list of strings that if present will overwrite features.columns values. Must contain the same number of elements as features.columns.
         :param model_id: (str) Unique identifier for a given model.
         :param model_version: (str) Optional field used to group together a subset of predictions and actuals for a given model_id.
         :rtype : concurrent.futures.Future
@@ -66,7 +68,8 @@ class Client(object):
         try:
             records, uri = self._handle_log(prediction_ids, prediction_labels,
                                             actual_labels, features, model_id,
-                                            model_version)
+                                            model_version,
+                                            features_name_overwrite)
             responses = []
             for record in records:
                 payload = MessageToDict(message=record,
@@ -82,18 +85,24 @@ class Client(object):
             self._handle_exception(err)
 
     def _handle_log(self, prediction_ids, prediction_labels, actual_labels,
-                    features, model_id, model_version):
+                    features, model_id, model_version,
+                    features_name_overwrite):
         uri = None
         records = []
         if model_id is None:
             model_id = self._model_id
         if model_version is None:
             model_version = self._model_version
+        if prediction_labels is None and actual_labels is None:
+            raise ValueError(
+                'either prediction_labels or actual_labels must be passed in, both are None'
+            )
         if isinstance(prediction_ids, pd.DataFrame):
             if prediction_labels is not None:
                 self._validate_bulk_prediction_inputs(prediction_ids,
                                                       prediction_labels,
-                                                      features)
+                                                      features,
+                                                      features_name_overwrite)
             if actual_labels is not None:
                 self._validate_bulk_actuals_inputs(prediction_ids,
                                                    actual_labels)
@@ -104,7 +113,8 @@ class Client(object):
                 prediction_ids=prediction_ids,
                 prediction_labels=prediction_labels,
                 actual_labels=actual_labels,
-                features=features)
+                features=features,
+                features_name_overwrite=features_name_overwrite)
         else:
             uri = self._uri
             records.append(
@@ -117,7 +127,8 @@ class Client(object):
         return records, uri
 
     def _build_bulk_record(self, model_id, model_version, prediction_ids,
-                           prediction_labels, actual_labels, features):
+                           prediction_labels, actual_labels, features,
+                           features_name_overwrite):
         records = []
         ids = prediction_ids.to_numpy()
         pred_labels_df = None
@@ -130,6 +141,8 @@ class Client(object):
             actual_labels_df = actual_labels.applymap(
                 lambda x: self._get_label(x)).to_numpy()
         if features is not None:
+            if features_name_overwrite is not None:
+                features.columns = features_name_overwrite
             features_df = self._build_value_map(features).to_dict('records')
 
         for i, v in enumerate(ids):
@@ -280,7 +293,7 @@ class Client(object):
 
     @staticmethod
     def _validate_bulk_prediction_inputs(prediction_ids, prediction_labels,
-                                         features):
+                                         features, features_name_overwrite):
         if prediction_ids is None:
             raise ValueError('at least one prediction id is required')
         if prediction_labels is None:
@@ -291,6 +304,15 @@ class Client(object):
         if features is not None and features.shape[0] != prediction_ids.shape[
                 0]:
             msg = f'features shaped {features.shape[0]} must have the same number of rows as predictions_ids shaped {prediction_ids.shape[0]}.'
+            raise ValueError(msg)
+        if features_name_overwrite is not None and len(
+                features.columns) != len(features_name_overwrite):
+            msg = f'features_name_overwrite len:{len(features_name_overwrite)} must have the same number of elements as features has columns ({len(features.columns)} columns).'
+            raise ValueError(msg)
+        if features is not None and isinstance(
+                features.columns, pd.core.indexes.range.RangeIndex
+        ) and features_name_overwrite is None:
+            msg = f'fatures.columns is of type RangeIndex, therefore, features_name_overwrite must be present to overwrite columns index with human readable feature names.'
             raise ValueError(msg)
 
     @staticmethod
