@@ -184,7 +184,7 @@ class Client(object):
                       prediction_label, features, actual_label):
         organization_id = self._organization_id
         ts = self._get_time()
-        if actual_label:
+        if actual_label is not None:
             record = self._build_actuals_record(
                 ts=ts,
                 organization_id=organization_id,
