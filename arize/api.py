@@ -47,6 +47,7 @@ class Client(object):
         self._session = FuturesSession(
             executor=BoundedExecutor(max_queue_bound, max_workers))
 
+    # TODO: Drop time_overwrite prior 0.1.0 release
     def log(self,
             prediction_ids,
             prediction_labels=None,
@@ -54,7 +55,8 @@ class Client(object):
             features=None,
             features_name_overwrite=None,
             model_id=None,
-            model_version=None):
+            model_version=None,
+            time_overwrite=None):
         """ Logs an event with Arize via a POST request. Returns :class:`Future` object.
         :param prediction_ids: (str) Unique string indetifier for specific prediction or actual label. These values are needed to match latent actual labels to their original prediction labels. For bulk uploads, pass in a 1-D Pandas Series where values are ids corresponding to feature values of the same index.
         :param prediction_labels: The predicted values for a given model input. Individual labels can be joined against actual_labels by the corresponding prediction id. For individual events, input values can be bool, str, float, int. For bulk uploads, the client accepts a 1-D pandas data frame where values are associates to the label values in the same index. Must be the same shape as actual_labels.
@@ -69,7 +71,8 @@ class Client(object):
             records, uri = self._handle_log(prediction_ids, prediction_labels,
                                             actual_labels, features, model_id,
                                             model_version,
-                                            features_name_overwrite)
+                                            features_name_overwrite,
+                                            time_overwrite)
             responses = []
             for record in records:
                 payload = MessageToDict(message=record,
@@ -85,8 +88,8 @@ class Client(object):
             self._handle_exception(err)
 
     def _handle_log(self, prediction_ids, prediction_labels, actual_labels,
-                    features, model_id, model_version,
-                    features_name_overwrite):
+                    features, model_id, model_version, features_name_overwrite,
+                    time_overwrite):
         uri = None
         records = []
         if model_id is None:
@@ -102,7 +105,8 @@ class Client(object):
                 self._validate_bulk_prediction_inputs(prediction_ids,
                                                       prediction_labels,
                                                       features,
-                                                      features_name_overwrite)
+                                                      features_name_overwrite,
+                                                      time_overwrite)
             if actual_labels is not None:
                 self._validate_bulk_actuals_inputs(prediction_ids,
                                                    actual_labels)
@@ -114,7 +118,8 @@ class Client(object):
                 prediction_labels=prediction_labels,
                 actual_labels=actual_labels,
                 features=features,
-                features_name_overwrite=features_name_overwrite)
+                features_name_overwrite=features_name_overwrite,
+                time_overwrite=time_overwrite)
         else:
             uri = self._uri
             records.append(
@@ -128,12 +133,13 @@ class Client(object):
 
     def _build_bulk_record(self, model_id, model_version, prediction_ids,
                            prediction_labels, actual_labels, features,
-                           features_name_overwrite):
+                           features_name_overwrite, time_overwrite):
         records = []
         ids = prediction_ids.to_numpy()
         pred_labels_df = None
         actual_labels_df = None
         features_df = None
+        time_df = None
         if prediction_labels is not None:
             pred_labels_df = prediction_labels.applymap(
                 lambda x: self._get_label(x)).to_numpy()
@@ -145,13 +151,24 @@ class Client(object):
                 features.columns = features_name_overwrite
             features_df = self._build_value_map(features).to_dict('records')
 
+        #TODO: Strip this before 0.1.0
+        if time_overwrite is not None:
+            time_df = time_overwrite.applymap(lambda x: self._convert_time(x))
+
         for i, v in enumerate(ids):
             f = None
             if features_df is not None:
                 f = features_df[i]
+
+            # TODO: strip time_overwrite before release
+            time = None
+            if time_df is not None:
+                print(time_df[0][i])
+                time = time_df[0][i]
             if pred_labels_df is not None:
                 records.append(
-                    self._build_prediction_record(ts=None,
+                    # TODO: strip time_overwrite before release
+                    self._build_prediction_record(ts=time,
                                                   organization_id=None,
                                                   model_id=None,
                                                   model_version=None,
@@ -293,7 +310,13 @@ class Client(object):
 
     @staticmethod
     def _validate_bulk_prediction_inputs(prediction_ids, prediction_labels,
-                                         features, features_name_overwrite):
+                                         features, features_name_overwrite,
+                                         timestamp_overwrite):
+        #TODO: strip timestamp override prior to 0.1.0
+        if timestamp_overwrite is not None:
+            if timestamp_overwrite.shape[0] != prediction_ids.shape[0]:
+                msg = f'timestamp_overwrite has {timestamp_overwrite.shape[0]} but must have same number of elements as prediction_ids {prediction_ids.shape[0]}'
+                raise ValueError(msg)
         if prediction_ids is None:
             raise ValueError('at least one prediction id is required')
         if prediction_labels is None:
@@ -333,3 +356,11 @@ class Client(object):
         num_of_bulk = math.ceil(total_bytes / 100000)
         recs_per_msg = math.ceil(len(records) / num_of_bulk)
         return recs_per_msg
+
+    @staticmethod
+    def _convert_time(time):
+        ts = None
+        if time is not None:
+            ts = Timestamp()
+            ts.FromSeconds(time)
+        return ts

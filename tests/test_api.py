@@ -216,7 +216,8 @@ def test_build_bulk_records_predictions():
         prediction_labels=labels,
         actual_labels=None,
         features=features,
-        features_name_overwrite=None)
+        features_name_overwrite=None,
+        time_overwrite=None)
     record_count = 0
     for bulk in bulk_records:
         assert bulk.organization_id == expected['organization_id']
@@ -243,7 +244,8 @@ def test_build_bulk_records_actuals():
         prediction_labels=None,
         actual_labels=labels,
         features=None,
-        features_name_overwrite=None)
+        features_name_overwrite=None,
+        time_overwrite=None)
     record_count = 0
     for bulk in bulk_records:
         assert bulk.organization_id == expected['organization_id']
@@ -267,7 +269,8 @@ def test_handle_log_single_actual():
                                      prediction_labels=None,
                                      features=None,
                                      actual_labels=expected['value_binary'],
-                                     features_name_overwrite=None)
+                                     features_name_overwrite=None,
+                                     time_overwrite=None)
     assert len(record) == 1
     assert isinstance(record[0].actual, protocol__pb2.Actual)
     assert uri == 'https://api.arize.com/v1/log'
@@ -282,7 +285,8 @@ def test_handle_log_single_prediction_with_features():
         prediction_labels=expected['value_binary'],
         features=expected['features'],
         actual_labels=None,
-        features_name_overwrite=None)
+        features_name_overwrite=None,
+        time_overwrite=None)
     assert len(record) == 1
     assert isinstance(record[0].prediction, protocol__pb2.Prediction)
     assert bool(record[0].prediction.features)
@@ -298,7 +302,8 @@ def test_handle_log_single_prediction_no_features():
         prediction_labels=expected['value_binary'],
         features=None,
         actual_labels=None,
-        features_name_overwrite=None)
+        features_name_overwrite=None,
+        time_overwrite=None)
     assert len(record) == 1
     assert isinstance(record[0].prediction, protocol__pb2.Prediction)
     assert not bool(record[0].prediction.features)
@@ -314,7 +319,8 @@ def test_handle_log_batch_prediction_with_features():
                                       prediction_labels=labels,
                                       features=features,
                                       actual_labels=None,
-                                      features_name_overwrite=None)
+                                      features_name_overwrite=None,
+                                      time_overwrite=None)
     assert len(records) > 0
     for bulk in records:
         assert isinstance(bulk, protocol__pb2.BulkRecord)
@@ -335,7 +341,8 @@ def test_handle_log_batch_prediction_with_no_features():
                                       prediction_labels=labels,
                                       features=None,
                                       actual_labels=None,
-                                      features_name_overwrite=None)
+                                      features_name_overwrite=None,
+                                      time_overwrite=None)
     assert len(records) > 0
     for bulk in records:
         assert isinstance(bulk, protocol__pb2.BulkRecord)
@@ -356,7 +363,8 @@ def test_handle_log_batch_actuals_only():
                                       prediction_labels=None,
                                       features=None,
                                       actual_labels=labels,
-                                      features_name_overwrite=None)
+                                      features_name_overwrite=None,
+                                      time_overwrite=None)
     assert len(records) > 0
     for bulk in records:
         assert isinstance(bulk, protocol__pb2.BulkRecord)
@@ -377,7 +385,8 @@ def test_handle_log_batch_actuals_and_predictions():
                                       prediction_labels=labels,
                                       features=features,
                                       actual_labels=labels,
-                                      features_name_overwrite=None)
+                                      features_name_overwrite=None,
+                                      time_overwrite=None)
     assert len(records) > 0
     actuals = 0
     predictions = 0
@@ -409,7 +418,8 @@ def test_handle_log_batch_actuals_and_predictions_missmatched_shapes():
                                           prediction_labels=labels,
                                           features=features,
                                           actual_labels=labels,
-                                          features_name_overwrite=None)
+                                          features_name_overwrite=None,
+                                          time_overwrite=None)
     except Exception as err:
         assert isinstance(err, ValueError)
     try:
@@ -419,7 +429,8 @@ def test_handle_log_batch_actuals_and_predictions_missmatched_shapes():
                                           prediction_labels=labels,
                                           features=features[0:10],
                                           actual_labels=labels,
-                                          features_name_overwrite=None)
+                                          features_name_overwrite=None,
+                                          time_overwrite=None)
     except Exception as err:
         assert isinstance(err, ValueError)
     try:
@@ -429,7 +440,8 @@ def test_handle_log_batch_actuals_and_predictions_missmatched_shapes():
                                           prediction_labels=labels,
                                           features=features,
                                           actual_labels=labels[0:10],
-                                          features_name_overwrite=None)
+                                          features_name_overwrite=None,
+                                          time_overwrite=None)
     except Exception as err:
         assert isinstance(err, ValueError)
 
@@ -447,7 +459,8 @@ def test_handle_log_batch_prediction_with_features_name_overwrites():
         prediction_labels=labels,
         features=features,
         actual_labels=None,
-        features_name_overwrite=features_name_overwrite)
+        features_name_overwrite=features_name_overwrite,
+        time_overwrite=None)
     assert len(records) > 0
     for bulk in records:
         assert isinstance(bulk, protocol__pb2.BulkRecord)
@@ -476,7 +489,8 @@ def test_handle_log_batch_prediction_with_features_name_overwrites_missmatched_s
             prediction_labels=labels,
             features=features,
             actual_labels=None,
-            features_name_overwrite=features_name_overwrite)
+            features_name_overwrite=features_name_overwrite,
+            time_overwrite=None)
     except Exception as err:
         assert isinstance(err, ValueError)
 
@@ -492,7 +506,8 @@ def test_handle_log_batch_prediction_default_columns_int_names():
                                           prediction_labels=labels,
                                           features=features_default_columns,
                                           actual_labels=None,
-                                          features_name_overwrite=None)
+                                          features_name_overwrite=None,
+                                          time_overwrite=None)
     except Exception as err:
         assert isinstance(err, ValueError)
 
@@ -507,6 +522,32 @@ def test_handle_log_batch_prediction_no_actuals_or_predictions():
                                           prediction_labels=None,
                                           features=None,
                                           actual_labels=None,
-                                          features_name_overwrite=None)
+                                          features_name_overwrite=None,
+                                          time_overwrite=None)
     except Exception as err:
         assert isinstance(err, ValueError)
+
+
+def test_handle_log_batch_prediction_with_time_overwrites():
+    client = setup_client()
+    features, labels, ids = mock_dataframes(file_to_open)
+    time = [1593626247 + i for i in range(features.shape[0])]
+    time_df = pd.DataFrame(time)
+    records, uri = client._handle_log(model_id=expected['model'],
+                                      model_version=None,
+                                      prediction_ids=ids,
+                                      prediction_labels=labels,
+                                      features=features,
+                                      time_overwrite=time_df,
+                                      features_name_overwrite=None,
+                                      actual_labels=None)
+    assert len(records) > 0
+    for bulk in records:
+        assert isinstance(bulk, protocol__pb2.BulkRecord)
+        for r in bulk.records:
+            assert isinstance(r, protocol__pb2.Record)
+            assert not bool(r.organization_id)
+            assert not bool(r.model_id)
+            assert bool(r.prediction.features)
+            assert r.prediction.timestamp is not None
+    assert uri == 'https://api.arize.com/v1/bulk'
