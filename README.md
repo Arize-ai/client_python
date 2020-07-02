@@ -53,7 +53,7 @@ from arize.api import Client
 
 API_KEY = os.environ.get('ARIZE_API_KEY') #If passing api_key via env vars
 
-arize = Client(organization_id=1234, api_key=API_KEY, uri='https://dev.arize.com/v1')
+arize = Client(organization_key='ARIZE_ORG_KEY', api_key=API_KEY)
 ```
 
 ### Collect your model input features and labels you'd like to track
@@ -150,7 +150,7 @@ If you are using a different language, you'll be able to post an HTTP request to
 ### HTTP post request to Arize
 
 ```bash 
-curl -X POST -H "Authorization: API_KEY" "https://dev.arize.com/v1/log" -d'{"organization_id": 0, "model_id": "test_model_1", "prediction_id":"test100", "prediction":{"model_version": "v1.23.64", "features":{"state":{"string_": "CO"}, "item_count":{"int": 10}, "charge_amt":{"float": 12.34}, "physical_card":{"string_": true}}, "prediction_label": {"binary": false}}}'
+curl -X POST -H "Authorization: YOU_API_KEY" "https://log.arize.com/v1/log" -d'{"organization_key": "YOUR_ORG_KEY", "model_id": "test_model_1", "prediction_id":"test100", "prediction":{"model_version": "v1.23.64", "features":{"state":{"string": "CO"}, "item_count":{"int": 10}, "charge_amt":{"float": 12.34}, "physical_card":{"string": true}}, "prediction_label": {"binary": false}}}'
 ```
 ---
 ## Contributing

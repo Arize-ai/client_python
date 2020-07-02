@@ -8,7 +8,7 @@ from requests_futures.sessions import FuturesSession
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.protobuf.json_format import MessageToDict
 
-from arize import protocol_pb2 as protocol__pb2
+from arize import public_pb2 as public__pb2
 from arize.bounded_executor import BoundedExecutor
 
 
@@ -18,7 +18,7 @@ class Client(object):
     """
     def __init__(self,
                  api_key: str,
-                 organization_id: int,
+                 organization_key: str,
                  model_id=None,
                  model_version=None,
                  uri='https://api.arize.com/v1',
@@ -28,7 +28,7 @@ class Client(object):
                  timeout=200):
         """
             :params api_key: (str) api key associated with your account with Arize AI
-            :params organization_id: (int) organization id in Arize AI
+            :params organization_key: (str) organization key in Arize AI
             :params model_id: (str) model id
             :params model_version: (str) model version
             :params max_workers: (int) number of max concurrent requests to Arize. Default: 20
@@ -39,7 +39,7 @@ class Client(object):
         self._uri = uri + '/log'
         self._bulk_url = uri + '/bulk'
         self._api_key = api_key
-        self._organization_id = organization_id
+        self._organization_key = organization_key
         self._model_id = model_id
         self._model_version = model_version
         self._timeout = timeout
@@ -163,13 +163,12 @@ class Client(object):
             # TODO: strip time_overwrite before release
             time = None
             if time_df is not None:
-                print(time_df[0][i])
                 time = time_df[0][i]
             if pred_labels_df is not None:
                 records.append(
                     # TODO: strip time_overwrite before release
                     self._build_prediction_record(ts=time,
-                                                  organization_id=None,
+                                                  organization_key=None,
                                                   model_id=None,
                                                   model_version=None,
                                                   prediction_id=v[0],
@@ -178,7 +177,7 @@ class Client(object):
             if actual_labels_df is not None:
                 records.append(
                     self._build_actuals_record(ts=None,
-                                               organization_id=None,
+                                               organization_key=None,
                                                model_id=None,
                                                prediction_id=v[0],
                                                label=actual_labels_df[i][0]))
@@ -189,29 +188,29 @@ class Client(object):
             for i in range(0, len(records), recs_per_msg)
         ]
         results = [
-            protocol__pb2.BulkRecord(records=r,
-                                     organization_id=self._organization_id,
-                                     model_id=model_id,
-                                     model_version=model_version,
-                                     timestamp=self._get_time()) for r in recs
+            public__pb2.BulkRecord(records=r,
+                                   organization_key=self._organization_key,
+                                   model_id=model_id,
+                                   model_version=model_version,
+                                   timestamp=self._get_time()) for r in recs
         ]
         return results
 
     def _build_record(self, model_id, model_version, prediction_id,
                       prediction_label, features, actual_label):
-        organization_id = self._organization_id
+        organization_key = self._organization_key
         ts = self._get_time()
         if actual_label is not None:
             record = self._build_actuals_record(
                 ts=ts,
-                organization_id=organization_id,
+                organization_key=organization_key,
                 model_id=model_id,
                 prediction_id=prediction_id,
                 label=self._get_label(actual_label))
         else:
             record = self._build_prediction_record(
                 ts=ts,
-                organization_id=organization_id,
+                organization_key=organization_key,
                 model_id=model_id,
                 model_version=model_version,
                 prediction_id=prediction_id,
@@ -241,59 +240,59 @@ class Client(object):
             self._LOGGER.error(f'Unexpected error occured: {err}')
 
     @staticmethod
-    def _build_prediction_record(ts, organization_id, model_id, model_version,
+    def _build_prediction_record(ts, organization_key, model_id, model_version,
                                  prediction_id, label, features):
-        p = protocol__pb2.Prediction(label=label, features=features)
+        p = public__pb2.Prediction(label=label, features=features)
         if isinstance(ts, Timestamp):
             p.timestamp.MergeFrom(ts)
         if model_version is not None:
             p.model_version = model_version
-        rec = protocol__pb2.Record(prediction_id=prediction_id, prediction=p)
-        if organization_id is not None:
-            rec.organization_id = organization_id
+        rec = public__pb2.Record(prediction_id=prediction_id, prediction=p)
+        if organization_key is not None:
+            rec.organization_key = organization_key
         if model_id is not None:
             rec.model_id = model_id
         return rec
 
     @staticmethod
-    def _build_actuals_record(ts, organization_id, model_id, prediction_id,
+    def _build_actuals_record(ts, organization_key, model_id, prediction_id,
                               label):
-        actual = protocol__pb2.Actual(label=label)
+        actual = public__pb2.Actual(label=label)
         if isinstance(ts, Timestamp):
             actual.timestamp.MergeFrom(ts)
-        rec = protocol__pb2.Record(prediction_id=prediction_id, actual=actual)
-        if organization_id is not None:
-            rec.organization_id = organization_id
+        rec = public__pb2.Record(prediction_id=prediction_id, actual=actual)
+        if organization_key is not None:
+            rec.organization_key = organization_key
         if model_id is not None:
             rec.model_id = model_id
         return rec
 
     @staticmethod
     def _get_label(value):
-        if isinstance(value, protocol__pb2.Label):
+        if isinstance(value, public__pb2.Label):
             return value
         val = Client._convert_element(value)
         if isinstance(val, bool):
-            return protocol__pb2.Label(binary=val)
+            return public__pb2.Label(binary=val)
         if isinstance(val, str):
-            return protocol__pb2.Label(categorical=val)
+            return public__pb2.Label(categorical=val)
         if isinstance(val, (int, float)):
-            return protocol__pb2.Label(numeric=val)
+            return public__pb2.Label(numeric=val)
         else:
             err = f'Invalid prediction/actual value {value} of type {type(value)}. Must be one of bool, str, float/int'
             raise TypeError(err)
 
     @staticmethod
     def _get_value(value, name):
-        if isinstance(value, protocol__pb2.Value):
+        if isinstance(value, public__pb2.Value):
             return value
         val = Client._convert_element(value)
         if isinstance(val, (str, bool)):
-            return protocol__pb2.Value(string=str(val))
+            return public__pb2.Value(string=str(val))
         if isinstance(val, int):
-            return protocol__pb2.Value(int=val)
+            return public__pb2.Value(int=val)
         if isinstance(val, float):
-            return protocol__pb2.Value(double=val)
+            return public__pb2.Value(double=val)
         else:
             err = f'Invalid value {value} of type {type(value)} for feature "{name}". Must be one of bool, str, float/int.'
             raise TypeError(err)

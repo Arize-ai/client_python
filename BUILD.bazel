@@ -6,7 +6,7 @@ py_library(
     name = "arize",
     srcs = [
         "arize/api.py",
-        "arize/protocol_pb2.py",
+        "arize/public_pb2.py",
         "arize/bounded_executor.py",
     ],
     deps = [

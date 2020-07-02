@@ -10,13 +10,13 @@ from arize.api import Client
 ITERATIONS = 1
 NUM_RECORDS = 2
 
-arize = Client(organization_id=1,
+arize = Client(organization_key="barcelos",
                api_key=os.environ.get('ARIZE_API_KEY'),
                model_id='benchmark_bulk_client',
                model_version="v0.1",
                max_queue_bound=5000,
                max_workers=8,
-               uri='https://dev.arize.com/v1',
+               uri='https://devr.arize.com/v1',
                timeout=500)
 
 features = pd.DataFrame(np.random.randint(0, 100000000,

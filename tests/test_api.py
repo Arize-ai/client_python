@@ -4,7 +4,7 @@ import uuid
 from pathlib import Path
 
 import arize.api as api
-import arize.protocol_pb2 as protocol__pb2
+import arize.public_pb2 as public__pb2
 
 from google.protobuf.timestamp_pb2 import Timestamp
 
@@ -22,7 +22,7 @@ expected = {
     'value_binary': BOOL_VAL,
     'value_categorical': STR_VAL,
     'value_numeric': NUM_VAL,
-    'organization_id': 1234,
+    'organization_key': 'test_org',
     'features': {
         'feature_str': STR_VAL,
         'feature_double': NUM_VAL,
@@ -44,13 +44,13 @@ def test_api_initialization():
         assert isinstance(client_id_exception, TypeError)
 
     try:
-        api.Client(organization_id='test')
-    except Exception as organization_id_exception:
-        assert isinstance(organization_id_exception, TypeError)
+        api.Client(organization_key='test')
+    except Exception as organization_key_exception:
+        assert isinstance(organization_key_exception, TypeError)
 
 
 def setup_client():
-    return api.Client(organization_id=expected['organization_id'],
+    return api.Client(organization_key=expected['organization_key'],
                       api_key=expected['api_key'],
                       model_id=expected['model'],
                       model_version=expected['model_version'])
@@ -73,13 +73,13 @@ def test_build_prediction_record_features():
                                   features=expected['features'],
                                   actual_label=None)
 
-    assert isinstance(record, protocol__pb2.Record)
-    assert isinstance(record.prediction, protocol__pb2.Prediction)
-    assert isinstance(record.prediction.label, protocol__pb2.Label)
+    assert isinstance(record, public__pb2.Record)
+    assert isinstance(record.prediction, public__pb2.Prediction)
+    assert isinstance(record.prediction.label, public__pb2.Label)
     for feature in record.prediction.features:
         assert isinstance(record.prediction.features[feature],
-                          protocol__pb2.Value)
-    assert record.organization_id == expected['organization_id']
+                          public__pb2.Value)
+    assert record.organization_key == expected['organization_key']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
     assert record.prediction.model_version == expected['model_version']
@@ -102,10 +102,10 @@ def test_build_record_binary_prediction():
                                   prediction_label=expected['value_binary'],
                                   features=expected['features'],
                                   actual_label=None)
-    assert isinstance(record, protocol__pb2.Record)
-    assert isinstance(record.prediction, protocol__pb2.Prediction)
-    assert isinstance(record.prediction.label, protocol__pb2.Label)
-    assert record.organization_id == expected['organization_id']
+    assert isinstance(record, public__pb2.Record)
+    assert isinstance(record.prediction, public__pb2.Prediction)
+    assert isinstance(record.prediction.label, public__pb2.Label)
+    assert record.organization_key == expected['organization_key']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
     assert record.prediction.model_version == expected['model_version']
@@ -123,10 +123,10 @@ def test_build_record_categorical_prediction():
         features=expected['features'],
         actual_label=None)
 
-    assert isinstance(record, protocol__pb2.Record)
-    assert isinstance(record.prediction, protocol__pb2.Prediction)
-    assert isinstance(record.prediction.label, protocol__pb2.Label)
-    assert record.organization_id == expected['organization_id']
+    assert isinstance(record, public__pb2.Record)
+    assert isinstance(record.prediction, public__pb2.Prediction)
+    assert isinstance(record.prediction.label, public__pb2.Label)
+    assert record.organization_key == expected['organization_key']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
     assert record.prediction.model_version == expected['model_version']
@@ -143,11 +143,11 @@ def test_build_record_numeric_prediction():
                                   features=expected['features'],
                                   actual_label=None)
 
-    assert isinstance(record, protocol__pb2.Record)
-    assert isinstance(record.prediction, protocol__pb2.Prediction)
-    assert isinstance(record.prediction.label, protocol__pb2.Label)
+    assert isinstance(record, public__pb2.Record)
+    assert isinstance(record.prediction, public__pb2.Prediction)
+    assert isinstance(record.prediction.label, public__pb2.Label)
 
-    assert record.organization_id == expected['organization_id']
+    assert record.organization_key == expected['organization_key']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
     assert record.prediction.model_version == expected['model_version']
@@ -163,10 +163,10 @@ def test_build_record_numeric_actual():
                                   prediction_label=None,
                                   features=None,
                                   actual_label=expected['value_numeric'])
-    assert isinstance(record, protocol__pb2.Record)
-    assert isinstance(record.actual, protocol__pb2.Actual)
-    assert isinstance(record.actual.label, protocol__pb2.Label)
-    assert record.organization_id == expected['organization_id']
+    assert isinstance(record, public__pb2.Record)
+    assert isinstance(record.actual, public__pb2.Actual)
+    assert isinstance(record.actual.label, public__pb2.Label)
+    assert record.organization_key == expected['organization_key']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
     assert record.actual.label.numeric == expected['value_numeric']
@@ -180,10 +180,10 @@ def test_build_record_categorical_actual():
                                   prediction_label=None,
                                   features=None,
                                   actual_label=expected['value_categorical'])
-    assert isinstance(record, protocol__pb2.Record)
-    assert isinstance(record.actual, protocol__pb2.Actual)
-    assert isinstance(record.actual.label, protocol__pb2.Label)
-    assert record.organization_id == expected['organization_id']
+    assert isinstance(record, public__pb2.Record)
+    assert isinstance(record.actual, public__pb2.Actual)
+    assert isinstance(record.actual.label, public__pb2.Label)
+    assert record.organization_key == expected['organization_key']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
     assert record.actual.label.categorical == expected['value_categorical']
@@ -197,10 +197,10 @@ def test_build_record_binary_actual():
                                   prediction_label=None,
                                   features=None,
                                   actual_label=expected['value_binary'])
-    assert isinstance(record, protocol__pb2.Record)
-    assert isinstance(record.actual, protocol__pb2.Actual)
-    assert isinstance(record.actual.label, protocol__pb2.Label)
-    assert record.organization_id == expected['organization_id']
+    assert isinstance(record, public__pb2.Record)
+    assert isinstance(record.actual, public__pb2.Actual)
+    assert isinstance(record.actual.label, public__pb2.Label)
+    assert record.organization_key == expected['organization_key']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
     assert record.actual.label.binary == expected['value_binary']
@@ -220,14 +220,14 @@ def test_build_bulk_records_predictions():
         time_overwrite=None)
     record_count = 0
     for bulk in bulk_records:
-        assert bulk.organization_id == expected['organization_id']
+        assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert bulk.model_version == expected['model_version']
         assert isinstance(bulk.timestamp, Timestamp)
         for i in range(len(bulk.records)):
             record = bulk.records[i]
-            assert isinstance(record, protocol__pb2.Record)
-            assert isinstance(record.prediction.label, protocol__pb2.Label)
+            assert isinstance(record, public__pb2.Record)
+            assert isinstance(record.prediction.label, public__pb2.Label)
             assert len(record.prediction.features) == features.shape[1]
             assert record.prediction.label.WhichOneof('data') == 'numeric'
             record_count += 1
@@ -248,13 +248,13 @@ def test_build_bulk_records_actuals():
         time_overwrite=None)
     record_count = 0
     for bulk in bulk_records:
-        assert bulk.organization_id == expected['organization_id']
+        assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert isinstance(bulk.timestamp, Timestamp)
         for i in range(len(bulk.records)):
             record = bulk.records[i]
-            assert isinstance(record, protocol__pb2.Record)
-            assert isinstance(record.actual.label, protocol__pb2.Label)
+            assert isinstance(record, public__pb2.Record)
+            assert isinstance(record.actual.label, public__pb2.Label)
             assert record.prediction_id == ids[0][record_count]
             assert record.actual.label.WhichOneof('data') == 'numeric'
             record_count += 1
@@ -272,7 +272,7 @@ def test_handle_log_single_actual():
                                      features_name_overwrite=None,
                                      time_overwrite=None)
     assert len(record) == 1
-    assert isinstance(record[0].actual, protocol__pb2.Actual)
+    assert isinstance(record[0].actual, public__pb2.Actual)
     assert uri == 'https://api.arize.com/v1/log'
 
 
@@ -288,7 +288,7 @@ def test_handle_log_single_prediction_with_features():
         features_name_overwrite=None,
         time_overwrite=None)
     assert len(record) == 1
-    assert isinstance(record[0].prediction, protocol__pb2.Prediction)
+    assert isinstance(record[0].prediction, public__pb2.Prediction)
     assert bool(record[0].prediction.features)
     assert uri == 'https://api.arize.com/v1/log'
 
@@ -305,7 +305,7 @@ def test_handle_log_single_prediction_no_features():
         features_name_overwrite=None,
         time_overwrite=None)
     assert len(record) == 1
-    assert isinstance(record[0].prediction, protocol__pb2.Prediction)
+    assert isinstance(record[0].prediction, public__pb2.Prediction)
     assert not bool(record[0].prediction.features)
     assert uri == 'https://api.arize.com/v1/log'
 
@@ -323,10 +323,10 @@ def test_handle_log_batch_prediction_with_features():
                                       time_overwrite=None)
     assert len(records) > 0
     for bulk in records:
-        assert isinstance(bulk, protocol__pb2.BulkRecord)
+        assert isinstance(bulk, public__pb2.BulkRecord)
         for r in bulk.records:
-            assert isinstance(r, protocol__pb2.Record)
-            assert not bool(r.organization_id)
+            assert isinstance(r, public__pb2.Record)
+            assert not bool(r.organization_key)
             assert not bool(r.model_id)
             assert bool(r.prediction.features)
     assert uri == 'https://api.arize.com/v1/bulk'
@@ -345,10 +345,10 @@ def test_handle_log_batch_prediction_with_no_features():
                                       time_overwrite=None)
     assert len(records) > 0
     for bulk in records:
-        assert isinstance(bulk, protocol__pb2.BulkRecord)
+        assert isinstance(bulk, public__pb2.BulkRecord)
         for r in bulk.records:
-            assert isinstance(r, protocol__pb2.Record)
-            assert not bool(r.organization_id)
+            assert isinstance(r, public__pb2.Record)
+            assert not bool(r.organization_key)
             assert not bool(r.model_id)
             assert not bool(r.prediction.features)
     assert uri == 'https://api.arize.com/v1/bulk'
@@ -367,10 +367,10 @@ def test_handle_log_batch_actuals_only():
                                       time_overwrite=None)
     assert len(records) > 0
     for bulk in records:
-        assert isinstance(bulk, protocol__pb2.BulkRecord)
+        assert isinstance(bulk, public__pb2.BulkRecord)
         for r in bulk.records:
-            assert isinstance(r, protocol__pb2.Record)
-            assert not bool(r.organization_id)
+            assert isinstance(r, public__pb2.Record)
+            assert not bool(r.organization_key)
             assert not bool(r.model_id)
             assert bool(r.actual.label)
     assert uri == 'https://api.arize.com/v1/bulk'
@@ -391,14 +391,14 @@ def test_handle_log_batch_actuals_and_predictions():
     actuals = 0
     predictions = 0
     for bulk in records:
-        assert isinstance(bulk, protocol__pb2.BulkRecord)
+        assert isinstance(bulk, public__pb2.BulkRecord)
         for r in bulk.records:
-            assert isinstance(r, protocol__pb2.Record)
-            assert not bool(r.organization_id)
+            assert isinstance(r, public__pb2.Record)
+            assert not bool(r.organization_key)
             assert not bool(r.model_id)
             assert isinstance(
                 getattr(r, r.WhichOneof('prediction_or_actual')).label,
-                protocol__pb2.Label)
+                public__pb2.Label)
             if r.WhichOneof('prediction_or_actual') == 'prediction':
                 predictions += 1
             if r.WhichOneof('prediction_or_actual') == 'prediction':
@@ -463,10 +463,10 @@ def test_handle_log_batch_prediction_with_features_name_overwrites():
         time_overwrite=None)
     assert len(records) > 0
     for bulk in records:
-        assert isinstance(bulk, protocol__pb2.BulkRecord)
+        assert isinstance(bulk, public__pb2.BulkRecord)
         for r in bulk.records:
-            assert isinstance(r, protocol__pb2.Record)
-            assert not bool(r.organization_id)
+            assert isinstance(r, public__pb2.Record)
+            assert not bool(r.organization_key)
             assert not bool(r.model_id)
             assert bool(r.prediction.features)
             for feature in r.prediction.features:
@@ -543,10 +543,10 @@ def test_handle_log_batch_prediction_with_time_overwrites():
                                       actual_labels=None)
     assert len(records) > 0
     for bulk in records:
-        assert isinstance(bulk, protocol__pb2.BulkRecord)
+        assert isinstance(bulk, public__pb2.BulkRecord)
         for r in bulk.records:
-            assert isinstance(r, protocol__pb2.Record)
-            assert not bool(r.organization_id)
+            assert isinstance(r, public__pb2.Record)
+            assert not bool(r.organization_key)
             assert not bool(r.model_id)
             assert bool(r.prediction.features)
             assert r.prediction.timestamp is not None
