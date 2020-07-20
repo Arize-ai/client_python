@@ -71,7 +71,8 @@ def test_build_prediction_record_features():
                                   prediction_id=expected['prediction_id'],
                                   prediction_label=expected['value_binary'],
                                   features=expected['features'],
-                                  actual_label=None)
+                                  actual_label=None,
+                                  time_overwrite=None)
 
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.prediction, public__pb2.Prediction)
@@ -101,7 +102,8 @@ def test_build_record_binary_prediction():
                                   prediction_id=expected['prediction_id'],
                                   prediction_label=expected['value_binary'],
                                   features=expected['features'],
-                                  actual_label=None)
+                                  actual_label=None,
+                                  time_overwrite=None)
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.prediction, public__pb2.Prediction)
     assert isinstance(record.prediction.label, public__pb2.Label)
@@ -121,7 +123,8 @@ def test_build_record_categorical_prediction():
         prediction_id=expected['prediction_id'],
         prediction_label=expected['value_categorical'],
         features=expected['features'],
-        actual_label=None)
+        actual_label=None,
+        time_overwrite=None)
 
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.prediction, public__pb2.Prediction)
@@ -141,7 +144,8 @@ def test_build_record_numeric_prediction():
                                   prediction_id=expected['prediction_id'],
                                   prediction_label=expected['value_numeric'],
                                   features=expected['features'],
-                                  actual_label=None)
+                                  actual_label=None,
+                                  time_overwrite=None)
 
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.prediction, public__pb2.Prediction)
@@ -162,7 +166,8 @@ def test_build_record_numeric_actual():
                                   prediction_id=expected['prediction_id'],
                                   prediction_label=None,
                                   features=None,
-                                  actual_label=expected['value_numeric'])
+                                  actual_label=expected['value_numeric'],
+                                  time_overwrite=None)
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.actual, public__pb2.Actual)
     assert isinstance(record.actual.label, public__pb2.Label)
@@ -179,7 +184,8 @@ def test_build_record_categorical_actual():
                                   prediction_id=expected['prediction_id'],
                                   prediction_label=None,
                                   features=None,
-                                  actual_label=expected['value_categorical'])
+                                  actual_label=expected['value_categorical'],
+                                  time_overwrite=None)
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.actual, public__pb2.Actual)
     assert isinstance(record.actual.label, public__pb2.Label)
@@ -196,7 +202,8 @@ def test_build_record_binary_actual():
                                   prediction_id=expected['prediction_id'],
                                   prediction_label=None,
                                   features=None,
-                                  actual_label=expected['value_binary'])
+                                  actual_label=expected['value_binary'],
+                                  time_overwrite=None)
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.actual, public__pb2.Actual)
     assert isinstance(record.actual.label, public__pb2.Label)
@@ -551,3 +558,69 @@ def test_handle_log_batch_prediction_with_time_overwrites():
             assert bool(r.prediction.features)
             assert r.prediction.timestamp is not None
     assert uri == 'https://api.arize.com/v1/bulk'
+
+
+def test_handle_log_prediction_with_time_overwrites():
+    client = setup_client()
+    record, uri = client._handle_log(
+        model_id=expected['model'],
+        model_version=None,
+        prediction_ids=expected['prediction_id'],
+        prediction_labels=expected['value_binary'],
+        features=expected['features'],
+        actual_labels=None,
+        features_name_overwrite=None,
+        time_overwrite=1593626247)
+    assert len(record) == 1
+    assert isinstance(record[0].prediction, public__pb2.Prediction)
+    assert bool(record[0].prediction.features)
+    assert uri == 'https://api.arize.com/v1/log'
+    assert record[0].prediction.timestamp.seconds == 1593626247
+
+
+def test_handle_log_batch_non_supported_data_types():
+    client = setup_client()
+    features, labels, ids = mock_dataframes(file_to_open)
+    features_nparray = np.array(features.to_numpy())
+    ids_series = pd.Series(ids.to_numpy()[0])
+    labels_series = pd.Series(labels.to_numpy)
+    label_ex, feature_ex, id_ex = None, None, None
+    try:
+        records, uri = client._handle_log(model_id=expected['model'],
+                                          model_version=None,
+                                          prediction_ids=ids_series,
+                                          prediction_labels=labels,
+                                          features=features,
+                                          actual_labels=labels,
+                                          features_name_overwrite=None,
+                                          time_overwrite=None)
+    except Exception as ex:
+        id_ex = ex
+
+    try:
+        records, uri = client._handle_log(model_id=expected['model'],
+                                          model_version=None,
+                                          prediction_ids=ids,
+                                          prediction_labels=labels_series,
+                                          features=features,
+                                          actual_labels=labels,
+                                          features_name_overwrite=None,
+                                          time_overwrite=None)
+    except Exception as ex:
+        label_ex = ex
+
+    try:
+        records, uri = client._handle_log(model_id=expected['model'],
+                                          model_version=None,
+                                          prediction_ids=ids,
+                                          prediction_labels=labels,
+                                          features=features_nparray,
+                                          actual_labels=labels,
+                                          features_name_overwrite=None,
+                                          time_overwrite=None)
+    except Exception as ex:
+        feature_ex = ex
+
+    assert isinstance(id_ex, ValueError)
+    assert isinstance(label_ex, ValueError)
+    assert isinstance(feature_ex, ValueError)

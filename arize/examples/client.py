@@ -7,16 +7,13 @@ import concurrent.futures as cf
 
 from arize.api import Client
 
-ITERATIONS = 100
+ITERATIONS = 1
 NUM_FEATURES = 5
 
 arize = Client(organization_key="barcelos",
                api_key=os.environ.get('ARIZE_API_KEY'),
-               max_queue_bound=5000,
-               max_workers=8,
                model_id="benchmark_client",
-               model_version="v0.1",
-               uri='https://devr.arize.com/v1')
+               model_version="v0.1")
 
 
 def get_features(feature_counts):

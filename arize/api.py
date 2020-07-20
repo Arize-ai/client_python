@@ -47,7 +47,6 @@ class Client(object):
         self._session = FuturesSession(
             executor=BoundedExecutor(max_queue_bound, max_workers))
 
-    # TODO: Drop time_overwrite prior 0.1.0 release
     def log(self,
             prediction_ids,
             prediction_labels=None,
@@ -65,6 +64,7 @@ class Client(object):
         :param features_name_overwrite: (list<str>) Optional list of strings that if present will overwrite features.columns values. Must contain the same number of elements as features.columns.
         :param model_id: (str) Unique identifier for a given model.
         :param model_version: (str) Optional field used to group together a subset of predictions and actuals for a given model_id.
+        :param time_overwrite: (int) Optional field with unix epoch time in seconds to overwrite timestamp for prediction. If None, prediction uses current timestamp. For bulk uploads, pass in list<int> with same number of elements as prediction_labels. 
         :rtype : concurrent.futures.Future
         """
         try:
@@ -120,15 +120,24 @@ class Client(object):
                 features=features,
                 features_name_overwrite=features_name_overwrite,
                 time_overwrite=time_overwrite)
-        else:
+        elif isinstance(prediction_ids, (str, bytes)):
+            if prediction_labels is not None:
+                self._validate_prediction_inputs(prediction_ids,
+                                                 prediction_labels, features)
+            elif actual_labels is not None:
+                self._validate_actual_inputs(prediction_ids, actual_labels)
             uri = self._uri
             records.append(
                 self._build_record(model_id=model_id,
                                    model_version=model_version,
-                                   prediction_id=str(prediction_ids),
+                                   prediction_id=prediction_ids,
                                    prediction_label=prediction_labels,
                                    features=features,
-                                   actual_label=actual_labels))
+                                   actual_label=actual_labels,
+                                   time_overwrite=time_overwrite))
+        else:
+            msg = f'prediction_ids must either be type str or pd.DataFrame but got {type(prediction_ids)}'
+            raise ValueError(msg)
         return records, uri
 
     def _build_bulk_record(self, model_id, model_version, prediction_ids,
@@ -151,22 +160,21 @@ class Client(object):
                 features.columns = features_name_overwrite
             features_df = self._build_value_map(features).to_dict('records')
 
-        #TODO: Strip this before 0.1.0
         if time_overwrite is not None:
             time_df = time_overwrite.applymap(lambda x: self._convert_time(x))
 
         for i, v in enumerate(ids):
+            if not isinstance(v[0], (str, bytes)):
+                msg = f'prediction_id {v[0]} has type {type(v[0])}, but expected one of: str, bytes'
+                raise ValueError(msg)
             f = None
             if features_df is not None:
                 f = features_df[i]
-
-            # TODO: strip time_overwrite before release
             time = None
             if time_df is not None:
                 time = time_df[0][i]
             if pred_labels_df is not None:
                 records.append(
-                    # TODO: strip time_overwrite before release
                     self._build_prediction_record(ts=time,
                                                   organization_key=None,
                                                   model_id=None,
@@ -197,9 +205,14 @@ class Client(object):
         return results
 
     def _build_record(self, model_id, model_version, prediction_id,
-                      prediction_label, features, actual_label):
+                      prediction_label, features, actual_label,
+                      time_overwrite):
         organization_key = self._organization_key
-        ts = self._get_time()
+        ts = None
+        if time_overwrite is not None:
+            ts = self._convert_time(time_overwrite)
+        else:
+            ts = self._get_time()
         if actual_label is not None:
             record = self._build_actuals_record(
                 ts=ts,
@@ -311,17 +324,26 @@ class Client(object):
     def _validate_bulk_prediction_inputs(prediction_ids, prediction_labels,
                                          features, features_name_overwrite,
                                          timestamp_overwrite):
-        #TODO: strip timestamp override prior to 0.1.0
         if timestamp_overwrite is not None:
-            if timestamp_overwrite.shape[0] != prediction_ids.shape[0]:
-                msg = f'timestamp_overwrite has {timestamp_overwrite.shape[0]} but must have same number of elements as prediction_ids {prediction_ids.shape[0]}'
+            if isinstance(timestamp_overwrite, pd.DataFrame):
+                if timestamp_overwrite.shape[0] != prediction_ids.shape[0]:
+                    msg = f'timestamp_overwrite has {timestamp_overwrite.shape[0]} but must have same number of elements as prediction_ids {prediction_ids.shape[0]}'
+                    raise ValueError(msg)
+            else:
+                msg = f'timestamp_overwrite is type: {type(timestamp_overwrite)}, but expected: pd.DataFrame'
                 raise ValueError(msg)
         if prediction_ids is None:
             raise ValueError('at least one prediction id is required')
         if prediction_labels is None:
             raise ValueError('at least one prediction label is required')
+        if not isinstance(prediction_labels, pd.DataFrame):
+            msg = f'prediction_labels is type: {type(prediction_labels)}, but expects type: pd.DataFrame'
+            raise ValueError(msg)
         if prediction_labels.shape[0] != prediction_ids.shape[0]:
             msg = f'prediction_labels shaped {prediction_labels.shape[0]} must have the same number of rows as predictions_ids shaped {prediction_ids.shape[0]}.'
+            raise ValueError(msg)
+        if features is not None and not isinstance(features, pd.DataFrame):
+            msg = f'features is type {type(features)}, but expect type pd.DataFrame.'
             raise ValueError(msg)
         if features is not None and features.shape[0] != prediction_ids.shape[
                 0]:
@@ -329,7 +351,7 @@ class Client(object):
             raise ValueError(msg)
         if features_name_overwrite is not None and len(
                 features.columns) != len(features_name_overwrite):
-            msg = f'features_name_overwrite len:{len(features_name_overwrite)} must have the same number of elements as features has columns ({len(features.columns)} columns).'
+            msg = f'features_name_overwrite has len:{len(features_name_overwrite)}, but expects the same number of columns in features dataframe. ({len(features.columns)} columns).'
             raise ValueError(msg)
         if features is not None and isinstance(
                 features.columns, pd.core.indexes.range.RangeIndex
@@ -343,8 +365,39 @@ class Client(object):
             raise ValueError('at least one prediction id is required')
         if actual_labels is None:
             raise ValueError('at least one actual label is required')
+        if not isinstance(actual_labels, pd.DataFrame):
+            msg = f'actual_labels is type: {type(actual_labels)}, but expects type: pd.DataFrame'
+            raise ValueError(msg)
         if actual_labels.shape[0] != prediction_ids.shape[0]:
             msg = f'actual_labels shaped {actual_labels.shape[0]} must have the same number of rows as predictions_ids shaped {prediction_ids.shape[0]}.'
+            raise ValueError(msg)
+
+    @staticmethod
+    def _validate_prediction_inputs(prediction_ids, prediction_labels,
+                                    features):
+        if not isinstance(prediction_ids, (str, bytes)):
+            msg = f'prediction_ids {prediction_ids} has type {type(prediction_ids)}, but expected one of: str, bytes'
+            raise ValueError(msg)
+        if prediction_labels is None:
+            raise ValueError('at least one prediction label is required')
+        if not isinstance(prediction_labels, (str, bool, float, int)):
+            msg = f'prediction_label {prediction_labels} has type {type(prediction_labels)}, but expected one of: str, bool, float, int'
+            raise ValueError(msg)
+        if features is not None and bool(features):
+            for k, v in features.items():
+                if not isinstance(v, (str, bool, float, int)):
+                    msg = f'feature {k} with value {v} is type {type(v)}, but expected one of: str, bool, float, int'
+                    raise ValueError(msg)
+
+    @staticmethod
+    def _validate_actual_inputs(prediction_ids, actual_labels):
+        if not isinstance(prediction_ids, (str, bytes)):
+            msg = f'prediction_ids {prediction_ids} has type {type(prediction_ids)}, but expected one of: str, bytes'
+            raise ValueError(msg)
+        if actual_labels is None:
+            raise ValueError('at least one actual label is required')
+        if not isinstance(actual_labels, (str, bool, float, int)):
+            msg = f'actuals_labels {actual_labels} has type {type(actual_labels)}, but expected one of: str, bool, float, int'
             raise ValueError(msg)
 
     @staticmethod
@@ -358,6 +411,9 @@ class Client(object):
 
     @staticmethod
     def _convert_time(time):
+        if not isinstance(time, int):
+            msg = f'Time overwrite value {time} is type {type(time)}, but expects int. (Unix epoch time in seconds)'
+            raise ValueError(msg)
         ts = None
         if time is not None:
             ts = Timestamp()
