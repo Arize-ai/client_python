@@ -64,6 +64,13 @@ def mock_dataframes(file):
     return features, labels, ids
 
 
+def mock_series(file):
+    features = pd.read_csv(file)
+    labels = pd.Series(np.random.randint(1, 100, size=features.shape[0]))
+    ids = pd.Series([str(uuid.uuid4()) for _ in range(len(labels.index))])
+    return features, labels, ids
+
+
 def test_build_prediction_record_features():
     client = setup_client()
     record = client._build_record(model_id=expected['model'],
@@ -415,42 +422,37 @@ def test_handle_log_batch_actuals_and_predictions():
     assert actuals == predictions == labels.shape[0]
 
 
-def test_handle_log_batch_actuals_and_predictions_missmatched_shapes():
+def test_log_batch_actuals_and_predictions_missmatched_shapes():
     client = setup_client()
     features, labels, ids = mock_dataframes(file_to_open)
+    id_ex, feature_ex, label_ex = None, None, None
     try:
-        records, uri = client._handle_log(model_id=expected['model'],
-                                          model_version=None,
-                                          prediction_ids=ids[0:10],
-                                          prediction_labels=labels,
-                                          features=features,
-                                          actual_labels=labels,
-                                          features_name_overwrite=None,
-                                          time_overwrite=None)
+        records, uri = client.log(model_id=expected['model'],
+                                  prediction_ids=ids[0:10],
+                                  prediction_labels=labels,
+                                  features=features,
+                                  actual_labels=labels)
     except Exception as err:
-        assert isinstance(err, ValueError)
+        id_ex = err
     try:
-        records, uri = client._handle_log(model_id=expected['model'],
-                                          model_version=None,
-                                          prediction_ids=ids,
-                                          prediction_labels=labels,
-                                          features=features[0:10],
-                                          actual_labels=labels,
-                                          features_name_overwrite=None,
-                                          time_overwrite=None)
+        records = client.log(model_id=expected['model'],
+                             prediction_ids=ids,
+                             prediction_labels=labels,
+                             features=features[0:10],
+                             actual_labels=labels)
     except Exception as err:
-        assert isinstance(err, ValueError)
+        feature_ex = err
     try:
-        records, uri = client._handle_log(model_id=expected['model'],
-                                          model_version=None,
-                                          prediction_ids=ids,
-                                          prediction_labels=labels,
-                                          features=features,
-                                          actual_labels=labels[0:10],
-                                          features_name_overwrite=None,
-                                          time_overwrite=None)
+        records, uri = client.log(model_id=expected['model'],
+                                  prediction_ids=ids,
+                                  prediction_labels=labels,
+                                  features=features,
+                                  actual_labels=labels[0:10])
     except Exception as err:
-        assert isinstance(err, ValueError)
+        label_ex = err
+    assert isinstance(id_ex, ValueError)
+    assert isinstance(feature_ex, ValueError)
+    assert isinstance(label_ex, ValueError)
 
 
 def test_handle_log_batch_prediction_with_features_name_overwrites():
@@ -481,58 +483,62 @@ def test_handle_log_batch_prediction_with_features_name_overwrites():
     assert uri == 'https://api.arize.com/v1/bulk'
 
 
-def test_handle_log_batch_prediction_with_features_name_overwrites_missmatched_size(
-):
+def test_log_batch_prediction_with_features_name_overwrites_missmatched_size():
     client = setup_client()
     features, labels, ids = mock_dataframes(file_to_open)
     features_name_overwrite = [
         'mask_' + str(i) for i in range(len(features.columns) - 1)
     ]
+    ex = None
     try:
-        records, uri = client._handle_log(
+        _ = client.log(
             model_id=expected['model'],
-            model_version=None,
             prediction_ids=ids,
             prediction_labels=labels,
             features=features,
-            actual_labels=None,
             features_name_overwrite=features_name_overwrite,
-            time_overwrite=None)
+        )
     except Exception as err:
-        assert isinstance(err, ValueError)
+        ex = err
+    assert isinstance(ex, ValueError)
 
 
-def test_handle_log_batch_prediction_default_columns_int_names():
+def test_log_batch_prediction_default_columns_int_names():
     client = setup_client()
     features, labels, ids = mock_dataframes(file_to_open)
+    assert isinstance(features.columns[0], str)
     features_default_columns = pd.DataFrame(features[:].values)
+    ex = None
     try:
-        records, uri = client._handle_log(model_id=expected['model'],
-                                          model_version=None,
-                                          prediction_ids=ids,
-                                          prediction_labels=labels,
-                                          features=features_default_columns,
-                                          actual_labels=None,
-                                          features_name_overwrite=None,
-                                          time_overwrite=None)
+        _ = client.log(model_id=expected['model'],
+                       model_version=None,
+                       prediction_ids=ids,
+                       prediction_labels=labels,
+                       features=features_default_columns,
+                       actual_labels=None,
+                       features_name_overwrite=None,
+                       time_overwrite=None)
     except Exception as err:
-        assert isinstance(err, ValueError)
+        ex = err
+    assert isinstance(ex, TypeError)
 
 
-def test_handle_log_batch_prediction_no_actuals_or_predictions():
+def test_log_batch_prediction_no_actuals_or_predictions():
     client = setup_client()
     _, _, ids = mock_dataframes(file_to_open)
+    ex = None
     try:
-        records, uri = client._handle_log(model_id=expected['model'],
-                                          model_version=None,
-                                          prediction_ids=ids,
-                                          prediction_labels=None,
-                                          features=None,
-                                          actual_labels=None,
-                                          features_name_overwrite=None,
-                                          time_overwrite=None)
+        records, uri = client.log(model_id=expected['model'],
+                                  model_version=None,
+                                  prediction_ids=ids,
+                                  prediction_labels=None,
+                                  features=None,
+                                  actual_labels=None,
+                                  features_name_overwrite=None,
+                                  time_overwrite=None)
     except Exception as err:
-        assert isinstance(err, ValueError)
+        ex = err
+    assert isinstance(ex, TypeError)
 
 
 def test_handle_log_batch_prediction_with_time_overwrites():
@@ -578,49 +584,68 @@ def test_handle_log_prediction_with_time_overwrites():
     assert record[0].prediction.timestamp.seconds == 1593626247
 
 
-def test_handle_log_batch_non_supported_data_types():
+def test_log_batch_non_supported_data_types():
     client = setup_client()
     features, labels, ids = mock_dataframes(file_to_open)
-    features_nparray = np.array(features.to_numpy())
-    ids_series = pd.Series(ids.to_numpy()[0])
-    labels_series = pd.Series(labels.to_numpy)
+    features_nparray = features.to_numpy()
+    ids_series = pd.Index(list('abcde'))
+    labels_series = pd.Index([1, 2, 3, 4, 5])
     label_ex, feature_ex, id_ex = None, None, None
     try:
-        records, uri = client._handle_log(model_id=expected['model'],
-                                          model_version=None,
-                                          prediction_ids=ids_series,
-                                          prediction_labels=labels,
-                                          features=features,
-                                          actual_labels=labels,
-                                          features_name_overwrite=None,
-                                          time_overwrite=None)
-    except Exception as ex:
-        id_ex = ex
+        records = client.log(model_id=expected['model'],
+                             model_version=None,
+                             prediction_ids=ids_series,
+                             prediction_labels=labels,
+                             features=features,
+                             actual_labels=labels)
+    except Exception as e1:
+        id_ex = e1
 
     try:
-        records, uri = client._handle_log(model_id=expected['model'],
-                                          model_version=None,
-                                          prediction_ids=ids,
-                                          prediction_labels=labels_series,
-                                          features=features,
-                                          actual_labels=labels,
-                                          features_name_overwrite=None,
-                                          time_overwrite=None)
-    except Exception as ex:
-        label_ex = ex
+        client = setup_client()
+        records = client.log(model_id=expected['model'],
+                             model_version=None,
+                             prediction_ids=ids,
+                             prediction_labels=labels_series,
+                             features=features,
+                             actual_labels=labels)
+    except Exception as e2:
+        label_ex = e2
 
     try:
-        records, uri = client._handle_log(model_id=expected['model'],
-                                          model_version=None,
-                                          prediction_ids=ids,
-                                          prediction_labels=labels,
-                                          features=features_nparray,
-                                          actual_labels=labels,
-                                          features_name_overwrite=None,
-                                          time_overwrite=None)
-    except Exception as ex:
-        feature_ex = ex
+        _ = client.log(model_id=expected['model'],
+                       model_version=None,
+                       prediction_ids=ids,
+                       prediction_labels=labels,
+                       features=features_nparray,
+                       actual_labels=labels)
+    except Exception as e3:
+        feature_ex = e3
 
-    assert isinstance(id_ex, ValueError)
-    assert isinstance(label_ex, ValueError)
-    assert isinstance(feature_ex, ValueError)
+    assert isinstance(id_ex, TypeError)
+    assert isinstance(label_ex, TypeError)
+    assert isinstance(feature_ex, TypeError)
+
+
+def test_handle_log_series():
+    client = setup_client()
+    features, labels, ids = mock_series(file_to_open)
+    time = [1593626247 + i for i in range(features.shape[0])]
+    records, uri = client._handle_log(model_id=expected['model'],
+                                      model_version=None,
+                                      prediction_ids=ids,
+                                      prediction_labels=labels,
+                                      features=features,
+                                      features_name_overwrite=None,
+                                      actual_labels=None,
+                                      time_overwrite=time)
+    assert len(records) > 0
+    for bulk in records:
+        assert isinstance(bulk, public__pb2.BulkRecord)
+        for r in bulk.records:
+            assert isinstance(r, public__pb2.Record)
+            assert not bool(r.organization_key)
+            assert not bool(r.model_id)
+            assert bool(r.prediction.features)
+            assert r.prediction.timestamp is not None
+    assert uri == 'https://api.arize.com/v1/bulk'

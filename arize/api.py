@@ -1,6 +1,3 @@
-import logging
-import pandas as pd
-
 import math
 
 from requests_futures.sessions import FuturesSession
@@ -10,6 +7,8 @@ from google.protobuf.json_format import MessageToDict
 
 from arize import public_pb2 as public__pb2
 from arize.bounded_executor import BoundedExecutor
+from arize.validation_helper import _validate_inputs
+from arize.input_transformer import _normalize_inputs, _convert_time, _build_value_map, _transform_label
 
 
 class Client(object):
@@ -43,7 +42,6 @@ class Client(object):
         self._model_id = model_id
         self._model_version = model_version
         self._timeout = timeout
-        self._LOGGER = logging.getLogger(__name__)
         self._session = FuturesSession(
             executor=BoundedExecutor(max_queue_bound, max_workers))
 
@@ -60,56 +58,43 @@ class Client(object):
         :param prediction_ids: (str) Unique string indetifier for specific prediction or actual label. These values are needed to match latent actual labels to their original prediction labels. For bulk uploads, pass in a 1-D Pandas Series where values are ids corresponding to feature values of the same index.
         :param prediction_labels: The predicted values for a given model input. Individual labels can be joined against actual_labels by the corresponding prediction id. For individual events, input values can be bool, str, float, int. For bulk uploads, the client accepts a 1-D pandas data frame where values are associates to the label values in the same index. Must be the same shape as actual_labels.
         :param actual_labels: The actual expected values for a given model input. Individual labels can be joined against prediction_labels by the corresponding prediction id. For individual events, input values can be bool, str, float, int. For bulk uploads, the client accepts a 1-D pandas data frame where values are associates to the label values in the same index. Must be the same shape as prediction_labels.
-        :param features: (str, <value>) Dictionary or 2-D Pandas dataframe. Containing human readable and debuggable model features. For dict keys must be strings, values one of string, boolean, float, long for a single prediction. For bulk uploads, pass in a 2-D pandas dataframe where df.columns contain feature names. Must have same number of rows as prediction_ids, prediction_labels, actual_labels.
+        :param features: (str, <value>) Optional dictionary or 2-D Pandas dataframe. Containing human readable and debuggable model features. For dict keys must be strings, values one of string, boolean, float, long for a single prediction. For bulk uploads, pass in a 2-D pandas dataframe where df.columns contain feature names. Must have same number of rows as prediction_ids, prediction_labels, actual_labels.
         :param features_name_overwrite: (list<str>) Optional list of strings that if present will overwrite features.columns values. Must contain the same number of elements as features.columns.
         :param model_id: (str) Unique identifier for a given model.
         :param model_version: (str) Optional field used to group together a subset of predictions and actuals for a given model_id.
         :param time_overwrite: (int) Optional field with unix epoch time in seconds to overwrite timestamp for prediction. If None, prediction uses current timestamp. For bulk uploads, pass in list<int> with same number of elements as prediction_labels. 
         :rtype : concurrent.futures.Future
         """
-        try:
-            records, uri = self._handle_log(prediction_ids, prediction_labels,
-                                            actual_labels, features, model_id,
-                                            model_version,
-                                            features_name_overwrite,
-                                            time_overwrite)
-            responses = []
-            for record in records:
-                payload = MessageToDict(message=record,
-                                        preserving_proto_field_name=True)
-                response = self._session.post(
-                    uri,
-                    headers={'Authorization': self._api_key},
-                    timeout=self._timeout,
-                    json=payload)
-                responses.append(response)
-            return responses
-        except Exception as err:
-            self._handle_exception(err)
+        records, uri = self._handle_log(prediction_ids, prediction_labels,
+                                        actual_labels, features, model_id,
+                                        model_version, features_name_overwrite,
+                                        time_overwrite)
+        responses = []
+        for record in records:
+            payload = MessageToDict(message=record,
+                                    preserving_proto_field_name=True)
+            response = self._session.post(
+                uri,
+                headers={'Authorization': self._api_key},
+                timeout=self._timeout,
+                json=payload)
+            responses.append(response)
+        return responses
 
     def _handle_log(self, prediction_ids, prediction_labels, actual_labels,
                     features, model_id, model_version, features_name_overwrite,
                     time_overwrite):
-        uri = None
-        records = []
         if model_id is None:
             model_id = self._model_id
         if model_version is None:
             model_version = self._model_version
-        if prediction_labels is None and actual_labels is None:
-            raise ValueError(
-                'either prediction_labels or actual_labels must be passed in, both are None'
-            )
-        if isinstance(prediction_ids, pd.DataFrame):
-            if prediction_labels is not None:
-                self._validate_bulk_prediction_inputs(prediction_ids,
-                                                      prediction_labels,
-                                                      features,
-                                                      features_name_overwrite,
-                                                      time_overwrite)
-            if actual_labels is not None:
-                self._validate_bulk_actuals_inputs(prediction_ids,
-                                                   actual_labels)
+        is_bulk = _validate_inputs(prediction_ids, prediction_labels,
+                                   actual_labels, features, model_id,
+                                   model_version, features_name_overwrite,
+                                   time_overwrite)
+        uri = None
+        records = []
+        if is_bulk:
             uri = self._bulk_url
             records = self._build_bulk_record(
                 model_id=model_id,
@@ -120,12 +105,7 @@ class Client(object):
                 features=features,
                 features_name_overwrite=features_name_overwrite,
                 time_overwrite=time_overwrite)
-        elif isinstance(prediction_ids, (str, bytes)):
-            if prediction_labels is not None:
-                self._validate_prediction_inputs(prediction_ids,
-                                                 prediction_labels, features)
-            elif actual_labels is not None:
-                self._validate_actual_inputs(prediction_ids, actual_labels)
+        else:
             uri = self._uri
             records.append(
                 self._build_record(model_id=model_id,
@@ -135,33 +115,20 @@ class Client(object):
                                    features=features,
                                    actual_label=actual_labels,
                                    time_overwrite=time_overwrite))
-        else:
-            msg = f'prediction_ids must either be type str or pd.DataFrame but got {type(prediction_ids)}'
-            raise ValueError(msg)
         return records, uri
 
     def _build_bulk_record(self, model_id, model_version, prediction_ids,
                            prediction_labels, actual_labels, features,
                            features_name_overwrite, time_overwrite):
-        records = []
-        ids = prediction_ids.to_numpy()
-        pred_labels_df = None
-        actual_labels_df = None
-        features_df = None
-        time_df = None
-        if prediction_labels is not None:
-            pred_labels_df = prediction_labels.applymap(
-                lambda x: self._get_label(x)).to_numpy()
-        if actual_labels is not None:
-            actual_labels_df = actual_labels.applymap(
-                lambda x: self._get_label(x)).to_numpy()
-        if features is not None:
-            if features_name_overwrite is not None:
-                features.columns = features_name_overwrite
-            features_df = self._build_value_map(features).to_dict('records')
 
-        if time_overwrite is not None:
-            time_df = time_overwrite.applymap(lambda x: self._convert_time(x))
+        records = []
+        ids, pred_labels_df, actual_labels_df, features_df, time_df = _normalize_inputs(
+            prediction_ids=prediction_ids,
+            prediction_labels=prediction_labels,
+            actual_labels=actual_labels,
+            features=features,
+            features_name_overwrite=features_name_overwrite,
+            time_overwrite=time_overwrite)
 
         for i, v in enumerate(ids):
             if not isinstance(v[0], (str, bytes)):
@@ -210,7 +177,7 @@ class Client(object):
         organization_key = self._organization_key
         ts = None
         if time_overwrite is not None:
-            ts = self._convert_time(time_overwrite)
+            ts = _convert_time(time_overwrite)
         else:
             ts = self._get_time()
         if actual_label is not None:
@@ -219,7 +186,7 @@ class Client(object):
                 organization_key=organization_key,
                 model_id=model_id,
                 prediction_id=prediction_id,
-                label=self._get_label(actual_label))
+                label=_transform_label(actual_label))
         else:
             record = self._build_prediction_record(
                 ts=ts,
@@ -227,30 +194,9 @@ class Client(object):
                 model_id=model_id,
                 model_version=model_version,
                 prediction_id=prediction_id,
-                label=self._get_label(prediction_label),
-                features=self._build_value_map(features))
+                label=_transform_label(prediction_label),
+                features=_build_value_map(features))
         return record
-
-    def _build_value_map(self, vals):
-        formatted = None
-        if isinstance(vals, dict):
-            formatted = {k: self._get_value(v, k) for (k, v) in vals.items()}
-        elif isinstance(vals, pd.DataFrame):
-            formatted = vals.apply(
-                lambda y: y.apply(lambda x: self._get_value(x, y.name)))
-        return formatted
-
-    # TODO(gabe): Instrument metrics and expose to client
-    def _handle_exception(self, err):
-        type_ = type(err)
-        if type_ is TypeError:
-            self._LOGGER.error(f'Type error: {err}')
-        elif type_ is AssertionError:
-            self._LOGGER.error(f'Assertion error: {err}')
-        elif type_ is ValueError:
-            self._LOGGER.error(f'Value error: {err}')
-        else:
-            self._LOGGER.error(f'Unexpected error occured: {err}')
 
     @staticmethod
     def _build_prediction_record(ts, organization_key, model_id, model_version,
@@ -281,124 +227,10 @@ class Client(object):
         return rec
 
     @staticmethod
-    def _get_label(value):
-        if isinstance(value, public__pb2.Label):
-            return value
-        val = Client._convert_element(value)
-        if isinstance(val, bool):
-            return public__pb2.Label(binary=val)
-        if isinstance(val, str):
-            return public__pb2.Label(categorical=val)
-        if isinstance(val, (int, float)):
-            return public__pb2.Label(numeric=val)
-        else:
-            err = f'Invalid prediction/actual value {value} of type {type(value)}. Must be one of bool, str, float/int'
-            raise TypeError(err)
-
-    @staticmethod
-    def _get_value(value, name):
-        if isinstance(value, public__pb2.Value):
-            return value
-        val = Client._convert_element(value)
-        if isinstance(val, (str, bool)):
-            return public__pb2.Value(string=str(val))
-        if isinstance(val, int):
-            return public__pb2.Value(int=val)
-        if isinstance(val, float):
-            return public__pb2.Value(double=val)
-        else:
-            err = f'Invalid value {value} of type {type(value)} for feature "{name}". Must be one of bool, str, float/int.'
-            raise TypeError(err)
-
-    @staticmethod
     def _get_time():
         ts = Timestamp()
         ts.GetCurrentTime()
         return ts
-
-    @staticmethod
-    def _convert_element(value):
-        return getattr(value, "tolist", lambda: value)()
-
-    @staticmethod
-    def _validate_bulk_prediction_inputs(prediction_ids, prediction_labels,
-                                         features, features_name_overwrite,
-                                         timestamp_overwrite):
-        if timestamp_overwrite is not None:
-            if isinstance(timestamp_overwrite, pd.DataFrame):
-                if timestamp_overwrite.shape[0] != prediction_ids.shape[0]:
-                    msg = f'timestamp_overwrite has {timestamp_overwrite.shape[0]} but must have same number of elements as prediction_ids {prediction_ids.shape[0]}'
-                    raise ValueError(msg)
-            else:
-                msg = f'timestamp_overwrite is type: {type(timestamp_overwrite)}, but expected: pd.DataFrame'
-                raise ValueError(msg)
-        if prediction_ids is None:
-            raise ValueError('at least one prediction id is required')
-        if prediction_labels is None:
-            raise ValueError('at least one prediction label is required')
-        if not isinstance(prediction_labels, pd.DataFrame):
-            msg = f'prediction_labels is type: {type(prediction_labels)}, but expects type: pd.DataFrame'
-            raise ValueError(msg)
-        if prediction_labels.shape[0] != prediction_ids.shape[0]:
-            msg = f'prediction_labels shaped {prediction_labels.shape[0]} must have the same number of rows as predictions_ids shaped {prediction_ids.shape[0]}.'
-            raise ValueError(msg)
-        if features is not None and not isinstance(features, pd.DataFrame):
-            msg = f'features is type {type(features)}, but expect type pd.DataFrame.'
-            raise ValueError(msg)
-        if features is not None and features.shape[0] != prediction_ids.shape[
-                0]:
-            msg = f'features shaped {features.shape[0]} must have the same number of rows as predictions_ids shaped {prediction_ids.shape[0]}.'
-            raise ValueError(msg)
-        if features_name_overwrite is not None and len(
-                features.columns) != len(features_name_overwrite):
-            msg = f'features_name_overwrite has len:{len(features_name_overwrite)}, but expects the same number of columns in features dataframe. ({len(features.columns)} columns).'
-            raise ValueError(msg)
-        if features is not None and isinstance(
-                features.columns, pd.core.indexes.range.RangeIndex
-        ) and features_name_overwrite is None:
-            msg = f'fatures.columns is of type RangeIndex, therefore, features_name_overwrite must be present to overwrite columns index with human readable feature names.'
-            raise ValueError(msg)
-
-    @staticmethod
-    def _validate_bulk_actuals_inputs(prediction_ids, actual_labels):
-        if prediction_ids is None:
-            raise ValueError('at least one prediction id is required')
-        if actual_labels is None:
-            raise ValueError('at least one actual label is required')
-        if not isinstance(actual_labels, pd.DataFrame):
-            msg = f'actual_labels is type: {type(actual_labels)}, but expects type: pd.DataFrame'
-            raise ValueError(msg)
-        if actual_labels.shape[0] != prediction_ids.shape[0]:
-            msg = f'actual_labels shaped {actual_labels.shape[0]} must have the same number of rows as predictions_ids shaped {prediction_ids.shape[0]}.'
-            raise ValueError(msg)
-
-    @staticmethod
-    def _validate_prediction_inputs(prediction_ids, prediction_labels,
-                                    features):
-        if not isinstance(prediction_ids, (str, bytes)):
-            msg = f'prediction_ids {prediction_ids} has type {type(prediction_ids)}, but expected one of: str, bytes'
-            raise ValueError(msg)
-        if prediction_labels is None:
-            raise ValueError('at least one prediction label is required')
-        if not isinstance(prediction_labels, (str, bool, float, int)):
-            msg = f'prediction_label {prediction_labels} has type {type(prediction_labels)}, but expected one of: str, bool, float, int'
-            raise ValueError(msg)
-        if features is not None and bool(features):
-            for k, v in features.items():
-                if not isinstance(v, (str, bool, float, int)):
-                    msg = f'feature {k} with value {v} is type {type(v)}, but expected one of: str, bool, float, int'
-                    raise ValueError(msg)
-
-    @staticmethod
-    def _validate_actual_inputs(prediction_ids, actual_labels):
-        if not isinstance(prediction_ids, (str, bytes)):
-            msg = f'prediction_ids {prediction_ids} has type {type(prediction_ids)}, but expected one of: str, bytes'
-            raise ValueError(msg)
-        if actual_labels is None:
-            raise ValueError('at least one actual label is required')
-        if not isinstance(actual_labels, (str, bool, float, int)):
-            msg = f'actuals_labels {actual_labels} has type {type(actual_labels)}, but expected one of: str, bool, float, int'
-            raise ValueError(msg)
 
     @staticmethod
     def _num_chuncks(records):
@@ -408,14 +240,3 @@ class Client(object):
         num_of_bulk = math.ceil(total_bytes / 100000)
         recs_per_msg = math.ceil(len(records) / num_of_bulk)
         return recs_per_msg
-
-    @staticmethod
-    def _convert_time(time):
-        if not isinstance(time, int):
-            msg = f'Time overwrite value {time} is type {type(time)}, but expects int. (Unix epoch time in seconds)'
-            raise ValueError(msg)
-        ts = None
-        if time is not None:
-            ts = Timestamp()
-            ts.FromSeconds(time)
-        return ts

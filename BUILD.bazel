@@ -8,6 +8,8 @@ py_library(
         "arize/api.py",
         "arize/public_pb2.py",
         "arize/bounded_executor.py",
+        "arize/input_transformer.py",
+        "arize/validation_helper.py",
     ],
     deps = [
         requirement("requests_futures"),
