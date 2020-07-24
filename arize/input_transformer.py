@@ -39,6 +39,7 @@ def _normalize_inputs(prediction_ids, prediction_labels, actual_labels,
 
 
 def _convert_time(time):
+    time = _convert_element(time)
     if not isinstance(time, int):
         msg = f'Time overwrite value {time} is type {type(time)}, but expects int. (Unix epoch time in seconds)'
         raise ValueError(msg)

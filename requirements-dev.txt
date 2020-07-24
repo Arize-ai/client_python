@@ -1,7 +1,17 @@
+##TODO: Transitive requirements, add skylark extension to fix this issue in rules_python
+urllib3==1.25.9
+chardet==3.0.4
+certifi==2020.4.5.1
+pytz==2020.1
+python-dateutil==2.8.1
+six==1.15.0
+idna==2.9
 # Dev/Deployment
+pytest
 sphinx
 sphinx_rtd_theme
 nose
 coverage
 pypi-publisher
 check_wheel_contents
+yapf

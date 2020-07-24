@@ -1,5 +1,7 @@
 import pandas as pd
 
+from arize.input_transformer import _convert_element
+
 
 def _validate_inputs(prediction_ids, prediction_labels, actual_labels,
                      features, model_id, model_version,
@@ -96,12 +98,13 @@ def _validate_prediction_inputs(prediction_ids, prediction_labels, features,
                                 timestamp_overwrite):
     if prediction_labels is None:
         raise ValueError('at least one prediction label is required')
-    if not isinstance(prediction_labels, (str, bool, float, int)):
+    if not isinstance(_convert_element(prediction_labels),
+                      (str, bool, float, int)):
         msg = f'prediction_label {prediction_labels} has type {type(prediction_labels)}, but expected one of: str, bool, float, int'
         raise TypeError(msg)
     if features is not None and bool(features):
         for k, v in features.items():
-            if not isinstance(v, (str, bool, float, int)):
+            if not isinstance(_convert_element(v), (str, bool, float, int)):
                 msg = f'feature {k} with value {v} is type {type(v)}, but expected one of: str, bool, float, int'
                 raise TypeError(msg)
     if timestamp_overwrite is not None and not isinstance(
@@ -113,6 +116,6 @@ def _validate_prediction_inputs(prediction_ids, prediction_labels, features,
 def _validate_actual_inputs(prediction_ids, actual_labels):
     if actual_labels is None:
         raise ValueError('at least one actual label is required')
-    if not isinstance(actual_labels, (str, bool, float, int)):
+    if not isinstance(_convert_element(actual_labels), (str, bool, float, int)):
         msg = f'actuals_labels {actual_labels} has type {type(actual_labels)}, but expected one of: str, bool, float, int'
         raise ValueError(msg)

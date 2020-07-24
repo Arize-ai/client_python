@@ -26,12 +26,14 @@ long_description = read('README.md')
 
 # get the dependencies and installs
 all_reqs = read('requirements.txt').splitlines()
-all_reqs += read('requirements-dev.txt').splitlines()
 
 install_requires = [x.strip() for x in all_reqs if 'git+' not in x]
 dependency_links = [
     x.strip().replace('git+', '') for x in all_reqs if x.startswith('git+')
 ]
+
+test_reqs = read('requirements-dev.txt').splitlines()
+test_requirements = [x.strip() for x in test_reqs if 'git+' not in x]
 
 __version__ = get_version("arize/__init__.py")
 
@@ -60,5 +62,6 @@ setup(
     packages=find_packages(exclude=['docs', 'tests*']),
     include_package_data=True,
     install_requires=install_requires,
+    tests_require=test_requirements,
     dependency_links=dependency_links,
 )
