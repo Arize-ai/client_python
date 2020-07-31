@@ -88,29 +88,32 @@ ids_df = pd.DataFrame([str(uuid.uuid4()) for _ in range(len(prediction_labels.in
 #### Single real-time precition:
 ```python
 ## Returns an array of concurrent.futures.Future
-responses = arize.log(
+pred = arize.log_prediction(
     model_id='sample-model-1',
-    model_version='v1.23.64',
-    prediction_ids='plED4eERDCasd9797ca34',
-    prediction_labels=True,
+    model_version='v1.23.64', ## Optional
+    prediction_id='plED4eERDCasd9797ca34',
+    prediction_label=True,
     features=features,
-    actual_labels=None
     )
+
+#### To confirm request future completed successfully, await for it to resolve:
+## NB: This is a blocking call
+response = pred.get()
+res = response.result()
+if res.status_code != 200:
+  print(f'future failed with response code {res.status_code}, {res.text}')
 ```
 
-#### Bulk upload:
+#### Bulk upload of predictions:
 ```python
-responses = arize.log(
+responses = arize.log_bulk_predictions(
     model_id='sample-model-1',
     model_version='v1.23.64', ## Optional
     prediction_ids=ids_df,
     prediction_labels=prediction_labels_df,
-    features=features_df,
-    actual_labels=None
+    features=features_df
     )
-```
 #### To confirm request futures completed successfully, await for futures to resolve:
-```python
 ## NB: This is a blocking call
 import concurrent.futures as cf
 for response in cf.as_completed(responses):
@@ -119,21 +122,37 @@ for response in cf.as_completed(responses):
     print(f'future failed with response code {res.status_code}, {res.text}')
 ```
 
-Arize log returns a list of concurrent futures for asyncronous behavior. To capture the logging response, you can await the resolved futures. If you desire a fire-and-forget pattern you can disreguard the reponses altogether.
+Arize log_predition/actual returns a single concurrent future while log_bulk_predictions/actuals returns a list of concurrent futures for asyncronous behavior. To capture the logging response, you can await the resolved futures. If you desire a fire-and-forget pattern you can disreguard the reponses altogether.
 
 We automatically discover new models logged over time based on the model ID sent on each prediction.
 
 ### Logging Actual Labels
 > **_NOTE:_** Notice the prediction_id passed in matched the original prediction send on the previous example above.
 ```python
-response = arize.log(
+response = arize.log_actual(
     model_id='sample-model-1',
-    prediction_ids='plED4eERDCasd9797ca34',
-    prediction_labels=None,
-    actual_labels=False
+    prediction_id='plED4eERDCasd9797ca34',
+    actual_label=False
     )
 ```
-Once the actual label (ground truth) for a prediction is determined, you can send those to Arize and evaluate your metrics over time. What links the actual label to the original prediction label is the prediction_id for a model_id
+
+#### Bulk upload of actuals:
+```python
+responses = arize.log_bulk_actuals(
+    model_id='sample-model-1',
+    prediction_ids=ids_df,
+    actual_labels=actual_labels_df,
+    )
+
+#### To confirm request futures completed successfully, await for futures to resolve:
+## NB: This is a blocking call
+import concurrent.futures as cf
+for response in cf.as_completed(responses):
+  res = response.result()
+  if res.status_code != 200:
+    print(f'future failed with response code {res.status_code}, {res.text}')
+```
+Once the actual labels (ground truth) for a prediction is determined, you can send those to Arize and evaluate your metrics over time. The prediction id for one predition links to it's corresponding actual label so it's important to note those must be the same when matching events.
 
 ### 4. Log In for Analytics
 That's it! Once your service is deployed and predictions are logged you'll be able to log into your Arize account and dive into your data. Slicing it by features, tags, models, time, etc.
@@ -153,6 +172,3 @@ If you are using a different language, you'll be able to post an HTTP request to
 curl -X POST -H "Authorization: YOU_API_KEY" "https://log.arize.com/v1/log" -d'{"organization_key": "YOUR_ORG_KEY", "model_id": "test_model_1", "prediction_id":"test100", "prediction":{"model_version": "v1.23.64", "features":{"state":{"string": "CO"}, "item_count":{"int": 10}, "charge_amt":{"float": 12.34}, "physical_card":{"string": true}}, "prediction_label": {"binary": false}}}'
 ```
 ---
-## Contributing
-
-TBD

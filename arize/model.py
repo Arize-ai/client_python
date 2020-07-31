@@ -1,0 +1,339 @@
+import math
+
+from abc import ABC, abstractmethod
+from google.protobuf.timestamp_pb2 import Timestamp
+import pandas as pd
+
+from arize import public_pb2 as public__pb2
+
+
+class BaseRecord(ABC):
+    def __init__(self, organization_key, model_id):
+        self.organization_key = organization_key
+        self.model_id = model_id
+
+    @abstractmethod
+    def validate_inputs(self):
+        pass
+
+    @abstractmethod
+    def _build_proto(self):
+        pass
+
+    def _base_validation(self):
+        if not isinstance(self.organization_key, str):
+            raise TypeError(
+                f'organization_key {self.organization_key} is type {type(self.organization_key)}, but must be a str'
+            )
+        if not isinstance(self.model_id, str):
+            raise TypeError(
+                f'model_id {self.model_id} is type {type(self.model_id)}, but must be a str'
+            )
+
+    def _get_timestamp(self, time_overwrite=None):
+        ts = Timestamp()
+        if time_overwrite is not None:
+            time = self._convert_element(time_overwrite)
+            if not isinstance(time_overwrite, int):
+                raise TypeError(
+                    f'time_overwrite {time_overwrite} is type {type(time_overwrite)}, but expects int. (Unix epoch time in seconds)'
+                )
+            ts.FromSeconds(time)
+        else:
+            ts.GetCurrentTime()
+        return ts
+
+    def _convert_element(self, value):
+        """ converts scalar or array to python native """
+
+        return getattr(value, "tolist", lambda: value)()
+
+    def _get_value(self, name: str, value):
+        if isinstance(value, public__pb2.Value):
+            return value
+        val = self._convert_element(value)
+        if isinstance(val, (str, bool)):
+            return public__pb2.Value(string=str(val))
+        if isinstance(val, int):
+            return public__pb2.Value(int=val)
+        if isinstance(val, float):
+            return public__pb2.Value(double=val)
+        else:
+            raise TypeError(
+                f'feature "{name}" = {value} is type {type(value)}, but must be one of: bool, str, float, int.'
+            )
+
+    def _get_label(self, name: str, value):
+        if isinstance(value, public__pb2.Label):
+            return value
+        val = self._convert_element(value)
+        if isinstance(val, bool):
+            return public__pb2.Label(binary=val)
+        if isinstance(val, str):
+            return public__pb2.Label(categorical=val)
+        if isinstance(val, (int, float)):
+            return public__pb2.Label(numeric=val)
+        else:
+            raise TypeError(
+                f'{name}_label = {value} of type {type(value)}. Must be one of bool, str, float/int'
+            )
+
+
+class Prediction(BaseRecord):
+    def __init__(self, organization_key, model_id, model_version,
+                 prediction_id, prediction_label, features, time_overwrite):
+        super().__init__(organization_key=organization_key, model_id=model_id)
+        self.model_version = model_version
+        self.prediction_id = prediction_id
+        self.prediction_label = prediction_label
+        self.features = features
+        self.time_overwrite = time_overwrite
+
+    def validate_inputs(self):
+        self._base_validation()
+        if not isinstance(self._convert_element(self.prediction_label),
+                          (str, bool, float, int)):
+            raise TypeError(
+                f'prediction_label {self.prediction_label} has type {type(self.prediction_label)}, but must be one of: str, bool, float, int'
+            )
+        if self.features is not None and bool(self.features):
+            for k, v in self.features.items():
+                if not isinstance(self._convert_element(v),
+                                  (str, bool, float, int)):
+                    raise TypeError(
+                        f'feature {k} with value {v} is type {type(v)}, but expected one of: str, bool, float, int'
+                    )
+        if self.time_overwrite is not None and not isinstance(
+                self.time_overwrite, int):
+            raise TypeError(
+                f'time_overwrite {self.time_overwrite} is type {type(self.time_overwrite)} but expected int'
+            )
+
+    def _build_proto(self):
+        p = public__pb2.Prediction(label=self._get_label(
+            value=self.prediction_label, name='prediction'))
+        if self.features is not None:
+            feats = public__pb2.Prediction(
+                features={
+                    k: self._get_value(value=v, name=k)
+                    for (k, v) in self.features.items()
+                })
+            p.MergeFrom(feats)
+        if self.model_version is not None:
+            p.model_version = self.model_version
+        p.timestamp.MergeFrom(self._get_timestamp(self.time_overwrite))
+        return public__pb2.Record(organization_key=self.organization_key,
+                                  model_id=self.model_id,
+                                  prediction_id=self.prediction_id,
+                                  prediction=p)
+
+
+class Actual(BaseRecord):
+    def __init__(self, organization_key, model_id, prediction_id,
+                 actual_label):
+        super().__init__(organization_key=organization_key, model_id=model_id)
+        self.prediction_id = prediction_id
+        self.actual_label = actual_label
+
+    def validate_inputs(self):
+        self._base_validation()
+        if not isinstance(self._convert_element(self.actual_label),
+                          (str, bool, float, int)):
+            raise TypeError(
+                f'actual_label {self.actual_label} has type {type(self._convert_element(self.actual_label))}, but must be one of: str, bool, float, int'
+            )
+
+    def _build_proto(self):
+        a = public__pb2.Actual(
+            label=self._get_label(value=self.actual_label, name='actual'))
+        a.timestamp.MergeFrom(self._get_timestamp())
+        return public__pb2.Record(organization_key=self.organization_key,
+                                  model_id=self.model_id,
+                                  prediction_id=self.prediction_id,
+                                  actual=a)
+
+
+class BaseBulkRecord(BaseRecord):
+
+    MAX_BYTES_PER_BULK_RECORD = 100000
+
+    prediction_labels, actual_labels, time_overwrite, features = None, None, None, None
+
+    def __init__(self, organization_key, model_id, prediction_ids):
+        super().__init__(organization_key, model_id)
+        self.organization_key = organization_key
+        self.model_id = model_id
+        self.prediction_ids = prediction_ids
+
+    def _base_bulk_validation(self):
+        self._base_validation()
+        if not isinstance(self.prediction_ids, (pd.DataFrame, pd.Series)):
+            raise TypeError(
+                f'prediction_ids is type {type(self.prediction_ids)}, but expect one of: pd.DataFrame, pd.Series'
+            )
+
+    def _bundle_records(self, records, model_version):
+        recs_per_msg = self._num_chuncks(records)
+        recs = [
+            records[i:i + recs_per_msg]
+            for i in range(0, len(records), recs_per_msg)
+        ]
+        return [
+            public__pb2.BulkRecord(records=r,
+                                   organization_key=self.organization_key,
+                                   model_id=self.model_id,
+                                   model_version=model_version,
+                                   timestamp=self._get_timestamp())
+            for r in recs
+        ]
+
+    def _num_chuncks(self, records):
+        total_bytes = 0
+        for r in records:
+            total_bytes += r.ByteSize()
+        num_of_bulk = math.ceil(total_bytes / self.MAX_BYTES_PER_BULK_RECORD)
+        recs_per_msg = math.ceil(len(records) / num_of_bulk)
+        return recs_per_msg
+
+    def _normalize_inputs(self):
+        """Converts inputs from DataFrames, Series, lists to numpy arrays or lists for consitent interations downstream."""
+        self.prediction_ids = self.prediction_ids.to_numpy()
+        if isinstance(self.prediction_labels, (pd.DataFrame, pd.Series)):
+            self.prediction_labels = self.prediction_labels.to_numpy()
+        if isinstance(self.actual_labels, (pd.DataFrame, pd.Series)):
+            self.actual_labels = self.actual_labels.to_numpy()
+        if isinstance(self.time_overwrite, pd.Series):
+            self.time_overwrite = self.time_overwrite.tolist()
+        if isinstance(self.features, pd.DataFrame):
+            self.feature_names = self.feature_names_overwrite or self.features.columns
+            self.features = self.features.to_numpy()
+
+
+class BulkPrediction(BaseBulkRecord):
+    def __init__(self, organization_key, model_id, model_version,
+                 prediction_ids, prediction_labels, features,
+                 feature_names_overwrite, time_overwrite):
+        super().__init__(organization_key, model_id, prediction_ids)
+        self.model_version = model_version
+        self.prediction_labels = prediction_labels
+        self.features = features
+        self.feature_names_overwrite = feature_names_overwrite
+        self.time_overwrite = time_overwrite
+
+    def validate_inputs(self):
+        self._base_bulk_validation()
+        if not isinstance(self.prediction_labels, (pd.DataFrame, pd.Series)):
+            raise TypeError(
+                f'prediction_labels is type: {type(self.prediction_labels)}, but expects one of: pd.DataFrame, pd.Series'
+            )
+        if self.prediction_labels.shape[0] != self.prediction_ids.shape[0]:
+            raise ValueError(
+                f'prediction_labels contains {self.prediction_labels.shape[0]} elements, but must have the same as predictions_ids: {self.prediction_ids.shape[0]}.'
+            )
+        self._validate_features()
+        self._validate_time_overwrite()
+
+    def _build_proto(self):
+        self._normalize_inputs()
+        records = []
+        for row, v in enumerate(self.prediction_ids):
+            pred_id = v[0]
+            if not isinstance(pred_id, (str, bytes)):
+                raise TypeError(
+                    f'prediction_id {pred_id} is type {type(pred_id)}, but expected one of: str, bytes'
+                )
+            p = public__pb2.Prediction(label=self._get_label(
+                value=self.prediction_labels[row][0], name='prediction'))
+            if self.features is not None:
+                converted_feats = {}
+                for column, name in enumerate(self.feature_names):
+                    converted_feats[name] = self._get_value(
+                        value=self.features[row][column], name=name)
+                feats = public__pb2.Prediction(features=converted_feats)
+                p.MergeFrom(feats)
+            if self.time_overwrite is not None:
+                p.timestamp.MergeFrom(
+                    self._get_timestamp(self.time_overwrite[row]))
+
+            records.append(
+                public__pb2.Record(prediction_id=pred_id, prediction=p))
+        return self._bundle_records(records, self.model_version)
+
+    def _validate_features(self):
+        if self.features is None:
+            return
+        if not isinstance(self.features, pd.DataFrame):
+            raise TypeError(
+                f'features is type {type(self.features)}, but expect type pd.DataFrame.'
+            )
+        if self.features.shape[0] != self.prediction_ids.shape[0]:
+            raise ValueError(
+                f'features has {self.features.shape[0]} sets of features, but must match size of predictions_ids: {self.prediction_ids.shape[0]}.'
+            )
+        if self.feature_names_overwrite is not None:
+            if len(self.features.columns) != len(self.feature_names_overwrite):
+                raise ValueError(
+                    f'feature_names_overwrite has len:{len(self.feature_names_overwrite)}, but expects the same number of columns in features dataframe: {len(self.features.columns)}.'
+                )
+        else:
+            if isinstance(self.features.columns,
+                          pd.core.indexes.numeric.NumericIndex):
+                raise TypeError(
+                    f'fatures.columns is of type {type(self.features.columns)}, but expect elements to be str. Alternatively, feature_names_overwrite must be present.'
+                )
+            for name in self.features.columns:
+                if not isinstance(name, str):
+                    raise TypeError(
+                        f'features.column {name} is type {type(name)}, but expect str'
+                    )
+
+    def _validate_time_overwrite(self):
+        if self.time_overwrite is None:
+            return
+        expected_count = self.prediction_ids.shape[0]
+        if isinstance(self.time_overwrite, pd.Series):
+            if self.time_overwrite.shape[0] != expected_count:
+                raise ValueError(
+                    f'time_overwrite has {self.time_overwrite.shape[0]} elements, but must have same number of elements as prediction_ids: {expected_count}.'
+                )
+        elif isinstance(self.time_overwrite, list):
+            if len(self.time_overwrite) != expected_count:
+                raise ValueError(
+                    f'time_overwrite has length {len(self.time_overwrite)} but must have same number of elements as prediction_ids: {expected_count}.'
+                )
+        else:
+            raise TypeError(
+                f'time_overwrite is type {type(self.time_overwrite)}, but expected one of: pd.Series, list<int>'
+            )
+
+
+class BulkActual(BaseBulkRecord):
+    def __init__(self, organization_key, model_id, prediction_ids,
+                 actual_labels):
+        super().__init__(organization_key, model_id, prediction_ids)
+        self.actual_labels = actual_labels
+
+    def validate_inputs(self):
+        self._base_bulk_validation()
+        if not isinstance(self.actual_labels, (pd.DataFrame, pd.Series)):
+            raise TypeError(
+                f'actual_labels is type: {type(self.actual_labels)}, but expects one of: pd.DataFrame, pd.Series'
+            )
+        if self.actual_labels.shape[0] != self.prediction_ids.shape[0]:
+            raise ValueError(
+                f'actual_labels contains {self.actual_labels.shape[0]} elements, but must have the same as predictions_ids: {self.prediction_ids.shape[0]}.'
+            )
+
+    def _build_proto(self):
+        self._normalize_inputs()
+        records = []
+        for i, v in enumerate(self.prediction_ids):
+            pred_id = v[0]
+            if not isinstance(pred_id, (str, bytes)):
+                raise TypeError(
+                    f'prediction_id {pred_id} is type {type(pred_id)}, but expected one of: str, bytes'
+                )
+            a = public__pb2.Actual(label=self._get_label(
+                value=self.actual_labels[i][0], name='actual'))
+            records.append(public__pb2.Record(prediction_id=pred_id, actual=a))
+        return self._bundle_records(records, None)
