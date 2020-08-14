@@ -3,3 +3,4 @@ pandas==1.0.3
 requests_futures==1.0.0
 googleapis-common-protos==1.51.0
 protobuf==3.11.3
+scipy==1.5.2
