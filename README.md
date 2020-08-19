@@ -21,7 +21,7 @@ Start logging with the following steps.
 Sign up for a free account by reaching out to <contacts@arize.com>.
 
 <div align="center">
-  <img src="https://storage.googleapis.com/arize-assets/arize-home.png" /><br><br>
+  <img src="https://storage.googleapis.com/arize-assets/Arize%20UI%20platform.jpg" /><br><br>
 </div>
 
 ### 2. Get your service key
@@ -162,7 +162,7 @@ That's it! Once your service is deployed and predictions are logged you'll be ab
 
 #### Analytics Dashboard
 <div align="center">
-  <img src="https://storage.googleapis.com/arize-assets/arize-home.png" /><br><br>
+  <img src="https://storage.googleapis.com/arize-assets/Arize%20UI%20platform.jpg" /><br><br>
 </div>
 
 ---
