@@ -43,10 +43,15 @@ class BaseRecord(ABC):
             ts.GetCurrentTime()
         return ts
 
-    def _convert_element(self, value):
+    @staticmethod
+    def _convert_element(value):
         """ converts scalar or array to python native """
-
-        return getattr(value, "tolist", lambda: value)()
+        val = getattr(value, "tolist", lambda: value)()
+        # Check if it's a list since elements from pd indices are converted to a scalar
+        # whereas pd series/dataframe elements are converted to list of 1 with the native value
+        if isinstance(val, list):
+            return val[0]
+        return val
 
     def _get_value(self, name: str, value):
         if isinstance(value, public__pb2.Value):
@@ -153,7 +158,7 @@ class Actual(BaseRecord):
                                   actual=a)
 
 
-class BaseBulkRecord(BaseRecord):
+class BaseBulkRecord(BaseRecord, ABC):
 
     MAX_BYTES_PER_BULK_RECORD = 100000
 
@@ -173,7 +178,7 @@ class BaseBulkRecord(BaseRecord):
             )
 
     def _bundle_records(self, records, model_version):
-        recs_per_msg = self._num_chuncks(records)
+        recs_per_msg = self._num_chunks(records)
         recs = [
             records[i:i + recs_per_msg]
             for i in range(0, len(records), recs_per_msg)
@@ -187,7 +192,7 @@ class BaseBulkRecord(BaseRecord):
             for r in recs
         ]
 
-    def _num_chuncks(self, records):
+    def _num_chunks(self, records):
         total_bytes = 0
         for r in records:
             total_bytes += r.ByteSize()
@@ -196,7 +201,7 @@ class BaseBulkRecord(BaseRecord):
         return recs_per_msg
 
     def _normalize_inputs(self):
-        """Converts inputs from DataFrames, Series, lists to numpy arrays or lists for consitent interations downstream."""
+        """Converts inputs from DataFrames, Series, lists to numpy arrays or lists for consistent iterations downstream."""
         self.prediction_ids = self.prediction_ids.to_numpy()
         if isinstance(self.prediction_labels, (pd.DataFrame, pd.Series)):
             self.prediction_labels = self.prediction_labels.to_numpy()
@@ -237,13 +242,16 @@ class BulkPrediction(BaseBulkRecord):
         self._normalize_inputs()
         records = []
         for row, v in enumerate(self.prediction_ids):
-            pred_id = v[0]
+            if isinstance(v, str):
+                pred_id = v
+            else:
+                pred_id = v[0]
             if not isinstance(pred_id, (str, bytes)):
                 raise TypeError(
                     f'prediction_id {pred_id} is type {type(pred_id)}, but expected one of: str, bytes'
                 )
             p = public__pb2.Prediction(label=self._get_label(
-                value=self.prediction_labels[row][0], name='prediction'))
+                value=self.prediction_labels[row], name='prediction'))
             if self.features is not None:
                 converted_feats = {}
                 for column, name in enumerate(self.feature_names):
@@ -279,7 +287,7 @@ class BulkPrediction(BaseBulkRecord):
             if isinstance(self.features.columns,
                           pd.core.indexes.numeric.NumericIndex):
                 raise TypeError(
-                    f'fatures.columns is of type {type(self.features.columns)}, but expect elements to be str. Alternatively, feature_names_overwrite must be present.'
+                    f'features.columns is of type {type(self.features.columns)}, but expect elements to be str. Alternatively, feature_names_overwrite must be present.'
                 )
             for name in self.features.columns:
                 if not isinstance(name, str):
@@ -328,12 +336,15 @@ class BulkActual(BaseBulkRecord):
         self._normalize_inputs()
         records = []
         for i, v in enumerate(self.prediction_ids):
-            pred_id = v[0]
+            if isinstance(v, str):
+                pred_id = v
+            else:
+                pred_id = v[0]
             if not isinstance(pred_id, (str, bytes)):
                 raise TypeError(
                     f'prediction_id {pred_id} is type {type(pred_id)}, but expected one of: str, bytes'
                 )
             a = public__pb2.Actual(label=self._get_label(
-                value=self.actual_labels[i][0], name='actual'))
+                value=self.actual_labels[i], name='actual'))
             records.append(public__pb2.Record(prediction_id=pred_id, actual=a))
         return self._bundle_records(records, None)

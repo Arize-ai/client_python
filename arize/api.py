@@ -92,7 +92,7 @@ class Client:
         :param prediction_ids: 1-D Pandas Dataframe or Series with string elements. Each element corresponding to a unique string indentifier for a specific prediction. These values are needed to match latent actual labels to their original prediction labels. Each element corresponds to feature values of the same index.
         :param prediction_labels: 1-D Pandas Dataframe or Series. The predicted values for a given model input. Values are associates to the labels in the same index.
         :param features: Optional 2-D Pandas Dataframe containing human readable and debuggable model features. Dataframes columns (df.columns) should contain feature names and must have same number of rows as prediction_ids and prediction_labels.
-        :param features_name_overwrite: Optional list<str> that if present will overwrite features.columns values. Must contain the same number of elements as features.columns.
+        :param feature_names_overwrite: Optional list<str> that if present will overwrite features.columns values. Must contain the same number of elements as features.columns.
         :param model_id: (str) Optional Unique identifier for a given model. If not supplied, defaults to value used during instantiation.
         :param model_version: (str) Optional field used to group together a subset of predictions and actuals for a given model_id. If not supplied, defaults to value used during instantiation.
         :param time_overwrite: (list<int>) Optional list with same number of elements as prediction_labels field with unix epoch time in seconds to overwrite timestamp for each prediction. If None, prediction uses current timestamp.

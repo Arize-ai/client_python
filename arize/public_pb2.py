@@ -18,8 +18,8 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='public.proto',
   package='public',
   syntax='proto3',
-  serialized_options=b'Z6github.com/Arize-ai/arize/pkg/receiver/protocol/public',
-  serialized_pb=b'\n\x0cpublic.proto\x12\x06public\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9f\x01\n\nBulkRecord\x12\x18\n\x10organization_key\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rmodel_version\x18\x03 \x01(\t\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1f\n\x07records\x18\x05 \x03(\x0b\x32\x0e.public.Record\"\xaf\x01\n\x06Record\x12\x18\n\x10organization_key\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rprediction_id\x18\x03 \x01(\t\x12(\n\nprediction\x18\x04 \x01(\x0b\x32\x12.public.PredictionH\x00\x12 \n\x06\x61\x63tual\x18\x05 \x01(\x0b\x32\x0e.public.ActualH\x00\x42\x16\n\x14prediction_or_actual\"K\n\x05Label\x12\x10\n\x06\x62inary\x18\x01 \x01(\x08H\x00\x12\x15\n\x0b\x63\x61tegorical\x18\x02 \x01(\tH\x00\x12\x11\n\x07numeric\x18\x03 \x01(\x01H\x00\x42\x06\n\x04\x64\x61ta\"\xe4\x01\n\nPrediction\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12\x1c\n\x05label\x18\x03 \x01(\x0b\x32\r.public.Label\x12\x32\n\x08\x66\x65\x61tures\x18\x04 \x03(\x0b\x32 .public.Prediction.FeaturesEntry\x1a>\n\rFeaturesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.public.Value:\x02\x38\x01\"B\n\x05Value\x12\x10\n\x06string\x18\x01 \x01(\tH\x00\x12\r\n\x03int\x18\x02 \x01(\x03H\x00\x12\x10\n\x06\x64ouble\x18\x03 \x01(\x01H\x00\x42\x06\n\x04\x64\x61ta\"U\n\x06\x41\x63tual\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1c\n\x05label\x18\x02 \x01(\x0b\x32\r.public.LabelB8Z6github.com/Arize-ai/arize/pkg/receiver/protocol/publicb\x06proto3'
+  serialized_options=b'\n\022com.arize.protocolZ9github.com/Arize-ai/arize/go/pkg/receiver/protocol/public',
+  serialized_pb=b'\n\x0cpublic.proto\x12\x06public\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9f\x01\n\nBulkRecord\x12\x18\n\x10organization_key\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rmodel_version\x18\x03 \x01(\t\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1f\n\x07records\x18\x05 \x03(\x0b\x32\x0e.public.Record\"\xaf\x01\n\x06Record\x12\x18\n\x10organization_key\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rprediction_id\x18\x03 \x01(\t\x12(\n\nprediction\x18\x04 \x01(\x0b\x32\x12.public.PredictionH\x00\x12 \n\x06\x61\x63tual\x18\x05 \x01(\x0b\x32\x0e.public.ActualH\x00\x42\x16\n\x14prediction_or_actual\"K\n\x05Label\x12\x10\n\x06\x62inary\x18\x01 \x01(\x08H\x00\x12\x15\n\x0b\x63\x61tegorical\x18\x02 \x01(\tH\x00\x12\x11\n\x07numeric\x18\x03 \x01(\x01H\x00\x42\x06\n\x04\x64\x61ta\"\xe4\x01\n\nPrediction\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12\x1c\n\x05label\x18\x03 \x01(\x0b\x32\r.public.Label\x12\x32\n\x08\x66\x65\x61tures\x18\x04 \x03(\x0b\x32 .public.Prediction.FeaturesEntry\x1a>\n\rFeaturesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.public.Value:\x02\x38\x01\"m\n\x05Value\x12\x10\n\x06string\x18\x01 \x01(\tH\x00\x12\r\n\x03int\x18\x02 \x01(\x03H\x00\x12\x10\n\x06\x64ouble\x18\x03 \x01(\x01H\x00\x12)\n\x0bmulti_value\x18\x04 \x01(\x0b\x32\x12.public.MultiValueH\x00\x42\x06\n\x04\x64\x61ta\"\x1c\n\nMultiValue\x12\x0e\n\x06values\x18\x01 \x03(\t\"U\n\x06\x41\x63tual\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1c\n\x05label\x18\x02 \x01(\x0b\x32\r.public.LabelBO\n\x12\x63om.arize.protocolZ9github.com/Arize-ai/arize/go/pkg/receiver/protocol/publicb\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -312,6 +312,13 @@ _VALUE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='multi_value', full_name='public.Value.multi_value', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -328,7 +335,38 @@ _VALUE = _descriptor.Descriptor(
       index=0, containing_type=None, fields=[]),
   ],
   serialized_start=705,
-  serialized_end=771,
+  serialized_end=814,
+)
+
+
+_MULTIVALUE = _descriptor.Descriptor(
+  name='MultiValue',
+  full_name='public.MultiValue',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='values', full_name='public.MultiValue.values', index=0,
+      number=1, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=816,
+  serialized_end=844,
 )
 
 
@@ -365,8 +403,8 @@ _ACTUAL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=773,
-  serialized_end=858,
+  serialized_start=846,
+  serialized_end=931,
 )
 
 _BULKRECORD.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
@@ -393,6 +431,7 @@ _PREDICTION_FEATURESENTRY.containing_type = _PREDICTION
 _PREDICTION.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _PREDICTION.fields_by_name['label'].message_type = _LABEL
 _PREDICTION.fields_by_name['features'].message_type = _PREDICTION_FEATURESENTRY
+_VALUE.fields_by_name['multi_value'].message_type = _MULTIVALUE
 _VALUE.oneofs_by_name['data'].fields.append(
   _VALUE.fields_by_name['string'])
 _VALUE.fields_by_name['string'].containing_oneof = _VALUE.oneofs_by_name['data']
@@ -402,6 +441,9 @@ _VALUE.fields_by_name['int'].containing_oneof = _VALUE.oneofs_by_name['data']
 _VALUE.oneofs_by_name['data'].fields.append(
   _VALUE.fields_by_name['double'])
 _VALUE.fields_by_name['double'].containing_oneof = _VALUE.oneofs_by_name['data']
+_VALUE.oneofs_by_name['data'].fields.append(
+  _VALUE.fields_by_name['multi_value'])
+_VALUE.fields_by_name['multi_value'].containing_oneof = _VALUE.oneofs_by_name['data']
 _ACTUAL.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _ACTUAL.fields_by_name['label'].message_type = _LABEL
 DESCRIPTOR.message_types_by_name['BulkRecord'] = _BULKRECORD
@@ -409,6 +451,7 @@ DESCRIPTOR.message_types_by_name['Record'] = _RECORD
 DESCRIPTOR.message_types_by_name['Label'] = _LABEL
 DESCRIPTOR.message_types_by_name['Prediction'] = _PREDICTION
 DESCRIPTOR.message_types_by_name['Value'] = _VALUE
+DESCRIPTOR.message_types_by_name['MultiValue'] = _MULTIVALUE
 DESCRIPTOR.message_types_by_name['Actual'] = _ACTUAL
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -454,6 +497,13 @@ Value = _reflection.GeneratedProtocolMessageType('Value', (_message.Message,), {
   # @@protoc_insertion_point(class_scope:public.Value)
   })
 _sym_db.RegisterMessage(Value)
+
+MultiValue = _reflection.GeneratedProtocolMessageType('MultiValue', (_message.Message,), {
+  'DESCRIPTOR' : _MULTIVALUE,
+  '__module__' : 'public_pb2'
+  # @@protoc_insertion_point(class_scope:public.MultiValue)
+  })
+_sym_db.RegisterMessage(MultiValue)
 
 Actual = _reflection.GeneratedProtocolMessageType('Actual', (_message.Message,), {
   'DESCRIPTOR' : _ACTUAL,

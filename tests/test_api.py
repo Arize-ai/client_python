@@ -270,7 +270,7 @@ def test_build_bulk_actuals_dataframes():
     assert record_count == len(ids)
 
 
-def test_validate_bulk_predictions_missmatched_shapes():
+def test_validate_bulk_predictions_mismatched_shapes():
     features, labels, ids = mock_dataframes(file_to_open)
     feature_names_overwrite = [
         'mask_' + str(i) for i in range(len(features.columns))
@@ -384,3 +384,109 @@ def test_handle_log_prediction_with_time_overwrites():
     assert isinstance(record.prediction, public__pb2.Prediction)
     assert bool(record.prediction.features)
     assert record.prediction.timestamp.seconds == 1593626247
+
+
+def test_build_bulk_predictions_index():
+    features, labels, idx = mock_dataframes(file_to_open)
+    ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
+    preds = BulkPrediction(organization_key=expected['organization_key'],
+                           model_id=expected['model'],
+                           prediction_ids=ids,
+                           prediction_labels=labels,
+                           features=features,
+                           model_version=expected['model_version'],
+                           feature_names_overwrite=None,
+                           time_overwrite=None)
+    bulk_records = preds._build_proto()
+    record_count = 0
+    for bulk in bulk_records:
+        assert bulk.organization_key == expected['organization_key']
+        assert bulk.model_id == expected['model']
+        assert isinstance(bulk.timestamp, Timestamp)
+        for i in range(len(bulk.records)):
+            record = bulk.records[i]
+            assert isinstance(record, public__pb2.Record)
+            assert isinstance(record.prediction.label, public__pb2.Label)
+            assert len(record.prediction.features) == features.shape[1]
+            assert record.prediction.label.WhichOneof('data') == 'numeric'
+            assert record.prediction_id in idx.values
+            record_count += 1
+    assert record_count == len(ids)
+
+
+def test_build_bulk_actuals_index():
+    _, labels, idx = mock_dataframes(file_to_open)
+    ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
+    actuals = BulkActual(organization_key=expected['organization_key'],
+                         model_id=expected['model'],
+                         prediction_ids=ids,
+                         actual_labels=labels)
+    bulk_records = actuals._build_proto()
+    record_count = 0
+    for bulk in bulk_records:
+        assert bulk.organization_key == expected['organization_key']
+        assert bulk.model_id == expected['model']
+        assert isinstance(bulk.timestamp, Timestamp)
+        for i in range(len(bulk.records)):
+            record = bulk.records[i]
+            assert isinstance(record, public__pb2.Record)
+            assert isinstance(record.actual.label, public__pb2.Label)
+            assert record.prediction_id == ids[record_count][0]
+            assert record.actual.label.WhichOneof('data') == 'numeric'
+            assert record.prediction_id in idx.values
+            record_count += 1
+    assert record_count == len(ids)
+
+
+def test_build_bulk_predictions_index_bool():
+    features, _, idx = mock_dataframes(file_to_open)
+    ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
+    features['pred'] = features['mpg'].apply(lambda x: True if x > 15 else False)
+    preds = BulkPrediction(organization_key=expected['organization_key'],
+                           model_id=expected['model'],
+                           prediction_ids=ids,
+                           prediction_labels=features['pred'],
+                           features=features,
+                           model_version=expected['model_version'],
+                           feature_names_overwrite=None,
+                           time_overwrite=None)
+    bulk_records = preds._build_proto()
+    record_count = 0
+    for bulk in bulk_records:
+        assert bulk.organization_key == expected['organization_key']
+        assert bulk.model_id == expected['model']
+        assert isinstance(bulk.timestamp, Timestamp)
+        for i in range(len(bulk.records)):
+            record = bulk.records[i]
+            assert isinstance(record, public__pb2.Record)
+            assert isinstance(record.prediction.label, public__pb2.Label)
+            assert len(record.prediction.features) == features.shape[1]
+            assert record.prediction.label.WhichOneof('data') == 'binary'
+            assert record.prediction_id in idx.values
+            record_count += 1
+    assert record_count == len(ids)
+
+
+def test_build_bulk_actuals_index_bool():
+    features, _, idx = mock_dataframes(file_to_open)
+    features['actual'] = features['mpg'].apply(lambda x: True if x > 15 else False)
+    ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
+    actuals = BulkActual(organization_key=expected['organization_key'],
+                         model_id=expected['model'],
+                         prediction_ids=ids,
+                         actual_labels=features['actual'])
+    bulk_records = actuals._build_proto()
+    record_count = 0
+    for bulk in bulk_records:
+        assert bulk.organization_key == expected['organization_key']
+        assert bulk.model_id == expected['model']
+        assert isinstance(bulk.timestamp, Timestamp)
+        for i in range(len(bulk.records)):
+            record = bulk.records[i]
+            assert isinstance(record, public__pb2.Record)
+            assert isinstance(record.actual.label, public__pb2.Label)
+            assert record.prediction_id == ids[record_count][0]
+            assert record.actual.label.WhichOneof('data') == 'binary'
+            assert record.prediction_id in idx.values
+            record_count += 1
+    assert record_count == len(ids)

@@ -17,3 +17,4 @@ check_wheel_contents
 yapf
 twine
 wheel
+grpcio-tools
