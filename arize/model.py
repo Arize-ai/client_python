@@ -159,7 +159,6 @@ class Actual(BaseRecord):
 
 
 class BaseBulkRecord(BaseRecord, ABC):
-
     MAX_BYTES_PER_BULK_RECORD = 100000
 
     prediction_labels, actual_labels, time_overwrite, features = None, None, None, None
@@ -179,18 +178,16 @@ class BaseBulkRecord(BaseRecord, ABC):
 
     def _bundle_records(self, records, model_version):
         recs_per_msg = self._num_chunks(records)
-        recs = [
-            records[i:i + recs_per_msg]
-            for i in range(0, len(records), recs_per_msg)
-        ]
-        return [
-            public__pb2.BulkRecord(records=r,
-                                   organization_key=self.organization_key,
-                                   model_id=self.model_id,
-                                   model_version=model_version,
-                                   timestamp=self._get_timestamp())
-            for r in recs
-        ]
+        rec_map = {}
+        for i in range(0, len(records), recs_per_msg):
+            rec_map[f'{i}_{i + recs_per_msg}'] = records[i:i + recs_per_msg]
+        for k, r in rec_map.items():
+            rec_map[k] = public__pb2.BulkRecord(records=r,
+                                                organization_key=self.organization_key,
+                                                model_id=self.model_id,
+                                                model_version=model_version,
+                                                timestamp=self._get_timestamp())
+        return rec_map
 
     def _num_chunks(self, records):
         total_bytes = 0

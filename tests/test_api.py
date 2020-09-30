@@ -188,7 +188,8 @@ def test_build_bulk_predictions_dataframes():
                            time_overwrite=None)
     bulk_records = preds._build_proto()
     record_count = 0
-    for bulk in bulk_records:
+    for header, bulk in bulk_records.items():
+        assert header == f'0_{len(ids)}'
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert bulk.model_version == expected['model_version']
@@ -214,7 +215,7 @@ def test_build_bulk_predictions_no_features():
                            feature_names_overwrite=None,
                            time_overwrite=None)
     records = preds._build_proto()
-    for bulk in records:
+    for _, bulk in records.items():
         assert isinstance(bulk, public__pb2.BulkRecord)
         for r in bulk.records:
             assert isinstance(r, public__pb2.Record)
@@ -237,7 +238,7 @@ def test_build_bulk_prediction_with_feature_names_overwrites():
                            feature_names_overwrite=feature_names_overwrite,
                            time_overwrite=None)
     records = preds._build_proto()
-    for bulk in records:
+    for _, bulk in records.items():
         assert isinstance(bulk, public__pb2.BulkRecord)
         for r in bulk.records:
             assert isinstance(r, public__pb2.Record)
@@ -256,7 +257,8 @@ def test_build_bulk_actuals_dataframes():
                          actual_labels=labels)
     bulk_records = actuals._build_proto()
     record_count = 0
-    for bulk in bulk_records:
+    for header, bulk in bulk_records.items():
+        assert header == f'0_{len(ids)}'
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert isinstance(bulk.timestamp, Timestamp)
@@ -362,7 +364,7 @@ def test_build_bulk_prediction_with_time_overwrites():
                            feature_names_overwrite=None,
                            time_overwrite=time)
     records = preds._build_proto()
-    for bulk in records:
+    for _, bulk in records.items():
         assert isinstance(bulk, public__pb2.BulkRecord)
         for r in bulk.records:
             assert isinstance(r, public__pb2.Record)
@@ -399,7 +401,7 @@ def test_build_bulk_predictions_index():
                            time_overwrite=None)
     bulk_records = preds._build_proto()
     record_count = 0
-    for bulk in bulk_records:
+    for _, bulk in bulk_records.items():
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert isinstance(bulk.timestamp, Timestamp)
@@ -423,7 +425,7 @@ def test_build_bulk_actuals_index():
                          actual_labels=labels)
     bulk_records = actuals._build_proto()
     record_count = 0
-    for bulk in bulk_records:
+    for _, bulk in bulk_records.items():
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert isinstance(bulk.timestamp, Timestamp)
@@ -452,7 +454,7 @@ def test_build_bulk_predictions_index_bool():
                            time_overwrite=None)
     bulk_records = preds._build_proto()
     record_count = 0
-    for bulk in bulk_records:
+    for _, bulk in bulk_records.items():
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert isinstance(bulk.timestamp, Timestamp)
@@ -477,7 +479,7 @@ def test_build_bulk_actuals_index_bool():
                          actual_labels=features['actual'])
     bulk_records = actuals._build_proto()
     record_count = 0
-    for bulk in bulk_records:
+    for _, bulk in bulk_records.items():
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert isinstance(bulk.timestamp, Timestamp)
