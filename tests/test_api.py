@@ -188,8 +188,8 @@ def test_build_bulk_predictions_dataframes():
                            time_overwrite=None)
     bulk_records = preds._build_proto()
     record_count = 0
-    for header, bulk in bulk_records.items():
-        assert header == f'0_{len(ids)}'
+    for indexes, bulk in bulk_records.items():
+        assert indexes == (0, len(ids))
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert bulk.model_version == expected['model_version']
@@ -257,8 +257,8 @@ def test_build_bulk_actuals_dataframes():
                          actual_labels=labels)
     bulk_records = actuals._build_proto()
     record_count = 0
-    for header, bulk in bulk_records.items():
-        assert header == f'0_{len(ids)}'
+    for indexes, bulk in bulk_records.items():
+        assert indexes == (0, len(ids))
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert isinstance(bulk.timestamp, Timestamp)

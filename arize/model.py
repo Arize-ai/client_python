@@ -178,16 +178,17 @@ class BaseBulkRecord(BaseRecord, ABC):
 
     def _bundle_records(self, records, model_version):
         recs_per_msg = self._num_chunks(records)
-        rec_map = {}
+        recs = {}
         for i in range(0, len(records), recs_per_msg):
-            rec_map[f'{i}_{i + recs_per_msg}'] = records[i:i + recs_per_msg]
-        for k, r in rec_map.items():
-            rec_map[k] = public__pb2.BulkRecord(records=r,
-                                                organization_key=self.organization_key,
-                                                model_id=self.model_id,
-                                                model_version=model_version,
-                                                timestamp=self._get_timestamp())
-        return rec_map
+            recs[(i, i + recs_per_msg)] = records[i:i + recs_per_msg]
+        for k, r in recs.items():
+            recs[k] = public__pb2.BulkRecord(
+                records=r,
+                organization_key=self.organization_key,
+                model_id=self.model_id,
+                model_version=model_version,
+                timestamp=self._get_timestamp())
+        return recs
 
     def _num_chunks(self, records):
         total_bytes = 0

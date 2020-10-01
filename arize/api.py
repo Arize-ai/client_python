@@ -64,7 +64,7 @@ class Client:
                           features=features,
                           time_overwrite=time_overwrite)
         pred.validate_inputs()
-        return self._post(record=pred._build_proto(), uri=self._uri, indexes_headers=None)
+        return self._post(record=pred._build_proto(), uri=self._uri, indexes=None)
 
     def log_actual(self, prediction_id: str, actual_label, model_id=None):
         """ Logs an actual to Arize via a POST request. Returns :class:`Future` object.
@@ -78,7 +78,7 @@ class Client:
                         prediction_id=prediction_id,
                         actual_label=actual_label)
         actual.validate_inputs()
-        return self._post(record=actual._build_proto(), uri=self._uri, indexes_headers=None)
+        return self._post(record=actual._build_proto(), uri=self._uri, indexes=None)
 
     def log_bulk_predictions(self,
                              prediction_ids,
@@ -131,13 +131,14 @@ class Client:
             responses.append(self._post(r, uri, k))
         return responses
 
-    def _post(self, record, uri, indexes_headers):
+    def _post(self, record, uri, indexes):
         payload = MessageToDict(message=record,
                                 preserving_proto_field_name=True)
-        headers = {'Authorization': self._api_key}
-        if indexes_headers is not None:
-            headers['Grpc-Metadata-arize-bulk-indexes'] = indexes_headers
-        return self._session.post(uri,
-                                  headers=headers,
+        resp = self._session.post(uri,
+                                  headers={'Authorization': self._api_key},
                                   timeout=self._timeout,
                                   json=payload)
+        if indexes is not None and len(indexes) == 2:
+            resp.starting_index = indexes[0]
+            resp.ending_index = indexes[1]
+        return resp
