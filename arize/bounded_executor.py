@@ -9,6 +9,7 @@ class BoundedExecutor:
     :param bound: Integer - the maximum number of items in the work queue
     :param max_workers: Integer - the size of the thread pool
     """
+
     def __init__(self, bound, max_workers):
         self.executor = ThreadPoolExecutor(max_workers=max_workers)
         self.semaphore = BoundedSemaphore(bound + max_workers)

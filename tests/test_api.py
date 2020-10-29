@@ -194,8 +194,7 @@ def test_build_bulk_predictions_dataframes():
         assert bulk.model_id == expected['model']
         assert bulk.model_version == expected['model_version']
         assert isinstance(bulk.timestamp, Timestamp)
-        for i in range(len(bulk.records)):
-            record = bulk.records[i]
+        for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.prediction.label, public__pb2.Label)
             assert len(record.prediction.features) == features.shape[1]
@@ -262,8 +261,7 @@ def test_build_bulk_actuals_dataframes():
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert isinstance(bulk.timestamp, Timestamp)
-        for i in range(len(bulk.records)):
-            record = bulk.records[i]
+        for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.actual.label, public__pb2.Label)
             assert record.prediction_id == ids[0][record_count]
@@ -405,8 +403,7 @@ def test_build_bulk_predictions_index():
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert isinstance(bulk.timestamp, Timestamp)
-        for i in range(len(bulk.records)):
-            record = bulk.records[i]
+        for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.prediction.label, public__pb2.Label)
             assert len(record.prediction.features) == features.shape[1]
@@ -429,8 +426,7 @@ def test_build_bulk_actuals_index():
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert isinstance(bulk.timestamp, Timestamp)
-        for i in range(len(bulk.records)):
-            record = bulk.records[i]
+        for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.actual.label, public__pb2.Label)
             assert record.prediction_id == ids[record_count][0]
@@ -443,7 +439,7 @@ def test_build_bulk_actuals_index():
 def test_build_bulk_predictions_index_bool():
     features, _, idx = mock_dataframes(file_to_open)
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
-    features['pred'] = features['mpg'].apply(lambda x: True if x > 15 else False)
+    features['pred'] = features['mpg'].apply(lambda x: x > 15)
     preds = BulkPrediction(organization_key=expected['organization_key'],
                            model_id=expected['model'],
                            prediction_ids=ids,
@@ -458,8 +454,7 @@ def test_build_bulk_predictions_index_bool():
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert isinstance(bulk.timestamp, Timestamp)
-        for i in range(len(bulk.records)):
-            record = bulk.records[i]
+        for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.prediction.label, public__pb2.Label)
             assert len(record.prediction.features) == features.shape[1]
@@ -471,7 +466,7 @@ def test_build_bulk_predictions_index_bool():
 
 def test_build_bulk_actuals_index_bool():
     features, _, idx = mock_dataframes(file_to_open)
-    features['actual'] = features['mpg'].apply(lambda x: True if x > 15 else False)
+    features['actual'] = features['mpg'].apply(lambda x: x > 15)
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
     actuals = BulkActual(organization_key=expected['organization_key'],
                          model_id=expected['model'],
@@ -483,8 +478,7 @@ def test_build_bulk_actuals_index_bool():
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert isinstance(bulk.timestamp, Timestamp)
-        for i in range(len(bulk.records)):
-            record = bulk.records[i]
+        for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.actual.label, public__pb2.Label)
             assert record.prediction_id == ids[record_count][0]
