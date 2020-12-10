@@ -17,4 +17,4 @@ check_wheel_contents
 yapf
 twine
 wheel
-grpcio-tools
+grpcio-tools==1.30.0

@@ -76,7 +76,8 @@ def test_build_binary_prediction_features():
         'data') == 'int'
     assert record.prediction.features['feature_bool'].WhichOneof(
         'data') == 'string'
-
+    assert record.prediction.timestamp.seconds == 0
+    assert record.prediction.timestamp.nanos == 0
 
 def test_build_categorical_prediction():
     pred = Prediction(organization_key=expected['organization_key'],
@@ -144,6 +145,8 @@ def test_build_numeric_actual():
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
     assert record.actual.label.numeric == expected['value_numeric']
+    assert record.actual.timestamp.seconds == 0
+    assert record.actual.timestamp.nanos == 0
 
 
 def test_build_categorical_actual():
@@ -199,6 +202,8 @@ def test_build_bulk_predictions_dataframes():
             assert isinstance(record.prediction.label, public__pb2.Label)
             assert len(record.prediction.features) == features.shape[1]
             assert record.prediction.label.WhichOneof('data') == 'numeric'
+            assert record.prediction.timestamp.seconds == 0
+            assert record.prediction.timestamp.nanos == 0
             record_count += 1
     assert record_count == len(ids)
 
@@ -266,6 +271,8 @@ def test_build_bulk_actuals_dataframes():
             assert isinstance(record.actual.label, public__pb2.Label)
             assert record.prediction_id == ids[0][record_count]
             assert record.actual.label.WhichOneof('data') == 'numeric'
+            assert record.actual.timestamp.seconds == 0
+            assert record.actual.timestamp.nanos == 0
             record_count += 1
     assert record_count == len(ids)
 

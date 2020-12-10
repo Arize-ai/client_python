@@ -31,16 +31,15 @@ class BaseRecord(ABC):
             )
 
     def _get_timestamp(self, time_overwrite=None):
-        ts = Timestamp()
+        ts = None
         if time_overwrite is not None:
             time = self._convert_element(time_overwrite)
             if not isinstance(time_overwrite, int):
                 raise TypeError(
                     f"time_overwrite {time_overwrite} is type {type(time_overwrite)}, but expects int. (Unix epoch time in seconds)"
                 )
+            ts = Timestamp()
             ts.FromSeconds(time)
-        else:
-            ts.GetCurrentTime()
         return ts
 
     @staticmethod
@@ -135,7 +134,8 @@ class Prediction(BaseRecord):
             p.MergeFrom(feats)
         if self.model_version is not None:
             p.model_version = self.model_version
-        p.timestamp.MergeFrom(self._get_timestamp(self.time_overwrite))
+        if self.time_overwrite is not None:
+            p.timestamp.MergeFrom(self._get_timestamp(self.time_overwrite))
         return public__pb2.Record(
             organization_key=self.organization_key,
             model_id=self.model_id,
@@ -163,7 +163,6 @@ class Actual(BaseRecord):
         a = public__pb2.Actual(
             label=self._get_label(value=self.actual_label, name="actual")
         )
-        a.timestamp.MergeFrom(self._get_timestamp())
         return public__pb2.Record(
             organization_key=self.organization_key,
             model_id=self.model_id,
@@ -202,7 +201,6 @@ class BaseBulkRecord(BaseRecord, ABC):
                 organization_key=self.organization_key,
                 model_id=self.model_id,
                 model_version=model_version,
-                timestamp=self._get_timestamp(),
             )
         return recs
 
