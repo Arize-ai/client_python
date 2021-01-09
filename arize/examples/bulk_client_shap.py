@@ -30,8 +30,14 @@ preds = arize.log_bulk_predictions(
     features=features,
     feature_names_overwrite=column_overwrite,
 )
-actuals = arize.log_bulk_actuals(prediction_ids=ids, actual_labels=pred_labels)
-preds.extend(actuals)
+
+shap_values = pd.DataFrame(
+    np.random.random(size=(NUM_RECORDS, 12)),
+    columns=list("abcdefghijkl"),
+)
+print(shap_values)
+shap_request = arize.log_bulk_shap_values(prediction_ids=ids, shap_values=shap_values)
+preds.extend(shap_request)
 for future in cf.as_completed(preds):
     res = future.result()
     print(f"future completed with response code {res.status_code}")

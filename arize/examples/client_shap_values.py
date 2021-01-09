@@ -28,8 +28,15 @@ def get_features(feature_counts):
         features["feature_" + str(i) + "_np_ll"] = numpy.longlong(random() * 100)
     return features
 
+def get_shap_values(features):
+    shap_values = {}
+    for feature in features:
+        shap_values[feature] = numpy.float_(random())
+
+    return shap_values
 
 features = get_features(NUM_FEATURES)
+shap_values = get_shap_values(features)
 resps = []
 start = time.time_ns()
 for j in range(ITERATIONS):
@@ -37,7 +44,7 @@ for j in range(ITERATIONS):
     pred = arize.log_prediction(
         prediction_id=id_, prediction_label=True, features=features
     )
-    actual = arize.log_actual(prediction_id=id_, actual_label=False)
+    actual = arize.log_shap_values(prediction_id=id_, shap_values=shap_values)
     resps.append(pred)
     resps.append(actual)
 

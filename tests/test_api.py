@@ -6,7 +6,7 @@ from pathlib import Path
 from google.protobuf.timestamp_pb2 import Timestamp
 
 import arize.public_pb2 as public__pb2
-from arize.model import Prediction, Actual, BulkPrediction, BulkActual
+from arize.model import Prediction, Actual, BulkPrediction, BulkActual, FeatureImportances, BulkFeatureImportances
 
 NUM_VAL = 20.20
 STR_VAL = 'arize'
@@ -28,6 +28,12 @@ expected = {
         'feature_double': NUM_VAL,
         'feature_int': INT_VAL,
         'feature_bool': BOOL_VAL
+    },
+    'feature_importances': {
+        'feature_str': NUM_VAL,
+        'feature_double': NUM_VAL,
+        'feature_int': NUM_VAL,
+        'feature_bool': NUM_VAL
     }
 }
 
@@ -196,7 +202,7 @@ def test_build_bulk_predictions_dataframes():
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert bulk.model_version == expected['model_version']
-        assert isinstance(bulk.timestamp, Timestamp)
+        assert not hasattr(bulk, 'timestamp')
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.prediction.label, public__pb2.Label)
@@ -265,7 +271,7 @@ def test_build_bulk_actuals_dataframes():
         assert indexes == (0, len(ids))
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
-        assert isinstance(bulk.timestamp, Timestamp)
+        assert not hasattr(bulk, 'timestamp')
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.actual.label, public__pb2.Label)
@@ -409,7 +415,7 @@ def test_build_bulk_predictions_index():
     for _, bulk in bulk_records.items():
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
-        assert isinstance(bulk.timestamp, Timestamp)
+        assert not hasattr(bulk, 'timestamp')
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.prediction.label, public__pb2.Label)
@@ -432,7 +438,7 @@ def test_build_bulk_actuals_index():
     for _, bulk in bulk_records.items():
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
-        assert isinstance(bulk.timestamp, Timestamp)
+        assert not hasattr(bulk, 'timestamp')
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.actual.label, public__pb2.Label)
@@ -460,7 +466,7 @@ def test_build_bulk_predictions_index_bool():
     for _, bulk in bulk_records.items():
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
-        assert isinstance(bulk.timestamp, Timestamp)
+        assert not hasattr(bulk, 'timestamp')
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.prediction.label, public__pb2.Label)
@@ -484,7 +490,7 @@ def test_build_bulk_actuals_index_bool():
     for _, bulk in bulk_records.items():
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
-        assert isinstance(bulk.timestamp, Timestamp)
+        assert not hasattr(bulk, 'timestamp')
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.actual.label, public__pb2.Label)
@@ -493,3 +499,146 @@ def test_build_bulk_actuals_index_bool():
             assert record.prediction_id in idx.values
             record_count += 1
     assert record_count == len(ids)
+
+
+def test_build_feature_importances():
+    fi = FeatureImportances(organization_key=expected['organization_key'],
+                    model_id=expected['model'],
+                    prediction_id=expected['prediction_id'],
+                    feature_importances=expected['feature_importances']
+    )
+    record = fi._build_proto()
+    assert isinstance(record, public__pb2.Record)
+    assert isinstance(record.feature_importances, public__pb2.FeatureImportances)
+    assert record.organization_key == expected['organization_key']
+    assert record.model_id == expected['model']
+    assert record.prediction_id == expected['prediction_id']
+    assert len(record.feature_importances.feature_importances) == len(expected['feature_importances'])
+
+
+def test_build_feature_importances_error_missing_data():
+    ex = None
+
+    try:
+        fi = FeatureImportances(organization_key=expected['organization_key'],
+                    model_id=expected['model'],
+                    prediction_id=expected['prediction_id'],
+                    feature_importances=None
+    )
+        fi.validate_inputs()
+    except Exception as err:
+        # Error because feature_importances is None
+        ex = err
+
+    assert isinstance(ex, ValueError)
+
+
+def test_build_feature_importances_error_empty_data():
+    ex = None
+
+    try:
+        fi = FeatureImportances(organization_key=expected['organization_key'],
+                    model_id=expected['model'],
+                    prediction_id=expected['prediction_id'],
+                    feature_importances={}
+    )
+        fi.validate_inputs()
+    except Exception as err:
+        # Error because no feature_importances were provided
+        ex = err
+
+    assert isinstance(ex, ValueError)
+
+
+def test_build_feature_importances_error_wrong_data_type():
+    ex = None
+
+    try:
+        fi = FeatureImportances(organization_key=expected['organization_key'],
+                    model_id=expected['model'],
+                    prediction_id=expected['prediction_id'],
+                    feature_importances={"a": "string"} # feature importances should be float, so this will produce an error
+    )
+        fi.validate_inputs()
+    except Exception as err:
+        ex = err
+
+    assert isinstance(ex, TypeError)
+
+
+def test_build_bulk_feature_importances():
+    features, _, pred_ids = mock_dataframes(file_to_open)
+
+    data = np.random.rand(len(pred_ids), len(features.columns))
+    feature_importances = pd.DataFrame(data=data, columns=features.columns)
+    ids = pd.DataFrame(index=pred_ids.values, data=pred_ids.values).index.to_series()
+
+    bulk_req = BulkFeatureImportances(organization_key=expected['organization_key'],
+                         model_id=expected['model'],
+                         prediction_ids=ids,
+                         feature_importances=feature_importances)
+    bulk_proto = bulk_req._build_proto()
+    record_count = 0
+    for _, bulk in bulk_proto.items():
+        assert bulk.organization_key == expected['organization_key']
+        assert bulk.model_id == expected['model']
+        assert not hasattr(bulk, 'timestamp')
+        for record in bulk.records:
+            assert isinstance(record, public__pb2.Record)
+            fi = record.feature_importances
+            assert isinstance(fi, public__pb2.FeatureImportances)
+            assert len(fi.feature_importances) == len(features.columns)
+
+            assert record.prediction_id == ids[record_count][0]
+            assert record.prediction_id in pred_ids.values
+            record_count += 1
+    assert record_count == len(ids)
+
+
+def test_build_bulk_feature_importances_error_mismatch():
+    features, _, pred_ids = mock_dataframes(file_to_open)
+
+    # Make the length of feature importances data array mismatch the number of prediction ids
+    data = np.random.rand(len(pred_ids)-1, len(features.columns))
+
+    feature_importances = pd.DataFrame(data=data, columns=features.columns)
+    ids = pd.DataFrame(index=pred_ids.values, data=pred_ids.values).index.to_series()
+
+    ex = None
+    try:
+        bulk_fi = BulkFeatureImportances(organization_key=expected['organization_key'],
+                         model_id=expected['model'],
+                         prediction_ids=ids,
+                         feature_importances=feature_importances)
+
+        bulk_fi.validate_inputs()
+    except Exception as err:
+        # feature importances data length and number of prediction ids mismatch should cause this error
+        ex = err
+
+    assert isinstance(ex, ValueError)
+
+def test_build_bulk_feature_importances_error_wrong_data_type():
+    features, _, pred_ids = mock_dataframes(file_to_open)
+
+    # Replace one of the rows in the feature importances data with values of the wrong data type (i.e. not float)
+    data = np.random.rand(len(pred_ids)-1, len(features.columns))
+    data_wrong_type = np.ones(len(features.columns), dtype=bool)
+
+    data = np.vstack((data, data_wrong_type))
+    feature_importances = pd.DataFrame(data=data, columns=features.columns)
+    ids = pd.DataFrame(index=pred_ids.values, data=pred_ids.values).index.to_series()
+
+    ex = None
+    try:
+        bulk_fi = BulkFeatureImportances(organization_key=expected['organization_key'],
+                         model_id=expected['model'],
+                         prediction_ids=ids,
+                         feature_importances=feature_importances)
+
+        bulk_fi.validate_inputs()
+    except Exception as err:
+        # caused by wrong type
+        ex = err
+
+    assert isinstance(ex, ValueError)

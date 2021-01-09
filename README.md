@@ -2,7 +2,7 @@
   <img src="https://storage.googleapis.com/arize-assets/arize-logo-white.jpg" width="600" /><br><br>
 </div>
 
-[![Pypi](https://badge.fury.io/py/arize.svg)](https://badge.fury.io/py/arize) 
+[![Pypi](https://badge.fury.io/py/arize.svg)](https://badge.fury.io/py/arize)
 ![CI](https://github.com/Arize-ai/arize/workflows/CI/badge.svg)
 [![Slack](https://img.shields.io/badge/slack-@arize-yellow.svg?logo=slack)](https://join.slack.com/t/arize-ai/shared_invite/zt-g9c1j1xs-aQEwOAkU4T2x5K8cqI1Xqg)
 
@@ -13,7 +13,7 @@ A helper library to interact with Arize AI APIs
 
 ---
 ## Quickstart
-Instrument your model to log prediction labels, human readable/debuggale features and tags, and the actual label events once the ground truth is learned. The logged events allow the Arize platform to generate visualizations of features/tags, labels and other model metadata. Additionally the platform will provide data quality monitoring and data distribution alerts, for your production models.
+Instrument your model to log prediction labels, human readable/debuggable features and tags, and the actual label events once the ground truth is learned. The logged events allow the Arize platform to generate visualizations of features/tags, labels and other model metadata. Additionally, the platform will provide data quality monitoring and data distribution alerts for your production models.
 
 Start logging with the following steps.
 
@@ -24,17 +24,17 @@ Sign up for a free account by reaching out to <contacts@arize.com>.
   <img src="https://storage.googleapis.com/arize-assets/Arize%20UI%20platform.jpg" /><br><br>
 </div>
 
-### 2. Get your service key
-When you create an account, we generate a service api key. You will need this API Key and organization id for logging authentication.
+### 2. Get your service API key
+When you create an account, we generate a service API key. You will need this API Key and your Organization ID for logging authentication.
 
 
 ### 3. Instrument your code
 ### Python Client
-If you are using our python client, add a few lines to your code to log predictions and actuals. Logs are sent to Arize asynchrously. 
+If you are using the Arize python client, add a few lines to your code to log predictions and actuals. Logs are sent to Arize asynchronously.
 
 ### Install Library
 
-Install our library in an environment using Python > 3.5.3.
+Install the Arize library in an environment using Python > 3.5.3.
 ```sh
 $ pip3 install arize
 ```
@@ -47,9 +47,9 @@ $ python setup.py install
 
 ### Initialize Python Client
 
-Initialize `arize` at the start of your sevice using your previously created Organization ID and API Key
+Initialize `arize` at the start of your sevice using your previously created API Key and Organization ID.
 
-> **_NOTE:_** We suggest adding the API KEY as secrets or an environment variable.
+> **_NOTE:_** We suggest adding the API key as a secret or an environment variable.
 
 ```python
 from arize.api import Client
@@ -62,7 +62,7 @@ arize = Client(organization_key='ARIZE_ORG_KEY', api_key=API_KEY)
 ### Collect your model input features and labels you'd like to track
 
 #### Real-time single prediction:
-For real-time single prediction process, you can track all input features used to at prediction time by logging it via a key:value dictionary.
+For a single real-time prediction, you can track all input features used at prediction time by logging them via a key:value dictionary.
 
 ```python
 features = {
@@ -77,7 +77,7 @@ features = {
 ```
 
 #### Bulk predictions:
-When dealing with bulk predictions, you can pass in input features, prediction/actual labels, and prediction_ids via a Pandas Dataframe where df.coloumns contain feature names.
+When dealing with bulk predictions, you can pass in input features, prediction/actual labels, and prediction_ids for more than one prediction via a Pandas Dataframe where df.columns contain feature names.
 ```python
 ## e.g. labels from a CSV. Labels must be 2-D data frames where df.columns correspond to the label name
 features_df = pd.read_csv('path/to/file.csv')
@@ -88,7 +88,7 @@ ids_df = pd.DataFrame([str(uuid.uuid4()) for _ in range(len(prediction_labels.in
 ```
 
 ### Log Predictions
-#### Single real-time precition:
+#### Single real-time prediction:
 ```python
 ## Returns an array of concurrent.futures.Future
 pred = arize.log_prediction(
@@ -125,12 +125,12 @@ for response in cf.as_completed(responses):
     print(f'future failed with response code {res.status_code}, {res.text}')
 ```
 
-Arize log_predition/actual returns a single concurrent future while log_bulk_predictions/actuals returns a list of concurrent futures for asyncronous behavior. To capture the logging response, you can await the resolved futures. If you desire a fire-and-forget pattern you can disreguard the reponses altogether.
+The client's log_prediction/actual function returns a single concurrent future while log_bulk_predictions/actuals returns a list of concurrent futures for asynchronous behavior. To capture the logging response, you can await the resolved futures. If you desire a fire-and-forget pattern, you can disregard the responses altogether.
 
 We automatically discover new models logged over time based on the model ID sent on each prediction.
 
 ### Logging Actual Labels
-> **_NOTE:_** Notice the prediction_id passed in matched the original prediction send on the previous example above.
+> **_NOTE:_** Notice the prediction_id passed in matches the original prediction sent on the previous example above.
 ```python
 response = arize.log_actual(
     model_id='sample-model-1',
@@ -155,10 +155,10 @@ for response in cf.as_completed(responses):
   if res.status_code != 200:
     print(f'future failed with response code {res.status_code}, {res.text}')
 ```
-Once the actual labels (ground truth) for a prediction is determined, you can send those to Arize and evaluate your metrics over time. The prediction id for one predition links to it's corresponding actual label so it's important to note those must be the same when matching events.
+Once the actual labels (ground truth) for your predictions have been determined, you can send them to Arize and evaluate your metrics over time. The prediction id for one prediction links to its corresponding actual label so it's important to note those must be the same when matching events.
 
 ### 4. Log In for Analytics
-That's it! Once your service is deployed and predictions are logged you'll be able to log into your Arize account and dive into your data. Slicing it by features, tags, models, time, etc.
+That's it! Once your service is deployed and predictions are logged you'll be able to log into your Arize account and dive into your data, slicing it by features, tags, models, time, etc.
 
 #### Analytics Dashboard
 <div align="center">
@@ -171,7 +171,7 @@ If you are using a different language, you'll be able to post an HTTP request to
 
 ### HTTP post request to Arize
 
-```bash 
+```bash
 curl -X POST -H "Authorization: YOU_API_KEY" "https://log.arize.com/v1/log" -d'{"organization_key": "YOUR_ORG_KEY", "model_id": "test_model_1", "prediction_id":"test100", "prediction":{"model_version": "v1.23.64", "features":{"state":{"string": "CO"}, "item_count":{"int": 10}, "charge_amt":{"float": 12.34}, "physical_card":{"string": true}}, "prediction_label": {"binary": false}}}'
 ```
 ---

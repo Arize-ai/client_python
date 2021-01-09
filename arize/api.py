@@ -3,7 +3,7 @@ from requests_futures.sessions import FuturesSession
 from google.protobuf.json_format import MessageToDict
 
 from arize.bounded_executor import BoundedExecutor
-from arize.model import Prediction, Actual, BulkPrediction, BulkActual
+from arize.model import Prediction, Actual, FeatureImportances, BulkPrediction, BulkActual, BulkFeatureImportances
 
 
 class Client:
@@ -89,6 +89,45 @@ class Client:
         )
         actual.validate_inputs()
         return self._post(record=actual._build_proto(), uri=self._uri, indexes=None)
+
+    def log_shap_values(
+        self,
+        prediction_id: str,
+        shap_values=None,
+        model_id=None,
+    ):
+        """Logs SHAP feature importance values for a given prediction to Arize via a POST request. Returns :class:`Future` object.
+        :param prediction_id: (str) Unique string identifier for a specific prediction. This value is used to match a prediction to the SHAP values supplied in this request in the Arize platform.
+        :param shap_values: (str, float) Dictionary containing human readable and debuggable model features keys, along with SHAP feature importance values. Keys must be str, while values must be float.
+        :param model_id: (str) Optional Unique identifier for a given model. If not supplied, defaults to value used during instantiation.
+        :rtype : concurrent.futures.Future
+        """
+
+        fi = FeatureImportances(
+            organization_key=self._organization_key,
+            prediction_id=prediction_id,
+            model_id=(model_id or self._model_id),
+            feature_importances=shap_values,
+        )
+        fi.validate_inputs()
+        return self._post(record=fi._build_proto(), uri=self._uri, indexes=None)
+
+    def log_bulk_shap_values(self, prediction_ids, shap_values, model_id=None):
+        """Logs a collection of SHAP feature importance value sets with Arize via a POST request. Returns list<:class:`Future`> object.
+        :param prediction_ids: 1-D Pandas Dataframe or Series with string elements. Each element corresponding to a unique string identifier for a specific prediction. Each element corresponds to the SHAP values of the same index.
+        :param shap_values: 1-D Pandas Dataframe or Series. The SHAP value sets for a set of predictions. SHAP value sets are correspond to the prediction ids with the same index.
+        :param model_id: (str) Optional Unique identifier for a given model. If not supplied, defaults to value used during instantiation.
+        :rtype : list<concurrent.futures.Future>
+        """
+
+        feature_importances = BulkFeatureImportances(
+            organization_key=self._organization_key,
+            model_id=(model_id or self._model_id),
+            prediction_ids=prediction_ids,
+            feature_importances=shap_values,
+        )
+        feature_importances.validate_inputs()
+        return self._post_bulk(records=feature_importances._build_proto(), uri=self._bulk_url)
 
     def log_bulk_predictions(
         self,

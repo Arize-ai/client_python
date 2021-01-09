@@ -17,6 +17,8 @@ class BaseRecord(ABC):
         pass
 
     @abstractmethod
+    # combine _build_proto with validate_inputs so that build proto isn't called when the
+    # inputs haven't been validated
     def _build_proto(self):
         pass
 
@@ -170,6 +172,45 @@ class Actual(BaseRecord):
             actual=a,
         )
 
+class FeatureImportances(BaseRecord):
+    def __init__(
+        self,
+        organization_key,
+        model_id,
+        prediction_id,
+        feature_importances,
+    ):
+        super().__init__(organization_key=organization_key, model_id=model_id)
+        self.prediction_id = prediction_id
+        self.feature_importances = feature_importances
+
+    def validate_inputs(self):
+        self._base_validation()
+        if self.feature_importances is not None and bool(self.feature_importances):
+            for k, v in self.feature_importances.items():
+                if not isinstance(v, (float)):
+                    raise TypeError(
+                        f"feature {k} with value {v} is type {type(v)}, but expected one of: float"
+                    )
+        elif self.feature_importances is None or len(self.feature_importances) == 0:
+            raise ValueError(
+                f"at least one feature importance value must be provided"
+            )
+
+    def _build_proto(self):
+        fi = public__pb2.FeatureImportances()
+
+        if self.feature_importances is not None:
+            featImportances = public__pb2.FeatureImportances(
+                feature_importances=self.feature_importances
+            )
+            fi.MergeFrom(featImportances)
+        return public__pb2.Record(
+            organization_key=self.organization_key,
+            model_id=self.model_id,
+            prediction_id=self.prediction_id,
+            feature_importances=fi,
+        )
 
 class BaseBulkRecord(BaseRecord, ABC):
     MAX_BYTES_PER_BULK_RECORD = 100000
@@ -359,4 +400,47 @@ class BulkActual(BaseBulkRecord):
                 label=self._get_label(value=self.actual_labels[i], name="actual")
             )
             records.append(public__pb2.Record(prediction_id=pred_id, actual=a))
+        return self._bundle_records(records, None)
+
+
+class BulkFeatureImportances(BaseBulkRecord):
+    def __init__(self, organization_key, model_id, prediction_ids, feature_importances):
+        super().__init__(organization_key, model_id, prediction_ids)
+        self.feature_importances = feature_importances
+
+    def validate_inputs(self):
+        self._base_bulk_validation()
+        if not isinstance(self.feature_importances, (pd.DataFrame, pd.Series)):
+            raise TypeError(
+                f"feature_importances is type: {type(self.feature_importances)}, but expects one of: pd.DataFrame, pd.Series"
+            )
+        if self.feature_importances is not None and bool(self.feature_importances):
+            for k, v in self.feature_importances.items():
+                if not isinstance(v, (float)):
+                    raise TypeError(
+                        f"feature {k} with value {v} is type {type(v)}, but expected one of: float"
+                    )
+        if self.feature_importances.shape[0] != self.prediction_ids.shape[0]:
+            raise ValueError(
+                f"feature_importances contains {self.feature_importances.shape[0]} elements, but must have the same as predictions_ids: {self.feature_importances.shape[0]}."
+            )
+
+    def _build_proto(self):
+        self._normalize_inputs()
+        self.fi = self.feature_importances.to_numpy()
+        records = []
+        for i, v in enumerate(self.prediction_ids):
+            pred_id = v if isinstance(v, str) else v[0]
+            if not isinstance(pred_id, (str, bytes)):
+                raise TypeError(
+                    f"prediction_id {pred_id} is type {type(pred_id)}, but expected one of: str, bytes"
+                )
+
+            converted_fi = {
+                name: self.fi[i][column]
+                for column, name in enumerate(self.feature_importances.columns)
+            }
+            fi = public__pb2.FeatureImportances(feature_importances=converted_fi)
+
+            records.append(public__pb2.Record(prediction_id=pred_id, feature_importances=fi))
         return self._bundle_records(records, None)
