@@ -414,16 +414,35 @@ class BulkFeatureImportances(BaseBulkRecord):
             raise TypeError(
                 f"feature_importances is type: {type(self.feature_importances)}, but expects one of: pd.DataFrame, pd.Series"
             )
-        if self.feature_importances is not None and bool(self.feature_importances):
-            for k, v in self.feature_importances.items():
-                if not isinstance(v, (float)):
-                    raise TypeError(
-                        f"feature {k} with value {v} is type {type(v)}, but expected one of: float"
-                    )
+
+        if self.feature_importances is not None:
+            self._validate_feature_importances()
+
         if self.feature_importances.shape[0] != self.prediction_ids.shape[0]:
             raise ValueError(
                 f"feature_importances contains {self.feature_importances.shape[0]} elements, but must have the same as predictions_ids: {self.feature_importances.shape[0]}."
             )
+
+    def _validate_feature_importances(self):
+        if self.feature_importances is None:
+            return
+        if not isinstance(self.feature_importances, pd.DataFrame):
+            raise TypeError(
+                f"feature_importances is type {type(self.feature_importances)}, but expect type pd.DataFrame."
+            )
+        if self.feature_importances.shape[0] != self.prediction_ids.shape[0]:
+            raise ValueError(
+                f"feature_importances has {self.feature_importances.shape[0]} sets of values, but must match size of predictions_ids: {self.prediction_ids.shape[0]}."
+            )
+        if isinstance(self.feature_importances.columns, pd.core.indexes.numeric.NumericIndex):
+            raise TypeError(
+                f"features.columns is of type {type(self.feature_importances.columns)}, but expect elements to be str."
+            )
+        for name in self.feature_importances.columns:
+            if not isinstance(name, str):
+                raise TypeError(
+                    f"features_importances.column {name} is type {type(name)}, but expect str"
+                )
 
     def _build_proto(self):
         self._normalize_inputs()

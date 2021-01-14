@@ -13,9 +13,9 @@ A helper library to interact with Arize AI APIs
 
 ---
 ## Quickstart
-Instrument your model to log prediction labels, human readable/debuggable features and tags, and the actual label events once the ground truth is learned. The logged events allow the Arize platform to generate visualizations of features/tags, labels and other model metadata. Additionally, the platform will provide data quality monitoring and data distribution alerts for your production models.
+This guide will help you instrument your code to log model observability data. The types of data supported include prediction labels, human readable/debuggable model features and tags, actual labels (once the ground truth is learned), and other model related data. Logging model data allows you to generate powerful visualizations in the Arize platform to better understand and debug your model's behavior. Additionally, Arize can provide monitoring for the data quality, data drift, and performance of your production models.
 
-Start logging with the following steps.
+Start logging your model data with the following steps:
 
 ### 1. Create your account
 Sign up for a free account by reaching out to <contacts@arize.com>.
@@ -49,7 +49,7 @@ $ python setup.py install
 
 Initialize `arize` at the start of your sevice using your previously created API Key and Organization ID.
 
-> **_NOTE:_** We suggest adding the API key as a secret or an environment variable.
+> **_NOTE:_** We strongly suggest storing the API key as a secret or an environment variable.
 
 ```python
 from arize.api import Client
@@ -99,7 +99,7 @@ pred = arize.log_prediction(
     features=features,
     )
 
-#### To confirm request future completed successfully, await for it to resolve:
+#### To confirm that the log request completed successfully, await for it to resolve:
 ## NB: This is a blocking call
 response = pred.get()
 res = response.result()
@@ -116,7 +116,7 @@ responses = arize.log_bulk_predictions(
     prediction_labels=prediction_labels_df,
     features=features_df
     )
-#### To confirm request futures completed successfully, await for futures to resolve:
+#### To confirm that the log request completed successfully, await for futures to resolve:
 ## NB: This is a blocking call
 import concurrent.futures as cf
 for response in cf.as_completed(responses):
@@ -147,7 +147,7 @@ responses = arize.log_bulk_actuals(
     actual_labels=actual_labels_df,
     )
 
-#### To confirm request futures completed successfully, await for futures to resolve:
+#### To confirm that the log request completed successfully, await for futures to resolve:
 ## NB: This is a blocking call
 import concurrent.futures as cf
 for response in cf.as_completed(responses):
@@ -166,7 +166,11 @@ That's it! Once your service is deployed and predictions are logged you'll be ab
 </div>
 
 ---
-## Other languages
+### Logging SHAP values
+Log SHAP feature importances to the Arize platform to explain your model's predictions. By logging SHAP values you gain the ability to view the global feature importances of your predictions as well as the ability to perform cohort and prediction based analysis to compare feature importance values under varying conditions. For more information on SHAP and how to use SHAP with Arize, check out our [SHAP documentation](https://app.gitbook.com/@arize/s/arize-onboarding/platform-features/explainability/shap).
+
+---
+### Other languages
 If you are using a different language, you'll be able to post an HTTP request to our Arize edge-servers to log your events.
 
 ### HTTP post request to Arize
