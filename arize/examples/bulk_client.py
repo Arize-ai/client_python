@@ -1,19 +1,19 @@
 import os
 import uuid
+import time
 import pandas as pd
 import numpy as np
 import concurrent.futures as cf
 
 from arize.api import Client
+from arize.types import ModelTypes
 
 ITERATIONS = 1
-NUM_RECORDS = 2
+NUM_RECORDS = 100
 
 arize = Client(
     organization_key=os.environ.get("ARIZE_ORG_KEY"),
     api_key=os.environ.get("ARIZE_API_KEY"),
-    model_id="example_model_id",
-    model_version="v0.1",
 )
 
 features = pd.DataFrame(
@@ -24,16 +24,36 @@ pred_labels = pd.DataFrame(np.random.randint(0, 100000000, size=(NUM_RECORDS, 1)
 ids = pd.DataFrame([str(uuid.uuid4()) for _ in range(NUM_RECORDS)])
 column_overwrite = list("abcdefghijkl")
 
+start = time.time_ns()
 preds = arize.log_bulk_predictions(
+    model_id="example_model_id",
+    model_version="v0.1",
+    model_type=ModelTypes.NUMERIC,
     prediction_ids=ids,
     prediction_labels=pred_labels,
     features=features,
     feature_names_overwrite=column_overwrite,
 )
-actuals = arize.log_bulk_actuals(prediction_ids=ids, actual_labels=pred_labels)
+actuals = arize.log_bulk_actuals(
+    model_id="example_model_id",
+    prediction_ids=ids,
+    actual_labels=pred_labels,
+    model_type=ModelTypes.NUMERIC,
+)
 preds.extend(actuals)
+
+end_enqueue = time.time_ns()
+print(
+    f"request took a total of {int(end_enqueue - start)/1000000}ms to enqueue. Waiting for responses.\n"
+)
+
 for future in cf.as_completed(preds):
     res = future.result()
     print(f"future completed with response code {res.status_code}")
     if res.status_code != 200:
         print(f"future failed with response code {res.status_code}, {res.text}")
+
+end_sending = time.time_ns()
+print(
+    f"Process took a total of {int(end_sending - start)/1000000}ms to send {NUM_RECORDS} records."
+)

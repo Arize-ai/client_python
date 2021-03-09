@@ -6,6 +6,7 @@ from random import random
 import concurrent.futures as cf
 
 from arize.api import Client
+from arize.types import ModelTypes
 
 ITERATIONS = 1
 NUM_FEATURES = 5
@@ -13,8 +14,6 @@ NUM_FEATURES = 5
 arize = Client(
     organization_key=os.environ.get("ARIZE_ORG_KEY"),
     api_key=os.environ.get("ARIZE_API_KEY"),
-    model_id="example_model_id",
-    model_version="v0.1",
 )
 
 
@@ -35,9 +34,19 @@ start = time.time_ns()
 for j in range(ITERATIONS):
     id_ = str(uuid.uuid4())
     pred = arize.log_prediction(
-        prediction_id=id_, prediction_label=True, features=features
+        model_id="example_model_id",
+        model_version="v0.1",
+        model_type=ModelTypes.BINARY,
+        prediction_id=id_,
+        prediction_label=True,
+        features=features,
     )
-    actual = arize.log_actual(prediction_id=id_, actual_label=False)
+    actual = arize.log_actual(
+        model_id="example_model_id",
+        prediction_id=id_,
+        actual_label=False,
+        model_type=ModelTypes.BINARY,
+    )
     resps.append(pred)
     resps.append(actual)
 

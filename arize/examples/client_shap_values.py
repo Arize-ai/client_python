@@ -6,6 +6,7 @@ from random import random
 import concurrent.futures as cf
 
 from arize.api import Client
+from arize.types import ModelTypes
 
 ITERATIONS = 1
 NUM_FEATURES = 5
@@ -13,8 +14,6 @@ NUM_FEATURES = 5
 arize = Client(
     organization_key=os.environ.get("ARIZE_ORG_KEY"),
     api_key=os.environ.get("ARIZE_API_KEY"),
-    model_id="example_model_id",
-    model_version="v0.1",
 )
 
 
@@ -28,12 +27,13 @@ def get_features(feature_counts):
         features["feature_" + str(i) + "_np_ll"] = numpy.longlong(random() * 100)
     return features
 
+
 def get_shap_values(features):
     shap_values = {}
     for feature in features:
         shap_values[feature] = numpy.float_(random())
-
     return shap_values
+
 
 features = get_features(NUM_FEATURES)
 shap_values = get_shap_values(features)
@@ -42,9 +42,16 @@ start = time.time_ns()
 for j in range(ITERATIONS):
     id_ = str(uuid.uuid4())
     pred = arize.log_prediction(
-        prediction_id=id_, prediction_label=True, features=features
+        model_id="example_model_id",
+        model_type=ModelTypes.BINARY,
+        model_version="v0.1",
+        prediction_id=id_,
+        prediction_label=True,
+        features=features,
     )
-    actual = arize.log_shap_values(prediction_id=id_, shap_values=shap_values)
+    actual = arize.log_shap_values(
+        prediction_id=id_, shap_values=shap_values, model_id="example_model_id"
+    )
     resps.append(pred)
     resps.append(actual)
 

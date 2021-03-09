@@ -4,6 +4,7 @@ import io
 import boto3
 from urllib.parse import urlparse
 from arize.api import Client
+from arize.types import ModelTypes
 import concurrent.futures as cf
 
 
@@ -69,6 +70,7 @@ def lambda_handler(event, context):
                 tfuture = arize_client.log_bulk_predictions(
                     model_id=model_name,
                     model_version=model_version_id_now,
+                    model_type=ModelTypes.CATEGORICAL,
                     features=features_df,
                     prediction_ids=ids,
                     prediction_labels=predictions_df,

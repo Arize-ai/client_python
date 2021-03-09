@@ -2,6 +2,7 @@ import boto3
 import json
 from datetime import datetime
 from arize.api import Client
+from arize.types import ModelTypes
 
 if __name__ != "__main__":
     runtime = boto3.client("runtime.sagemaker")
@@ -104,6 +105,7 @@ def lambda_handler(event, context):
     tfuture = arize_client.log_prediction(
         model_id=model_name,
         model_version=model_version_id_now,
+        model_type=ModelTypes.NUMERIC,
         features=features,
         prediction_id=prediction_id,
         prediction_label=response_data,

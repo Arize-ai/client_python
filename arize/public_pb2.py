@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\022com.arize.protocolZ9github.com/Arize-ai/arize/go/pkg/receiver/protocol/public',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0cpublic.proto\x12\x06public\x1a\x1fgoogle/protobuf/timestamp.proto\"\x81\x01\n\nBulkRecord\x12\x18\n\x10organization_key\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rmodel_version\x18\x03 \x01(\t\x12\x1f\n\x07records\x18\x05 \x03(\x0b\x32\x0e.public.RecordJ\x04\x08\x04\x10\x05R\ttimestamp\"\xa8\x02\n\x06Record\x12\x18\n\x10organization_key\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rprediction_id\x18\x03 \x01(\t\x12(\n\nprediction\x18\x04 \x01(\x0b\x32\x12.public.PredictionH\x00\x12 \n\x06\x61\x63tual\x18\x05 \x01(\x0b\x32\x0e.public.ActualH\x00\x12\x39\n\x13\x66\x65\x61ture_importances\x18\x06 \x01(\x0b\x32\x1a.public.FeatureImportancesH\x00\x12<\n\x15prediction_and_actual\x18\x07 \x01(\x0b\x32\x1b.public.PredictionAndActualH\x00\x42\x16\n\x14prediction_or_actual\"i\n\x0b\x42\x61tchRecord\x12(\n\x0b\x65nvironment\x18\x01 \x01(\x0e\x32\x13.public.Environment\x12\x10\n\x08\x62\x61tch_id\x18\x02 \x01(\t\x12\x1e\n\x06record\x18\x03 \x01(\x0b\x32\x0e.public.Record\"6\n\x10ScoreCategorical\x12\x13\n\x0b\x63\x61tegorical\x18\x01 \x01(\t\x12\r\n\x05score\x18\x02 \x01(\x01\"\x82\x01\n\x05Label\x12\x10\n\x06\x62inary\x18\x01 \x01(\x08H\x00\x12\x15\n\x0b\x63\x61tegorical\x18\x02 \x01(\tH\x00\x12\x11\n\x07numeric\x18\x03 \x01(\x01H\x00\x12\x35\n\x11score_categorical\x18\x04 \x01(\x0b\x32\x18.public.ScoreCategoricalH\x00\x42\x06\n\x04\x64\x61ta\"\xe4\x01\n\nPrediction\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12\x1c\n\x05label\x18\x03 \x01(\x0b\x32\r.public.Label\x12\x32\n\x08\x66\x65\x61tures\x18\x04 \x03(\x0b\x32 .public.Prediction.FeaturesEntry\x1a>\n\rFeaturesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.public.Value:\x02\x38\x01\"m\n\x05Value\x12\x10\n\x06string\x18\x01 \x01(\tH\x00\x12\r\n\x03int\x18\x02 \x01(\x03H\x00\x12\x10\n\x06\x64ouble\x18\x03 \x01(\x01H\x00\x12)\n\x0bmulti_value\x18\x04 \x01(\x0b\x32\x12.public.MultiValueH\x00\x42\x06\n\x04\x64\x61ta\"\x1c\n\nMultiValue\x12\x0e\n\x06values\x18\x01 \x03(\t\"U\n\x06\x41\x63tual\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1c\n\x05label\x18\x02 \x01(\x0b\x32\r.public.Label\"\xe6\x01\n\x12\x46\x65\x61tureImportances\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12O\n\x13\x66\x65\x61ture_importances\x18\x03 \x03(\x0b\x32\x32.public.FeatureImportances.FeatureImportancesEntry\x1a\x39\n\x17\x46\x65\x61tureImportancesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\"]\n\x13PredictionAndActual\x12&\n\nprediction\x18\x01 \x01(\x0b\x32\x12.public.Prediction\x12\x1e\n\x06\x61\x63tual\x18\x02 \x01(\x0b\x32\x0e.public.Actual*8\n\x0b\x45nvironment\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0c\n\x08TRAINING\x10\x01\x12\x0e\n\nVALIDATION\x10\x02\x42O\n\x12\x63om.arize.protocolZ9github.com/Arize-ai/arize/go/pkg/receiver/protocol/publicb\x06proto3'
+  serialized_pb=b'\n\x0cpublic.proto\x12\x06public\x1a\x1fgoogle/protobuf/timestamp.proto\"\x81\x01\n\nBulkRecord\x12\x18\n\x10organization_key\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rmodel_version\x18\x03 \x01(\t\x12\x1f\n\x07records\x18\x05 \x03(\x0b\x32\x0e.public.RecordJ\x04\x08\x04\x10\x05R\ttimestamp\"\xa8\x02\n\x06Record\x12\x18\n\x10organization_key\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rprediction_id\x18\x03 \x01(\t\x12(\n\nprediction\x18\x04 \x01(\x0b\x32\x12.public.PredictionH\x00\x12 \n\x06\x61\x63tual\x18\x05 \x01(\x0b\x32\x0e.public.ActualH\x00\x12\x39\n\x13\x66\x65\x61ture_importances\x18\x06 \x01(\x0b\x32\x1a.public.FeatureImportancesH\x00\x12<\n\x15prediction_and_actual\x18\x07 \x01(\x0b\x32\x1b.public.PredictionAndActualH\x00\x42\x16\n\x14prediction_or_actual\"\xae\x02\n\x13PreProductionRecord\x12\x45\n\x0ftraining_record\x18\x01 \x01(\x0b\x32*.public.PreProductionRecord.TrainingRecordH\x00\x12I\n\x11validation_record\x18\x02 \x01(\x0b\x32,.public.PreProductionRecord.ValidationRecordH\x00\x1a\x44\n\x10ValidationRecord\x12\x10\n\x08\x62\x61tch_id\x18\x01 \x01(\t\x12\x1e\n\x06record\x18\x02 \x01(\x0b\x32\x0e.public.Record\x1a\x30\n\x0eTrainingRecord\x12\x1e\n\x06record\x18\x01 \x01(\x0b\x32\x0e.public.RecordB\r\n\x0brecord_type\"6\n\x10ScoreCategorical\x12\x13\n\x0b\x63\x61tegorical\x18\x01 \x01(\t\x12\r\n\x05score\x18\x02 \x01(\x01\"\x82\x01\n\x05Label\x12\x10\n\x06\x62inary\x18\x01 \x01(\x08H\x00\x12\x15\n\x0b\x63\x61tegorical\x18\x02 \x01(\tH\x00\x12\x11\n\x07numeric\x18\x03 \x01(\x01H\x00\x12\x35\n\x11score_categorical\x18\x04 \x01(\x0b\x32\x18.public.ScoreCategoricalH\x00\x42\x06\n\x04\x64\x61ta\"\xe4\x01\n\nPrediction\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12\x1c\n\x05label\x18\x03 \x01(\x0b\x32\r.public.Label\x12\x32\n\x08\x66\x65\x61tures\x18\x04 \x03(\x0b\x32 .public.Prediction.FeaturesEntry\x1a>\n\rFeaturesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.public.Value:\x02\x38\x01\"m\n\x05Value\x12\x10\n\x06string\x18\x01 \x01(\tH\x00\x12\r\n\x03int\x18\x02 \x01(\x03H\x00\x12\x10\n\x06\x64ouble\x18\x03 \x01(\x01H\x00\x12)\n\x0bmulti_value\x18\x04 \x01(\x0b\x32\x12.public.MultiValueH\x00\x42\x06\n\x04\x64\x61ta\"\x1c\n\nMultiValue\x12\x0e\n\x06values\x18\x01 \x03(\t\"U\n\x06\x41\x63tual\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1c\n\x05label\x18\x02 \x01(\x0b\x32\r.public.Label\"\xe6\x01\n\x12\x46\x65\x61tureImportances\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12O\n\x13\x66\x65\x61ture_importances\x18\x03 \x03(\x0b\x32\x32.public.FeatureImportances.FeatureImportancesEntry\x1a\x39\n\x17\x46\x65\x61tureImportancesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\"]\n\x13PredictionAndActual\x12&\n\nprediction\x18\x01 \x01(\x0b\x32\x12.public.Prediction\x12\x1e\n\x06\x61\x63tual\x18\x02 \x01(\x0b\x32\x0e.public.Actual*8\n\x0b\x45nvironment\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0c\n\x08TRAINING\x10\x01\x12\x0e\n\nVALIDATION\x10\x02\x42O\n\x12\x63om.arize.protocolZ9github.com/Arize-ai/arize/go/pkg/receiver/protocol/publicb\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -50,8 +50,8 @@ _ENVIRONMENT = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1571,
-  serialized_end=1627,
+  serialized_start=1769,
+  serialized_end=1825,
 )
 _sym_db.RegisterEnumDescriptor(_ENVIRONMENT)
 
@@ -194,31 +194,24 @@ _RECORD = _descriptor.Descriptor(
 )
 
 
-_BATCHRECORD = _descriptor.Descriptor(
-  name='BatchRecord',
-  full_name='public.BatchRecord',
+_PREPRODUCTIONRECORD_VALIDATIONRECORD = _descriptor.Descriptor(
+  name='ValidationRecord',
+  full_name='public.PreProductionRecord.ValidationRecord',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='environment', full_name='public.BatchRecord.environment', index=0,
-      number=1, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='batch_id', full_name='public.BatchRecord.batch_id', index=1,
-      number=2, type=9, cpp_type=9, label=1,
+      name='batch_id', full_name='public.PreProductionRecord.ValidationRecord.batch_id', index=0,
+      number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='record', full_name='public.BatchRecord.record', index=2,
-      number=3, type=11, cpp_type=10, label=1,
+      name='record', full_name='public.PreProductionRecord.ValidationRecord.record', index=1,
+      number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -235,8 +228,82 @@ _BATCHRECORD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=488,
-  serialized_end=593,
+  serialized_start=658,
+  serialized_end=726,
+)
+
+_PREPRODUCTIONRECORD_TRAININGRECORD = _descriptor.Descriptor(
+  name='TrainingRecord',
+  full_name='public.PreProductionRecord.TrainingRecord',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='record', full_name='public.PreProductionRecord.TrainingRecord.record', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=728,
+  serialized_end=776,
+)
+
+_PREPRODUCTIONRECORD = _descriptor.Descriptor(
+  name='PreProductionRecord',
+  full_name='public.PreProductionRecord',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='training_record', full_name='public.PreProductionRecord.training_record', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='validation_record', full_name='public.PreProductionRecord.validation_record', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_PREPRODUCTIONRECORD_VALIDATIONRECORD, _PREPRODUCTIONRECORD_TRAININGRECORD, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='record_type', full_name='public.PreProductionRecord.record_type',
+      index=0, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
+  ],
+  serialized_start=489,
+  serialized_end=791,
 )
 
 
@@ -274,8 +341,8 @@ _SCORECATEGORICAL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=595,
-  serialized_end=649,
+  serialized_start=793,
+  serialized_end=847,
 )
 
 
@@ -332,8 +399,8 @@ _LABEL = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=652,
-  serialized_end=782,
+  serialized_start=850,
+  serialized_end=980,
 )
 
 
@@ -371,8 +438,8 @@ _PREDICTION_FEATURESENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=951,
-  serialized_end=1013,
+  serialized_start=1149,
+  serialized_end=1211,
 )
 
 _PREDICTION = _descriptor.Descriptor(
@@ -423,8 +490,8 @@ _PREDICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=785,
-  serialized_end=1013,
+  serialized_start=983,
+  serialized_end=1211,
 )
 
 
@@ -481,8 +548,8 @@ _VALUE = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=1015,
-  serialized_end=1124,
+  serialized_start=1213,
+  serialized_end=1322,
 )
 
 
@@ -513,8 +580,8 @@ _MULTIVALUE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1126,
-  serialized_end=1154,
+  serialized_start=1324,
+  serialized_end=1352,
 )
 
 
@@ -552,8 +619,8 @@ _ACTUAL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1156,
-  serialized_end=1241,
+  serialized_start=1354,
+  serialized_end=1439,
 )
 
 
@@ -591,8 +658,8 @@ _FEATUREIMPORTANCES_FEATUREIMPORTANCESENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1417,
-  serialized_end=1474,
+  serialized_start=1615,
+  serialized_end=1672,
 )
 
 _FEATUREIMPORTANCES = _descriptor.Descriptor(
@@ -636,8 +703,8 @@ _FEATUREIMPORTANCES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1244,
-  serialized_end=1474,
+  serialized_start=1442,
+  serialized_end=1672,
 )
 
 
@@ -675,8 +742,8 @@ _PREDICTIONANDACTUAL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1476,
-  serialized_end=1569,
+  serialized_start=1674,
+  serialized_end=1767,
 )
 
 _BULKRECORD.fields_by_name['records'].message_type = _RECORD
@@ -696,8 +763,18 @@ _RECORD.fields_by_name['feature_importances'].containing_oneof = _RECORD.oneofs_
 _RECORD.oneofs_by_name['prediction_or_actual'].fields.append(
   _RECORD.fields_by_name['prediction_and_actual'])
 _RECORD.fields_by_name['prediction_and_actual'].containing_oneof = _RECORD.oneofs_by_name['prediction_or_actual']
-_BATCHRECORD.fields_by_name['environment'].enum_type = _ENVIRONMENT
-_BATCHRECORD.fields_by_name['record'].message_type = _RECORD
+_PREPRODUCTIONRECORD_VALIDATIONRECORD.fields_by_name['record'].message_type = _RECORD
+_PREPRODUCTIONRECORD_VALIDATIONRECORD.containing_type = _PREPRODUCTIONRECORD
+_PREPRODUCTIONRECORD_TRAININGRECORD.fields_by_name['record'].message_type = _RECORD
+_PREPRODUCTIONRECORD_TRAININGRECORD.containing_type = _PREPRODUCTIONRECORD
+_PREPRODUCTIONRECORD.fields_by_name['training_record'].message_type = _PREPRODUCTIONRECORD_TRAININGRECORD
+_PREPRODUCTIONRECORD.fields_by_name['validation_record'].message_type = _PREPRODUCTIONRECORD_VALIDATIONRECORD
+_PREPRODUCTIONRECORD.oneofs_by_name['record_type'].fields.append(
+  _PREPRODUCTIONRECORD.fields_by_name['training_record'])
+_PREPRODUCTIONRECORD.fields_by_name['training_record'].containing_oneof = _PREPRODUCTIONRECORD.oneofs_by_name['record_type']
+_PREPRODUCTIONRECORD.oneofs_by_name['record_type'].fields.append(
+  _PREPRODUCTIONRECORD.fields_by_name['validation_record'])
+_PREPRODUCTIONRECORD.fields_by_name['validation_record'].containing_oneof = _PREPRODUCTIONRECORD.oneofs_by_name['record_type']
 _LABEL.fields_by_name['score_categorical'].message_type = _SCORECATEGORICAL
 _LABEL.oneofs_by_name['data'].fields.append(
   _LABEL.fields_by_name['binary'])
@@ -738,7 +815,7 @@ _PREDICTIONANDACTUAL.fields_by_name['prediction'].message_type = _PREDICTION
 _PREDICTIONANDACTUAL.fields_by_name['actual'].message_type = _ACTUAL
 DESCRIPTOR.message_types_by_name['BulkRecord'] = _BULKRECORD
 DESCRIPTOR.message_types_by_name['Record'] = _RECORD
-DESCRIPTOR.message_types_by_name['BatchRecord'] = _BATCHRECORD
+DESCRIPTOR.message_types_by_name['PreProductionRecord'] = _PREPRODUCTIONRECORD
 DESCRIPTOR.message_types_by_name['ScoreCategorical'] = _SCORECATEGORICAL
 DESCRIPTOR.message_types_by_name['Label'] = _LABEL
 DESCRIPTOR.message_types_by_name['Prediction'] = _PREDICTION
@@ -764,12 +841,28 @@ Record = _reflection.GeneratedProtocolMessageType('Record', (_message.Message,),
   })
 _sym_db.RegisterMessage(Record)
 
-BatchRecord = _reflection.GeneratedProtocolMessageType('BatchRecord', (_message.Message,), {
-  'DESCRIPTOR' : _BATCHRECORD,
+PreProductionRecord = _reflection.GeneratedProtocolMessageType('PreProductionRecord', (_message.Message,), {
+
+  'ValidationRecord' : _reflection.GeneratedProtocolMessageType('ValidationRecord', (_message.Message,), {
+    'DESCRIPTOR' : _PREPRODUCTIONRECORD_VALIDATIONRECORD,
+    '__module__' : 'public_pb2'
+    # @@protoc_insertion_point(class_scope:public.PreProductionRecord.ValidationRecord)
+    })
+  ,
+
+  'TrainingRecord' : _reflection.GeneratedProtocolMessageType('TrainingRecord', (_message.Message,), {
+    'DESCRIPTOR' : _PREPRODUCTIONRECORD_TRAININGRECORD,
+    '__module__' : 'public_pb2'
+    # @@protoc_insertion_point(class_scope:public.PreProductionRecord.TrainingRecord)
+    })
+  ,
+  'DESCRIPTOR' : _PREPRODUCTIONRECORD,
   '__module__' : 'public_pb2'
-  # @@protoc_insertion_point(class_scope:public.BatchRecord)
+  # @@protoc_insertion_point(class_scope:public.PreProductionRecord)
   })
-_sym_db.RegisterMessage(BatchRecord)
+_sym_db.RegisterMessage(PreProductionRecord)
+_sym_db.RegisterMessage(PreProductionRecord.ValidationRecord)
+_sym_db.RegisterMessage(PreProductionRecord.TrainingRecord)
 
 ScoreCategorical = _reflection.GeneratedProtocolMessageType('ScoreCategorical', (_message.Message,), {
   'DESCRIPTOR' : _SCORECATEGORICAL,
