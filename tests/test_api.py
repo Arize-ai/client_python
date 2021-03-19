@@ -7,7 +7,6 @@ import pandas as pd
 import arize.public_pb2 as public__pb2
 from arize.model import Prediction, Actual, BulkPrediction, BulkActual, FeatureImportances, BulkFeatureImportances, \
     TrainingRecords, ValidationRecords
-from arize.simple_queue import SimpleQueue
 from arize.types import ModelTypes
 
 NUM_VAL = 20.20
@@ -846,19 +845,16 @@ def test_build_bulk_feature_importances_error_wrong_data_type():
 
 def test_build_training_records():
     features, labels, _ = mock_dataframes_clean_nan(file_to_open)
-    q = SimpleQueue(10000)
     recs = TrainingRecords(organization_key=expected['organization_key'],
                            model_id=expected['model'],
                            model_type=ModelTypes.NUMERIC,
                            model_version=expected['model_version'],
                            prediction_labels=labels,
                            actual_labels=labels,
-                           features=features,
-                           queue=q)
-    recs.build_proto()
+                           features=features)
+    bundles = recs.build_proto()
     record_count = 0
-    while not q.empty():
-        rec = q.get()
+    for _, rec in bundles.items():
         record_count += 1
         assert isinstance(rec, public__pb2.PreProductionRecord)
         assert isinstance(rec.training_record, public__pb2.PreProductionRecord.TrainingRecord)
@@ -876,7 +872,6 @@ def test_build_training_records():
 
 def test_build_validation_records():
     features, labels, _ = mock_dataframes_clean_nan(file_to_open)
-    q = SimpleQueue(10000)
     recs = ValidationRecords(organization_key=expected['organization_key'],
                              model_id=expected['model'],
                              model_type=ModelTypes.NUMERIC,
@@ -884,12 +879,10 @@ def test_build_validation_records():
                              batch_id=expected['batch'],
                              prediction_labels=labels,
                              actual_labels=labels,
-                             features=features,
-                             queue=q)
-    recs.build_proto()
+                             features=features)
+    bundles = recs.build_proto()
     record_count = 0
-    while not q.empty():
-        rec = q.get()
+    for _, rec in bundles.items():
         record_count += 1
         assert isinstance(rec, public__pb2.PreProductionRecord)
         assert isinstance(rec.validation_record, public__pb2.PreProductionRecord.ValidationRecord)

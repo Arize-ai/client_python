@@ -58,7 +58,7 @@ for m in range(MODELS):
             actual_labels=actual_labels,
             features=features,
         )
-        futures.append(tFuture)
+        futures.extend(tFuture)
         for b in range(BATCHES):
             batch = f"batch-{b}"
             vFuture = arize.log_validation_records(
@@ -70,7 +70,7 @@ for m in range(MODELS):
                 actual_labels=actual_labels,
                 features=features,
             )
-            futures.append(vFuture)
+            futures.extend(vFuture)
 
 
 end_enqueue = time.time_ns()

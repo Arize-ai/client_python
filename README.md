@@ -93,7 +93,8 @@ ids_df = pd.DataFrame([str(uuid.uuid4()) for _ in range(len(prediction_labels.in
 ## Returns an array of concurrent.futures.Future
 pred = arize.log_prediction(
     model_id='sample-model-1',
-    model_version='v1.23.64', ## Optional
+    model_version='v1.23.64',
+    model_type=ModelTypes.BINARY,
     prediction_id='plED4eERDCasd9797ca34',
     prediction_label=True,
     features=features,
@@ -111,7 +112,8 @@ if res.status_code != 200:
 ```python
 responses = arize.log_bulk_predictions(
     model_id='sample-model-1',
-    model_version='v1.23.64', ## Optional
+    model_version='v1.23.64',
+    model_type=ModelTypes.BINARY,
     prediction_ids=ids_df,
     prediction_labels=prediction_labels_df,
     features=features_df
@@ -134,6 +136,7 @@ We automatically discover new models logged over time based on the model ID sent
 ```python
 response = arize.log_actual(
     model_id='sample-model-1',
+    model_type=ModelTypes.BINARY,
     prediction_id='plED4eERDCasd9797ca34',
     actual_label=False
     )
@@ -143,6 +146,7 @@ response = arize.log_actual(
 ```python
 responses = arize.log_bulk_actuals(
     model_id='sample-model-1',
+    model_type=ModelTypes.BINARY,
     prediction_ids=ids_df,
     actual_labels=actual_labels_df,
     )

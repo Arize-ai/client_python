@@ -18,3 +18,6 @@ yapf
 twine
 wheel
 grpcio-tools==1.30.0
+# Examples
+numpy==1.18.4
+scipy==1.5.2

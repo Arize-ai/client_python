@@ -1,11 +1,26 @@
 import math
 import pandas as pd
 
-from arize import public_pb2 as public__pb2
+from typing import Union, Optional
 
+from arize import public_pb2 as public__pb2
+from arize.model import ModelTypes
 from google.protobuf.timestamp_pb2 import Timestamp
 
 MAX_BYTES_PER_BULK_RECORD = 100000
+
+
+def infer_model_type(label: Union[str, float, int, float]) -> ModelTypes:
+    val = convert_element(label)
+    if isinstance(val, bool):
+        return ModelTypes.BINARY
+    elif isinstance(val, (int, float)):
+        return ModelTypes.NUMERIC
+    elif isinstance(val, str):
+        return ModelTypes.CATEGORICAL
+    raise TypeError(
+        f"label {label} has type {type(label)}, but must be one of str, bool, float, or int"
+    )
 
 
 def num_chunks(records):
@@ -14,20 +29,26 @@ def num_chunks(records):
     return math.ceil(len(records) / num_of_bulk)
 
 
-def bundle_records(organization_key: str, model_id: str, model_version, records) -> {}:
+def bundle_records(records) -> {}:
     recs_per_msg = num_chunks(records)
     recs = {
         (i, i + recs_per_msg): records[i : i + recs_per_msg]
         for i in range(0, len(records), recs_per_msg)
     }
-    for k, r in recs.items():
-        recs[k] = public__pb2.BulkRecord(
+    return recs
+
+
+def get_bulk_records(
+    organization_key: str, model_id: str, model_version: Optional[str], records
+):
+    for k, r in records.items():
+        records[k] = public__pb2.BulkRecord(
             records=r,
             organization_key=organization_key,
             model_id=model_id,
             model_version=model_version,
         )
-    return recs
+    return records
 
 
 def convert_element(value):

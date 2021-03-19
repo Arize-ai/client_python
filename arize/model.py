@@ -1,14 +1,27 @@
 from abc import ABC, abstractmethod
 
 import pandas as pd
+from typing import Optional, Union, Dict
 
 from arize import public_pb2 as public__pb2
 from arize.types import ModelTypes
-from arize.utils import bundle_records, convert_element, get_value_object, get_timestamp
+from arize.utils import (
+    bundle_records,
+    convert_element,
+    get_value_object,
+    get_timestamp,
+    infer_model_type,
+    get_bulk_records,
+)
 
 
 class BaseRecord(ABC):
-    def __init__(self, organization_key: str, model_id: str, model_type: ModelTypes):
+    def __init__(
+        self,
+        organization_key: str,
+        model_id: str,
+        model_type: Optional[ModelTypes] = None,
+    ):
         self.organization_key = organization_key
         self.model_id = model_id
         self.model_type = model_type
@@ -18,8 +31,6 @@ class BaseRecord(ABC):
         pass
 
     @abstractmethod
-    # TODO: combine build_proto with validate_inputs so that build proto isn't called when the
-    # inputs haven't been validated
     def build_proto(self):
         pass
 
@@ -55,7 +66,9 @@ class BaseRecord(ABC):
                     f"label {label} has type {type(label)}, but must be str for ModelTypes.SCORE_CATEGORICAL"
                 )
 
-    def _get_label(self, name: str, value, score=None) -> public__pb2.Label:
+    def _get_label(
+        self, name: str, value, score: Optional[float] = None
+    ) -> public__pb2.Label:
         if isinstance(value, public__pb2.Label):
             return value
         val = convert_element(value)
@@ -72,147 +85,7 @@ class BaseRecord(ABC):
         elif self.model_type == ModelTypes.CATEGORICAL:
             return public__pb2.Label(categorical=val)
         raise TypeError(
-            f"{name}_label = {value} of type {type(value)}. Must be one of bool, str, float/int"
-        )
-
-
-class PreProductionRecord(BaseRecord, ABC):
-    def __init__(
-        self,
-        organization_key: str,
-        model_id: str,
-        model_type: ModelTypes,
-        model_version: str,
-        features,
-        prediction_label,
-        actual_label,
-    ):
-        super().__init__(
-            organization_key=organization_key, model_id=model_id, model_type=model_type
-        )
-        self.model_version = model_version
-        self.features = features
-        self.prediction_label = prediction_label
-        self.actual_label = actual_label
-
-    def _validate_preprod_inputs(self):
-        self._base_validation()
-        if not isinstance(self.model_version, str):
-            raise TypeError(
-                f"model_version {self.model_version} is type {type(self.model_version)}, but must be a str"
-            )
-        if not isinstance(
-            convert_element(self.prediction_label), (str, bool, float, int)
-        ):
-            raise TypeError(
-                f"prediction_label {self.prediction_label} has type {type(self.prediction_label)}, but must be one of: str, bool, float, int"
-            )
-        if self.features is not None and bool(self.features):
-            for k, v in self.features.items():
-                if not isinstance(convert_element(v), (str, bool, float, int)):
-                    raise TypeError(
-                        f"feature {k} with value {v} is type {type(v)}, but expected one of: str, bool, float, int"
-                    )
-        if not isinstance(convert_element(self.actual_label), (str, bool, float, int)):
-            raise TypeError(
-                f"actual_label {self.actual_label} has type {type(convert_element(self.actual_label))}, but must be one of: str, bool, float, int"
-            )
-
-    def _build_record_proto(self):
-        p = public__pb2.Prediction(
-            label=self._get_label(value=self.prediction_label, name="prediction")
-        )
-        if self.features is not None:
-            feats = public__pb2.Prediction(
-                features={
-                    k: get_value_object(value=v, name=k)
-                    for (k, v) in self.features.items()
-                }
-            )
-            p.MergeFrom(feats)
-        if self.model_version:
-            p.model_version = self.model_version
-        a = public__pb2.Actual(
-            label=self._get_label(value=self.actual_label, name="actual")
-        )
-        panda = public__pb2.PredictionAndActual(
-            prediction=p,
-            actual=a,
-        )
-        return public__pb2.Record(
-            organization_key=self.organization_key,
-            model_id=self.model_id,
-            prediction_and_actual=panda,
-        )
-
-
-class TrainingRecord(PreProductionRecord):
-    def __init__(
-        self,
-        organization_key: str,
-        model_id: str,
-        model_type: ModelTypes,
-        model_version: str,
-        features,
-        prediction_label,
-        actual_label,
-    ):
-        super().__init__(
-            organization_key=organization_key,
-            model_id=model_id,
-            model_type=model_type,
-            model_version=model_version,
-            features=features,
-            prediction_label=prediction_label,
-            actual_label=actual_label,
-        )
-
-    def validate_inputs(self):
-        self._validate_preprod_inputs()
-
-    def build_proto(self):
-        return public__pb2.PreProductionRecord(
-            training_record=public__pb2.PreProductionRecord.TrainingRecord(
-                record=self._build_record_proto()
-            )
-        )
-
-
-class ValidationRecord(PreProductionRecord):
-    def __init__(
-        self,
-        organization_key: str,
-        model_id: str,
-        model_type: ModelTypes,
-        model_version: str,
-        batch_id: str,
-        features,
-        prediction_label,
-        actual_label,
-    ):
-        super().__init__(
-            organization_key=organization_key,
-            model_id=model_id,
-            model_type=model_type,
-            model_version=model_version,
-            features=features,
-            prediction_label=prediction_label,
-            actual_label=actual_label,
-        )
-        self.batch_id = batch_id
-
-    def validate_inputs(self):
-        self._validate_preprod_inputs()
-        if not isinstance(self.batch_id, str):
-            raise TypeError(
-                f"batch_id {self.batch_id} is type {type(self.batch_id)}, but must be a str"
-            )
-
-    def build_proto(self):
-        return public__pb2.PreProductionRecord(
-            validation_record=public__pb2.PreProductionRecord.ValidationRecord(
-                batch_id=self.batch_id, record=self._build_record_proto()
-            ),
+            f"{name}_label = {value} of type {type(value)}. Must be one of str, bool, float, or int"
         )
 
 
@@ -221,14 +94,16 @@ class Prediction(BaseRecord):
         self,
         organization_key: str,
         model_id: str,
-        model_type: ModelTypes,
         model_version: str,
         prediction_id: str,
-        prediction_label,
-        prediction_score,
-        features,
-        time_overwrite,
+        prediction_label: Union[str, float, int, bool],
+        prediction_score: Optional[float] = None,
+        features: Optional[Dict[str, Union[str, float, int, bool]]] = None,
+        time_overwrite: Optional[int] = None,
+        model_type: Optional[ModelTypes] = None,
     ):
+        if model_type is None:
+            model_type = infer_model_type(prediction_label)
         super().__init__(
             organization_key=organization_key, model_id=model_id, model_type=model_type
         )
@@ -256,12 +131,12 @@ class Prediction(BaseRecord):
                 f"time_overwrite {self.time_overwrite} is type {type(self.time_overwrite)} but expected int"
             )
         self._label_validation(label=convert_element(self.prediction_label))
-        if self.model_type == ModelTypes.SCORE_CATEGORICAL:
-            if not isinstance(convert_element(self.prediction_score), float):
-                raise TypeError(
-                    f"prediction_score {self.prediction_score} has type {type(self.prediction_score)}, but must be a "
-                    f"float for ModelTypes.SCORE_CATEGORICAL"
-                )
+        if (self.model_type == ModelTypes.SCORE_CATEGORICAL) and (
+            not isinstance(convert_element(self.prediction_score), float)
+        ):
+            raise TypeError(
+                f"ModelTypes.SCORE_CATEGORICAL requires a prediction_score (float) but got prediction_score ({type(self.prediction_score)})"
+            )
 
     def build_proto(self):
         p = public__pb2.Prediction(
@@ -296,21 +171,23 @@ class Actual(BaseRecord):
         self,
         organization_key: str,
         model_id: str,
-        model_type: ModelTypes,
         prediction_id: str,
-        actual_label,
+        actual_label: Union[str, float, int, bool],
+        model_type: Optional[ModelTypes] = None,
     ):
+        if model_type is None:
+            model_type = infer_model_type(actual_label)
         super().__init__(
             organization_key=organization_key, model_id=model_id, model_type=model_type
         )
         self.prediction_id = prediction_id
         self.actual_label = actual_label
 
-    def validate_inputs(self):
+    def validate_inputs(self) -> None:
         self._base_validation()
         self._label_validation(convert_element(self.actual_label))
 
-    def build_proto(self):
+    def build_proto(self) -> public__pb2.Record:
         a = public__pb2.Actual(
             label=self._get_label(value=self.actual_label, name="actual")
         )
@@ -328,7 +205,7 @@ class FeatureImportances:
         organization_key: str,
         model_id: str,
         prediction_id: str,
-        feature_importances: {},
+        feature_importances: Dict[str, float],
     ):
         self.organization_key = organization_key
         self.model_id = model_id
@@ -353,7 +230,7 @@ class FeatureImportances:
         elif self.feature_importances is None or len(self.feature_importances) == 0:
             raise ValueError(f"at least one feature importance value must be provided")
 
-    def build_proto(self):
+    def build_proto(self) -> public__pb2.Record:
         fi = public__pb2.FeatureImportances()
 
         if self.feature_importances is not None:
@@ -382,8 +259,8 @@ class BaseBulkRecord(BaseRecord, ABC):
         self,
         organization_key: str,
         model_id: str,
-        model_type: ModelTypes,
-        prediction_ids,
+        prediction_ids: Union[pd.DataFrame, pd.Series],
+        model_type: Optional[ModelTypes] = None,
     ):
         super().__init__(
             organization_key=organization_key, model_id=model_id, model_type=model_type
@@ -458,6 +335,8 @@ class BulkPrediction(BaseBulkRecord):
 
     def build_proto(self):
         self._normalize_inputs()
+        if self.model_type is None:
+            self.model_type = infer_model_type(self.prediction_labels[0])
         records = []
         for row, v in enumerate(self.prediction_ids):
             pred_id = v if isinstance(v, str) else v[0]
@@ -488,11 +367,11 @@ class BulkPrediction(BaseBulkRecord):
                 p.timestamp.MergeFrom(get_timestamp(self.time_overwrite[row]))
 
             records.append(public__pb2.Record(prediction_id=pred_id, prediction=p))
-        return bundle_records(
+        return get_bulk_records(
             organization_key=self.organization_key,
             model_id=self.model_id,
             model_version=self.model_version,
-            records=records,
+            records=bundle_records(records),
         )
 
     def _validate_features(self):
@@ -578,9 +457,9 @@ class BulkActual(BaseBulkRecord):
         self,
         organization_key: str,
         model_id: str,
-        model_type: ModelTypes.NUMERIC,
-        prediction_ids,
-        actual_labels,
+        model_type: Optional[ModelTypes],
+        prediction_ids: Union[pd.DataFrame, pd.Series],
+        actual_labels: Union[pd.DataFrame, pd.Series],
     ):
         super().__init__(
             organization_key=organization_key,
@@ -604,6 +483,8 @@ class BulkActual(BaseBulkRecord):
 
     def build_proto(self):
         self._normalize_inputs()
+        if self.model_type is None:
+            self.model_type = infer_model_type(self.actual_labels[0])
         records = []
         for i, v in enumerate(self.prediction_ids):
             pred_id = v if isinstance(v, str) else v[0]
@@ -615,17 +496,21 @@ class BulkActual(BaseBulkRecord):
                 label=self._get_label(value=self.actual_labels[i], name="actual")
             )
             records.append(public__pb2.Record(prediction_id=pred_id, actual=a))
-        return bundle_records(
+        return get_bulk_records(
             organization_key=self.organization_key,
             model_id=self.model_id,
             model_version=None,
-            records=records,
+            records=bundle_records(records),
         )
 
 
 class BulkFeatureImportances:
     def __init__(
-        self, organization_key: str, model_id: str, prediction_ids, feature_importances
+        self,
+        organization_key: str,
+        model_id: str,
+        prediction_ids: Union[pd.DataFrame, pd.Series],
+        feature_importances,
     ):
         self.organization_key = organization_key
         self.model_id = model_id
@@ -705,11 +590,11 @@ class BulkFeatureImportances:
             records.append(
                 public__pb2.Record(prediction_id=pred_id, feature_importances=fi)
             )
-        return bundle_records(
+        return get_bulk_records(
             organization_key=self.organization_key,
             model_id=self.model_id,
             model_version=None,
-            records=records,
+            records=bundle_records(records),
         )
 
 
@@ -718,21 +603,26 @@ class PreProductionRecords(BaseRecord, ABC):
         self,
         organization_key: str,
         model_id: str,
-        model_type: ModelTypes,
         model_version: str,
-        queue,
-        features,
-        prediction_labels,
-        actual_labels,
+        prediction_labels: Union[pd.DataFrame, pd.Series],
+        actual_labels: Union[pd.DataFrame, pd.Series],
+        features: Optional[pd.DataFrame] = None,
+        model_type: Optional[ModelTypes] = None,
+        prediction_scores: Optional[Union[pd.DataFrame, pd.Series]] = None,
     ):
+        if model_type is None:
+            if prediction_scores is None:
+                self.model_type = infer_model_type(prediction_labels[0])
+            else:
+                self.model_type = ModelTypes.SCORE_CATEGORICAL
         super().__init__(
             organization_key=organization_key, model_id=model_id, model_type=model_type
         )
         self.model_version = model_version
         self.features = features
         self.prediction_labels = prediction_labels
+        self.prediction_scores = prediction_scores
         self.actual_labels = actual_labels
-        self.queue = queue
 
     def _validate_preprod_inputs(self):
         self._base_validation()
@@ -749,6 +639,16 @@ class PreProductionRecords(BaseRecord, ABC):
                 f"prediction_labels contains {self.prediction_labels.shape[0]} elements, but must have the same as "
                 f"actual_labels: {self.actual_labels.shape[0]}. "
             )
+        if self.model_type == ModelTypes.SCORE_CATEGORICAL:
+            if not isinstance(self.prediction_scores, (pd.DataFrame, pd.Series)):
+                raise TypeError(
+                    f"prediction_scores is type {type(self.prediction_scores)}, but expects one of: pd.DataFrame, pd.Series"
+                )
+            if self.prediction_scores.shape[0] != self.prediction_labels.shape[0]:
+                raise ValueError(
+                    f"prediction_scores contains {self.prediction_scores.shape[0]} elements, but must have the same as "
+                    f"prediction_labels: {self.prediction_scores.shape[0]}."
+                )
         if self.features is None:
             return
         if not isinstance(self.features, pd.DataFrame):
@@ -773,6 +673,8 @@ class PreProductionRecords(BaseRecord, ABC):
             self.prediction_labels = self.prediction_labels.to_numpy()
         if isinstance(self.actual_labels, (pd.DataFrame, pd.Series)):
             self.actual_labels = self.actual_labels.to_numpy()
+        if isinstance(self.prediction_scores, (pd.DataFrame, pd.Series)):
+            self.prediction_scores = self.prediction_scores.to_numpy()
         if isinstance(self.features, pd.DataFrame):
             self.feature_names = self.features.columns
             self.features = self.features.to_numpy()
@@ -783,12 +685,12 @@ class TrainingRecords(PreProductionRecords):
         self,
         organization_key: str,
         model_id: str,
-        model_type: ModelTypes,
         model_version: str,
-        features,
-        prediction_labels,
-        actual_labels,
-        queue,
+        prediction_labels: Union[pd.DataFrame, pd.Series],
+        actual_labels: Union[pd.DataFrame, pd.Series],
+        features: Optional[pd.DataFrame] = None,
+        model_type: Optional[ModelTypes] = None,
+        prediction_scores: Optional[Union[pd.DataFrame, pd.Series]] = None,
     ):
         super().__init__(
             organization_key=organization_key,
@@ -797,21 +699,27 @@ class TrainingRecords(PreProductionRecords):
             model_version=model_version,
             features=features,
             prediction_labels=prediction_labels,
+            prediction_scores=prediction_scores,
             actual_labels=actual_labels,
-            queue=queue,
         )
 
     def validate_inputs(self):
         self._validate_preprod_inputs()
 
     def build_proto(self):
+        records = []
         self._normalize_inputs()
         for row, v in enumerate(self.prediction_labels):
             a = public__pb2.Actual(
                 label=self._get_label(value=self.actual_labels[row], name="actual")
             )
+            score = (
+                None
+                if self.model_type != ModelTypes.SCORE_CATEGORICAL
+                else self.prediction_scores[row]
+            )
             p = public__pb2.Prediction(
-                label=self._get_label(value=v, name="prediction"),
+                label=self._get_label(value=v, name="prediction", score=score),
                 model_version=self.model_version,
             )
 
@@ -837,7 +745,8 @@ class TrainingRecords(PreProductionRecords):
             t = public__pb2.PreProductionRecord(
                 training_record=public__pb2.PreProductionRecord.TrainingRecord(record=r)
             )
-            self.queue.add(t)
+            records.append(t)
+        return bundle_records(records)
 
 
 class ValidationRecords(PreProductionRecords):
@@ -845,13 +754,13 @@ class ValidationRecords(PreProductionRecords):
         self,
         organization_key: str,
         model_id: str,
-        model_type: ModelTypes,
         model_version: str,
         batch_id: str,
-        features,
-        prediction_labels,
-        actual_labels,
-        queue,
+        prediction_labels: Union[pd.DataFrame, pd.Series],
+        actual_labels: Union[pd.DataFrame, pd.Series],
+        features: Optional[pd.DataFrame] = None,
+        model_type: Optional[ModelTypes] = None,
+        prediction_scores: Optional[Union[pd.DataFrame, pd.Series]] = None,
     ):
         super().__init__(
             organization_key=organization_key,
@@ -860,8 +769,8 @@ class ValidationRecords(PreProductionRecords):
             model_version=model_version,
             features=features,
             prediction_labels=prediction_labels,
+            prediction_scores=prediction_scores,
             actual_labels=actual_labels,
-            queue=queue,
         )
         self.batch_id = batch_id
 
@@ -873,13 +782,19 @@ class ValidationRecords(PreProductionRecords):
             )
 
     def build_proto(self):
+        records = []
         self._normalize_inputs()
         for row, v in enumerate(self.prediction_labels):
             a = public__pb2.Actual(
                 label=self._get_label(value=self.actual_labels[row], name="actual")
             )
+            score = (
+                None
+                if self.model_type != ModelTypes.SCORE_CATEGORICAL
+                else self.prediction_scores[row]
+            )
             p = public__pb2.Prediction(
-                label=self._get_label(value=v, name="prediction"),
+                label=self._get_label(value=v, name="prediction", score=score),
                 model_version=self.model_version,
             )
 
@@ -906,4 +821,5 @@ class ValidationRecords(PreProductionRecords):
                     batch_id=self.batch_id, record=r
                 ),
             )
-            self.queue.add(v)
+            records.append(v)
+        return bundle_records(records)
