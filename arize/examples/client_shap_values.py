@@ -41,19 +41,16 @@ resps = []
 start = time.time_ns()
 for j in range(ITERATIONS):
     id_ = str(uuid.uuid4())
-    pred = arize.log_prediction(
+    pred = arize.log(
         model_id="example_model_id",
         model_type=ModelTypes.BINARY,
         model_version="v0.1",
         prediction_id=id_,
         prediction_label=True,
         features=features,
-    )
-    actual = arize.log_shap_values(
-        prediction_id=id_, shap_values=shap_values, model_id="example_model_id"
+        shap_values=shap_values,
     )
     resps.append(pred)
-    resps.append(actual)
 
 end_sending = time.time_ns()
 print(

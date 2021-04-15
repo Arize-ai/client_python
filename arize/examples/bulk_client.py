@@ -25,7 +25,7 @@ ids = pd.DataFrame([str(uuid.uuid4()) for _ in range(NUM_RECORDS)])
 column_overwrite = list("abcdefghijkl")
 
 start = time.time_ns()
-preds = arize.log_bulk_predictions(
+preds = arize.bulk_log(
     model_id="example_model_id",
     model_version="v0.1",
     model_type=ModelTypes.NUMERIC,
@@ -33,14 +33,8 @@ preds = arize.log_bulk_predictions(
     prediction_labels=pred_labels,
     features=features,
     feature_names_overwrite=column_overwrite,
-)
-actuals = arize.log_bulk_actuals(
-    model_id="example_model_id",
-    prediction_ids=ids,
     actual_labels=pred_labels,
-    model_type=ModelTypes.NUMERIC,
 )
-preds.extend(actuals)
 
 end_enqueue = time.time_ns()
 print(

@@ -1,7 +1,7 @@
 import math
 import pandas as pd
 
-from typing import Union, Optional
+from typing import Union, Optional, Tuple
 
 from arize import public_pb2 as public__pb2
 from arize.model import ModelTypes
@@ -10,7 +10,7 @@ from google.protobuf.timestamp_pb2 import Timestamp
 MAX_BYTES_PER_BULK_RECORD = 100000
 
 
-def infer_model_type(label: Union[str, float, int, float]) -> ModelTypes:
+def infer_model_type(label: Union[str, bool, int, float, Tuple[str, float]]) -> ModelTypes:
     val = convert_element(label)
     if isinstance(val, bool):
         return ModelTypes.BINARY
@@ -18,6 +18,8 @@ def infer_model_type(label: Union[str, float, int, float]) -> ModelTypes:
         return ModelTypes.NUMERIC
     elif isinstance(val, str):
         return ModelTypes.CATEGORICAL
+    elif isinstance(val, tuple):
+        return ModelTypes.SCORE_CATEGORICAL
     raise TypeError(
         f"label {label} has type {type(label)}, but must be one of str, bool, float, or int"
     )

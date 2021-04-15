@@ -91,7 +91,7 @@ ids_df = pd.DataFrame([str(uuid.uuid4()) for _ in range(len(prediction_labels.in
 #### Single real-time prediction:
 ```python
 ## Returns an array of concurrent.futures.Future
-pred = arize.log_prediction(
+pred = arize.log(
     model_id='sample-model-1',
     model_version='v1.23.64',
     model_type=ModelTypes.BINARY,
@@ -110,7 +110,7 @@ if res.status_code != 200:
 
 #### Bulk upload of predictions:
 ```python
-responses = arize.log_bulk_predictions(
+responses = arize.bulk_log(
     model_id='sample-model-1',
     model_version='v1.23.64',
     model_type=ModelTypes.BINARY,
@@ -134,7 +134,7 @@ We automatically discover new models logged over time based on the model ID sent
 ### Logging Actual Labels
 > **_NOTE:_** Notice the prediction_id passed in matches the original prediction sent on the previous example above.
 ```python
-response = arize.log_actual(
+response = arize.log(
     model_id='sample-model-1',
     model_type=ModelTypes.BINARY,
     prediction_id='plED4eERDCasd9797ca34',
@@ -144,7 +144,7 @@ response = arize.log_actual(
 
 #### Bulk upload of actuals:
 ```python
-responses = arize.log_bulk_actuals(
+responses = arize.bulk_log(
     model_id='sample-model-1',
     model_type=ModelTypes.BINARY,
     prediction_ids=ids_df,

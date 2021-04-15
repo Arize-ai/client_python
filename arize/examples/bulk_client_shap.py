@@ -22,8 +22,12 @@ features = pd.DataFrame(
 pred_labels = pd.DataFrame(np.random.randint(0, 100000000, size=(NUM_RECORDS, 1)))
 ids = pd.DataFrame([str(uuid.uuid4()) for _ in range(NUM_RECORDS)])
 column_overwrite = list("abcdefghijkl")
-
-preds = arize.log_bulk_predictions(
+shap_values = pd.DataFrame(
+    np.random.random(size=(NUM_RECORDS, 12)),
+    columns=list("abcdefghijkl"),
+)
+print(shap_values)
+preds = arize.bulk_log(
     model_id="example_model_id",
     model_type=ModelTypes.NUMERIC,
     model_version="v0.1",
@@ -31,17 +35,9 @@ preds = arize.log_bulk_predictions(
     prediction_labels=pred_labels,
     features=features,
     feature_names_overwrite=column_overwrite,
+    shap_values=shap_values,
 )
 
-shap_values = pd.DataFrame(
-    np.random.random(size=(NUM_RECORDS, 12)),
-    columns=list("abcdefghijkl"),
-)
-print(shap_values)
-shap_request = arize.log_bulk_shap_values(
-    prediction_ids=ids, shap_values=shap_values, model_id="example_model_id"
-)
-preds.extend(shap_request)
 for future in cf.as_completed(preds):
     res = future.result()
     print(f"future completed with response code {res.status_code}")
