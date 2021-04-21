@@ -10,7 +10,9 @@ from google.protobuf.timestamp_pb2 import Timestamp
 MAX_BYTES_PER_BULK_RECORD = 100000
 
 
-def infer_model_type(label: Union[str, bool, int, float, Tuple[str, float]]) -> ModelTypes:
+def infer_model_type(
+    label: Union[str, bool, int, float, Tuple[str, float]]
+) -> ModelTypes:
     val = convert_element(label)
     if isinstance(val, bool):
         return ModelTypes.BINARY

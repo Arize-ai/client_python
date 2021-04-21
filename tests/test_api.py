@@ -598,7 +598,7 @@ def test_build_bulk_actuals_index():
     assert record_count == len(ids)
 
 
-def test_build_bulk_predictions_index_bool():
+def test_build_bulk_binary_predictions():
     c = get_stubbed_client()
     features, _, idx = mock_dataframes_clean_nan(file_to_open)
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
@@ -625,7 +625,7 @@ def test_build_bulk_predictions_index_bool():
     assert record_count == len(ids)
 
 
-def test_build_bulk_actuals_index_bool():
+def test_build_bulk_binary_actuals():
     c = get_stubbed_client()
     features, _, idx = mock_dataframes_clean_nan(file_to_open)
     features['actual'] = features['mpg'].apply(lambda x: x > 15)
@@ -838,3 +838,28 @@ def test_build_validation_records():
             assert rec.validation_record.record.prediction_and_actual.prediction.timestamp.seconds == 0
             assert rec.validation_record.record.prediction_and_actual.prediction.timestamp.nanos == 0
     assert record_count == len(labels)
+
+
+def test_build_bulk_binary_predictions_deprecated_method():
+    c = get_stubbed_client()
+    features, _, idx = mock_dataframes_clean_nan(file_to_open)
+    ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
+    features['pred'] = features['mpg'].apply(lambda x: x > 15)
+    bulk_records = c.log_bulk_predictions(model_id=expected['model'],
+                           prediction_ids=ids,
+                           prediction_labels=features['pred'],
+                           features=features,
+                           model_version=expected['model_version'])
+    record_count = 0
+    for _, bulk in bulk_records.items():
+        assert bulk.organization_key == expected['organization_key']
+        assert bulk.model_id == expected['model']
+        assert not hasattr(bulk, 'timestamp')
+        for record in bulk.records:
+            assert isinstance(record, public__pb2.Record)
+            assert isinstance(record.prediction.label, public__pb2.Label)
+            assert len(record.prediction.features) == features.shape[1]
+            assert record.prediction.label.WhichOneof('data') == 'binary'
+            assert record.prediction_id in idx.values
+            record_count += 1
+    assert record_count == len(ids)

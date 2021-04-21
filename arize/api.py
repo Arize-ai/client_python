@@ -25,7 +25,9 @@ from arize.utils import (
 from arize.__init__ import __version__
 
 
-def _label_validation(model_type: ModelTypes, label: Union[str, bool, int, float, Tuple[str, float]]):
+def _label_validation(
+    model_type: ModelTypes, label: Union[str, bool, int, float, Tuple[str, float]]
+):
     if model_type == ModelTypes.BINARY:
         if not (isinstance(label, bool) or label == 0 or label == 1):
             raise TypeError(
@@ -71,9 +73,7 @@ def _get_label(
             )
         else:
             return public__pb2.Label(
-                score_categorical=public__pb2.ScoreCategorical(
-                    categorical=value
-                )
+                score_categorical=public__pb2.ScoreCategorical(categorical=value)
             )
     elif model_type == ModelTypes.BINARY:
         return public__pb2.Label(binary=value)
@@ -265,7 +265,9 @@ class Client:
                     )
 
         # Check the timestamp present on the event
-        if prediction_timestamp is not None and not isinstance(prediction_timestamp, int):
+        if prediction_timestamp is not None and not isinstance(
+            prediction_timestamp, int
+        ):
             raise TypeError(
                 f"prediction_timestamp {prediction_timestamp} is type {type(prediction_timestamp)} but expected int"
             )
@@ -277,7 +279,9 @@ class Client:
                 raise TypeError(
                     f"model_version {model_version} is type {type(model_version)}, but must be a str"
                 )
-            model_type = infer_model_type(prediction_label) if model_type is None else model_type
+            model_type = (
+                infer_model_type(prediction_label) if model_type is None else model_type
+            )
             _label_validation(model_type, label=convert_element(prediction_label))
             p = public__pb2.Prediction(
                 label=_get_label(
@@ -301,10 +305,10 @@ class Client:
         # Validate and construct the optional actual
         a = None
         if actual_label is not None:
-            model_type = infer_model_type(actual_label) if model_type is None else model_type
-            _label_validation(
-                model_type, label=convert_element(actual_label)
+            model_type = (
+                infer_model_type(actual_label) if model_type is None else model_type
             )
+            _label_validation(model_type, label=convert_element(actual_label))
             a = public__pb2.Actual(
                 label=_get_label(
                     value=actual_label, name="actual", model_type=model_type
@@ -387,7 +391,7 @@ class Client:
                 prediction_timestamps,
             )
             model_type = (
-                infer_model_type(prediction_labels[0])
+                infer_model_type(prediction_labels.iloc[0])
                 if model_type is None
                 else model_type
             )
@@ -404,7 +408,7 @@ class Client:
                 )
             # Set model type if not yet set
             model_type = (
-                infer_model_type(actual_labels[0]) if model_type is None else model_type
+                infer_model_type(actual_labels.iloc[0]) if model_type is None else model_type
             )
 
         if shap_values is not None:
@@ -605,7 +609,9 @@ class Client:
             model_id=model_id,
             prediction_id=prediction_id,
             model_version=model_version,
-            prediction_label=prediction_label if prediction_score is None else (prediction_label, prediction_score),
+            prediction_label=prediction_label
+            if prediction_score is None
+            else (prediction_label, prediction_score),
             features=features,
             model_type=model_type,
             prediction_timestamp=time_overwrite,
