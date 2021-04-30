@@ -1,4 +1,5 @@
 import json
+import time
 
 import pandas as pd
 import concurrent.futures as cf
@@ -18,6 +19,7 @@ from arize.utils import (
     convert_element,
     get_value_object,
     get_timestamp,
+    is_timestamp_in_range,
     infer_model_type,
     get_bulk_records,
 )
@@ -179,6 +181,12 @@ def _validate_bulk_prediction(
             raise TypeError(
                 f"prediction_timestamps is type {type(prediction_timestamps)}, but expected one of: pd.Series, list<int>"
             )
+        now = int(time.time())
+        for ts in prediction_timestamps:
+            if not is_timestamp_in_range(now, ts):
+                raise ValueError(
+                    f"timestamp: {ts} in prediction_timestamps is out of range. Value must be within 1 year of the current time."
+                )
 
 
 class Client:
@@ -270,6 +278,14 @@ class Client:
         ):
             raise TypeError(
                 f"prediction_timestamp {prediction_timestamp} is type {type(prediction_timestamp)} but expected int"
+            )
+
+        now = int(time.time())
+        if prediction_timestamp is not None and not is_timestamp_in_range(
+            now, prediction_timestamp
+        ):
+            raise ValueError(
+                f"prediction_timestamp: {prediction_timestamp} is out of range. Value must be within 1 year of the current time."
             )
 
         # Construct the prediction
@@ -408,7 +424,9 @@ class Client:
                 )
             # Set model type if not yet set
             model_type = (
-                infer_model_type(actual_labels.iloc[0]) if model_type is None else model_type
+                infer_model_type(actual_labels.iloc[0])
+                if model_type is None
+                else model_type
             )
 
         if shap_values is not None:
@@ -521,6 +539,7 @@ class Client:
         prediction_labels: Union[pd.DataFrame, pd.Series],
         actual_labels: Union[pd.DataFrame, pd.Series],
         prediction_scores: Optional[Union[pd.DataFrame, pd.Series]] = None,
+        prediction_ids: Optional[Union[pd.DataFrame, pd.Series]] = None,
         model_type: Optional[ModelTypes] = None,
         features: Optional[Union[pd.DataFrame, pd.Series]] = None,
     ) -> List[cf.Future]:
@@ -532,6 +551,7 @@ class Client:
         :param prediction_labels: 1-D Pandas DataFrame or Series. The predicted values for a given model input.
         :param actual_labels: 1-D Pandas DataFrame or Series. The actual true values for a given model input.
         :param prediction_scores: 1-D Pandas DataFrame or Series. The predicted scores for the corresponding predicted_label of classification model. If present, elements in prediction_labels must be of type str. Values are associates to the labels in the same index.
+        :param prediction_ids: 1-D Pandas DataFrame or Series. The prediction IDs for the corresponding predicted_label of a classification_model. If present, elements in prediction_labels must be of type str. Values are associates to the labels in the same index.
         :param features: Optional 2-D Pandas DataFrame containing human readable and debuggable model features. DataFrames columns (df.columns) should contain feature names and must have same number of rows as actual_labels and prediction_labels. N.B. np.nan values are stripped from the record and manifest on our platform as a missing value (not 0.0 or NaN)
         :rtype : list<concurrent.futures.Future>
         """
@@ -545,6 +565,7 @@ class Client:
             prediction_labels=prediction_labels,
             actual_labels=actual_labels,
             prediction_scores=prediction_scores,
+            prediction_ids=prediction_ids,
         )
         rec.validate_inputs()
         return self._post_preprod(records=rec.build_proto())

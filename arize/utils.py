@@ -8,6 +8,7 @@ from arize.model import ModelTypes
 from google.protobuf.timestamp_pb2 import Timestamp
 
 MAX_BYTES_PER_BULK_RECORD = 100000
+MAX_DAYS_WITHIN_RANGE = 365
 
 
 def infer_model_type(
@@ -97,3 +98,13 @@ def get_timestamp(time_overwrite):
     ts = Timestamp()
     ts.FromSeconds(time)
     return ts
+
+
+def is_timestamp_in_range(now: int, ts: int):
+    max_time = now + (MAX_DAYS_WITHIN_RANGE * 24 * 60 * 60)
+    min_time = now - (MAX_DAYS_WITHIN_RANGE * 24 * 60 * 60)
+    if ts > max_time:
+        return False
+    if ts < min_time:
+        return False
+    return True

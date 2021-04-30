@@ -1,3 +1,5 @@
+import datetime
+import time
 import uuid
 from pathlib import Path
 
@@ -71,8 +73,12 @@ def get_stubbed_client():
     def _post_bulk(records, uri):
         return records
 
+    def _post_preprod(records):
+        return records
+
     c._post = _post
     c._post_bulk = _post_bulk
+    c._post_preprod = _post_preprod
     return c
 
 # TODO for each existing test that has been modified to call Client.log, add a call
@@ -445,6 +451,33 @@ def test_build_bulk_actuals_dataframes():
     assert record_count == len(ids)
 
 
+def test_validate_bulk_predictions_timestamp_out_of_range():
+    c = get_stubbed_client()
+    features, labels, ids = mock_dataframes_clean_nan(file_to_open)
+
+    current_time = datetime.datetime.now().timestamp()
+    earlier_time = (datetime.datetime.now() - datetime.timedelta(days=30)).timestamp()
+    prediction_timestamps = np.linspace(earlier_time, current_time, num=len(ids))
+    prediction_timestamps = pd.Series(prediction_timestamps.astype(int))
+
+    # break one of the timestamps
+    prediction_timestamps.iloc[4] = int(current_time) + (366 * 24 * 60 * 60)
+    ex = None
+    try:
+        c.bulk_log(
+            model_id=expected['model'],
+            model_version=expected['model_version'],
+            prediction_ids=ids,
+            prediction_labels=labels,
+            features=features,
+            prediction_timestamps=prediction_timestamps,
+        )
+    except Exception as err:
+        ex = err
+
+    assert isinstance(ex, ValueError)
+
+
 def test_validate_bulk_predictions_mismatched_shapes():
     c = get_stubbed_client()
     features, labels, ids = mock_dataframes_clean_nan(file_to_open)
@@ -661,6 +694,26 @@ def test_build_feature_importances():
     assert len(record.feature_importances.feature_importances) == len(expected['feature_importances'])
 
 
+def test_prediction_timestamp_out_of_range():
+    c = get_stubbed_client()
+    ex = None
+
+    try:
+        c.log(
+            model_id=expected['model'],
+            prediction_id=expected['prediction_id'],
+            model_version=expected['model_version'],
+            model_type=ModelTypes.CATEGORICAL,
+            prediction_label='HOTDOG',
+            features=expected['features'],
+            prediction_timestamp=int(time.time()) + (380 * 24 * 60 * 60),
+        )
+    except Exception as err:
+        ex = err
+
+    assert isinstance(ex, ValueError)
+
+
 def test_build_missing_data():
     c = get_stubbed_client()
     ex = None
@@ -810,21 +863,29 @@ def test_build_training_records():
     assert record_count == len(labels)
 
 
-def test_build_validation_records():
-    features, labels, _ = mock_dataframes_clean_nan(file_to_open)
-    recs = ValidationRecords(organization_key=expected['organization_key'],
-                             model_id=expected['model'],
-                             model_type=ModelTypes.NUMERIC,
-                             model_version=expected['model_version'],
-                             batch_id=expected['batch'],
-                             prediction_labels=labels,
-                             actual_labels=labels,
-                             features=features)
-    bundles = recs.build_proto()
-    record_count = 0
-    for _, recs in bundles.items():
+def test_send_validation_records():
+    c = get_stubbed_client()
+    features, labels, pred_ids = mock_dataframes_clean_nan(file_to_open)
+
+    # make life a bit easier and just take the first record
+    features = features[:1]
+    labels = labels[:1]
+    pred_ids = pred_ids[:1]
+
+    result = c.log_validation_records(
+        model_id=expected['model'],
+        model_version=expected['model_version'],
+        batch_id=expected['batch'],
+        prediction_labels=labels,
+        actual_labels=labels,
+        prediction_ids=pred_ids,
+        model_type=ModelTypes.NUMERIC,
+        features=features,
+    )
+    # test values in single record
+    expected_prediction_id = pred_ids[0][0]
+    for _, recs in result.items():
         for rec in recs:
-            record_count += 1
             assert isinstance(rec, public__pb2.PreProductionRecord)
             assert isinstance(rec.validation_record, public__pb2.PreProductionRecord.ValidationRecord)
             assert isinstance(rec.validation_record.record, public__pb2.Record)
@@ -837,8 +898,40 @@ def test_build_validation_records():
             assert rec.validation_record.record.prediction_and_actual.prediction.label.WhichOneof('data') == 'numeric'
             assert rec.validation_record.record.prediction_and_actual.prediction.timestamp.seconds == 0
             assert rec.validation_record.record.prediction_and_actual.prediction.timestamp.nanos == 0
-    assert record_count == len(labels)
+            assert rec.validation_record.record.prediction_id == expected_prediction_id
 
+    # now test a bunch of records at once
+    features, labels, pred_ids = mock_dataframes_clean_nan(file_to_open)
+    result = c.log_validation_records(
+        model_id=expected['model'],
+        model_version=expected['model_version'],
+        batch_id=expected['batch'],
+        prediction_labels=labels,
+        actual_labels=labels,
+        prediction_ids=pred_ids,
+        model_type=ModelTypes.NUMERIC,
+        features=features,
+    )
+    records_count = 0
+    for _, recs in result.items():
+        for rec in recs:
+            records_count += 1
+    assert len(labels) == records_count
+
+
+def test_send_validation_records_without_prediction_id():
+    c = get_stubbed_client()
+    features, labels, pred_ids = mock_dataframes_clean_nan(file_to_open)
+    # expect no exceptions
+    c.log_validation_records(
+        model_id=expected['model'],
+        model_version=expected['model_version'],
+        batch_id=expected['batch'],
+        prediction_labels=labels,
+        actual_labels=labels,
+        model_type=ModelTypes.NUMERIC,
+        features=features,
+    )
 
 def test_build_bulk_binary_predictions_deprecated_method():
     c = get_stubbed_client()

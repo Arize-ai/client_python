@@ -102,6 +102,7 @@ class PreProductionRecords(BaseRecord, ABC):
         features: Optional[pd.DataFrame] = None,
         model_type: Optional[ModelTypes] = None,
         prediction_scores: Optional[Union[pd.DataFrame, pd.Series]] = None,
+        prediction_ids: Optional[Union[pd.DataFrame, pd.Series]] = None,
     ):
         if model_type is None:
             if prediction_scores is None:
@@ -116,6 +117,7 @@ class PreProductionRecords(BaseRecord, ABC):
         self.prediction_labels = prediction_labels
         self.prediction_scores = prediction_scores
         self.actual_labels = actual_labels
+        self.prediction_ids = prediction_ids
 
     def _validate_preprod_inputs(self):
         self._base_validation()
@@ -142,6 +144,18 @@ class PreProductionRecords(BaseRecord, ABC):
                     f"prediction_scores contains {self.prediction_scores.shape[0]} elements, but must have the same as "
                     f"prediction_labels: {self.prediction_scores.shape[0]}."
                 )
+
+        if self.prediction_ids is not None:
+            if not isinstance(self.prediction_labels, (pd.DataFrame, pd.Series)):
+                raise TypeError(
+                    f"prediction_ids is type {type(self.prediction_ids)}, but expects one of: pd.DataFrame, pd.Series"
+                )
+            if self.prediction_labels.shape[0] != self.prediction_ids.shape[0]:
+                raise ValueError(
+                    f"prediction_ids contains {self.prediction_ids.shape[0]} elements, but must have the same as "
+                    f"prediction_labels: {self.prediction_labels.shape[0]}. "
+                )
+
         if self.features is None:
             return
         if not isinstance(self.features, pd.DataFrame):
@@ -164,6 +178,8 @@ class PreProductionRecords(BaseRecord, ABC):
         downstream."""
         if isinstance(self.prediction_labels, (pd.DataFrame, pd.Series)):
             self.prediction_labels = self.prediction_labels.to_numpy()
+        if isinstance(self.prediction_ids, (pd.DataFrame, pd.Series)):
+            self.prediction_ids = self.prediction_ids.to_numpy()
         if isinstance(self.actual_labels, (pd.DataFrame, pd.Series)):
             self.actual_labels = self.actual_labels.to_numpy()
         if isinstance(self.prediction_scores, (pd.DataFrame, pd.Series)):
@@ -254,6 +270,7 @@ class ValidationRecords(PreProductionRecords):
         features: Optional[pd.DataFrame] = None,
         model_type: Optional[ModelTypes] = None,
         prediction_scores: Optional[Union[pd.DataFrame, pd.Series]] = None,
+        prediction_ids: Optional[Union[pd.DataFrame, pd.Series]] = None,
     ):
         super().__init__(
             organization_key=organization_key,
@@ -264,6 +281,7 @@ class ValidationRecords(PreProductionRecords):
             prediction_labels=prediction_labels,
             prediction_scores=prediction_scores,
             actual_labels=actual_labels,
+            prediction_ids=prediction_ids,
         )
         self.batch_id = batch_id
 
@@ -290,6 +308,13 @@ class ValidationRecords(PreProductionRecords):
                 label=self._get_label(value=v, name="prediction", score=score),
                 model_version=self.model_version,
             )
+            prediction_id = None
+            if self.prediction_ids is not None:
+                prediction_id = self.prediction_ids[row][0]
+                if not isinstance(prediction_id, str):
+                    raise TypeError(
+                        f"prediction_id={prediction_id} of type {type(prediction_id)}. Must be str type."
+                    )
 
             if self.features is not None:
                 converted_feats = {}
@@ -305,6 +330,7 @@ class ValidationRecords(PreProductionRecords):
                 actual=a,
             )
             r = public__pb2.Record(
+                prediction_id=prediction_id,
                 organization_key=self.organization_key,
                 model_id=self.model_id,
                 prediction_and_actual=panda,
