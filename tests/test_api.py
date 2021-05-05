@@ -956,3 +956,7 @@ def test_build_bulk_binary_predictions_deprecated_method():
             assert record.prediction_id in idx.values
             record_count += 1
     assert record_count == len(ids)
+
+if __name__ == "__main__":
+    import pytest
+    raise SystemExit(pytest.main([__file__]))
