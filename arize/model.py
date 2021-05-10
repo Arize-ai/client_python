@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
 
 import pandas as pd
-from typing import Optional, Union, Dict
+from typing import Optional, Union, Dict, List
 
 from arize import public_pb2 as public__pb2
 from arize.types import ModelTypes
 from arize.utils import (
+    validate_prediction_timestamps,
     bundle_records,
     convert_element,
     get_value_object,
@@ -271,6 +272,8 @@ class ValidationRecords(PreProductionRecords):
         model_type: Optional[ModelTypes] = None,
         prediction_scores: Optional[Union[pd.DataFrame, pd.Series]] = None,
         prediction_ids: Optional[Union[pd.DataFrame, pd.Series]] = None,
+        prediction_timestamps: Optional[Union[List[int], pd.Series]] = None,
+
     ):
         super().__init__(
             organization_key=organization_key,
@@ -284,6 +287,7 @@ class ValidationRecords(PreProductionRecords):
             prediction_ids=prediction_ids,
         )
         self.batch_id = batch_id
+        self.prediction_timestamps = prediction_timestamps
 
     def validate_inputs(self):
         self._validate_preprod_inputs()
@@ -291,10 +295,16 @@ class ValidationRecords(PreProductionRecords):
             raise TypeError(
                 f"batch_id {self.batch_id} is type {type(self.batch_id)}, but must be a str"
             )
+        validate_prediction_timestamps(self.prediction_ids, self.prediction_timestamps)
 
     def build_proto(self):
         records = []
         self._normalize_inputs()
+        prediction_timestamps = (
+            self.prediction_timestamps.tolist()
+            if isinstance(self.prediction_timestamps, pd.Series)
+            else self.prediction_timestamps
+        )
         for row, v in enumerate(self.prediction_labels):
             a = public__pb2.Actual(
                 label=self._get_label(value=self.actual_labels[row], name="actual")
@@ -308,6 +318,10 @@ class ValidationRecords(PreProductionRecords):
                 label=self._get_label(value=v, name="prediction", score=score),
                 model_version=self.model_version,
             )
+
+            if prediction_timestamps is not None:
+                p.timestamp.MergeFrom(get_timestamp(prediction_timestamps[row]))
+
             prediction_id = None
             if self.prediction_ids is not None:
                 prediction_id = self.prediction_ids[row][0]

@@ -1,4 +1,5 @@
 import math
+import time
 import pandas as pd
 
 from typing import Union, Optional, Tuple
@@ -27,6 +28,34 @@ def infer_model_type(
         f"label {label} has type {type(label)}, but must be one of str, bool, float, or int"
     )
 
+def validate_prediction_timestamps(prediction_ids, prediction_timestamps):
+    if prediction_timestamps is None:
+        return
+    else:
+        expected_count = prediction_ids.shape[0]
+
+    if isinstance(prediction_timestamps, pd.Series):
+        if prediction_timestamps.shape[0] != expected_count:
+            raise ValueError(
+                f"prediction_timestamps has {prediction_timestamps.shape[0]} elements, but must have same number of "
+                f"elements as prediction_ids: {expected_count}. "
+            )
+    elif isinstance(prediction_timestamps, list):
+        if len(prediction_timestamps) != expected_count:
+            raise ValueError(
+                f"prediction_timestamps has length {len(prediction_timestamps)} but must have same number of elements as "
+                f"prediction_ids: {expected_count}. "
+            )
+    else:
+        raise TypeError(
+            f"prediction_timestamps is type {type(prediction_timestamps)}, but expected one of: pd.Series, list<int>"
+        )
+    now = int(time.time())
+    for ts in prediction_timestamps:
+        if not is_timestamp_in_range(now, ts):
+            raise ValueError(
+                f"timestamp: {ts} in prediction_timestamps is out of range. Value must be within 1 year of the current time."
+            )
 
 def num_chunks(records):
     total_bytes = sum(r.ByteSize() for r in records)

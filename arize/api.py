@@ -15,6 +15,7 @@ from arize.model import (
     ValidationRecords,
 )
 from arize.utils import (
+    validate_prediction_timestamps,
     bundle_records,
     convert_element,
     get_value_object,
@@ -86,6 +87,7 @@ def _get_label(
     raise TypeError(
         f"{name}_label = {value} of type {type(value)}. Must be one of str, bool, float, int, or Tuple[str, float]"
     )
+
 
 
 def _validate_bulk_prediction(
@@ -163,31 +165,7 @@ def _validate_bulk_prediction(
                     )
 
     # Validate timestamp overwrite
-    if prediction_timestamps is not None:
-        expected_count = prediction_ids.shape[0]
-        if isinstance(prediction_timestamps, pd.Series):
-            if prediction_timestamps.shape[0] != expected_count:
-                raise ValueError(
-                    f"prediction_timestamps has {prediction_timestamps.shape[0]} elements, but must have same number of "
-                    f"elements as prediction_ids: {expected_count}. "
-                )
-        elif isinstance(prediction_timestamps, list):
-            if len(prediction_timestamps) != expected_count:
-                raise ValueError(
-                    f"prediction_timestamps has length {len(prediction_timestamps)} but must have same number of elements as "
-                    f"prediction_ids: {expected_count}. "
-                )
-        else:
-            raise TypeError(
-                f"prediction_timestamps is type {type(prediction_timestamps)}, but expected one of: pd.Series, list<int>"
-            )
-        now = int(time.time())
-        for ts in prediction_timestamps:
-            if not is_timestamp_in_range(now, ts):
-                raise ValueError(
-                    f"timestamp: {ts} in prediction_timestamps is out of range. Value must be within 1 year of the current time."
-                )
-
+    validate_prediction_timestamps(prediction_ids, prediction_timestamps)
 
 class Client:
     """
@@ -542,6 +520,7 @@ class Client:
         prediction_ids: Optional[Union[pd.DataFrame, pd.Series]] = None,
         model_type: Optional[ModelTypes] = None,
         features: Optional[Union[pd.DataFrame, pd.Series]] = None,
+        prediction_timestamps: Optional[Union[List[int], pd.Series]] = None,
     ) -> List[cf.Future]:
         """Logs a set of validation records to Arize. Returns :class:`Future` object.
         :param model_id: (str) Unique identifier for a given model.
@@ -553,6 +532,7 @@ class Client:
         :param prediction_scores: 1-D Pandas DataFrame or Series. The predicted scores for the corresponding predicted_label of classification model. If present, elements in prediction_labels must be of type str. Values are associates to the labels in the same index.
         :param prediction_ids: 1-D Pandas DataFrame or Series. The prediction IDs for the corresponding predicted_label of a classification_model. If present, elements in prediction_labels must be of type str. Values are associates to the labels in the same index.
         :param features: Optional 2-D Pandas DataFrame containing human readable and debuggable model features. DataFrames columns (df.columns) should contain feature names and must have same number of rows as actual_labels and prediction_labels. N.B. np.nan values are stripped from the record and manifest on our platform as a missing value (not 0.0 or NaN)
+        :param prediction_timestamps: (list<int>) Optional list with same number of elements as prediction_labels field with unix epoch time in seconds to overwrite timestamp for each prediction. If None, prediction uses current timestamp.
         :rtype : list<concurrent.futures.Future>
         """
         rec = ValidationRecords(
@@ -566,6 +546,7 @@ class Client:
             actual_labels=actual_labels,
             prediction_scores=prediction_scores,
             prediction_ids=prediction_ids,
+            prediction_timestamps=prediction_timestamps,
         )
         rec.validate_inputs()
         return self._post_preprod(records=rec.build_proto())

@@ -866,11 +866,13 @@ def test_build_training_records():
 def test_send_validation_records():
     c = get_stubbed_client()
     features, labels, pred_ids = mock_dataframes_clean_nan(file_to_open)
+    time = [1593626247 + i for i in range(features.shape[0])]
 
     # make life a bit easier and just take the first record
     features = features[:1]
     labels = labels[:1]
     pred_ids = pred_ids[:1]
+    time = time[:1]
 
     result = c.log_validation_records(
         model_id=expected['model'],
@@ -881,7 +883,9 @@ def test_send_validation_records():
         prediction_ids=pred_ids,
         model_type=ModelTypes.NUMERIC,
         features=features,
+        prediction_timestamps=time,
     )
+
     # test values in single record
     expected_prediction_id = pred_ids[0][0]
     for _, recs in result.items():
@@ -896,7 +900,7 @@ def test_send_validation_records():
             assert isinstance(rec.validation_record.record.prediction_and_actual.prediction.label, public__pb2.Label)
             assert len(rec.validation_record.record.prediction_and_actual.prediction.features) == features.shape[1]
             assert rec.validation_record.record.prediction_and_actual.prediction.label.WhichOneof('data') == 'numeric'
-            assert rec.validation_record.record.prediction_and_actual.prediction.timestamp.seconds == 0
+            assert rec.validation_record.record.prediction_and_actual.prediction.timestamp.seconds == time[0]
             assert rec.validation_record.record.prediction_and_actual.prediction.timestamp.nanos == 0
             assert rec.validation_record.record.prediction_id == expected_prediction_id
 
