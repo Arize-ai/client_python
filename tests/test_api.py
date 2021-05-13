@@ -32,7 +32,8 @@ expected = {
         'feature_str': STR_VAL,
         'feature_double': NUM_VAL,
         'feature_int': INT_VAL,
-        'feature_bool': BOOL_VAL
+        'feature_bool': BOOL_VAL,
+        'feature_None': None
     },
     'feature_importances': {
         'feature_str': NUM_VAL,
@@ -84,6 +85,39 @@ def get_stubbed_client():
 # TODO for each existing test that has been modified to call Client.log, add a call
 # to the pre-existing method that should map to the identical cacll to Client.log to
 # assert that they are equivalent
+
+
+def test_build_binary_prediction_features():
+    c = get_stubbed_client()
+    record = c.log(model_id=expected['model'],
+                   model_type=ModelTypes.BINARY,
+                   model_version=expected['model_version'],
+                   prediction_id=expected['prediction_id'],
+                   prediction_label=expected['value_binary'],
+                   features=expected['features'],
+                   prediction_timestamp=None)
+
+    assert isinstance(record, public__pb2.Record)
+    assert isinstance(record.prediction, public__pb2.Prediction)
+    assert isinstance(record.prediction.label, public__pb2.Label)
+    for feature in record.prediction.features:
+        assert isinstance(record.prediction.features[feature],
+                          public__pb2.Value)
+    assert record.organization_key == expected['organization_key']
+    assert record.model_id == expected['model']
+    assert record.prediction_id == expected['prediction_id']
+    assert record.prediction.model_version == expected['model_version']
+    assert record.prediction.label.binary == expected['value_binary']
+    assert record.prediction.features['feature_str'].WhichOneof(
+        'data') == 'string'
+    assert record.prediction.features['feature_double'].WhichOneof(
+        'data') == 'double'
+    assert record.prediction.features['feature_int'].WhichOneof(
+        'data') == 'int'
+    assert record.prediction.features['feature_bool'].WhichOneof(
+        'data') == 'string'
+    assert record.prediction.timestamp.seconds == 0
+    assert record.prediction.timestamp.nanos == 0
 
 def test_build_binary_prediction_features():
     c = get_stubbed_client()

@@ -245,7 +245,8 @@ class Client:
         # Validate feature types
         if features is not None and bool(features):
             for k, v in features.items():
-                if not isinstance(convert_element(v), (str, bool, float, int)):
+                val = convert_element(v)
+                if val is not None and not isinstance(val, (str, bool, float, int)):
                     raise TypeError(
                         f"feature {k} with value {v} is type {type(v)}, but expected one of: str, bool, float, int"
                     )
@@ -286,12 +287,12 @@ class Client:
                 model_version=model_version,
             )
             if features is not None:
-                feats = public__pb2.Prediction(
-                    features={
-                        k: get_value_object(value=v, name=k)
-                        for (k, v) in features.items()
-                    }
-                )
+                converted_feats = {}
+                for (k, v) in features.items():
+                    val = get_value_object(value=v, name=k)
+                    if val is not None:
+                        converted_feats[k] = val
+                feats = public__pb2.Prediction(features=converted_feats)
                 p.MergeFrom(feats)
             if prediction_timestamp is not None:
                 p.timestamp.MergeFrom(get_timestamp(prediction_timestamp))
