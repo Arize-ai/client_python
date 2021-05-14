@@ -107,9 +107,11 @@ class PreProductionRecords(BaseRecord, ABC):
     ):
         if model_type is None:
             if prediction_scores is None:
-                self.model_type = infer_model_type(prediction_labels[0])
+                model_type = (
+                    infer_model_type(prediction_labels[0]) if model_type is None else model_type
+                )
             else:
-                self.model_type = ModelTypes.SCORE_CATEGORICAL
+                model_type = ModelTypes.SCORE_CATEGORICAL
         super().__init__(
             organization_key=organization_key, model_id=model_id, model_type=model_type
         )
@@ -324,7 +326,8 @@ class ValidationRecords(PreProductionRecords):
 
             prediction_id = None
             if self.prediction_ids is not None:
-                prediction_id = self.prediction_ids[row][0]
+                v = self.prediction_ids[row]
+                prediction_id = v if isinstance(v, str) else v[0]
                 if not isinstance(prediction_id, str):
                     raise TypeError(
                         f"prediction_id={prediction_id} of type {type(prediction_id)}. Must be str type."

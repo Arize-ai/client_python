@@ -952,7 +952,7 @@ def test_send_validation_records():
     )
     records_count = 0
     for _, recs in result.items():
-        for rec in recs:
+        for _ in recs:
             records_count += 1
     assert len(labels) == records_count
 
@@ -970,6 +970,7 @@ def test_send_validation_records_without_prediction_id():
         model_type=ModelTypes.NUMERIC,
         features=features,
     )
+
 
 def test_build_bulk_binary_predictions_deprecated_method():
     c = get_stubbed_client()
@@ -994,6 +995,39 @@ def test_build_bulk_binary_predictions_deprecated_method():
             assert record.prediction_id in idx.values
             record_count += 1
     assert record_count == len(ids)
+
+
+def test_validation_predictions_ids_as_index_series():
+    c = get_stubbed_client()
+    features, labels, idx = mock_dataframes_clean_nan(file_to_open)
+    ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
+    result = c.log_validation_records(
+        model_id=expected['model'],
+        model_version=expected['model_version'],
+        batch_id=expected['batch'],
+        prediction_labels=labels,
+        actual_labels=labels,
+        prediction_ids=ids,
+        features=features,
+    )
+
+    record_count = 0
+    for _, recs in result.items():
+        for rec in recs:
+            record_count += 1
+            assert isinstance(rec, public__pb2.PreProductionRecord)
+            assert isinstance(rec.validation_record, public__pb2.PreProductionRecord.ValidationRecord)
+            assert isinstance(rec.validation_record.record, public__pb2.Record)
+            assert rec.validation_record.batch_id == expected['batch']
+            assert rec.validation_record.record.organization_key == expected['organization_key']
+            assert rec.validation_record.record.model_id == expected['model']
+            assert rec.validation_record.record.prediction_and_actual.prediction.model_version == expected['model_version']
+            assert isinstance(rec.validation_record.record.prediction_and_actual.prediction.label, public__pb2.Label)
+            assert len(rec.validation_record.record.prediction_and_actual.prediction.features) == features.shape[1]
+            assert rec.validation_record.record.prediction_and_actual.prediction.label.WhichOneof('data') == 'numeric'
+            assert rec.validation_record.record.prediction_id in idx.values
+    assert len(labels) == record_count
+
 
 if __name__ == "__main__":
     import pytest
