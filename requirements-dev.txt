@@ -1,5 +1,5 @@
 ##TODO: Transitive requirements, add skylark extension to fix this issue in rules_python
-urllib3==1.25.9
+urllib3==1.26.5
 chardet==3.0.4
 certifi==2020.4.5.1
 pytz==2020.1
