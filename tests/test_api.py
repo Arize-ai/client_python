@@ -586,14 +586,14 @@ def test_validate_bulk_predictions_default_columns_int():
 def test_build_bulk_prediction_with_prediction_timestamps():
     c = get_stubbed_client()
     features, labels, ids = mock_dataframes_clean_nan(file_to_open)
-    time = [1593626247 + i for i in range(features.shape[0])]
+    t = [int(time.time()) + i for i in range(features.shape[0])]
     records = c.bulk_log(model_id=expected['model'],
                            model_version=expected['model_version'],
                            prediction_ids=ids,
                            prediction_labels=labels,
                            features=features,
                            feature_names_overwrite=None,
-                           prediction_timestamps=time)
+                           prediction_timestamps=t)
     for _, bulk in records.items():
         assert isinstance(bulk, public__pb2.BulkRecord)
         for r in bulk.records:
@@ -605,16 +605,17 @@ def test_build_bulk_prediction_with_prediction_timestamps():
 
 
 def test_handle_log_prediction_with_prediction_timestamps():
+    t = int(time.time())
     c = get_stubbed_client()
     record = c.log(model_id=expected['model'],
                        model_version=expected['model_version'],
                        prediction_id=expected['prediction_id'],
                        prediction_label=expected['value_binary'],
                        features=expected['features'],
-                       prediction_timestamp=1593626247)
+                       prediction_timestamp=t)
     assert isinstance(record.prediction, public__pb2.Prediction)
     assert bool(record.prediction.features)
-    assert record.prediction.timestamp.seconds == 1593626247
+    assert record.prediction.timestamp.seconds == t
 
 
 def test_build_bulk_predictions_index():
@@ -900,13 +901,13 @@ def test_build_training_records():
 def test_send_validation_records():
     c = get_stubbed_client()
     features, labels, pred_ids = mock_dataframes_clean_nan(file_to_open)
-    time = [1593626247 + i for i in range(features.shape[0])]
+    t = [int(time.time()) + i for i in range(features.shape[0])]
 
     # make life a bit easier and just take the first record
     features = features[:1]
     labels = labels[:1]
     pred_ids = pred_ids[:1]
-    time = time[:1]
+    t = t[:1]
 
     result = c.log_validation_records(
         model_id=expected['model'],
@@ -917,7 +918,7 @@ def test_send_validation_records():
         prediction_ids=pred_ids,
         model_type=ModelTypes.NUMERIC,
         features=features,
-        prediction_timestamps=time,
+        prediction_timestamps=t,
     )
 
     # test values in single record
@@ -934,7 +935,7 @@ def test_send_validation_records():
             assert isinstance(rec.validation_record.record.prediction_and_actual.prediction.label, public__pb2.Label)
             assert len(rec.validation_record.record.prediction_and_actual.prediction.features) == features.shape[1]
             assert rec.validation_record.record.prediction_and_actual.prediction.label.WhichOneof('data') == 'numeric'
-            assert rec.validation_record.record.prediction_and_actual.prediction.timestamp.seconds == time[0]
+            assert rec.validation_record.record.prediction_and_actual.prediction.timestamp.seconds == t[0]
             assert rec.validation_record.record.prediction_and_actual.prediction.timestamp.nanos == 0
             assert rec.validation_record.record.prediction_id == expected_prediction_id
 
