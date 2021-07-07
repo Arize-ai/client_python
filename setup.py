@@ -44,6 +44,9 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/Arize-ai/client_python',
+    project_urls=[
+        "https://www.arize.com",
+    ],
     download_url='https://github.com/Arize-ai/client_python/tarball/' +
     __version__,
     author='Arize AI',

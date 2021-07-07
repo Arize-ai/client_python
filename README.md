@@ -9,7 +9,7 @@
 ================
 ### Overview
 
-A helper library to interact with Arize AI APIs
+A helper library to interact with Arize AI APIs. Visit us at https://www.arize.com
 
 ---
 ## Quickstart
