@@ -9,7 +9,9 @@
 ================
 ### Overview
 
-A helper library to interact with Arize AI APIs. Visit us at https://www.arize.com
+A helper library to interact with Arize AI APIs.
+
+Visit the [Arize Blog](https://arize.com/blog) and [Resource Center](https://arize.com/resource-hub/) for more resources on ML observability and model monitoring.
 
 ---
 ## Quickstart
@@ -183,3 +185,6 @@ If you are using a different language, you'll be able to post an HTTP request to
 curl -X POST -H "Authorization: YOU_API_KEY" "https://log.arize.com/v1/log" -d'{"organization_key": "YOUR_ORG_KEY", "model_id": "test_model_1", "prediction_id":"test100", "prediction":{"model_version": "v1.23.64", "features":{"state":{"string": "CO"}, "item_count":{"int": 10}, "charge_amt":{"float": 12.34}, "physical_card":{"string": true}}, "prediction_label": {"binary": false}}}'
 ```
 ---
+
+### Website
+Visit us at https://www.arize.com

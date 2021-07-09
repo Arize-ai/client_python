@@ -28,7 +28,7 @@ class ArizeModel:
     def __init__(self):
         self.model = model # change to reading a pkl file, or otherwise
         # Step 1 Save Arize client
-        self.arize = Client(organization_key='YOUR_ORGANIZATION_KEY', 
+        self.arize = Client(organization_key='YOUR_ORGANIZATION_KEY',
                             api_key='YOUR_API_KEY')
         # Step 2 Saving model metadata for passing in later
         self.model_id = 'rayserve-model'
@@ -51,7 +51,7 @@ class ArizeModel:
             features=X_test,
             model_type=self.model_type,
         )
-        
+
         # Record HTTP response of logging to arize
         arize_success = True
         for response in cf.as_completed(log_responses):
@@ -73,3 +73,7 @@ response = requests.get(
     )
 # Display results
 print(response.text)
+
+
+## Visit the [Arize Blog](https://arize.com/blog) and [Resource Center](https://arize.com/resource-hub/) for more resources on ML observability and model monitoring.
+## https://www.arize.com
