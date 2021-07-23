@@ -3,21 +3,27 @@
 </div>
 
 [![Pypi](https://badge.fury.io/py/arize.svg)](https://badge.fury.io/py/arize)
-![CI](https://github.com/Arize-ai/arize/workflows/CI/badge.svg)
 [![Slack](https://img.shields.io/badge/slack-@arize-yellow.svg?logo=slack)](https://join.slack.com/t/arize-ai/shared_invite/zt-g9c1j1xs-aQEwOAkU4T2x5K8cqI1Xqg)
 
-================
-### Overview
+---
 
+## Overview
 A helper library to interact with Arize AI APIs.
 
-Visit the [Arize Blog](https://arize.com/blog) and [Resource Center](https://arize.com/resource-hub/) for more resources on ML observability and model monitoring.
+Arize is an end-to-end ML observability and model monitoring platform. The platform is designed to help ML engineers and data science practitioners surface and fix issues with ML models in production faster with:
+- Automated ML monitoring and model monitoring
+- Workflows to troubleshoot model performance
+- Real-time visualizations for model performance monitoring, data quality monitoring, and drift monitoring
+- Model prediction cohort analysis
+- Pre-deployment model validation
+- Integrated model explainability
 
 ---
 ## Quickstart
-This guide will help you instrument your code to log model observability data. The types of data supported include prediction labels, human readable/debuggable model features and tags, actual labels (once the ground truth is learned), and other model related data. Logging model data allows you to generate powerful visualizations in the Arize platform to better understand and debug your model's behavior. Additionally, Arize can provide monitoring for the data quality, data drift, and performance of your production models.
+This guide will help you instrument your code to log observability data for model monitoring and ML observability. The types of data supported include prediction labels, human readable/debuggable model features and tags, actual labels (once the ground truth is learned), and other model-related data. Logging model data allows you to generate powerful visualizations in the Arize platform to better monitor model performance, understand issues that arise, and debug your model's behavior. Additionally, Arize provides data quality monitoring, data drift detection, and performance management of your production models.
 
 Start logging your model data with the following steps:
+
 
 ### 1. Create your account
 Sign up for a free account by reaching out to <contacts@arize.com>.
@@ -187,4 +193,16 @@ curl -X POST -H "Authorization: YOU_API_KEY" "https://log.arize.com/v1/log" -d'{
 ---
 
 ### Website
-Visit us at https://www.arize.com
+Visit Us At: https://arize.com/model-monitoring/
+
+### Additional Resources
+- [What is ML observability?](https://arize.com/what-is-ml-observability/)
+- [Playbook to model monitoring in production](https://arize.com/the-playbook-to-monitor-your-models-performance-in-production/)
+- [Using statistical distance metrics for ML monitoring and observability](https://arize.com/using-statistical-distance-metrics-for-machine-learning-observability/)
+- [ML infrastructure tools for data preparation](https://arize.com/ml-infrastructure-tools-for-data-preparation/)
+- [ML infrastructure tools for model building](https://arize.com/ml-infrastructure-tools-for-model-building/)
+- [ML infrastructure tools for production](https://arize.com/ml-infrastructure-tools-for-production-part-1/)
+- [ML infrastructure tools for model deployment and model serving](https://arize.com/ml-infrastructure-tools-for-production-part-2-model-deployment-and-serving/)
+- [ML infrastructure tools for ML monitoring and observability](https://arize.com/ml-infrastructure-tools-ml-observability/)
+
+Visit the [Arize Blog](https://arize.com/blog) and [Resource Center](https://arize.com/resource-hub/) for more resources on ML observability and model monitoring.
