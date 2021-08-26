@@ -5,7 +5,7 @@ import pandas as pd
 from typing import Union, Optional, Tuple
 
 from arize import public_pb2 as public__pb2
-from arize.model import ModelTypes
+from arize.utils.types import ModelTypes
 from google.protobuf.timestamp_pb2 import Timestamp
 
 MAX_BYTES_PER_BULK_RECORD = 100000
@@ -27,6 +27,7 @@ def infer_model_type(
     raise TypeError(
         f"label {label} has type {type(label)}, but must be one of str, bool, float, or int"
     )
+
 
 def validate_prediction_timestamps(prediction_ids, prediction_timestamps):
     if prediction_timestamps is None:
@@ -57,6 +58,7 @@ def validate_prediction_timestamps(prediction_ids, prediction_timestamps):
                 f"timestamp: {ts} in prediction_timestamps is out of range. Value must be within 1 year of the current time."
             )
 
+
 def num_chunks(records):
     total_bytes = sum(r.ByteSize() for r in records)
     num_of_bulk = math.ceil(total_bytes / MAX_BYTES_PER_BULK_RECORD)
@@ -86,7 +88,7 @@ def get_bulk_records(
 
 
 def convert_element(value):
-    """ converts scalar or array to python native """
+    """converts scalar or array to python native"""
     val = getattr(value, "tolist", lambda: value)()
     # Check if it's a list since elements from pd indices are converted to a scalar
     # whereas pd series/dataframe elements are converted to list of 1 with the native value

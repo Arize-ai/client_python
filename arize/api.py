@@ -9,12 +9,12 @@ from requests_futures.sessions import FuturesSession
 
 from arize import public_pb2 as public__pb2
 from arize.bounded_executor import BoundedExecutor
-from arize.types import ModelTypes
+from arize.utils.types import ModelTypes
 from arize.model import (
     TrainingRecords,
     ValidationRecords,
 )
-from arize.utils import (
+from arize.utils.utils import (
     validate_prediction_timestamps,
     bundle_records,
     convert_element,
@@ -87,7 +87,6 @@ def _get_label(
     raise TypeError(
         f"{name}_label = {value} of type {type(value)}. Must be one of str, bool, float, int, or Tuple[str, float]"
     )
-
 
 
 def _validate_bulk_prediction(
@@ -167,6 +166,7 @@ def _validate_bulk_prediction(
     # Validate timestamp overwrite
     validate_prediction_timestamps(prediction_ids, prediction_timestamps)
 
+
 class Client:
     """
     Arize API Client to report model predictions and actuals to Arize AI platform
@@ -197,6 +197,7 @@ class Client:
         self._uri = uri + "/log"
         self._bulk_url = uri + "/bulk"
         self._stream_uri = uri + "/preprod"
+        self._files_uri = uri + "/files"
         self._api_key = api_key
         self._organization_key = organization_key
         self._timeout = timeout
@@ -768,3 +769,5 @@ class Client:
                 )
             )
         return futures
+
+

@@ -6,9 +6,9 @@ pytz==2020.1
 python-dateutil==2.8.1
 six==1.15.0
 idna==2.9
-black
+
 # Dev/Deployment
-pytest
+pytest==6.2.2
 sphinx
 sphinx_rtd_theme
 nose
@@ -19,6 +19,7 @@ yapf
 twine
 wheel
 grpcio-tools==1.30.0
+black
 # Examples
 numpy==1.18.4
 scipy==1.5.2

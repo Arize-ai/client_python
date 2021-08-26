@@ -4,8 +4,8 @@ import pandas as pd
 from typing import Optional, Union, Dict, List
 
 from arize import public_pb2 as public__pb2
-from arize.types import ModelTypes
-from arize.utils import (
+from arize.utils.types import ModelTypes
+from arize.utils.utils import (
     validate_prediction_timestamps,
     bundle_records,
     convert_element,
@@ -108,7 +108,9 @@ class PreProductionRecords(BaseRecord, ABC):
         if model_type is None:
             if prediction_scores is None:
                 model_type = (
-                    infer_model_type(prediction_labels[0]) if model_type is None else model_type
+                    infer_model_type(prediction_labels[0])
+                    if model_type is None
+                    else model_type
                 )
             else:
                 model_type = ModelTypes.SCORE_CATEGORICAL
@@ -275,7 +277,6 @@ class ValidationRecords(PreProductionRecords):
         prediction_scores: Optional[Union[pd.DataFrame, pd.Series]] = None,
         prediction_ids: Optional[Union[pd.DataFrame, pd.Series]] = None,
         prediction_timestamps: Optional[Union[List[int], pd.Series]] = None,
-
     ):
         super().__init__(
             organization_key=organization_key,

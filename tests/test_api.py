@@ -8,7 +8,7 @@ import pandas as pd
 
 import arize.public_pb2 as public__pb2
 from arize.model import TrainingRecords, ValidationRecords
-from arize.types import ModelTypes
+from arize.utils.types import ModelTypes
 from arize.api import Client
 
 NUM_VAL = 20.20
@@ -1028,8 +1028,3 @@ def test_validation_predictions_ids_as_index_series():
             assert rec.validation_record.record.prediction_and_actual.prediction.label.WhichOneof('data') == 'numeric'
             assert rec.validation_record.record.prediction_id in idx.values
     assert len(labels) == record_count
-
-
-if __name__ == "__main__":
-    import pytest
-    raise SystemExit(pytest.main([__file__]))
