@@ -4,7 +4,7 @@ import io
 import boto3
 from urllib.parse import urlparse
 from arize.api import Client
-from arize.types import ModelTypes
+from arize.utils.types import ModelTypes
 import concurrent.futures as cf
 
 

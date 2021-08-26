@@ -10,7 +10,7 @@ import uuid
 import requests
 import concurrent.futures as cf
 from arize.api import Client
-from arize.types import ModelTypes
+from arize.utils.types import ModelTypes
 
 data = datasets.load_breast_cancer()
 X, y = datasets.load_breast_cancer(return_X_y=True)

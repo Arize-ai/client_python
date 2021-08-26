@@ -2,7 +2,7 @@ import boto3
 import json
 from datetime import datetime
 from arize.api import Client
-from arize.types import ModelTypes
+from arize.utils.types import ModelTypes
 
 if __name__ != "__main__":
     runtime = boto3.client("runtime.sagemaker")
