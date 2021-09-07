@@ -97,7 +97,7 @@ class Client:
                     row_val = row[col_idx[feature_cn]]
                     feature_val = r.prediction.features[feature_cn]
                     if isinstance(row_val, (str, bool)):
-                        feature_val.string = row_val
+                        feature_val.string = str(row_val)
                     elif isinstance(row_val, int):
                         feature_val.int = row_val
                     elif isinstance(row_val, float):

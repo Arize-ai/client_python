@@ -24,7 +24,7 @@ def test_production_roundtrip():
         Environments.PRODUCTION,
         Schema(
             prediction_id_column_name="prediction_id",
-            feature_column_names=list("ABCDEFGHIJKL"),
+            feature_column_names=list("ABCDEFGHIJKLM"),
             prediction_label_column_name="prediction_label",
             actual_label_column_name="actual_label",
             shap_values_column_names={'A': 'a', 'B': 'b', 'C': 'c', 'D': 'd'}))
@@ -44,7 +44,7 @@ def test_production_roundtrip():
         assert rec.prediction.label is not None
         assert rec.actual.label is not None
         assert rec.prediction.features is not None
-        assert len(rec.prediction.features) == 12
+        assert len(rec.prediction.features) == 13
         assert len(rec.feature_importances.feature_importances) == 4
         rec_count += 1
     assert num_records == rec_count
@@ -63,7 +63,7 @@ def test_training_roundtrip():
         None, ModelTypes.NUMERIC,
         Environments.TRAINING,
         Schema(prediction_id_column_name="prediction_id",
-               feature_column_names=list("ABCDEFGHIJKL"),
+               feature_column_names=list("ABCDEFGHIJKLM"),
                prediction_label_column_name="prediction_label",
                actual_label_column_name="actual_label"))
 
@@ -82,7 +82,7 @@ def test_training_roundtrip():
         assert rec.training_record.record.prediction.label is not None
         assert rec.training_record.record.actual.label is not None
         assert rec.training_record.record.prediction.features is not None
-        assert len(rec.training_record.record.prediction.features) == 12
+        assert len(rec.training_record.record.prediction.features) == 13
         rec_count += 1
     assert num_records == rec_count
 
@@ -100,7 +100,7 @@ def test_validation_roundtrip():
         "batch_id", ModelTypes.NUMERIC,
         Environments.VALIDATION,
         Schema(prediction_id_column_name="prediction_id",
-               feature_column_names=list("ABCDEFGHIJKL"),
+               feature_column_names=list("ABCDEFGHIJKLM"),
                prediction_label_column_name="prediction_label",
                actual_label_column_name="actual_label"))
 
@@ -120,7 +120,7 @@ def test_validation_roundtrip():
         assert rec.validation_record.record.prediction.label is not None
         assert rec.validation_record.record.actual.label is not None
         assert rec.validation_record.record.prediction.features is not None
-        assert len(rec.validation_record.record.prediction.features) == 12
+        assert len(rec.validation_record.record.prediction.features) == 13
         rec_count += 1
     assert num_records == rec_count
 
@@ -137,6 +137,7 @@ def build_df(num_records: int):
         np.random.randint(0, 100000000, size=(num_records, 12)),
         columns=list("ABCDEFGHIJKL"),
     )
+    bool_feature = pd.DataFrame(np.random.choice(a=[False, True], size=(num_records, 1)), columns=["M"])
     pred_labels = pd.DataFrame(np.random.randint(0, 100000000, size=(num_records, 1)), columns=["prediction_label"])
     actuals_labels = pd.DataFrame(np.random.randint(0, 100000000, size=(num_records, 1)), columns=["actual_label"])
     fi = pd.DataFrame(
@@ -145,4 +146,4 @@ def build_df(num_records: int):
     )
 
     ids = pd.DataFrame([str(uuid.uuid4()) for _ in range(num_records)], columns=["prediction_id"])
-    return pd.concat([features, pred_labels, actuals_labels, ids, fi], axis=1)
+    return pd.concat([features, bool_feature, pred_labels, actuals_labels, ids, fi], axis=1)
