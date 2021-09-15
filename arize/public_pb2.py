@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\022com.arize.protocolZ9github.com/Arize-ai/arize/go/pkg/receiver/protocol/public',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0cpublic.proto\x12\x06public\x1a\x1fgoogle/protobuf/timestamp.proto\"\x81\x01\n\nBulkRecord\x12\x18\n\x10organization_key\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rmodel_version\x18\x03 \x01(\t\x12\x1f\n\x07records\x18\x05 \x03(\x0b\x32\x0e.public.RecordJ\x04\x08\x04\x10\x05R\ttimestamp\"\xa0\x02\n\x06Record\x12\x18\n\x10organization_key\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rprediction_id\x18\x03 \x01(\t\x12&\n\nprediction\x18\x08 \x01(\x0b\x32\x12.public.Prediction\x12\x1e\n\x06\x61\x63tual\x18\t \x01(\x0b\x32\x0e.public.Actual\x12\x37\n\x13\x66\x65\x61ture_importances\x18\n \x01(\x0b\x32\x1a.public.FeatureImportances\x12:\n\x15prediction_and_actual\x18\x0b \x01(\x0b\x32\x1b.public.PredictionAndActualJ\x04\x08\x04\x10\x05J\x04\x08\x05\x10\x06J\x04\x08\x06\x10\x07J\x04\x08\x07\x10\x08\"\xae\x02\n\x13PreProductionRecord\x12\x45\n\x0ftraining_record\x18\x01 \x01(\x0b\x32*.public.PreProductionRecord.TrainingRecordH\x00\x12I\n\x11validation_record\x18\x02 \x01(\x0b\x32,.public.PreProductionRecord.ValidationRecordH\x00\x1a\x44\n\x10ValidationRecord\x12\x10\n\x08\x62\x61tch_id\x18\x01 \x01(\t\x12\x1e\n\x06record\x18\x02 \x01(\x0b\x32\x0e.public.Record\x1a\x30\n\x0eTrainingRecord\x12\x1e\n\x06record\x18\x01 \x01(\x0b\x32\x0e.public.RecordB\r\n\x0brecord_type\"6\n\x10ScoreCategorical\x12\x13\n\x0b\x63\x61tegorical\x18\x01 \x01(\t\x12\r\n\x05score\x18\x02 \x01(\x01\"\x82\x01\n\x05Label\x12\x10\n\x06\x62inary\x18\x01 \x01(\x08H\x00\x12\x15\n\x0b\x63\x61tegorical\x18\x02 \x01(\tH\x00\x12\x11\n\x07numeric\x18\x03 \x01(\x01H\x00\x12\x35\n\x11score_categorical\x18\x04 \x01(\x0b\x32\x18.public.ScoreCategoricalH\x00\x42\x06\n\x04\x64\x61ta\"\xe4\x01\n\nPrediction\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12\x1c\n\x05label\x18\x03 \x01(\x0b\x32\r.public.Label\x12\x32\n\x08\x66\x65\x61tures\x18\x04 \x03(\x0b\x32 .public.Prediction.FeaturesEntry\x1a>\n\rFeaturesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.public.Value:\x02\x38\x01\"m\n\x05Value\x12\x10\n\x06string\x18\x01 \x01(\tH\x00\x12\r\n\x03int\x18\x02 \x01(\x03H\x00\x12\x10\n\x06\x64ouble\x18\x03 \x01(\x01H\x00\x12)\n\x0bmulti_value\x18\x04 \x01(\x0b\x32\x12.public.MultiValueH\x00\x42\x06\n\x04\x64\x61ta\"\x1c\n\nMultiValue\x12\x0e\n\x06values\x18\x01 \x03(\t\"U\n\x06\x41\x63tual\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1c\n\x05label\x18\x02 \x01(\x0b\x32\r.public.Label\"\xe6\x01\n\x12\x46\x65\x61tureImportances\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12O\n\x13\x66\x65\x61ture_importances\x18\x03 \x03(\x0b\x32\x32.public.FeatureImportances.FeatureImportancesEntry\x1a\x39\n\x17\x46\x65\x61tureImportancesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\"]\n\x13PredictionAndActual\x12&\n\nprediction\x18\x01 \x01(\x0b\x32\x12.public.Prediction\x12\x1e\n\x06\x61\x63tual\x18\x02 \x01(\x0b\x32\x0e.public.Actual\"\x8b\x01\n\nFileHeader\x12\x33\n\x0b\x65nvironment\x18\x01 \x01(\x0e\x32\x1e.public.FileHeader.Environment\"H\n\x0b\x45nvironment\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0c\n\x08TRAINING\x10\x01\x12\x0e\n\nVALIDATION\x10\x02\x12\x0e\n\nPRODUCTION\x10\x03\x42O\n\x12\x63om.arize.protocolZ9github.com/Arize-ai/arize/go/pkg/receiver/protocol/publicb\x06proto3'
+  serialized_pb=b'\n\x0cpublic.proto\x12\x06public\x1a\x1fgoogle/protobuf/timestamp.proto\"\x81\x01\n\nBulkRecord\x12\x18\n\x10organization_key\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rmodel_version\x18\x03 \x01(\t\x12\x1f\n\x07records\x18\x05 \x03(\x0b\x32\x0e.public.RecordJ\x04\x08\x04\x10\x05R\ttimestamp\"\xa0\x02\n\x06Record\x12\x18\n\x10organization_key\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rprediction_id\x18\x03 \x01(\t\x12&\n\nprediction\x18\x08 \x01(\x0b\x32\x12.public.Prediction\x12\x1e\n\x06\x61\x63tual\x18\t \x01(\x0b\x32\x0e.public.Actual\x12\x37\n\x13\x66\x65\x61ture_importances\x18\n \x01(\x0b\x32\x1a.public.FeatureImportances\x12:\n\x15prediction_and_actual\x18\x0b \x01(\x0b\x32\x1b.public.PredictionAndActualJ\x04\x08\x04\x10\x05J\x04\x08\x05\x10\x06J\x04\x08\x06\x10\x07J\x04\x08\x07\x10\x08\"\xae\x02\n\x13PreProductionRecord\x12\x45\n\x0ftraining_record\x18\x01 \x01(\x0b\x32*.public.PreProductionRecord.TrainingRecordH\x00\x12I\n\x11validation_record\x18\x02 \x01(\x0b\x32,.public.PreProductionRecord.ValidationRecordH\x00\x1a\x44\n\x10ValidationRecord\x12\x10\n\x08\x62\x61tch_id\x18\x01 \x01(\t\x12\x1e\n\x06record\x18\x02 \x01(\x0b\x32\x0e.public.Record\x1a\x30\n\x0eTrainingRecord\x12\x1e\n\x06record\x18\x01 \x01(\x0b\x32\x0e.public.RecordB\r\n\x0brecord_type\"\x8f\x02\n\x10ScoreCategorical\x12\x17\n\x0b\x63\x61tegorical\x18\x01 \x01(\tB\x02\x18\x01\x12\x11\n\x05score\x18\x02 \x01(\x01\x42\x02\x18\x01\x12\x35\n\x08\x63\x61tegory\x18\x03 \x01(\x0b\x32!.public.ScoreCategorical.CategoryH\x00\x12@\n\x0escore_category\x18\x04 \x01(\x0b\x32&.public.ScoreCategorical.ScoreCategoryH\x00\x1a\x1c\n\x08\x43\x61tegory\x12\x10\n\x08\x63\x61tegory\x18\x01 \x01(\t\x1a\x30\n\rScoreCategory\x12\x10\n\x08\x63\x61tegory\x18\x01 \x01(\t\x12\r\n\x05score\x18\x02 \x01(\x01\x42\x06\n\x04type\"\x82\x01\n\x05Label\x12\x10\n\x06\x62inary\x18\x01 \x01(\x08H\x00\x12\x15\n\x0b\x63\x61tegorical\x18\x02 \x01(\tH\x00\x12\x11\n\x07numeric\x18\x03 \x01(\x01H\x00\x12\x35\n\x11score_categorical\x18\x04 \x01(\x0b\x32\x18.public.ScoreCategoricalH\x00\x42\x06\n\x04\x64\x61ta\"\xe4\x01\n\nPrediction\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12\x1c\n\x05label\x18\x03 \x01(\x0b\x32\r.public.Label\x12\x32\n\x08\x66\x65\x61tures\x18\x04 \x03(\x0b\x32 .public.Prediction.FeaturesEntry\x1a>\n\rFeaturesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.public.Value:\x02\x38\x01\"m\n\x05Value\x12\x10\n\x06string\x18\x01 \x01(\tH\x00\x12\r\n\x03int\x18\x02 \x01(\x03H\x00\x12\x10\n\x06\x64ouble\x18\x03 \x01(\x01H\x00\x12)\n\x0bmulti_value\x18\x04 \x01(\x0b\x32\x12.public.MultiValueH\x00\x42\x06\n\x04\x64\x61ta\"\x1c\n\nMultiValue\x12\x0e\n\x06values\x18\x01 \x03(\t\"U\n\x06\x41\x63tual\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1c\n\x05label\x18\x02 \x01(\x0b\x32\r.public.Label\"\xe6\x01\n\x12\x46\x65\x61tureImportances\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12O\n\x13\x66\x65\x61ture_importances\x18\x03 \x03(\x0b\x32\x32.public.FeatureImportances.FeatureImportancesEntry\x1a\x39\n\x17\x46\x65\x61tureImportancesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\"]\n\x13PredictionAndActual\x12&\n\nprediction\x18\x01 \x01(\x0b\x32\x12.public.Prediction\x12\x1e\n\x06\x61\x63tual\x18\x02 \x01(\x0b\x32\x0e.public.Actual\"\x8b\x01\n\nFileHeader\x12\x33\n\x0b\x65nvironment\x18\x01 \x01(\x0e\x32\x1e.public.FileHeader.Environment\"H\n\x0b\x45nvironment\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0c\n\x08TRAINING\x10\x01\x12\x0e\n\nVALIDATION\x10\x02\x12\x0e\n\nPRODUCTION\x10\x03\"\xd7\x05\n\x06Schema\x12+\n\tconstants\x18\x01 \x01(\x0b\x32\x18.public.Schema.Constants\x12<\n\x11\x61rize_conclusions\x18\x02 \x01(\x0b\x32\x1f.public.Schema.ArizeConclusionsH\x00\x12>\n\x12\x61rize_explanations\x18\x03 \x01(\x0b\x32 .public.Schema.ArizeExplanationsH\x00\x12\x32\n\x0c\x61rrow_schema\x18\x04 \x01(\x0b\x32\x1a.public.Schema.ArrowSchemaH\x00\x1a\x46\n\tConstants\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12\x10\n\x08\x62\x61tch_id\x18\x03 \x01(\t\x1a\x12\n\x10\x41rizeConclusions\x1a\x13\n\x11\x41rizeExplanations\x1a\xf2\x02\n\x0b\x41rrowSchema\x12!\n\x19prediction_id_column_name\x18\x01 \x01(\t\x12\x1c\n\x14\x66\x65\x61ture_column_names\x18\x02 \x03(\t\x12\x1d\n\x15timestamp_column_name\x18\x03 \x01(\t\x12$\n\x1cprediction_label_column_name\x18\x04 \x01(\t\x12$\n\x1cprediction_score_column_name\x18\x05 \x01(\t\x12 \n\x18\x61\x63tual_label_column_name\x18\x06 \x01(\t\x12W\n\x18shap_values_column_names\x18\x07 \x03(\x0b\x32\x35.public.Schema.ArrowSchema.ShapValuesColumnNamesEntry\x1a<\n\x1aShapValuesColumnNamesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\x08\n\x06schemaBO\n\x12\x63om.arize.protocolZ9github.com/Arize-ai/arize/go/pkg/receiver/protocol/publicb\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -56,8 +56,8 @@ _FILEHEADER_ENVIRONMENT = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1829,
-  serialized_end=1901,
+  serialized_start=2047,
+  serialized_end=2119,
 )
 _sym_db.RegisterEnumDescriptor(_FILEHEADER_ENVIRONMENT)
 
@@ -302,23 +302,54 @@ _PREPRODUCTIONRECORD = _descriptor.Descriptor(
 )
 
 
-_SCORECATEGORICAL = _descriptor.Descriptor(
-  name='ScoreCategorical',
-  full_name='public.ScoreCategorical',
+_SCORECATEGORICAL_CATEGORY = _descriptor.Descriptor(
+  name='Category',
+  full_name='public.ScoreCategorical.Category',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='categorical', full_name='public.ScoreCategorical.categorical', index=0,
+      name='category', full_name='public.ScoreCategorical.Category.category', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=971,
+  serialized_end=999,
+)
+
+_SCORECATEGORICAL_SCORECATEGORY = _descriptor.Descriptor(
+  name='ScoreCategory',
+  full_name='public.ScoreCategorical.ScoreCategory',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='category', full_name='public.ScoreCategorical.ScoreCategory.category', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='score', full_name='public.ScoreCategorical.score', index=1,
+      name='score', full_name='public.ScoreCategorical.ScoreCategory.score', index=1,
       number=2, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
@@ -336,8 +367,65 @@ _SCORECATEGORICAL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=785,
-  serialized_end=839,
+  serialized_start=1001,
+  serialized_end=1049,
+)
+
+_SCORECATEGORICAL = _descriptor.Descriptor(
+  name='ScoreCategorical',
+  full_name='public.ScoreCategorical',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='categorical', full_name='public.ScoreCategorical.categorical', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=b'\030\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='score', full_name='public.ScoreCategorical.score', index=1,
+      number=2, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=b'\030\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='category', full_name='public.ScoreCategorical.category', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='score_category', full_name='public.ScoreCategorical.score_category', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_SCORECATEGORICAL_CATEGORY, _SCORECATEGORICAL_SCORECATEGORY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='type', full_name='public.ScoreCategorical.type',
+      index=0, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
+  ],
+  serialized_start=786,
+  serialized_end=1057,
 )
 
 
@@ -394,8 +482,8 @@ _LABEL = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=842,
-  serialized_end=972,
+  serialized_start=1060,
+  serialized_end=1190,
 )
 
 
@@ -433,8 +521,8 @@ _PREDICTION_FEATURESENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1141,
-  serialized_end=1203,
+  serialized_start=1359,
+  serialized_end=1421,
 )
 
 _PREDICTION = _descriptor.Descriptor(
@@ -485,8 +573,8 @@ _PREDICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=975,
-  serialized_end=1203,
+  serialized_start=1193,
+  serialized_end=1421,
 )
 
 
@@ -543,8 +631,8 @@ _VALUE = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=1205,
-  serialized_end=1314,
+  serialized_start=1423,
+  serialized_end=1532,
 )
 
 
@@ -575,8 +663,8 @@ _MULTIVALUE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1316,
-  serialized_end=1344,
+  serialized_start=1534,
+  serialized_end=1562,
 )
 
 
@@ -614,8 +702,8 @@ _ACTUAL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1346,
-  serialized_end=1431,
+  serialized_start=1564,
+  serialized_end=1649,
 )
 
 
@@ -653,8 +741,8 @@ _FEATUREIMPORTANCES_FEATUREIMPORTANCESENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1607,
-  serialized_end=1664,
+  serialized_start=1825,
+  serialized_end=1882,
 )
 
 _FEATUREIMPORTANCES = _descriptor.Descriptor(
@@ -698,8 +786,8 @@ _FEATUREIMPORTANCES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1434,
-  serialized_end=1664,
+  serialized_start=1652,
+  serialized_end=1882,
 )
 
 
@@ -737,8 +825,8 @@ _PREDICTIONANDACTUAL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1666,
-  serialized_end=1759,
+  serialized_start=1884,
+  serialized_end=1977,
 )
 
 
@@ -770,8 +858,270 @@ _FILEHEADER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1762,
-  serialized_end=1901,
+  serialized_start=1980,
+  serialized_end=2119,
+)
+
+
+_SCHEMA_CONSTANTS = _descriptor.Descriptor(
+  name='Constants',
+  full_name='public.Schema.Constants',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='model_id', full_name='public.Schema.Constants.model_id', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='model_version', full_name='public.Schema.Constants.model_version', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='batch_id', full_name='public.Schema.Constants.batch_id', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2355,
+  serialized_end=2425,
+)
+
+_SCHEMA_ARIZECONCLUSIONS = _descriptor.Descriptor(
+  name='ArizeConclusions',
+  full_name='public.Schema.ArizeConclusions',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2427,
+  serialized_end=2445,
+)
+
+_SCHEMA_ARIZEEXPLANATIONS = _descriptor.Descriptor(
+  name='ArizeExplanations',
+  full_name='public.Schema.ArizeExplanations',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2447,
+  serialized_end=2466,
+)
+
+_SCHEMA_ARROWSCHEMA_SHAPVALUESCOLUMNNAMESENTRY = _descriptor.Descriptor(
+  name='ShapValuesColumnNamesEntry',
+  full_name='public.Schema.ArrowSchema.ShapValuesColumnNamesEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='public.Schema.ArrowSchema.ShapValuesColumnNamesEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='public.Schema.ArrowSchema.ShapValuesColumnNamesEntry.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=b'8\001',
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2779,
+  serialized_end=2839,
+)
+
+_SCHEMA_ARROWSCHEMA = _descriptor.Descriptor(
+  name='ArrowSchema',
+  full_name='public.Schema.ArrowSchema',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='prediction_id_column_name', full_name='public.Schema.ArrowSchema.prediction_id_column_name', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='feature_column_names', full_name='public.Schema.ArrowSchema.feature_column_names', index=1,
+      number=2, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='timestamp_column_name', full_name='public.Schema.ArrowSchema.timestamp_column_name', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='prediction_label_column_name', full_name='public.Schema.ArrowSchema.prediction_label_column_name', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='prediction_score_column_name', full_name='public.Schema.ArrowSchema.prediction_score_column_name', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='actual_label_column_name', full_name='public.Schema.ArrowSchema.actual_label_column_name', index=5,
+      number=6, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='shap_values_column_names', full_name='public.Schema.ArrowSchema.shap_values_column_names', index=6,
+      number=7, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_SCHEMA_ARROWSCHEMA_SHAPVALUESCOLUMNNAMESENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2469,
+  serialized_end=2839,
+)
+
+_SCHEMA = _descriptor.Descriptor(
+  name='Schema',
+  full_name='public.Schema',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='constants', full_name='public.Schema.constants', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='arize_conclusions', full_name='public.Schema.arize_conclusions', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='arize_explanations', full_name='public.Schema.arize_explanations', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='arrow_schema', full_name='public.Schema.arrow_schema', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_SCHEMA_CONSTANTS, _SCHEMA_ARIZECONCLUSIONS, _SCHEMA_ARIZEEXPLANATIONS, _SCHEMA_ARROWSCHEMA, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='schema', full_name='public.Schema.schema',
+      index=0, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
+  ],
+  serialized_start=2122,
+  serialized_end=2849,
 )
 
 _BULKRECORD.fields_by_name['records'].message_type = _RECORD
@@ -791,6 +1141,16 @@ _PREPRODUCTIONRECORD.fields_by_name['training_record'].containing_oneof = _PREPR
 _PREPRODUCTIONRECORD.oneofs_by_name['record_type'].fields.append(
   _PREPRODUCTIONRECORD.fields_by_name['validation_record'])
 _PREPRODUCTIONRECORD.fields_by_name['validation_record'].containing_oneof = _PREPRODUCTIONRECORD.oneofs_by_name['record_type']
+_SCORECATEGORICAL_CATEGORY.containing_type = _SCORECATEGORICAL
+_SCORECATEGORICAL_SCORECATEGORY.containing_type = _SCORECATEGORICAL
+_SCORECATEGORICAL.fields_by_name['category'].message_type = _SCORECATEGORICAL_CATEGORY
+_SCORECATEGORICAL.fields_by_name['score_category'].message_type = _SCORECATEGORICAL_SCORECATEGORY
+_SCORECATEGORICAL.oneofs_by_name['type'].fields.append(
+  _SCORECATEGORICAL.fields_by_name['category'])
+_SCORECATEGORICAL.fields_by_name['category'].containing_oneof = _SCORECATEGORICAL.oneofs_by_name['type']
+_SCORECATEGORICAL.oneofs_by_name['type'].fields.append(
+  _SCORECATEGORICAL.fields_by_name['score_category'])
+_SCORECATEGORICAL.fields_by_name['score_category'].containing_oneof = _SCORECATEGORICAL.oneofs_by_name['type']
 _LABEL.fields_by_name['score_categorical'].message_type = _SCORECATEGORICAL
 _LABEL.oneofs_by_name['data'].fields.append(
   _LABEL.fields_by_name['binary'])
@@ -831,6 +1191,25 @@ _PREDICTIONANDACTUAL.fields_by_name['prediction'].message_type = _PREDICTION
 _PREDICTIONANDACTUAL.fields_by_name['actual'].message_type = _ACTUAL
 _FILEHEADER.fields_by_name['environment'].enum_type = _FILEHEADER_ENVIRONMENT
 _FILEHEADER_ENVIRONMENT.containing_type = _FILEHEADER
+_SCHEMA_CONSTANTS.containing_type = _SCHEMA
+_SCHEMA_ARIZECONCLUSIONS.containing_type = _SCHEMA
+_SCHEMA_ARIZEEXPLANATIONS.containing_type = _SCHEMA
+_SCHEMA_ARROWSCHEMA_SHAPVALUESCOLUMNNAMESENTRY.containing_type = _SCHEMA_ARROWSCHEMA
+_SCHEMA_ARROWSCHEMA.fields_by_name['shap_values_column_names'].message_type = _SCHEMA_ARROWSCHEMA_SHAPVALUESCOLUMNNAMESENTRY
+_SCHEMA_ARROWSCHEMA.containing_type = _SCHEMA
+_SCHEMA.fields_by_name['constants'].message_type = _SCHEMA_CONSTANTS
+_SCHEMA.fields_by_name['arize_conclusions'].message_type = _SCHEMA_ARIZECONCLUSIONS
+_SCHEMA.fields_by_name['arize_explanations'].message_type = _SCHEMA_ARIZEEXPLANATIONS
+_SCHEMA.fields_by_name['arrow_schema'].message_type = _SCHEMA_ARROWSCHEMA
+_SCHEMA.oneofs_by_name['schema'].fields.append(
+  _SCHEMA.fields_by_name['arize_conclusions'])
+_SCHEMA.fields_by_name['arize_conclusions'].containing_oneof = _SCHEMA.oneofs_by_name['schema']
+_SCHEMA.oneofs_by_name['schema'].fields.append(
+  _SCHEMA.fields_by_name['arize_explanations'])
+_SCHEMA.fields_by_name['arize_explanations'].containing_oneof = _SCHEMA.oneofs_by_name['schema']
+_SCHEMA.oneofs_by_name['schema'].fields.append(
+  _SCHEMA.fields_by_name['arrow_schema'])
+_SCHEMA.fields_by_name['arrow_schema'].containing_oneof = _SCHEMA.oneofs_by_name['schema']
 DESCRIPTOR.message_types_by_name['BulkRecord'] = _BULKRECORD
 DESCRIPTOR.message_types_by_name['Record'] = _RECORD
 DESCRIPTOR.message_types_by_name['PreProductionRecord'] = _PREPRODUCTIONRECORD
@@ -843,6 +1222,7 @@ DESCRIPTOR.message_types_by_name['Actual'] = _ACTUAL
 DESCRIPTOR.message_types_by_name['FeatureImportances'] = _FEATUREIMPORTANCES
 DESCRIPTOR.message_types_by_name['PredictionAndActual'] = _PREDICTIONANDACTUAL
 DESCRIPTOR.message_types_by_name['FileHeader'] = _FILEHEADER
+DESCRIPTOR.message_types_by_name['Schema'] = _SCHEMA
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 BulkRecord = _reflection.GeneratedProtocolMessageType('BulkRecord', (_message.Message,), {
@@ -883,11 +1263,27 @@ _sym_db.RegisterMessage(PreProductionRecord.ValidationRecord)
 _sym_db.RegisterMessage(PreProductionRecord.TrainingRecord)
 
 ScoreCategorical = _reflection.GeneratedProtocolMessageType('ScoreCategorical', (_message.Message,), {
+
+  'Category' : _reflection.GeneratedProtocolMessageType('Category', (_message.Message,), {
+    'DESCRIPTOR' : _SCORECATEGORICAL_CATEGORY,
+    '__module__' : 'public_pb2'
+    # @@protoc_insertion_point(class_scope:public.ScoreCategorical.Category)
+    })
+  ,
+
+  'ScoreCategory' : _reflection.GeneratedProtocolMessageType('ScoreCategory', (_message.Message,), {
+    'DESCRIPTOR' : _SCORECATEGORICAL_SCORECATEGORY,
+    '__module__' : 'public_pb2'
+    # @@protoc_insertion_point(class_scope:public.ScoreCategorical.ScoreCategory)
+    })
+  ,
   'DESCRIPTOR' : _SCORECATEGORICAL,
   '__module__' : 'public_pb2'
   # @@protoc_insertion_point(class_scope:public.ScoreCategorical)
   })
 _sym_db.RegisterMessage(ScoreCategorical)
+_sym_db.RegisterMessage(ScoreCategorical.Category)
+_sym_db.RegisterMessage(ScoreCategorical.ScoreCategory)
 
 Label = _reflection.GeneratedProtocolMessageType('Label', (_message.Message,), {
   'DESCRIPTOR' : _LABEL,
@@ -961,8 +1357,58 @@ FileHeader = _reflection.GeneratedProtocolMessageType('FileHeader', (_message.Me
   })
 _sym_db.RegisterMessage(FileHeader)
 
+Schema = _reflection.GeneratedProtocolMessageType('Schema', (_message.Message,), {
+
+  'Constants' : _reflection.GeneratedProtocolMessageType('Constants', (_message.Message,), {
+    'DESCRIPTOR' : _SCHEMA_CONSTANTS,
+    '__module__' : 'public_pb2'
+    # @@protoc_insertion_point(class_scope:public.Schema.Constants)
+    })
+  ,
+
+  'ArizeConclusions' : _reflection.GeneratedProtocolMessageType('ArizeConclusions', (_message.Message,), {
+    'DESCRIPTOR' : _SCHEMA_ARIZECONCLUSIONS,
+    '__module__' : 'public_pb2'
+    # @@protoc_insertion_point(class_scope:public.Schema.ArizeConclusions)
+    })
+  ,
+
+  'ArizeExplanations' : _reflection.GeneratedProtocolMessageType('ArizeExplanations', (_message.Message,), {
+    'DESCRIPTOR' : _SCHEMA_ARIZEEXPLANATIONS,
+    '__module__' : 'public_pb2'
+    # @@protoc_insertion_point(class_scope:public.Schema.ArizeExplanations)
+    })
+  ,
+
+  'ArrowSchema' : _reflection.GeneratedProtocolMessageType('ArrowSchema', (_message.Message,), {
+
+    'ShapValuesColumnNamesEntry' : _reflection.GeneratedProtocolMessageType('ShapValuesColumnNamesEntry', (_message.Message,), {
+      'DESCRIPTOR' : _SCHEMA_ARROWSCHEMA_SHAPVALUESCOLUMNNAMESENTRY,
+      '__module__' : 'public_pb2'
+      # @@protoc_insertion_point(class_scope:public.Schema.ArrowSchema.ShapValuesColumnNamesEntry)
+      })
+    ,
+    'DESCRIPTOR' : _SCHEMA_ARROWSCHEMA,
+    '__module__' : 'public_pb2'
+    # @@protoc_insertion_point(class_scope:public.Schema.ArrowSchema)
+    })
+  ,
+  'DESCRIPTOR' : _SCHEMA,
+  '__module__' : 'public_pb2'
+  # @@protoc_insertion_point(class_scope:public.Schema)
+  })
+_sym_db.RegisterMessage(Schema)
+_sym_db.RegisterMessage(Schema.Constants)
+_sym_db.RegisterMessage(Schema.ArizeConclusions)
+_sym_db.RegisterMessage(Schema.ArizeExplanations)
+_sym_db.RegisterMessage(Schema.ArrowSchema)
+_sym_db.RegisterMessage(Schema.ArrowSchema.ShapValuesColumnNamesEntry)
+
 
 DESCRIPTOR._options = None
+_SCORECATEGORICAL.fields_by_name['categorical']._options = None
+_SCORECATEGORICAL.fields_by_name['score']._options = None
 _PREDICTION_FEATURESENTRY._options = None
 _FEATUREIMPORTANCES_FEATUREIMPORTANCESENTRY._options = None
+_SCHEMA_ARROWSCHEMA_SHAPVALUESCOLUMNNAMESENTRY._options = None
 # @@protoc_insertion_point(module_scope)
