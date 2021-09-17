@@ -152,13 +152,8 @@ def _validate_bulk_prediction(
                     f"number of columns in features dataframe: {len(features.columns)}. "
                 )
         else:
-            if isinstance(features.columns, pd.core.indexes.numeric.NumericIndex):
-                raise TypeError(
-                    f"features.columns is of type {type(features.columns)}, but expect elements to be str. "
-                    f"Alternatively, feature_names_overwrite must be present. "
-                )
             for name in features.columns:
-                if not isinstance(name, str):
+                if not isinstance(name, str) and not isinstance(name, int) and not isinstance(name, float):
                     raise TypeError(
                         f"features.column {name} is type {type(name)}, but expect str"
                     )
@@ -215,23 +210,23 @@ class Client:
     def log(
         self,
         model_id: str,
-        prediction_id: str,
+        prediction_id: Union[str, int, float],
         model_version: str = None,
         prediction_label: Union[str, bool, int, float, Tuple[str, float]] = None,
         actual_label: Union[str, bool, int, float] = None,
         shap_values: Dict[str, float] = None,
-        features: Optional[Dict[str, Union[str, bool, float, int]]] = None,
+        features: Optional[Dict[Union[str, int, float], Union[str, bool, float, int]]] = None,
         model_type: Optional[ModelTypes] = None,
         prediction_timestamp: Optional[int] = None,
     ) -> cf.Future:
         """Logs a record to Arize via a POST request. Returns :class:`Future` object.
         :param model_id: (str) Unique identifier for a given model
-        :param prediction_id: (str) Unique string identifier for a specific prediction. This value is used to match a prediction to an actual label or feature imporances in the Arize platform.
+        :param prediction_id: (str, int, float) Unique string identifier for a specific prediction. This value is used to match a prediction to an actual label or feature imporances in the Arize platform.
         :param model_version: (str) Field used to group together a subset of predictions and actuals for a given model_id.
         :param prediction_label: (one of str, bool, int, float, Tuple[str, float]) The predicted value for a given model input.
         :param actual_label: (one of str, bool, int, float) The actual true value for a given model input. This actual will be matched to the prediction with the same prediction_id as the one in this call.
         :param shap_values: (str, float) Dictionary containing human readable and debuggable model features keys, along with SHAP feature importance values. Keys must be str, while values must be float.
-        :param features: (str, <value>) Optional dictionary containing human readable and debuggable model features. Keys must be str, values one of str, bool, float, long.
+        :param features: ((str, int, float), <value>) Optional dictionary containing human readable and debuggable model features. Keys must be str, values one of str, bool, float, long.
         :param model_type: (ModelTypes) Declares what model type this prediction is for. Binary, Numeric, Categorical, Score_Categorical.
         :param prediction_timestamp: (int) Optional field with unix epoch time in seconds to overwrite timestamp for prediction. If None, prediction uses current timestamp.
         :rtype : concurrent.futures.Future
@@ -292,7 +287,7 @@ class Client:
                 for (k, v) in features.items():
                     val = get_value_object(value=v, name=k)
                     if val is not None:
-                        converted_feats[k] = val
+                        converted_feats[str(k)] = val
                 feats = public__pb2.Prediction(features=converted_feats)
                 p.MergeFrom(feats)
             if prediction_timestamp is not None:
@@ -329,7 +324,7 @@ class Client:
         rec = public__pb2.Record(
             organization_key=self._organization_key,
             model_id=model_id,
-            prediction_id=prediction_id,
+            prediction_id=str(prediction_id),
             prediction=p,
             actual=a,
             feature_importances=fi,
@@ -447,11 +442,7 @@ class Client:
 
         records = []
         for row, v in enumerate(prediction_ids):
-            pred_id = v if isinstance(v, str) else v[0]
-            if not isinstance(pred_id, (str, bytes)):
-                raise TypeError(
-                    f"prediction_id {pred_id} is type {type(pred_id)}, but expected one of: str, bytes"
-                )
+            pred_id = v if (isinstance(v, str) or isinstance(v, int) or isinstance(v, float)) else v[0]
             p = None
             if prediction_labels is not None:
                 # if there is more than 1 dimension, and the second dimension size is 2 - TODO instead just guarantee shape is always (X,Y) instead of sometimes (X,)
@@ -476,7 +467,7 @@ class Client:
                     for column, name in enumerate(feature_names):
                         val = get_value_object(value=features[row][column], name=name)
                         if val is not None:
-                            converted_feats[name] = val
+                            converted_feats[str(name)] = val
                     feats = public__pb2.Prediction(features=converted_feats)
                     p.MergeFrom(feats)
                 if prediction_timestamps is not None:
@@ -499,7 +490,7 @@ class Client:
                 fi = public__pb2.FeatureImportances(feature_importances=converted_fi)
 
             rec = public__pb2.Record(
-                prediction_id=pred_id,
+                prediction_id=str(pred_id),
                 prediction=p,
                 actual=a,
                 feature_importances=fi,

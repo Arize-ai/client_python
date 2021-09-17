@@ -99,7 +99,7 @@ def convert_element(value):
     return val
 
 
-def get_value_object(name: str, value):
+def get_value_object(name: Union[str, int, float], value):
     if isinstance(value, public__pb2.Value):
         return value
     val = convert_element(value)

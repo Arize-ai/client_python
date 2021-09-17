@@ -84,7 +84,7 @@ class Client:
                     msg = pb.Record()
                     r = msg
 
-                r.prediction_id = row[col_idx[schema.prediction_id_column_name]]
+                r.prediction_id = str(row[col_idx[schema.prediction_id_column_name]])
                 r.model_id = model_id
 
                 t = (

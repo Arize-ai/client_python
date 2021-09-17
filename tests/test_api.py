@@ -119,6 +119,40 @@ def test_build_binary_prediction_features():
     assert record.prediction.timestamp.seconds == 0
     assert record.prediction.timestamp.nanos == 0
 
+
+def test_numeric_prediction_id():
+    c = get_stubbed_client()
+    record = c.log(model_id=expected['model'],
+                   model_type=ModelTypes.BINARY,
+                   model_version=expected['model_version'],
+                   prediction_id=12345,
+                   prediction_label=expected['value_binary'],
+                   features=expected['features'],
+                   prediction_timestamp=None)
+    assert record.prediction_id == "12345"
+    record = c.log(model_id=expected['model'],
+                   model_type=ModelTypes.BINARY,
+                   model_version=expected['model_version'],
+                   prediction_id=1.2345,
+                   prediction_label=expected['value_binary'],
+                   features=expected['features'],
+                   prediction_timestamp=None)
+    assert record.prediction_id == "1.2345"
+
+
+def test_numeric_feature_name():
+    c = get_stubbed_client()
+    record = c.log(model_id=expected['model'],
+                   model_type=ModelTypes.BINARY,
+                   model_version=expected['model_version'],
+                   prediction_id=expected['prediction_id'],
+                   prediction_label=expected['value_binary'],
+                   features={1: "hello", 2.0: "world"},
+                   prediction_timestamp=None)
+    for feature in record.prediction.features:
+        assert isinstance(record.prediction.features[feature],
+                          public__pb2.Value)
+
 def test_build_binary_prediction_features():
     c = get_stubbed_client()
     record = c.log(model_id=expected['model'],
@@ -335,6 +369,65 @@ def test_build_bulk_predictions_dataframes():
                            features=features,
                            feature_names_overwrite=None,
                            prediction_timestamps=None)
+    record_count = 0
+    for indexes, bulk in bulk_records.items():
+        assert indexes == (0, len(ids))
+        assert bulk.organization_key == expected['organization_key']
+        assert bulk.model_id == expected['model']
+        assert bulk.model_version == expected['model_version']
+        assert not hasattr(bulk, 'timestamp')
+        for record in bulk.records:
+            assert isinstance(record, public__pb2.Record)
+            assert isinstance(record.prediction.label, public__pb2.Label)
+            assert len(record.prediction.features) == features.shape[1]
+            assert record.prediction.label.WhichOneof('data') == 'numeric'
+            assert record.prediction.timestamp.seconds == 0
+            assert record.prediction.timestamp.nanos == 0
+            record_count += 1
+    assert record_count == len(ids)
+
+
+def test_numeric_prediction_ids():
+    c = get_stubbed_client()
+    features, labels, ids = mock_dataframes_clean_nan(file_to_open)
+    ids = pd.DataFrame([i for i in range(len(labels.index))])
+    bulk_records = c.bulk_log(model_id=expected['model'],
+                              model_version=expected['model_version'],
+                              prediction_ids=ids,
+                              prediction_labels=labels,
+                              features=features,
+                              feature_names_overwrite=None,
+                              prediction_timestamps=None)
+    record_count = 0
+    for indexes, bulk in bulk_records.items():
+        assert indexes == (0, len(ids))
+        assert bulk.organization_key == expected['organization_key']
+        assert bulk.model_id == expected['model']
+        assert bulk.model_version == expected['model_version']
+        assert not hasattr(bulk, 'timestamp')
+        for record in bulk.records:
+            assert isinstance(record, public__pb2.Record)
+            assert isinstance(record.prediction.label, public__pb2.Label)
+            assert len(record.prediction.features) == features.shape[1]
+            assert record.prediction.label.WhichOneof('data') == 'numeric'
+            assert record.prediction.timestamp.seconds == 0
+            assert record.prediction.timestamp.nanos == 0
+            record_count += 1
+    assert record_count == len(ids)
+
+
+def test_numeric_feature_names():
+    c = get_stubbed_client()
+    features, labels, ids = mock_dataframes_clean_nan(file_to_open)
+    # some features left with string name to test mix
+    features = features.rename(columns={"mpg": 1, "cylinders": 2, "displacement": 3, "horsepower": 4, "weight": 5, "acceleration": 6})
+    bulk_records = c.bulk_log(model_id=expected['model'],
+                              model_version=expected['model_version'],
+                              prediction_ids=ids,
+                              prediction_labels=labels,
+                              features=features,
+                              feature_names_overwrite=None,
+                              prediction_timestamps=None)
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes == (0, len(ids))

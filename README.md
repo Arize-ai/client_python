@@ -26,7 +26,7 @@ Start logging your model data with the following steps:
 
 
 ### 1. Create your account
-Sign up for a free account by reaching out to <contacts@arize.com>.
+Sign up for a free account by filling out the [web form](https://arize.com/request-a-demo/).
 
 <div align="center">
   <img src="https://storage.googleapis.com/arize-assets/Arize%20UI%20platform.jpg" /><br><br>
@@ -55,16 +55,18 @@ $ python setup.py install
 
 ### Initialize Python Client
 
-Initialize `arize` at the start of your sevice using your previously created API Key and Organization ID.
+Initialize the arize client at the start of your service using your previously created API Key and Organization ID.
 
 > **_NOTE:_** We strongly suggest storing the API key as a secret or an environment variable.
 
 ```python
 from arize.api import Client
+from arize.utils.types import ModelTypes, Environments
+
 
 API_KEY = os.environ.get('ARIZE_API_KEY') #If passing api_key via env vars
 
-arize = Client(organization_key='ARIZE_ORG_KEY', api_key=API_KEY)
+arize_client = Client(organization_key='ARIZE_ORG_KEY', api_key=API_KEY)
 ```
 
 ### Collect your model input features and labels you'd like to track
@@ -169,6 +171,73 @@ for response in cf.as_completed(responses):
 ```
 Once the actual labels (ground truth) for your predictions have been determined, you can send them to Arize and evaluate your metrics over time. The prediction id for one prediction links to its corresponding actual label so it's important to note those must be the same when matching events.
 
+### Bulk upload of all your data (features, predictions, actuals, SHAP values) in a pandas.DataFrame
+
+Use arize.pandas.logger to publish a dataframe with the features, predicted label, actual, and/or SHAP to Arize for monitoring, analysis, and explainability.
+
+#### Initialize Arize Client from `arize.pandas.logger`
+```python
+from arize.pandas.logger import Client, Schema
+from arize.utils.types import ModelTypes, Environments
+
+API_KEY = os.environ.get('ARIZE_API_KEY') #If passing api_key via env vars
+arize_client = Client(organization_key='ARIZE_ORG_KEY', api_key=API_KEY)
+```
+
+#### Logging features & predictions only, then actuals
+```python
+response = arize_client.log(
+    dataframe=your_sample_df,
+    path="inferences.bin",
+    model_id="fraud-model",
+    model_version="1.0",
+    batch_id=None,
+    model_type=ModelTypes.SCORE_CATEGORICAL,
+    environment=Environments.PRODUCTION,
+    schema = Schema(
+        prediction_id_column_name="prediction_id",
+        timestamp_column_name="prediction_ts",
+        prediction_label_column_name="prediction_label",
+        prediction_score_column_name="prediction_score",
+        feature_column_names=feature_cols,
+    )
+)
+
+response = arize_client.log(
+    dataframe=your_sample_df,
+    path="inferences.bin",
+    model_id=model_id,
+    batch_id=None,
+    model_type=ModelTypes.SCORE_CATEGORICAL,
+    environment=Environments.PRODUCTION,
+    schema = Schema(
+        prediction_id_column_name="prediction_id",
+        actual_label_column_name="actual_label",
+    )
+)
+```
+
+#### Logging features, predictions, actuals, and SHAP values together
+```python
+response = arize_client.log(
+    dataframe=your_sample_df,
+    path="inferences.bin",
+    model_id="fraud-model",
+    model_version="1.0",
+    batch_id=None,
+    model_type=ModelTypes.NUMERIC,
+    environment=Environments.PRODUCTION,
+    schema = Schema(
+        prediction_id_column_name="prediction_id",
+        timestamp_column_name="prediction_ts",
+        prediction_label_column_name="prediction_label",
+        actual_label_column_name="actual_label",
+        feature_column_names=feature_col_name,
+        shap_values_column_names=dict(zip(feature_col_name, shap_col_name))
+    )
+)
+```
+
 ### 4. Log In for Analytics
 That's it! Once your service is deployed and predictions are logged you'll be able to log into your Arize account and dive into your data, slicing it by features, tags, models, time, etc.
 
@@ -179,7 +248,7 @@ That's it! Once your service is deployed and predictions are logged you'll be ab
 
 ---
 ### Logging SHAP values
-Log SHAP feature importances to the Arize platform to explain your model's predictions. By logging SHAP values you gain the ability to view the global feature importances of your predictions as well as the ability to perform cohort and prediction based analysis to compare feature importance values under varying conditions. For more information on SHAP and how to use SHAP with Arize, check out our [SHAP documentation](https://app.gitbook.com/@arize/s/arize-onboarding/platform-features/explainability/shap).
+Log feature importance in SHAP values to the Arize platform to explain your model's predictions. By logging SHAP values you gain the ability to view the global feature importances of your predictions as well as the ability to perform cohort and prediction based analysis to compare feature importance values under varying conditions. For more information on SHAP and how to use SHAP with Arize, check out our [SHAP documentation](https://docs.arize.com/arize/product-guides-1/explainability).
 
 ---
 ### Other languages
@@ -194,6 +263,8 @@ curl -X POST -H "Authorization: YOU_API_KEY" "https://log.arize.com/v1/log" -d'{
 
 ### Website
 Visit Us At: https://arize.com/model-monitoring/
+
+Official Documentations: https://docs.arize.com/arize/
 
 ### Additional Resources
 - [What is ML observability?](https://arize.com/what-is-ml-observability/)
