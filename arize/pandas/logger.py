@@ -1,20 +1,23 @@
 import time
 import requests
-from typing import List, Dict
+from typing import List, Dict, Optional
 from dataclasses import dataclass
 from arize import public_pb2 as pb
 from arize.utils.types import ModelTypes, Environments
+from pandas import DataFrame
+import numpy as np
 
 
 @dataclass(frozen=True)
 class Schema:
     prediction_id_column_name: str
-    feature_column_names: List[str]
-    timestamp_column_name: str = None
-    prediction_label_column_name: str = None
-    prediction_score_column_name: str = None
-    actual_label_column_name: str = None
-    shap_values_column_names: Dict[str, str] = None
+    feature_column_names: Optional[List[str]] = None
+    timestamp_column_name: Optional[str] = None
+    prediction_label_column_name: Optional[str] = None
+    prediction_score_column_name: Optional[str] = None
+    actual_label_column_name: Optional[str] = None
+    actual_score_column_name: Optional[str] = None
+    shap_values_column_names: Optional[Dict[str, str]] = None
 
 
 class Client:
@@ -33,11 +36,12 @@ class Client:
         path: str,
         model_id: str,
         model_version: str,
-        batch_id: str,
         model_type: ModelTypes,
         environment: Environments,
-        schema: Schema
+        schema: Schema,
+        batch_id: Optional[str] = None,
     ):
+    
         col_idx = {col: idx for idx, col in enumerate(dataframe.columns)}
         h = pb.FileHeader()
 
@@ -93,26 +97,31 @@ class Client:
                     else current_time
                 )
 
-                for feature_cn in schema.feature_column_names:
-                    row_val = row[col_idx[feature_cn]]
-                    feature_val = r.prediction.features[feature_cn]
-                    if isinstance(row_val, (str, bool)):
-                        feature_val.string = str(row_val)
-                    elif isinstance(row_val, int):
-                        feature_val.int = row_val
-                    elif isinstance(row_val, float):
-                        feature_val.double = row_val
+                if schema.feature_column_names is not None:
+                    for feature_cn in schema.feature_column_names:
+                        row_val = row[col_idx[feature_cn]]
+                        feature_val = r.prediction.features[feature_cn]
+                        if isinstance(row_val, (str, bool)):
+                            feature_val.string = str(row_val)
+                        elif isinstance(row_val, int):
+                            feature_val.int = row_val
+                        elif isinstance(row_val, float):
+                            feature_val.double = row_val
+                        else:
+                            raise TypeError(
+                                f"feature {feature_cn} is type {type(row_val)}, but must be one of: str, bool, float, int."
+                            )
 
                 if schema.prediction_label_column_name is not None:
                     r.prediction.timestamp.seconds = t
                     r.prediction.model_version = model_version
                     if model_type is ModelTypes.SCORE_CATEGORICAL:
-                        r.prediction.label.score_categorical.categorical = row[
-                            col_idx[schema.prediction_label_column_name]
-                        ]
-                        r.prediction.label.score_categorical.score = row[
-                            col_idx[schema.prediction_score_column_name]
-                        ]
+                        category = row[col_idx[schema.prediction_label_column_name]]
+                        if schema.prediction_score_column_name is not None: 
+                            r.prediction.label.score_categorical.score_category.score = row[col_idx[schema.prediction_score_column_name]]
+                            r.prediction.label.score_categorical.score_category.category = category
+                        else:
+                            r.prediction.label.score_categorical.category.category = category
                     elif model_type is ModelTypes.CATEGORICAL:
                         r.prediction.label.categorical = row[
                             col_idx[schema.prediction_label_column_name]
@@ -134,11 +143,12 @@ class Client:
                     elif model_type is ModelTypes.BINARY:
                         r.actual.label.binary = row[col_idx[schema.actual_label_column_name]]
                     elif model_type is ModelTypes.SCORE_CATEGORICAL:
-                        if isinstance(schema.actual_label_column_name, tuple):
-                            r.actual.label.score_categorical.categorical = row[col_idx[schema.actual_label_column_name[0]]]
-                            r.actual.label.score_categorical.score = row[col_idx[schema.actual_label_column_name[1]]]
+                        category = row[col_idx[schema.actual_label_column_name]]
+                        if schema.actual_score_column_name is not None: 
+                            r.actual.label.score_categorical.score_category.category  = category
+                            r.actual.label.score_categorical.score_category.score  = row[col_idx[schema.actual_score_column_name]]
                         else:
-                            r.actual.label.score_categorical.categorical = row[col_idx[schema.actual_label_column_name]]
+                            r.actual.label.score_categorical.category.category = category
 
                 if schema.shap_values_column_names is not None:
                     for feature_name, shap_values_cn in schema.shap_values_column_names.items():

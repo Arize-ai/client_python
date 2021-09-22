@@ -1,3 +1,4 @@
+import pytest
 import datetime
 import time
 import uuid
@@ -15,7 +16,7 @@ NUM_VAL = 20.20
 STR_VAL = 'arize'
 BOOL_VAL = True
 INT_VAL = 0
-NP_FLOAT = np.float(1.2)
+NP_FLOAT = float(1.2)
 file_to_open = Path(__file__).parent / "fixtures/mpg.csv"
 
 expected = {
@@ -658,24 +659,6 @@ def test_validate_bulk_predictions_mismatched_shapes():
     assert isinstance(overwrite_ex, ValueError)
 
 
-def test_validate_bulk_predictions_default_columns_int():
-    c = get_stubbed_client()
-    features, labels, ids = mock_dataframes_clean_nan(file_to_open)
-    features_default_columns = pd.DataFrame(features[:].values)
-    ex = None
-    try:
-        c.bulk_log(model_id=expected['model'],
-                               model_version=expected['model_version'],
-                               prediction_ids=ids,
-                               prediction_labels=labels,
-                               features=features_default_columns,
-                               feature_names_overwrite=None,
-                               prediction_timestamps=None)
-    except Exception as err:
-        ex = err
-    assert isinstance(ex, TypeError)
-
-
 def test_build_bulk_prediction_with_prediction_timestamps():
     c = get_stubbed_client()
     features, labels, ids = mock_dataframes_clean_nan(file_to_open)
@@ -1121,3 +1104,7 @@ def test_validation_predictions_ids_as_index_series():
             assert rec.validation_record.record.prediction_and_actual.prediction.label.WhichOneof('data') == 'numeric'
             assert rec.validation_record.record.prediction_id in idx.values
     assert len(labels) == record_count
+
+
+if __name__ == "__main__":
+    raise SystemExit(pytest.main([__file__]))
