@@ -248,7 +248,7 @@ That's it! Once your service is deployed and predictions are logged you'll be ab
 
 ---
 ### Logging SHAP values
-Log feature importance in SHAP values to the Arize platform to explain your model's predictions. By logging SHAP values you gain the ability to view the global feature importances of your predictions as well as the ability to perform cohort and prediction based analysis to compare feature importance values under varying conditions. For more information on SHAP and how to use SHAP with Arize, check out our [SHAP documentation](https://docs.arize.com/arize/product-guides-1/explainability).
+Log feature importance in SHAP values to the Arize platform to explain your model's predictions. By logging SHAP values you gain the ability to view the global feature importances of your predictions as well as the ability to perform cohort and prediction based analysis to compare feature importance values under varying conditions. For more information on SHAP and how to use SHAP with Arize, check out our [SHAP documentation](https://docs.arize.com/arize/product-guides/explainability).
 
 ---
 ### Other languages
