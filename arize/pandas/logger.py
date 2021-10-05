@@ -1,11 +1,11 @@
-import time
-import requests
-from typing import List, Dict, Optional
+import base64
 from dataclasses import dataclass
+from typing import List, Dict, Optional
+
+import pyarrow as pa
+import requests
 from arize import public_pb2 as pb
 from arize.utils.types import ModelTypes, Environments
-from pandas import DataFrame
-import numpy as np
 
 
 @dataclass(frozen=True)
@@ -28,7 +28,7 @@ class Client:
             uri="https://api.arize.com/v1"):
         self._api_key = api_key
         self._organization_key = organization_key
-        self._files_uri = uri + "/files"
+        self._files_uri = uri + "/pandas_arrow"
 
     def log(
         self,
@@ -41,126 +41,62 @@ class Client:
         schema: Schema,
         batch_id: Optional[str] = None,
     ):
-    
-        col_idx = {col: idx for idx, col in enumerate(dataframe.columns)}
-        h = pb.FileHeader()
+        s = pa.Schema.from_pandas(dataframe)
+        ta = pa.Table.from_pandas(dataframe)
+        writer = pa.ipc.new_stream(path, s)
+        writer.write_table(ta)
+        writer.close()
 
-        if model_type is None:
-            raise AttributeError("model_type is required")
+        s = pb.Schema()
+        s.constants.model_id = model_id
+        s.constants.model_version = model_version
 
-        if environment is None:
-            raise AttributeError("environment is required")
+        if environment == Environments.PRODUCTION:
+            s.constants.environment = pb.Schema.Environment.PRODUCTION
+        elif environment == Environments.VALIDATION:
+            s.constants.environment = pb.Schema.Environment.VALIDATION
+        elif environment == Environments.TRAINING:
+            s.constants.environment = pb.Schema.Environment.TRAINING
 
-        if environment is Environments.TRAINING:
-            if schema.prediction_label_column_name is None or schema.actual_label_column_name is None:
-                raise AttributeError("both prediction and actual label must be specified for Training environment")
-            if schema.shap_values_column_names is not None:
-                raise AttributeError("shap_values are not supported for Training environments")
-            h.environment = pb.FileHeader.Environment.TRAINING
-        elif environment is Environments.VALIDATION:
-            if schema.prediction_label_column_name is None or schema.actual_label_column_name is None:
-                raise AttributeError("both prediction and actual label must be specified for Validation environment")
-            if schema.shap_values_column_names is not None:
-                raise AttributeError("shap_values are not supported for Validation environments")
-            if batch_id is None:
-                raise AttributeError("batch_id is required for Validation environment")
-            h.environment = pb.FileHeader.Environment.VALIDATION
-        elif environment is Environments.PRODUCTION:
-            h.environment = pb.FileHeader.Environment.PRODUCTION
-        else:
-            raise AttributeError(f"unknown environment {environment}")
+        if model_type == ModelTypes.BINARY:
+            s.constants.model_type = pb.Schema.ModelType.BINARY
+        elif model_type == ModelTypes.NUMERIC:
+            s.constants.model_type = pb.Schema.ModelType.NUMERIC
+        elif model_type == ModelTypes.CATEGORICAL:
+            s.constants.model_type = pb.Schema.ModelType.CATEGORICAL
+        elif model_type == ModelTypes.SCORE_CATEGORICAL:
+            s.constants.model_type = pb.Schema.ModelType.SCORE_CATEGORICAL
 
-        with open(path, "wb") as f:
-            header = h.SerializeToString()
-            f.write(len(header).to_bytes(8, "big", signed=False))
-            f.write(header)
+        if batch_id is not None:
+            s.constants.batch_id = batch_id
 
-            current_time = int(time.time())
-            for row in dataframe.to_numpy():
-                if Environments.TRAINING == environment:
-                    msg = pb.PreProductionRecord()
-                    r = msg.training_record.record
-                elif Environments.VALIDATION == environment:
-                    msg = pb.PreProductionRecord()
-                    msg.validation_record.batch_id = batch_id
-                    r = msg.validation_record.record
-                else:
-                    msg = pb.Record()
-                    r = msg
+        s.arrow_schema.prediction_id_column_name = schema.prediction_id_column_name
 
-                r.prediction_id = str(row[col_idx[schema.prediction_id_column_name]])
-                r.model_id = model_id
+        if schema.timestamp_column_name is not None:
+            s.arrow_schema.timestamp_column_name = schema.timestamp_column_name
 
-                t = (
-                    int(row[col_idx[schema.timestamp_column_name]])
-                    if schema.timestamp_column_name is not None
-                    else current_time
-                )
+        if schema.prediction_label_column_name is not None:
+            s.arrow_schema.prediction_label_column_name = schema.prediction_label_column_name
 
-                if schema.feature_column_names is not None:
-                    for feature_cn in schema.feature_column_names:
-                        row_val = row[col_idx[feature_cn]]
-                        feature_val = r.prediction.features[feature_cn]
-                        if isinstance(row_val, (str, bool)):
-                            feature_val.string = str(row_val)
-                        elif isinstance(row_val, int):
-                            feature_val.int = row_val
-                        elif isinstance(row_val, float):
-                            feature_val.double = row_val
-                        else:
-                            raise TypeError(
-                                f"feature {feature_cn} is type {type(row_val)}, but must be one of: str, bool, float, int."
-                            )
+        if schema.prediction_score_column_name is not None:
+            s.arrow_schema.prediction_score_column_name = schema.prediction_score_column_name
 
-                if schema.prediction_label_column_name is not None:
-                    r.prediction.timestamp.seconds = t
-                    r.prediction.model_version = model_version
-                    if model_type is ModelTypes.SCORE_CATEGORICAL:
-                        category = row[col_idx[schema.prediction_label_column_name]]
-                        if schema.prediction_score_column_name is not None: 
-                            r.prediction.label.score_categorical.score_category.score = row[col_idx[schema.prediction_score_column_name]]
-                            r.prediction.label.score_categorical.score_category.category = category
-                        else:
-                            r.prediction.label.score_categorical.category.category = category
-                    elif model_type is ModelTypes.CATEGORICAL:
-                        r.prediction.label.categorical = row[
-                            col_idx[schema.prediction_label_column_name]
-                        ]
-                    elif model_type is model_type.NUMERIC:
-                        r.prediction.label.numeric = row[
-                            col_idx[schema.prediction_label_column_name]
-                        ]
-                    elif model_type is model_type.BINARY:
-                        r.prediction.label.binary = row[
-                            col_idx[schema.prediction_label_column_name]
-                        ]
+        if schema.feature_column_names is not None:
+            s.arrow_schema.feature_column_names.extend(schema.feature_column_names)
 
-                if schema.actual_label_column_name is not None:
-                    if model_type is ModelTypes.CATEGORICAL:
-                        r.actual.label.categorical = row[col_idx[schema.actual_label_column_name]]
-                    elif model_type is ModelTypes.NUMERIC:
-                        r.actual.label.numeric = row[col_idx[schema.actual_label_column_name]]
-                    elif model_type is ModelTypes.BINARY:
-                        r.actual.label.binary = row[col_idx[schema.actual_label_column_name]]
-                    elif model_type is ModelTypes.SCORE_CATEGORICAL:
-                        category = row[col_idx[schema.actual_label_column_name]]
-                        if schema.actual_score_column_name is not None: 
-                            r.actual.label.score_categorical.score_category.category  = category
-                            r.actual.label.score_categorical.score_category.score  = row[col_idx[schema.actual_score_column_name]]
-                        else:
-                            r.actual.label.score_categorical.category.category = category
+        if schema.actual_label_column_name is not None:
+            s.arrow_schema.actual_label_column_name = schema.actual_label_column_name
 
-                if schema.shap_values_column_names is not None:
-                    for feature_name, shap_values_cn in schema.shap_values_column_names.items():
-                        row_val = row[col_idx[shap_values_cn]]
-                        r.feature_importances.feature_importances[feature_name] = row_val
+        if schema.actual_score_column_name is not None:
+            s.arrow_schema.actual_score_column_name = schema.actual_score_column_name
 
-                msg_bytes = msg.SerializeToString()
-                f.write(len(msg_bytes).to_bytes(8, "big", signed=False))
-                f.write(msg_bytes)
-        return self._post_file(path)
+        if schema.shap_values_column_names is not None:
+            s.arrow_schema.shap_values_column_names.update(schema.shap_values_column_names)
 
-    def _post_file(self, path):
+        base64_schema = base64.b64encode(s.SerializeToString())
+        return self._post_file(path, base64_schema)
+
+    def _post_file(self, path, schema):
         with open(path, "rb") as f:
             return requests.post(
                 self._files_uri,
@@ -168,5 +104,6 @@ class Client:
                 headers={
                     "authorization": self._api_key,
                     "organization": self._organization_key,
+                    "schema": schema,
                 },
             )

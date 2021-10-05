@@ -2,3 +2,4 @@ requests_futures==1.0.0
 googleapis-common-protos~=1.51
 protobuf~=3.12
 pandas>=0.25.3,<2
+pyarrow>=5.0.0

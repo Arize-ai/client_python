@@ -1,19 +1,19 @@
 import os
 import uuid
-import time
-import pandas as pd
-import numpy as np
 
-from arize.utils.types import ModelTypes, Environments
+import numpy as np
+import pandas as pd
+import time
 from arize.pandas.logger import Client, Schema
+from arize.utils.types import ModelTypes, Environments
 
 ITERATIONS = 1
-NUM_RECORDS = 1000
+NUM_RECORDS = 1000000
 
 client = Client(
     organization_key=os.environ.get("ARIZE_ORG_KEY"),
     api_key=os.environ.get("ARIZE_API_KEY"),
-    uri="https://devr.arize.com/v1",
+    uri="http://localhost:50050/v1",
 )
 
 features = pd.DataFrame(
@@ -28,10 +28,10 @@ inferences = pd.concat([features, pred_labels, ids], axis=1)
 start = time.time_ns()
 res = client.log(
     inferences,
-    "/tmp/inferences.bin",
+    "/tmp/arrow-inferences.bin",
     "model_id",
     "model_version",
-    None, ModelTypes.SCORE_CATEGORICAL,
+    ModelTypes.SCORE_CATEGORICAL,
     Environments.PRODUCTION,
     Schema(prediction_id_column_name="prediction_id",
            feature_column_names=inferences.columns.drop("prediction_label", "prediction_id"),
