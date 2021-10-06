@@ -44,7 +44,7 @@ class Client:
         s = pa.Schema.from_pandas(dataframe)
         ta = pa.Table.from_pandas(dataframe)
         writer = pa.ipc.new_stream(path, s)
-        writer.write_table(ta)
+        writer.write_table(ta, max_chunksize=65536)
         writer.close()
 
         s = pb.Schema()

@@ -13,7 +13,6 @@ NUM_RECORDS = 1000000
 client = Client(
     organization_key=os.environ.get("ARIZE_ORG_KEY"),
     api_key=os.environ.get("ARIZE_API_KEY"),
-    uri="http://localhost:50050/v1",
 )
 
 features = pd.DataFrame(
