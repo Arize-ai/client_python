@@ -258,9 +258,9 @@ def test_build_scored_prediction():
     assert record.prediction_id == expected['prediction_id']
     assert record.prediction.model_version == expected['model_version']
     assert bool(record.prediction.features)
-    assert record.prediction.label.score_categorical.score == expected['value_numeric']
-    assert record.prediction.label.score_categorical.categorical == expected['value_categorical']
-
+    assert record.prediction.label.score_categorical.HasField('score_category')
+    assert record.prediction.label.score_categorical.score_category.category == expected['value_categorical']
+    assert record.prediction.label.score_categorical.score_category.score == expected['value_numeric']
 
 def test_build_scored_actual():
     c = get_stubbed_client()
@@ -276,9 +276,7 @@ def test_build_scored_actual():
     assert record.organization_key == expected['organization_key']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
-    # 0.0 is the default float representation
-    assert record.actual.label.score_categorical.score == 0.0
-    assert record.actual.label.score_categorical.categorical == expected['value_categorical']
+    assert record.actual.label.score_categorical.HasField('category') 
 
 
 def test_build_numeric_prediction():
@@ -465,7 +463,7 @@ def test_build_bulk_scored_predictions():
                            prediction_timestamps=None)
     record_count = 0
     for indexes, bulk in bulk_records.items():
-        assert indexes == (0, len(ids))
+        assert indexes[1] - indexes[0] == len(ids)/2
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert bulk.model_version == expected['model_version']
@@ -475,9 +473,9 @@ def test_build_bulk_scored_predictions():
             assert isinstance(record.prediction.label, public__pb2.Label)
             assert isinstance(record.prediction.label.score_categorical, public__pb2.ScoreCategorical)
             assert len(record.prediction.features) == features.shape[1]
-            assert isinstance(record.prediction.label.score_categorical.score, float)
-            assert record.prediction.label.score_categorical.score == scores["score"][record_count]
-            assert isinstance(record.prediction.label.score_categorical.categorical, str)
+            assert isinstance(record.prediction.label.score_categorical.score_category.score, float)
+            assert record.prediction.label.score_categorical.score_category.score == scores["score"][record_count]
+            assert isinstance(record.prediction.label.score_categorical.score_category.category, str)
             assert record.prediction.timestamp.seconds == 0
             assert record.prediction.timestamp.nanos == 0
             record_count += 1

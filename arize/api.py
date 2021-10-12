@@ -68,16 +68,11 @@ def _get_label(
     value = convert_element(value)
     if model_type == ModelTypes.SCORE_CATEGORICAL:
         if isinstance(value, tuple):
-            return public__pb2.Label(
-                score_categorical=public__pb2.ScoreCategorical(
-                    categorical=value[0],
-                    score=value[1],
-                )
-            )
+            return _get_score_categorical_label(value)
         else:
-            return public__pb2.Label(
-                score_categorical=public__pb2.ScoreCategorical(categorical=value)
-            )
+            sc = public__pb2.ScoreCategorical()
+            sc.category.category = value
+            return public__pb2.Label(score_categorical=sc)
     elif model_type == ModelTypes.BINARY:
         return public__pb2.Label(binary=value)
     elif model_type == ModelTypes.NUMERIC:
@@ -88,6 +83,15 @@ def _get_label(
         f"{name}_label = {value} of type {type(value)}. Must be one of str, bool, float, int, or Tuple[str, float]"
     )
 
+def _get_score_categorical_label(value): 
+    sc = public__pb2.ScoreCategorical()
+    if value[1] is not None:
+        sc.score_category.category = value[0]
+        sc.score_category.score = value[1]
+    else:
+        sc.category.category = value[0]
+    
+    return public__pb2.Label(score_categorical=sc)
 
 def _validate_bulk_prediction(
     model_version,
@@ -213,7 +217,7 @@ class Client:
         prediction_id: Union[str, int, float],
         model_version: str = None,
         prediction_label: Union[str, bool, int, float, Tuple[str, float]] = None,
-        actual_label: Union[str, bool, int, float] = None,
+        actual_label: Union[str, bool, int, float, Tuple[str, float]] = None,
         shap_values: Dict[str, float] = None,
         features: Optional[Dict[Union[str, int, float], Union[str, bool, float, int]]] = None,
         model_type: Optional[ModelTypes] = None,

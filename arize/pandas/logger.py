@@ -6,6 +6,7 @@ import pyarrow as pa
 import requests
 from arize import public_pb2 as pb
 from arize.utils.types import ModelTypes, Environments
+from arize.__init__ import __version__
 
 
 @dataclass(frozen=True)
@@ -35,11 +36,12 @@ class Client:
         dataframe,
         path: str,
         model_id: str,
-        model_version: str,
         model_type: ModelTypes,
         environment: Environments,
         schema: Schema,
+        model_version: Optional[str] = None,
         batch_id: Optional[str] = None,
+        sync: Optional[bool] = False,
     ):
         s = pa.Schema.from_pandas(dataframe)
         ta = pa.Table.from_pandas(dataframe)
@@ -49,7 +51,9 @@ class Client:
 
         s = pb.Schema()
         s.constants.model_id = model_id
-        s.constants.model_version = model_version
+
+        if model_version is not None:
+            s.constants.model_version = model_version
 
         if environment == Environments.PRODUCTION:
             s.constants.environment = pb.Schema.Environment.PRODUCTION
@@ -94,16 +98,21 @@ class Client:
             s.arrow_schema.shap_values_column_names.update(schema.shap_values_column_names)
 
         base64_schema = base64.b64encode(s.SerializeToString())
-        return self._post_file(path, base64_schema)
+        return self._post_file(path, base64_schema, sync)
 
-    def _post_file(self, path, schema):
+    def _post_file(self, path, schema, sync):
         with open(path, "rb") as f:
+            headers = {
+                "authorization": self._api_key,
+                "organization": self._organization_key,
+                "schema": schema,
+                "sdk-version": __version__,
+                "sdk": "py",
+            }
+            if sync:
+                headers["sync"] = "1"
             return requests.post(
                 self._files_uri,
                 data=f,
-                headers={
-                    "authorization": self._api_key,
-                    "organization": self._organization_key,
-                    "schema": schema,
-                },
+                headers=headers,
             )
