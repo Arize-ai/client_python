@@ -1,12 +1,19 @@
 import base64
+import logging
 from dataclasses import dataclass
 from typing import List, Dict, Optional
 
+import pandas as pd
+import pandas.api.types as ptypes
+
 import pyarrow as pa
 import requests
+
 from arize import public_pb2 as pb
-from arize.utils.types import ModelTypes, Environments
 from arize.__init__ import __version__
+from arize.utils.types import ModelTypes, Environments
+import arize.pandas.validation.errors as err
+from arize.pandas.validation.validator import Validator
 
 
 @dataclass(frozen=True)
@@ -23,17 +30,15 @@ class Schema:
 
 class Client:
     def __init__(
-            self,
-            api_key: str,
-            organization_key: str,
-            uri="https://api.arize.com/v1"):
+        self, api_key: str, organization_key: str, uri="https://api.arize.com/v1"
+    ):
         self._api_key = api_key
         self._organization_key = organization_key
         self._files_uri = uri + "/pandas_arrow"
 
     def log(
         self,
-        dataframe,
+        dataframe: pd.DataFrame,
         path: str,
         model_id: str,
         model_type: ModelTypes,
@@ -42,8 +47,92 @@ class Client:
         model_version: Optional[str] = None,
         batch_id: Optional[str] = None,
         sync: Optional[bool] = False,
+        validate: Optional[bool] = True,
     ):
-        s = pa.Schema.from_pandas(dataframe)
+        logger = logging.getLogger(__name__)
+
+        if model_id is not None and not isinstance(model_id, str):
+            try:
+                model_id = str(model_id)
+            except:
+                logger.error("model_id must be convertible to a string.")
+                raise
+
+        if model_version is not None and not isinstance(model_version, str):
+            try:
+                model_version = str(model_version)
+            except:
+                logger.error("model_version must be convertible to a string.")
+                raise
+
+        if batch_id is not None and not isinstance(batch_id, str):
+            try:
+                batch_id = str(batch_id)
+            except:
+                logger.error("batch_id must be convertible to a string.")
+                raise
+
+        if validate:
+            errors = Validator.validate_params(
+                dataframe=dataframe,
+                model_id=model_id,
+                model_type=model_type,
+                environment=environment,
+                schema=schema,
+                model_version=model_version,
+                batch_id=batch_id,
+            )
+            if errors:
+                for e in errors:
+                    logger.error(e)
+                raise err.ValidationFailure(errors)
+
+        # always validate pd.Category is not present, if yes, convert to string
+        has_cat_col = any([ptypes.is_categorical_dtype(x) for x in dataframe.dtypes])
+        if has_cat_col:
+            cat_cols = [
+                col_name
+                for col_name, col_cat in dataframe.dtypes.items()
+                if col_cat.name == "category"
+            ]
+            cat_str_map = dict(zip(cat_cols, ["str"] * len(cat_cols)))
+            dataframe = dataframe.astype(cat_str_map)
+
+        # pyarrow will err if a mixed type column exist in the dataset even if
+        # the column is not specified in schema. Caveat: There may be other
+        # error conditions that we're currently not aware of.
+        try:
+            s = pa.Schema.from_pandas(dataframe)
+        except pa.ArrowInvalid as e:
+            logger.error(
+                "The dataframe needs to convert to pyarrow but has failed to do so. "
+                "There may be unrecognized data types in the dataframe. "
+                "Another reason may be that a column in the dataframe has a mix of strings and numbers, "
+                "in which case you may want to convert the strings in that column to NaN. "
+                "See https://docs.arize.com/arize/api-reference/python-sdk/arize.pandas/mixed-types"
+            )
+            raise
+
+        if validate:
+            errors = Validator.validate_types(
+                model_type=model_type,
+                schema=schema,
+                pyarrow_schema=s,
+            )
+            if errors:
+                for e in errors:
+                    logger.error(e)
+                raise err.ValidationFailure(errors)
+
+            errors = Validator.validate_values(
+                dataframe=dataframe,
+                schema=schema,
+            )
+            if errors:
+                for e in errors:
+                    logger.error(e)
+                raise err.ValidationFailure(errors)
+
         ta = pa.Table.from_pandas(dataframe)
         writer = pa.ipc.new_stream(path, s)
         writer.write_table(ta, max_chunksize=65536)
@@ -80,10 +169,14 @@ class Client:
             s.arrow_schema.timestamp_column_name = schema.timestamp_column_name
 
         if schema.prediction_label_column_name is not None:
-            s.arrow_schema.prediction_label_column_name = schema.prediction_label_column_name
+            s.arrow_schema.prediction_label_column_name = (
+                schema.prediction_label_column_name
+            )
 
         if schema.prediction_score_column_name is not None:
-            s.arrow_schema.prediction_score_column_name = schema.prediction_score_column_name
+            s.arrow_schema.prediction_score_column_name = (
+                schema.prediction_score_column_name
+            )
 
         if schema.feature_column_names is not None:
             s.arrow_schema.feature_column_names.extend(schema.feature_column_names)
@@ -95,7 +188,9 @@ class Client:
             s.arrow_schema.actual_score_column_name = schema.actual_score_column_name
 
         if schema.shap_values_column_names is not None:
-            s.arrow_schema.shap_values_column_names.update(schema.shap_values_column_names)
+            s.arrow_schema.shap_values_column_names.update(
+                schema.shap_values_column_names
+            )
 
         base64_schema = base64.b64encode(s.SerializeToString())
         return self._post_file(path, base64_schema, sync)
