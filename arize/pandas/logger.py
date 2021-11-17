@@ -8,6 +8,7 @@ import pandas.api.types as ptypes
 
 import pyarrow as pa
 import requests
+import tempfile
 
 from arize import public_pb2 as pb
 from arize.__init__ import __version__
@@ -30,7 +31,7 @@ class Schema:
 
 class Client:
     def __init__(
-        self, api_key: str, organization_key: str, uri="https://api.arize.com/v1"
+        self, api_key: str, organization_key: str, uri: str = "https://api.arize.com/v1"
     ):
         self._api_key = api_key
         self._organization_key = organization_key
@@ -39,7 +40,6 @@ class Client:
     def log(
         self,
         dataframe: pd.DataFrame,
-        path: str,
         model_id: str,
         model_type: ModelTypes,
         environment: Environments,
@@ -48,7 +48,8 @@ class Client:
         batch_id: Optional[str] = None,
         sync: Optional[bool] = False,
         validate: Optional[bool] = True,
-    ):
+        path: Optional[str] = None,
+    ) -> requests.Response:
         logger = logging.getLogger(__name__)
 
         if model_id is not None and not isinstance(model_id, str):
@@ -102,7 +103,7 @@ class Client:
         # the column is not specified in schema. Caveat: There may be other
         # error conditions that we're currently not aware of.
         try:
-            s = pa.Schema.from_pandas(dataframe)
+            pa_schema = pa.Schema.from_pandas(dataframe)
         except pa.ArrowInvalid as e:
             logger.error(
                 "The dataframe needs to convert to pyarrow but has failed to do so. "
@@ -117,7 +118,7 @@ class Client:
             errors = Validator.validate_types(
                 model_type=model_type,
                 schema=schema,
-                pyarrow_schema=s,
+                pyarrow_schema=pa_schema,
             )
             if errors:
                 for e in errors:
@@ -134,9 +135,6 @@ class Client:
                 raise err.ValidationFailure(errors)
 
         ta = pa.Table.from_pandas(dataframe)
-        writer = pa.ipc.new_stream(path, s)
-        writer.write_table(ta, max_chunksize=65536)
-        writer.close()
 
         s = pb.Schema()
         s.constants.model_id = model_id
@@ -193,9 +191,27 @@ class Client:
             )
 
         base64_schema = base64.b64encode(s.SerializeToString())
-        return self._post_file(path, base64_schema, sync)
 
-    def _post_file(self, path, schema, sync):
+        if path is None:
+            f = tempfile.NamedTemporaryFile()
+            tmp_file = f.name
+        else:
+            tmp_file = path
+
+        try:
+            writer = pa.ipc.new_stream(tmp_file, pa_schema)
+            writer.write_table(ta, max_chunksize=65536)
+            writer.close()
+            response = self._post_file(tmp_file, base64_schema, sync)
+        finally:
+            if path is None:
+                f.close()
+
+        return response
+
+    def _post_file(
+        self, path: str, schema: bytes, sync: Optional[bool]
+    ) -> requests.Response:
         with open(path, "rb") as f:
             headers = {
                 "authorization": self._api_key,

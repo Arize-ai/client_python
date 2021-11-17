@@ -1,5 +1,5 @@
 import datetime
-import tempfile
+import os
 
 import pandas as pd
 import pytest
@@ -11,12 +11,11 @@ from arize.utils.types import Environments, ModelTypes
 
 class NoSendClient(Client):
     def _post_file(self, path, schema, sync):
-        pass
+        return os.path.getsize(path)
 
 
 def test_production_zero_errors():
     client = NoSendClient("apikey", "organizationkey")
-    temp_file = tempfile.NamedTemporaryFile()
     df = pd.DataFrame(
         {
             "prediction_id": pd.Series([0, 1, 2]),
@@ -58,9 +57,8 @@ def test_production_zero_errors():
     )
 
     try:
-        client.log(
+        file_size = client.log(
             dataframe=df,
-            path=temp_file.name,
             model_id=3.14,
             model_version=1.0,
             model_type=ModelTypes.SCORE_CATEGORICAL,
@@ -78,6 +76,8 @@ def test_production_zero_errors():
         )
     except err.ValidationFailure:
         assert False
+
+    assert file_size > 0
 
 
 if __name__ == "__main__":

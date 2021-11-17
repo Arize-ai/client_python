@@ -188,10 +188,8 @@ arize_client = Client(organization_key='ARIZE_ORG_KEY', api_key=API_KEY)
 ```python
 response = arize_client.log(
     dataframe=your_sample_df,
-    path="inferences.bin",
     model_id="fraud-model",
     model_version="1.0",
-    batch_id=None,
     model_type=ModelTypes.SCORE_CATEGORICAL,
     environment=Environments.PRODUCTION,
     schema = Schema(
@@ -205,9 +203,7 @@ response = arize_client.log(
 
 response = arize_client.log(
     dataframe=your_sample_df,
-    path="inferences.bin",
     model_id=model_id,
-    batch_id=None,
     model_type=ModelTypes.SCORE_CATEGORICAL,
     environment=Environments.PRODUCTION,
     schema = Schema(
@@ -221,10 +217,8 @@ response = arize_client.log(
 ```python
 response = arize_client.log(
     dataframe=your_sample_df,
-    path="inferences.bin",
     model_id="fraud-model",
     model_version="1.0",
-    batch_id=None,
     model_type=ModelTypes.NUMERIC,
     environment=Environments.PRODUCTION,
     schema = Schema(
