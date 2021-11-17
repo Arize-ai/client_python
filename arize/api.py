@@ -2,6 +2,7 @@ import json
 import time
 
 import pandas as pd
+import numpy as np
 import concurrent.futures as cf
 from typing import Union, Optional, Dict, List, Tuple
 from google.protobuf.json_format import MessageToDict
@@ -41,6 +42,8 @@ def _label_validation(
             raise TypeError(
                 f"label {label} has type {type(label)}, but must be either float or int for ModelTypes.NUMERIC"
             )
+        elif label is np.nan:
+            raise ValueError("label for ModelTypes.NUMERIC cannot be null value")
     elif model_type == ModelTypes.CATEGORICAL:
         if not isinstance(label, str):
             raise TypeError(
@@ -52,6 +55,9 @@ def _label_validation(
             and isinstance(label[0], str)
             and isinstance(label[1], float)
         )
+        if isinstance(label, tuple) and label[1] is np.nan:
+            raise ValueError(f"Prediction score for ModelTypes.SCORE_CATEGORICAL cannot be null value")
+
         if not c:
             raise TypeError(
                 f"label {label} has type {type(label)}, but must be str or Tuple[str, float] for ModelTypes.SCORE_CATEGORICAL"
@@ -101,6 +107,8 @@ def _validate_bulk_prediction(
     feature_names_overwrite,
     prediction_timestamps,
 ):
+    if prediction_labels.isna().values.any():
+        raise ValueError("prediction labels cannot contain null value")
     if not isinstance(model_version, str):
         raise TypeError(
             f"model_version {model_version} is type {type(model_version)}, but must be a str"

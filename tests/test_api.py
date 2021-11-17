@@ -66,6 +66,7 @@ def mock_series(file):
     ids = pd.Series([str(uuid.uuid4()) for _ in range(len(labels.index))])
     return features, labels, ids
 
+
 def get_stubbed_client():
     c = Client(organization_key="test_org", api_key="API_KEY", uri="https://localhost:443")
 
@@ -82,6 +83,7 @@ def get_stubbed_client():
     c._post_bulk = _post_bulk
     c._post_preprod = _post_preprod
     return c
+
 
 # TODO for each existing test that has been modified to call Client.log, add a call
 # to the pre-existing method that should map to the identical cacll to Client.log to
@@ -153,6 +155,7 @@ def test_numeric_feature_name():
     for feature in record.prediction.features:
         assert isinstance(record.prediction.features[feature],
                           public__pb2.Value)
+
 
 def test_build_binary_prediction_features():
     c = get_stubbed_client()
@@ -262,12 +265,13 @@ def test_build_scored_prediction():
     assert record.prediction.label.score_categorical.score_category.category == expected['value_categorical']
     assert record.prediction.label.score_categorical.score_category.score == expected['value_numeric']
 
+
 def test_build_scored_actual():
     c = get_stubbed_client()
     record = c.log(model_id=expected['model'],
-                  model_type=ModelTypes.SCORE_CATEGORICAL,
-                  prediction_id=expected['prediction_id'],
-                  actual_label=expected['value_categorical'])
+                   model_type=ModelTypes.SCORE_CATEGORICAL,
+                   prediction_id=expected['prediction_id'],
+                   actual_label=expected['value_categorical'])
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.actual, public__pb2.Actual)
     assert isinstance(record.actual.label, public__pb2.Label)
@@ -276,17 +280,17 @@ def test_build_scored_actual():
     assert record.organization_key == expected['organization_key']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
-    assert record.actual.label.score_categorical.HasField('category') 
+    assert record.actual.label.score_categorical.HasField('category')
 
 
 def test_build_numeric_prediction():
     c = get_stubbed_client()
     record = c.log(model_id=expected['model'],
-                      model_version=expected['model_version'],
-                      prediction_id=expected['prediction_id'],
-                      prediction_label=expected['value_numeric'],
-                      features=expected['features'],
-                      prediction_timestamp=None)
+                   model_version=expected['model_version'],
+                   prediction_id=expected['prediction_id'],
+                   prediction_label=expected['value_numeric'],
+                   features=expected['features'],
+                   prediction_timestamp=None)
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.prediction, public__pb2.Prediction)
     assert isinstance(record.prediction.label, public__pb2.Label)
@@ -301,11 +305,11 @@ def test_build_numeric_prediction():
 def test_build_prediction_no_features():
     c = get_stubbed_client()
     record = c.log(model_id=expected['model'],
-                      model_version=expected['model_version'],
-                      prediction_id=expected['prediction_id'],
-                      prediction_label=expected['value_numeric'],
-                      features=None,
-                      prediction_timestamp=None)
+                   model_version=expected['model_version'],
+                   prediction_id=expected['prediction_id'],
+                   prediction_label=expected['value_numeric'],
+                   features=None,
+                   prediction_timestamp=None)
     assert isinstance(record.prediction, public__pb2.Prediction)
     assert not bool(record.prediction.features)
 
@@ -313,8 +317,8 @@ def test_build_prediction_no_features():
 def test_build_numeric_actual():
     c = get_stubbed_client()
     record = c.log(model_id=expected['model'],
-                    prediction_id=expected['prediction_id'],
-                    actual_label=expected['value_numeric'])
+                   prediction_id=expected['prediction_id'],
+                   actual_label=expected['value_numeric'])
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.actual, public__pb2.Actual)
     assert isinstance(record.actual.label, public__pb2.Label)
@@ -329,8 +333,8 @@ def test_build_numeric_actual():
 def test_build_categorical_actual():
     c = get_stubbed_client()
     record = c.log(model_id=expected['model'],
-                    prediction_id=expected['prediction_id'],
-                    actual_label=expected['value_categorical'])
+                   prediction_id=expected['prediction_id'],
+                   actual_label=expected['value_categorical'])
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.actual, public__pb2.Actual)
     assert isinstance(record.actual.label, public__pb2.Label)
@@ -343,8 +347,8 @@ def test_build_categorical_actual():
 def test_build_binary_actual():
     c = get_stubbed_client()
     record = c.log(model_id=expected['model'],
-                    prediction_id=expected['prediction_id'],
-                    actual_label=expected['value_binary'])
+                   prediction_id=expected['prediction_id'],
+                   actual_label=expected['value_binary'])
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.actual, public__pb2.Actual)
     assert isinstance(record.actual.label, public__pb2.Label)
@@ -362,12 +366,12 @@ def test_build_bulk_predictions_dataframes():
     c = get_stubbed_client()
     features, labels, ids = mock_dataframes_clean_nan(file_to_open)
     bulk_records = c.bulk_log(model_id=expected['model'],
-                           model_version=expected['model_version'],
-                           prediction_ids=ids,
-                           prediction_labels=labels,
-                           features=features,
-                           feature_names_overwrite=None,
-                           prediction_timestamps=None)
+                              model_version=expected['model_version'],
+                              prediction_ids=ids,
+                              prediction_labels=labels,
+                              features=features,
+                              feature_names_overwrite=None,
+                              prediction_timestamps=None)
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes == (0, len(ids))
@@ -419,7 +423,8 @@ def test_numeric_feature_names():
     c = get_stubbed_client()
     features, labels, ids = mock_dataframes_clean_nan(file_to_open)
     # some features left with string name to test mix
-    features = features.rename(columns={"mpg": 1, "cylinders": 2, "displacement": 3, "horsepower": 4, "weight": 5, "acceleration": 6})
+    features = features.rename(
+        columns={"mpg": 1, "cylinders": 2, "displacement": 3, "horsepower": 4, "weight": 5, "acceleration": 6})
     bulk_records = c.bulk_log(model_id=expected['model'],
                               model_version=expected['model_version'],
                               prediction_ids=ids,
@@ -454,16 +459,16 @@ def test_build_bulk_scored_predictions():
     labels = labels.astype(str)
     score_labels = pd.concat([labels, scores], axis=1)
     bulk_records = c.bulk_log(model_id=expected['model'],
-                           model_type=ModelTypes.SCORE_CATEGORICAL,
-                           model_version=expected['model_version'],
-                           prediction_ids=ids,
-                           prediction_labels=score_labels,
-                           features=features,
-                           feature_names_overwrite=None,
-                           prediction_timestamps=None)
+                              model_type=ModelTypes.SCORE_CATEGORICAL,
+                              model_version=expected['model_version'],
+                              prediction_ids=ids,
+                              prediction_labels=score_labels,
+                              features=features,
+                              feature_names_overwrite=None,
+                              prediction_timestamps=None)
     record_count = 0
     for indexes, bulk in bulk_records.items():
-        assert indexes[1] - indexes[0] == len(ids)/2
+        assert indexes[1] - indexes[0] == len(ids) / 2
         assert bulk.organization_key == expected['organization_key']
         assert bulk.model_id == expected['model']
         assert bulk.model_version == expected['model_version']
@@ -487,13 +492,13 @@ def test_build_bulk_predictions_dataframes_with_nans():
     features, labels, ids = mock_dataframes(file_to_open)
     features.horsepower = np.nan
     bulk_records = c.bulk_log(model_id=expected['model'],
-                           model_version=expected['model_version'],
-                           prediction_ids=ids,
-                           prediction_labels=labels,
-                           features=features,
-                           feature_names_overwrite=None,
-                           prediction_timestamps=None)
-    record_count=0
+                              model_version=expected['model_version'],
+                              prediction_ids=ids,
+                              prediction_labels=labels,
+                              features=features,
+                              feature_names_overwrite=None,
+                              prediction_timestamps=None)
+    record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes == (0, len(ids))
         assert bulk.organization_key == expected['organization_key']
@@ -515,12 +520,12 @@ def test_build_bulk_predictions_no_features():
     c = get_stubbed_client()
     features, labels, ids = mock_dataframes_clean_nan(file_to_open)
     records = c.bulk_log(model_id=expected['model'],
-                           model_version=expected['model_version'],
-                           prediction_ids=ids,
-                           prediction_labels=labels,
-                           features=None,
-                           feature_names_overwrite=None,
-                           prediction_timestamps=None)
+                         model_version=expected['model_version'],
+                         prediction_ids=ids,
+                         prediction_labels=labels,
+                         features=None,
+                         feature_names_overwrite=None,
+                         prediction_timestamps=None)
     for _, bulk in records.items():
         assert isinstance(bulk, public__pb2.BulkRecord)
         for r in bulk.records:
@@ -537,12 +542,12 @@ def test_build_bulk_prediction_with_feature_names_overwrites():
         'mask_' + str(i) for i in range(len(features.columns))
     ]
     records = c.bulk_log(model_id=expected['model'],
-                           model_version=expected['model_version'],
-                           prediction_ids=ids,
-                           prediction_labels=labels,
-                           features=features,
-                           feature_names_overwrite=feature_names_overwrite,
-                           prediction_timestamps=None)
+                         model_version=expected['model_version'],
+                         prediction_ids=ids,
+                         prediction_labels=labels,
+                         features=features,
+                         feature_names_overwrite=feature_names_overwrite,
+                         prediction_timestamps=None)
     for _, bulk in records.items():
         assert isinstance(bulk, public__pb2.BulkRecord)
         for r in bulk.records:
@@ -558,8 +563,8 @@ def test_build_bulk_actuals_dataframes():
     c = get_stubbed_client()
     _, labels, ids = mock_dataframes_clean_nan(file_to_open)
     bulk_records = c.bulk_log(model_id=expected['model'],
-                         prediction_ids=ids,
-                         actual_labels=labels)
+                              prediction_ids=ids,
+                              actual_labels=labels)
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes == (0, len(ids))
@@ -604,6 +609,23 @@ def test_validate_bulk_predictions_timestamp_out_of_range():
     assert isinstance(ex, ValueError)
 
 
+def test_validate_bulk_predictions_with_nan():
+    c = get_stubbed_client()
+    features, labels, ids = mock_dataframes_clean_nan(file_to_open)
+    # intentionally assign np.nan to labels
+    labels.loc[labels.sample(frac=0.1).index, 0] = np.nan
+    with pytest.raises(ValueError) as excinfo:
+        c.bulk_log(
+            model_id=expected['model'],
+            model_version=expected['model_version'],
+            prediction_ids=ids,
+            prediction_labels=labels,
+            features=features,
+            feature_names_overwrite=None,
+            prediction_timestamps=None)
+    assert str(excinfo.value) == "prediction labels cannot contain null value"
+
+
 def test_validate_bulk_predictions_mismatched_shapes():
     c = get_stubbed_client()
     features, labels, ids = mock_dataframes_clean_nan(file_to_open)
@@ -613,42 +635,42 @@ def test_validate_bulk_predictions_mismatched_shapes():
     id_ex, feature_ex, label_ex, overwrite_ex = None, None, None, None
     try:
         c.bulk_log(model_id=expected['model'],
-                               model_version=expected['model_version'],
-                               prediction_ids=ids[3:],
-                               prediction_labels=labels,
-                               features=features,
-                               feature_names_overwrite=feature_names_overwrite,
-                               prediction_timestamps=None)
+                   model_version=expected['model_version'],
+                   prediction_ids=ids[3:],
+                   prediction_labels=labels,
+                   features=features,
+                   feature_names_overwrite=feature_names_overwrite,
+                   prediction_timestamps=None)
     except Exception as err:
         id_ex = err
     try:
         c.bulk_log(model_id=expected['model'],
-                               model_version=expected['model_version'],
-                               prediction_ids=ids,
-                               prediction_labels=labels,
-                               features=features[3:],
-                               feature_names_overwrite=None,
-                               prediction_timestamps=None)
+                   model_version=expected['model_version'],
+                   prediction_ids=ids,
+                   prediction_labels=labels,
+                   features=features[3:],
+                   feature_names_overwrite=None,
+                   prediction_timestamps=None)
     except Exception as err:
         feature_ex = err
     try:
-       c.bulk_log(model_id=expected['model'],
-                               model_version=expected['model_version'],
-                               prediction_ids=ids,
-                               prediction_labels=labels[3:],
-                               features=None,
-                               feature_names_overwrite=None,
-                               prediction_timestamps=None)
+        c.bulk_log(model_id=expected['model'],
+                   model_version=expected['model_version'],
+                   prediction_ids=ids,
+                   prediction_labels=labels[3:],
+                   features=None,
+                   feature_names_overwrite=None,
+                   prediction_timestamps=None)
     except Exception as err:
         label_ex = err
     try:
         c.bulk_log(model_id=expected['model'],
-            model_version=expected['model_version'],
-            prediction_ids=ids,
-            prediction_labels=labels,
-            features=features,
-            feature_names_overwrite=feature_names_overwrite[3:],
-            prediction_timestamps=None)
+                   model_version=expected['model_version'],
+                   prediction_ids=ids,
+                   prediction_labels=labels,
+                   features=features,
+                   feature_names_overwrite=feature_names_overwrite[3:],
+                   prediction_timestamps=None)
     except Exception as err:
         overwrite_ex = err
     assert isinstance(id_ex, ValueError)
@@ -662,12 +684,12 @@ def test_build_bulk_prediction_with_prediction_timestamps():
     features, labels, ids = mock_dataframes_clean_nan(file_to_open)
     t = [int(time.time()) + i for i in range(features.shape[0])]
     records = c.bulk_log(model_id=expected['model'],
-                           model_version=expected['model_version'],
-                           prediction_ids=ids,
-                           prediction_labels=labels,
-                           features=features,
-                           feature_names_overwrite=None,
-                           prediction_timestamps=t)
+                         model_version=expected['model_version'],
+                         prediction_ids=ids,
+                         prediction_labels=labels,
+                         features=features,
+                         feature_names_overwrite=None,
+                         prediction_timestamps=t)
     for _, bulk in records.items():
         assert isinstance(bulk, public__pb2.BulkRecord)
         for r in bulk.records:
@@ -682,11 +704,11 @@ def test_handle_log_prediction_with_prediction_timestamps():
     t = int(time.time())
     c = get_stubbed_client()
     record = c.log(model_id=expected['model'],
-                       model_version=expected['model_version'],
-                       prediction_id=expected['prediction_id'],
-                       prediction_label=expected['value_binary'],
-                       features=expected['features'],
-                       prediction_timestamp=t)
+                   model_version=expected['model_version'],
+                   prediction_id=expected['prediction_id'],
+                   prediction_label=expected['value_binary'],
+                   features=expected['features'],
+                   prediction_timestamp=t)
     assert isinstance(record.prediction, public__pb2.Prediction)
     assert bool(record.prediction.features)
     assert record.prediction.timestamp.seconds == t
@@ -697,12 +719,12 @@ def test_build_bulk_predictions_index():
     features, labels, idx = mock_dataframes_clean_nan(file_to_open)
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
     bulk_records = c.bulk_log(model_id=expected['model'],
-                           prediction_ids=ids,
-                           prediction_labels=labels,
-                           features=features,
-                           model_version=expected['model_version'],
-                           feature_names_overwrite=None,
-                           prediction_timestamps=None)
+                              prediction_ids=ids,
+                              prediction_labels=labels,
+                              features=features,
+                              model_version=expected['model_version'],
+                              feature_names_overwrite=None,
+                              prediction_timestamps=None)
     record_count = 0
     for _, bulk in bulk_records.items():
         assert bulk.organization_key == expected['organization_key']
@@ -723,8 +745,8 @@ def test_build_bulk_actuals_index():
     _, labels, idx = mock_dataframes_clean_nan(file_to_open)
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
     bulk_records = c.bulk_log(model_id=expected['model'],
-                         prediction_ids=ids,
-                         actual_labels=labels)
+                              prediction_ids=ids,
+                              actual_labels=labels)
     record_count = 0
     for _, bulk in bulk_records.items():
         assert bulk.organization_key == expected['organization_key']
@@ -746,12 +768,12 @@ def test_build_bulk_binary_predictions():
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
     features['pred'] = features['mpg'].apply(lambda x: x > 15)
     bulk_records = c.bulk_log(model_id=expected['model'],
-                           prediction_ids=ids,
-                           prediction_labels=features['pred'],
-                           features=features,
-                           model_version=expected['model_version'],
-                           feature_names_overwrite=None,
-                           prediction_timestamps=None)
+                              prediction_ids=ids,
+                              prediction_labels=features['pred'],
+                              features=features,
+                              model_version=expected['model_version'],
+                              feature_names_overwrite=None,
+                              prediction_timestamps=None)
     record_count = 0
     for _, bulk in bulk_records.items():
         assert bulk.organization_key == expected['organization_key']
@@ -773,8 +795,8 @@ def test_build_bulk_binary_actuals():
     features['actual'] = features['mpg'].apply(lambda x: x > 15)
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
     bulk_records = c.bulk_log(model_id=expected['model'],
-                         prediction_ids=ids,
-                         actual_labels=features['actual'])
+                              prediction_ids=ids,
+                              actual_labels=features['actual'])
     record_count = 0
     for _, bulk in bulk_records.items():
         assert bulk.organization_key == expected['organization_key']
@@ -843,9 +865,9 @@ def test_build_feature_importances_error_empty_data():
 
     try:
         c.log(model_id=expected['model'],
-                                prediction_id=expected['prediction_id'],
-                                shap_values={}
-                                )
+              prediction_id=expected['prediction_id'],
+              shap_values={}
+              )
     except Exception as err:
         # Error because no feature_importances were provided
         ex = err
@@ -858,10 +880,10 @@ def test_build_feature_importances_error_wrong_data_type():
     ex = None
     try:
         c.log(model_id=expected['model'],
-                                prediction_id=expected['prediction_id'],
-                                shap_values={"a": "string"}
-                                # feature importances should be float, so this will produce an error
-                                )
+              prediction_id=expected['prediction_id'],
+              shap_values={"a": "string"}
+              # feature importances should be float, so this will produce an error
+              )
     except Exception as err:
         ex = err
 
@@ -877,8 +899,8 @@ def test_build_bulk_feature_importances():
     ids = pd.DataFrame(index=pred_ids.values, data=pred_ids.values).index.to_series()
 
     bulk_records = c.bulk_log(model_id=expected['model'],
-                                      prediction_ids=ids,
-                                      shap_values=feature_importances)
+                              prediction_ids=ids,
+                              shap_values=feature_importances)
     record_count = 0
     for _, bulk in bulk_records.items():
         assert bulk.organization_key == expected['organization_key']
@@ -963,7 +985,8 @@ def test_build_training_records():
             assert isinstance(rec.training_record.record, public__pb2.Record)
             assert rec.training_record.record.organization_key == expected['organization_key']
             assert rec.training_record.record.model_id == expected['model']
-            assert rec.training_record.record.prediction_and_actual.prediction.model_version == expected['model_version']
+            assert rec.training_record.record.prediction_and_actual.prediction.model_version == expected[
+                'model_version']
             assert isinstance(rec.training_record.record.prediction_and_actual.prediction.label, public__pb2.Label)
             assert len(rec.training_record.record.prediction_and_actual.prediction.features) == features.shape[1]
             assert rec.training_record.record.prediction_and_actual.prediction.label.WhichOneof('data') == 'numeric'
@@ -1005,7 +1028,8 @@ def test_send_validation_records():
             assert rec.validation_record.batch_id == expected['batch']
             assert rec.validation_record.record.organization_key == expected['organization_key']
             assert rec.validation_record.record.model_id == expected['model']
-            assert rec.validation_record.record.prediction_and_actual.prediction.model_version == expected['model_version']
+            assert rec.validation_record.record.prediction_and_actual.prediction.model_version == expected[
+                'model_version']
             assert isinstance(rec.validation_record.record.prediction_and_actual.prediction.label, public__pb2.Label)
             assert len(rec.validation_record.record.prediction_and_actual.prediction.features) == features.shape[1]
             assert rec.validation_record.record.prediction_and_actual.prediction.label.WhichOneof('data') == 'numeric'
@@ -1053,10 +1077,10 @@ def test_build_bulk_binary_predictions_deprecated_method():
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
     features['pred'] = features['mpg'].apply(lambda x: x > 15)
     bulk_records = c.log_bulk_predictions(model_id=expected['model'],
-                           prediction_ids=ids,
-                           prediction_labels=features['pred'],
-                           features=features,
-                           model_version=expected['model_version'])
+                                          prediction_ids=ids,
+                                          prediction_labels=features['pred'],
+                                          features=features,
+                                          model_version=expected['model_version'])
     record_count = 0
     for _, bulk in bulk_records.items():
         assert bulk.organization_key == expected['organization_key']
@@ -1096,7 +1120,8 @@ def test_validation_predictions_ids_as_index_series():
             assert rec.validation_record.batch_id == expected['batch']
             assert rec.validation_record.record.organization_key == expected['organization_key']
             assert rec.validation_record.record.model_id == expected['model']
-            assert rec.validation_record.record.prediction_and_actual.prediction.model_version == expected['model_version']
+            assert rec.validation_record.record.prediction_and_actual.prediction.model_version == expected[
+                'model_version']
             assert isinstance(rec.validation_record.record.prediction_and_actual.prediction.label, public__pb2.Label)
             assert len(rec.validation_record.record.prediction_and_actual.prediction.features) == features.shape[1]
             assert rec.validation_record.record.prediction_and_actual.prediction.label.WhichOneof('data') == 'numeric'

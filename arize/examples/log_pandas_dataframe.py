@@ -26,13 +26,13 @@ inferences = pd.concat([features, pred_labels, ids], axis=1)
 
 start = time.time_ns()
 res = client.log(
-    inferences,
-    "/tmp/arrow-inferences.bin",
-    "model_id",
-    "model_version",
-    ModelTypes.SCORE_CATEGORICAL,
-    Environments.PRODUCTION,
-    Schema(prediction_id_column_name="prediction_id",
+    dataframe=inferences,
+    path="/tmp/arrow-inferences.bin",
+    model_id="model_id",
+    model_version="model_version",
+    model_type=ModelTypes.SCORE_CATEGORICAL,
+    environment=Environments.PRODUCTION,
+    schema=Schema(prediction_id_column_name="prediction_id",
            feature_column_names=inferences.columns.drop("prediction_label", "prediction_id"),
            prediction_label_column_name="prediction_label",
            prediction_score_column_name="prediction_score"))
