@@ -328,6 +328,96 @@ def test_invalid_score():
     assert type(errors[0]) is err.InvalidType
 
 
+def test_invalid_num_seq_not_list():
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"act_num_seq": pd.Series([0.1])})
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is err.InvalidType
+
+
+# allow all None
+def test_valid_num_seq_list_all_none():
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"act_num_seq": pd.Series([None])})
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 0
+
+
+# allow all NaN when dtype is object
+def test_valid_num_seq_list_all_nan():
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"act_num_seq": [float("NaN")]}, dtype=object)
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 0
+
+
+# allow all empty
+def test_valid_num_seq_list_all_empty():
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"act_num_seq": pd.Series([[]])})
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 0
+
+
+# allow all None as elements
+def test_valid_num_seq_list_all_none_elements():
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"act_num_seq": pd.Series([[None]])})
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 0
+
+
+def test_invalid_num_seq_list_not_numeric():
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"act_num_seq": pd.Series([[[]]])})
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is err.InvalidType
+
+
 def test_multiple():
     errors = Validator.validate_types(
         **ChainMap(
@@ -365,6 +455,7 @@ kwargs = {
         actual_score_column_name="actual_score",
         feature_column_names=list("ABCDEFG"),
         shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
+        actual_numeric_sequence_column_name="act_num_seq",
     ),
     "pyarrow_schema": pa.Schema.from_pandas(
         pd.DataFrame(
@@ -381,6 +472,7 @@ kwargs = {
                 "prediction_score": pd.Series([0.2, 0.3, 0.4]),
                 "actual_label": pd.Series(["not fraud", "fraud", "not fraud"]),
                 "actual_score": pd.Series([0, 1, 0]),
+                "act_num_seq": pd.Series([[], None, [None, 0]]),
                 #####
                 "A": pd.Series([0, 1, 2]),
                 "B": pd.Series([0.0, 1.0, 2.0]),

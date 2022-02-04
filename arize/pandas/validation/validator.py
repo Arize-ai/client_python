@@ -57,6 +57,7 @@ class Validator:
                     Validator._check_type_pred_act_scores(
                         model_type, schema, column_types
                     ),
+                    Validator._check_type_num_seq(model_type, schema, column_types),
                 )
             )
         )
@@ -197,7 +198,9 @@ class Validator:
                 pa.int8(),
             )
             if column_types[col] not in allowed_datatypes:
-                return [err.InvalidType("Prediction IDs", ["str", "int"])]
+                return [
+                    err.InvalidType("Prediction IDs", expected_types=["str", "int"])
+                ]
         return []
 
     @staticmethod
@@ -217,7 +220,8 @@ class Validator:
             if type(t) != pa.TimestampType and t not in allowed_datatypes:
                 return [
                     err.InvalidType(
-                        "Prediction timestamp", ["Date", "Timestamp", "int", "float"]
+                        "Prediction timestamp",
+                        expected_types=["Date", "Timestamp", "int", "float"],
                     )
                 ]
         return []
@@ -245,7 +249,7 @@ class Validator:
             if mistyped_columns:
                 return [
                     err.InvalidTypeFeatures(
-                        mistyped_columns, ["float", "int", "bool", "str"]
+                        mistyped_columns, expected_types=["float", "int", "bool", "str"]
                     )
                 ]
         return []
@@ -267,7 +271,11 @@ class Validator:
                 if col in column_types and column_types[col] not in allowed_datatypes:
                     mistyped_columns.append(col)
             if mistyped_columns:
-                return [err.InvalidTypeShapValues(mistyped_columns, ["float", "int"])]
+                return [
+                    err.InvalidTypeShapValues(
+                        mistyped_columns, expected_types=["float", "int"]
+                    )
+                ]
         return []
 
     @staticmethod
@@ -294,7 +302,9 @@ class Validator:
             for name, col in columns:
                 if col in column_types and column_types[col] not in allowed_datatypes:
                     errors.append(
-                        err.InvalidType(name, ["float", "int", "bool", "str"])
+                        err.InvalidType(
+                            name, expected_types=["float", "int", "bool", "str"]
+                        )
                     )
         elif model_type == ModelTypes.NUMERIC:
             # should mirror server side
@@ -308,19 +318,21 @@ class Validator:
             )
             for name, col in columns:
                 if col in column_types and column_types[col] not in allowed_datatypes:
-                    errors.append(err.InvalidType(name, ["float", "int"]))
+                    errors.append(
+                        err.InvalidType(name, expected_types=["float", "int"])
+                    )
         elif model_type == ModelTypes.BINARY:
             # should mirror server side
             allowed_datatypes = (pa.bool_(),)
             for name, col in columns:
                 if col in column_types and column_types[col] not in allowed_datatypes:
-                    errors.append(err.InvalidType(name, ["bool"]))
+                    errors.append(err.InvalidType(name, expected_types=["bool"]))
         elif model_type == ModelTypes.CATEGORICAL:
             # should mirror server side
             allowed_datatypes = (pa.string(),)
             for name, col in columns:
                 if col in column_types and column_types[col] not in allowed_datatypes:
-                    errors.append(err.InvalidType(name, ["str"]))
+                    errors.append(err.InvalidType(name, expected_types=["str"]))
         return errors
 
     @staticmethod
@@ -344,7 +356,42 @@ class Validator:
             )
             for name, col in columns:
                 if col in column_types and column_types[col] not in allowed_datatypes:
-                    errors.append(err.InvalidType(name, ["float", "int"]))
+                    errors.append(
+                        err.InvalidType(name, expected_types=["float", "int"])
+                    )
+        return errors
+
+    @staticmethod
+    def _check_type_num_seq(
+        model_type: ModelTypes, schema: "Schema", column_types: Dict[str, Any]
+    ) -> List[err.InvalidType]:
+        errors = []
+        columns = (
+            ("Actual numeric sequence", schema.actual_numeric_sequence_column_name),
+        )
+        if model_type == ModelTypes.SCORE_CATEGORICAL:
+            allowed_datatypes = (
+                pa.float64(),
+                pa.int64(),
+                pa.float32(),
+                pa.int32(),
+                pa.int16(),
+                pa.int8(),
+                pa.null(),
+            )
+            for name, col in columns:
+                if col not in column_types:
+                    continue
+                if type(column_types[col]) == pa.ListType:
+                    type_ = column_types[col].value_type
+                    if type_ not in allowed_datatypes:
+                        errors.append(
+                            err.InvalidType(
+                                name + " elements", expected_types=["float", "int"]
+                            )
+                        )
+                elif column_types[col] != pa.null():
+                    errors.append(err.InvalidType(name, expected_types=["list"]))
         return errors
 
     # ------------
@@ -407,7 +454,11 @@ class Validator:
                     )
                 )
             ):
-                return [err.InvalidValueTimestamp("Prediction timestamp", "one year")]
+                return [
+                    err.InvalidValueTimestamp(
+                        "Prediction timestamp", acceptible_range="one year"
+                    )
+                ]
 
         return []
 
@@ -424,10 +475,14 @@ class Validator:
         for name, col in columns:
             if col is not None and col in dataframe.columns:
                 if dataframe[col].isnull().any():
-                    errors.append(err.InvalidValueMissingValue(name, "missing"))
+                    errors.append(
+                        err.InvalidValueMissingValue(name, missingness="missing")
+                    )
                 elif (
                     dataframe[col].dtype in (np.dtype("float64"), np.dtype("float32"))
                     and np.isinf(dataframe[col]).any()
                 ):
-                    errors.append(err.InvalidValueMissingValue(name, "infinite"))
+                    errors.append(
+                        err.InvalidValueMissingValue(name, missingness="infinite")
+                    )
         return errors
