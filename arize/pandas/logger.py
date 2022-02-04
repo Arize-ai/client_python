@@ -27,6 +27,7 @@ class Schema:
     actual_label_column_name: Optional[str] = None
     actual_score_column_name: Optional[str] = None
     shap_values_column_names: Optional[Dict[str, str]] = None
+    actual_numeric_sequence_column_name: Optional[str] = None
 
 
 class Client:
@@ -188,6 +189,11 @@ class Client:
         if schema.shap_values_column_names is not None:
             s.arrow_schema.shap_values_column_names.update(
                 schema.shap_values_column_names
+            )
+
+        if schema.actual_numeric_sequence_column_name is not None:
+            s.arrow_schema.actual_numeric_sequence_column_name = (
+                schema.actual_numeric_sequence_column_name
             )
 
         base64_schema = base64.b64encode(s.SerializeToString())

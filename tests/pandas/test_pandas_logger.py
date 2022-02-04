@@ -34,6 +34,7 @@ def test_production_zero_errors():
                 categories=["fraud", "not fraud"],
             ),
             "actual_score": pd.Series([0, 1, 0]),
+            "act_num_seq": pd.Series([None, None, [0, 0]]),
             #####
             "A": pd.Series([0, 1, 2]),
             "B": pd.Series([0.0, 1.0, 2.0]),
@@ -72,6 +73,7 @@ def test_production_zero_errors():
                 prediction_score_column_name="prediction_score",
                 actual_score_column_name="actual_score",
                 shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
+                actual_numeric_sequence_column_name="act_num_seq",
             ),
         )
     except err.ValidationFailure:
