@@ -36,6 +36,13 @@ expected = {
         'feature_bool': BOOL_VAL,
         'feature_None': None
     },
+    'tags': {
+        'tag_str': STR_VAL,
+        'tag_double': NUM_VAL,
+        'tag_int': INT_VAL,
+        'tag_bool': BOOL_VAL,
+        'tag_None': None
+    },
     'feature_importances': {
         'feature_str': NUM_VAL,
         'feature_double': NUM_VAL,
@@ -47,24 +54,27 @@ expected = {
 
 
 def mock_dataframes_clean_nan(file):
-    features, labels, ids = mock_dataframes(file)
+    features, tags, labels, ids = mock_dataframes(file)
     features = features.fillna('backfill')
-    return features, labels, ids
+    tags = tags.fillna('backfill')
+    return features, tags, labels, ids
 
 
 def mock_dataframes(file):
     features = pd.read_csv(file)
+    tags = pd.read_csv(file)
     labels = pd.DataFrame(
         np.random.randint(1, 100, size=(features.shape[0], 1)))
     ids = pd.DataFrame([str(uuid.uuid4()) for _ in range(len(labels.index))])
-    return features, labels, ids
+    return features, tags, labels, ids
 
 
 def mock_series(file):
     features = pd.read_csv(file)
+    tags = pd.read_csv(file)
     labels = pd.Series(np.random.randint(1, 100, size=features.shape[0]))
     ids = pd.Series([str(uuid.uuid4()) for _ in range(len(labels.index))])
-    return features, labels, ids
+    return features, tags, labels, ids
 
 
 def get_stubbed_client():
@@ -98,6 +108,7 @@ def test_build_binary_prediction_features():
                    prediction_id=expected['prediction_id'],
                    prediction_label=expected['value_binary'],
                    features=expected['features'],
+                   tags=expected['tags'],
                    prediction_timestamp=None)
 
     assert isinstance(record, public__pb2.Record)
@@ -106,6 +117,9 @@ def test_build_binary_prediction_features():
     for feature in record.prediction.features:
         assert isinstance(record.prediction.features[feature],
                           public__pb2.Value)
+    for tag in record.prediction.tags:
+        assert isinstance(record.prediction.tags[tag],
+                         public__pb2.Value)
     assert record.organization_key == expected['organization_key']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
@@ -118,6 +132,14 @@ def test_build_binary_prediction_features():
     assert record.prediction.features['feature_int'].WhichOneof(
         'data') == 'int'
     assert record.prediction.features['feature_bool'].WhichOneof(
+        'data') == 'string'
+    assert record.prediction.tags['tag_str'].WhichOneof(
+        'data') == 'string'
+    assert record.prediction.tags['tag_double'].WhichOneof(
+        'data') == 'double'
+    assert record.prediction.tags['tag_int'].WhichOneof(
+        'data') == 'int'
+    assert record.prediction.tags['tag_bool'].WhichOneof(
         'data') == 'string'
     assert record.prediction.timestamp.seconds == 0
     assert record.prediction.timestamp.nanos == 0
@@ -131,6 +153,7 @@ def test_numeric_prediction_id():
                    prediction_id=12345,
                    prediction_label=expected['value_binary'],
                    features=expected['features'],
+                   tags=expected['tags'],
                    prediction_timestamp=None)
     assert record.prediction_id == "12345"
     record = c.log(model_id=expected['model'],
@@ -139,11 +162,12 @@ def test_numeric_prediction_id():
                    prediction_id=1.2345,
                    prediction_label=expected['value_binary'],
                    features=expected['features'],
+                   tags=expected['tags'],
                    prediction_timestamp=None)
     assert record.prediction_id == "1.2345"
 
 
-def test_numeric_feature_name():
+def test_numeric_dimension_name():
     c = get_stubbed_client()
     record = c.log(model_id=expected['model'],
                    model_type=ModelTypes.BINARY,
@@ -151,13 +175,16 @@ def test_numeric_feature_name():
                    prediction_id=expected['prediction_id'],
                    prediction_label=expected['value_binary'],
                    features={1: "hello", 2.0: "world"},
+                   tags={1: "hello", 2.0: "world"},
                    prediction_timestamp=None)
     for feature in record.prediction.features:
         assert isinstance(record.prediction.features[feature],
                           public__pb2.Value)
+    for tag in record.prediction.tags:
+        assert isinstance(record.prediction.tags[tag],
+                          public__pb2.Value)
 
-
-def test_build_binary_prediction_features():
+def test_build_binary_prediction_dimensions():
     c = get_stubbed_client()
     record = c.log(model_id=expected['model'],
                    model_type=ModelTypes.BINARY,
@@ -165,6 +192,7 @@ def test_build_binary_prediction_features():
                    prediction_id=expected['prediction_id'],
                    prediction_label=expected['value_binary'],
                    features=expected['features'],
+                   tags=expected['tags'],
                    prediction_timestamp=None)
 
     assert isinstance(record, public__pb2.Record)
@@ -172,6 +200,9 @@ def test_build_binary_prediction_features():
     assert isinstance(record.prediction.label, public__pb2.Label)
     for feature in record.prediction.features:
         assert isinstance(record.prediction.features[feature],
+                          public__pb2.Value)
+    for tag in record.prediction.tags:
+        assert isinstance(record.prediction.tags[tag],
                           public__pb2.Value)
     assert record.organization_key == expected['organization_key']
     assert record.model_id == expected['model']
@@ -185,6 +216,14 @@ def test_build_binary_prediction_features():
     assert record.prediction.features['feature_int'].WhichOneof(
         'data') == 'int'
     assert record.prediction.features['feature_bool'].WhichOneof(
+        'data') == 'string'
+    assert record.prediction.tags['tag_str'].WhichOneof(
+        'data') == 'string'
+    assert record.prediction.tags['tag_double'].WhichOneof(
+        'data') == 'double'
+    assert record.prediction.tags['tag_int'].WhichOneof(
+        'data') == 'int'
+    assert record.prediction.tags['tag_bool'].WhichOneof(
         'data') == 'string'
     assert record.prediction.timestamp.seconds == 0
     assert record.prediction.timestamp.nanos == 0
@@ -198,6 +237,7 @@ def test_build_binary_prediction_zero_ones():
                    prediction_id=expected['prediction_id'],
                    prediction_label=1,
                    features=expected['features'],
+                   tags=expected['tags'],
                    prediction_timestamp=None)
 
     assert isinstance(record, public__pb2.Record)
@@ -206,6 +246,9 @@ def test_build_binary_prediction_zero_ones():
     for feature in record.prediction.features:
         assert isinstance(record.prediction.features[feature],
                           public__pb2.Value)
+    for tag in record.prediction.tags:
+        assert isinstance(record.prediction.tags[tag],
+                            public__pb2.Value)
     assert record.organization_key == expected['organization_key']
     assert record.model_id == expected['model']
     assert record.prediction_id == expected['prediction_id']
@@ -219,6 +262,14 @@ def test_build_binary_prediction_zero_ones():
         'data') == 'int'
     assert record.prediction.features['feature_bool'].WhichOneof(
         'data') == 'string'
+    assert record.prediction.tags['tag_str'].WhichOneof(
+        'data') == 'string'
+    assert record.prediction.tags['tag_double'].WhichOneof(
+        'data') == 'double'
+    assert record.prediction.tags['tag_int'].WhichOneof(
+        'data') == 'int'
+    assert record.prediction.tags['tag_bool'].WhichOneof(
+        'data') == 'string'
     assert record.prediction.timestamp.seconds == 0
     assert record.prediction.timestamp.nanos == 0
 
@@ -230,6 +281,7 @@ def test_build_categorical_prediction():
                    prediction_id=expected['prediction_id'],
                    prediction_label=expected['value_categorical'],
                    features=expected['features'],
+                   tags=expected['tags'],
                    prediction_timestamp=None)
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.prediction, public__pb2.Prediction)
@@ -239,6 +291,7 @@ def test_build_categorical_prediction():
     assert record.prediction_id == expected['prediction_id']
     assert record.prediction.model_version == expected['model_version']
     assert bool(record.prediction.features)
+    assert bool(record.prediction.tags)
     assert record.prediction.label.categorical == expected['value_categorical']
 
 
@@ -250,6 +303,7 @@ def test_build_scored_prediction():
                    prediction_id=expected['prediction_id'],
                    prediction_label=(expected['value_categorical'], expected['value_numeric']),
                    features=expected['features'],
+                   tags=expected['tags'],
                    prediction_timestamp=None)
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.prediction, public__pb2.Prediction)
@@ -261,6 +315,7 @@ def test_build_scored_prediction():
     assert record.prediction_id == expected['prediction_id']
     assert record.prediction.model_version == expected['model_version']
     assert bool(record.prediction.features)
+    assert bool(record.prediction.tags)
     assert record.prediction.label.score_categorical.HasField('score_category')
     assert record.prediction.label.score_categorical.score_category.category == expected['value_categorical']
     assert record.prediction.label.score_categorical.score_category.score == expected['value_numeric']
@@ -290,6 +345,7 @@ def test_build_numeric_prediction():
                    prediction_id=expected['prediction_id'],
                    prediction_label=expected['value_numeric'],
                    features=expected['features'],
+                   tags=expected['tags'],
                    prediction_timestamp=None)
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.prediction, public__pb2.Prediction)
@@ -299,6 +355,7 @@ def test_build_numeric_prediction():
     assert record.prediction_id == expected['prediction_id']
     assert record.prediction.model_version == expected['model_version']
     assert bool(record.prediction.features)
+    assert bool(record.prediction.tags)
     assert record.prediction.label.numeric == expected['value_numeric']
 
 
@@ -313,6 +370,16 @@ def test_build_prediction_no_features():
     assert isinstance(record.prediction, public__pb2.Prediction)
     assert not bool(record.prediction.features)
 
+def test_build_prediction_no_tags():
+    c = get_stubbed_client()
+    record = c.log(model_id=expected['model'],
+                   model_version=expected['model_version'],
+                   prediction_id=expected['prediction_id'],
+                   prediction_label=expected['value_numeric'],
+                   tags=None,
+                   prediction_timestamp=None)
+    assert isinstance(record.prediction, public__pb2.Prediction)
+    assert not bool(record.prediction.tags)
 
 def test_build_numeric_actual():
     c = get_stubbed_client()
@@ -364,13 +431,15 @@ def test_build_binary_actual():
 
 def test_build_bulk_predictions_dataframes():
     c = get_stubbed_client()
-    features, labels, ids = mock_dataframes_clean_nan(file_to_open)
+    features, tags, labels, ids = mock_dataframes_clean_nan(file_to_open)
     bulk_records = c.bulk_log(model_id=expected['model'],
                               model_version=expected['model_version'],
                               prediction_ids=ids,
                               prediction_labels=labels,
                               features=features,
                               feature_names_overwrite=None,
+                              tags=tags,
+                              tag_names_overwrite=None,
                               prediction_timestamps=None)
     record_count = 0
     for indexes, bulk in bulk_records.items():
@@ -383,6 +452,7 @@ def test_build_bulk_predictions_dataframes():
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.prediction.label, public__pb2.Label)
             assert len(record.prediction.features) == features.shape[1]
+            assert len(record.prediction.tags) == tags.shape[1]
             assert record.prediction.label.WhichOneof('data') == 'numeric'
             assert record.prediction.timestamp.seconds == 0
             assert record.prediction.timestamp.nanos == 0
@@ -392,7 +462,7 @@ def test_build_bulk_predictions_dataframes():
 
 def test_numeric_prediction_ids():
     c = get_stubbed_client()
-    features, labels, ids = mock_dataframes_clean_nan(file_to_open)
+    features, tags, labels, ids = mock_dataframes_clean_nan(file_to_open)
     ids = pd.DataFrame([i for i in range(len(labels.index))])
     bulk_records = c.bulk_log(model_id=expected['model'],
                               model_version=expected['model_version'],
@@ -400,6 +470,8 @@ def test_numeric_prediction_ids():
                               prediction_labels=labels,
                               features=features,
                               feature_names_overwrite=None,
+                              tags=tags,
+                              tag_names_overwrite=None,
                               prediction_timestamps=None)
     record_count = 0
     for indexes, bulk in bulk_records.items():
@@ -412,6 +484,7 @@ def test_numeric_prediction_ids():
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.prediction.label, public__pb2.Label)
             assert len(record.prediction.features) == features.shape[1]
+            assert len(record.prediction.tags) == tags.shape[1]
             assert record.prediction.label.WhichOneof('data') == 'numeric'
             assert record.prediction.timestamp.seconds == 0
             assert record.prediction.timestamp.nanos == 0
@@ -421,7 +494,7 @@ def test_numeric_prediction_ids():
 
 def test_numeric_feature_names():
     c = get_stubbed_client()
-    features, labels, ids = mock_dataframes_clean_nan(file_to_open)
+    features, _, labels, ids = mock_dataframes_clean_nan(file_to_open)
     # some features left with string name to test mix
     features = features.rename(
         columns={"mpg": 1, "cylinders": 2, "displacement": 3, "horsepower": 4, "weight": 5, "acceleration": 6})
@@ -449,10 +522,39 @@ def test_numeric_feature_names():
             record_count += 1
     assert record_count == len(ids)
 
+def test_numeric_tag_names():
+    c = get_stubbed_client()
+    features, tags, labels, ids = mock_dataframes_clean_nan(file_to_open)
+    # some tags left with string name to test mix
+    tags = tags.rename(
+        columns={"mpg": 1, "cylinders": 2, "displacement": 3, "horsepower": 4, "weight": 5, "acceleration": 6})
+    bulk_records = c.bulk_log(model_id=expected['model'],
+                              model_version=expected['model_version'],
+                              prediction_ids=ids,
+                              prediction_labels=labels,
+                              tags=tags,
+                              tag_names_overwrite=None,
+                              prediction_timestamps=None)
+    record_count = 0
+    for indexes, bulk in bulk_records.items():
+        assert indexes == (0, len(ids))
+        assert bulk.organization_key == expected['organization_key']
+        assert bulk.model_id == expected['model']
+        assert bulk.model_version == expected['model_version']
+        assert not hasattr(bulk, 'timestamp')
+        for record in bulk.records:
+            assert isinstance(record, public__pb2.Record)
+            assert isinstance(record.prediction.label, public__pb2.Label)
+            assert len(record.prediction.tags) == tags.shape[1]
+            assert record.prediction.label.WhichOneof('data') == 'numeric'
+            assert record.prediction.timestamp.seconds == 0
+            assert record.prediction.timestamp.nanos == 0
+            record_count += 1
+    assert record_count == len(ids)
 
 def test_build_bulk_scored_predictions():
     c = get_stubbed_client()
-    features, labels, ids = mock_dataframes_clean_nan(file_to_open)
+    features, tags, labels, ids = mock_dataframes_clean_nan(file_to_open)
     scores = pd.DataFrame(data=np.random.random(size=(features.shape[0], 1)))
     labels.columns = ["category"]
     scores.columns = ["score"]
@@ -465,6 +567,8 @@ def test_build_bulk_scored_predictions():
                               prediction_labels=score_labels,
                               features=features,
                               feature_names_overwrite=None,
+                              tags=tags,
+                              tag_names_overwrite=None,
                               prediction_timestamps=None)
     record_count = 0
     for indexes, bulk in bulk_records.items():
@@ -478,6 +582,7 @@ def test_build_bulk_scored_predictions():
             assert isinstance(record.prediction.label, public__pb2.Label)
             assert isinstance(record.prediction.label.score_categorical, public__pb2.ScoreCategorical)
             assert len(record.prediction.features) == features.shape[1]
+            assert len(record.prediction.tags) == tags.shape[1]
             assert isinstance(record.prediction.label.score_categorical.score_category.score, float)
             assert record.prediction.label.score_categorical.score_category.score == scores["score"][record_count]
             assert isinstance(record.prediction.label.score_categorical.score_category.category, str)
@@ -489,14 +594,17 @@ def test_build_bulk_scored_predictions():
 
 def test_build_bulk_predictions_dataframes_with_nans():
     c = get_stubbed_client()
-    features, labels, ids = mock_dataframes(file_to_open)
+    features, tags, labels, ids = mock_dataframes(file_to_open)
     features.horsepower = np.nan
+    tags.horsepower = np.nan
     bulk_records = c.bulk_log(model_id=expected['model'],
                               model_version=expected['model_version'],
                               prediction_ids=ids,
                               prediction_labels=labels,
                               features=features,
                               feature_names_overwrite=None,
+                              tags=tags,
+                              tag_names_overwrite=None,
                               prediction_timestamps=None)
     record_count = 0
     for indexes, bulk in bulk_records.items():
@@ -509,6 +617,7 @@ def test_build_bulk_predictions_dataframes_with_nans():
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.prediction.label, public__pb2.Label)
             assert len(record.prediction.features) == (features.shape[1] - 1)
+            assert len(record.prediction.tags) == (tags.shape[1] - 1)
             assert record.prediction.label.WhichOneof('data') == 'numeric'
             assert record.prediction.timestamp.seconds == 0
             assert record.prediction.timestamp.nanos == 0
@@ -518,13 +627,15 @@ def test_build_bulk_predictions_dataframes_with_nans():
 
 def test_build_bulk_predictions_no_features():
     c = get_stubbed_client()
-    features, labels, ids = mock_dataframes_clean_nan(file_to_open)
+    features, tags, labels, ids = mock_dataframes_clean_nan(file_to_open)
     records = c.bulk_log(model_id=expected['model'],
                          model_version=expected['model_version'],
                          prediction_ids=ids,
                          prediction_labels=labels,
                          features=None,
                          feature_names_overwrite=None,
+                         tags=None,
+                         tag_names_overwrite=None,
                          prediction_timestamps=None)
     for _, bulk in records.items():
         assert isinstance(bulk, public__pb2.BulkRecord)
@@ -533,13 +644,17 @@ def test_build_bulk_predictions_no_features():
             assert not bool(r.organization_key)
             assert not bool(r.model_id)
             assert not bool(r.prediction.features)
+            assert not bool(r.prediction.tags)
 
 
 def test_build_bulk_prediction_with_feature_names_overwrites():
     c = get_stubbed_client()
-    features, labels, ids = mock_dataframes_clean_nan(file_to_open)
+    features, tags, labels, ids = mock_dataframes_clean_nan(file_to_open)
     feature_names_overwrite = [
         'mask_' + str(i) for i in range(len(features.columns))
+    ]
+    tag_names_overwrite = [
+        'mask_' + str(i) for i in range(len(tags.columns))
     ]
     records = c.bulk_log(model_id=expected['model'],
                          model_version=expected['model_version'],
@@ -547,6 +662,8 @@ def test_build_bulk_prediction_with_feature_names_overwrites():
                          prediction_labels=labels,
                          features=features,
                          feature_names_overwrite=feature_names_overwrite,
+                         tags=tags,
+                         tag_names_overwrite=tag_names_overwrite,
                          prediction_timestamps=None)
     for _, bulk in records.items():
         assert isinstance(bulk, public__pb2.BulkRecord)
@@ -557,11 +674,14 @@ def test_build_bulk_prediction_with_feature_names_overwrites():
             assert bool(r.prediction.features)
             for feature in r.prediction.features:
                 assert feature in feature_names_overwrite
+            assert bool(r.prediction.tags)
+            for tag in r.prediction.tags:
+                assert tag in tag_names_overwrite
 
 
 def test_build_bulk_actuals_dataframes():
     c = get_stubbed_client()
-    _, labels, ids = mock_dataframes_clean_nan(file_to_open)
+    _, _, labels, ids = mock_dataframes_clean_nan(file_to_open)
     bulk_records = c.bulk_log(model_id=expected['model'],
                               prediction_ids=ids,
                               actual_labels=labels)
@@ -584,7 +704,7 @@ def test_build_bulk_actuals_dataframes():
 
 def test_validate_bulk_predictions_timestamp_out_of_range():
     c = get_stubbed_client()
-    features, labels, ids = mock_dataframes_clean_nan(file_to_open)
+    features, tags, labels, ids = mock_dataframes_clean_nan(file_to_open)
 
     current_time = datetime.datetime.now().timestamp()
     earlier_time = (datetime.datetime.now() - datetime.timedelta(days=30)).timestamp()
@@ -601,6 +721,7 @@ def test_validate_bulk_predictions_timestamp_out_of_range():
             prediction_ids=ids,
             prediction_labels=labels,
             features=features,
+            tags=tags,
             prediction_timestamps=prediction_timestamps,
         )
     except Exception as err:
@@ -611,7 +732,7 @@ def test_validate_bulk_predictions_timestamp_out_of_range():
 
 def test_validate_bulk_predictions_with_nan():
     c = get_stubbed_client()
-    features, labels, ids = mock_dataframes_clean_nan(file_to_open)
+    features, tags, labels, ids = mock_dataframes_clean_nan(file_to_open)
     # intentionally assign np.nan to labels
     labels.loc[labels.sample(frac=0.1).index, 0] = np.nan
     with pytest.raises(ValueError) as excinfo:
@@ -622,17 +743,22 @@ def test_validate_bulk_predictions_with_nan():
             prediction_labels=labels,
             features=features,
             feature_names_overwrite=None,
+            tags=tags,
+            tag_names_overwrite=None,
             prediction_timestamps=None)
     assert str(excinfo.value) == "prediction labels cannot contain null value"
 
 
 def test_validate_bulk_predictions_mismatched_shapes():
     c = get_stubbed_client()
-    features, labels, ids = mock_dataframes_clean_nan(file_to_open)
+    features, tags, labels, ids = mock_dataframes_clean_nan(file_to_open)
     feature_names_overwrite = [
         'mask_' + str(i) for i in range(len(features.columns))
     ]
-    id_ex, feature_ex, label_ex, overwrite_ex = None, None, None, None
+    tag_names_overwrite = [
+        'mask_' + str(i) for i in range(len(tags.columns))
+    ]
+    id_ex, feature_ex, tag_ex, label_ex, feature_overwrite_ex, tag_overwrite_ex = None, None, None, None, None, None
     try:
         c.bulk_log(model_id=expected['model'],
                    model_version=expected['model_version'],
@@ -640,6 +766,8 @@ def test_validate_bulk_predictions_mismatched_shapes():
                    prediction_labels=labels,
                    features=features,
                    feature_names_overwrite=feature_names_overwrite,
+                   tags=tags,
+                   tag_names_overwrite=tag_names_overwrite,
                    prediction_timestamps=None)
     except Exception as err:
         id_ex = err
@@ -657,9 +785,21 @@ def test_validate_bulk_predictions_mismatched_shapes():
         c.bulk_log(model_id=expected['model'],
                    model_version=expected['model_version'],
                    prediction_ids=ids,
+                   prediction_labels=labels,
+                   tags=tags[3:],
+                   tag_names_overwrite=None,
+                   prediction_timestamps=None)
+    except Exception as err:
+        tag_ex = err
+    try:
+        c.bulk_log(model_id=expected['model'],
+                   model_version=expected['model_version'],
+                   prediction_ids=ids,
                    prediction_labels=labels[3:],
                    features=None,
                    feature_names_overwrite=None,
+                   tags=None,
+                   tag_names_overwrite=None,
                    prediction_timestamps=None)
     except Exception as err:
         label_ex = err
@@ -672,16 +812,27 @@ def test_validate_bulk_predictions_mismatched_shapes():
                    feature_names_overwrite=feature_names_overwrite[3:],
                    prediction_timestamps=None)
     except Exception as err:
-        overwrite_ex = err
+        feature_overwrite_ex = err
+    try:
+        c.bulk_log(model_id=expected['model'],
+                   model_version=expected['model_version'],
+                   prediction_ids=ids,
+                   prediction_labels=labels,
+                   tags=tags,
+                   tag_names_overwrite=tag_names_overwrite[3:],
+                   prediction_timestamps=None)
+    except Exception as err:
+        tag_overwrite_ex = err
     assert isinstance(id_ex, ValueError)
     assert isinstance(feature_ex, ValueError)
     assert isinstance(label_ex, ValueError)
-    assert isinstance(overwrite_ex, ValueError)
+    assert isinstance(feature_overwrite_ex, ValueError)
+    assert isinstance(tag_overwrite_ex, ValueError)
 
 
 def test_build_bulk_prediction_with_prediction_timestamps():
     c = get_stubbed_client()
-    features, labels, ids = mock_dataframes_clean_nan(file_to_open)
+    features, tags, labels, ids = mock_dataframes_clean_nan(file_to_open)
     t = [int(time.time()) + i for i in range(features.shape[0])]
     records = c.bulk_log(model_id=expected['model'],
                          model_version=expected['model_version'],
@@ -689,6 +840,8 @@ def test_build_bulk_prediction_with_prediction_timestamps():
                          prediction_labels=labels,
                          features=features,
                          feature_names_overwrite=None,
+                         tags=tags,
+                         tag_names_overwrite=None,
                          prediction_timestamps=t)
     for _, bulk in records.items():
         assert isinstance(bulk, public__pb2.BulkRecord)
@@ -697,6 +850,7 @@ def test_build_bulk_prediction_with_prediction_timestamps():
             assert not bool(r.organization_key)
             assert not bool(r.model_id)
             assert bool(r.prediction.features)
+            assert bool(r.prediction.tags)
             assert r.prediction.timestamp is not None
 
 
@@ -708,22 +862,26 @@ def test_handle_log_prediction_with_prediction_timestamps():
                    prediction_id=expected['prediction_id'],
                    prediction_label=expected['value_binary'],
                    features=expected['features'],
+                   tags=expected['tags'],
                    prediction_timestamp=t)
     assert isinstance(record.prediction, public__pb2.Prediction)
     assert bool(record.prediction.features)
+    assert bool(record.prediction.tags)
     assert record.prediction.timestamp.seconds == t
 
 
 def test_build_bulk_predictions_index():
     c = get_stubbed_client()
-    features, labels, idx = mock_dataframes_clean_nan(file_to_open)
+    features, tags, labels, idx = mock_dataframes_clean_nan(file_to_open)
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
     bulk_records = c.bulk_log(model_id=expected['model'],
                               prediction_ids=ids,
                               prediction_labels=labels,
                               features=features,
+                              tags=tags,
                               model_version=expected['model_version'],
                               feature_names_overwrite=None,
+                              tag_names_overwrite=None,
                               prediction_timestamps=None)
     record_count = 0
     for _, bulk in bulk_records.items():
@@ -734,6 +892,7 @@ def test_build_bulk_predictions_index():
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.prediction.label, public__pb2.Label)
             assert len(record.prediction.features) == features.shape[1]
+            assert len(record.prediction.tags) == tags.shape[1]
             assert record.prediction.label.WhichOneof('data') == 'numeric'
             assert record.prediction_id in idx.values
             record_count += 1
@@ -742,7 +901,7 @@ def test_build_bulk_predictions_index():
 
 def test_build_bulk_actuals_index():
     c = get_stubbed_client()
-    _, labels, idx = mock_dataframes_clean_nan(file_to_open)
+    _, _, labels, idx = mock_dataframes_clean_nan(file_to_open)
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
     bulk_records = c.bulk_log(model_id=expected['model'],
                               prediction_ids=ids,
@@ -764,15 +923,18 @@ def test_build_bulk_actuals_index():
 
 def test_build_bulk_binary_predictions():
     c = get_stubbed_client()
-    features, _, idx = mock_dataframes_clean_nan(file_to_open)
+    features, tags, _, idx = mock_dataframes_clean_nan(file_to_open)
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
     features['pred'] = features['mpg'].apply(lambda x: x > 15)
+    tags['pred'] = tags['mpg'].apply(lambda x: x > 15)
     bulk_records = c.bulk_log(model_id=expected['model'],
                               prediction_ids=ids,
                               prediction_labels=features['pred'],
                               features=features,
+                              tags=tags,
                               model_version=expected['model_version'],
                               feature_names_overwrite=None,
+                              tag_names_overwrite=None,
                               prediction_timestamps=None)
     record_count = 0
     for _, bulk in bulk_records.items():
@@ -783,6 +945,7 @@ def test_build_bulk_binary_predictions():
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.prediction.label, public__pb2.Label)
             assert len(record.prediction.features) == features.shape[1]
+            assert len(record.prediction.tags) == tags.shape[1]
             assert record.prediction.label.WhichOneof('data') == 'binary'
             assert record.prediction_id in idx.values
             record_count += 1
@@ -791,7 +954,7 @@ def test_build_bulk_binary_predictions():
 
 def test_build_bulk_binary_actuals():
     c = get_stubbed_client()
-    features, _, idx = mock_dataframes_clean_nan(file_to_open)
+    features, tags, _, idx = mock_dataframes_clean_nan(file_to_open)
     features['actual'] = features['mpg'].apply(lambda x: x > 15)
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
     bulk_records = c.bulk_log(model_id=expected['model'],
@@ -837,6 +1000,7 @@ def test_prediction_timestamp_out_of_range():
             model_type=ModelTypes.CATEGORICAL,
             prediction_label='HOTDOG',
             features=expected['features'],
+            tags=expected['tags'],
             prediction_timestamp=int(time.time()) + (380 * 24 * 60 * 60),
         )
     except Exception as err:
@@ -892,7 +1056,7 @@ def test_build_feature_importances_error_wrong_data_type():
 
 def test_build_bulk_feature_importances():
     c = get_stubbed_client()
-    features, _, pred_ids = mock_dataframes_clean_nan(file_to_open)
+    features, _, _, pred_ids = mock_dataframes_clean_nan(file_to_open)
 
     data = np.random.rand(len(pred_ids), len(features.columns))
     feature_importances = pd.DataFrame(data=data, columns=features.columns)
@@ -920,7 +1084,7 @@ def test_build_bulk_feature_importances():
 
 def test_build_bulk_feature_importances_error_mismatch():
     c = get_stubbed_client()
-    features, _, pred_ids = mock_dataframes_clean_nan(file_to_open)
+    features, _, _, pred_ids = mock_dataframes_clean_nan(file_to_open)
 
     # Make the length of feature importances data array mismatch the number of prediction ids
     data = np.random.rand(len(pred_ids) - 1, len(features.columns))
@@ -967,14 +1131,15 @@ def test_build_bulk_feature_importances_error_mismatch():
 
 
 def test_build_training_records():
-    features, labels, _ = mock_dataframes_clean_nan(file_to_open)
+    features, tags, labels, _ = mock_dataframes_clean_nan(file_to_open)
     recs = TrainingRecords(organization_key=expected['organization_key'],
                            model_id=expected['model'],
                            model_type=ModelTypes.NUMERIC,
                            model_version=expected['model_version'],
                            prediction_labels=labels,
                            actual_labels=labels,
-                           features=features)
+                           features=features,
+                           tags=tags)
     bundles = recs.build_proto()
     record_count = 0
     for _, recs in bundles.items():
@@ -989,6 +1154,7 @@ def test_build_training_records():
                 'model_version']
             assert isinstance(rec.training_record.record.prediction_and_actual.prediction.label, public__pb2.Label)
             assert len(rec.training_record.record.prediction_and_actual.prediction.features) == features.shape[1]
+            assert len(rec.training_record.record.prediction_and_actual.prediction.tags) == tags.shape[1]
             assert rec.training_record.record.prediction_and_actual.prediction.label.WhichOneof('data') == 'numeric'
             assert rec.training_record.record.prediction_and_actual.prediction.timestamp.seconds == 0
             assert rec.training_record.record.prediction_and_actual.prediction.timestamp.nanos == 0
@@ -997,11 +1163,12 @@ def test_build_training_records():
 
 def test_send_validation_records():
     c = get_stubbed_client()
-    features, labels, pred_ids = mock_dataframes_clean_nan(file_to_open)
+    features, tags, labels, pred_ids = mock_dataframes_clean_nan(file_to_open)
     t = [int(time.time()) + i for i in range(features.shape[0])]
 
     # make life a bit easier and just take the first record
     features = features[:1]
+    tags = tags[:1]
     labels = labels[:1]
     pred_ids = pred_ids[:1]
     t = t[:1]
@@ -1015,6 +1182,7 @@ def test_send_validation_records():
         prediction_ids=pred_ids,
         model_type=ModelTypes.NUMERIC,
         features=features,
+        tags=tags,
         prediction_timestamps=t,
     )
 
@@ -1032,13 +1200,14 @@ def test_send_validation_records():
                 'model_version']
             assert isinstance(rec.validation_record.record.prediction_and_actual.prediction.label, public__pb2.Label)
             assert len(rec.validation_record.record.prediction_and_actual.prediction.features) == features.shape[1]
+            assert len(rec.validation_record.record.prediction_and_actual.prediction.tags) == tags.shape[1]
             assert rec.validation_record.record.prediction_and_actual.prediction.label.WhichOneof('data') == 'numeric'
             assert rec.validation_record.record.prediction_and_actual.prediction.timestamp.seconds == t[0]
             assert rec.validation_record.record.prediction_and_actual.prediction.timestamp.nanos == 0
             assert rec.validation_record.record.prediction_id == expected_prediction_id
 
     # now test a bunch of records at once
-    features, labels, pred_ids = mock_dataframes_clean_nan(file_to_open)
+    features, tags, labels, pred_ids = mock_dataframes_clean_nan(file_to_open)
     result = c.log_validation_records(
         model_id=expected['model'],
         model_version=expected['model_version'],
@@ -1048,6 +1217,7 @@ def test_send_validation_records():
         prediction_ids=pred_ids,
         model_type=ModelTypes.NUMERIC,
         features=features,
+        tags=tags,
     )
     records_count = 0
     for _, recs in result.items():
@@ -1058,7 +1228,7 @@ def test_send_validation_records():
 
 def test_send_validation_records_without_prediction_id():
     c = get_stubbed_client()
-    features, labels, pred_ids = mock_dataframes_clean_nan(file_to_open)
+    features, tags, labels, pred_ids = mock_dataframes_clean_nan(file_to_open)
     # expect no exceptions
     c.log_validation_records(
         model_id=expected['model'],
@@ -1068,18 +1238,21 @@ def test_send_validation_records_without_prediction_id():
         actual_labels=labels,
         model_type=ModelTypes.NUMERIC,
         features=features,
+        tags=tags,
     )
 
 
 def test_build_bulk_binary_predictions_deprecated_method():
     c = get_stubbed_client()
-    features, _, idx = mock_dataframes_clean_nan(file_to_open)
+    features, tags, _, idx = mock_dataframes_clean_nan(file_to_open)
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
     features['pred'] = features['mpg'].apply(lambda x: x > 15)
+    tags['pred'] = tags['mpg'].apply(lambda x: x > 15)
     bulk_records = c.log_bulk_predictions(model_id=expected['model'],
                                           prediction_ids=ids,
                                           prediction_labels=features['pred'],
                                           features=features,
+                                          tags=tags,
                                           model_version=expected['model_version'])
     record_count = 0
     for _, bulk in bulk_records.items():
@@ -1090,6 +1263,7 @@ def test_build_bulk_binary_predictions_deprecated_method():
             assert isinstance(record, public__pb2.Record)
             assert isinstance(record.prediction.label, public__pb2.Label)
             assert len(record.prediction.features) == features.shape[1]
+            assert len(record.prediction.tags) == tags.shape[1]
             assert record.prediction.label.WhichOneof('data') == 'binary'
             assert record.prediction_id in idx.values
             record_count += 1
@@ -1098,7 +1272,7 @@ def test_build_bulk_binary_predictions_deprecated_method():
 
 def test_validation_predictions_ids_as_index_series():
     c = get_stubbed_client()
-    features, labels, idx = mock_dataframes_clean_nan(file_to_open)
+    features, tags, labels, idx = mock_dataframes_clean_nan(file_to_open)
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
     result = c.log_validation_records(
         model_id=expected['model'],
@@ -1108,6 +1282,7 @@ def test_validation_predictions_ids_as_index_series():
         actual_labels=labels,
         prediction_ids=ids,
         features=features,
+        tags=tags,
     )
 
     record_count = 0
@@ -1124,6 +1299,7 @@ def test_validation_predictions_ids_as_index_series():
                 'model_version']
             assert isinstance(rec.validation_record.record.prediction_and_actual.prediction.label, public__pb2.Label)
             assert len(rec.validation_record.record.prediction_and_actual.prediction.features) == features.shape[1]
+            assert len(rec.validation_record.record.prediction_and_actual.prediction.tags) == tags.shape[1]
             assert rec.validation_record.record.prediction_and_actual.prediction.label.WhichOneof('data') == 'numeric'
             assert rec.validation_record.record.prediction_id in idx.values
     assert len(labels) == record_count

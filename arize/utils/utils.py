@@ -113,7 +113,7 @@ def get_value_object(name: Union[str, int, float], value):
         return public__pb2.Value(double=val)
     else:
         raise TypeError(
-            f'feature "{name}" = {value} is type {type(value)}, but must be one of: bool, str, float, int.'
+            f'dimension "{name}" = {value} is type {type(value)}, but must be one of: bool, str, float, int.'
         )
 
 

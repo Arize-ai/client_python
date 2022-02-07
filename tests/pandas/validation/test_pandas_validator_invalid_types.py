@@ -29,8 +29,9 @@ def test_reject_all_nones():
             kwargs,
         )
     )
-    assert len(errors) == 1
+    assert len(errors) == 2
     assert type(errors[0]) is err.InvalidTypeFeatures
+    assert type(errors[1]) is err.InvalidTypeTags
 
 
 def test_invalid_type_prediction_id():
@@ -156,7 +157,7 @@ def test_valid_timestamp_int():
     assert len(errors) == 0
 
 
-def test_invalid_type_features():
+def test_invalid_type_dimensions():
     errors = Validator.validate_types(
         **ChainMap(
             {
@@ -167,8 +168,9 @@ def test_invalid_type_features():
             kwargs,
         )
     )
-    assert len(errors) == 1
+    assert len(errors) == 2
     assert type(errors[0]) is err.InvalidTypeFeatures
+    assert type(errors[1]) is err.InvalidTypeTags
 
 
 def test_invalid_type_shap_values():
@@ -271,7 +273,35 @@ def test_valid_feature_int():
     assert len(errors) == 0
 
 
+def test_valid_tag_int():
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"A": pd.Series([int(1)])})
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 0
+
+
 def test_valid_feature_str():
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"A": pd.Series(["0"])})
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 0
+
+
+def test_valid_tag_str():
     errors = Validator.validate_types(
         **ChainMap(
             {
@@ -299,7 +329,35 @@ def test_valid_feature_float():
     assert len(errors) == 0
 
 
+def test_valid_tag_float():
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"A": pd.Series([3.14])})
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 0
+
+
 def test_valid_feature_bool():
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"A": pd.Series([True])})
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 0
+
+
+def test_valid_ag_bool():
     errors = Validator.validate_types(
         **ChainMap(
             {
@@ -438,9 +496,10 @@ def test_multiple():
             kwargs,
         )
     )
-    assert len(errors) == 6
+    assert len(errors) == 7
     assert any(type(e) is err.InvalidType for e in errors)
     assert any(type(e) is err.InvalidTypeFeatures for e in errors)
+    assert any(type(e) is err.InvalidTypeTags for e in errors)
     assert any(type(e) is err.InvalidTypeShapValues for e in errors)
 
 
@@ -454,6 +513,7 @@ kwargs = {
         prediction_score_column_name="prediction_score",
         actual_score_column_name="actual_score",
         feature_column_names=list("ABCDEFG"),
+        tag_column_names=list("ABCDEFG"),
         shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
         actual_numeric_sequence_column_name="act_num_seq",
     ),

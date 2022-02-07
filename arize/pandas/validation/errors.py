@@ -126,6 +126,24 @@ class InvalidTypeFeatures(ValidationError):
         )
 
 
+class InvalidTypeTags(ValidationError):
+    def __init__(self, cols: List[str], expected_types: List[str]) -> None:
+        self.mistyped_cols = cols
+        self.expected_types = expected_types
+
+    def error_message(self) -> str:
+        type_list = (
+            self.expected_types[0]
+            if len(self.expected_types) == 1
+            else f"{', '.join(self.expected_types[:-1])} or {self.expected_types[-1]}"
+        )
+        return (
+            f"Tags must be of type {type_list}. "
+            "The following tag columns have unrecognized data types: "
+            f"{', '.join(self.mistyped_cols)}."
+        )
+
+
 class InvalidTypeShapValues(ValidationError):
     def __init__(self, cols: List[str], expected_types: List[str]) -> None:
         self.mistyped_cols = cols

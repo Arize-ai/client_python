@@ -68,6 +68,7 @@ def test_production_zero_errors():
                 prediction_id_column_name="prediction_id",
                 timestamp_column_name="prediction_timestamp",
                 feature_column_names=list("ABCDEFGHI"),
+                tag_column_names=list("ABCDEFGHI"),
                 prediction_label_column_name="prediction_label",
                 actual_label_column_name="actual_label",
                 prediction_score_column_name="prediction_score",
