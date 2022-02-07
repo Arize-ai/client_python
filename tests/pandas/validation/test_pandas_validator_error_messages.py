@@ -50,6 +50,18 @@ def test_invalid_type_features():
     assert "Archaeopteryx" in err_msg
 
 
+def test_invalid_type_tags():
+    err_msg = str(
+        err.InvalidTypeTags(
+            ["genotype", "phenotype"], ["Triceratops", "Archaeopteryx"]
+        )
+    )
+    assert "genotype" in err_msg
+    assert "phenotype" in err_msg
+    assert "Triceratops" in err_msg
+    assert "Archaeopteryx" in err_msg
+
+
 def test_invalid_type_shap_values():
     err_msg = str(
         err.InvalidTypeShapValues(

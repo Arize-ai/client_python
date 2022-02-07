@@ -50,6 +50,7 @@ class Validator:
                     Validator._check_type_prediction_id(schema, column_types),
                     Validator._check_type_timestamp(schema, column_types),
                     Validator._check_type_features(schema, column_types),
+                    Validator._check_type_tags(schema, column_types),
                     Validator._check_type_shap_values(schema, column_types),
                     Validator._check_type_pred_act_labels(
                         model_type, schema, column_types
@@ -99,6 +100,11 @@ class Validator:
 
         if schema.feature_column_names is not None:
             for col in schema.feature_column_names:
+                if col is not None and col not in existing_columns:
+                    missing_columns.append(col)
+
+        if schema.tag_column_names is not None:
+            for col in schema.tag_column_names:
                 if col is not None and col not in existing_columns:
                     missing_columns.append(col)
 
@@ -250,6 +256,34 @@ class Validator:
                 return [
                     err.InvalidTypeFeatures(
                         mistyped_columns, expected_types=["float", "int", "bool", "str"]
+                    )
+                ]
+        return []
+
+    @staticmethod
+    def _check_type_tags(
+            schema: "Schema", column_types: Dict[str, Any]
+    ) -> List[err.InvalidTypeTags]:
+        if schema.tag_column_names is not None:
+            # should mirror server side
+            allowed_datatypes = (
+                pa.float64(),
+                pa.int64(),
+                pa.string(),
+                pa.bool_(),
+                pa.int32(),
+                pa.float32(),
+                pa.int16(),
+                pa.int8(),
+            )
+            mistyped_columns = []
+            for col in schema.tag_column_names:
+                if col in column_types and column_types[col] not in allowed_datatypes:
+                    mistyped_columns.append(col)
+            if mistyped_columns:
+                return [
+                    err.InvalidTypeTags(
+                        mistyped_columns, ["float", "int", "bool", "str"]
                     )
                 ]
         return []

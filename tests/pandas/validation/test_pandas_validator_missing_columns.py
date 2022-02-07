@@ -60,6 +60,23 @@ def test_missing_feature_columns():
     assert type(errors[0]) is MissingColumns
 
 
+def test_missing_tag_columns():
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    prediction_label_column_name="prediction_label",
+                    tag_column_names=["A"],
+                )
+            },
+            kwargs,
+        ),
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is MissingColumns
+
+
 def test_missing_shap_columns():
     errors = Validator.validate_params(
         **ChainMap(
@@ -152,6 +169,7 @@ def test_missing_multiple():
                     prediction_id_column_name="prediction_id",
                     timestamp_column_name="prediction_timestamp",
                     feature_column_names=["A"],
+                    tag_column_names=["A"],
                     shap_values_column_names={"A": "aa"},
                     prediction_label_column_name="B",
                     prediction_score_column_name="C",

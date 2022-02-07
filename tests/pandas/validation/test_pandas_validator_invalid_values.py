@@ -387,6 +387,7 @@ kwargs = {
         prediction_score_column_name="prediction_score",
         actual_score_column_name="actual_score",
         feature_column_names=list("ABCDEFG"),
+        tag_column_names=list("ABCDEFG"),
         shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
     ),
     "dataframe": pd.DataFrame(

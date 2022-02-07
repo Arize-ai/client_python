@@ -21,6 +21,7 @@ from arize.pandas.validation.validator import Validator
 class Schema:
     prediction_id_column_name: str
     feature_column_names: Optional[List[str]] = None
+    tag_column_names: Optional[List[str]] = None
     timestamp_column_name: Optional[str] = None
     prediction_label_column_name: Optional[str] = None
     prediction_score_column_name: Optional[str] = None
@@ -180,6 +181,9 @@ class Client:
         if schema.feature_column_names is not None:
             s.arrow_schema.feature_column_names.extend(schema.feature_column_names)
 
+        if schema.tag_column_names is not None:
+            s.arrow_schema.tag_column_names.extend(schema.tag_column_names)
+
         if schema.actual_label_column_name is not None:
             s.arrow_schema.actual_label_column_name = schema.actual_label_column_name
 
@@ -197,7 +201,6 @@ class Client:
             )
 
         base64_schema = base64.b64encode(s.SerializeToString())
-
         if path is None:
             f = tempfile.NamedTemporaryFile()
             tmp_file = f.name

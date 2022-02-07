@@ -101,6 +101,7 @@ class PreProductionRecords(BaseRecord, ABC):
         prediction_labels: Union[pd.DataFrame, pd.Series],
         actual_labels: Union[pd.DataFrame, pd.Series],
         features: Optional[pd.DataFrame] = None,
+        tags: Optional[pd.DataFrame] = None,
         model_type: Optional[ModelTypes] = None,
         prediction_scores: Optional[Union[pd.DataFrame, pd.Series]] = None,
         prediction_ids: Optional[Union[pd.DataFrame, pd.Series]] = None,
@@ -119,6 +120,7 @@ class PreProductionRecords(BaseRecord, ABC):
         )
         self.model_version = model_version
         self.features = features
+        self.tags = tags
         self.prediction_labels = prediction_labels
         self.prediction_scores = prediction_scores
         self.actual_labels = actual_labels
@@ -178,6 +180,23 @@ class PreProductionRecords(BaseRecord, ABC):
                     f"features.column {name} is type {type(name)}, but expect str"
                 )
 
+        if self.tags is None:
+            return
+        if not isinstance(self.tags, pd.DataFrame):
+            raise TypeError(
+                f"tags is type {type(self.tags)}, but expect type pd.DataFrame."
+            )
+        if self.tags.shape[0] != self.prediction_labels.shape[0]:
+            raise ValueError(
+                f"tags has {self.tags.shape[0]} sets of tags, but must match size of prediction_labels: "
+                f"{self.prediction_labels.shape[0]}. "
+            )
+        for name in self.tags.columns:
+            if not isinstance(name, str):
+                raise TypeError(
+                    f"tags.column {name} is type {type(name)}, but expect str"
+                )
+
     def _normalize_inputs(self):
         """Converts inputs from DataFrames, Series, lists to numpy arrays or lists for consistent iterations
         downstream."""
@@ -192,6 +211,9 @@ class PreProductionRecords(BaseRecord, ABC):
         if isinstance(self.features, pd.DataFrame):
             self.feature_names = self.features.columns
             self.features = self.features.to_numpy()
+        if isinstance(self.tags, pd.DataFrame):
+            self.tag_names = self.tags.columns
+            self.tags = self.tags.to_numpy()
 
 
 class TrainingRecords(PreProductionRecords):
@@ -203,6 +225,7 @@ class TrainingRecords(PreProductionRecords):
         prediction_labels: Union[pd.DataFrame, pd.Series],
         actual_labels: Union[pd.DataFrame, pd.Series],
         features: Optional[pd.DataFrame] = None,
+        tags: Optional[pd.DataFrame] = None,
         model_type: Optional[ModelTypes] = None,
         prediction_scores: Optional[Union[pd.DataFrame, pd.Series]] = None,
     ):
@@ -212,6 +235,7 @@ class TrainingRecords(PreProductionRecords):
             model_type=model_type,
             model_version=model_version,
             features=features,
+            tags=tags,
             prediction_labels=prediction_labels,
             prediction_scores=prediction_scores,
             actual_labels=actual_labels,
@@ -246,6 +270,15 @@ class TrainingRecords(PreProductionRecords):
                 feats = public__pb2.Prediction(features=converted_feats)
                 p.MergeFrom(feats)
 
+            if self.tags is not None:
+                converted_tags = {}
+                for column, name in enumerate(self.tag_names):
+                    val = get_value_object(value=self.tags[row][column], name=name)
+                    if val is not None:
+                        converted_tags[name] = val
+                tgs = public__pb2.Prediction(tags=converted_tags)
+                p.MergeFrom(tgs)
+
             panda = public__pb2.PredictionAndActual(
                 prediction=p,
                 actual=a,
@@ -273,6 +306,7 @@ class ValidationRecords(PreProductionRecords):
         prediction_labels: Union[pd.DataFrame, pd.Series],
         actual_labels: Union[pd.DataFrame, pd.Series],
         features: Optional[pd.DataFrame] = None,
+        tags: Optional[pd.DataFrame] = None,
         model_type: Optional[ModelTypes] = None,
         prediction_scores: Optional[Union[pd.DataFrame, pd.Series]] = None,
         prediction_ids: Optional[Union[pd.DataFrame, pd.Series]] = None,
@@ -284,6 +318,7 @@ class ValidationRecords(PreProductionRecords):
             model_type=model_type,
             model_version=model_version,
             features=features,
+            tags=tags,
             prediction_labels=prediction_labels,
             prediction_scores=prediction_scores,
             actual_labels=actual_labels,
@@ -342,6 +377,15 @@ class ValidationRecords(PreProductionRecords):
                         converted_feats[name] = val
                 feats = public__pb2.Prediction(features=converted_feats)
                 p.MergeFrom(feats)
+
+            if self.tags is not None:
+                converted_tags = {}
+                for column, name in enumerate(self.tag_names):
+                    val = get_value_object(value=self.tags[row][column], name=name)
+                    if val is not None:
+                        converted_tags[name] = val
+                tgs = public__pb2.Prediction(tags=converted_tags)
+                p.MergeFrom(tgs)
 
             panda = public__pb2.PredictionAndActual(
                 prediction=p,

@@ -89,14 +89,14 @@ def _get_label(
         f"{name}_label = {value} of type {type(value)}. Must be one of str, bool, float, int, or Tuple[str, float]"
     )
 
-def _get_score_categorical_label(value): 
+def _get_score_categorical_label(value):
     sc = public__pb2.ScoreCategorical()
     if value[1] is not None:
         sc.score_category.category = value[0]
         sc.score_category.score = value[1]
     else:
         sc.category.category = value[0]
-    
+
     return public__pb2.Label(score_categorical=sc)
 
 def _validate_bulk_prediction(
@@ -105,6 +105,8 @@ def _validate_bulk_prediction(
     prediction_ids,
     features,
     feature_names_overwrite,
+    tags,
+    tag_names_overwrite,
     prediction_timestamps,
 ):
     if prediction_labels.isna().values.any():
@@ -170,6 +172,30 @@ def _validate_bulk_prediction(
                         f"features.column {name} is type {type(name)}, but expect str"
                     )
 
+        # Validate tags type, shape matches prediction ids, and handle tag names overwrite
+    if tags is not None:
+        if not isinstance(tags, pd.DataFrame):
+            raise TypeError(
+                f"tags is type {type(tags)}, but expect type pd.DataFrame."
+            )
+        if tags.shape[0] != prediction_ids.shape[0]:
+            raise ValueError(
+                f"tags has {tags.shape[0]} sets of tags, but must match size of predictions_ids: "
+                f"{prediction_ids.shape[0]}. "
+            )
+        if tag_names_overwrite is not None:
+            if len(tags.columns) != len(tag_names_overwrite):
+                raise ValueError(
+                    f"tag_names_overwrite has len:{len(tag_names_overwrite)}, but expects the same "
+                    f"number of columns in tags dataframe: {len(tags.columns)}. "
+                )
+        else:
+            for name in tags.columns:
+                if not isinstance(name, str) and not isinstance(name, int) and not isinstance(name, float):
+                    raise TypeError(
+                        f"tags.column {name} is type {type(name)}, but expect str"
+                    )
+
     # Validate timestamp overwrite
     validate_prediction_timestamps(prediction_ids, prediction_timestamps)
 
@@ -228,6 +254,7 @@ class Client:
         actual_label: Union[str, bool, int, float, Tuple[str, float]] = None,
         shap_values: Dict[str, float] = None,
         features: Optional[Dict[Union[str, int, float], Union[str, bool, float, int]]] = None,
+        tags: Optional[Dict[Union[str, int, float], Union[str, bool, float, int]]] = None,
         model_type: Optional[ModelTypes] = None,
         prediction_timestamp: Optional[int] = None,
     ) -> cf.Future:
@@ -239,6 +266,7 @@ class Client:
         :param actual_label: (one of str, bool, int, float) The actual true value for a given model input. This actual will be matched to the prediction with the same prediction_id as the one in this call.
         :param shap_values: (str, float) Dictionary containing human readable and debuggable model features keys, along with SHAP feature importance values. Keys must be str, while values must be float.
         :param features: ((str, int, float), <value>) Optional dictionary containing human readable and debuggable model features. Keys must be str, values one of str, bool, float, long.
+        :param tags: ((str, int, float), <value>) Optional dictionary containing human readable and debuggable model tags. Keys must be str, values one of str, bool, float, long.
         :param model_type: (ModelTypes) Declares what model type this prediction is for. Binary, Numeric, Categorical, Score_Categorical.
         :param prediction_timestamp: (int) Optional field with unix epoch time in seconds to overwrite timestamp for prediction. If None, prediction uses current timestamp.
         :rtype : concurrent.futures.Future
@@ -257,6 +285,14 @@ class Client:
                 if val is not None and not isinstance(val, (str, bool, float, int)):
                     raise TypeError(
                         f"feature {k} with value {v} is type {type(v)}, but expected one of: str, bool, float, int"
+                    )
+        # Validate tag types
+        if tags is not None and bool(tags):
+            for k, v in tags.items():
+                val = convert_element(v)
+                if val is not None and not isinstance(val, (str, bool, float, int)):
+                    raise TypeError(
+                        f"tag {k} with value {v} is type {type(v)}, but expected one of: str, bool, float, int"
                     )
 
         # Check the timestamp present on the event
@@ -302,6 +338,14 @@ class Client:
                         converted_feats[str(k)] = val
                 feats = public__pb2.Prediction(features=converted_feats)
                 p.MergeFrom(feats)
+            if tags is not None:
+                converted_tags = {}
+                for (k, v) in tags.items():
+                    val = get_value_object(value=v, name=k)
+                    if val is not None:
+                        converted_tags[str(k)] = val
+                tgs = public__pb2.Prediction(tags=converted_tags)
+                p.MergeFrom(tgs)
             if prediction_timestamp is not None:
                 p.timestamp.MergeFrom(get_timestamp(prediction_timestamp))
 
@@ -352,10 +396,12 @@ class Client:
             pd.DataFrame, pd.Series
         ] = None,  # 1xN or 2xN (for scored categorical)
         features: Optional[Union[pd.DataFrame, pd.Series]] = None,
+        tags: Optional[Union[pd.DataFrame, pd.Series]] = None,
         actual_labels: Union[pd.DataFrame, pd.Series] = None,
         shap_values: Union[pd.DataFrame, pd.Series] = None,
         model_type: Optional[ModelTypes] = None,
         feature_names_overwrite: Optional[List[str]] = None,
+        tag_names_overwrite: Optional[List[str]] = None,
         prediction_timestamps: Optional[Union[List[int], pd.Series]] = None,
     ) -> List[cf.Future]:
         """Logs a collection of predictions with Arize via a POST request. Returns list<:class:`Future`> object.
@@ -364,10 +410,12 @@ class Client:
         :param prediction_ids: Pandas DataFrame with shape (N, 1) or Series with str valued elements. Each element corresponding to a unique string identifier for a specific prediction. These values are needed to match latent actual labels to their original prediction labels. Each element corresponds to feature values of the same index.
         :param prediction_labels: Optional Pandas DataFrame with shape (N, 1) or (N, 2) or Series. The predicted values for a given model input. Values are associates to the ids in the same index.  For a (N, 2) DataFrame column 0 is interpretted as the prediction category and column 1 is interpretted as the prediction score.
         :param features: Optional Pandas DataFrame with shape (N, 2) containing human readable and debuggable model features. DataFrames columns (df.columns) should contain feature names and must have same number of rows as prediction_ids and prediction_labels. N.B. np.nan values are stripped from the record and manifest on our platform as a missing value (not 0.0 or NaN)
+        :param tags: Optional Pandas DataFrame with shape (N, 2) containing human readable and debuggable model tags. DataFrames columns (df.columns) should contain tag names and must have same number of rows as prediction_ids and prediction_labels. N.B. np.nan values are stripped from the record and manifest on our platform as a missing value (not 0.0 or NaN)
         :param actual_labels: Optional Pandas DataFrame with shape (N, 1) or Series. The actual true values for a given model input. Values are associates to the labels in the same index.
         :param shap_values: Optional Pandas DataFrame with shape (N, 1) or Series. The SHAP value sets for a set of predictions. SHAP value sets are correspond to the prediction ids with the same index.
         :param model_type: (ModelTypes) Declares what model type this prediction is for. Binary, Numeric, Categorical, Score_Categorical.
         :param feature_names_overwrite: Optional list<str> that if present will overwrite features.columns values. Must contain the same number of elements as features.columns.
+        :param tag_names_overwrite: Optional list<str> that if present will overwrite tag.columns values. Must contain the same number of elements as tags.columns.
         :param prediction_timestamps: (list<int>) Optional list with same number of elements as prediction_labels field with unix epoch time in seconds to overwrite timestamp for each prediction. If None, prediction uses current timestamp.
         :rtype : list<concurrent.futures.Future>
         """
@@ -391,6 +439,8 @@ class Client:
                 prediction_ids,
                 features,
                 feature_names_overwrite,
+                tags,
+                tag_names_overwrite,
                 prediction_timestamps,
             )
             model_type = (
@@ -448,6 +498,9 @@ class Client:
         if features is not None:
             feature_names = feature_names_overwrite or features.columns
             features = features.to_numpy()
+        if tags is not None:
+            tag_names = tag_names_overwrite or tags.columns
+            tags = tags.to_numpy()
         actual_labels = actual_labels.to_numpy() if actual_labels is not None else None
         shap_columns = shap_values.columns if shap_values is not None else None
         shap_values = shap_values.to_numpy() if shap_values is not None else None
@@ -482,6 +535,14 @@ class Client:
                             converted_feats[str(name)] = val
                     feats = public__pb2.Prediction(features=converted_feats)
                     p.MergeFrom(feats)
+                if tags is not None:
+                    converted_tags = {}
+                    for column, name in enumerate(tag_names):
+                        val = get_value_object(value=tags[row][column], name=name)
+                        if val is not None:
+                            converted_tags[str(name)] = val
+                    tgs = public__pb2.Prediction(tags=converted_tags)
+                    p.MergeFrom(tgs)
                 if prediction_timestamps is not None:
                     p.timestamp.MergeFrom(get_timestamp(prediction_timestamps[row]))
 
@@ -508,7 +569,6 @@ class Client:
                 feature_importances=fi,
             )
             records.append(rec)
-
         brs = get_bulk_records(
             self._organization_key, model_id, model_version, bundle_records(records)
         )
@@ -525,6 +585,7 @@ class Client:
         prediction_ids: Optional[Union[pd.DataFrame, pd.Series]] = None,
         model_type: Optional[ModelTypes] = None,
         features: Optional[Union[pd.DataFrame, pd.Series]] = None,
+        tags: Optional[Union[pd.DataFrame, pd.Series]] = None,
         prediction_timestamps: Optional[Union[List[int], pd.Series]] = None,
     ) -> List[cf.Future]:
         """Logs a set of validation records to Arize. Returns :class:`Future` object.
@@ -537,6 +598,7 @@ class Client:
         :param prediction_scores: 1-D Pandas DataFrame or Series. The predicted scores for the corresponding predicted_label of classification model. If present, elements in prediction_labels must be of type str. Values are associates to the labels in the same index.
         :param prediction_ids: 1-D Pandas DataFrame or Series. The prediction IDs for the corresponding predicted_label of a classification_model. If present, elements in prediction_labels must be of type str. Values are associates to the labels in the same index.
         :param features: Optional 2-D Pandas DataFrame containing human readable and debuggable model features. DataFrames columns (df.columns) should contain feature names and must have same number of rows as actual_labels and prediction_labels. N.B. np.nan values are stripped from the record and manifest on our platform as a missing value (not 0.0 or NaN)
+        :param tags: Optional 2-D Pandas DataFrame containing human readable and debuggable model tags. DataFrames columns (df.columns) should contain tag names and must have same number of rows as actual_labels and prediction_labels. N.B. np.nan values are stripped from the record and manifest on our platform as a missing value (not 0.0 or NaN)
         :param prediction_timestamps: (list<int>) Optional list with same number of elements as prediction_labels field with unix epoch time in seconds to overwrite timestamp for each prediction. If None, prediction uses current timestamp.
         :rtype : list<concurrent.futures.Future>
         """
@@ -547,6 +609,7 @@ class Client:
             model_version=model_version,
             batch_id=batch_id,
             features=features,
+            tags=tags,
             prediction_labels=prediction_labels,
             actual_labels=actual_labels,
             prediction_scores=prediction_scores,
@@ -565,6 +628,7 @@ class Client:
         prediction_scores: Optional[Union[pd.DataFrame, pd.Series]] = None,
         model_type: Optional[ModelTypes] = None,
         features: Optional[Union[pd.DataFrame, pd.Series]] = None,
+        tags: Optional[Union[pd.DataFrame, pd.Series]] = None,
     ) -> List[cf.Future]:
         """Logs a stream of training records to Arize. Returns :class:`Future` object.
         :param model_id: (str) Unique identifier for a given model.
@@ -574,6 +638,7 @@ class Client:
         :param actual_labels: 1-D Pandas DataFrame or Series. The actual true values for a given model input.
         :param prediction_scores: 1-D Pandas DataFrame or Series. The predicted scores for the corresponding predicted_label of classification model. If present, elements in prediction_labels must be of type str. Values are associates to the labels in the same index.
         :param features: Optional 2-D Pandas DataFrame containing human readable and debuggable model features. DataFrames columns (df.columns) should contain feature names and must have same number of rows as actual_labels and prediction_labels. N.B. np.nan values are stripped from the record and manifest on our platform as a missing value (not 0.0 or NaN)
+        :param tags: Optional 2-D Pandas DataFrame containing human readable and debuggable model tags. DataFrames columns (df.columns) should contain tag names and must have same number of rows as actual_labels and prediction_labels. N.B. np.nan values are stripped from the record and manifest on our platform as a missing value (not 0.0 or NaN)
         :rtype : list<concurrent.futures.Future>
         """
         rec = TrainingRecords(
@@ -582,6 +647,7 @@ class Client:
             model_type=model_type,
             model_version=model_version,
             features=features,
+            tags=tags,
             prediction_labels=prediction_labels,
             prediction_scores=prediction_scores,
             actual_labels=actual_labels,
@@ -598,6 +664,7 @@ class Client:
         prediction_label: Union[str, bool, int, float],
         prediction_score: Optional[float] = None,
         features: Optional[Dict[str, Union[str, bool, float, int]]] = None,
+        tags: Optional[Dict[str, Union[str, bool, float, int]]] = None,
         model_type: Optional[ModelTypes] = None,
         time_overwrite: Optional[int] = None,
     ) -> cf.Future:
@@ -608,6 +675,7 @@ class Client:
         :param prediction_label: (one of bool, str, float, int) The predicted value for a given model input.
         :param prediction_score: (float) Optional predicted score for the predicted_label of classification model. If present, the prediction_label must be of type str.
         :param features: (str, <value>) Optional dictionary containing human readable and debuggable model features. Keys must be str, values one of str, bool, float, long.
+        :param tags: (str, <value>) Optional dictionary containing human readable and debuggable model tags. Keys must be str, values one of str, bool, float, long.
         :param model_type: (ModelTypes) Declares what model type this prediction is for. Binary, Numeric, Categorical, Score_Categorical.
         :param time_overwrite: (int) Optional field with unix epoch time in seconds to overwrite timestamp for prediction. If None, prediction uses current timestamp.
         :rtype : concurrent.futures.Future
@@ -691,8 +759,10 @@ class Client:
         prediction_labels: Union[pd.DataFrame, pd.Series],
         prediction_scores: Optional[Union[pd.DataFrame, pd.Series]] = None,
         features: Optional[Union[pd.DataFrame, pd.Series]] = None,
+        tags: Optional[Union[pd.DataFrame, pd.Series]] = None,
         model_type: Optional[ModelTypes] = None,
         feature_names_overwrite: Optional[List[str]] = None,
+        tag_names_overwrite: Optional[List[str]] = None,
         time_overwrite: Optional[List[int]] = None,
     ) -> List[cf.Future]:
         """Logs a collection of predictions with Arize via a POST request. Returns list<:class:`Future`> object.
@@ -704,6 +774,8 @@ class Client:
         :param prediction_scores: 1-D Pandas DataFrame or Series. The predicted scores for the corresponding predicted_label of classification model. If present, elements in prediction_labels must be of type str. Values are associates to the labels in the same index.
         :param features: Optional 2-D Pandas DataFrame containing human readable and debuggable model features. DataFrames columns (df.columns) should contain feature names and must have same number of rows as prediction_ids and prediction_labels. N.B. np.nan values are stripped from the record and manifest on our platform as a missing value (not 0.0 or NaN)
         :param feature_names_overwrite: Optional list<str> that if present will overwrite features.columns values. Must contain the same number of elements as features.columns.
+        :param tags: Optional 2-D Pandas DataFrame containing human readable and debuggable model tags. DataFrames columns (df.columns) should contain tag names and must have same number of rows as prediction_ids and prediction_labels. N.B. np.nan values are stripped from the record and manifest on our platform as a missing value (not 0.0 or NaN)
+        :param tag_names_overwrite: Optional list<str> that if present will overwrite tags.columns values. Must contain the same number of elements as tags.columns.
         :param time_overwrite: (list<int>) Optional list with same number of elements as prediction_labels field with unix epoch time in seconds to overwrite timestamp for each prediction. If None, prediction uses current timestamp.
         :rtype : list<concurrent.futures.Future>
         """
@@ -715,6 +787,8 @@ class Client:
             prediction_labels=pd.concat([prediction_labels, prediction_scores], axis=1),
             features=features,
             feature_names_overwrite=feature_names_overwrite,
+            tags=tags,
+            tag_names_overwrite=tag_names_overwrite,
             prediction_timestamps=time_overwrite,
         )
 
