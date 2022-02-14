@@ -6,7 +6,7 @@ import numpy as np
 import concurrent.futures as cf
 
 from arize.api import Client
-from arize.types import ModelTypes
+from arize.utils.types import ModelTypes
 
 ITERATIONS = 1
 NUM_RECORDS = 100

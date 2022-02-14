@@ -93,7 +93,7 @@ def convert_element(value):
     # Check if it's a list since elements from pd indices are converted to a scalar
     # whereas pd series/dataframe elements are converted to list of 1 with the native value
     if isinstance(val, list):
-        val = val[0]
+        val = val[0] if val else None
     if pd.isna(val):
         return None
     return val
