@@ -42,7 +42,7 @@ If you are using the Arize python client, add a few lines to your code to log pr
 
 ### Install Library
 
-Install the Arize library in an environment using Python > 3.5.3.
+Install the Arize library in an environment using Python >= 3.6.
 ```sh
 $ pip3 install arize
 ```
@@ -50,7 +50,7 @@ $ pip3 install arize
 Or clone the repo:
 ```sh
 $ git clone https://github.com/Arize-ai/client_python.git
-$ python setup.py install
+$ python3 -m pip install client_python/
 ```
 
 ### Initialize Python Client

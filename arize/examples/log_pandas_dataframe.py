@@ -19,9 +19,14 @@ features = pd.DataFrame(
     np.random.randint(0, 100000000, size=(NUM_RECORDS, 12)),
     columns=list("ABCDEFGHIJKL"),
 )
-pred_labels = pd.DataFrame(np.random.randint(0, 100000000, size=(NUM_RECORDS, 2)), columns=["prediction_label", "prediction_score"])
-pred_labels['prediction_label'] = pred_labels['prediction_label'].astype(str)
-ids = pd.DataFrame([str(uuid.uuid4()) for _ in range(NUM_RECORDS)], columns=["prediction_id"])
+pred_labels = pd.DataFrame(
+    np.random.randint(0, 100000000, size=(NUM_RECORDS, 2)),
+    columns=["prediction_label", "prediction_score"],
+)
+pred_labels["prediction_label"] = pred_labels["prediction_label"].astype(str)
+ids = pd.DataFrame(
+    [str(uuid.uuid4()) for _ in range(NUM_RECORDS)], columns=["prediction_id"]
+)
 inferences = pd.concat([features, pred_labels, ids], axis=1)
 
 start = time.time_ns()
@@ -32,10 +37,15 @@ res = client.log(
     model_version="model_version",
     model_type=ModelTypes.SCORE_CATEGORICAL,
     environment=Environments.PRODUCTION,
-    schema=Schema(prediction_id_column_name="prediction_id",
-           feature_column_names=inferences.columns.drop("prediction_label", "prediction_id"),
-           prediction_label_column_name="prediction_label",
-           prediction_score_column_name="prediction_score"))
+    schema=Schema(
+        prediction_id_column_name="prediction_id",
+        feature_column_names=inferences.columns.drop(
+            "prediction_label", "prediction_id"
+        ),
+        prediction_label_column_name="prediction_label",
+        prediction_score_column_name="prediction_score",
+    ),
+)
 
 print(f"future completed with response code {res.status_code}")
 if res.status_code != 200:

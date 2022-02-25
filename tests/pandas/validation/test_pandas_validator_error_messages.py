@@ -52,9 +52,7 @@ def test_invalid_type_features():
 
 def test_invalid_type_tags():
     err_msg = str(
-        err.InvalidTypeTags(
-            ["genotype", "phenotype"], ["Triceratops", "Archaeopteryx"]
-        )
+        err.InvalidTypeTags(["genotype", "phenotype"], ["Triceratops", "Archaeopteryx"])
     )
     assert "genotype" in err_msg
     assert "phenotype" in err_msg
