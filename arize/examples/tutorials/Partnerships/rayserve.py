@@ -15,24 +15,26 @@ from arize.utils.types import ModelTypes
 data = datasets.load_breast_cancer()
 X, y = datasets.load_breast_cancer(return_X_y=True)
 X, y = X.astype(np.float32), y.astype(int)
-X, y = pd.DataFrame(X, columns=data['feature_names']), pd.Series(y)
+X, y = pd.DataFrame(X, columns=data["feature_names"]), pd.Series(y)
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 model = RandomForestClassifier().fit(X_train, y_train)
 
 # Integration starts here
-@serve.deployment(name='ArizeModel')
+@serve.deployment(name="ArizeModel")
 class ArizeModel:
     """
     Rayserve and Arize Quick-start Integration Model
     """
+
     def __init__(self):
-        self.model = model # change to reading a pkl file, or otherwise
+        self.model = model  # change to reading a pkl file, or otherwise
         # Step 1 Save Arize client
-        self.arize = Client(organization_key='YOUR_ORGANIZATION_KEY',
-                            api_key='YOUR_API_KEY')
+        self.arize = Client(
+            organization_key="YOUR_ORGANIZATION_KEY", api_key="YOUR_API_KEY"
+        )
         # Step 2 Saving model metadata for passing in later
-        self.model_id = 'rayserve-model'
-        self.model_version = '1.0'
+        self.model_id = "rayserve-model"
+        self.model_version = "1.0"
         self.model_type = ModelTypes.BINARY
 
     async def __call__(self, starlette_request):
@@ -59,8 +61,8 @@ class ArizeModel:
             arize_success = arize_success and status_code == 200
 
         # Return production inferences and arize logging results
-        return {'result': y_test.to_numpy(),
-                'arize-sucessful': arize_success}
+        return {"result": y_test.to_numpy(), "arize-sucessful": arize_success}
+
 
 serve.start()
 # Model deployment
@@ -68,9 +70,7 @@ ArizeModel.deploy()
 
 # Simulate production setting
 input = X_test.to_json()
-response = requests.get(
-    "http://localhost:8000/ArizeModel", json=input
-    )
+response = requests.get("http://localhost:8000/ArizeModel", json=input)
 # Display results
 print(response.text)
 

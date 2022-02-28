@@ -56,7 +56,9 @@ def _label_validation(
             and isinstance(label[1], float)
         )
         if isinstance(label, tuple) and label[1] is np.nan:
-            raise ValueError(f"Prediction score for ModelTypes.SCORE_CATEGORICAL cannot be null value")
+            raise ValueError(
+                f"Prediction score for ModelTypes.SCORE_CATEGORICAL cannot be null value"
+            )
 
         if not c:
             raise TypeError(
@@ -89,6 +91,7 @@ def _get_label(
         f"{name}_label = {value} of type {type(value)}. Must be one of str, bool, float, int, or Tuple[str, float]"
     )
 
+
 def _get_score_categorical_label(value):
     sc = public__pb2.ScoreCategorical()
     if value[1] is not None:
@@ -98,6 +101,7 @@ def _get_score_categorical_label(value):
         sc.category.category = value[0]
 
     return public__pb2.Label(score_categorical=sc)
+
 
 def _validate_bulk_prediction(
     model_version,
@@ -167,7 +171,11 @@ def _validate_bulk_prediction(
                 )
         else:
             for name in features.columns:
-                if not isinstance(name, str) and not isinstance(name, int) and not isinstance(name, float):
+                if (
+                    not isinstance(name, str)
+                    and not isinstance(name, int)
+                    and not isinstance(name, float)
+                ):
                     raise TypeError(
                         f"features.column {name} is type {type(name)}, but expect str"
                     )
@@ -175,9 +183,7 @@ def _validate_bulk_prediction(
         # Validate tags type, shape matches prediction ids, and handle tag names overwrite
     if tags is not None:
         if not isinstance(tags, pd.DataFrame):
-            raise TypeError(
-                f"tags is type {type(tags)}, but expect type pd.DataFrame."
-            )
+            raise TypeError(f"tags is type {type(tags)}, but expect type pd.DataFrame.")
         if tags.shape[0] != prediction_ids.shape[0]:
             raise ValueError(
                 f"tags has {tags.shape[0]} sets of tags, but must match size of predictions_ids: "
@@ -191,7 +197,11 @@ def _validate_bulk_prediction(
                 )
         else:
             for name in tags.columns:
-                if not isinstance(name, str) and not isinstance(name, int) and not isinstance(name, float):
+                if (
+                    not isinstance(name, str)
+                    and not isinstance(name, int)
+                    and not isinstance(name, float)
+                ):
                     raise TypeError(
                         f"tags.column {name} is type {type(name)}, but expect str"
                     )
@@ -253,8 +263,12 @@ class Client:
         prediction_label: Union[str, bool, int, float, Tuple[str, float]] = None,
         actual_label: Union[str, bool, int, float, Tuple[str, float]] = None,
         shap_values: Dict[str, float] = None,
-        features: Optional[Dict[Union[str, int, float], Union[str, bool, float, int]]] = None,
-        tags: Optional[Dict[Union[str, int, float], Union[str, bool, float, int]]] = None,
+        features: Optional[
+            Dict[Union[str, int, float], Union[str, bool, float, int]]
+        ] = None,
+        tags: Optional[
+            Dict[Union[str, int, float], Union[str, bool, float, int]]
+        ] = None,
         model_type: Optional[ModelTypes] = None,
         prediction_timestamp: Optional[int] = None,
     ) -> cf.Future:
@@ -507,7 +521,11 @@ class Client:
 
         records = []
         for row, v in enumerate(prediction_ids):
-            pred_id = v if (isinstance(v, str) or isinstance(v, int) or isinstance(v, float)) else v[0]
+            pred_id = (
+                v
+                if (isinstance(v, str) or isinstance(v, int) or isinstance(v, float))
+                else v[0]
+            )
             p = None
             if prediction_labels is not None:
                 # if there is more than 1 dimension, and the second dimension size is 2 - TODO instead just guarantee shape is always (X,Y) instead of sometimes (X,)
@@ -846,5 +864,3 @@ class Client:
                 )
             )
         return futures
-
-

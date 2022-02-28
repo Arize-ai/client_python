@@ -262,7 +262,7 @@ class Validator:
 
     @staticmethod
     def _check_type_tags(
-            schema: "Schema", column_types: Dict[str, Any]
+        schema: "Schema", column_types: Dict[str, Any]
     ) -> List[err.InvalidTypeTags]:
         if schema.tag_column_names is not None:
             # should mirror server side

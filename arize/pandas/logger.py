@@ -51,6 +51,7 @@ class Client:
         sync: Optional[bool] = False,
         validate: Optional[bool] = True,
         path: Optional[str] = None,
+        timeout: Optional[float] = None,
     ) -> requests.Response:
         logger = logging.getLogger(__name__)
 
@@ -211,15 +212,18 @@ class Client:
             writer = pa.ipc.new_stream(tmp_file, pa_schema)
             writer.write_table(ta, max_chunksize=65536)
             writer.close()
-            response = self._post_file(tmp_file, base64_schema, sync)
+            response = self._post_file(tmp_file, base64_schema, sync, timeout)
         finally:
             if path is None:
                 f.close()
-
         return response
 
     def _post_file(
-        self, path: str, schema: bytes, sync: Optional[bool]
+        self,
+        path: str,
+        schema: bytes,
+        sync: Optional[bool],
+        timeout: Optional[float] = None,
     ) -> requests.Response:
         with open(path, "rb") as f:
             headers = {
@@ -233,6 +237,7 @@ class Client:
                 headers["sync"] = "1"
             return requests.post(
                 self._files_uri,
+                timeout=timeout,
                 data=f,
                 headers=headers,
             )

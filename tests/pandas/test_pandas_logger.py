@@ -3,15 +3,23 @@ import os
 
 import pandas as pd
 import pytest
+from requests import Response
 
 import arize.pandas.validation.errors as err
 from arize.pandas.logger import Client, Schema
 from arize.utils.types import Environments, ModelTypes
 
 
+class MockResponse(Response):
+    def __init__(self, file_size, reason, status_code):
+        self.file_size = file_size
+        self.reason = reason
+        self.status_code = status_code
+
+
 class NoSendClient(Client):
-    def _post_file(self, path, schema, sync):
-        return os.path.getsize(path)
+    def _post_file(self, path, schema, sync, timeout):
+        return MockResponse(os.path.getsize(path), "Success", 200)
 
 
 def test_production_zero_errors():
@@ -58,7 +66,7 @@ def test_production_zero_errors():
     )
 
     try:
-        file_size = client.log(
+        response = client.log(
             dataframe=df,
             model_id=3.14,
             model_version=1.0,
@@ -80,7 +88,7 @@ def test_production_zero_errors():
     except err.ValidationFailure:
         assert False
 
-    assert file_size > 0
+    assert response.file_size > 0
 
 
 if __name__ == "__main__":
