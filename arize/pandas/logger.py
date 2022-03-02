@@ -1,3 +1,4 @@
+import sys
 import base64
 import logging
 from dataclasses import dataclass
@@ -13,6 +14,7 @@ import tempfile
 from arize import public_pb2 as pb
 from arize.__init__ import __version__
 from arize.utils.types import ModelTypes, Environments
+from arize.utils.utils import reconstruct_url
 import arize.pandas.validation.errors as err
 from arize.pandas.validation.validator import Validator
 
@@ -52,7 +54,12 @@ class Client:
         validate: Optional[bool] = True,
         path: Optional[str] = None,
         timeout: Optional[float] = None,
+        surrogate_explainability: Optional[bool] = False,
     ) -> requests.Response:
+
+        if hasattr(sys, "ps1"):
+            # only for python interactive mode
+            logging.basicConfig(format="%(message)s", level=logging.INFO)
         logger = logging.getLogger(__name__)
 
         if model_id is not None and not isinstance(model_id, str):
@@ -101,6 +108,32 @@ class Client:
             ]
             cat_str_map = dict(zip(cat_cols, ["str"] * len(cat_cols)))
             dataframe = dataframe.astype(cat_str_map)
+
+        if surrogate_explainability:
+            try:
+                from arize.pandas.surrogate_explainer.mimic import Mimic
+            except ImportError:
+                raise ImportError(
+                    "To enable surrogate explainability, "
+                    "the arize module must be installed with the MimicExplainer option: pip install 'arize[MimicExplainer]'."
+                )
+            if schema.shap_values_column_names:
+                logger.info(
+                    "surrogate_explainability=True has no effect "
+                    "because shap_values_column_names is already specified in schema."
+                )
+            elif schema.feature_column_names is None or (
+                hasattr(schema.feature_column_names, "__len__")
+                and len(schema.feature_column_names) == 0
+            ):
+                logger.info(
+                    "surrogate_explainability=True has no effect "
+                    "because feature_column_names is empty or not specified in schema."
+                )
+            else:
+                dataframe, schema = Mimic.augment(
+                    df=dataframe, schema=schema, model_type=model_type
+                )
 
         # pyarrow will err if a mixed type column exist in the dataset even if
         # the column is not specified in schema. Caveat: There may be other
@@ -216,6 +249,12 @@ class Client:
         finally:
             if path is None:
                 f.close()
+
+        try:
+            logger.info(f"Success! Check out your data at {reconstruct_url(response)}")
+        except:
+            pass
+
         return response
 
     def _post_file(

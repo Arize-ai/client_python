@@ -12,6 +12,7 @@ from arize.utils.types import Environments, ModelTypes
 
 class MockResponse(Response):
     def __init__(self, file_size, reason, status_code):
+        super().__init__()
         self.file_size = file_size
         self.reason = reason
         self.status_code = status_code
@@ -19,8 +20,8 @@ class MockResponse(Response):
 
 class NoSendClient(Client):
     def _post_file(self, path, schema, sync, timeout):
-        return MockResponse(os.path.getsize(path), "Success", 200)
-
+        return MockResponse(os.path.getsize(path), 'Success', 200)
+        
 
 def test_production_zero_errors():
     client = NoSendClient("apikey", "organizationkey")

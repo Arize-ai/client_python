@@ -1,8 +1,10 @@
 import math
 import time
+import base64
 import pandas as pd
+import json
 
-from typing import Union, Optional, Tuple
+from typing import Union, Optional, Tuple, Any
 
 from arize import public_pb2 as public__pb2
 from arize.utils.types import ModelTypes
@@ -139,3 +141,12 @@ def is_timestamp_in_range(now: int, ts: int):
     if ts < min_time:
         return False
     return True
+
+
+def reconstruct_url(response: Any):
+    returnedUrl = json.loads(response.content.decode())["realTimeIngestionUri"]
+    parts = returnedUrl.split("/")
+    encodedOrg = base64.b64encode(f"AccountOrganization:{parts[4]}".encode()).decode()
+    encodedSpace = base64.b64encode(f"Space:{parts[6]}".encode()).decode()
+    reconstructed = f"https://{parts[2]}/organizations/{encodedOrg}/spaces/{encodedSpace}/models/modelName/{parts[-1]}"
+    return reconstructed
