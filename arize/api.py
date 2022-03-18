@@ -218,7 +218,7 @@ class Client:
     def __init__(
         self,
         api_key: str,
-        organization_key: str,
+        space_key: str,
         uri="https://api.arize.com/v1",
         max_workers=8,
         max_queue_bound=5000,
@@ -227,14 +227,14 @@ class Client:
     ):
         """
         :params api_key: (str) api key associated with your account with Arize AI
-        :params organization_key: (str) organization key in Arize AI
+        :params space_key: (str) space key in Arize AI
         :params max_workers: (int) number of max concurrent requests to Arize. Default: 20
         :max_queue_bound: (int) number of maximum concurrent future objects being generated for publishing to Arize. Default: 5000
         """
 
-        if not isinstance(organization_key, str):
+        if not isinstance(space_key, str):
             raise TypeError(
-                f"organization_key {organization_key} is type {type(organization_key)}, but must be a str"
+                f"space_key {space_key} is type {type(space_key)}, but must be a str"
             )
         self._retry_attempts = retry_attempts
         self._uri = uri + "/log"
@@ -242,7 +242,7 @@ class Client:
         self._stream_uri = uri + "/preprod"
         self._files_uri = uri + "/files"
         self._api_key = api_key
-        self._organization_key = organization_key
+        self._space_key = space_key
         self._timeout = timeout
         self._session = FuturesSession(
             executor=BoundedExecutor(max_queue_bound, max_workers)
@@ -250,7 +250,7 @@ class Client:
         # Grpc-Metadata prefix is required to pass non-standard md through via grpc-gateway
         self._header = {
             "authorization": api_key,
-            "Grpc-Metadata-organization": organization_key,
+            "Grpc-Metadata-space": space_key,
             "Grpc-Metadata-sdk-version": __version__,
             "Grpc-Metadata-sdk": "py",
         }
@@ -392,7 +392,7 @@ class Client:
             )
 
         rec = public__pb2.Record(
-            organization_key=self._organization_key,
+            space_key=self._space_key,
             model_id=model_id,
             prediction_id=str(prediction_id),
             prediction=p,
@@ -588,7 +588,7 @@ class Client:
             )
             records.append(rec)
         brs = get_bulk_records(
-            self._organization_key, model_id, model_version, bundle_records(records)
+            self._space_key, model_id, model_version, bundle_records(records)
         )
         return self._post_bulk(records=brs, uri=self._bulk_url)
 
@@ -621,7 +621,7 @@ class Client:
         :rtype : list<concurrent.futures.Future>
         """
         rec = ValidationRecords(
-            organization_key=self._organization_key,
+            space_key=self._space_key,
             model_id=model_id,
             model_type=model_type,
             model_version=model_version,
@@ -660,7 +660,7 @@ class Client:
         :rtype : list<concurrent.futures.Future>
         """
         rec = TrainingRecords(
-            organization_key=self._organization_key,
+            space_key=self._space_key,
             model_id=model_id,
             model_type=model_type,
             model_version=model_version,

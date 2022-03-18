@@ -21,11 +21,11 @@ from arize.utils.utils import (
 class BaseRecord(ABC):
     def __init__(
         self,
-        organization_key: str,
+        space_key: str,
         model_id: str,
         model_type: Optional[ModelTypes] = None,
     ):
-        self.organization_key = organization_key
+        self.space_key = space_key
         self.model_id = model_id
         self.model_type = model_type
 
@@ -38,9 +38,9 @@ class BaseRecord(ABC):
         pass
 
     def _base_validation(self):
-        if not isinstance(self.organization_key, str):
+        if not isinstance(self.space_key, str):
             raise TypeError(
-                f"organization_key {self.organization_key} is type {type(self.organization_key)}, but must be a str"
+                f"space_key {self.space_key} is type {type(self.space_key)}, but must be a str"
             )
         if not isinstance(self.model_id, str):
             raise TypeError(
@@ -95,7 +95,7 @@ class BaseRecord(ABC):
 class PreProductionRecords(BaseRecord, ABC):
     def __init__(
         self,
-        organization_key: str,
+        space_key: str,
         model_id: str,
         model_version: str,
         prediction_labels: Union[pd.DataFrame, pd.Series],
@@ -116,7 +116,7 @@ class PreProductionRecords(BaseRecord, ABC):
             else:
                 model_type = ModelTypes.SCORE_CATEGORICAL
         super().__init__(
-            organization_key=organization_key, model_id=model_id, model_type=model_type
+            space_key=space_key, model_id=model_id, model_type=model_type
         )
         self.model_version = model_version
         self.features = features
@@ -219,7 +219,7 @@ class PreProductionRecords(BaseRecord, ABC):
 class TrainingRecords(PreProductionRecords):
     def __init__(
         self,
-        organization_key: str,
+        space_key: str,
         model_id: str,
         model_version: str,
         prediction_labels: Union[pd.DataFrame, pd.Series],
@@ -230,7 +230,7 @@ class TrainingRecords(PreProductionRecords):
         prediction_scores: Optional[Union[pd.DataFrame, pd.Series]] = None,
     ):
         super().__init__(
-            organization_key=organization_key,
+            space_key=space_key,
             model_id=model_id,
             model_type=model_type,
             model_version=model_version,
@@ -284,7 +284,7 @@ class TrainingRecords(PreProductionRecords):
                 actual=a,
             )
             r = public__pb2.Record(
-                organization_key=self.organization_key,
+                space_key=self.space_key,
                 model_id=self.model_id,
                 prediction_and_actual=panda,
             )
@@ -299,7 +299,7 @@ class TrainingRecords(PreProductionRecords):
 class ValidationRecords(PreProductionRecords):
     def __init__(
         self,
-        organization_key: str,
+        space_key: str,
         model_id: str,
         model_version: str,
         batch_id: str,
@@ -313,7 +313,7 @@ class ValidationRecords(PreProductionRecords):
         prediction_timestamps: Optional[Union[List[int], pd.Series]] = None,
     ):
         super().__init__(
-            organization_key=organization_key,
+            space_key=space_key,
             model_id=model_id,
             model_type=model_type,
             model_version=model_version,
@@ -393,7 +393,7 @@ class ValidationRecords(PreProductionRecords):
             )
             r = public__pb2.Record(
                 prediction_id=prediction_id,
-                organization_key=self.organization_key,
+                space_key=self.space_key,
                 model_id=self.model_id,
                 prediction_and_actual=panda,
             )

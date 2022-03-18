@@ -15,8 +15,8 @@ def lambda_handler(event, context):
     default_bucket = "DEFAULT_BUCKET"
     # This should match key_prefix in Jupyter Notebook
     s3_schema_key_prefix = "input_schema/abalone"
-    # ORGINIZATION KEY - SUPPLIED BY ARIZE
-    org_key = "ORG_KEY"
+    # SPACE KEY - SUPPLIED BY ARIZE
+    space_key = "SPACE_KEY"
     # API KEY - GENERATED IN ARIZE ACCOUNT OR SUPPLIED
     api_key = "API_KEY"
     verbose = True
@@ -99,7 +99,7 @@ def lambda_handler(event, context):
     for index, col in enumerate(columns):
         features[col] = str(payload["data"][index])
     # ARIZE Client
-    arize_client = Client(organization_key=org_key, api_key=api_key)
+    arize_client = Client(space_key=space_key, api_key=api_key)
     # Prediction ID in this test is Random / IT SHOULD BE SOMETHING MATACHABLE FOR ACTUALS
     prediction_id = datetime.datetime.today().strftime("%m_%d_%Y__%H_%M_%S")
     tfuture = arize_client.log_prediction(

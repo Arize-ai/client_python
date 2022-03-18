@@ -35,10 +35,10 @@ class Schema:
 
 class Client:
     def __init__(
-        self, api_key: str, organization_key: str, uri: str = "https://api.arize.com/v1"
+        self, api_key: str, space_key: str, uri: str = "https://api.arize.com/v1"
     ):
         self._api_key = api_key
-        self._organization_key = organization_key
+        self._space_key = space_key
         self._files_uri = uri + "/pandas_arrow"
 
     def log(
@@ -267,7 +267,7 @@ class Client:
         with open(path, "rb") as f:
             headers = {
                 "authorization": self._api_key,
-                "organization": self._organization_key,
+                "space": self._space_key,
                 "schema": schema,
                 "sdk-version": __version__,
                 "sdk": "py",

@@ -21,10 +21,10 @@ class MockResponse(Response):
 class NoSendClient(Client):
     def _post_file(self, path, schema, sync, timeout):
         return MockResponse(os.path.getsize(path), 'Success', 200)
-        
+
 
 def test_production_zero_errors():
-    client = NoSendClient("apikey", "organizationkey")
+    client = NoSendClient("apikey", "spaceKey")
     df = pd.DataFrame(
         {
             "prediction_id": pd.Series([0, 1, 2]),
