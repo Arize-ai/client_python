@@ -77,12 +77,12 @@ def bundle_records(records) -> {}:
 
 
 def get_bulk_records(
-    organization_key: str, model_id: str, model_version: Optional[str], records
+    space_key: str, model_id: str, model_version: Optional[str], records
 ):
     for k, r in records.items():
         records[k] = public__pb2.BulkRecord(
             records=r,
-            organization_key=organization_key,
+            space_key=space_key,
             model_id=model_id,
             model_version=model_version,
         )

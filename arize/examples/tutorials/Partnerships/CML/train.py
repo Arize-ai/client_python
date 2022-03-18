@@ -48,7 +48,7 @@ with open("metrics.txt", "w") as outfile:
 ########## Arize AI Validation Sample ############
 #############################################
 
-ORG_KEY = "ORG_KEY"
+SPACE_KEY = "SPACE_KEY"
 API_KEY = "API_KEY"
 model_name = "validation-wine-model-cicd"
 
@@ -59,7 +59,7 @@ model_version_id_now = "train_validate_" + datetime_rightnow.strftime(
 )
 id_df = pd.DataFrame([str(id) + model_version_id_now for id in X_test.index])
 arize_client = Client(
-    organization_key=ORG_KEY, api_key=API_KEY, uri="https://devr.arize.com/v1"
+    space_key=SPACE_KEY, api_key=API_KEY, uri="https://devr.arize.com/v1"
 )
 tfuture = arize_client.log(
     model_id=model_name,

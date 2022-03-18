@@ -28,7 +28,7 @@ expected = {
     "value_binary": BOOL_VAL,
     "value_categorical": STR_VAL,
     "value_numeric": NUM_VAL,
-    "organization_key": "test_org",
+    "space_key": "test_space",
     "features": {
         "feature_str": STR_VAL,
         "feature_double": NUM_VAL,
@@ -78,7 +78,7 @@ def mock_series(file):
 
 def get_stubbed_client():
     c = Client(
-        organization_key="test_org", api_key="API_KEY", uri="https://localhost:443"
+        space_key="test_space", api_key="API_KEY", uri="https://localhost:443"
     )
 
     def _post(record, uri, indexes):
@@ -121,7 +121,7 @@ def test_build_binary_prediction_features():
         assert isinstance(record.prediction.features[feature], public__pb2.Value)
     for tag in record.prediction.tags:
         assert isinstance(record.prediction.tags[tag], public__pb2.Value)
-    assert record.organization_key == expected["organization_key"]
+    assert record.space_key == expected["space_key"]
     assert record.model_id == expected["model"]
     assert record.prediction_id == expected["prediction_id"]
     assert record.prediction.model_version == expected["model_version"]
@@ -202,7 +202,7 @@ def test_build_binary_prediction_dimensions():
         assert isinstance(record.prediction.features[feature], public__pb2.Value)
     for tag in record.prediction.tags:
         assert isinstance(record.prediction.tags[tag], public__pb2.Value)
-    assert record.organization_key == expected["organization_key"]
+    assert record.space_key == expected["space_key"]
     assert record.model_id == expected["model"]
     assert record.prediction_id == expected["prediction_id"]
     assert record.prediction.model_version == expected["model_version"]
@@ -239,7 +239,7 @@ def test_build_binary_prediction_zero_ones():
         assert isinstance(record.prediction.features[feature], public__pb2.Value)
     for tag in record.prediction.tags:
         assert isinstance(record.prediction.tags[tag], public__pb2.Value)
-    assert record.organization_key == expected["organization_key"]
+    assert record.space_key == expected["space_key"]
     assert record.model_id == expected["model"]
     assert record.prediction_id == expected["prediction_id"]
     assert record.prediction.model_version == expected["model_version"]
@@ -270,7 +270,7 @@ def test_build_categorical_prediction():
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.prediction, public__pb2.Prediction)
     assert isinstance(record.prediction.label, public__pb2.Label)
-    assert record.organization_key == expected["organization_key"]
+    assert record.space_key == expected["space_key"]
     assert record.model_id == expected["model"]
     assert record.prediction_id == expected["prediction_id"]
     assert record.prediction.model_version == expected["model_version"]
@@ -298,7 +298,7 @@ def test_build_scored_prediction():
         record.prediction.label.score_categorical, public__pb2.ScoreCategorical
     )
 
-    assert record.organization_key == expected["organization_key"]
+    assert record.space_key == expected["space_key"]
     assert record.model_id == expected["model"]
     assert record.prediction_id == expected["prediction_id"]
     assert record.prediction.model_version == expected["model_version"]
@@ -330,7 +330,7 @@ def test_build_scored_actual():
         record.actual.label.score_categorical, public__pb2.ScoreCategorical
     )
 
-    assert record.organization_key == expected["organization_key"]
+    assert record.space_key == expected["space_key"]
     assert record.model_id == expected["model"]
     assert record.prediction_id == expected["prediction_id"]
     assert record.actual.label.score_categorical.HasField("category")
@@ -350,7 +350,7 @@ def test_build_numeric_prediction():
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.prediction, public__pb2.Prediction)
     assert isinstance(record.prediction.label, public__pb2.Label)
-    assert record.organization_key == expected["organization_key"]
+    assert record.space_key == expected["space_key"]
     assert record.model_id == expected["model"]
     assert record.prediction_id == expected["prediction_id"]
     assert record.prediction.model_version == expected["model_version"]
@@ -397,7 +397,7 @@ def test_build_numeric_actual():
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.actual, public__pb2.Actual)
     assert isinstance(record.actual.label, public__pb2.Label)
-    assert record.organization_key == expected["organization_key"]
+    assert record.space_key == expected["space_key"]
     assert record.model_id == expected["model"]
     assert record.prediction_id == expected["prediction_id"]
     assert record.actual.label.numeric == expected["value_numeric"]
@@ -415,7 +415,7 @@ def test_build_categorical_actual():
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.actual, public__pb2.Actual)
     assert isinstance(record.actual.label, public__pb2.Label)
-    assert record.organization_key == expected["organization_key"]
+    assert record.space_key == expected["space_key"]
     assert record.model_id == expected["model"]
     assert record.prediction_id == expected["prediction_id"]
     assert record.actual.label.categorical == expected["value_categorical"]
@@ -431,7 +431,7 @@ def test_build_binary_actual():
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.actual, public__pb2.Actual)
     assert isinstance(record.actual.label, public__pb2.Label)
-    assert record.organization_key == expected["organization_key"]
+    assert record.space_key == expected["space_key"]
     assert record.model_id == expected["model"]
     assert record.prediction_id == expected["prediction_id"]
     assert record.actual.label.binary == expected["value_binary"]
@@ -459,7 +459,7 @@ def test_build_bulk_predictions_dataframes():
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes == (0, len(ids))
-        assert bulk.organization_key == expected["organization_key"]
+        assert bulk.space_key == expected["space_key"]
         assert bulk.model_id == expected["model"]
         assert bulk.model_version == expected["model_version"]
         assert not hasattr(bulk, "timestamp")
@@ -493,7 +493,7 @@ def test_numeric_prediction_ids():
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes == (0, len(ids))
-        assert bulk.organization_key == expected["organization_key"]
+        assert bulk.space_key == expected["space_key"]
         assert bulk.model_id == expected["model"]
         assert bulk.model_version == expected["model_version"]
         assert not hasattr(bulk, "timestamp")
@@ -535,7 +535,7 @@ def test_numeric_feature_names():
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes == (0, len(ids))
-        assert bulk.organization_key == expected["organization_key"]
+        assert bulk.space_key == expected["space_key"]
         assert bulk.model_id == expected["model"]
         assert bulk.model_version == expected["model_version"]
         assert not hasattr(bulk, "timestamp")
@@ -576,7 +576,7 @@ def test_numeric_tag_names():
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes == (0, len(ids))
-        assert bulk.organization_key == expected["organization_key"]
+        assert bulk.space_key == expected["space_key"]
         assert bulk.model_id == expected["model"]
         assert bulk.model_version == expected["model_version"]
         assert not hasattr(bulk, "timestamp")
@@ -614,7 +614,7 @@ def test_build_bulk_scored_predictions():
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes[1] - indexes[0] == len(ids) / 2
-        assert bulk.organization_key == expected["organization_key"]
+        assert bulk.space_key == expected["space_key"]
         assert bulk.model_id == expected["model"]
         assert bulk.model_version == expected["model_version"]
         assert not hasattr(bulk, "timestamp")
@@ -661,7 +661,7 @@ def test_build_bulk_predictions_dataframes_with_nans():
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes == (0, len(ids))
-        assert bulk.organization_key == expected["organization_key"]
+        assert bulk.space_key == expected["space_key"]
         assert bulk.model_id == expected["model"]
         assert bulk.model_version == expected["model_version"]
         assert not hasattr(bulk, "timestamp")
@@ -695,7 +695,7 @@ def test_build_bulk_predictions_no_features():
         assert isinstance(bulk, public__pb2.BulkRecord)
         for r in bulk.records:
             assert isinstance(r, public__pb2.Record)
-            assert not bool(r.organization_key)
+            assert not bool(r.space_key)
             assert not bool(r.model_id)
             assert not bool(r.prediction.features)
             assert not bool(r.prediction.tags)
@@ -721,7 +721,7 @@ def test_build_bulk_prediction_with_feature_names_overwrites():
         assert isinstance(bulk, public__pb2.BulkRecord)
         for r in bulk.records:
             assert isinstance(r, public__pb2.Record)
-            assert not bool(r.organization_key)
+            assert not bool(r.space_key)
             assert not bool(r.model_id)
             assert bool(r.prediction.features)
             for feature in r.prediction.features:
@@ -740,7 +740,7 @@ def test_build_bulk_actuals_dataframes():
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes == (0, len(ids))
-        assert bulk.organization_key == expected["organization_key"]
+        assert bulk.space_key == expected["space_key"]
         assert bulk.model_id == expected["model"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
@@ -917,7 +917,7 @@ def test_build_bulk_prediction_with_prediction_timestamps():
         assert isinstance(bulk, public__pb2.BulkRecord)
         for r in bulk.records:
             assert isinstance(r, public__pb2.Record)
-            assert not bool(r.organization_key)
+            assert not bool(r.space_key)
             assert not bool(r.model_id)
             assert bool(r.prediction.features)
             assert bool(r.prediction.tags)
@@ -959,7 +959,7 @@ def test_build_bulk_predictions_index():
     )
     record_count = 0
     for _, bulk in bulk_records.items():
-        assert bulk.organization_key == expected["organization_key"]
+        assert bulk.space_key == expected["space_key"]
         assert bulk.model_id == expected["model"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
@@ -982,7 +982,7 @@ def test_build_bulk_actuals_index():
     )
     record_count = 0
     for _, bulk in bulk_records.items():
-        assert bulk.organization_key == expected["organization_key"]
+        assert bulk.space_key == expected["space_key"]
         assert bulk.model_id == expected["model"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
@@ -1014,7 +1014,7 @@ def test_build_bulk_binary_predictions():
     )
     record_count = 0
     for _, bulk in bulk_records.items():
-        assert bulk.organization_key == expected["organization_key"]
+        assert bulk.space_key == expected["space_key"]
         assert bulk.model_id == expected["model"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
@@ -1038,7 +1038,7 @@ def test_build_bulk_binary_actuals():
     )
     record_count = 0
     for _, bulk in bulk_records.items():
-        assert bulk.organization_key == expected["organization_key"]
+        assert bulk.space_key == expected["space_key"]
         assert bulk.model_id == expected["model"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
@@ -1060,7 +1060,7 @@ def test_build_feature_importances():
     )
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.feature_importances, public__pb2.FeatureImportances)
-    assert record.organization_key == expected["organization_key"]
+    assert record.space_key == expected["space_key"]
     assert record.model_id == expected["model"]
     assert record.prediction_id == expected["prediction_id"]
     assert len(record.feature_importances.feature_importances) == len(
@@ -1148,7 +1148,7 @@ def test_build_bulk_feature_importances():
     )
     record_count = 0
     for _, bulk in bulk_records.items():
-        assert bulk.organization_key == expected["organization_key"]
+        assert bulk.space_key == expected["space_key"]
         assert bulk.model_id == expected["model"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
@@ -1200,7 +1200,7 @@ def test_build_bulk_feature_importances_error_mismatch():
 #
 #     ex = None
 #     try:
-#         bulk_fi = BulkFeatureImportances(organization_key=expected['organization_key'],
+#         bulk_fi = BulkFeatureImportances(space_key=expected['space_key'],
 #                                          model_id=expected['model'],
 #                                          prediction_ids=ids,
 #                                          feature_importances=feature_importances)
@@ -1216,7 +1216,7 @@ def test_build_bulk_feature_importances_error_mismatch():
 def test_build_training_records():
     features, tags, labels, _ = mock_dataframes_clean_nan(file_to_open)
     recs = TrainingRecords(
-        organization_key=expected["organization_key"],
+        space_key=expected["space_key"],
         model_id=expected["model"],
         model_type=ModelTypes.NUMERIC,
         model_version=expected["model_version"],
@@ -1236,8 +1236,8 @@ def test_build_training_records():
             )
             assert isinstance(rec.training_record.record, public__pb2.Record)
             assert (
-                rec.training_record.record.organization_key
-                == expected["organization_key"]
+                rec.training_record.record.space_key
+                == expected["space_key"]
             )
             assert rec.training_record.record.model_id == expected["model"]
             assert (
@@ -1311,8 +1311,8 @@ def test_send_validation_records():
             assert isinstance(rec.validation_record.record, public__pb2.Record)
             assert rec.validation_record.batch_id == expected["batch"]
             assert (
-                rec.validation_record.record.organization_key
-                == expected["organization_key"]
+                rec.validation_record.record.space_key
+                == expected["space_key"]
             )
             assert rec.validation_record.record.model_id == expected["model"]
             assert (
@@ -1401,7 +1401,7 @@ def test_build_bulk_binary_predictions_deprecated_method():
     )
     record_count = 0
     for _, bulk in bulk_records.items():
-        assert bulk.organization_key == expected["organization_key"]
+        assert bulk.space_key == expected["space_key"]
         assert bulk.model_id == expected["model"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
@@ -1441,8 +1441,8 @@ def test_validation_predictions_ids_as_index_series():
             assert isinstance(rec.validation_record.record, public__pb2.Record)
             assert rec.validation_record.batch_id == expected["batch"]
             assert (
-                rec.validation_record.record.organization_key
-                == expected["organization_key"]
+                rec.validation_record.record.space_key
+                == expected["space_key"]
             )
             assert rec.validation_record.record.model_id == expected["model"]
             assert (

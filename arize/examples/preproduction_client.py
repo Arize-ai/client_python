@@ -15,7 +15,7 @@ BATCHES = 1
 NUM_RECORDS = 1
 
 arize = Client(
-    organization_key=os.environ.get("ARIZE_ORG_KEY"),
+    space_key=os.environ.get("ARIZE_SPACE_KEY"),
     api_key=os.environ.get("ARIZE_API_KEY"),
 )
 

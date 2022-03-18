@@ -12,7 +12,7 @@ ITERATIONS = 1
 NUM_FEATURES = 5
 
 arize = Client(
-    organization_key=os.environ.get("ARIZE_ORG_KEY"),
+    space_key=os.environ.get("ARIZE_SPACE_KEY"),
     api_key=os.environ.get("ARIZE_API_KEY"),
 )
 

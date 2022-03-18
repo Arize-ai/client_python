@@ -18,8 +18,8 @@ def get_csv_output_from_s3(s3uri, file_name):
 
 
 def lambda_handler(event, context):
-    # ORGINIZATION KEY - SUPPLIED BY ARIZE
-    org_key = "ORG_KEY_HERE"
+    # SPACE KEY - SUPPLIED BY ARIZE
+    space_key = "SPACE_KEY_HERE"
     # API KEY - GENERATED IN ARIZE ACCOUNT OR SUPPLIED
     api_key = "API_KEY_HERE"
     # Test
@@ -64,7 +64,7 @@ def lambda_handler(event, context):
                 predictions_df = output_df["predictions"]
                 features_df = output_df.drop(["predictions"], axis=1)
                 ## ARIZE CLIENT SETUP ##
-                arize_client = Client(organization_key=org_key, api_key=api_key)
+                arize_client = Client(space_key=space_key, api_key=api_key)
                 # Turn Predictions into strings - classification 1/0
                 ids = pd.DataFrame([str(x) + "_" + batch_id for x in features_df.index])
                 tfuture = arize_client.log_bulk_predictions(

@@ -11,7 +11,7 @@ ITERATIONS = 1
 NUM_RECORDS = 1000000
 
 client = Client(
-    organization_key=os.environ.get("ARIZE_ORG_KEY"),
+    space_key=os.environ.get("ARIZE_SPACE_KEY"),
     api_key=os.environ.get("ARIZE_API_KEY"),
 )
 
