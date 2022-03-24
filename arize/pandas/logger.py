@@ -18,6 +18,11 @@ from arize.utils.utils import reconstruct_url
 import arize.pandas.validation.errors as err
 from arize.pandas.validation.validator import Validator
 
+logger = logging.getLogger(__name__)
+if hasattr(sys, "ps1"):
+    # for python interactive mode
+    logger.setLevel(logging.INFO)
+
 
 @dataclass(frozen=True)
 class Schema:
@@ -56,11 +61,6 @@ class Client:
         timeout: Optional[float] = None,
         surrogate_explainability: Optional[bool] = False,
     ) -> requests.Response:
-
-        if hasattr(sys, "ps1"):
-            # only for python interactive mode
-            logging.basicConfig(format="%(message)s", level=logging.INFO)
-        logger = logging.getLogger(__name__)
 
         if model_id is not None and not isinstance(model_id, str):
             try:
