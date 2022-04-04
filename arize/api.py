@@ -228,7 +228,7 @@ class Client:
         """
         :params api_key: (str) api key associated with your account with Arize AI
         :params space_key: (str) space key in Arize AI
-        :params max_workers: (int) number of max concurrent requests to Arize. Default: 20
+        :params max_workers: (int) number of max concurrent requests to Arize. Default: 8
         :max_queue_bound: (int) number of maximum concurrent future objects being generated for publishing to Arize. Default: 5000
         """
 
