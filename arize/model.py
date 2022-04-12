@@ -115,9 +115,7 @@ class PreProductionRecords(BaseRecord, ABC):
                 )
             else:
                 model_type = ModelTypes.SCORE_CATEGORICAL
-        super().__init__(
-            space_key=space_key, model_id=model_id, model_type=model_type
-        )
+        super().__init__(space_key=space_key, model_id=model_id, model_type=model_type)
         self.model_version = model_version
         self.features = features
         self.tags = tags
@@ -163,39 +161,45 @@ class PreProductionRecords(BaseRecord, ABC):
                     f"prediction_labels: {self.prediction_labels.shape[0]}. "
                 )
 
-        if self.features is None:
-            return
-        if not isinstance(self.features, pd.DataFrame):
-            raise TypeError(
-                f"features is type {type(self.features)}, but expect type pd.DataFrame."
-            )
-        if self.features.shape[0] != self.prediction_labels.shape[0]:
-            raise ValueError(
-                f"features has {self.features.shape[0]} sets of features, but must match size of prediction_labels: "
-                f"{self.prediction_labels.shape[0]}. "
-            )
-        for name in self.features.columns:
-            if not isinstance(name, str):
+        if self.features is not None:
+            if not isinstance(self.features, pd.DataFrame):
                 raise TypeError(
-                    f"features.column {name} is type {type(name)}, but expect str"
+                    f"features is type {type(self.features)}, but expect type pd.DataFrame."
                 )
+            if self.features.shape[0] != self.prediction_labels.shape[0]:
+                raise ValueError(
+                    f"features has {self.features.shape[0]} sets of features, but must match size of prediction_labels: "
+                    f"{self.prediction_labels.shape[0]}. "
+                )
+            for name in self.features.columns:
+                if not isinstance(name, str):
+                    raise TypeError(
+                        f"features.column {name} is type {type(name)}, but expect str"
+                    )
+                if isinstance(name, str) and name.endswith("_shap"):
+                    raise ValueError(
+                        f"features.column {name} must not be named with a `_shap` suffix"
+                    )
 
-        if self.tags is None:
-            return
-        if not isinstance(self.tags, pd.DataFrame):
-            raise TypeError(
-                f"tags is type {type(self.tags)}, but expect type pd.DataFrame."
-            )
-        if self.tags.shape[0] != self.prediction_labels.shape[0]:
-            raise ValueError(
-                f"tags has {self.tags.shape[0]} sets of tags, but must match size of prediction_labels: "
-                f"{self.prediction_labels.shape[0]}. "
-            )
-        for name in self.tags.columns:
-            if not isinstance(name, str):
+        if self.tags is not None:
+            if not isinstance(self.tags, pd.DataFrame):
                 raise TypeError(
-                    f"tags.column {name} is type {type(name)}, but expect str"
+                    f"tags is type {type(self.tags)}, but expect type pd.DataFrame."
                 )
+            if self.tags.shape[0] != self.prediction_labels.shape[0]:
+                raise ValueError(
+                    f"tags has {self.tags.shape[0]} sets of tags, but must match size of prediction_labels: "
+                    f"{self.prediction_labels.shape[0]}. "
+                )
+            for name in self.tags.columns:
+                if not isinstance(name, str):
+                    raise TypeError(
+                        f"tags.column {name} is type {type(name)}, but expect str"
+                    )
+                if isinstance(name, str) and name.endswith("_shap"):
+                    raise ValueError(
+                        f"tags.column {name} must not be named with a `_shap` suffix"
+                    )
 
     def _normalize_inputs(self):
         """Converts inputs from DataFrames, Series, lists to numpy arrays or lists for consistent iterations

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 from typing import List
 
 from arize.utils.types import ModelTypes, Environments
@@ -27,14 +28,25 @@ class ValidationFailure(Exception):
 
 
 class MissingColumns(ValidationError):
-    def __init__(self, cols: List[str]) -> None:
+    def __init__(self, cols: Iterable) -> None:
         self.missing_cols = cols
 
     def error_message(self) -> str:
         return (
             "The following columns are declared in the schema "
             "but are not found in the dataframe: "
-            f"{', '.join(self.missing_cols)}."
+            f"{', '.join(map(str, self.missing_cols))}."
+        )
+
+
+class InvalidShapSuffix(ValidationError):
+    def __init__(self, cols: Iterable) -> None:
+        self.invalid_column_names = cols
+
+    def error_message(self) -> str:
+        return (
+            "The following features or tags must not be named with a `_shap` suffix: "
+            f"{', '.join(map(str, self.invalid_column_names))}."
         )
 
 
@@ -103,13 +115,13 @@ class InvalidType(ValidationError):
         type_list = (
             self.expected_types[0]
             if len(self.expected_types) == 1
-            else f"{', '.join(self.expected_types[:-1])} or {self.expected_types[-1]}"
+            else f"{', '.join(map(str, self.expected_types[:-1]))} or {self.expected_types[-1]}"
         )
         return f"{self.name} must be of type {type_list}."
 
 
 class InvalidTypeFeatures(ValidationError):
-    def __init__(self, cols: List[str], expected_types: List[str]) -> None:
+    def __init__(self, cols: Iterable, expected_types: List[str]) -> None:
         self.mistyped_cols = cols
         self.expected_types = expected_types
 
@@ -117,17 +129,17 @@ class InvalidTypeFeatures(ValidationError):
         type_list = (
             self.expected_types[0]
             if len(self.expected_types) == 1
-            else f"{', '.join(self.expected_types[:-1])} or {self.expected_types[-1]}"
+            else f"{', '.join(map(str, self.expected_types[:-1]))} or {self.expected_types[-1]}"
         )
         return (
             f"Features must be of type {type_list}. "
             "The following feature columns have unrecognized data types: "
-            f"{', '.join(self.mistyped_cols)}."
+            f"{', '.join(map(str, self.mistyped_cols))}."
         )
 
 
 class InvalidTypeTags(ValidationError):
-    def __init__(self, cols: List[str], expected_types: List[str]) -> None:
+    def __init__(self, cols: Iterable, expected_types: List[str]) -> None:
         self.mistyped_cols = cols
         self.expected_types = expected_types
 
@@ -135,17 +147,17 @@ class InvalidTypeTags(ValidationError):
         type_list = (
             self.expected_types[0]
             if len(self.expected_types) == 1
-            else f"{', '.join(self.expected_types[:-1])} or {self.expected_types[-1]}"
+            else f"{', '.join(map(str, self.expected_types[:-1]))} or {self.expected_types[-1]}"
         )
         return (
             f"Tags must be of type {type_list}. "
             "The following tag columns have unrecognized data types: "
-            f"{', '.join(self.mistyped_cols)}."
+            f"{', '.join(map(str, self.mistyped_cols))}."
         )
 
 
 class InvalidTypeShapValues(ValidationError):
-    def __init__(self, cols: List[str], expected_types: List[str]) -> None:
+    def __init__(self, cols: Iterable, expected_types: List[str]) -> None:
         self.mistyped_cols = cols
         self.expected_types = expected_types
 
@@ -153,12 +165,12 @@ class InvalidTypeShapValues(ValidationError):
         type_list = (
             self.expected_types[0]
             if len(self.expected_types) == 1
-            else f"{', '.join(self.expected_types[:-1])} or {self.expected_types[-1]}"
+            else f"{', '.join(map(str, self.expected_types[:-1]))} or {self.expected_types[-1]}"
         )
         return (
             f"SHAP values must be of type {type_list}. "
             "The following SHAP columns have unrecognized data types: "
-            f"{', '.join(self.mistyped_cols)}."
+            f"{', '.join(map(str, self.mistyped_cols))}."
         )
 
 

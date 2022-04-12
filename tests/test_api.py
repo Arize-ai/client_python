@@ -77,9 +77,7 @@ def mock_series(file):
 
 
 def get_stubbed_client():
-    c = Client(
-        space_key="test_space", api_key="API_KEY", uri="https://localhost:443"
-    )
+    c = Client(space_key="test_space", api_key="API_KEY", uri="https://localhost:443")
 
     def _post(record, uri, indexes):
         return record
@@ -1235,10 +1233,7 @@ def test_build_training_records():
                 rec.training_record, public__pb2.PreProductionRecord.TrainingRecord
             )
             assert isinstance(rec.training_record.record, public__pb2.Record)
-            assert (
-                rec.training_record.record.space_key
-                == expected["space_key"]
-            )
+            assert rec.training_record.record.space_key == expected["space_key"]
             assert rec.training_record.record.model_id == expected["model"]
             assert (
                 rec.training_record.record.prediction_and_actual.prediction.model_version
@@ -1310,10 +1305,7 @@ def test_send_validation_records():
             )
             assert isinstance(rec.validation_record.record, public__pb2.Record)
             assert rec.validation_record.batch_id == expected["batch"]
-            assert (
-                rec.validation_record.record.space_key
-                == expected["space_key"]
-            )
+            assert rec.validation_record.record.space_key == expected["space_key"]
             assert rec.validation_record.record.model_id == expected["model"]
             assert (
                 rec.validation_record.record.prediction_and_actual.prediction.model_version
@@ -1440,10 +1432,7 @@ def test_validation_predictions_ids_as_index_series():
             )
             assert isinstance(rec.validation_record.record, public__pb2.Record)
             assert rec.validation_record.batch_id == expected["batch"]
-            assert (
-                rec.validation_record.record.space_key
-                == expected["space_key"]
-            )
+            assert rec.validation_record.record.space_key == expected["space_key"]
             assert rec.validation_record.record.model_id == expected["model"]
             assert (
                 rec.validation_record.record.prediction_and_actual.prediction.model_version
@@ -1471,6 +1460,131 @@ def test_validation_predictions_ids_as_index_series():
             )
             assert rec.validation_record.record.prediction_id in idx.values
     assert len(labels) == record_count
+
+
+def test_invalid_shap_suffix():
+    c = get_stubbed_client()
+
+    with pytest.raises(Exception) as e:
+        c.log(
+            model_id=expected["model"],
+            prediction_id=expected["prediction_id"],
+            features={"_shap": 0},
+        )
+    assert "_shap" in str(e.value)
+
+    with pytest.raises(Exception) as e:
+        c.log(
+            model_id=expected["model"],
+            prediction_id=expected["prediction_id"],
+            tags={"_shap": 0},
+        )
+    assert "_shap" in str(e.value)
+
+    with pytest.raises(Exception) as e:
+        c.log(
+            model_id=expected["model"],
+            prediction_id=expected["prediction_id"],
+            shap_values={"_shap": 0},
+        )
+    assert "_shap" in str(e.value)
+
+    features, tags, labels, idx = mock_dataframes_clean_nan(file_to_open)
+    ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
+    data = np.random.rand(len(ids), len(features.columns))
+    feature_importances = pd.DataFrame(data=data, columns=features.columns)
+
+    with pytest.raises(Exception) as e:
+        c.bulk_log(
+            model_id=expected["model"],
+            prediction_ids=ids,
+            features=features.rename(
+                {c: f"{c}_shap" for c in features.columns}, axis=1
+            ),
+        )
+    assert "_shap" in str(e.value)
+
+    with pytest.raises(Exception) as e:
+        c.bulk_log(
+            model_id=expected["model"],
+            prediction_ids=ids,
+            features=features,
+            feature_names_overwrite=[f"{c}_shap" for c in features.columns],
+        )
+    assert "_shap" in str(e.value)
+
+    with pytest.raises(Exception) as e:
+        c.bulk_log(
+            model_id=expected["model"],
+            prediction_ids=ids,
+            tags=tags.rename({c: f"{c}_shap" for c in tags.columns}, axis=1),
+        )
+    assert "_shap" in str(e.value)
+
+    with pytest.raises(Exception) as e:
+        c.bulk_log(
+            model_id=expected["model"],
+            prediction_ids=ids,
+            tags=tags,
+            tag_names_overwrite=[f"{c}_shap" for c in tags.columns],
+        )
+    assert "_shap" in str(e.value)
+
+    with pytest.raises(Exception) as e:
+        c.bulk_log(
+            model_id=expected["model"],
+            prediction_ids=ids,
+            shap_values=feature_importances.rename(
+                {c: f"{c}_shap" for c in feature_importances.columns}, axis=1
+            ),
+        )
+    assert "_shap" in str(e.value)
+
+    with pytest.raises(Exception) as e:
+        c.log_validation_records(
+            model_id=expected["model"],
+            model_version=expected["model_version"],
+            batch_id=expected["batch"],
+            prediction_labels=labels,
+            actual_labels=labels,
+            features=features.rename(
+                {c: f"{c}_shap" for c in features.columns}, axis=1
+            ),
+        )
+    assert "_shap" in str(e.value)
+
+    with pytest.raises(Exception) as e:
+        c.log_validation_records(
+            model_id=expected["model"],
+            model_version=expected["model_version"],
+            batch_id=expected["batch"],
+            prediction_labels=labels,
+            actual_labels=labels,
+            tags=tags.rename({c: f"{c}_shap" for c in tags.columns}, axis=1),
+        )
+    assert "_shap" in str(e.value)
+
+    with pytest.raises(Exception) as e:
+        c.log_training_records(
+            model_id=expected["model"],
+            model_version=expected["model_version"],
+            prediction_labels=labels,
+            actual_labels=labels,
+            features=features.rename(
+                {c: f"{c}_shap" for c in features.columns}, axis=1
+            ),
+        )
+    assert "_shap" in str(e.value)
+
+    with pytest.raises(Exception) as e:
+        c.log_training_records(
+            model_id=expected["model"],
+            model_version=expected["model_version"],
+            prediction_labels=labels,
+            actual_labels=labels,
+            tags=tags.rename({c: f"{c}_shap" for c in tags.columns}, axis=1),
+        )
+    assert "_shap" in str(e.value)
 
 
 if __name__ == "__main__":

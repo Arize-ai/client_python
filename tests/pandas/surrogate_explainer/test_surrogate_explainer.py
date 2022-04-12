@@ -120,10 +120,12 @@ def test_classifier_with_flag_has_shap():
     assert pa_df[features].equals(orig_df[features])
 
     # schema must be updated to include feature importance mapping
-    assert set(pa_schema.feature_column_names) == set(features)
-    assert pa_schema.shap_values_column_names == {
-        f"{ft}": f"{ft} (feature importance)" for ft in features
-    }
+    k, v = map(set, zip(*pa_schema.shap_values_column_names.items()))
+    f = set(features)
+    assert set(pa_schema.feature_column_names) == f
+    assert k == f  # all features are accounted for
+    assert len(v & f) == 0  # no overlap with features
+    assert v < set(pa_df.columns)  # new columns exist
 
     # must have at least one non-zero value
     assert pa_df[pa_schema.shap_values_column_names.values()].count().sum() > 0
@@ -167,10 +169,12 @@ def test_regressor_with_flag_has_shap():
     assert pa_df[features].equals(orig_df[features])
 
     # schema must be updated to include feature importance mapping
-    assert set(pa_schema.feature_column_names) == set(features)
-    assert pa_schema.shap_values_column_names == {
-        f"{ft}": f"{ft} (feature importance)" for ft in features
-    }
+    k, v = map(set, zip(*pa_schema.shap_values_column_names.items()))
+    f = set(features)
+    assert set(pa_schema.feature_column_names) == f
+    assert k == f  # all features are accounted for
+    assert len(v & f) == 0  # no overlap with features
+    assert v < set(pa_df.columns)  # new columns exist
 
     # must have at least one non-zero value
     assert pa_df[pa_schema.shap_values_column_names.values()].count().sum() > 0

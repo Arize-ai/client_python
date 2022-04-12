@@ -21,6 +21,9 @@ from arize.pandas.validation.validator import Validator
 logger = logging.getLogger(__name__)
 if hasattr(sys, "ps1"):
     # for python interactive mode
+    log_handler = logging.StreamHandler(sys.stdout)
+    log_handler.setLevel(logging.INFO)
+    logger.addHandler(log_handler)
     logger.setLevel(logging.INFO)
 
 
