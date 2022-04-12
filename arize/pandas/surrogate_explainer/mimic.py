@@ -2,7 +2,7 @@ from typing import Callable, Tuple
 from arize.pandas.logger import Schema
 from arize.utils.types import ModelTypes
 from dataclasses import replace
-
+import string, random
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
@@ -90,11 +90,14 @@ class Mimic:
 
         # Column name mapping between features and feature importance values.
         # This is used to augment the schema.
-        col_map = {ft: f"{ft} (feature importance)" for ft in features}
+        col_map = {
+            ft: f"{''.join(random.choices(string.ascii_letters, k=8))}"
+            for ft in features
+        }
         aug_schema = replace(schema, shap_values_column_names=col_map)
 
-        # Limit the total number of "cells" to 20M, unless it results in too few or 
-        # too many rows. This is done to keep the runtime low. Records not sampled 
+        # Limit the total number of "cells" to 20M, unless it results in too few or
+        # too many rows. This is done to keep the runtime low. Records not sampled
         # have feature importance values set to 0.
         samp_size = min(len(X), min(100_000, max(1_000, 20_000_000 // X.shape[1])))
 

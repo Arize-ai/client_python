@@ -23,17 +23,16 @@ class Validator:
     ) -> List[err.ValidationError]:
 
         return list(
-            chain.from_iterable(
-                (
-                    Validator._check_invalid_model_id(model_id),
-                    Validator._check_invalid_model_version(model_version, environment),
-                    Validator._check_invalid_model_type(model_type),
-                    Validator._check_invalid_environment(environment),
-                    Validator._check_invalid_batch_id(batch_id, environment),
-                    Validator._check_existence_pred_act_shap(schema),
-                    Validator._check_existence_preprod_pred_act(schema, environment),
-                    Validator._check_missing_columns(dataframe, schema),
-                )
+            chain(
+                Validator._check_invalid_model_id(model_id),
+                Validator._check_invalid_model_version(model_version, environment),
+                Validator._check_invalid_model_type(model_type),
+                Validator._check_invalid_environment(environment),
+                Validator._check_invalid_batch_id(batch_id, environment),
+                Validator._check_existence_pred_act_shap(schema),
+                Validator._check_existence_preprod_pred_act(schema, environment),
+                Validator._check_missing_columns(dataframe, schema),
+                Validator._check_invalid_shap_suffix(schema),
             )
         )
 
@@ -45,21 +44,15 @@ class Validator:
         column_types = dict(zip(pyarrow_schema.names, pyarrow_schema.types))
 
         return list(
-            chain.from_iterable(
-                (
-                    Validator._check_type_prediction_id(schema, column_types),
-                    Validator._check_type_timestamp(schema, column_types),
-                    Validator._check_type_features(schema, column_types),
-                    Validator._check_type_tags(schema, column_types),
-                    Validator._check_type_shap_values(schema, column_types),
-                    Validator._check_type_pred_act_labels(
-                        model_type, schema, column_types
-                    ),
-                    Validator._check_type_pred_act_scores(
-                        model_type, schema, column_types
-                    ),
-                    Validator._check_type_num_seq(model_type, schema, column_types),
-                )
+            chain(
+                Validator._check_type_prediction_id(schema, column_types),
+                Validator._check_type_timestamp(schema, column_types),
+                Validator._check_type_features(schema, column_types),
+                Validator._check_type_tags(schema, column_types),
+                Validator._check_type_shap_values(schema, column_types),
+                Validator._check_type_pred_act_labels(model_type, schema, column_types),
+                Validator._check_type_pred_act_scores(model_type, schema, column_types),
+                Validator._check_type_num_seq(model_type, schema, column_types),
             )
         )
 
@@ -72,11 +65,9 @@ class Validator:
         # or are of the wrong types.
 
         return list(
-            chain.from_iterable(
-                (
-                    Validator._check_value_timestamp(dataframe, schema),
-                    Validator._check_value_missing(dataframe, schema),
-                )
+            chain(
+                Validator._check_value_timestamp(dataframe, schema),
+                Validator._check_value_missing(dataframe, schema),
             )
         )
 
@@ -100,21 +91,46 @@ class Validator:
 
         if schema.feature_column_names is not None:
             for col in schema.feature_column_names:
-                if col is not None and col not in existing_columns:
+                if col not in existing_columns:
                     missing_columns.append(col)
 
         if schema.tag_column_names is not None:
             for col in schema.tag_column_names:
-                if col is not None and col not in existing_columns:
+                if col not in existing_columns:
                     missing_columns.append(col)
 
         if schema.shap_values_column_names is not None:
-            for _, col in schema.shap_values_column_names.items():
-                if col is not None and col not in existing_columns:
+            for col in schema.shap_values_column_names.values():
+                if col not in existing_columns:
                     missing_columns.append(col)
 
         if missing_columns:
             return [err.MissingColumns(missing_columns)]
+        return []
+
+    @staticmethod
+    def _check_invalid_shap_suffix(
+        schema: "Schema",
+    ) -> List[err.MissingColumns]:
+        invalid_column_names = set()
+
+        if schema.feature_column_names is not None:
+            for col in schema.feature_column_names:
+                if isinstance(col, str) and col.endswith("_shap"):
+                    invalid_column_names.add(col)
+
+        if schema.tag_column_names is not None:
+            for col in schema.tag_column_names:
+                if isinstance(col, str) and col.endswith("_shap"):
+                    invalid_column_names.add(col)
+
+        if schema.shap_values_column_names is not None:
+            for col in schema.shap_values_column_names.keys():
+                if isinstance(col, str) and col.endswith("_shap"):
+                    invalid_column_names.add(col)
+
+        if invalid_column_names:
+            return [err.InvalidShapSuffix(invalid_column_names)]
         return []
 
     @staticmethod

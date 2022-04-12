@@ -300,6 +300,10 @@ class Client:
                     raise TypeError(
                         f"feature {k} with value {v} is type {type(v)}, but expected one of: str, bool, float, int"
                     )
+                if isinstance(k, str) and k.endswith("_shap"):
+                    raise ValueError(
+                        f"feature {k} must not be named with a `_shap` suffix"
+                    )
         # Validate tag types
         if tags is not None and bool(tags):
             for k, v in tags.items():
@@ -308,6 +312,8 @@ class Client:
                     raise TypeError(
                         f"tag {k} with value {v} is type {type(v)}, but expected one of: str, bool, float, int"
                     )
+                if isinstance(k, str) and k.endswith("_shap"):
+                    raise ValueError(f"tag {k} must not be named with a `_shap` suffix")
 
         # Check the timestamp present on the event
         if prediction_timestamp is not None and not isinstance(
@@ -383,6 +389,10 @@ class Client:
                 if not isinstance(convert_element(v), float):
                     raise TypeError(
                         f"feature {k} with value {v} is type {type(v)}, but expected one of: float"
+                    )
+                if isinstance(k, str) and k.endswith("_shap"):
+                    raise ValueError(
+                        f"feature {k} must not be named with a `_shap` suffix"
                     )
             fi = public__pb2.FeatureImportances(feature_importances=shap_values)
 
@@ -499,6 +509,10 @@ class Client:
                     raise TypeError(
                         f"shap_values.column {name} is type {type(name)}, but expect str"
                     )
+                if isinstance(name, str) and name.endswith("_shap"):
+                    raise ValueError(
+                        f"feature {name} must not be named with a `_shap` suffix"
+                    )
 
         prediction_ids = prediction_ids.to_numpy()
         prediction_labels = (
@@ -511,9 +525,19 @@ class Client:
         )
         if features is not None:
             feature_names = feature_names_overwrite or features.columns
+            for name in feature_names:
+                if isinstance(name, str) and name.endswith("_shap"):
+                    raise ValueError(
+                        f"feature {name} must not be named with a `_shap` suffix"
+                    )
             features = features.to_numpy()
         if tags is not None:
             tag_names = tag_names_overwrite or tags.columns
+            for name in tag_names:
+                if isinstance(name, str) and name.endswith("_shap"):
+                    raise ValueError(
+                        f"tag {name} must not be named with a `_shap` suffix"
+                    )
             tags = tags.to_numpy()
         actual_labels = actual_labels.to_numpy() if actual_labels is not None else None
         shap_columns = shap_values.columns if shap_values is not None else None
