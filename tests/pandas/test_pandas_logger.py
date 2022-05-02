@@ -1,13 +1,14 @@
 import datetime
 import os
 
+import numpy as np
 import pandas as pd
 import pytest
 from requests import Response
 
 import arize.pandas.validation.errors as err
 from arize.pandas.logger import Client, Schema
-from arize.utils.types import Environments, ModelTypes
+from arize.utils.types import Environments, ModelTypes, EmbeddingColumnNames
 
 
 class MockResponse(Response):
@@ -22,6 +23,8 @@ class NoSendClient(Client):
     def _post_file(self, path, schema, sync, timeout):
         return MockResponse(os.path.getsize(path), 'Success', 200)
 
+
+EMBEDDING_SIZE = 15
 
 def test_production_zero_errors():
     client = NoSendClient("apikey", "spaceKey")
@@ -57,6 +60,13 @@ def test_production_zero_errors():
                 ["a", "b", "c"], ordered=True, categories=["c", "b", "a"]
             ),
             #####
+            "image":np.random.randn(3, EMBEDDING_SIZE).tolist(),
+            "image_link":["link_" + str(x) for x in range(3)],
+            "sentence":[np.random.randn(EMBEDDING_SIZE) for x in range(3)],
+            "sentence_data":["data_" + str(x) for x in range(3)],
+            "token_array":[np.random.randn(EMBEDDING_SIZE) for x in range(3)],
+            "token_array_data":[["Token", "array", str(x)] for x in range(3)],
+            #####
             "a": pd.Series([0, 1, 2]),
             "b": pd.Series([0.0, 1.0, 2.0]),
             "c": pd.Series([float("NaN"), float("NaN"), float("NaN")]),
@@ -77,6 +87,20 @@ def test_production_zero_errors():
                 prediction_id_column_name="prediction_id",
                 timestamp_column_name="prediction_timestamp",
                 feature_column_names=list("ABCDEFGHI"),
+                embedding_feature_column_names= [
+                    EmbeddingColumnNames(
+                        vector_column_name="image",  # Will be name of embedding feature in the app
+                        link_to_data_column_name="image_link",
+                    ),
+                    EmbeddingColumnNames(
+                        vector_column_name="sentence",  # Will be name of embedding feature in the app
+                        data_column_name="sentence_data",
+                    ),
+                    EmbeddingColumnNames(
+                        vector_column_name="token_array",  # Will be name of embedding feature in the app
+                        data_column_name="token_array_data",
+                    ),
+                ],
                 tag_column_names=list("ABCDEFGHI"),
                 prediction_label_column_name="prediction_label",
                 actual_label_column_name="actual_label",

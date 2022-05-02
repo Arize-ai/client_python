@@ -1,14 +1,16 @@
 import math
 import time
 import base64
+import numpy as np
 import pandas as pd
 import json
 
-from typing import Union, Optional, Tuple, Any
+from typing import List, Union, Optional, Tuple, Any
 
 from arize import public_pb2 as public__pb2
-from arize.utils.types import ModelTypes
+from arize.utils.types import ModelTypes, Embedding
 from google.protobuf.timestamp_pb2 import Timestamp
+from google.protobuf.wrappers_pb2 import StringValue
 
 MAX_BYTES_PER_BULK_RECORD = 100000
 MAX_DAYS_WITHIN_RANGE = 365
@@ -104,6 +106,8 @@ def convert_element(value):
 def get_value_object(name: Union[str, int, float], value):
     if isinstance(value, public__pb2.Value):
         return value
+    # The following `convert_element` done in single log validation
+    # of features & tags. It is not done in bulk_log
     val = convert_element(value)
     if val is None:
         return None
@@ -113,10 +117,40 @@ def get_value_object(name: Union[str, int, float], value):
         return public__pb2.Value(int=val)
     if isinstance(val, float):
         return public__pb2.Value(double=val)
+    if isinstance(val, Embedding):
+        return public__pb2.Value(embedding=get_value_embedding(val))
     else:
         raise TypeError(
-            f'dimension "{name}" = {value} is type {type(value)}, but must be one of: bool, str, float, int.'
+            f'dimension "{name}" = {value} is type {type(value)}, but must be one of: bool, str, float, int, embedding'
         )
+
+
+def get_value_embedding(val: Embedding) -> public__pb2.Embedding:
+    if Embedding.is_valid_iterable(val.data):
+        return public__pb2.Embedding(
+            vector=val.vector,
+            raw_data=public__pb2.Embedding.RawData(
+                tokenArray=public__pb2.Embedding.TokenArray(tokens=val.data)
+            ),
+            link_to_data=StringValue(value=val.link_to_data),
+        )
+    elif isinstance(val.data, str):
+        return public__pb2.Embedding(
+            vector=val.vector,
+            raw_data=public__pb2.Embedding.RawData(
+                tokenArray=public__pb2.Embedding.TokenArray(
+                    tokens=[val.data]
+                )  # Convert to list of 1 string
+            ),
+            link_to_data=StringValue(value=val.link_to_data),
+        )
+    elif val.data == None:
+        return public__pb2.Embedding(
+            vector=val.vector,
+            link_to_data=StringValue(value=val.link_to_data),
+        )
+
+    return None
 
 
 def get_timestamp(time_overwrite):
