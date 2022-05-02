@@ -10,7 +10,7 @@ from requests_futures.sessions import FuturesSession
 
 from arize import public_pb2 as public__pb2
 from arize.bounded_executor import BoundedExecutor
-from arize.utils.types import ModelTypes
+from arize.utils.types import ModelTypes, Embedding
 from arize.model import (
     TrainingRecords,
     ValidationRecords,
@@ -266,6 +266,7 @@ class Client:
         features: Optional[
             Dict[Union[str, int, float], Union[str, bool, float, int]]
         ] = None,
+        embedding_features: Optional[Dict[Union[str, int, float], Embedding]] = None,
         tags: Optional[
             Dict[Union[str, int, float], Union[str, bool, float, int]]
         ] = None,
@@ -279,7 +280,8 @@ class Client:
         :param prediction_label: (one of str, bool, int, float, Tuple[str, float]) The predicted value for a given model input.
         :param actual_label: (one of str, bool, int, float) The actual true value for a given model input. This actual will be matched to the prediction with the same prediction_id as the one in this call.
         :param shap_values: (str, float) Dictionary containing human readable and debuggable model features keys, along with SHAP feature importance values. Keys must be str, while values must be float.
-        :param features: ((str, int, float), <value>) Optional dictionary containing human readable and debuggable model features. Keys must be str, values one of str, bool, float, long.
+        :param features: ((str, int, float), <value>) Optional dictionary containing human readable and debuggable model features. Keys must be one of str, int, or float. Values must be one of str, bool, float, long.
+        :param embedding_features ((str, int, float), Embedding): Optional dictionary containing model embedding features. Keys must be one of str, int, or float. Values must be of Embedding type.
         :param tags: ((str, int, float), <value>) Optional dictionary containing human readable and debuggable model tags. Keys must be str, values one of str, bool, float, long.
         :param model_type: (ModelTypes) Declares what model type this prediction is for. Binary, Numeric, Categorical, Score_Categorical.
         :param prediction_timestamp: (int) Optional field with unix epoch time in seconds to overwrite timestamp for prediction. If None, prediction uses current timestamp.
@@ -293,7 +295,7 @@ class Client:
             )
 
         # Validate feature types
-        if features is not None and bool(features):
+        if features:
             for k, v in features.items():
                 val = convert_element(v)
                 if val is not None and not isinstance(val, (str, bool, float, int)):
@@ -304,8 +306,19 @@ class Client:
                     raise ValueError(
                         f"feature {k} must not be named with a `_shap` suffix"
                     )
+
+        # Validate embedding_features type
+        if embedding_features:
+            for emb_name, emb_obj in embedding_features.items():
+                # Must verify embedding type
+                if type(emb_obj) != Embedding:
+                    raise TypeError(
+                        f'Embedding feature "{emb_name}" must be of embedding type'
+                    )
+                Embedding.validate_embedding_object(emb_name, emb_obj)
+
         # Validate tag types
-        if tags is not None and bool(tags):
+        if tags:
             for k, v in tags.items():
                 val = convert_element(v)
                 if val is not None and not isinstance(val, (str, bool, float, int)):
@@ -358,6 +371,18 @@ class Client:
                         converted_feats[str(k)] = val
                 feats = public__pb2.Prediction(features=converted_feats)
                 p.MergeFrom(feats)
+
+            if embedding_features is not None:
+                converted_embedding_feats = {}
+                for (k, v) in embedding_features.items():
+                    val = get_value_object(value=v, name=k)
+                    if val is not None:
+                        converted_embedding_feats[str(k)] = val
+                embedding_feats = public__pb2.Prediction(
+                    features=converted_embedding_feats
+                )
+                p.MergeFrom(embedding_feats)
+
             if tags is not None:
                 converted_tags = {}
                 for (k, v) in tags.items():
@@ -366,6 +391,7 @@ class Client:
                         converted_tags[str(k)] = val
                 tgs = public__pb2.Prediction(tags=converted_tags)
                 p.MergeFrom(tgs)
+
             if prediction_timestamp is not None:
                 p.timestamp.MergeFrom(get_timestamp(prediction_timestamp))
 

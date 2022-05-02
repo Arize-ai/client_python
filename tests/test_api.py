@@ -6,11 +6,12 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from google.protobuf.wrappers_pb2 import StringValue
 
 import arize.public_pb2 as public__pb2
 from arize.model import TrainingRecords, ValidationRecords
 from arize.utils.types import ModelTypes
-from arize.api import Client
+from arize.api import Client, Embedding
 
 NUM_VAL = 20.20
 STR_VAL = "arize"
@@ -19,8 +20,8 @@ INT_VAL = 0
 NP_FLOAT = float(1.2)
 file_to_open = Path(__file__).parent / "fixtures/mpg.csv"
 
-expected = {
-    "model": "model_v0",
+inputs = {
+    "model_id": "model_v0",
     "model_version": "v1.2.3.4",
     "batch": "batch1234",
     "api_key": "API_KEY",
@@ -35,6 +36,20 @@ expected = {
         "feature_int": INT_VAL,
         "feature_bool": BOOL_VAL,
         "feature_None": None,
+    },
+    "embedding_features": {
+        "image_embedding": Embedding(
+            vector=np.array([1.0, 2, 3]),
+            link_to_data="https://my-bucket.s3.us-west-2.amazonaws.com/puppy.png",
+        ),
+        "nlp_embedding_sentence": Embedding(
+            vector=pd.Series([4.0, 5.0, 6.0, 7.0]),
+            data="This is a test sentence",
+        ),
+        "nlp_embedding_tokens": Embedding(
+            vector=pd.Series([4.0, 5.0, 6.0, 7.0]),
+            data=["This", "is", "a", "test", "sentence"],
+        ),
     },
     "tags": {
         "tag_str": STR_VAL,
@@ -51,6 +66,135 @@ expected = {
         "feature_numpy_float": NP_FLOAT,
     },
 }
+
+
+def _build_expected_record(
+    p: public__pb2.Prediction = None,
+    a: public__pb2.Actual = None,
+    fi: public__pb2.FeatureImportances = None,
+) -> public__pb2.Record:
+
+    return public__pb2.Record(
+        space_key=inputs["space_key"],
+        model_id=inputs["model_id"],
+        prediction_id=str(inputs["prediction_id"]),
+        prediction=p,
+        actual=a,
+        feature_importances=fi,
+    )
+
+
+def _build_basic_prediction(type: str) -> public__pb2.Prediction:
+    if type == "binary":
+        return public__pb2.Prediction(
+            label=public__pb2.Label(binary=inputs["value_binary"]),
+            model_version=inputs["model_version"],
+        )
+    elif type == "numeric":
+        return public__pb2.Prediction(
+            label=public__pb2.Label(numeric=inputs["value_numeric"]),
+            model_version=inputs["model_version"],
+        )
+    elif type == "categorical":
+        return public__pb2.Prediction(
+            label=public__pb2.Label(categorical=inputs["value_categorical"]),
+            model_version=inputs["model_version"],
+        )
+    elif type == "score_categorical":
+        sc = public__pb2.ScoreCategorical()
+        sc.score_category.category = STR_VAL
+        sc.score_category.score = NUM_VAL
+
+        return public__pb2.Prediction(
+            label=public__pb2.Label(score_categorical=sc),
+            model_version=inputs["model_version"],
+        )
+    else:
+        return public__pb2.Prediction()
+
+
+def _build_basic_actual(type: str) -> public__pb2.Actual:
+    if type == "binary":
+        return public__pb2.Actual(
+            label=public__pb2.Label(binary=inputs["value_binary"]),
+        )
+    elif type == "numeric":
+        return public__pb2.Actual(
+            label=public__pb2.Label(numeric=inputs["value_numeric"]),
+        )
+    elif type == "categorical":
+        return public__pb2.Actual(
+            label=public__pb2.Label(categorical=inputs["value_categorical"]),
+        )
+    elif type == "score_categorical":
+        sc = public__pb2.ScoreCategorical()
+        sc.category.category = STR_VAL
+        return public__pb2.Actual(
+            label=public__pb2.Label(score_categorical=sc),
+        )
+    else:
+        return public__pb2.Actual()
+
+
+def _attach_features_to_prediction() -> public__pb2.Prediction:
+    features = {
+        "feature_str": public__pb2.Value(string=STR_VAL),
+        "feature_double": public__pb2.Value(double=NUM_VAL),
+        "feature_int": public__pb2.Value(int=INT_VAL),
+        "feature_bool": public__pb2.Value(string=str(BOOL_VAL)),
+    }
+    return public__pb2.Prediction(features=features)
+
+
+def _attach_embedding_features_to_prediction() -> public__pb2.Prediction:
+    input_embeddings = inputs["embedding_features"]
+    embedding_features = {
+        "image_embedding": public__pb2.Value(
+            embedding=public__pb2.Embedding(
+                vector=input_embeddings["image_embedding"].vector,
+                link_to_data=StringValue(
+                    value=input_embeddings["image_embedding"].link_to_data
+                ),
+            )
+        ),
+        "nlp_embedding_sentence": public__pb2.Value(
+            embedding=public__pb2.Embedding(
+                vector=input_embeddings["nlp_embedding_sentence"].vector,
+                raw_data=public__pb2.Embedding.RawData(
+                    tokenArray=public__pb2.Embedding.TokenArray(
+                        tokens=[input_embeddings["nlp_embedding_sentence"].data], # List of a single string
+                    )
+                ),
+                link_to_data=StringValue(
+                    value=input_embeddings["nlp_embedding_sentence"].link_to_data
+                ),
+            )
+        ),
+        "nlp_embedding_tokens": public__pb2.Value(
+            embedding=public__pb2.Embedding(
+                vector=input_embeddings["nlp_embedding_tokens"].vector,
+                raw_data=public__pb2.Embedding.RawData(
+                    tokenArray=public__pb2.Embedding.TokenArray(
+                        tokens=input_embeddings["nlp_embedding_tokens"].data
+                    )
+                ),
+                link_to_data=StringValue(
+                    value=input_embeddings["nlp_embedding_tokens"].link_to_data
+                ),
+            )
+        ),
+    }
+    return public__pb2.Prediction(features=embedding_features)
+
+
+def _attach_tags_to_prediction() -> public__pb2.Prediction:
+    tags = {
+        "tag_str": public__pb2.Value(string=STR_VAL),
+        "tag_double": public__pb2.Value(double=NUM_VAL),
+        "tag_int": public__pb2.Value(int=INT_VAL),
+        "tag_bool": public__pb2.Value(string=str(BOOL_VAL)),
+    }
+    return public__pb2.Prediction(tags=tags)
 
 
 def mock_dataframes_clean_nan(file):
@@ -102,36 +246,26 @@ def get_stubbed_client():
 def test_build_binary_prediction_features():
     c = get_stubbed_client()
     record = c.log(
-        model_id=expected["model"],
+        model_id=inputs["model_id"],
         model_type=ModelTypes.BINARY,
-        model_version=expected["model_version"],
-        prediction_id=expected["prediction_id"],
-        prediction_label=expected["value_binary"],
-        features=expected["features"],
-        tags=expected["tags"],
-        prediction_timestamp=None,
+        model_version=inputs["model_version"],
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["value_binary"],
+        features=inputs["features"],
+        embedding_features=inputs["embedding_features"],
+        tags=inputs["tags"],
     )
 
-    assert isinstance(record, public__pb2.Record)
-    assert isinstance(record.prediction, public__pb2.Prediction)
-    assert isinstance(record.prediction.label, public__pb2.Label)
-    for feature in record.prediction.features:
-        assert isinstance(record.prediction.features[feature], public__pb2.Value)
-    for tag in record.prediction.tags:
-        assert isinstance(record.prediction.tags[tag], public__pb2.Value)
-    assert record.space_key == expected["space_key"]
-    assert record.model_id == expected["model"]
-    assert record.prediction_id == expected["prediction_id"]
-    assert record.prediction.model_version == expected["model_version"]
-    assert record.prediction.label.binary == expected["value_binary"]
-    assert record.prediction.features["feature_str"].WhichOneof("data") == "string"
-    assert record.prediction.features["feature_double"].WhichOneof("data") == "double"
-    assert record.prediction.features["feature_int"].WhichOneof("data") == "int"
-    assert record.prediction.features["feature_bool"].WhichOneof("data") == "string"
-    assert record.prediction.tags["tag_str"].WhichOneof("data") == "string"
-    assert record.prediction.tags["tag_double"].WhichOneof("data") == "double"
-    assert record.prediction.tags["tag_int"].WhichOneof("data") == "int"
-    assert record.prediction.tags["tag_bool"].WhichOneof("data") == "string"
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("binary")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_features_to_prediction())
+    p.MergeFrom(_attach_embedding_features_to_prediction())
+    p.MergeFrom(_attach_tags_to_prediction())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p)
+    #   Check result is as expected
+    assert record == expected_record
     assert record.prediction.timestamp.seconds == 0
     assert record.prediction.timestamp.nanos == 0
 
@@ -139,24 +273,26 @@ def test_build_binary_prediction_features():
 def test_numeric_prediction_id():
     c = get_stubbed_client()
     record = c.log(
-        model_id=expected["model"],
+        model_id=inputs["model_id"],
         model_type=ModelTypes.BINARY,
-        model_version=expected["model_version"],
+        model_version=inputs["model_version"],
         prediction_id=12345,
-        prediction_label=expected["value_binary"],
-        features=expected["features"],
-        tags=expected["tags"],
+        prediction_label=inputs["value_binary"],
+        features=inputs["features"],
+        embedding_features=inputs["embedding_features"],
+        tags=inputs["tags"],
         prediction_timestamp=None,
     )
     assert record.prediction_id == "12345"
     record = c.log(
-        model_id=expected["model"],
+        model_id=inputs["model_id"],
         model_type=ModelTypes.BINARY,
-        model_version=expected["model_version"],
+        model_version=inputs["model_version"],
         prediction_id=1.2345,
-        prediction_label=expected["value_binary"],
-        features=expected["features"],
-        tags=expected["tags"],
+        prediction_label=inputs["value_binary"],
+        features=inputs["features"],
+        embedding_features=inputs["embedding_features"],
+        tags=inputs["tags"],
         prediction_timestamp=None,
     )
     assert record.prediction_id == "1.2345"
@@ -165,12 +301,16 @@ def test_numeric_prediction_id():
 def test_numeric_dimension_name():
     c = get_stubbed_client()
     record = c.log(
-        model_id=expected["model"],
+        model_id=inputs["model_id"],
         model_type=ModelTypes.BINARY,
-        model_version=expected["model_version"],
-        prediction_id=expected["prediction_id"],
-        prediction_label=expected["value_binary"],
+        model_version=inputs["model_version"],
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["value_binary"],
         features={1: "hello", 2.0: "world"},
+        embedding_features={
+            3: inputs["embedding_features"]["image_embedding"],
+            4.0: inputs["embedding_features"]["nlp_embedding_sentence"],
+        },
         tags={1: "hello", 2.0: "world"},
         prediction_timestamp=None,
     )
@@ -180,76 +320,29 @@ def test_numeric_dimension_name():
         assert isinstance(record.prediction.tags[tag], public__pb2.Value)
 
 
-def test_build_binary_prediction_dimensions():
-    c = get_stubbed_client()
-    record = c.log(
-        model_id=expected["model"],
-        model_type=ModelTypes.BINARY,
-        model_version=expected["model_version"],
-        prediction_id=expected["prediction_id"],
-        prediction_label=expected["value_binary"],
-        features=expected["features"],
-        tags=expected["tags"],
-        prediction_timestamp=None,
-    )
-
-    assert isinstance(record, public__pb2.Record)
-    assert isinstance(record.prediction, public__pb2.Prediction)
-    assert isinstance(record.prediction.label, public__pb2.Label)
-    for feature in record.prediction.features:
-        assert isinstance(record.prediction.features[feature], public__pb2.Value)
-    for tag in record.prediction.tags:
-        assert isinstance(record.prediction.tags[tag], public__pb2.Value)
-    assert record.space_key == expected["space_key"]
-    assert record.model_id == expected["model"]
-    assert record.prediction_id == expected["prediction_id"]
-    assert record.prediction.model_version == expected["model_version"]
-    assert record.prediction.label.binary == expected["value_binary"]
-    assert record.prediction.features["feature_str"].WhichOneof("data") == "string"
-    assert record.prediction.features["feature_double"].WhichOneof("data") == "double"
-    assert record.prediction.features["feature_int"].WhichOneof("data") == "int"
-    assert record.prediction.features["feature_bool"].WhichOneof("data") == "string"
-    assert record.prediction.tags["tag_str"].WhichOneof("data") == "string"
-    assert record.prediction.tags["tag_double"].WhichOneof("data") == "double"
-    assert record.prediction.tags["tag_int"].WhichOneof("data") == "int"
-    assert record.prediction.tags["tag_bool"].WhichOneof("data") == "string"
-    assert record.prediction.timestamp.seconds == 0
-    assert record.prediction.timestamp.nanos == 0
-
-
 def test_build_binary_prediction_zero_ones():
     c = get_stubbed_client()
     record = c.log(
-        model_id=expected["model"],
+        model_id=inputs["model_id"],
         model_type=ModelTypes.BINARY,
-        model_version=expected["model_version"],
-        prediction_id=expected["prediction_id"],
+        model_version=inputs["model_version"],
+        prediction_id=inputs["prediction_id"],
         prediction_label=1,
-        features=expected["features"],
-        tags=expected["tags"],
-        prediction_timestamp=None,
+        features=inputs["features"],
+        embedding_features=inputs["embedding_features"],
+        tags=inputs["tags"],
     )
 
-    assert isinstance(record, public__pb2.Record)
-    assert isinstance(record.prediction, public__pb2.Prediction)
-    assert isinstance(record.prediction.label, public__pb2.Label)
-    for feature in record.prediction.features:
-        assert isinstance(record.prediction.features[feature], public__pb2.Value)
-    for tag in record.prediction.tags:
-        assert isinstance(record.prediction.tags[tag], public__pb2.Value)
-    assert record.space_key == expected["space_key"]
-    assert record.model_id == expected["model"]
-    assert record.prediction_id == expected["prediction_id"]
-    assert record.prediction.model_version == expected["model_version"]
-    assert record.prediction.label.binary == expected["value_binary"]
-    assert record.prediction.features["feature_str"].WhichOneof("data") == "string"
-    assert record.prediction.features["feature_double"].WhichOneof("data") == "double"
-    assert record.prediction.features["feature_int"].WhichOneof("data") == "int"
-    assert record.prediction.features["feature_bool"].WhichOneof("data") == "string"
-    assert record.prediction.tags["tag_str"].WhichOneof("data") == "string"
-    assert record.prediction.tags["tag_double"].WhichOneof("data") == "double"
-    assert record.prediction.tags["tag_int"].WhichOneof("data") == "int"
-    assert record.prediction.tags["tag_bool"].WhichOneof("data") == "string"
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("binary")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_features_to_prediction())
+    p.MergeFrom(_attach_embedding_features_to_prediction())
+    p.MergeFrom(_attach_tags_to_prediction())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p)
+    #   Check result is as expected
+    assert record == expected_record
     assert record.prediction.timestamp.seconds == 0
     assert record.prediction.timestamp.nanos == 0
 
@@ -257,148 +350,210 @@ def test_build_binary_prediction_zero_ones():
 def test_build_categorical_prediction():
     c = get_stubbed_client()
     record = c.log(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
-        prediction_id=expected["prediction_id"],
-        prediction_label=expected["value_categorical"],
-        features=expected["features"],
-        tags=expected["tags"],
-        prediction_timestamp=None,
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["value_categorical"],
+        features=inputs["features"],
+        embedding_features=inputs["embedding_features"],
+        tags=inputs["tags"],
     )
-    assert isinstance(record, public__pb2.Record)
-    assert isinstance(record.prediction, public__pb2.Prediction)
-    assert isinstance(record.prediction.label, public__pb2.Label)
-    assert record.space_key == expected["space_key"]
-    assert record.model_id == expected["model"]
-    assert record.prediction_id == expected["prediction_id"]
-    assert record.prediction.model_version == expected["model_version"]
-    assert bool(record.prediction.features)
-    assert bool(record.prediction.tags)
-    assert record.prediction.label.categorical == expected["value_categorical"]
+
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("categorical")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_features_to_prediction())
+    p.MergeFrom(_attach_embedding_features_to_prediction())
+    p.MergeFrom(_attach_tags_to_prediction())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p)
+    #   Check result is as expected
+    assert record == expected_record
 
 
 def test_build_scored_prediction():
     c = get_stubbed_client()
     record = c.log(
-        model_id=expected["model"],
+        model_id=inputs["model_id"],
         model_type=ModelTypes.SCORE_CATEGORICAL,
-        model_version=expected["model_version"],
-        prediction_id=expected["prediction_id"],
-        prediction_label=(expected["value_categorical"], expected["value_numeric"]),
-        features=expected["features"],
-        tags=expected["tags"],
-        prediction_timestamp=None,
-    )
-    assert isinstance(record, public__pb2.Record)
-    assert isinstance(record.prediction, public__pb2.Prediction)
-    assert isinstance(record.prediction.label, public__pb2.Label)
-    assert isinstance(
-        record.prediction.label.score_categorical, public__pb2.ScoreCategorical
+        model_version=inputs["model_version"],
+        prediction_id=inputs["prediction_id"],
+        prediction_label=(inputs["value_categorical"], inputs["value_numeric"]),
+        features=inputs["features"],
+        embedding_features=inputs["embedding_features"],
+        tags=inputs["tags"],
     )
 
-    assert record.space_key == expected["space_key"]
-    assert record.model_id == expected["model"]
-    assert record.prediction_id == expected["prediction_id"]
-    assert record.prediction.model_version == expected["model_version"]
-    assert bool(record.prediction.features)
-    assert bool(record.prediction.tags)
-    assert record.prediction.label.score_categorical.HasField("score_category")
-    assert (
-        record.prediction.label.score_categorical.score_category.category
-        == expected["value_categorical"]
-    )
-    assert (
-        record.prediction.label.score_categorical.score_category.score
-        == expected["value_numeric"]
-    )
-
-
-def test_build_scored_actual():
-    c = get_stubbed_client()
-    record = c.log(
-        model_id=expected["model"],
-        model_type=ModelTypes.SCORE_CATEGORICAL,
-        prediction_id=expected["prediction_id"],
-        actual_label=expected["value_categorical"],
-    )
-    assert isinstance(record, public__pb2.Record)
-    assert isinstance(record.actual, public__pb2.Actual)
-    assert isinstance(record.actual.label, public__pb2.Label)
-    assert isinstance(
-        record.actual.label.score_categorical, public__pb2.ScoreCategorical
-    )
-
-    assert record.space_key == expected["space_key"]
-    assert record.model_id == expected["model"]
-    assert record.prediction_id == expected["prediction_id"]
-    assert record.actual.label.score_categorical.HasField("category")
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("score_categorical")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_features_to_prediction())
+    p.MergeFrom(_attach_embedding_features_to_prediction())
+    p.MergeFrom(_attach_tags_to_prediction())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p)
+    #   Check result is as expected
+    assert record == expected_record
 
 
 def test_build_numeric_prediction():
     c = get_stubbed_client()
     record = c.log(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
-        prediction_id=expected["prediction_id"],
-        prediction_label=expected["value_numeric"],
-        features=expected["features"],
-        tags=expected["tags"],
-        prediction_timestamp=None,
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["value_numeric"],
+        features=inputs["features"],
+        embedding_features=inputs["embedding_features"],
+        tags=inputs["tags"],
     )
-    assert isinstance(record, public__pb2.Record)
-    assert isinstance(record.prediction, public__pb2.Prediction)
-    assert isinstance(record.prediction.label, public__pb2.Label)
-    assert record.space_key == expected["space_key"]
-    assert record.model_id == expected["model"]
-    assert record.prediction_id == expected["prediction_id"]
-    assert record.prediction.model_version == expected["model_version"]
-    assert bool(record.prediction.features)
-    assert bool(record.prediction.tags)
-    assert record.prediction.label.numeric == expected["value_numeric"]
+
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("numeric")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_features_to_prediction())
+    p.MergeFrom(_attach_embedding_features_to_prediction())
+    p.MergeFrom(_attach_tags_to_prediction())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p)
+    #   Check result is as expected
+    assert record == expected_record
+
+
+def test_build_prediction_no_embedding_features():
+    c = get_stubbed_client()
+    record = c.log(
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["value_numeric"],
+        features=inputs["features"],
+        tags=inputs["tags"],
+    )
+
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("numeric")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_features_to_prediction())
+    p.MergeFrom(_attach_tags_to_prediction())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p)
+    #   Check result is as expected
+    assert record == expected_record
+
+
+# Structured features refer to any feature that is not an embedding
+def test_build_prediction_no_structured_features():
+    c = get_stubbed_client()
+    record = c.log(
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["value_numeric"],
+        embedding_features=inputs["embedding_features"],
+        tags=inputs["tags"],
+    )
+
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("numeric")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_embedding_features_to_prediction())
+    p.MergeFrom(_attach_tags_to_prediction())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p)
+    #   Check result is as expected
+    assert record == expected_record
 
 
 def test_build_prediction_no_features():
     c = get_stubbed_client()
     record = c.log(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
-        prediction_id=expected["prediction_id"],
-        prediction_label=expected["value_numeric"],
-        features=None,
-        prediction_timestamp=None,
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["value_numeric"],
+        tags=inputs["tags"],
     )
-    assert isinstance(record.prediction, public__pb2.Prediction)
-    assert not bool(record.prediction.features)
+
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("numeric")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_tags_to_prediction())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p)
+    #   Check result is as expected
+    assert record == expected_record
 
 
 def test_build_prediction_no_tags():
     c = get_stubbed_client()
     record = c.log(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
-        prediction_id=expected["prediction_id"],
-        prediction_label=expected["value_numeric"],
-        tags=None,
-        prediction_timestamp=None,
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["value_numeric"],
+        features=inputs["features"],
+        embedding_features=inputs["embedding_features"],
     )
-    assert isinstance(record.prediction, public__pb2.Prediction)
-    assert not bool(record.prediction.tags)
+
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("numeric")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_features_to_prediction())
+    p.MergeFrom(_attach_embedding_features_to_prediction())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p)
+    #   Check result is as expected
+    assert record == expected_record
+
+
+def test_build_prediction_no_tags_no_features():
+    c = get_stubbed_client()
+    record = c.log(
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["value_numeric"],
+    )
+
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("numeric")
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p)
+    #   Check result is as expected
+    assert record == expected_record
+
+
+def test_build_scored_actual():
+    c = get_stubbed_client()
+    record = c.log(
+        model_id=inputs["model_id"],
+        model_type=ModelTypes.SCORE_CATEGORICAL,
+        prediction_id=inputs["prediction_id"],
+        actual_label=inputs["value_categorical"],
+    )
+
+    #   Start constructing expected result by building the prediction
+    a = _build_basic_actual("score_categorical")
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(a=a)
+    #   Check result is as expected
+    assert record == expected_record
 
 
 def test_build_numeric_actual():
     c = get_stubbed_client()
     record = c.log(
-        model_id=expected["model"],
-        prediction_id=expected["prediction_id"],
-        actual_label=expected["value_numeric"],
+        model_id=inputs["model_id"],
+        prediction_id=inputs["prediction_id"],
+        actual_label=inputs["value_numeric"],
     )
-    assert isinstance(record, public__pb2.Record)
-    assert isinstance(record.actual, public__pb2.Actual)
-    assert isinstance(record.actual.label, public__pb2.Label)
-    assert record.space_key == expected["space_key"]
-    assert record.model_id == expected["model"]
-    assert record.prediction_id == expected["prediction_id"]
-    assert record.actual.label.numeric == expected["value_numeric"]
+    #   Start constructing expected result by building the prediction
+    a = _build_basic_actual("numeric")
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(a=a)
+    #   Check result is as expected
+    assert record == expected_record
     assert record.actual.timestamp.seconds == 0
     assert record.actual.timestamp.nanos == 0
 
@@ -406,33 +561,56 @@ def test_build_numeric_actual():
 def test_build_categorical_actual():
     c = get_stubbed_client()
     record = c.log(
-        model_id=expected["model"],
-        prediction_id=expected["prediction_id"],
-        actual_label=expected["value_categorical"],
+        model_id=inputs["model_id"],
+        prediction_id=inputs["prediction_id"],
+        actual_label=inputs["value_categorical"],
     )
-    assert isinstance(record, public__pb2.Record)
-    assert isinstance(record.actual, public__pb2.Actual)
-    assert isinstance(record.actual.label, public__pb2.Label)
-    assert record.space_key == expected["space_key"]
-    assert record.model_id == expected["model"]
-    assert record.prediction_id == expected["prediction_id"]
-    assert record.actual.label.categorical == expected["value_categorical"]
+    #   Start constructing expected result by building the prediction
+    a = _build_basic_actual("categorical")
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(a=a)
+    #   Check result is as expected
+    assert record == expected_record
 
 
 def test_build_binary_actual():
     c = get_stubbed_client()
     record = c.log(
-        model_id=expected["model"],
-        prediction_id=expected["prediction_id"],
-        actual_label=expected["value_binary"],
+        model_id=inputs["model_id"],
+        prediction_id=inputs["prediction_id"],
+        actual_label=inputs["value_binary"],
     )
-    assert isinstance(record, public__pb2.Record)
-    assert isinstance(record.actual, public__pb2.Actual)
-    assert isinstance(record.actual.label, public__pb2.Label)
-    assert record.space_key == expected["space_key"]
-    assert record.model_id == expected["model"]
-    assert record.prediction_id == expected["prediction_id"]
-    assert record.actual.label.binary == expected["value_binary"]
+    #   Start constructing expected result by building the prediction
+    a = _build_basic_actual("binary")
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(a=a)
+    #   Check result is as expected
+    assert record == expected_record
+
+
+def test_build_prediction_and_actual_numeric():
+    c = get_stubbed_client()
+    record = c.log(
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["value_numeric"],
+        features=inputs["features"],
+        embedding_features=inputs["embedding_features"],
+        tags=inputs["tags"],
+        actual_label=inputs["value_numeric"],
+    )
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("numeric")
+    a = _build_basic_actual("numeric")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_features_to_prediction())
+    p.MergeFrom(_attach_embedding_features_to_prediction())
+    p.MergeFrom(_attach_tags_to_prediction())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p, a=a)
+    #   Check result is as expected
+    assert record == expected_record
 
 
 ######################
@@ -444,8 +622,8 @@ def test_build_bulk_predictions_dataframes():
     c = get_stubbed_client()
     features, tags, labels, ids = mock_dataframes_clean_nan(file_to_open)
     bulk_records = c.bulk_log(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
         prediction_ids=ids,
         prediction_labels=labels,
         features=features,
@@ -457,9 +635,9 @@ def test_build_bulk_predictions_dataframes():
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes == (0, len(ids))
-        assert bulk.space_key == expected["space_key"]
-        assert bulk.model_id == expected["model"]
-        assert bulk.model_version == expected["model_version"]
+        assert bulk.space_key == inputs["space_key"]
+        assert bulk.model_id == inputs["model_id"]
+        assert bulk.model_version == inputs["model_version"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
@@ -478,8 +656,8 @@ def test_numeric_prediction_ids():
     features, tags, labels, ids = mock_dataframes_clean_nan(file_to_open)
     ids = pd.DataFrame([i for i in range(len(labels.index))])
     bulk_records = c.bulk_log(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
         prediction_ids=ids,
         prediction_labels=labels,
         features=features,
@@ -491,9 +669,9 @@ def test_numeric_prediction_ids():
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes == (0, len(ids))
-        assert bulk.space_key == expected["space_key"]
-        assert bulk.model_id == expected["model"]
-        assert bulk.model_version == expected["model_version"]
+        assert bulk.space_key == inputs["space_key"]
+        assert bulk.model_id == inputs["model_id"]
+        assert bulk.model_version == inputs["model_version"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
@@ -522,8 +700,8 @@ def test_numeric_feature_names():
         }
     )
     bulk_records = c.bulk_log(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
         prediction_ids=ids,
         prediction_labels=labels,
         features=features,
@@ -533,9 +711,9 @@ def test_numeric_feature_names():
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes == (0, len(ids))
-        assert bulk.space_key == expected["space_key"]
-        assert bulk.model_id == expected["model"]
-        assert bulk.model_version == expected["model_version"]
+        assert bulk.space_key == inputs["space_key"]
+        assert bulk.model_id == inputs["model_id"]
+        assert bulk.model_version == inputs["model_version"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
@@ -563,8 +741,8 @@ def test_numeric_tag_names():
         }
     )
     bulk_records = c.bulk_log(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
         prediction_ids=ids,
         prediction_labels=labels,
         tags=tags,
@@ -574,9 +752,9 @@ def test_numeric_tag_names():
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes == (0, len(ids))
-        assert bulk.space_key == expected["space_key"]
-        assert bulk.model_id == expected["model"]
-        assert bulk.model_version == expected["model_version"]
+        assert bulk.space_key == inputs["space_key"]
+        assert bulk.model_id == inputs["model_id"]
+        assert bulk.model_version == inputs["model_version"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
@@ -598,9 +776,9 @@ def test_build_bulk_scored_predictions():
     labels = labels.astype(str)
     score_labels = pd.concat([labels, scores], axis=1)
     bulk_records = c.bulk_log(
-        model_id=expected["model"],
+        model_id=inputs["model_id"],
         model_type=ModelTypes.SCORE_CATEGORICAL,
-        model_version=expected["model_version"],
+        model_version=inputs["model_version"],
         prediction_ids=ids,
         prediction_labels=score_labels,
         features=features,
@@ -612,9 +790,9 @@ def test_build_bulk_scored_predictions():
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes[1] - indexes[0] == len(ids) / 2
-        assert bulk.space_key == expected["space_key"]
-        assert bulk.model_id == expected["model"]
-        assert bulk.model_version == expected["model_version"]
+        assert bulk.space_key == inputs["space_key"]
+        assert bulk.model_id == inputs["model_id"]
+        assert bulk.model_version == inputs["model_version"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
@@ -646,8 +824,8 @@ def test_build_bulk_predictions_dataframes_with_nans():
     features.horsepower = np.nan
     tags.horsepower = np.nan
     bulk_records = c.bulk_log(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
         prediction_ids=ids,
         prediction_labels=labels,
         features=features,
@@ -659,9 +837,9 @@ def test_build_bulk_predictions_dataframes_with_nans():
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes == (0, len(ids))
-        assert bulk.space_key == expected["space_key"]
-        assert bulk.model_id == expected["model"]
-        assert bulk.model_version == expected["model_version"]
+        assert bulk.space_key == inputs["space_key"]
+        assert bulk.model_id == inputs["model_id"]
+        assert bulk.model_version == inputs["model_version"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
@@ -679,8 +857,8 @@ def test_build_bulk_predictions_no_features():
     c = get_stubbed_client()
     features, tags, labels, ids = mock_dataframes_clean_nan(file_to_open)
     records = c.bulk_log(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
         prediction_ids=ids,
         prediction_labels=labels,
         features=None,
@@ -705,8 +883,8 @@ def test_build_bulk_prediction_with_feature_names_overwrites():
     feature_names_overwrite = ["mask_" + str(i) for i in range(len(features.columns))]
     tag_names_overwrite = ["mask_" + str(i) for i in range(len(tags.columns))]
     records = c.bulk_log(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
         prediction_ids=ids,
         prediction_labels=labels,
         features=features,
@@ -733,13 +911,13 @@ def test_build_bulk_actuals_dataframes():
     c = get_stubbed_client()
     _, _, labels, ids = mock_dataframes_clean_nan(file_to_open)
     bulk_records = c.bulk_log(
-        model_id=expected["model"], prediction_ids=ids, actual_labels=labels
+        model_id=inputs["model_id"], prediction_ids=ids, actual_labels=labels
     )
     record_count = 0
     for indexes, bulk in bulk_records.items():
         assert indexes == (0, len(ids))
-        assert bulk.space_key == expected["space_key"]
-        assert bulk.model_id == expected["model"]
+        assert bulk.space_key == inputs["space_key"]
+        assert bulk.model_id == inputs["model_id"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
@@ -766,8 +944,8 @@ def test_validate_bulk_predictions_timestamp_out_of_range():
     ex = None
     try:
         c.bulk_log(
-            model_id=expected["model"],
-            model_version=expected["model_version"],
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
             prediction_ids=ids,
             prediction_labels=labels,
             features=features,
@@ -787,8 +965,8 @@ def test_validate_bulk_predictions_with_nan():
     labels.loc[labels.sample(frac=0.1).index, 0] = np.nan
     with pytest.raises(ValueError) as excinfo:
         c.bulk_log(
-            model_id=expected["model"],
-            model_version=expected["model_version"],
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
             prediction_ids=ids,
             prediction_labels=labels,
             features=features,
@@ -815,8 +993,8 @@ def test_validate_bulk_predictions_mismatched_shapes():
     )
     try:
         c.bulk_log(
-            model_id=expected["model"],
-            model_version=expected["model_version"],
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
             prediction_ids=ids[3:],
             prediction_labels=labels,
             features=features,
@@ -829,8 +1007,8 @@ def test_validate_bulk_predictions_mismatched_shapes():
         id_ex = err
     try:
         c.bulk_log(
-            model_id=expected["model"],
-            model_version=expected["model_version"],
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
             prediction_ids=ids,
             prediction_labels=labels,
             features=features[3:],
@@ -841,8 +1019,8 @@ def test_validate_bulk_predictions_mismatched_shapes():
         feature_ex = err
     try:
         c.bulk_log(
-            model_id=expected["model"],
-            model_version=expected["model_version"],
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
             prediction_ids=ids,
             prediction_labels=labels,
             tags=tags[3:],
@@ -853,8 +1031,8 @@ def test_validate_bulk_predictions_mismatched_shapes():
         tag_ex = err
     try:
         c.bulk_log(
-            model_id=expected["model"],
-            model_version=expected["model_version"],
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
             prediction_ids=ids,
             prediction_labels=labels[3:],
             features=None,
@@ -867,8 +1045,8 @@ def test_validate_bulk_predictions_mismatched_shapes():
         label_ex = err
     try:
         c.bulk_log(
-            model_id=expected["model"],
-            model_version=expected["model_version"],
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
             prediction_ids=ids,
             prediction_labels=labels,
             features=features,
@@ -879,8 +1057,8 @@ def test_validate_bulk_predictions_mismatched_shapes():
         feature_overwrite_ex = err
     try:
         c.bulk_log(
-            model_id=expected["model"],
-            model_version=expected["model_version"],
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
             prediction_ids=ids,
             prediction_labels=labels,
             tags=tags,
@@ -901,8 +1079,8 @@ def test_build_bulk_prediction_with_prediction_timestamps():
     features, tags, labels, ids = mock_dataframes_clean_nan(file_to_open)
     t = [int(time.time()) + i for i in range(features.shape[0])]
     records = c.bulk_log(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
         prediction_ids=ids,
         prediction_labels=labels,
         features=features,
@@ -926,12 +1104,12 @@ def test_handle_log_prediction_with_prediction_timestamps():
     t = int(time.time())
     c = get_stubbed_client()
     record = c.log(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
-        prediction_id=expected["prediction_id"],
-        prediction_label=expected["value_binary"],
-        features=expected["features"],
-        tags=expected["tags"],
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["value_binary"],
+        features=inputs["features"],
+        tags=inputs["tags"],
         prediction_timestamp=t,
     )
     assert isinstance(record.prediction, public__pb2.Prediction)
@@ -945,20 +1123,20 @@ def test_build_bulk_predictions_index():
     features, tags, labels, idx = mock_dataframes_clean_nan(file_to_open)
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
     bulk_records = c.bulk_log(
-        model_id=expected["model"],
+        model_id=inputs["model_id"],
         prediction_ids=ids,
         prediction_labels=labels,
         features=features,
         tags=tags,
-        model_version=expected["model_version"],
+        model_version=inputs["model_version"],
         feature_names_overwrite=None,
         tag_names_overwrite=None,
         prediction_timestamps=None,
     )
     record_count = 0
     for _, bulk in bulk_records.items():
-        assert bulk.space_key == expected["space_key"]
-        assert bulk.model_id == expected["model"]
+        assert bulk.space_key == inputs["space_key"]
+        assert bulk.model_id == inputs["model_id"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
@@ -976,12 +1154,12 @@ def test_build_bulk_actuals_index():
     _, _, labels, idx = mock_dataframes_clean_nan(file_to_open)
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
     bulk_records = c.bulk_log(
-        model_id=expected["model"], prediction_ids=ids, actual_labels=labels
+        model_id=inputs["model_id"], prediction_ids=ids, actual_labels=labels
     )
     record_count = 0
     for _, bulk in bulk_records.items():
-        assert bulk.space_key == expected["space_key"]
-        assert bulk.model_id == expected["model"]
+        assert bulk.space_key == inputs["space_key"]
+        assert bulk.model_id == inputs["model_id"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
@@ -1000,20 +1178,20 @@ def test_build_bulk_binary_predictions():
     features["pred"] = features["mpg"].apply(lambda x: x > 15)
     tags["pred"] = tags["mpg"].apply(lambda x: x > 15)
     bulk_records = c.bulk_log(
-        model_id=expected["model"],
+        model_id=inputs["model_id"],
         prediction_ids=ids,
         prediction_labels=features["pred"],
         features=features,
         tags=tags,
-        model_version=expected["model_version"],
+        model_version=inputs["model_version"],
         feature_names_overwrite=None,
         tag_names_overwrite=None,
         prediction_timestamps=None,
     )
     record_count = 0
     for _, bulk in bulk_records.items():
-        assert bulk.space_key == expected["space_key"]
-        assert bulk.model_id == expected["model"]
+        assert bulk.space_key == inputs["space_key"]
+        assert bulk.model_id == inputs["model_id"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
@@ -1032,12 +1210,14 @@ def test_build_bulk_binary_actuals():
     features["actual"] = features["mpg"].apply(lambda x: x > 15)
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
     bulk_records = c.bulk_log(
-        model_id=expected["model"], prediction_ids=ids, actual_labels=features["actual"]
+        model_id=inputs["model_id"],
+        prediction_ids=ids,
+        actual_labels=features["actual"],
     )
     record_count = 0
     for _, bulk in bulk_records.items():
-        assert bulk.space_key == expected["space_key"]
-        assert bulk.model_id == expected["model"]
+        assert bulk.space_key == inputs["space_key"]
+        assert bulk.model_id == inputs["model_id"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
@@ -1052,17 +1232,17 @@ def test_build_bulk_binary_actuals():
 def test_build_feature_importances():
     c = get_stubbed_client()
     record = c.log(
-        model_id=expected["model"],
-        prediction_id=expected["prediction_id"],
-        shap_values=expected["feature_importances"],
+        model_id=inputs["model_id"],
+        prediction_id=inputs["prediction_id"],
+        shap_values=inputs["feature_importances"],
     )
     assert isinstance(record, public__pb2.Record)
     assert isinstance(record.feature_importances, public__pb2.FeatureImportances)
-    assert record.space_key == expected["space_key"]
-    assert record.model_id == expected["model"]
-    assert record.prediction_id == expected["prediction_id"]
+    assert record.space_key == inputs["space_key"]
+    assert record.model_id == inputs["model_id"]
+    assert record.prediction_id == inputs["prediction_id"]
     assert len(record.feature_importances.feature_importances) == len(
-        expected["feature_importances"]
+        inputs["feature_importances"]
     )
 
 
@@ -1072,13 +1252,13 @@ def test_prediction_timestamp_out_of_range():
 
     try:
         c.log(
-            model_id=expected["model"],
-            prediction_id=expected["prediction_id"],
-            model_version=expected["model_version"],
+            model_id=inputs["model_id"],
+            prediction_id=inputs["prediction_id"],
+            model_version=inputs["model_version"],
             model_type=ModelTypes.CATEGORICAL,
             prediction_label="HOTDOG",
-            features=expected["features"],
-            tags=expected["tags"],
+            features=inputs["features"],
+            tags=inputs["tags"],
             prediction_timestamp=int(time.time()) + (380 * 24 * 60 * 60),
         )
     except Exception as err:
@@ -1092,7 +1272,7 @@ def test_build_missing_data():
     ex = None
 
     try:
-        c.log(model_id=expected["model"], prediction_id=expected["prediction_id"])
+        c.log(model_id=inputs["model_id"], prediction_id=inputs["prediction_id"])
     except Exception as err:
         # Error because everything is None
         ex = err
@@ -1106,8 +1286,8 @@ def test_build_feature_importances_error_empty_data():
 
     try:
         c.log(
-            model_id=expected["model"],
-            prediction_id=expected["prediction_id"],
+            model_id=inputs["model_id"],
+            prediction_id=inputs["prediction_id"],
             shap_values={},
         )
     except Exception as err:
@@ -1122,8 +1302,8 @@ def test_build_feature_importances_error_wrong_data_type():
     ex = None
     try:
         c.log(
-            model_id=expected["model"],
-            prediction_id=expected["prediction_id"],
+            model_id=inputs["model_id"],
+            prediction_id=inputs["prediction_id"],
             shap_values={"a": "string"}
             # feature importances should be float, so this will produce an error
         )
@@ -1142,12 +1322,12 @@ def test_build_bulk_feature_importances():
     ids = pd.DataFrame(index=pred_ids.values, data=pred_ids.values).index.to_series()
 
     bulk_records = c.bulk_log(
-        model_id=expected["model"], prediction_ids=ids, shap_values=feature_importances
+        model_id=inputs["model_id"], prediction_ids=ids, shap_values=feature_importances
     )
     record_count = 0
     for _, bulk in bulk_records.items():
-        assert bulk.space_key == expected["space_key"]
-        assert bulk.model_id == expected["model"]
+        assert bulk.space_key == inputs["space_key"]
+        assert bulk.model_id == inputs["model_id"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
@@ -1174,7 +1354,7 @@ def test_build_bulk_feature_importances_error_mismatch():
     ex = None
     try:
         c.bulk_log(
-            model_id=expected["model"],
+            model_id=inputs["model_id"],
             prediction_ids=ids,
             shap_values=feature_importances,
         )
@@ -1198,8 +1378,8 @@ def test_build_bulk_feature_importances_error_mismatch():
 #
 #     ex = None
 #     try:
-#         bulk_fi = BulkFeatureImportances(space_key=expected['space_key'],
-#                                          model_id=expected['model'],
+#         bulk_fi = BulkFeatureImportances(space_key=inputs['space_key'],
+#                                          model_id=inputs['model_id'],
 #                                          prediction_ids=ids,
 #                                          feature_importances=feature_importances)
 #
@@ -1214,10 +1394,10 @@ def test_build_bulk_feature_importances_error_mismatch():
 def test_build_training_records():
     features, tags, labels, _ = mock_dataframes_clean_nan(file_to_open)
     recs = TrainingRecords(
-        space_key=expected["space_key"],
-        model_id=expected["model"],
+        space_key=inputs["space_key"],
+        model_id=inputs["model_id"],
         model_type=ModelTypes.NUMERIC,
-        model_version=expected["model_version"],
+        model_version=inputs["model_version"],
         prediction_labels=labels,
         actual_labels=labels,
         features=features,
@@ -1233,11 +1413,14 @@ def test_build_training_records():
                 rec.training_record, public__pb2.PreProductionRecord.TrainingRecord
             )
             assert isinstance(rec.training_record.record, public__pb2.Record)
-            assert rec.training_record.record.space_key == expected["space_key"]
-            assert rec.training_record.record.model_id == expected["model"]
+            assert (
+                rec.training_record.record.space_key
+                == inputs["space_key"]
+            )
+            assert rec.training_record.record.model_id == inputs["model_id"]
             assert (
                 rec.training_record.record.prediction_and_actual.prediction.model_version
-                == expected["model_version"]
+                == inputs["model_version"]
             )
             assert isinstance(
                 rec.training_record.record.prediction_and_actual.prediction.label,
@@ -1283,9 +1466,9 @@ def test_send_validation_records():
     t = t[:1]
 
     result = c.log_validation_records(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
-        batch_id=expected["batch"],
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        batch_id=inputs["batch"],
         prediction_labels=labels,
         actual_labels=labels,
         prediction_ids=pred_ids,
@@ -1304,12 +1487,15 @@ def test_send_validation_records():
                 rec.validation_record, public__pb2.PreProductionRecord.ValidationRecord
             )
             assert isinstance(rec.validation_record.record, public__pb2.Record)
-            assert rec.validation_record.batch_id == expected["batch"]
-            assert rec.validation_record.record.space_key == expected["space_key"]
-            assert rec.validation_record.record.model_id == expected["model"]
+            assert rec.validation_record.batch_id == inputs["batch"]
+            assert (
+                rec.validation_record.record.space_key
+                == inputs["space_key"]
+            )
+            assert rec.validation_record.record.model_id == inputs["model_id"]
             assert (
                 rec.validation_record.record.prediction_and_actual.prediction.model_version
-                == expected["model_version"]
+                == inputs["model_version"]
             )
             assert isinstance(
                 rec.validation_record.record.prediction_and_actual.prediction.label,
@@ -1344,9 +1530,9 @@ def test_send_validation_records():
     # now test a bunch of records at once
     features, tags, labels, pred_ids = mock_dataframes_clean_nan(file_to_open)
     result = c.log_validation_records(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
-        batch_id=expected["batch"],
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        batch_id=inputs["batch"],
         prediction_labels=labels,
         actual_labels=labels,
         prediction_ids=pred_ids,
@@ -1366,9 +1552,9 @@ def test_send_validation_records_without_prediction_id():
     features, tags, labels, pred_ids = mock_dataframes_clean_nan(file_to_open)
     # expect no exceptions
     c.log_validation_records(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
-        batch_id=expected["batch"],
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        batch_id=inputs["batch"],
         prediction_labels=labels,
         actual_labels=labels,
         model_type=ModelTypes.NUMERIC,
@@ -1384,17 +1570,17 @@ def test_build_bulk_binary_predictions_deprecated_method():
     features["pred"] = features["mpg"].apply(lambda x: x > 15)
     tags["pred"] = tags["mpg"].apply(lambda x: x > 15)
     bulk_records = c.log_bulk_predictions(
-        model_id=expected["model"],
+        model_id=inputs["model_id"],
         prediction_ids=ids,
         prediction_labels=features["pred"],
         features=features,
         tags=tags,
-        model_version=expected["model_version"],
+        model_version=inputs["model_version"],
     )
     record_count = 0
     for _, bulk in bulk_records.items():
-        assert bulk.space_key == expected["space_key"]
-        assert bulk.model_id == expected["model"]
+        assert bulk.space_key == inputs["space_key"]
+        assert bulk.model_id == inputs["model_id"]
         assert not hasattr(bulk, "timestamp")
         for record in bulk.records:
             assert isinstance(record, public__pb2.Record)
@@ -1412,9 +1598,9 @@ def test_validation_predictions_ids_as_index_series():
     features, tags, labels, idx = mock_dataframes_clean_nan(file_to_open)
     ids = pd.DataFrame(index=idx.values, data=idx.values).index.to_series()
     result = c.log_validation_records(
-        model_id=expected["model"],
-        model_version=expected["model_version"],
-        batch_id=expected["batch"],
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        batch_id=inputs["batch"],
         prediction_labels=labels,
         actual_labels=labels,
         prediction_ids=ids,
@@ -1431,12 +1617,15 @@ def test_validation_predictions_ids_as_index_series():
                 rec.validation_record, public__pb2.PreProductionRecord.ValidationRecord
             )
             assert isinstance(rec.validation_record.record, public__pb2.Record)
-            assert rec.validation_record.batch_id == expected["batch"]
-            assert rec.validation_record.record.space_key == expected["space_key"]
-            assert rec.validation_record.record.model_id == expected["model"]
+            assert rec.validation_record.batch_id == inputs["batch"]
+            assert (
+                rec.validation_record.record.space_key
+                == inputs["space_key"]
+            )
+            assert rec.validation_record.record.model_id == inputs["model_id"]
             assert (
                 rec.validation_record.record.prediction_and_actual.prediction.model_version
-                == expected["model_version"]
+                == inputs["model_version"]
             )
             assert isinstance(
                 rec.validation_record.record.prediction_and_actual.prediction.label,
@@ -1467,24 +1656,24 @@ def test_invalid_shap_suffix():
 
     with pytest.raises(Exception) as e:
         c.log(
-            model_id=expected["model"],
-            prediction_id=expected["prediction_id"],
+            model_id=inputs["model_id"],
+            prediction_id=inputs["prediction_id"],
             features={"_shap": 0},
         )
     assert "_shap" in str(e.value)
 
     with pytest.raises(Exception) as e:
         c.log(
-            model_id=expected["model"],
-            prediction_id=expected["prediction_id"],
+            model_id=inputs["model_id"],
+            prediction_id=inputs["prediction_id"],
             tags={"_shap": 0},
         )
     assert "_shap" in str(e.value)
 
     with pytest.raises(Exception) as e:
         c.log(
-            model_id=expected["model"],
-            prediction_id=expected["prediction_id"],
+            model_id=inputs["model_id"],
+            prediction_id=inputs["prediction_id"],
             shap_values={"_shap": 0},
         )
     assert "_shap" in str(e.value)
@@ -1496,7 +1685,7 @@ def test_invalid_shap_suffix():
 
     with pytest.raises(Exception) as e:
         c.bulk_log(
-            model_id=expected["model"],
+            model_id=inputs["model_id"],
             prediction_ids=ids,
             features=features.rename(
                 {c: f"{c}_shap" for c in features.columns}, axis=1
@@ -1506,7 +1695,7 @@ def test_invalid_shap_suffix():
 
     with pytest.raises(Exception) as e:
         c.bulk_log(
-            model_id=expected["model"],
+            model_id=inputs["model_id"],
             prediction_ids=ids,
             features=features,
             feature_names_overwrite=[f"{c}_shap" for c in features.columns],
@@ -1515,7 +1704,7 @@ def test_invalid_shap_suffix():
 
     with pytest.raises(Exception) as e:
         c.bulk_log(
-            model_id=expected["model"],
+            model_id=inputs["model_id"],
             prediction_ids=ids,
             tags=tags.rename({c: f"{c}_shap" for c in tags.columns}, axis=1),
         )
@@ -1523,7 +1712,7 @@ def test_invalid_shap_suffix():
 
     with pytest.raises(Exception) as e:
         c.bulk_log(
-            model_id=expected["model"],
+            model_id=inputs["model_id"],
             prediction_ids=ids,
             tags=tags,
             tag_names_overwrite=[f"{c}_shap" for c in tags.columns],
@@ -1532,7 +1721,7 @@ def test_invalid_shap_suffix():
 
     with pytest.raises(Exception) as e:
         c.bulk_log(
-            model_id=expected["model"],
+            model_id=inputs["model_id"],
             prediction_ids=ids,
             shap_values=feature_importances.rename(
                 {c: f"{c}_shap" for c in feature_importances.columns}, axis=1
@@ -1542,9 +1731,9 @@ def test_invalid_shap_suffix():
 
     with pytest.raises(Exception) as e:
         c.log_validation_records(
-            model_id=expected["model"],
-            model_version=expected["model_version"],
-            batch_id=expected["batch"],
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            batch_id=inputs["batch"],
             prediction_labels=labels,
             actual_labels=labels,
             features=features.rename(
@@ -1555,9 +1744,9 @@ def test_invalid_shap_suffix():
 
     with pytest.raises(Exception) as e:
         c.log_validation_records(
-            model_id=expected["model"],
-            model_version=expected["model_version"],
-            batch_id=expected["batch"],
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            batch_id=inputs["batch"],
             prediction_labels=labels,
             actual_labels=labels,
             tags=tags.rename({c: f"{c}_shap" for c in tags.columns}, axis=1),
@@ -1566,8 +1755,8 @@ def test_invalid_shap_suffix():
 
     with pytest.raises(Exception) as e:
         c.log_training_records(
-            model_id=expected["model"],
-            model_version=expected["model_version"],
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
             prediction_labels=labels,
             actual_labels=labels,
             features=features.rename(
@@ -1578,8 +1767,8 @@ def test_invalid_shap_suffix():
 
     with pytest.raises(Exception) as e:
         c.log_training_records(
-            model_id=expected["model"],
-            model_version=expected["model_version"],
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
             prediction_labels=labels,
             actual_labels=labels,
             tags=tags.rename({c: f"{c}_shap" for c in tags.columns}, axis=1),

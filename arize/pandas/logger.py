@@ -13,7 +13,7 @@ import tempfile
 
 from arize import public_pb2 as pb
 from arize.__init__ import __version__
-from arize.utils.types import ModelTypes, Environments
+from arize.utils.types import ModelTypes, Environments, EmbeddingColumnNames
 from arize.utils.utils import reconstruct_url
 import arize.pandas.validation.errors as err
 from arize.pandas.validation.validator import Validator
@@ -39,6 +39,7 @@ class Schema:
     actual_score_column_name: Optional[str] = None
     shap_values_column_names: Optional[Dict[str, str]] = None
     actual_numeric_sequence_column_name: Optional[str] = None
+    embedding_feature_column_names: Optional[List[EmbeddingColumnNames]] = None
 
 
 class Client:
@@ -64,6 +65,20 @@ class Client:
         timeout: Optional[float] = None,
         surrogate_explainability: Optional[bool] = False,
     ) -> requests.Response:
+        """Logs a pandas dataframe containing inferences to Arize via a POST request. Returns a :class:`Response` object from the Requests HTTP library.
+        :param dataframe (pd.DataFrame): The dataframe containing inferences.
+        :param model_id (str): The unique identifier for your model.
+        :param model_type (ModelTypes): Declared what model type this prediction is for.
+        :param environment (Environments): The environment that this dataframe is for (Production, Training, Validation).
+        :param schema (Schema): A Schema instance that maps model inference data fields to column names in the provided dataframe.
+        :param model_version (str, optional): Used to group together a subset of predictions and actuals for a given model_id. Defaults to None.
+        :param batch_id (str, optional): Used to distinguish different batch of data under the same model_id and  model_version. Defaults to None.
+        :param sync (bool, optional): When sync is set to True, the log call will block, or wait, until the data has been successfully ingested by the platform and immediately return the status of the log. Defaults to False.
+        :param validate (bool, optional): When set to True, validation is run before sending data. Defaults to True.
+        :param path (str, optional): Temporary directory/file to store the serialized data in binary before sending to Arize.
+        :param timeout (float, optional): You can stop waiting for a response after a given number of seconds with the timeout parameter. Defaults to None.
+        :param surrogate_explainability (bool, optional): Computes feature importance values using the surrogate explainability method. This requires that the arize module is installed with the [MimicExplainer] option. If feature importance values are already specified by the shap_values_column_names attribute in the Schema, this module will not run. Defaults to False.
+        """
 
         if model_id is not None and not isinstance(model_id, str):
             try:
@@ -218,6 +233,13 @@ class Client:
         if schema.feature_column_names is not None:
             s.arrow_schema.feature_column_names.extend(schema.feature_column_names)
 
+        if schema.embedding_feature_column_names is not None:
+            message_emb_col_names = map(
+                EmbeddingColumnNames.convert_to_proto,
+                schema.embedding_feature_column_names,
+            )
+            s.arrow_schema.embedding_feature_column_names.extend(message_emb_col_names)
+
         if schema.tag_column_names is not None:
             s.arrow_schema.tag_column_names.extend(schema.tag_column_names)
 
@@ -238,6 +260,13 @@ class Client:
             )
 
         base64_schema = base64.b64encode(s.SerializeToString())
+
+        # limit the potential size of http headers to under 64 kilobytes
+        if len(base64_schema) > 63000:
+            raise ValueError(
+                "The schema (which includes all column names) is too large."
+            )
+
         if path is None:
             f = tempfile.NamedTemporaryFile()
             tmp_file = f.name
