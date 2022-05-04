@@ -266,12 +266,12 @@ class Client:
         features: Optional[
             Dict[Union[str, int, float], Union[str, bool, float, int]]
         ] = None,
-        embedding_features: Optional[Dict[Union[str, int, float], Embedding]] = None,
         tags: Optional[
             Dict[Union[str, int, float], Union[str, bool, float, int]]
         ] = None,
         model_type: Optional[ModelTypes] = None,
         prediction_timestamp: Optional[int] = None,
+        embedding_features: Optional[Dict[Union[str, int, float], Embedding]] = None,
     ) -> cf.Future:
         """Logs a record to Arize via a POST request. Returns :class:`Future` object.
         :param model_id: (str) Unique identifier for a given model
@@ -281,10 +281,10 @@ class Client:
         :param actual_label: (one of str, bool, int, float) The actual true value for a given model input. This actual will be matched to the prediction with the same prediction_id as the one in this call.
         :param shap_values: (str, float) Dictionary containing human readable and debuggable model features keys, along with SHAP feature importance values. Keys must be str, while values must be float.
         :param features: ((str, int, float), <value>) Optional dictionary containing human readable and debuggable model features. Keys must be one of str, int, or float. Values must be one of str, bool, float, long.
-        :param embedding_features ((str, int, float), Embedding): Optional dictionary containing model embedding features. Keys must be one of str, int, or float. Values must be of Embedding type.
         :param tags: ((str, int, float), <value>) Optional dictionary containing human readable and debuggable model tags. Keys must be str, values one of str, bool, float, long.
         :param model_type: (ModelTypes) Declares what model type this prediction is for. Binary, Numeric, Categorical, Score_Categorical.
         :param prediction_timestamp: (int) Optional field with unix epoch time in seconds to overwrite timestamp for prediction. If None, prediction uses current timestamp.
+        :param embedding_features ((str, int, float), Embedding): Optional dictionary containing model embedding features. Keys must be one of str, int, or float. Values must be of Embedding type.
         :rtype : concurrent.futures.Future
         """
 
