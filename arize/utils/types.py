@@ -89,8 +89,7 @@ class Embedding(NamedTuple):
             TypeError: If the embedding does not satisfy requirements above
         """
 
-        allowed_type = Embedding.is_valid_iterable(vector)
-        if not allowed_type:
+        if not Embedding.is_valid_iterable(vector):
             raise TypeError(
                 f'Embedding feature "{emb_name}" has vector type {type(vector)}. Must be list, np.ndarray or pd.Series'
             )
@@ -100,7 +99,8 @@ class Embedding(NamedTuple):
                 f"Embedding vector must not be empty. Got {emb_name}.vector = {vector}"
             )
         # Fail if not all elements in list are floats
-        if not all(isinstance(val, float) or isinstance(val, int) for val in vector):
+        allowed_types = (int, float, np.int16, np.int32, np.float16, np.float32)
+        if not all(isinstance(val, allowed_types) for val in vector):
             raise TypeError(
                 f"Embedding vector must be a vector of integers and/or floats. Got {emb_name}.vector = {vector}"
             )
