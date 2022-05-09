@@ -26,6 +26,8 @@ from arize.utils.utils import (
     get_bulk_records,
 )
 
+from warnings import warn
+
 from arize.__init__ import __version__
 
 
@@ -437,6 +439,7 @@ class Client:
         )
         return self._post(record=rec, uri=self._uri, indexes=None)
 
+    # Deprecated
     def bulk_log(
         self,
         model_id: str,
@@ -469,6 +472,11 @@ class Client:
         :param prediction_timestamps: (list<int>) Optional list with same number of elements as prediction_labels field with unix epoch time in seconds to overwrite timestamp for each prediction. If None, prediction uses current timestamp.
         :rtype : list<concurrent.futures.Future>
         """
+        warn(
+            "The method bulk_log is deprecated and will be removed in a future version",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
         # Validate model_id
         if not isinstance(model_id, str):
@@ -642,6 +650,7 @@ class Client:
         )
         return self._post_bulk(records=brs, uri=self._bulk_url)
 
+    # Deprecated
     def log_validation_records(
         self,
         model_id: str,
@@ -670,6 +679,11 @@ class Client:
         :param prediction_timestamps: (list<int>) Optional list with same number of elements as prediction_labels field with unix epoch time in seconds to overwrite timestamp for each prediction. If None, prediction uses current timestamp.
         :rtype : list<concurrent.futures.Future>
         """
+        warn(
+            "The method log_validation_records is deprecated and will be removed in a future version",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         rec = ValidationRecords(
             space_key=self._space_key,
             model_id=model_id,
@@ -687,6 +701,7 @@ class Client:
         rec.validate_inputs()
         return self._post_preprod(records=rec.build_proto())
 
+    # Deprecated
     def log_training_records(
         self,
         model_id: str,
@@ -709,6 +724,11 @@ class Client:
         :param tags: Optional 2-D Pandas DataFrame containing human readable and debuggable model tags. DataFrames columns (df.columns) should contain tag names and must have same number of rows as actual_labels and prediction_labels. N.B. np.nan values are stripped from the record and manifest on our platform as a missing value (not 0.0 or NaN)
         :rtype : list<concurrent.futures.Future>
         """
+        warn(
+            "The method log_training_records is deprecated and will be removed in a future version",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         rec = TrainingRecords(
             space_key=self._space_key,
             model_id=model_id,
@@ -748,6 +768,11 @@ class Client:
         :param time_overwrite: (int) Optional field with unix epoch time in seconds to overwrite timestamp for prediction. If None, prediction uses current timestamp.
         :rtype : concurrent.futures.Future
         """
+        warn(
+            "The method log_prediction is deprecated and will be removed in a future version",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self.log(
             model_id=model_id,
             prediction_id=prediction_id,
@@ -775,6 +800,11 @@ class Client:
         :param model_type: (ModelTypes) Declares what model type this prediction is for. Binary, Numeric, Categorical, Score_Categorical.
         :rtype : concurrent.futures.Future
         """
+        warn(
+            "The method log_actual is deprecated and will be removed in a future version",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self.log(
             model_id=model_id,
             model_type=model_type,
@@ -795,6 +825,11 @@ class Client:
         :param shap_values: (str, float) Dictionary containing human readable and debuggable model features keys, along with SHAP feature importance values. Keys must be str, while values must be float.
         :rtype : concurrent.futures.Future
         """
+        warn(
+            "The method log_shap_values is deprecated and will be removed in a future version",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self.log(
             prediction_id=prediction_id,
             model_id=model_id,
@@ -814,6 +849,11 @@ class Client:
         :param shap_values: 1-D Pandas DataFrame or Series. The SHAP value sets for a set of predictions. SHAP value sets are correspond to the prediction ids with the same index.
         :rtype : list<concurrent.futures.Future>
         """
+        warn(
+            "The method log_bulk_shap_values is deprecated and will be removed in a future version",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self.bulk_log(
             model_id=model_id, prediction_ids=prediction_ids, shap_values=shap_values
         )
@@ -847,6 +887,11 @@ class Client:
         :param time_overwrite: (list<int>) Optional list with same number of elements as prediction_labels field with unix epoch time in seconds to overwrite timestamp for each prediction. If None, prediction uses current timestamp.
         :rtype : list<concurrent.futures.Future>
         """
+        warn(
+            "The method log_bulk_predictions is deprecated and will be removed in a future version",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self.bulk_log(
             model_id=model_id,
             model_type=model_type,
@@ -875,6 +920,11 @@ class Client:
         :param actual_labels: 1-D Pandas DataFrame or Series. The actual true values for a given model input. Values are associates to the labels in the same index.
         :rtype : list<concurrent.futures.Future>
         """
+        warn(
+            "The method log_bulk_actuals is deprecated and will be removed in a future version",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self.bulk_log(
             model_id=model_id,
             model_type=model_type,
