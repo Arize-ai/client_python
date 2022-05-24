@@ -409,6 +409,15 @@ class Client:
                     value=actual_label, name="actual", model_type=model_type
                 )
             )
+            # Added to support latent tags on actuals.
+            if tags is not None:
+                converted_tags = {}
+                for (k, v) in tags.items():
+                    val = get_value_object(value=v, name=k)
+                    if val is not None:
+                        converted_tags[str(k)] = val
+                tgs = public__pb2.Actual(tags=converted_tags)
+                a.MergeFrom(tgs)
 
         # Validate and construct the optional feature importances
         fi = None
