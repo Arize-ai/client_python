@@ -197,6 +197,16 @@ def _attach_tags_to_prediction() -> public__pb2.Prediction:
     return public__pb2.Prediction(tags=tags)
 
 
+def _attach_tags_to_actual() -> public__pb2.Actual:
+    tags = {
+        "tag_str": public__pb2.Value(string=STR_VAL),
+        "tag_double": public__pb2.Value(double=NUM_VAL),
+        "tag_int": public__pb2.Value(int=INT_VAL),
+        "tag_bool": public__pb2.Value(string=str(BOOL_VAL)),
+    }
+    return public__pb2.Actual(tags=tags)
+
+
 def mock_dataframes_clean_nan(file):
     features, tags, labels, ids = mock_dataframes(file)
     features = features.fillna("backfill")
@@ -607,6 +617,8 @@ def test_build_prediction_and_actual_numeric():
     p.MergeFrom(_attach_features_to_prediction())
     p.MergeFrom(_attach_embedding_features_to_prediction())
     p.MergeFrom(_attach_tags_to_prediction())
+    #  Add tags to actual
+    a.MergeFrom(_attach_tags_to_actual())
     #   Build expected record using built prediction
     expected_record = _build_expected_record(p=p, a=a)
     #   Check result is as expected
