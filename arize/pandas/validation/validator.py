@@ -48,6 +48,7 @@ class Validator:
                 Validator._check_type_prediction_id(schema, column_types),
                 Validator._check_type_timestamp(schema, column_types),
                 Validator._check_type_features(schema, column_types),
+                Validator._check_type_embedding_features(schema, column_types),
                 Validator._check_type_tags(schema, column_types),
                 Validator._check_type_shap_values(schema, column_types),
                 Validator._check_type_pred_act_labels(model_type, schema, column_types),
@@ -289,6 +290,75 @@ class Validator:
                         mistyped_columns, expected_types=["float", "int", "bool", "str"]
                     )
                 ]
+        return []
+
+    @staticmethod
+    def _check_type_embedding_features(
+        schema: "Schema", column_types: Dict[str, Any]
+    ) -> List[err.InvalidTypeFeatures]:
+        if schema.embedding_feature_column_names is not None:
+            # should mirror server side
+            allowed_vector_datatypes = (
+                pa.list_(pa.float64()),
+                pa.list_(pa.float32()),
+            )
+            allowed_data_datatypes = (
+                pa.string(),  # Text
+                pa.list_(pa.string()),  # Token Array
+            )
+            allowed_link_to_data_datatypes = (pa.string(),)
+
+            mistyped_vector_columns = []
+            mistyped_data_columns = []
+            mistyped_link_to_data_columns = []
+            for embFeatColNames in schema.embedding_feature_column_names:
+                # _check_missing_columns() checks that vector columns are present,
+                # hence I assume they are here
+                col = embFeatColNames.vector_column_name
+                if (
+                    col in column_types
+                    and column_types[col] not in allowed_vector_datatypes
+                ):
+                    mistyped_vector_columns.append(col)
+
+                if embFeatColNames.data_column_name:
+                    col = embFeatColNames.data_column_name
+                    if (
+                        col in column_types
+                        and column_types[col] not in allowed_data_datatypes
+                    ):
+                        mistyped_data_columns.append(col)
+
+                if embFeatColNames.link_to_data_column_name:
+                    col = embFeatColNames.link_to_data_column_name
+                    if (
+                        col in column_types
+                        and column_types[col] not in allowed_link_to_data_datatypes
+                    ):
+                        mistyped_link_to_data_columns.append(col)
+
+            mistyped_embedding_errors = []
+            if mistyped_vector_columns:
+                mistyped_embedding_errors.append(
+                    err.InvalidTypeFeatures(
+                        mistyped_vector_columns, expected_types=["list[float]"]
+                    )
+                )
+            if mistyped_data_columns:
+                mistyped_embedding_errors.append(
+                    err.InvalidTypeFeatures(
+                        mistyped_data_columns, expected_types=["list[string]"]
+                    )
+                )
+            if mistyped_link_to_data_columns:
+                mistyped_embedding_errors.append(
+                    err.InvalidTypeFeatures(
+                        mistyped_link_to_data_columns, expected_types=["string"]
+                    )
+                )
+
+            return mistyped_embedding_errors  # Will be empty list if no errors
+
         return []
 
     @staticmethod
