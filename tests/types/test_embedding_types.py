@@ -70,7 +70,9 @@ def test_correct_embeddings():
         try:
             Embedding.validate_embedding_object(key, embedding)
         except Exception as err:
-            assert False, f"Correct embeddings should give no errors. Failing key = {key:s}"
+            assert (
+                False
+            ), f"Correct embeddings should give no errors. Failing key = {key:s}"
 
 
 def test_empty_vector():
@@ -82,7 +84,10 @@ def test_empty_vector():
         try:
             Embedding.validate_embedding_object(key, embedding)
         except Exception as err:
-            assert type(err) == ValueError, "Wrong field values should raise value errors"
+            assert (
+                type(err) == ValueError
+            ), "Wrong field values should raise value errors"
+
 
 def test_wrong_type_fields():
     keys = [key for key in input_embeddings.keys() if "wrong_type:" in key]
@@ -94,6 +99,7 @@ def test_wrong_type_fields():
             Embedding.validate_embedding_object(key, embedding)
         except Exception as err:
             assert type(err) == TypeError, "Wrong field types should raise type errors"
+
 
 def test_convert_schema_to_proto():
     schemaEmbeddingColumnNames = [
@@ -112,22 +118,21 @@ def test_convert_schema_to_proto():
     ]
     protoEmbeddingColumnNames = [
         pb.Schema.EmbeddingColumnNames(
-            vector_column_name = "image",
-            link_to_data_column_name = "image_link"
+            vector_column_name="image", link_to_data_column_name="image_link"
         ),
         pb.Schema.EmbeddingColumnNames(
-            vector_column_name = "sentence",
-            data_column_name = "sentence_data"
+            vector_column_name="sentence", data_column_name="sentence_data"
         ),
         pb.Schema.EmbeddingColumnNames(
-            vector_column_name = "token_array",
-            data_column_name = "token_array_data"
+            vector_column_name="token_array", data_column_name="token_array_data"
         ),
     ]
-    for embColNames, expected_proto in zip(schemaEmbeddingColumnNames, protoEmbeddingColumnNames):
+    for embColNames, expected_proto in zip(
+        schemaEmbeddingColumnNames, protoEmbeddingColumnNames
+    ):
         proto = EmbeddingColumnNames.convert_to_proto(embColNames)
         assert expected_proto == proto
 
-       
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__]))
