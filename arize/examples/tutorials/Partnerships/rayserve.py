@@ -29,9 +29,7 @@ class ArizeModel:
     def __init__(self):
         self.model = model  # change to reading a pkl file, or otherwise
         # Step 1 Save Arize client
-        self.arize = Client(
-            space_key="YOUR_SPACE_KEY", api_key="YOUR_API_KEY"
-        )
+        self.arize = Client(space_key="YOUR_SPACE_KEY", api_key="YOUR_API_KEY")
         # Step 2 Saving model metadata for passing in later
         self.model_id = "rayserve-model"
         self.model_version = "1.0"
