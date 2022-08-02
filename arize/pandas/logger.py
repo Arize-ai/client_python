@@ -1,8 +1,7 @@
 import sys
 import base64
 import logging
-from dataclasses import dataclass
-from typing import List, Dict, Optional
+from typing import Optional
 
 import pandas as pd
 import pandas.api.types as ptypes
@@ -17,6 +16,7 @@ from arize.utils.types import ModelTypes, Environments, EmbeddingColumnNames
 from arize.utils.utils import reconstruct_url
 import arize.pandas.validation.errors as err
 from arize.pandas.validation.validator import Validator
+from arize.utils.types import Schema
 
 logger = logging.getLogger(__name__)
 if hasattr(sys, "ps1"):
@@ -27,25 +27,22 @@ if hasattr(sys, "ps1"):
     logger.setLevel(logging.INFO)
 
 
-@dataclass(frozen=True)
-class Schema:
-    prediction_id_column_name: str
-    feature_column_names: Optional[List[str]] = None
-    tag_column_names: Optional[List[str]] = None
-    timestamp_column_name: Optional[str] = None
-    prediction_label_column_name: Optional[str] = None
-    prediction_score_column_name: Optional[str] = None
-    actual_label_column_name: Optional[str] = None
-    actual_score_column_name: Optional[str] = None
-    shap_values_column_names: Optional[Dict[str, str]] = None
-    actual_numeric_sequence_column_name: Optional[str] = None
-    embedding_feature_column_names: Optional[List[EmbeddingColumnNames]] = None
-
-
 class Client:
+    """
+    Arize API Client to  model predictions and actuals to the Arize AI platform from pandas.DataFrames
+    """
+
     def __init__(
-        self, api_key: str, space_key: str, uri: str = "https://api.arize.com/v1"
-    ):
+        self,
+        api_key: str,
+        space_key: str,
+        uri: Optional[str] = "https://api.arize.com/v1",
+    ) -> None:
+        """
+        :param api_key (str): api key associated with your account with Arize AI.
+        :param space_key (str): space key in Arize AI.
+        :param uri (str, optional): uri to send your records to Arize AI. Defaults to "https://api.arize.com/v1".
+        """
         self._api_key = api_key
         self._space_key = space_key
         self._files_uri = uri + "/pandas_arrow"
@@ -53,31 +50,32 @@ class Client:
     def log(
         self,
         dataframe: pd.DataFrame,
+        schema: Schema,
+        environment: Environments,
         model_id: str,
         model_type: ModelTypes,
-        environment: Environments,
-        schema: Schema,
         model_version: Optional[str] = None,
         batch_id: Optional[str] = None,
         sync: Optional[bool] = False,
         validate: Optional[bool] = True,
         path: Optional[str] = None,
-        timeout: Optional[float] = None,
         surrogate_explainability: Optional[bool] = False,
+        timeout: Optional[float] = None,
+        verbose: Optional[bool] = False,
     ) -> requests.Response:
         """Logs a pandas dataframe containing inferences to Arize via a POST request. Returns a :class:`Response` object from the Requests HTTP library.
         :param dataframe (pd.DataFrame): The dataframe containing inferences.
+        :param schema (Schema): A Schema instance that maps model inference data fields to column names in the provided dataframe.
+        :param environment (Environments): The environment that this dataframe is for (Production, Training, Validation).
         :param model_id (str): The unique identifier for your model.
         :param model_type (ModelTypes): Declared what model type this prediction is for.
-        :param environment (Environments): The environment that this dataframe is for (Production, Training, Validation).
-        :param schema (Schema): A Schema instance that maps model inference data fields to column names in the provided dataframe.
         :param model_version (str, optional): Used to group together a subset of predictions and actuals for a given model_id. Defaults to None.
         :param batch_id (str, optional): Used to distinguish different batch of data under the same model_id and  model_version. Defaults to None.
         :param sync (bool, optional): When sync is set to True, the log call will block, or wait, until the data has been successfully ingested by the platform and immediately return the status of the log. Defaults to False.
         :param validate (bool, optional): When set to True, validation is run before sending data. Defaults to True.
         :param path (str, optional): Temporary directory/file to store the serialized data in binary before sending to Arize.
-        :param timeout (float, optional): You can stop waiting for a response after a given number of seconds with the timeout parameter. Defaults to None.
         :param surrogate_explainability (bool, optional): Computes feature importance values using the surrogate explainability method. This requires that the arize module is installed with the [MimicExplainer] option. If feature importance values are already specified by the shap_values_column_names attribute in the Schema, this module will not run. Defaults to False.
+        :param timeout (float, optional): You can stop waiting for a response after a given number of seconds with the timeout parameter. Defaults to None.
         """
 
         if model_id is not None and not isinstance(model_id, str):
@@ -102,6 +100,8 @@ class Client:
                 raise
 
         if validate:
+            if verbose:
+                print("Performing parameters validation.")
             errors = Validator.validate_params(
                 dataframe=dataframe,
                 model_id=model_id,
@@ -116,6 +116,10 @@ class Client:
                     logger.error(e)
                 raise err.ValidationFailure(errors)
 
+        if verbose:
+            print("Removing unnecessary columns.")
+        dataframe = self._remove_extraneous_columns(dataframe, schema)
+
         # always validate pd.Category is not present, if yes, convert to string
         has_cat_col = any([ptypes.is_categorical_dtype(x) for x in dataframe.dtypes])
         if has_cat_col:
@@ -128,6 +132,8 @@ class Client:
             dataframe = dataframe.astype(cat_str_map)
 
         if surrogate_explainability:
+            if verbose:
+                print("Running surrogate_explainability.")
             try:
                 from arize.pandas.surrogate_explainer.mimic import Mimic
             except ImportError:
@@ -157,6 +163,8 @@ class Client:
         # the column is not specified in schema. Caveat: There may be other
         # error conditions that we're currently not aware of.
         try:
+            if verbose:
+                print("Getting pyarrow schema from pandas dataframe.")
             pa_schema = pa.Schema.from_pandas(dataframe)
         except pa.ArrowInvalid as e:
             logger.error(
@@ -169,25 +177,25 @@ class Client:
             raise
 
         if validate:
+            if verbose:
+                print("Performing types validation.")
             errors = Validator.validate_types(
-                model_type=model_type,
-                schema=schema,
-                pyarrow_schema=pa_schema,
+                model_type=model_type, schema=schema, pyarrow_schema=pa_schema,
             )
             if errors:
                 for e in errors:
                     logger.error(e)
                 raise err.ValidationFailure(errors)
-
-            errors = Validator.validate_values(
-                dataframe=dataframe,
-                schema=schema,
-            )
+            if verbose:
+                print("Performing values validation.")
+            errors = Validator.validate_values(dataframe=dataframe, schema=schema,)
             if errors:
                 for e in errors:
                     logger.error(e)
                 raise err.ValidationFailure(errors)
 
+        if verbose:
+            print("Getting pyarrow table from pandas dataframe.")
         ta = pa.Table.from_pandas(dataframe)
 
         s = pb.Schema()
@@ -203,12 +211,8 @@ class Client:
         elif environment == Environments.TRAINING:
             s.constants.environment = pb.Schema.Environment.TRAINING
 
-        if model_type == ModelTypes.BINARY:
-            s.constants.model_type = pb.Schema.ModelType.BINARY
-        elif model_type == ModelTypes.NUMERIC:
+        if model_type == ModelTypes.NUMERIC:
             s.constants.model_type = pb.Schema.ModelType.NUMERIC
-        elif model_type == ModelTypes.CATEGORICAL:
-            s.constants.model_type = pb.Schema.ModelType.CATEGORICAL
         elif model_type == ModelTypes.SCORE_CATEGORICAL:
             s.constants.model_type = pb.Schema.ModelType.SCORE_CATEGORICAL
 
@@ -259,12 +263,14 @@ class Client:
                 schema.actual_numeric_sequence_column_name
             )
 
+        if verbose:
+            print("Serializing schema.")
         base64_schema = base64.b64encode(s.SerializeToString())
 
         # limit the potential size of http headers to under 64 kilobytes
         if len(base64_schema) > 63000:
             raise ValueError(
-                "The schema (which includes all column names) is too large."
+                "The schema (after removing unnecessary columns) is too large."
             )
 
         if path is None:
@@ -274,9 +280,13 @@ class Client:
             tmp_file = path
 
         try:
+            if verbose:
+                print("Writing table to temporary file: ", tmp_file)
             writer = pa.ipc.new_stream(tmp_file, pa_schema)
             writer.write_table(ta, max_chunksize=65536)
             writer.close()
+            if verbose:
+                print("Sending file to Arize")
             response = self._post_file(tmp_file, base64_schema, sync, timeout)
         finally:
             if path is None:
@@ -307,8 +317,38 @@ class Client:
             if sync:
                 headers["sync"] = "1"
             return requests.post(
-                self._files_uri,
-                timeout=timeout,
-                data=f,
-                headers=headers,
+                self._files_uri, timeout=timeout, data=f, headers=headers,
             )
+
+    def _remove_extraneous_columns(
+        self, df: pd.DataFrame, schema: Schema
+    ) -> pd.DataFrame:
+        cols_to_keep = set()
+
+        for field in schema.__dataclass_fields__:
+            if field.endswith("column_name"):
+                col = getattr(schema, field)
+                if col is not None:
+                    cols_to_keep.add(col)
+
+        if schema.feature_column_names is not None:
+            for col in schema.feature_column_names:
+                cols_to_keep.add(col)
+
+        if schema.embedding_feature_column_names is not None:
+            for emb_col_names in schema.embedding_feature_column_names:
+                cols_to_keep.add(emb_col_names.vector_column_name)
+                if emb_col_names.data_column_name is not None:
+                    cols_to_keep.add(emb_col_names.data_column_name)
+                if emb_col_names.link_to_data_column_name is not None:
+                    cols_to_keep.add(emb_col_names.link_to_data_column_name)
+
+        if schema.tag_column_names is not None:
+            for col in schema.tag_column_names:
+                cols_to_keep.add(col)
+
+        if schema.shap_values_column_names is not None:
+            for col in schema.shap_values_column_names.values():
+                cols_to_keep.add(col)
+
+        return df[df.columns.intersection(cols_to_keep)]

@@ -65,14 +65,14 @@ tfuture = arize_client.log(
     model_id=model_name,
     model_version=model_version_id_now,
     features=X_test,
-    prediction_ids=id_df,
-    prediction_labels=pd.DataFrame(y_pred),
+    prediction_id=id_df,
+    prediction_label=pd.DataFrame(y_pred),
 )
 tfuture = arize_client.log(
     model_id=model_name,
     model_version=model_version_id_now,
-    prediction_ids=id_df,
-    actual_labels=pd.DataFrame(y_test),
+    prediction_id=id_df,
+    actual_label=pd.DataFrame(y_test),
 )
 
 ##########################################

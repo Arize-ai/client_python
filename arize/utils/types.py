@@ -1,23 +1,22 @@
 from enum import Enum, unique
-from typing import List, Union, Optional, NamedTuple
+from typing import List, Dict, Union, Optional, NamedTuple
 from arize import public_pb2 as pb
 import numpy as np
 import pandas as pd
+from dataclasses import dataclass
 
 
 @unique
 class ModelTypes(Enum):
-    BINARY = 1
-    NUMERIC = 2
-    CATEGORICAL = 3
-    SCORE_CATEGORICAL = 4
+    NUMERIC = 1
+    SCORE_CATEGORICAL = 2
 
 
 @unique
 class Environments(Enum):
-    PRODUCTION = 1
+    TRAINING = 1
     VALIDATION = 2
-    TRAINING = 3
+    PRODUCTION = 3
 
 
 class EmbeddingColumnNames(NamedTuple):
@@ -166,3 +165,18 @@ class Embedding(NamedTuple):
             True if the data type is one of the accepted iterable types, false otherwise
         """
         return any(isinstance(data, t) for t in (list, np.ndarray, pd.Series))
+
+
+@dataclass(frozen=True)
+class Schema:
+    prediction_id_column_name: str
+    feature_column_names: Optional[List[str]] = None
+    tag_column_names: Optional[List[str]] = None
+    timestamp_column_name: Optional[str] = None
+    prediction_label_column_name: Optional[str] = None
+    prediction_score_column_name: Optional[str] = None
+    actual_label_column_name: Optional[str] = None
+    actual_score_column_name: Optional[str] = None
+    shap_values_column_names: Optional[Dict[str, str]] = None
+    actual_numeric_sequence_column_name: Optional[str] = None
+    embedding_feature_column_names: Optional[List[EmbeddingColumnNames]] = None
