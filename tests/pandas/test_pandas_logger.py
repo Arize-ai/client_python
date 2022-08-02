@@ -1,27 +1,28 @@
 import datetime
-import os
-
+import pyarrow as pa
 import numpy as np
 import pandas as pd
 import pytest
 from requests import Response
 
 import arize.pandas.validation.errors as err
-from arize.pandas.logger import Client, Schema
-from arize.utils.types import Environments, ModelTypes, EmbeddingColumnNames
+from arize.pandas.logger import Client
+from arize.utils.types import Environments, ModelTypes, EmbeddingColumnNames, Schema
 
 
 class MockResponse(Response):
-    def __init__(self, file_size, reason, status_code):
+    def __init__(self, df, reason, status_code):
         super().__init__()
-        self.file_size = file_size
+        self.df = df
         self.reason = reason
         self.status_code = status_code
 
 
 class NoSendClient(Client):
     def _post_file(self, path, schema, sync, timeout):
-        return MockResponse(os.path.getsize(path), "Success", 200)
+        return MockResponse(
+            pa.ipc.open_stream(pa.OSFile(path)).read_pandas(), "Success", 200
+        )
 
 
 EMBEDDING_SIZE = 15
@@ -68,8 +69,24 @@ data_df = pd.DataFrame(
         "d": pd.Series([0, float("NaN"), 2]),
         "e": pd.Series([0, None, 2]),
         "f": pd.Series([None, float("NaN"), None]),
+        #####
+        "excluded_from_schema": pd.Series(
+            [
+                "should also be excluded from pyarrow",
+                0,
+                "otherwise would cause error (because of mixed types)",
+            ]
+        ),
     }
 )
+
+
+# roundtrip df is the expected df that would be re-constructed from the pyarrow serialization, where
+# 1. the column excluded from schema should have been dropped
+# 2. categarical variables should have been converted to string
+def roundtrip_df(df):
+    df = df.drop("excluded_from_schema", axis=1, errors="ignore")
+    return df.astype({k: "str" for k, v in df.dtypes.items() if v.name == "category"})
 
 
 def log_dataframe(df):
@@ -116,7 +133,11 @@ def test_production_zero_errors():
     except err.ValidationFailure:
         assert False
 
-    assert response.file_size > 0
+    # use json here because some row elements are lists and are not readily comparable
+    assert (
+        response.df.sort_index(axis=1).to_json()
+        == roundtrip_df(data_df).sort_index(axis=1).to_json()
+    )
 
 
 def test_production_wrong_embedding_types():
@@ -172,7 +193,12 @@ def test_production_wrong_embedding_types():
         response = log_dataframe(data_df)
     except err.ValidationFailure:
         assert False
-    assert response.file_size > 0
+
+    # use json here because some row elements are lists and are not readily comparable
+    assert (
+        response.df.sort_index(axis=1).to_json()
+        == roundtrip_df(data_df).sort_index(axis=1).to_json()
+    )
 
 
 if __name__ == "__main__":

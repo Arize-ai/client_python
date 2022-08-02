@@ -87,15 +87,9 @@ def test_invalid_batch_id_blank_str():
     assert type(errors[0]) is err.InvalidBatchId
 
 
-def test_invalid_model_version_none_train():
+def test_invalid_model_version_int_train():
     errors = Validator.validate_params(
-        **ChainMap(
-            {
-                "model_version": None,
-                "environment": Environments.TRAINING,
-            },
-            kwargs,
-        )
+        **ChainMap({"model_version": 2, "environment": Environments.TRAINING,}, kwargs,)
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidModelVersion
@@ -104,11 +98,7 @@ def test_invalid_model_version_none_train():
 def test_invalid_model_version_empty_str_train():
     errors = Validator.validate_params(
         **ChainMap(
-            {
-                "model_version": "",
-                "environment": Environments.TRAINING,
-            },
-            kwargs,
+            {"model_version": "", "environment": Environments.TRAINING,}, kwargs,
         )
     )
     assert len(errors) == 1
@@ -118,22 +108,18 @@ def test_invalid_model_version_empty_str_train():
 def test_invalid_model_version_blank_str_train():
     errors = Validator.validate_params(
         **ChainMap(
-            {
-                "model_version": "  ",
-                "environment": Environments.TRAINING,
-            },
-            kwargs,
+            {"model_version": "  ", "environment": Environments.TRAINING,}, kwargs,
         )
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidModelVersion
 
 
-def test_invalid_model_version_none_val():
+def test_invalid_model_version_int_val():
     errors = Validator.validate_params(
         **ChainMap(
             {
-                "model_version": None,
+                "model_version": 2,
                 "environment": Environments.VALIDATION,
                 "batch_id": "1",
             },
@@ -179,9 +165,7 @@ def test_missing_pred_act_shap():
         **ChainMap(
             {
                 "environment": Environments.PRODUCTION,
-                "schema": Schema(
-                    prediction_id_column_name="prediction_id",
-                ),
+                "schema": Schema(prediction_id_column_name="prediction_id",),
             },
             kwargs,
         )
@@ -213,15 +197,12 @@ def test_missing_multiple_train():
         **ChainMap(
             {
                 "environment": Environments.TRAINING,
-                "schema": Schema(
-                    prediction_id_column_name="prediction_id",
-                ),
+                "schema": Schema(prediction_id_column_name="prediction_id",),
             },
             kwargs,
         )
     )
-    assert len(errors) == 3
-    assert any(type(e) is err.InvalidModelVersion for e in errors)
+    assert len(errors) == 2
     assert any(type(e) is err.MissingPreprodPredAct for e in errors)
     assert any(type(e) is err.MissingPredActShap for e in errors)
 
@@ -250,16 +231,13 @@ def test_missing_multiple_val():
         **ChainMap(
             {
                 "environment": Environments.VALIDATION,
-                "schema": Schema(
-                    prediction_id_column_name="prediction_id",
-                ),
+                "schema": Schema(prediction_id_column_name="prediction_id",),
             },
             kwargs,
         )
     )
-    assert len(errors) == 4
+    assert len(errors) == 3
     assert any(type(e) is err.InvalidBatchId for e in errors)
-    assert any(type(e) is err.InvalidModelVersion for e in errors)
     assert any(type(e) is err.MissingPreprodPredAct for e in errors)
     assert any(type(e) is err.MissingPredActShap for e in errors)
 

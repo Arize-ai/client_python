@@ -7,7 +7,7 @@ import numpy as np
 import pyarrow as pa
 
 import arize.pandas.validation.errors as err
-from arize.utils.types import ModelTypes, Environments
+from arize.utils.types import ModelTypes, Environments, Schema
 
 
 class Validator:
@@ -17,7 +17,7 @@ class Validator:
         model_id: str,
         model_type: ModelTypes,
         environment: Environments,
-        schema: "Schema",
+        schema: Schema,
         model_version: Optional[str] = None,
         batch_id: Optional[str] = None,
     ) -> List[err.ValidationError]:
@@ -25,7 +25,7 @@ class Validator:
         return list(
             chain(
                 Validator._check_invalid_model_id(model_id),
-                Validator._check_invalid_model_version(model_version, environment),
+                Validator._check_invalid_model_version(model_version),
                 Validator._check_invalid_model_type(model_type),
                 Validator._check_invalid_environment(environment),
                 Validator._check_invalid_batch_id(batch_id, environment),
@@ -38,7 +38,7 @@ class Validator:
 
     @staticmethod
     def validate_types(
-        model_type: ModelTypes, schema: "Schema", pyarrow_schema: pa.Schema
+        model_type: ModelTypes, schema: Schema, pyarrow_schema: pa.Schema
     ) -> List[err.ValidationError]:
 
         column_types = dict(zip(pyarrow_schema.names, pyarrow_schema.types))
@@ -59,7 +59,7 @@ class Validator:
 
     @staticmethod
     def validate_values(
-        dataframe: pd.DataFrame, schema: "Schema"
+        dataframe: pd.DataFrame, schema: Schema
     ) -> List[err.ValidationError]:
         # ASSUMPTION: at this point the param and type checks should have passed.
         # This function may crash if that is not true, e.g. if columns are missing
@@ -78,7 +78,7 @@ class Validator:
 
     @staticmethod
     def _check_missing_columns(
-        dataframe: pd.DataFrame, schema: "Schema"
+        dataframe: pd.DataFrame, schema: Schema
     ) -> List[err.MissingColumns]:
         # converting to a set first makes the checks run a lot faster
         existing_columns = set(dataframe.columns)
@@ -125,9 +125,7 @@ class Validator:
         return []
 
     @staticmethod
-    def _check_invalid_shap_suffix(
-        schema: "Schema",
-    ) -> List[err.MissingColumns]:
+    def _check_invalid_shap_suffix(schema: Schema,) -> List[err.MissingColumns]:
         invalid_column_names = set()
 
         if schema.feature_column_names is not None:
@@ -158,19 +156,18 @@ class Validator:
 
     @staticmethod
     def _check_invalid_model_version(
-        model_version: Optional[str], environment: Environments
-    ) -> List[err.InvalidModelId]:
-        # assume it's been coerced to string beforehand
-        if environment in (Environments.VALIDATION, Environments.TRAINING) and (
-            (not isinstance(model_version, str)) or len(model_version.strip()) == 0
-        ):
+        model_version: Optional[str] = None,
+    ) -> List[err.InvalidModelVersion]:
+        if model_version is None:
+            return []
+        if not isinstance(model_version, str) or len(model_version.strip()) == 0:
             return [err.InvalidModelVersion()]
+
         return []
 
     @staticmethod
     def _check_invalid_batch_id(
-        batch_id: Optional[str],
-        environment: Environments,
+        batch_id: Optional[str], environment: Environments,
     ) -> List[err.InvalidBatchId]:
         # assume it's been coerced to string beforehand
         if environment in (Environments.VALIDATION,) and (
@@ -194,9 +191,7 @@ class Validator:
         return [err.InvalidEnvironment()]
 
     @staticmethod
-    def _check_existence_pred_act_shap(
-        schema: "Schema",
-    ) -> List[err.MissingPredActShap]:
+    def _check_existence_pred_act_shap(schema: Schema,) -> List[err.MissingPredActShap]:
         if (
             schema.prediction_label_column_name is not None
             or schema.actual_label_column_name is not None
@@ -207,8 +202,7 @@ class Validator:
 
     @staticmethod
     def _check_existence_preprod_pred_act(
-        schema: "Schema",
-        environment: Environments,
+        schema: Schema, environment: Environments,
     ) -> List[err.MissingPreprodPredAct]:
         if environment in (Environments.VALIDATION, Environments.TRAINING) and (
             schema.prediction_label_column_name is None
@@ -223,7 +217,7 @@ class Validator:
 
     @staticmethod
     def _check_type_prediction_id(
-        schema: "Schema", column_types: Dict[str, Any]
+        schema: Schema, column_types: Dict[str, Any]
     ) -> List[err.InvalidType]:
         col = schema.prediction_id_column_name
         if col in column_types:
@@ -243,7 +237,7 @@ class Validator:
 
     @staticmethod
     def _check_type_timestamp(
-        schema: "Schema", column_types: Dict[str, Any]
+        schema: Schema, column_types: Dict[str, Any]
     ) -> List[err.InvalidType]:
         col = schema.timestamp_column_name
         if col in column_types:
@@ -266,7 +260,7 @@ class Validator:
 
     @staticmethod
     def _check_type_features(
-        schema: "Schema", column_types: Dict[str, Any]
+        schema: Schema, column_types: Dict[str, Any]
     ) -> List[err.InvalidTypeFeatures]:
         if schema.feature_column_names is not None:
             # should mirror server side
@@ -294,7 +288,7 @@ class Validator:
 
     @staticmethod
     def _check_type_embedding_features(
-        schema: "Schema", column_types: Dict[str, Any]
+        schema: Schema, column_types: Dict[str, Any]
     ) -> List[err.InvalidTypeFeatures]:
         if schema.embedding_feature_column_names is not None:
             # should mirror server side
@@ -363,7 +357,7 @@ class Validator:
 
     @staticmethod
     def _check_type_tags(
-        schema: "Schema", column_types: Dict[str, Any]
+        schema: Schema, column_types: Dict[str, Any]
     ) -> List[err.InvalidTypeTags]:
         if schema.tag_column_names is not None:
             # should mirror server side
@@ -391,7 +385,7 @@ class Validator:
 
     @staticmethod
     def _check_type_shap_values(
-        schema: "Schema", column_types: Dict[str, Any]
+        schema: Schema, column_types: Dict[str, Any]
     ) -> List[err.InvalidTypeShapValues]:
         if schema.shap_values_column_names is not None:
             # should mirror server side
@@ -415,7 +409,7 @@ class Validator:
 
     @staticmethod
     def _check_type_pred_act_labels(
-        model_type: ModelTypes, schema: "Schema", column_types: Dict[str, Any]
+        model_type: ModelTypes, schema: Schema, column_types: Dict[str, Any]
     ) -> List[err.InvalidType]:
         errors = []
         columns = (
@@ -472,7 +466,7 @@ class Validator:
 
     @staticmethod
     def _check_type_pred_act_scores(
-        model_type: ModelTypes, schema: "Schema", column_types: Dict[str, Any]
+        model_type: ModelTypes, schema: Schema, column_types: Dict[str, Any]
     ) -> List[err.InvalidType]:
         errors = []
         columns = (
@@ -498,7 +492,7 @@ class Validator:
 
     @staticmethod
     def _check_type_num_seq(
-        model_type: ModelTypes, schema: "Schema", column_types: Dict[str, Any]
+        model_type: ModelTypes, schema: Schema, column_types: Dict[str, Any]
     ) -> List[err.InvalidType]:
         errors = []
         columns = (
@@ -535,7 +529,7 @@ class Validator:
 
     @staticmethod
     def _check_value_timestamp(
-        dataframe: pd.DataFrame, schema: "Schema"
+        dataframe: pd.DataFrame, schema: Schema
     ) -> List[Union[err.InvalidValueMissingValue, err.InvalidValueTimestamp]]:
         # Due to the timing difference between checking this here and the data finally
         # hitting the same check on server side, there's a some chance for a false
@@ -599,7 +593,7 @@ class Validator:
 
     @staticmethod
     def _check_value_missing(
-        dataframe: pd.DataFrame, schema: "Schema"
+        dataframe: pd.DataFrame, schema: Schema
     ) -> List[err.InvalidValueMissingValue]:
         errors = []
         columns = (

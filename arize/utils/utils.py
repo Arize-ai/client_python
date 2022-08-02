@@ -1,7 +1,6 @@
 import math
 import time
 import base64
-import numpy as np
 import pandas as pd
 import json
 
@@ -14,23 +13,6 @@ from google.protobuf.wrappers_pb2 import StringValue
 
 MAX_BYTES_PER_BULK_RECORD = 100000
 MAX_DAYS_WITHIN_RANGE = 365
-
-
-def infer_model_type(
-    label: Union[str, bool, int, float, Tuple[str, float]]
-) -> ModelTypes:
-    val = convert_element(label)
-    if isinstance(val, bool):
-        return ModelTypes.BINARY
-    elif isinstance(val, (int, float)):
-        return ModelTypes.NUMERIC
-    elif isinstance(val, str):
-        return ModelTypes.CATEGORICAL
-    elif isinstance(val, tuple):
-        return ModelTypes.SCORE_CATEGORICAL
-    raise TypeError(
-        f"label {label} has type {type(label)}, but must be one of str, bool, float, or int"
-    )
 
 
 def validate_prediction_timestamps(prediction_ids, prediction_timestamps):
@@ -146,8 +128,7 @@ def get_value_embedding(val: Embedding) -> public__pb2.Embedding:
         )
     elif val.data == None:
         return public__pb2.Embedding(
-            vector=val.vector,
-            link_to_data=StringValue(value=val.link_to_data),
+            vector=val.vector, link_to_data=StringValue(value=val.link_to_data),
         )
 
     return None

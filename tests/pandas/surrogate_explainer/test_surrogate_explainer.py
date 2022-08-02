@@ -205,8 +205,9 @@ def test_classifier_no_flag_no_shap():
 
     # original dataframe must not change
     assert df.equals(orig_df)
-    assert pa_df.equals(df)
-    assert pa_df.equals(orig_df)
+    pa_df = pa_df.sort_index(axis=1)
+    assert pa_df.equals(df.sort_index(axis=1))
+    assert pa_df.equals(orig_df.sort_index(axis=1))
 
     # schema must not change
     assert set(pa_schema.feature_column_names) == set(features)
@@ -236,8 +237,9 @@ def test_regressor_no_flag_no_shap():
 
     # original dataframe must not change
     assert df.equals(orig_df)
-    assert pa_df.equals(df)
-    assert pa_df.equals(orig_df)
+    pa_df = pa_df.sort_index(axis=1)
+    assert pa_df.equals(df.sort_index(axis=1))
+    assert pa_df.equals(orig_df.sort_index(axis=1))
 
     # schema must not change
     assert set(pa_schema.feature_column_names) == set(features)
