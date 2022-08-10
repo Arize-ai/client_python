@@ -185,7 +185,9 @@ class Client:
             _validate_label(model_type, label=convert_element(prediction_label))
             p = public__pb2.Prediction(
                 label=_get_label(
-                    name="prediction", value=prediction_label, model_type=model_type,
+                    name="prediction",
+                    value=prediction_label,
+                    model_type=model_type,
                 ),
                 model_version=model_version,
             )
@@ -336,7 +338,10 @@ def _get_label(
     )
 
 
-def _get_numeric_label(name: str, value: Union[int, float],) -> public__pb2.Label:
+def _get_numeric_label(
+    name: str,
+    value: Union[int, float],
+) -> public__pb2.Label:
     if isinstance(value, (int, float)):
         return public__pb2.Label(numeric=value)
     else:
@@ -347,7 +352,8 @@ def _get_numeric_label(name: str, value: Union[int, float],) -> public__pb2.Labe
 
 
 def _get_score_categorical_label(
-    name: str, value: Union[bool, str, Tuple[str, float]],
+    name: str,
+    value: Union[bool, str, Tuple[str, float]],
 ) -> public__pb2.Label:
     sc = public__pb2.ScoreCategorical()
     if isinstance(value, bool):

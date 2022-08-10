@@ -125,7 +125,9 @@ class Validator:
         return []
 
     @staticmethod
-    def _check_invalid_shap_suffix(schema: Schema,) -> List[err.MissingColumns]:
+    def _check_invalid_shap_suffix(
+        schema: Schema,
+    ) -> List[err.MissingColumns]:
         invalid_column_names = set()
 
         if schema.feature_column_names is not None:
@@ -167,7 +169,8 @@ class Validator:
 
     @staticmethod
     def _check_invalid_batch_id(
-        batch_id: Optional[str], environment: Environments,
+        batch_id: Optional[str],
+        environment: Environments,
     ) -> List[err.InvalidBatchId]:
         # assume it's been coerced to string beforehand
         if environment in (Environments.VALIDATION,) and (
@@ -191,7 +194,9 @@ class Validator:
         return [err.InvalidEnvironment()]
 
     @staticmethod
-    def _check_existence_pred_act_shap(schema: Schema,) -> List[err.MissingPredActShap]:
+    def _check_existence_pred_act_shap(
+        schema: Schema,
+    ) -> List[err.MissingPredActShap]:
         if (
             schema.prediction_label_column_name is not None
             or schema.actual_label_column_name is not None
@@ -202,7 +207,8 @@ class Validator:
 
     @staticmethod
     def _check_existence_preprod_pred_act(
-        schema: Schema, environment: Environments,
+        schema: Schema,
+        environment: Environments,
     ) -> List[err.MissingPreprodPredAct]:
         if environment in (Environments.VALIDATION, Environments.TRAINING) and (
             schema.prediction_label_column_name is None

@@ -18,7 +18,11 @@ class Mimic:
 
     def __init__(self, X: pd.DataFrame, model_func: Callable):
         self.explainer = MimicExplainer(
-            model_func, X, LGBMExplainableModel, augment_data=False, is_function=True,
+            model_func,
+            X,
+            LGBMExplainableModel,
+            augment_data=False,
+            is_function=True,
         )
 
     def explain(self, X: pd.DataFrame) -> pd.DataFrame:
@@ -124,7 +128,11 @@ class Mimic:
         )
 
         aug_df = pd.concat(
-            [df, Mimic(X, model_func).explain(X).rename(col_map, axis=1),], axis=1,
+            [
+                df,
+                Mimic(X, model_func).explain(X).rename(col_map, axis=1),
+            ],
+            axis=1,
         )
 
         # Fill null with zero so they're not counted as missing records by server

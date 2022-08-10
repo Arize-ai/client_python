@@ -55,7 +55,8 @@ input_embeddings = {
         link_to_data=True,
     ),
     "wrong_value:empty_vector": Embedding(
-        vector=np.array([]), data=["This", "is", "a", "test", "token", "array"],
+        vector=np.array([]),
+        data=["This", "is", "a", "test", "token", "array"],
     ),
 }
 
