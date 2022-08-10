@@ -48,7 +48,8 @@ inputs = {
             link_to_data="https://my-bucket.s3.us-west-2.amazonaws.com/puppy.png",
         ),
         "nlp_embedding_sentence": Embedding(
-            vector=pd.Series([4.0, 5.0, 6.0, 7.0]), data="This is a test sentence",
+            vector=pd.Series([4.0, 5.0, 6.0, 7.0]),
+            data="This is a test sentence",
         ),
         "nlp_embedding_tokens": Embedding(
             vector=pd.Series([4.0, 5.0, 6.0, 7.0]),
@@ -141,7 +142,9 @@ def _build_basic_prediction(type: str) -> public__pb2.Prediction:
 
 def _build_basic_actual(type: str) -> public__pb2.Actual:
     if type == "numeric_int":
-        return public__pb2.Actual(label=public__pb2.Label(numeric=inputs["value_int"]),)
+        return public__pb2.Actual(
+            label=public__pb2.Label(numeric=inputs["value_int"]),
+        )
     elif type == "numeric_float":
         return public__pb2.Actual(
             label=public__pb2.Label(numeric=inputs["value_float"]),
@@ -149,16 +152,22 @@ def _build_basic_actual(type: str) -> public__pb2.Actual:
     elif type == "score_categorical_bool":
         sc = public__pb2.ScoreCategorical()
         sc.category.category = str(inputs["value_bool"])
-        return public__pb2.Actual(label=public__pb2.Label(score_categorical=sc),)
+        return public__pb2.Actual(
+            label=public__pb2.Label(score_categorical=sc),
+        )
     elif type == "score_categorical_str":
         sc = public__pb2.ScoreCategorical()
         sc.category.category = inputs["value_str"]
-        return public__pb2.Actual(label=public__pb2.Label(score_categorical=sc),)
+        return public__pb2.Actual(
+            label=public__pb2.Label(score_categorical=sc),
+        )
     elif type == "score_categorical_tuple":
         sc = public__pb2.ScoreCategorical()
         sc.score_category.category = inputs["value_str"]
         sc.score_category.score = inputs["value_float"]
-        return public__pb2.Actual(label=public__pb2.Label(score_categorical=sc),)
+        return public__pb2.Actual(
+            label=public__pb2.Label(score_categorical=sc),
+        )
     else:
         return public__pb2.Actual()
 
