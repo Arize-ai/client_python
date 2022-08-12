@@ -1,12 +1,13 @@
+import concurrent.futures as cf
 import time
+from typing import Union, Optional, Dict, Tuple
 
 import numpy as np
-import concurrent.futures as cf
-from typing import Union, Optional, Dict, Tuple
 from google.protobuf.json_format import MessageToDict
 from requests_futures.sessions import FuturesSession
 
 from arize import public_pb2 as public__pb2
+from arize.__init__ import __version__
 from arize.bounded_executor import BoundedExecutor
 from arize.utils.types import ModelTypes, Environments, Embedding
 from arize.utils.utils import (
@@ -15,8 +16,6 @@ from arize.utils.utils import (
     get_timestamp,
     is_timestamp_in_range,
 )
-
-from arize.__init__ import __version__
 
 
 class Client:
@@ -262,11 +261,27 @@ class Client:
             )
 
         env_params = None
-        if environment == Environments.VALIDATION:
+        if environment == Environments.TRAINING:
+            if p is None or a is None:
+                raise ValueError(
+                    "Training records must have both Prediction and Actual"
+                )
+            env_params = public__pb2.Record.EnvironmentParams(
+                training=public__pb2.Record.EnvironmentParams.Training()
+            )
+        elif environment == Environments.VALIDATION:
+            if p is None or a is None:
+                raise ValueError(
+                    "Validation records must have both Prediction and Actual"
+                )
             env_params = public__pb2.Record.EnvironmentParams(
                 validation=public__pb2.Record.EnvironmentParams.Validation(
                     batch_id=batch_id
                 )
+            )
+        elif environment == Environments.PRODUCTION:
+            env_params = public__pb2.Record.EnvironmentParams(
+                production=public__pb2.Record.EnvironmentParams.Production()
             )
 
         rec = public__pb2.Record(

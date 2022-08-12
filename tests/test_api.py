@@ -1,13 +1,13 @@
-import pytest
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pytest
 from google.protobuf.wrappers_pb2 import StringValue
 
 import arize.public_pb2 as public__pb2
-from arize.utils.types import ModelTypes, Environments
 from arize.api import Client, Embedding
+from arize.utils.types import ModelTypes, Environments
 
 BOOL_VAL = True
 STR_VAL = "arize"
@@ -94,11 +94,19 @@ def _get_proto_environment_params(
     env: Environments,
 ) -> public__pb2.Record.EnvironmentParams:
     env_params = None
-    if env == Environments.VALIDATION:
+    if env == Environments.TRAINING:
+        env_params = public__pb2.Record.EnvironmentParams(
+            training=public__pb2.Record.EnvironmentParams.Training()
+        )
+    elif env == Environments.VALIDATION:
         env_params = public__pb2.Record.EnvironmentParams(
             validation=public__pb2.Record.EnvironmentParams.Validation(
                 batch_id=inputs["batch_id"]
             )
+        )
+    elif env == Environments.PRODUCTION:
+        env_params = public__pb2.Record.EnvironmentParams(
+            production=public__pb2.Record.EnvironmentParams.Production()
         )
     return env_params
 
