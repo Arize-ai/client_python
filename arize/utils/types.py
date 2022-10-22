@@ -1,6 +1,5 @@
 from enum import Enum, unique
 from typing import List, Dict, Union, Optional, NamedTuple
-from arize import public_pb2 as pb
 import numpy as np
 import pandas as pd
 from dataclasses import dataclass
@@ -10,6 +9,7 @@ from dataclasses import dataclass
 class ModelTypes(Enum):
     NUMERIC = 1
     SCORE_CATEGORICAL = 2
+    RANKING = 3
 
 
 @unique
@@ -23,16 +23,6 @@ class EmbeddingColumnNames(NamedTuple):
     vector_column_name: str
     data_column_name: Optional[str] = None
     link_to_data_column_name: Optional[str] = None
-
-    @staticmethod
-    def convert_to_proto(emb_col_names) -> pb.Schema.EmbeddingColumnNames:
-        p = pb.Schema.EmbeddingColumnNames()
-        p.vector_column_name = emb_col_names.vector_column_name
-        if emb_col_names.data_column_name:
-            p.data_column_name = emb_col_names.data_column_name
-        if emb_col_names.link_to_data_column_name:
-            p.link_to_data_column_name = emb_col_names.link_to_data_column_name
-        return p
 
 
 class Embedding(NamedTuple):
@@ -180,3 +170,5 @@ class Schema:
     shap_values_column_names: Optional[Dict[str, str]] = None
     actual_numeric_sequence_column_name: Optional[str] = None
     embedding_feature_column_names: Optional[List[EmbeddingColumnNames]] = None
+    prediction_group_id_column_name: Optional[str] = None
+    rank_column_name: Optional[str] = None

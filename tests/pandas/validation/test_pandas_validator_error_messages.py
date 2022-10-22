@@ -1,9 +1,7 @@
 import pytest
-from datetime import datetime
-
-from arize.utils.types import Environments, ModelTypes
 
 import arize.pandas.validation.errors as err
+from arize.utils.types import Environments, ModelTypes
 
 # ----------------
 # Parameter checks

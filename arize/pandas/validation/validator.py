@@ -2,8 +2,8 @@ import datetime
 from itertools import chain
 from typing import List, Dict, Any, Optional, Union
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import pyarrow as pa
 
 import arize.pandas.validation.errors as err
@@ -22,19 +22,30 @@ class Validator:
         batch_id: Optional[str] = None,
     ) -> List[err.ValidationError]:
 
-        return list(
-            chain(
-                Validator._check_invalid_model_id(model_id),
-                Validator._check_invalid_model_version(model_version),
-                Validator._check_invalid_model_type(model_type),
-                Validator._check_invalid_environment(environment),
-                Validator._check_invalid_batch_id(batch_id, environment),
+        # general checks
+        general_checks = chain(
+            Validator._check_invalid_model_id(model_id),
+            Validator._check_invalid_model_version(model_version),
+            Validator._check_invalid_model_type(model_type),
+            Validator._check_invalid_environment(environment),
+            Validator._check_invalid_batch_id(batch_id, environment),
+            Validator._check_missing_columns(dataframe, schema),
+            Validator._check_invalid_shap_suffix(schema),
+        )
+
+        if model_type in (ModelTypes.SCORE_CATEGORICAL, ModelTypes.NUMERIC):
+            scn_checks = chain(
                 Validator._check_existence_pred_act_shap(schema),
                 Validator._check_existence_preprod_pred_act(schema, environment),
-                Validator._check_missing_columns(dataframe, schema),
-                Validator._check_invalid_shap_suffix(schema),
             )
-        )
+            return list(chain(general_checks, scn_checks))
+        elif model_type == ModelTypes.RANKING:
+            r_checks = chain(
+                Validator._check_existence_group_id_rank_category_relevance(schema)
+            )
+            return list(chain(general_checks, r_checks))
+
+        return list(general_checks)
 
     @staticmethod
     def validate_types(
@@ -42,35 +53,56 @@ class Validator:
     ) -> List[err.ValidationError]:
 
         column_types = dict(zip(pyarrow_schema.names, pyarrow_schema.types))
+        general_checks = chain(
+            Validator._check_type_prediction_id(schema, column_types),
+            Validator._check_type_timestamp(schema, column_types),
+            Validator._check_type_features(schema, column_types),
+            Validator._check_type_embedding_features(schema, column_types),
+            Validator._check_type_tags(schema, column_types),
+            Validator._check_type_shap_values(schema, column_types),
+            Validator._check_type_num_seq(model_type, schema, column_types),
+        )
 
-        return list(
-            chain(
-                Validator._check_type_prediction_id(schema, column_types),
-                Validator._check_type_timestamp(schema, column_types),
-                Validator._check_type_features(schema, column_types),
-                Validator._check_type_embedding_features(schema, column_types),
-                Validator._check_type_tags(schema, column_types),
-                Validator._check_type_shap_values(schema, column_types),
+        if model_type in (ModelTypes.SCORE_CATEGORICAL, ModelTypes.NUMERIC):
+            scn_checks = chain(
                 Validator._check_type_pred_act_labels(model_type, schema, column_types),
                 Validator._check_type_pred_act_scores(model_type, schema, column_types),
-                Validator._check_type_num_seq(model_type, schema, column_types),
             )
-        )
+            return list(chain(general_checks, scn_checks))
+
+        elif model_type == ModelTypes.RANKING:
+            r_checks = chain(
+                Validator._check_type_prediction_group_id(schema, column_types),
+                Validator._check_type_rank(schema, column_types),
+                Validator._check_type_ranking_category(schema, column_types),
+                Validator._check_type_pred_act_scores(model_type, schema, column_types),
+            )
+            return list(chain(general_checks, r_checks))
+
+        return list(general_checks)
 
     @staticmethod
     def validate_values(
-        dataframe: pd.DataFrame, schema: Schema
+        dataframe: pd.DataFrame, schema: Schema, model_type: ModelTypes
     ) -> List[err.ValidationError]:
         # ASSUMPTION: at this point the param and type checks should have passed.
         # This function may crash if that is not true, e.g. if columns are missing
         # or are of the wrong types.
 
-        return list(
-            chain(
-                Validator._check_value_timestamp(dataframe, schema),
-                Validator._check_value_missing(dataframe, schema),
-            )
+        general_checks = chain(
+            Validator._check_value_timestamp(dataframe, schema),
+            Validator._check_value_missing(dataframe, schema),
+            Validator._check_embedding_features_dimensionality(dataframe, schema),
         )
+
+        if model_type == ModelTypes.RANKING:
+            r_checks = chain(
+                Validator._check_value_rank(dataframe, schema),
+                Validator._check_value_prediction_group_id(dataframe, schema),
+                Validator._check_value_ranking_category(dataframe, schema),
+            )
+            return list(chain(general_checks, r_checks))
+        return list(general_checks)
 
     # ----------------
     # Parameter checks
@@ -217,6 +249,19 @@ class Validator:
             return [err.MissingPreprodPredAct()]
         return []
 
+    @staticmethod
+    def _check_existence_group_id_rank_category_relevance(
+        schema: Schema,
+    ) -> List[err.MissingRequiredColumnsForRankingModel]:
+        # prediction_group_id and rank columns are required as ranking prediction columns.
+        required = (
+            schema.prediction_group_id_column_name,
+            schema.rank_column_name,
+        )
+        if any(col is None for col in required):
+            return [err.MissingRequiredColumnsForRankingModel()]
+        return []
+
     # -----------
     # Type checks
     # -----------
@@ -341,7 +386,8 @@ class Validator:
             if mistyped_vector_columns:
                 mistyped_embedding_errors.append(
                     err.InvalidTypeFeatures(
-                        mistyped_vector_columns, expected_types=["list[float]"]
+                        mistyped_vector_columns,
+                        expected_types=["list[float], np.array[float]"],
                     )
                 )
             if mistyped_data_columns:
@@ -456,18 +502,6 @@ class Validator:
                     errors.append(
                         err.InvalidType(name, expected_types=["float", "int"])
                     )
-        elif model_type == ModelTypes.BINARY:
-            # should mirror server side
-            allowed_datatypes = (pa.bool_(),)
-            for name, col in columns:
-                if col in column_types and column_types[col] not in allowed_datatypes:
-                    errors.append(err.InvalidType(name, expected_types=["bool"]))
-        elif model_type == ModelTypes.CATEGORICAL:
-            # should mirror server side
-            allowed_datatypes = (pa.string(),)
-            for name, col in columns:
-                if col in column_types and column_types[col] not in allowed_datatypes:
-                    errors.append(err.InvalidType(name, expected_types=["str"]))
         return errors
 
     @staticmethod
@@ -479,7 +513,7 @@ class Validator:
             ("Prediction scores", schema.prediction_score_column_name),
             ("Actual scores", schema.actual_score_column_name),
         )
-        if model_type == ModelTypes.SCORE_CATEGORICAL:
+        if model_type == ModelTypes.SCORE_CATEGORICAL or model_type == ModelTypes.RANKING:
             # should mirror server side
             allowed_datatypes = (
                 pa.float64(),
@@ -532,6 +566,53 @@ class Validator:
     # ------------
     # Value checks
     # ------------
+
+    @staticmethod
+    def _check_value_rank(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[err.InvalidRankValue]:
+        col = schema.rank_column_name
+        lbound, ubound = (1, 100)
+
+        if col is not None and col in dataframe.columns and len(dataframe):
+            rank_min_max = dataframe[col].agg(["min", "max"])
+            if rank_min_max["min"] < lbound or rank_min_max["max"] > ubound:
+                return [err.InvalidRankValue(col, "1-100")]
+        return []
+
+    @staticmethod
+    def _check_value_prediction_group_id(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[err.InvalidPredictionGroupIDLength]:
+        col = schema.prediction_group_id_column_name
+        if col is not None and col in dataframe.columns and len(dataframe):
+            min_len, max_len = (1, 36)
+            col_str_lenths = dataframe[col].astype(str).str.len()
+            if col_str_lenths.min() < min_len or col_str_lenths.max() > max_len:
+                return [
+                    err.InvalidPredictionGroupIDLength(
+                        name=col, acceptable_range=f"{min_len}-{max_len}"
+                    )
+                ]
+        return []
+
+    @staticmethod
+    def _check_value_ranking_category(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[Union[err.InvalidValueMissingValue, err.InvalidRankingCategoryValue]]:
+        col = schema.actual_label_column_name
+        if col is not None and col in dataframe.columns and len(dataframe):
+            if dataframe[col].isnull().values.any():
+                # do not attach duplicated missing value error
+                # which would be caught by_check_value_missing
+                return []
+            # empty list
+            if dataframe[col].map(len).min() == 0:
+                return [err.InvalidValueMissingValue(col, "empty list")]
+            # no empty string in list
+            if dataframe[col].map(lambda x: (min(map(len, x)))).min() == 0:
+                return [err.InvalidRankingCategoryValue(col)]
+        return []
 
     @staticmethod
     def _check_value_timestamp(
@@ -591,7 +672,7 @@ class Validator:
             ):
                 return [
                     err.InvalidValueTimestamp(
-                        "Prediction timestamp", acceptible_range="one year"
+                        "Prediction timestamp", acceptable_range="one year"
                     )
                 ]
 
@@ -605,7 +686,10 @@ class Validator:
         columns = (
             ("Prediction IDs", schema.prediction_id_column_name),
             ("Prediction labels", schema.prediction_label_column_name),
+            # for ranking models, the ranking:category is specified as actual label
             ("Actual labels", schema.actual_label_column_name),
+            ("Prediction Group IDs", schema.prediction_group_id_column_name),
+            ("Ranks", schema.rank_column_name),
         )
         for name, col in columns:
             if col is not None and col in dataframe.columns:
@@ -621,3 +705,98 @@ class Validator:
                         err.InvalidValueMissingValue(name, missingness="infinite")
                     )
         return errors
+
+    @staticmethod
+    def _check_embedding_features_dimensionality(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[err.ValidationError]:
+        if schema.embedding_feature_column_names is None:
+            return []
+
+        multiple_dimensionality_vector_columns = []
+        low_dimensionality_vector_columns = []
+        for embFeatColNames in schema.embedding_feature_column_names:
+            # _check_missing_columns() checks that vector columns are present,
+            # hence I assume they are here
+            vector_col = embFeatColNames.vector_column_name
+            vector_series = dataframe[vector_col]
+
+            if (
+                len(vector_series) > 0
+                and (vector_series.apply(len) != len(vector_series[0])).any()
+            ):
+                multiple_dimensionality_vector_columns.append(vector_col)
+                continue
+
+            dim = len(vector_series[0])
+            if dim <= 1:
+                low_dimensionality_vector_columns.append(vector_col)
+
+        wrong_embedding_vector_columns = []
+        if multiple_dimensionality_vector_columns:
+            wrong_embedding_vector_columns.append(
+                err.InvalidValueMultipleEmbeddingVectorDimensionality(
+                    multiple_dimensionality_vector_columns
+                )
+            )
+        if low_dimensionality_vector_columns:
+            wrong_embedding_vector_columns.append(
+                err.InvalidValueLowEmbeddingVectorDimensionality(
+                    low_dimensionality_vector_columns
+                )
+            )
+        return wrong_embedding_vector_columns  # Will be empty list if no errors
+
+    @staticmethod
+    def _check_type_prediction_group_id(
+        schema: Schema, column_types: Dict[str, Any]
+    ) -> List[err.InvalidType]:
+        col = schema.prediction_group_id_column_name
+        if col in column_types:
+            # should mirror server side
+            allowed_datatypes = (
+                pa.string(),
+                pa.int64(),
+                pa.int32(),
+                pa.int16(),
+                pa.int8(),
+            )
+            if column_types[col] not in allowed_datatypes:
+                return [
+                    err.InvalidType(
+                        "prediction_group_ids", expected_types=["str", "int"]
+                    )
+                ]
+        return []
+
+    @staticmethod
+    def _check_type_rank(
+        schema: Schema, column_types: Dict[str, Any]
+    ) -> List[err.InvalidType]:
+        col = schema.rank_column_name
+        if col in column_types:
+            allowed_datatypes = (
+                pa.int64(),
+                pa.int32(),
+                pa.int16(),
+                pa.int8(),
+            )
+            if column_types[col] not in allowed_datatypes:
+                return [err.InvalidType("rank", expected_types=["int"])]
+        return []
+
+    @staticmethod
+    def _check_type_ranking_category(
+        schema: Schema, column_types: Dict[str, Any]
+    ) -> List[err.InvalidType]:
+        col = schema.actual_label_column_name
+        if col in column_types:
+            allowed_datatypes = (pa.list_(pa.string()),)
+            if column_types[col] not in allowed_datatypes:
+                return [
+                    err.InvalidType(
+                        "actual label column for ranking models",
+                        expected_types=["list of string"],
+                    )
+                ]
+        return []

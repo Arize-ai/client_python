@@ -1,12 +1,12 @@
-import pytest
-import pandas as pd
 from collections import ChainMap
 
-from arize.pandas.logger import Schema
-from arize.utils.types import Environments, ModelTypes
+import pandas as pd
+import pytest
 
-from arize.pandas.validation.validator import Validator
+from arize.pandas.logger import Schema
 from arize.pandas.validation.errors import InvalidShapSuffix
+from arize.pandas.validation.validator import Validator
+from arize.utils.types import Environments, ModelTypes
 
 
 def test_invalid_feature_columns():

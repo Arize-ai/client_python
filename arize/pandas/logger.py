@@ -1,22 +1,21 @@
-import sys
 import base64
 import logging
+import sys
+import tempfile
 from typing import Optional
 
 import pandas as pd
 import pandas.api.types as ptypes
-
 import pyarrow as pa
 import requests
-import tempfile
 
+import arize.pandas.validation.errors as err
 from arize import public_pb2 as pb
 from arize.__init__ import __version__
-from arize.utils.types import ModelTypes, Environments, EmbeddingColumnNames
-from arize.utils.utils import reconstruct_url
-import arize.pandas.validation.errors as err
 from arize.pandas.validation.validator import Validator
+from arize.utils.types import ModelTypes, Environments
 from arize.utils.types import Schema
+from arize.utils.utils import reconstruct_url
 
 logger = logging.getLogger(__name__)
 if hasattr(sys, "ps1"):
@@ -193,6 +192,7 @@ class Client:
             errors = Validator.validate_values(
                 dataframe=dataframe,
                 schema=schema,
+                model_type=model_type
             )
             if errors:
                 for e in errors:
@@ -220,6 +220,8 @@ class Client:
             s.constants.model_type = pb.Schema.ModelType.NUMERIC
         elif model_type == ModelTypes.SCORE_CATEGORICAL:
             s.constants.model_type = pb.Schema.ModelType.SCORE_CATEGORICAL
+        elif model_type == ModelTypes.RANKING:
+            s.constants.model_type = pb.Schema.ModelType.RANKING
 
         if batch_id is not None:
             s.constants.batch_id = batch_id
@@ -243,11 +245,13 @@ class Client:
             s.arrow_schema.feature_column_names.extend(schema.feature_column_names)
 
         if schema.embedding_feature_column_names is not None:
-            message_emb_col_names = map(
-                EmbeddingColumnNames.convert_to_proto,
-                schema.embedding_feature_column_names,
-            )
-            s.arrow_schema.embedding_feature_column_names.extend(message_emb_col_names)
+            for embedding_feature_column_names in schema.embedding_feature_column_names:
+                embedding_name = embedding_feature_column_names.vector_column_name  # how it will show in the UI
+                s.arrow_schema.embedding_feature_column_names_map[embedding_name].vector_column_name = embedding_feature_column_names.vector_column_name
+                if embedding_feature_column_names.data_column_name:
+                    s.arrow_schema.embedding_feature_column_names_map[embedding_name].data_column_name = embedding_feature_column_names.data_column_name
+                if embedding_feature_column_names.link_to_data_column_name:
+                    s.arrow_schema.embedding_feature_column_names_map[embedding_name].link_to_data_column_name =embedding_feature_column_names.link_to_data_column_name
 
         if schema.tag_column_names is not None:
             s.arrow_schema.tag_column_names.extend(schema.tag_column_names)
@@ -266,6 +270,16 @@ class Client:
         if schema.actual_numeric_sequence_column_name is not None:
             s.arrow_schema.actual_numeric_sequence_column_name = (
                 schema.actual_numeric_sequence_column_name
+            )
+
+        if schema.prediction_group_id_column_name is not None:
+            s.arrow_schema.prediction_group_id_column_name = (
+                schema.prediction_group_id_column_name
+            )
+
+        if schema.rank_column_name is not None:
+            s.arrow_schema.rank_column_name = (
+                schema.rank_column_name
             )
 
         if verbose:

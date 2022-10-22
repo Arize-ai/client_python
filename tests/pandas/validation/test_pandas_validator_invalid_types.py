@@ -1,15 +1,14 @@
-import pytest
-import pandas as pd
-from collections import ChainMap
 import datetime
+from collections import ChainMap
 
+import pandas as pd
 import pyarrow as pa
+import pytest
 
-from arize.pandas.logger import Schema
-from arize.utils.types import Environments, ModelTypes
-
-from arize.pandas.validation.validator import Validator
 import arize.pandas.validation.errors as err
+from arize.pandas.logger import Schema
+from arize.pandas.validation.validator import Validator
+from arize.utils.types import ModelTypes
 
 
 def test_zero_errors():

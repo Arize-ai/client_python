@@ -101,6 +101,14 @@ class MissingPreprodPredAct(ValidationError):
         )
 
 
+class MissingRequiredColumnsForRankingModel(ValidationError):
+    def error_message(self) -> str:
+        return (
+            "For logging data to a ranking model, schema must specify: "
+            "prediction_group_id_column_name, rank_column_name, and actual_label_column_name"
+        )
+
+
 # -----------
 # Type checks
 # -----------
@@ -180,14 +188,14 @@ class InvalidTypeShapValues(ValidationError):
 
 
 class InvalidValueTimestamp(ValidationError):
-    def __init__(self, name: str, acceptible_range: str) -> None:
+    def __init__(self, name: str, acceptable_range: str) -> None:
         self.name = name
-        self.acceptible_range = acceptible_range
+        self.acceptable_range = acceptable_range
 
     def error_message(self) -> str:
         return (
             f"{self.name} is out of range. "
-            f"Only values within {self.acceptible_range} from the current time are accepted. "
+            f"Only values within {self.acceptable_range} from the current time are accepted. "
             "If this is your pre-prodution data, you could also just remove the timestamp column from the Schema."
         )
 
@@ -199,3 +207,62 @@ class InvalidValueMissingValue(ValidationError):
 
     def error_message(self) -> str:
         return f"{self.name} must not contain {self.missingness} values."
+
+
+class InvalidValueMultipleEmbeddingVectorDimensionality(ValidationError):
+    def __init__(self, cols: Iterable) -> None:
+        self.invalid_cols = cols
+
+    def error_message(self) -> str:
+        return (
+            "All vectors in an embedding vector column must be of the same length (dimensionality). "
+            "The following columns do not satisfy this condition: "
+            f"{', '.join(map(str, self.invalid_cols))}."
+        )
+
+
+class InvalidValueLowEmbeddingVectorDimensionality(ValidationError):
+    def __init__(self, cols: Iterable) -> None:
+        self.invalid_cols = cols
+
+    def error_message(self) -> str:
+        return (
+            "All vectors in an embedding vector column must be of length (dimensionality) > 1. "
+            "The following columns do not satisfy this condition: "
+            f"{', '.join(map(str, self.invalid_cols))}."
+        )
+
+
+class InvalidRankValue(ValidationError):
+    def __init__(self, name: str, acceptable_range: str) -> None:
+        self.name = name
+        self.acceptable_range = acceptable_range
+
+    def error_message(self) -> str:
+        return (
+            f"ranking column {self.name} is out of range. "
+            f"Only values within {self.acceptable_range}  are accepted. "
+        )
+
+
+class InvalidPredictionGroupIDLength(ValidationError):
+    def __init__(self, name: str, acceptable_range: str) -> None:
+        self.name = name
+        self.acceptable_range = acceptable_range
+
+    def error_message(self) -> str:
+        return (
+            f"prediction group id {self.name} column contains invalid values"
+            f"Only string values of length within {self.acceptable_range}  are accepted. "
+        )
+
+
+class InvalidRankingCategoryValue(ValidationError):
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    def error_message(self) -> str:
+        return (
+            f"actual label {self.name} column contains invalid value"
+            f"make sure empty string is not present in the list"
+        )

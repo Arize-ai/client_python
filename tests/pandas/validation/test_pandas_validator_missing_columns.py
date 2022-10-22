@@ -1,12 +1,11 @@
-import pytest
-import pandas as pd
 from collections import ChainMap
 
+import pandas as pd
+import pytest
 from arize.pandas.logger import Schema
-from arize.utils.types import Environments, ModelTypes
-
-from arize.pandas.validation.validator import Validator
 from arize.pandas.validation.errors import MissingColumns
+from arize.pandas.validation.validator import Validator
+from arize.utils.types import Environments, ModelTypes
 
 
 def test_missing_prediction_id():
