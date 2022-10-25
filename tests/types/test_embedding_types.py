@@ -1,6 +1,5 @@
 import pytest
-from arize.utils.types import Embedding, EmbeddingColumnNames
-from arize import public_pb2 as pb
+from arize.utils.types import Embedding
 import numpy as np
 import pandas as pd
 
@@ -99,40 +98,6 @@ def test_wrong_type_fields():
             Embedding.validate_embedding_object(key, embedding)
         except Exception as err:
             assert type(err) == TypeError, "Wrong field types should raise type errors"
-
-
-def test_convert_schema_to_proto():
-    schemaEmbeddingColumnNames = [
-        EmbeddingColumnNames(
-            vector_column_name="image",  # Will be name of embedding feature in the app
-            link_to_data_column_name="image_link",
-        ),
-        EmbeddingColumnNames(
-            vector_column_name="sentence",  # Will be name of embedding feature in the app
-            data_column_name="sentence_data",
-        ),
-        EmbeddingColumnNames(
-            vector_column_name="token_array",  # Will be name of embedding feature in the app
-            data_column_name="token_array_data",
-        ),
-    ]
-    protoEmbeddingColumnNames = [
-        pb.Schema.EmbeddingColumnNames(
-            vector_column_name="image", link_to_data_column_name="image_link"
-        ),
-        pb.Schema.EmbeddingColumnNames(
-            vector_column_name="sentence", data_column_name="sentence_data"
-        ),
-        pb.Schema.EmbeddingColumnNames(
-            vector_column_name="token_array", data_column_name="token_array_data"
-        ),
-    ]
-    for embColNames, expected_proto in zip(
-        schemaEmbeddingColumnNames, protoEmbeddingColumnNames
-    ):
-        proto = EmbeddingColumnNames.convert_to_proto(embColNames)
-        assert expected_proto == proto
-
 
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__]))

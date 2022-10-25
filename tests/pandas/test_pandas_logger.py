@@ -1,7 +1,8 @@
 import datetime
-import pyarrow as pa
+
 import numpy as np
 import pandas as pd
+import pyarrow as pa
 import pytest
 from requests import Response
 
@@ -89,15 +90,10 @@ def roundtrip_df(df):
     return df.astype({k: "str" for k, v in df.dtypes.items() if v.name == "category"})
 
 
-def log_dataframe(df):
+def log_dataframe(df, schema=None):
     client = NoSendClient("apikey", "spaceKey")
-    response = client.log(
-        dataframe=df,
-        model_id=3.14,
-        model_version=1.0,
-        model_type=ModelTypes.SCORE_CATEGORICAL,
-        environment=Environments.PRODUCTION,
-        schema=Schema(
+    if schema is None:
+        schema = Schema(
             prediction_id_column_name="prediction_id",
             timestamp_column_name="prediction_timestamp",
             feature_column_names=list("ABCDEFGHI"),
@@ -122,7 +118,15 @@ def log_dataframe(df):
             actual_score_column_name="actual_score",
             shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
             actual_numeric_sequence_column_name="act_num_seq",
-        ),
+        )
+
+    response = client.log(
+        dataframe=df,
+        model_id="model-id",
+        model_version="1.0",
+        model_type=ModelTypes.SCORE_CATEGORICAL,
+        environment=Environments.PRODUCTION,
+        schema=schema,
     )
     return response
 
@@ -199,6 +203,64 @@ def test_production_wrong_embedding_types():
         response.df.sort_index(axis=1).to_json()
         == roundtrip_df(data_df).sort_index(axis=1).to_json()
     )
+
+
+def test_production_wrong_embedding_values():
+    good_vector = []
+    for i in range(3):
+        good_vector.append(np.arange(float(6)))
+
+    multidimensional_vector = []
+    for i in range(3):
+        if i <= 1:
+            multidimensional_vector.append(np.arange(float(6)))
+        else:
+            multidimensional_vector.append(np.arange(float(4)))
+
+    empty_vector = []
+    for i in range(3):
+        empty_vector.append(np.arange(float(0)))
+
+    one_vector = []
+    for i in range(3):
+        one_vector.append(np.arange(float(1)))
+
+    data_df["good_vector"] = good_vector
+    data_df["multidimensional_vector"] = multidimensional_vector
+    data_df["empty_vector"] = empty_vector
+    data_df["one_vector"] = one_vector
+
+    schema = Schema(
+        prediction_id_column_name="prediction_id",
+        timestamp_column_name="prediction_timestamp",
+        feature_column_names=list("ABCDEFGHI"),
+        embedding_feature_column_names=[
+            EmbeddingColumnNames(
+                vector_column_name="good_vector",
+            ),
+            EmbeddingColumnNames(
+                vector_column_name="multidimensional_vector",  # Should give error
+            ),
+            EmbeddingColumnNames(
+                vector_column_name="empty_vector",  # Should give error
+            ),
+            EmbeddingColumnNames(
+                vector_column_name="one_vector",  # Should give error
+            ),
+        ],
+        tag_column_names=list("ABCDEFGHI"),
+        prediction_label_column_name="prediction_label",
+        actual_label_column_name="actual_label",
+        prediction_score_column_name="prediction_score",
+        actual_score_column_name="actual_score",
+        shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
+        actual_numeric_sequence_column_name="act_num_seq",
+    )
+
+    try:
+        _ = log_dataframe(data_df, schema)
+    except Exception as e:
+        assert isinstance(e, err.ValidationFailure)
 
 
 if __name__ == "__main__":

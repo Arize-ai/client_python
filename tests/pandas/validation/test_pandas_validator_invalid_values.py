@@ -1,11 +1,12 @@
-import pytest
-import pandas as pd
-from collections import ChainMap
 import datetime
+from collections import ChainMap
 
-from arize.pandas.logger import Schema
-from arize.pandas.validation.validator import Validator
 import arize.pandas.validation.errors as err
+import numpy as np
+import pandas as pd
+import pytest
+from arize.pandas.validation.validator import Validator
+from arize.utils.types import EmbeddingColumnNames, Schema, ModelTypes
 
 
 def test_zero_errors():
@@ -275,7 +276,8 @@ def test_invalid_actual_label_none_value():
             kwargs,
         )
     )
-    assert len(errors) == 1
+    msgs = [e.error_message() for e in errors]
+    assert len(errors) == 1, f"msg is {msgs}"
     assert type(errors[0]) is err.InvalidValueMissingValue
 
 
@@ -378,7 +380,65 @@ def test_multiple():
     assert any(type(e) is err.InvalidValueMissingValue for e in errors)
 
 
+def test_invalid_embedding_dimensionality():
+    good_vector = []
+    for i in range(3):
+        good_vector.append(np.arange(float(6)))
+
+    multidimensional_vector = []
+    for i in range(3):
+        if i <= 1:
+            multidimensional_vector.append(np.arange(float(6)))
+        else:
+            multidimensional_vector.append(np.arange(float(4)))
+
+    empty_vector = []
+    for i in range(3):
+        empty_vector.append(np.arange(float(0)))
+
+    one_vector = []
+    for i in range(3):
+        one_vector.append(np.arange(float(1)))
+
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    embedding_feature_column_names=[
+                        EmbeddingColumnNames(
+                            vector_column_name="good_vector",
+                        ),
+                        EmbeddingColumnNames(
+                            vector_column_name="multidimensional_vector",  # Should give error
+                        ),
+                        EmbeddingColumnNames(
+                            vector_column_name="empty_vector",  # Should give error
+                        ),
+                        EmbeddingColumnNames(
+                            vector_column_name="one_vector",  # Should give error
+                        ),
+                    ],
+                ),
+                "dataframe": pd.DataFrame(
+                    {
+                        "good_vector": good_vector,
+                        "multidimensional_vector": multidimensional_vector,
+                        "empty_vector": empty_vector,
+                        "one_vector": one_vector,
+                    }
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 2
+    assert type(errors[0]) is err.InvalidValueMultipleEmbeddingVectorDimensionality
+    assert type(errors[1]) is err.InvalidValueLowEmbeddingVectorDimensionality
+
+
 kwargs = {
+    "model_type": ModelTypes.SCORE_CATEGORICAL,
     "schema": Schema(
         prediction_id_column_name="prediction_id",
         timestamp_column_name="prediction_timestamp",
@@ -420,6 +480,35 @@ kwargs = {
             "d": pd.Series([0, float("NaN"), 2]),
             "e": pd.Series([0, None, 2]),
             "f": pd.Series([None, float("NaN"), None]),
+        }
+    ),
+}
+
+ranking_kwargs = {
+    "schema": Schema(
+        prediction_id_column_name="prediction_id",
+        prediction_group_id_column_name="prediction_group_id",
+        timestamp_column_name="prediction_timestamp",
+        feature_column_names=["item_type"],
+        rank_column_name="rank",
+    ),
+    "dataframe": pd.DataFrame(
+        {
+            "prediction_timestamp": pd.Series(
+                [
+                    datetime.datetime.now(),
+                    datetime.datetime.now() + datetime.timedelta(days=1),
+                    datetime.datetime.now() - datetime.timedelta(days=364),
+                    datetime.datetime.now() + datetime.timedelta(days=364),
+                ]
+            ),
+            "prediction_id": pd.Series(["x_1", "x_2", "y_1", "y_2"]),
+            "prediction_group_id": pd.Series(["X", "X", "Y", "Y"]),
+            "item_type": pd.Series(["toy", "game", "game", "pens"]),
+            "rank": pd.Series([1, 2, 1, 2]),
+            "category": pd.Series(
+                [["click", "purchase"], ["click", "favor"], ["favor"], ["click"]]
+            ),
         }
     ),
 }

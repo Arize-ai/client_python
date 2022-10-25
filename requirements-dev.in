@@ -1,0 +1,25 @@
+##TODO: Transitive requirements, add skylark extension to fix this issue in rules_python
+urllib3>=1.26.5
+chardet==3.0.4
+certifi==2020.4.5.1
+pytz==2020.1
+python-dateutil==2.8.1
+six==1.15.0
+idna==2.9
+
+# Dev/Deployment
+pytest==6.2.2
+sphinx
+sphinx_rtd_theme
+nose
+coverage
+pypi-publisher
+check_wheel_contents
+yapf
+twine
+wheel
+grpcio-tools==1.30.0
+black
+# Examples
+numpy==1.22.0
+scipy==1.5.2
