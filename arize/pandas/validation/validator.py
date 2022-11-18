@@ -92,7 +92,6 @@ class Validator:
         general_checks = chain(
             Validator._check_value_timestamp(dataframe, schema),
             Validator._check_value_missing(dataframe, schema),
-            Validator._check_embedding_features_dimensionality(dataframe, schema),
         )
 
         if model_type == ModelTypes.RANKING:
@@ -513,7 +512,10 @@ class Validator:
             ("Prediction scores", schema.prediction_score_column_name),
             ("Actual scores", schema.actual_score_column_name),
         )
-        if model_type == ModelTypes.SCORE_CATEGORICAL or model_type == ModelTypes.RANKING:
+        if (
+            model_type == ModelTypes.SCORE_CATEGORICAL
+            or model_type == ModelTypes.RANKING
+        ):
             # should mirror server side
             allowed_datatypes = (
                 pa.float64(),
@@ -707,47 +709,6 @@ class Validator:
         return errors
 
     @staticmethod
-    def _check_embedding_features_dimensionality(
-        dataframe: pd.DataFrame, schema: Schema
-    ) -> List[err.ValidationError]:
-        if schema.embedding_feature_column_names is None:
-            return []
-
-        multiple_dimensionality_vector_columns = []
-        low_dimensionality_vector_columns = []
-        for embFeatColNames in schema.embedding_feature_column_names:
-            # _check_missing_columns() checks that vector columns are present,
-            # hence I assume they are here
-            vector_col = embFeatColNames.vector_column_name
-            vector_series = dataframe[vector_col]
-
-            if (
-                len(vector_series) > 0
-                and (vector_series.apply(len) != len(vector_series[0])).any()
-            ):
-                multiple_dimensionality_vector_columns.append(vector_col)
-                continue
-
-            dim = len(vector_series[0])
-            if dim <= 1:
-                low_dimensionality_vector_columns.append(vector_col)
-
-        wrong_embedding_vector_columns = []
-        if multiple_dimensionality_vector_columns:
-            wrong_embedding_vector_columns.append(
-                err.InvalidValueMultipleEmbeddingVectorDimensionality(
-                    multiple_dimensionality_vector_columns
-                )
-            )
-        if low_dimensionality_vector_columns:
-            wrong_embedding_vector_columns.append(
-                err.InvalidValueLowEmbeddingVectorDimensionality(
-                    low_dimensionality_vector_columns
-                )
-            )
-        return wrong_embedding_vector_columns  # Will be empty list if no errors
-
-    @staticmethod
     def _check_type_prediction_group_id(
         schema: Schema, column_types: Dict[str, Any]
     ) -> List[err.InvalidType]:
@@ -795,7 +756,7 @@ class Validator:
             if column_types[col] not in allowed_datatypes:
                 return [
                     err.InvalidType(
-                        "actual label column for ranking models",
+                        "actual labels column for ranking models",
                         expected_types=["list of string"],
                     )
                 ]

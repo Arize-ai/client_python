@@ -99,5 +99,6 @@ def test_wrong_type_fields():
         except Exception as err:
             assert type(err) == TypeError, "Wrong field types should raise type errors"
 
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__]))

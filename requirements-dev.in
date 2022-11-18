@@ -16,10 +16,13 @@ coverage
 pypi-publisher
 check_wheel_contents
 yapf
-twine
+twine==4.0.1
+keyring==23.9.3
+secretstorage==3.3.3
 wheel
 grpcio-tools==1.30.0
 black
 # Examples
 numpy==1.22.0
 scipy==1.5.2
+

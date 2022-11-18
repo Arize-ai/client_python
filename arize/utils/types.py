@@ -32,23 +32,19 @@ class Embedding(NamedTuple):
 
     @staticmethod
     def validate_embedding_object(emb_name: Union[str, int, float], embedding) -> None:
-        """Validates that the embedding object passed is of the correct format. That is:
-        1. Embedding vector must be present
-        2. Validations must be passed for vector, data & link_to_data
+        """Validates that the embedding object passed is of the correct format. That is,
+        validations must be passed for vector, data & link_to_data.
 
         Args:
             emb_name (str, int, float): Name of the embedding feature the vector belongs to
             Embedding (Embedding): Embedding object
 
         Raises:
-            ValueError: If the embedding vector is missing
             TypeError: If the embedding fields are of the wrong type
         """
 
-        # Must contain a non-null embedding vector
-        if embedding.vector is None:
-            raise ValueError(f'Embedding feature "{emb_name}" must contain a vector')
-        Embedding._validate_embedding_vector(emb_name, embedding.vector)
+        if embedding.vector is not None:
+            Embedding._validate_embedding_vector(emb_name, embedding.vector)
 
         # Validate embedding raw data, if present
         if embedding.data is not None:
@@ -81,11 +77,6 @@ class Embedding(NamedTuple):
         if not Embedding.is_valid_iterable(vector):
             raise TypeError(
                 f'Embedding feature "{emb_name}" has vector type {type(vector)}. Must be list, np.ndarray or pd.Series'
-            )
-        # Fail if list is empty
-        if len(vector) == 0:
-            raise ValueError(
-                f"Embedding vector must not be empty. Got {emb_name}.vector = {vector}"
             )
         # Fail if not all elements in list are floats
         allowed_types = (int, float, np.int16, np.int32, np.float16, np.float32)
