@@ -6,9 +6,6 @@ from arize.utils.types import ModelTypes, Environments
 
 
 class ValidationError(ABC):
-    def __repr__(self) -> str:
-        return self.__class__.__name__
-
     def __str__(self) -> str:
         return self.error_message()
 
@@ -28,6 +25,9 @@ class ValidationFailure(Exception):
 
 
 class MissingColumns(ValidationError):
+    def __repr__(self) -> str:
+        return "Missing_Columns"
+
     def __init__(self, cols: Iterable) -> None:
         self.missing_cols = cols
 
@@ -40,6 +40,9 @@ class MissingColumns(ValidationError):
 
 
 class InvalidShapSuffix(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_SHAP_Suffix"
+
     def __init__(self, cols: Iterable) -> None:
         self.invalid_column_names = cols
 
@@ -51,6 +54,9 @@ class InvalidShapSuffix(ValidationError):
 
 
 class InvalidModelType(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Model_Type"
+
     def error_message(self) -> str:
         return (
             "Model type not valid. Choose one of the following: "
@@ -60,6 +66,9 @@ class InvalidModelType(ValidationError):
 
 
 class InvalidEnvironment(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Environment"
+
     def error_message(self) -> str:
         return (
             "Environment not valid. Choose one of the following: "
@@ -69,6 +78,9 @@ class InvalidEnvironment(ValidationError):
 
 
 class InvalidBatchId(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Batch_ID"
+
     def error_message(self) -> str:
         return (
             "Batch ID must be a nonempty string if logging to validation environment."
@@ -76,16 +88,25 @@ class InvalidBatchId(ValidationError):
 
 
 class InvalidModelVersion(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Model_Version"
+
     def error_message(self) -> str:
         return "Model version must be a nonempty string."
 
 
 class InvalidModelId(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Model_ID"
+
     def error_message(self) -> str:
         return "Model ID must be a nonempty string."
 
 
 class MissingPredActShap(ValidationError):
+    def __repr__(self) -> str:
+        return "Missing_Pred_or_Act_or_SHAP"
+
     def error_message(self) -> str:
         return (
             "The schema must specify at least one of the following: "
@@ -94,6 +115,9 @@ class MissingPredActShap(ValidationError):
 
 
 class MissingPreprodPredAct(ValidationError):
+    def __repr__(self) -> str:
+        return "Missing_Preproduction_Pred_and_Act"
+
     def error_message(self) -> str:
         return (
             "For logging pre-production data, "
@@ -102,6 +126,9 @@ class MissingPreprodPredAct(ValidationError):
 
 
 class MissingRequiredColumnsForRankingModel(ValidationError):
+    def __repr__(self) -> str:
+        return "Missing_Required_Columns_For_Ranking_Model"
+
     def error_message(self) -> str:
         return (
             "For logging data to a ranking model, schema must specify: "
@@ -115,6 +142,9 @@ class MissingRequiredColumnsForRankingModel(ValidationError):
 
 
 class InvalidType(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Type"
+
     def __init__(self, name: str, expected_types: List[str]) -> None:
         self.name = name
         self.expected_types = expected_types
@@ -129,6 +159,9 @@ class InvalidType(ValidationError):
 
 
 class InvalidTypeFeatures(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Type_Features"
+
     def __init__(self, cols: Iterable, expected_types: List[str]) -> None:
         self.mistyped_cols = cols
         self.expected_types = expected_types
@@ -147,6 +180,9 @@ class InvalidTypeFeatures(ValidationError):
 
 
 class InvalidTypeTags(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Type_Tags"
+
     def __init__(self, cols: Iterable, expected_types: List[str]) -> None:
         self.mistyped_cols = cols
         self.expected_types = expected_types
@@ -165,6 +201,9 @@ class InvalidTypeTags(ValidationError):
 
 
 class InvalidTypeShapValues(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Type_SHAP_Values"
+
     def __init__(self, cols: Iterable, expected_types: List[str]) -> None:
         self.mistyped_cols = cols
         self.expected_types = expected_types
@@ -188,6 +227,9 @@ class InvalidTypeShapValues(ValidationError):
 
 
 class InvalidValueTimestamp(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Timestamp_Value"
+
     def __init__(self, name: str, acceptable_range: str) -> None:
         self.name = name
         self.acceptable_range = acceptable_range
@@ -201,6 +243,9 @@ class InvalidValueTimestamp(ValidationError):
 
 
 class InvalidValueMissingValue(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Missing_Value"
+
     def __init__(self, name: str, missingness: str) -> None:
         self.name = name
         self.missingness = missingness
@@ -208,32 +253,10 @@ class InvalidValueMissingValue(ValidationError):
     def error_message(self) -> str:
         return f"{self.name} must not contain {self.missingness} values."
 
-
-class InvalidValueMultipleEmbeddingVectorDimensionality(ValidationError):
-    def __init__(self, cols: Iterable) -> None:
-        self.invalid_cols = cols
-
-    def error_message(self) -> str:
-        return (
-            "All vectors in an embedding vector column must be of the same length (dimensionality). "
-            "The following columns do not satisfy this condition: "
-            f"{', '.join(map(str, self.invalid_cols))}."
-        )
-
-
-class InvalidValueLowEmbeddingVectorDimensionality(ValidationError):
-    def __init__(self, cols: Iterable) -> None:
-        self.invalid_cols = cols
-
-    def error_message(self) -> str:
-        return (
-            "All vectors in an embedding vector column must be of length (dimensionality) > 1. "
-            "The following columns do not satisfy this condition: "
-            f"{', '.join(map(str, self.invalid_cols))}."
-        )
-
-
 class InvalidRankValue(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Rank_Value"
+
     def __init__(self, name: str, acceptable_range: str) -> None:
         self.name = name
         self.acceptable_range = acceptable_range
@@ -246,6 +269,9 @@ class InvalidRankValue(ValidationError):
 
 
 class InvalidPredictionGroupIDLength(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Prediction_Group_ID_Length"
+
     def __init__(self, name: str, acceptable_range: str) -> None:
         self.name = name
         self.acceptable_range = acceptable_range
@@ -258,11 +284,14 @@ class InvalidPredictionGroupIDLength(ValidationError):
 
 
 class InvalidRankingCategoryValue(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Ranking_Category_Value"
+
     def __init__(self, name: str) -> None:
         self.name = name
 
     def error_message(self) -> str:
         return (
-            f"actual label {self.name} column contains invalid value"
+            f"actual labels {self.name} column contains invalid value"
             f"make sure empty string is not present in the list"
         )

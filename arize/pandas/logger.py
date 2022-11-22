@@ -190,9 +190,7 @@ class Client:
             if verbose:
                 print("Performing values validation.")
             errors = Validator.validate_values(
-                dataframe=dataframe,
-                schema=schema,
-                model_type=model_type
+                dataframe=dataframe, schema=schema, model_type=model_type
             )
             if errors:
                 for e in errors:
@@ -246,12 +244,22 @@ class Client:
 
         if schema.embedding_feature_column_names is not None:
             for embedding_feature_column_names in schema.embedding_feature_column_names:
-                embedding_name = embedding_feature_column_names.vector_column_name  # how it will show in the UI
-                s.arrow_schema.embedding_feature_column_names_map[embedding_name].vector_column_name = embedding_feature_column_names.vector_column_name
+                embedding_name = (
+                    embedding_feature_column_names.vector_column_name
+                )  # how it will show in the UI
+                s.arrow_schema.embedding_feature_column_names_map[
+                    embedding_name
+                ].vector_column_name = embedding_feature_column_names.vector_column_name
                 if embedding_feature_column_names.data_column_name:
-                    s.arrow_schema.embedding_feature_column_names_map[embedding_name].data_column_name = embedding_feature_column_names.data_column_name
+                    s.arrow_schema.embedding_feature_column_names_map[
+                        embedding_name
+                    ].data_column_name = embedding_feature_column_names.data_column_name
                 if embedding_feature_column_names.link_to_data_column_name:
-                    s.arrow_schema.embedding_feature_column_names_map[embedding_name].link_to_data_column_name =embedding_feature_column_names.link_to_data_column_name
+                    s.arrow_schema.embedding_feature_column_names_map[
+                        embedding_name
+                    ].link_to_data_column_name = (
+                        embedding_feature_column_names.link_to_data_column_name
+                    )
 
         if schema.tag_column_names is not None:
             s.arrow_schema.tag_column_names.extend(schema.tag_column_names)
@@ -278,9 +286,7 @@ class Client:
             )
 
         if schema.rank_column_name is not None:
-            s.arrow_schema.rank_column_name = (
-                schema.rank_column_name
-            )
+            s.arrow_schema.rank_column_name = schema.rank_column_name
 
         if verbose:
             print("Serializing schema.")

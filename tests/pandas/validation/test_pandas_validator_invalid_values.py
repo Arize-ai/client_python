@@ -382,23 +382,25 @@ def test_multiple():
 
 def test_invalid_embedding_dimensionality():
     good_vector = []
-    for i in range(3):
+    for i in range(4):
         good_vector.append(np.arange(float(6)))
 
     multidimensional_vector = []
-    for i in range(3):
+    for i in range(4):
         if i <= 1:
             multidimensional_vector.append(np.arange(float(6)))
         else:
             multidimensional_vector.append(np.arange(float(4)))
 
-    empty_vector = []
-    for i in range(3):
-        empty_vector.append(np.arange(float(0)))
-
     one_vector = []
-    for i in range(3):
+    for i in range(4):
         one_vector.append(np.arange(float(1)))
+
+    null_vector = []
+    null_vector.append(np.arange(float(3)))
+    null_vector.append(None)
+    null_vector.append(np.NaN)
+    null_vector.append([])
 
     errors = Validator.validate_values(
         **ChainMap(
@@ -413,10 +415,10 @@ def test_invalid_embedding_dimensionality():
                             vector_column_name="multidimensional_vector",  # Should give error
                         ),
                         EmbeddingColumnNames(
-                            vector_column_name="empty_vector",  # Should give error
+                            vector_column_name="one_vector",  # Should give error
                         ),
                         EmbeddingColumnNames(
-                            vector_column_name="one_vector",  # Should give error
+                            vector_column_name="null_vector",  # Should give error
                         ),
                     ],
                 ),
@@ -424,17 +426,15 @@ def test_invalid_embedding_dimensionality():
                     {
                         "good_vector": good_vector,
                         "multidimensional_vector": multidimensional_vector,
-                        "empty_vector": empty_vector,
                         "one_vector": one_vector,
+                        "null_vector": null_vector,
                     }
                 ),
             },
             kwargs,
         )
     )
-    assert len(errors) == 2
-    assert type(errors[0]) is err.InvalidValueMultipleEmbeddingVectorDimensionality
-    assert type(errors[1]) is err.InvalidValueLowEmbeddingVectorDimensionality
+    assert len(errors) == 0
 
 
 kwargs = {
