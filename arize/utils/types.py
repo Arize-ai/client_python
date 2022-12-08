@@ -163,3 +163,5 @@ class Schema:
     embedding_feature_column_names: Optional[List[EmbeddingColumnNames]] = None
     prediction_group_id_column_name: Optional[str] = None
     rank_column_name: Optional[str] = None
+    attributions_column_name: Optional[str] = None
+    relevance_score_column_name: Optional[str] = None

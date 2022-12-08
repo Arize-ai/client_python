@@ -33,18 +33,24 @@ class Validator:
             Validator._check_invalid_shap_suffix(schema),
         )
 
-        if model_type in (ModelTypes.SCORE_CATEGORICAL, ModelTypes.NUMERIC):
-            scn_checks = chain(
+        if model_type == ModelTypes.NUMERIC:
+            num_checks = chain(
                 Validator._check_existence_pred_act_shap(schema),
                 Validator._check_existence_preprod_pred_act(schema, environment),
             )
-            return list(chain(general_checks, scn_checks))
+            return list(chain(general_checks, num_checks))
+        elif model_type == ModelTypes.SCORE_CATEGORICAL:
+            sc_checks = chain(
+                Validator._check_existence_pred_act_shap(schema),
+                Validator._check_existence_preprod_pred_act(schema, environment),
+                Validator._check_existence_pred_label(schema),
+            )
+            return list(chain(general_checks, sc_checks))
         elif model_type == ModelTypes.RANKING:
             r_checks = chain(
                 Validator._check_existence_group_id_rank_category_relevance(schema)
             )
             return list(chain(general_checks, r_checks))
-
         return list(general_checks)
 
     @staticmethod
@@ -235,6 +241,18 @@ class Validator:
         ):
             return []
         return [err.MissingPredActShap()]
+
+    @staticmethod
+    def _check_existence_pred_label(
+            schema: Schema,
+    ) -> List[err.MissingPredLabelScoreCategorical]:
+        if (
+            schema.prediction_score_column_name is not None
+            and schema.actual_label_column_name is not None
+            and schema.prediction_label_column_name is None
+        ):
+            return [err.MissingPredLabelScoreCategorical()]
+        return []
 
     @staticmethod
     def _check_existence_preprod_pred_act(
@@ -511,6 +529,7 @@ class Validator:
         columns = (
             ("Prediction scores", schema.prediction_score_column_name),
             ("Actual scores", schema.actual_score_column_name),
+            ("Relevance scores", schema.relevance_score_column_name),
         )
         if (
             model_type == ModelTypes.SCORE_CATEGORICAL
@@ -526,7 +545,7 @@ class Validator:
                 pa.int8(),
             )
             for name, col in columns:
-                if col in column_types and column_types[col] not in allowed_datatypes:
+                if col is not None and col in column_types and column_types[col] not in allowed_datatypes:
                     errors.append(
                         err.InvalidType(name, expected_types=["float", "int"])
                     )
@@ -602,12 +621,17 @@ class Validator:
     def _check_value_ranking_category(
         dataframe: pd.DataFrame, schema: Schema
     ) -> List[Union[err.InvalidValueMissingValue, err.InvalidRankingCategoryValue]]:
-        col = schema.actual_label_column_name
+        if schema.attributions_column_name is not None:
+            col = schema.attributions_column_name
+        else:
+            col = schema.actual_label_column_name
         if col is not None and col in dataframe.columns and len(dataframe):
             if dataframe[col].isnull().values.any():
                 # do not attach duplicated missing value error
                 # which would be caught by_check_value_missing
                 return []
+            if dataframe[col].astype(str).str.len().min() == 0:
+                return [err.InvalidRankingCategoryValue(col)]
             # empty list
             if dataframe[col].map(len).min() == 0:
                 return [err.InvalidValueMissingValue(col, "empty list")]
@@ -688,10 +712,11 @@ class Validator:
         columns = (
             ("Prediction IDs", schema.prediction_id_column_name),
             ("Prediction labels", schema.prediction_label_column_name),
-            # for ranking models, the ranking:category is specified as actual label
             ("Actual labels", schema.actual_label_column_name),
             ("Prediction Group IDs", schema.prediction_group_id_column_name),
             ("Ranks", schema.rank_column_name),
+            ("Attributions", schema.attributions_column_name),
+            ("Relevance Score", schema.relevance_score_column_name),
         )
         for name, col in columns:
             if col is not None and col in dataframe.columns:
@@ -750,14 +775,17 @@ class Validator:
     def _check_type_ranking_category(
         schema: Schema, column_types: Dict[str, Any]
     ) -> List[err.InvalidType]:
-        col = schema.actual_label_column_name
-        if col in column_types:
-            allowed_datatypes = (pa.list_(pa.string()),)
+        if schema.attributions_column_name is not None:
+            col = schema.attributions_column_name
+        else:
+            col = schema.actual_label_column_name
+        if col is not None and col in column_types:
+            allowed_datatypes = (pa.list_(pa.string()), pa.string())
             if column_types[col] not in allowed_datatypes:
                 return [
                     err.InvalidType(
-                        "actual labels column for ranking models",
-                        expected_types=["list of string"],
+                        "attributions column for ranking models",
+                        expected_types=["list of string", "string"],
                     )
                 ]
         return []

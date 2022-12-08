@@ -114,6 +114,16 @@ class MissingPredActShap(ValidationError):
         )
 
 
+class MissingPredLabelScoreCategorical(ValidationError):
+    def __repr__(self) -> str:
+        return "Missing_Pred_Label_Score_Categorical"
+
+    def error_message(self) -> str:
+        return (
+            "When sending a prediction score and an actual label, the schema must also include a prediction label."
+        )
+
+
 class MissingPreprodPredAct(ValidationError):
     def __repr__(self) -> str:
         return "Missing_Preproduction_Pred_and_Act"
@@ -285,13 +295,13 @@ class InvalidPredictionGroupIDLength(ValidationError):
 
 class InvalidRankingCategoryValue(ValidationError):
     def __repr__(self) -> str:
-        return "Invalid_Ranking_Category_Value"
+        return "Invalid_Ranking_Attributions_Value"
 
     def __init__(self, name: str) -> None:
         self.name = name
 
     def error_message(self) -> str:
         return (
-            f"actual labels {self.name} column contains invalid value"
-            f"make sure empty string is not present in the list"
+            f"ranking attributions {self.name} column contains invalid value"
+            f"make sure empty string is not present"
         )

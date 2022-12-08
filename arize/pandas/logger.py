@@ -264,10 +264,14 @@ class Client:
         if schema.tag_column_names is not None:
             s.arrow_schema.tag_column_names.extend(schema.tag_column_names)
 
-        if schema.actual_label_column_name is not None:
+        if model_type == ModelTypes.RANKING and schema.attributions_column_name is not None:
+            s.arrow_schema.actual_label_column_name = schema.attributions_column_name
+        elif schema.actual_label_column_name is not None:
             s.arrow_schema.actual_label_column_name = schema.actual_label_column_name
 
-        if schema.actual_score_column_name is not None:
+        if model_type == ModelTypes.RANKING and schema.relevance_score_column_name is not None:
+            s.arrow_schema.actual_score_column_name = schema.relevance_score_column_name
+        elif schema.actual_score_column_name is not None:
             s.arrow_schema.actual_score_column_name = schema.actual_score_column_name
 
         if schema.shap_values_column_names is not None:
