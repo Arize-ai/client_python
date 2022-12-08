@@ -190,6 +190,26 @@ def test_missing_pred_act_shap():
     assert type(errors[0]) is err.MissingPredActShap
 
 
+def test_missing_pred_label_score_categorical():
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "model_version": "1.0",
+                "environment": Environments.PRODUCTION,
+                "model_type": ModelTypes.SCORE_CATEGORICAL,
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    prediction_score_column_name="prediction_score",
+                    actual_label_column_name="actual_label",
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is err.MissingPredLabelScoreCategorical
+
+
 def test_missing_preprod_pred_act_train():
     errors = Validator.validate_params(
         **ChainMap(
@@ -279,6 +299,7 @@ kwargs = {
         prediction_id_column_name="prediction_id",
         prediction_label_column_name="prediction_label",
         actual_label_column_name="actual_label",
+        prediction_score_column_name="prediction_score",
     ),
 }
 
