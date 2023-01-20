@@ -21,6 +21,8 @@ inputs = {
     "model_version": "v1.2.3.4",
     "model_type_numeric": ModelTypes.NUMERIC,
     "model_type_score_categorical": ModelTypes.SCORE_CATEGORICAL,
+    "model_type_regression": ModelTypes.REGRESSION,
+    "model_type_binary_classification": ModelTypes.BINARY_CLASSIFICATION,
     "model_version": "v1.2.3.4",
     "environment_training": Environments.TRAINING,
     "environment_validation": Environments.VALIDATION,
@@ -347,6 +349,19 @@ def test_build_pred_and_actual_label_int():
         tags=inputs["tags"],
     )
 
+    record_new_model_type = c.log(
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        environment=inputs["environment_production"],
+        model_type=inputs["model_type_regression"],
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["value_int"],
+        actual_label=inputs["value_int"],
+        features=inputs["features"],
+        embedding_features=inputs["embedding_features"],
+        tags=inputs["tags"],
+    )
+
     #   Get environment in proto format
     ep = _get_proto_environment_params(inputs["environment_production"])
     #   Start constructing expected result by building the prediction
@@ -361,7 +376,7 @@ def test_build_pred_and_actual_label_int():
     #   Build expected record using built prediction
     expected_record = _build_expected_record(p=p, a=a, ep=ep)
     #   Check result is as expected
-    assert record == expected_record
+    assert record == record_new_model_type == expected_record
 
 
 def test_build_pred_and_actual_label_float():
@@ -371,6 +386,19 @@ def test_build_pred_and_actual_label_float():
         model_version=inputs["model_version"],
         environment=inputs["environment_production"],
         model_type=inputs["model_type_numeric"],
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["value_float"],
+        actual_label=inputs["value_float"],
+        features=inputs["features"],
+        embedding_features=inputs["embedding_features"],
+        tags=inputs["tags"],
+    )
+
+    record_new_model_type = c.log(
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        environment=inputs["environment_production"],
+        model_type=inputs["model_type_regression"],
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["value_float"],
         actual_label=inputs["value_float"],
@@ -393,7 +421,7 @@ def test_build_pred_and_actual_label_float():
     #   Build expected record using built prediction
     expected_record = _build_expected_record(p=p, a=a, ep=ep)
     #   Check result is as expected
-    assert record == expected_record
+    assert record == record_new_model_type == expected_record
 
 
 def test_build_pred_and_actual_label_tuple():
@@ -403,6 +431,19 @@ def test_build_pred_and_actual_label_tuple():
         model_version=inputs["model_version"],
         environment=inputs["environment_production"],
         model_type=inputs["model_type_score_categorical"],
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["value_tuple"],
+        actual_label=inputs["value_tuple"],
+        features=inputs["features"],
+        embedding_features=inputs["embedding_features"],
+        tags=inputs["tags"],
+    )
+
+    record_new_model_type = c.log(
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        environment=inputs["environment_production"],
+        model_type=inputs["model_type_binary_classification"],
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["value_tuple"],
         actual_label=inputs["value_tuple"],
@@ -425,7 +466,7 @@ def test_build_pred_and_actual_label_tuple():
     #   Build expected record using built prediction
     expected_record = _build_expected_record(p=p, a=a, ep=ep)
     #   Check result is as expected
-    assert record == expected_record
+    assert record == record_new_model_type == expected_record
 
 
 def test_build_prediction_no_embedding_features():

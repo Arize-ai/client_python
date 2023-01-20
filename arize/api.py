@@ -1,6 +1,6 @@
 import concurrent.futures as cf
 import time
-from typing import Union, Optional, Dict, Tuple
+from typing import Dict, Optional, Tuple, Union
 
 import numpy as np
 from google.protobuf.json_format import MessageToDict
@@ -9,11 +9,17 @@ from requests_futures.sessions import FuturesSession
 from arize import public_pb2 as public__pb2
 from arize.__init__ import __version__
 from arize.bounded_executor import BoundedExecutor
-from arize.utils.types import ModelTypes, Environments, Embedding
+from arize.utils.types import (
+    CATEGORICAL_MODEL_TYPES,
+    Embedding,
+    Environments,
+    ModelTypes,
+    NUMERIC_MODEL_TYPES,
+)
 from arize.utils.utils import (
     convert_element,
-    get_value_object,
     get_timestamp,
+    get_value_object,
     is_timestamp_in_range,
 )
 
@@ -35,10 +41,14 @@ class Client:
         """
         :param api_key (str): api key associated with your account with Arize AI.
         :param space_key (str): space key in Arize AI.
-        :param uri (str, optional): uri to send your records to Arize AI. Defaults to "https://api.arize.com/v1".
-        :param max_workers (int, optional): number of max concurrent requests to Arize. Defaults to 8.
-        :param max_queue_bound (int, optional): number of maximum concurrent future objects being generated for publishing to Arize. Defaults to 5000.
-        :param timeout (int, optional): How long to wait for the server to send data before giving up. Defaults to 200.
+        :param uri (str, optional): uri to send your records to Arize AI. Defaults to
+        "https://api.arize.com/v1".
+        :param max_workers (int, optional): number of max concurrent requests to Arize. Defaults
+        to 8.
+        :param max_queue_bound (int, optional): number of maximum concurrent future objects being
+        generated for publishing to Arize. Defaults to 5000.
+        :param timeout (int, optional): How long to wait for the server to send data before
+        giving up. Defaults to 200.
         """
 
         if not isinstance(space_key, str):
@@ -77,23 +87,38 @@ class Client:
         batch_id: Optional[str] = None,
     ) -> cf.Future:
         """Logs a record to Arize via a POST request.
-        :param prediction_id (str, int, or float): Unique string identifier for a specific prediction. This value is used to match a prediction to an actual label or feature imporances in the Arize platform.
+        :param prediction_id (str, int, or float): Unique string identifier for a specific
+        prediction. This value is used to match a prediction to an actual label or feature
+        imporances in the Arize platform.
         :param model_id (str): Unique identifier for a given model
-        :param model_type (ModelTypes): Declares what model type this prediction is for. Must be one of: Numeric, Score_Categorical.
-        :param environment (Environments): The environment that this dataframe is for (Production, Training, Validation).
-        :param model_version (str, optional): Field used to group together a subset of predictions and actuals for a given model_id. Defaults to None.
-        :param prediction_timestamp (int, optional): Unix epoch time in seconds for prediction. Defaults to None.
+        :param model_type (ModelTypes): Declares what model type this prediction is for. Must be
+        one of: Numeric, Score_Categorical.
+        :param environment (Environments): The environment that this dataframe is for (
+        Production, Training, Validation).
+        :param model_version (str, optional): Field used to group together a subset of
+        predictions and actuals for a given model_id. Defaults to None.
+        :param prediction_timestamp (int, optional): Unix epoch time in seconds for prediction.
+        Defaults to None.
                     If None, prediction uses current timestamp.
-        :param prediction_label (bool, int, float, str, or Tuple(str, float); optional): The predicted value for a given model input. Defaults to None.
-        :param actual_label (bool, int, float, str, or Tuple[str, float]; optional): The actual true value for a given model input. This actual will be matched to the prediction with the same prediction_id as the one in this call. Defaults to None.
-        :param features (Dict[str, <value>], optional): Dictionary containing human readable and debuggable model features. Keys must be strings.
+        :param prediction_label (bool, int, float, str, or Tuple(str, float); optional): The
+        predicted value for a given model input. Defaults to None.
+        :param actual_label (bool, int, float, str, or Tuple[str, float]; optional): The actual
+        true value for a given model input. This actual will be matched to the prediction with
+        the same prediction_id as the one in this call. Defaults to None.
+        :param features (Dict[str, <value>], optional): Dictionary containing human readable and
+        debuggable model features. Keys must be strings.
                     Values must be one of str, bool, float, long. Defaults to None.
-        :param embedding_features (Dict[str, Embedding], optional): Dictionary containing model embedding features. Keys must be strings.
+        :param embedding_features (Dict[str, Embedding], optional): Dictionary containing model
+        embedding features. Keys must be strings.
                     Values must be of Embedding type. Defaults to None.
-        :param shap_values (Dict[str, float], optional): Dictionary containing human readable and debuggable model features keys, along with SHAP feature importance values. Keys must be str, while values must be float. Defaults to None.
-        :param tags (Dict[str, <value>], optional): Dictionary containing human readable and debuggable model tags. Keys must be strings.
+        :param shap_values (Dict[str, float], optional): Dictionary containing human readable and
+        debuggable model features keys, along with SHAP feature importance values. Keys must be
+        str, while values must be float. Defaults to None.
+        :param tags (Dict[str, <value>], optional): Dictionary containing human readable and
+        debuggable model tags. Keys must be strings.
                     Values must be one of str, bool, float, long. Defaults to None.
-        :param batch_id (str, optional): Used to distinguish different batch of data under the same model_id and model_version. Required when environment is VALIDATION. Defaults to None.
+        :param batch_id (str, optional): Used to distinguish different batch of data under the
+        same model_id and model_version. Required when environment is VALIDATION. Defaults to None.
         :return: `concurrent.futures.Future` object
         """
 
@@ -105,12 +130,14 @@ class Client:
         # Validate model_type
         if not isinstance(model_type, ModelTypes):
             raise TypeError(
-                f"model_type {model_type} is type {type(model_type)}, but must be of arize.utils.ModelTypes"
+                f"model_type {model_type} is type {type(model_type)}, but must be of "
+                f"arize.utils.ModelTypes"
             )
         # Validate environment
         if not isinstance(environment, Environments):
             raise TypeError(
-                f"environment {environment} is type {type(environment)}, but must be of arize.utils.Environments"
+                f"environment {environment} is type {type(environment)}, but must be of "
+                f"arize.utils.Environments"
             )
         # Validate batch_id
         if environment == Environments.VALIDATION:
@@ -130,7 +157,8 @@ class Client:
                 val = convert_element(feat_value)
                 if val is not None and not isinstance(val, (str, bool, float, int)):
                     raise TypeError(
-                        f"feature {feat_name} with value {feat_value} is type {type(feat_value)}, but expected one of: str, bool, float, int"
+                        f"feature {feat_name} with value {feat_value} is type {type(feat_value)}, "
+                        f"but expected one of: str, bool, float, int"
                     )
 
         # Validate embedding_features type
@@ -151,7 +179,8 @@ class Client:
                 val = convert_element(tag_value)
                 if val is not None and not isinstance(val, (str, bool, float, int)):
                     raise TypeError(
-                        f"tag {tag_name} with value {tag_value} is type {type(tag_value)}, but expected one of: str, bool, float, int"
+                        f"tag {tag_name} with value {tag_value} is type {type(tag_value)}, "
+                        f"but expected one of: str, bool, float, int"
                     )
                 if isinstance(tag_name, str) and tag_name.endswith("_shap"):
                     raise ValueError(
@@ -163,7 +192,8 @@ class Client:
             prediction_timestamp, int
         ):
             raise TypeError(
-                f"prediction_timestamp {prediction_timestamp} is type {type(prediction_timestamp)} but expected int"
+                f"prediction_timestamp {prediction_timestamp} is type "
+                f"{type(prediction_timestamp)} but expected int"
             )
 
         now = int(time.time())
@@ -171,7 +201,8 @@ class Client:
             now, prediction_timestamp
         ):
             raise ValueError(
-                f"prediction_timestamp: {prediction_timestamp} is out of range. Value must be within 1 year of the current time."
+                f"prediction_timestamp: {prediction_timestamp} is out of range. Value must be "
+                f"within 1 year of the current time."
             )
 
         # Construct the prediction
@@ -179,7 +210,8 @@ class Client:
         if prediction_label is not None:
             if model_version is not None and not isinstance(model_version, str):
                 raise TypeError(
-                    f"model_version {model_version} is type {type(model_version)}, but must be a str"
+                    f"model_version {model_version} is type {type(model_version)}, but must be a "
+                    f"str"
                 )
             _validate_label(model_type, label=convert_element(prediction_label))
             p = public__pb2.Prediction(
@@ -309,32 +341,33 @@ class Client:
 
 
 def _validate_label(
-    model_type: ModelTypes, label: Union[str, bool, int, float, Tuple[str, float]]
+    model_type: ModelTypes,
+    label: Union[str, bool, int, float, Tuple[Union[str, bool], float]],
 ):
-    if model_type == ModelTypes.NUMERIC:
+    if model_type in NUMERIC_MODEL_TYPES:
         if not isinstance(label, (float, int)):
             raise TypeError(
-                f"label {label} has type {type(label)}, but must be either float or int for ModelTypes.NUMERIC"
+                f"label {label} has type {type(label)}, but must be either float or int for ModelTypes.{model_type}"
             )
         elif label is np.nan:
-            raise ValueError("label for ModelTypes.NUMERIC cannot be null value")
-    elif model_type == ModelTypes.SCORE_CATEGORICAL:
+            raise ValueError(f"label for ModelTypes.{model_type} cannot be null value")
+    elif model_type in CATEGORICAL_MODEL_TYPES:
         is_valid = (
             isinstance(label, str)
             or isinstance(label, bool)
             or (
                 isinstance(label, tuple)
-                and isinstance(label[0], str)
+                and isinstance(label[0], (str, bool))
                 and isinstance(label[1], float)
             )
         )
-        if isinstance(label, tuple) and label[1] is np.nan:
-            raise ValueError(
-                f"Prediction score for ModelTypes.SCORE_CATEGORICAL cannot be null value"
-            )
         if not is_valid:
             raise TypeError(
-                f"label {label} has type {type(label)}, but must be str or Tuple[str, float] for ModelTypes.SCORE_CATEGORICAL"
+                f"label {label} has type {type(label)}, but must be str, bool, or Tuple[str, float] for ModelTypes.{model_type}"
+            )
+        if isinstance(label, tuple) and label[1] is np.nan:
+            raise ValueError(
+                f"Prediction score for ModelTypes.{model_type} cannot be null value"
             )
 
 
@@ -344,12 +377,13 @@ def _get_label(
     model_type: ModelTypes,
 ) -> public__pb2.Label:
     value = convert_element(value)
-    if model_type == ModelTypes.NUMERIC:
+    if model_type in NUMERIC_MODEL_TYPES:
         return _get_numeric_label(name, value)
-    elif model_type == ModelTypes.SCORE_CATEGORICAL:
+    elif model_type in CATEGORICAL_MODEL_TYPES:
         return _get_score_categorical_label(name, value)
     raise ValueError(
-        f"model_type must be ModelTypes.NUMERIC or ModelTypes.SCORE_CATEGORICAL. Got {model_type} instead."
+        f"model_type must be one of: {[mt.name for mt in ModelTypes]} "
+        f"Got {model_type} instead."
     )
 
 
@@ -362,7 +396,7 @@ def _get_numeric_label(
     else:
         raise TypeError(
             f"Received {name}_label = {value}, of type {type(value)}. "
-            + f"NUMERIC models accept labels of type int or float"
+            + f"{[mt.name for mt in NUMERIC_MODEL_TYPES]} models accept labels of type int or float"
         )
 
 
@@ -382,20 +416,26 @@ def _get_score_categorical_label(
         if value[1] is None:
             raise TypeError(
                 f"Received {name}_label = {value}, of type {type(value)}[{type(value[0])}, None]. "
-                + f"SCORE_CATEGORICAL models accept values of type str, bool, or Tuple[str, float]"
+                + f"{[mt.name for mt in CATEGORICAL_MODEL_TYPES]} models accept values "
+                f"of type str, bool, or Tuple[str, float]"
             )
         if not isinstance(value[0], (bool, str)) or not isinstance(value[1], float):
             raise TypeError(
                 f"Received {name}_label = {value}, of type {type(value)}[{type(value[0])}, {type(value[1])}]. "
-                + f"SCORE_CATEGORICAL models accept values of type str, bool, or Tuple[str, float]"
+                + f"{[mt.name for mt in CATEGORICAL_MODEL_TYPES]} models accept values "
+                f"of type str, bool, or Tuple[str or bool, float]"
             )
-        sc.score_category.category = value[0]
+        if isinstance(value[0], bool):
+            sc.score_category.category = str(value[0])
+        else:
+            sc.score_category.category = value[0]
         sc.score_category.score = value[1]
         return public__pb2.Label(score_categorical=sc)
     else:
         raise TypeError(
             f"Received {name}_label = {value}, of type {type(value)}. "
-            + f"SCORE_CATEGORICAL models accept values of type str, bool, or Tuple[str, float]"
+            + f"{[mt.name for mt in CATEGORICAL_MODEL_TYPES]} models accept values "
+            f"of type str, bool, or Tuple[str, float]"
         )
 
 

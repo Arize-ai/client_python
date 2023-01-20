@@ -1,18 +1,30 @@
+import base64
+import json
 import math
 import time
-import base64
+from typing import Any, List, Optional, Sequence, TypeVar, Union
+
 import pandas as pd
-import json
+from pathlib import Path
 
-from typing import List, Union, Optional, Tuple, Any
-
-from arize import public_pb2 as public__pb2
-from arize.utils.types import ModelTypes, Embedding
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.protobuf.wrappers_pb2 import StringValue
 
+from arize import public_pb2 as public__pb2
+from arize.utils.types import Embedding, ModelTypes
+
 MAX_BYTES_PER_BULK_RECORD = 100000
 MAX_DAYS_WITHIN_RANGE = 365
+MODEL_MAPPING_CONFIG = None
+T = TypeVar("T", bound=type)
+
+path = Path(__file__).with_name("model_mapping.json")
+with path.open("r") as f:
+    MODEL_MAPPING_CONFIG = json.load(f)
+
+
+def is_list_of(lst: Sequence[object], tp: T) -> bool:
+    return isinstance(lst, list) and all(isinstance(x, tp) for x in lst)
 
 
 def validate_prediction_timestamps(prediction_ids, prediction_timestamps):
@@ -24,24 +36,28 @@ def validate_prediction_timestamps(prediction_ids, prediction_timestamps):
     if isinstance(prediction_timestamps, pd.Series):
         if prediction_timestamps.shape[0] != expected_count:
             raise ValueError(
-                f"prediction_timestamps has {prediction_timestamps.shape[0]} elements, but must have same number of "
+                f"prediction_timestamps has {prediction_timestamps.shape[0]} elements, but must "
+                f"have same number of "
                 f"elements as prediction_ids: {expected_count}. "
             )
     elif isinstance(prediction_timestamps, list):
         if len(prediction_timestamps) != expected_count:
             raise ValueError(
-                f"prediction_timestamps has length {len(prediction_timestamps)} but must have same number of elements as "
+                f"prediction_timestamps has length {len(prediction_timestamps)} but must have "
+                f"same number of elements as "
                 f"prediction_ids: {expected_count}. "
             )
     else:
         raise TypeError(
-            f"prediction_timestamps is type {type(prediction_timestamps)}, but expected one of: pd.Series, list<int>"
+            f"prediction_timestamps is type {type(prediction_timestamps)}, but expected one of: "
+            f"pd.Series, list<int>"
         )
     now = int(time.time())
     for ts in prediction_timestamps:
         if not is_timestamp_in_range(now, ts):
             raise ValueError(
-                f"timestamp: {ts} in prediction_timestamps is out of range. Value must be within 1 year of the current time."
+                f"timestamp: {ts} in prediction_timestamps is out of range. Value must be within "
+                f"1 year of the current time."
             )
 
 
@@ -103,7 +119,8 @@ def get_value_object(name: Union[str, int, float], value):
         return public__pb2.Value(embedding=get_value_embedding(val))
     else:
         raise TypeError(
-            f'dimension "{name}" = {value} is type {type(value)}, but must be one of: bool, str, float, int, embedding'
+            f'dimension "{name}" = {value} is type {type(value)}, but must be one of: bool, str, '
+            f"float, int, embedding"
         )
 
 
@@ -141,7 +158,8 @@ def get_timestamp(time_overwrite):
     time = convert_element(time_overwrite)
     if not isinstance(time_overwrite, int):
         raise TypeError(
-            f"time_overwrite {time_overwrite} is type {type(time_overwrite)}, but expects int. (Unix epoch "
+            f"time_overwrite {time_overwrite} is type {type(time_overwrite)}, but expects int. ("
+            f"Unix epoch "
             f"time in seconds) "
         )
     ts = Timestamp()
@@ -164,5 +182,8 @@ def reconstruct_url(response: Any):
     parts = returnedUrl.split("/")
     encodedOrg = base64.b64encode(f"AccountOrganization:{parts[4]}".encode()).decode()
     encodedSpace = base64.b64encode(f"Space:{parts[6]}".encode()).decode()
-    reconstructed = f"https://{parts[2]}/organizations/{encodedOrg}/spaces/{encodedSpace}/models/modelName/{parts[-1]}"
+    reconstructed = (
+        f"https://{parts[2]}/organizations/{encodedOrg}/spaces/"
+        f"{encodedSpace}/models/modelName/{parts[-1]}"
+    )
     return reconstructed

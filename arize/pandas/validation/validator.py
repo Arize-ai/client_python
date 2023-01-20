@@ -1,16 +1,35 @@
 import datetime
 from itertools import chain
-from typing import List, Dict, Any, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
 import pyarrow as pa
 
 import arize.pandas.validation.errors as err
-from arize.utils.types import ModelTypes, Environments, Schema
+from arize.utils.types import Environments, Metrics, ModelTypes, Schema
+from arize.utils.utils import MODEL_MAPPING_CONFIG
 
 
 class Validator:
+    @staticmethod
+    def validate_required_checks(
+        model_id: str,
+        schema: Schema,
+        model_version: Optional[str] = None,
+        batch_id: Optional[str] = None,
+    ) -> List[err.ValidationError]:
+
+        # minimum required checks
+        required_checks = chain(
+            Validator._check_field_convertible_to_str(
+                model_id, model_version, batch_id
+            ),
+            Validator._check_field_type_embedding_features_column_names(schema),
+        )
+
+        return list(required_checks)
+
     @staticmethod
     def validate_params(
         dataframe: pd.DataFrame,
@@ -18,6 +37,7 @@ class Validator:
         model_type: ModelTypes,
         environment: Environments,
         schema: Schema,
+        metric_families: Optional[List[Metrics]] = None,
         model_version: Optional[str] = None,
         batch_id: Optional[str] = None,
     ) -> List[err.ValidationError]:
@@ -31,12 +51,18 @@ class Validator:
             Validator._check_invalid_batch_id(batch_id, environment),
             Validator._check_missing_columns(dataframe, schema),
             Validator._check_invalid_shap_suffix(schema),
+            # model mapping checks
+            Validator._check_model_type_and_metrics(
+                model_type, metric_families, schema
+            ),
         )
 
         if model_type == ModelTypes.NUMERIC:
             num_checks = chain(
-                Validator._check_existence_pred_act_shap(schema),
-                Validator._check_existence_preprod_pred_act(schema, environment),
+                Validator._check_existence_pred_act_shap_score_or_label(schema),
+                Validator._check_existence_preprod_pred_act_score_or_label(
+                    schema, environment
+                ),
             )
             return list(chain(general_checks, num_checks))
         elif model_type == ModelTypes.SCORE_CATEGORICAL:
@@ -109,13 +135,148 @@ class Validator:
             return list(chain(general_checks, r_checks))
         return list(general_checks)
 
+    # ----------------------
+    # Minimum requred checks
+    # ----------------------
+    @staticmethod
+    def _check_field_convertible_to_str(
+        model_id, model_version, batch_id
+    ) -> List[err.InvalidFieldTypeConversion]:
+        # converting to a set first makes the checks run a lot faster
+        wrong_fields = []
+        if model_id is not None and not isinstance(model_id, str):
+            try:
+                str(model_id)
+            except:
+                wrong_fields.append("model_id")
+        if model_version is not None and not isinstance(model_version, str):
+            try:
+                str(model_version)
+            except:
+                wrong_fields.append("model_version")
+        if batch_id is not None and not isinstance(batch_id, str):
+            try:
+                str(batch_id)
+            except:
+                wrong_fields.append("batch_id")
+
+        if wrong_fields:
+            return [err.InvalidFieldTypeConversion(wrong_fields, "string")]
+        return []
+
+    @staticmethod
+    def _check_field_type_embedding_features_column_names(
+        schema: Schema,
+    ) -> List[err.InvalidFieldTypeEmbeddingFeatures]:
+        if schema.embedding_feature_column_names is not None and not isinstance(
+            schema.embedding_feature_column_names, dict
+        ):
+            return [err.InvalidFieldTypeEmbeddingFeatures()]
+        return []
+
     # ----------------
     # Parameter checks
     # ----------------
 
     @staticmethod
+    def _check_model_type_and_metrics(
+        model_type: ModelTypes, metric_families: List[Metrics], schema: Schema
+    ) -> List[err.ValidationError]:
+        if not metric_families:
+            return []
+
+        external_model_types = MODEL_MAPPING_CONFIG.get("external_model_types")
+        if not external_model_types:
+            return []
+        if model_type.name.lower() not in external_model_types:
+            # model_type is an old model type, e.g. SCORE_CATEGORICAL.
+            # We can't do model mapping validations with this type.
+            return []
+
+        required_columns_map = MODEL_MAPPING_CONFIG.get("required_columns_map")
+        if not required_columns_map:
+            return []
+
+        (
+            valid_combination,
+            missing_columns,
+            suggested_model_metric_combinations,
+        ) = Validator._check_model_mapping_combinations(
+            model_type, metric_families, schema, required_columns_map
+        )
+        if not valid_combination:
+            # Model type + metrics combination is not valid.
+            return [
+                err.InvalidModelTypeAndMetricsCombination(
+                    model_type, metric_families, suggested_model_metric_combinations
+                )
+            ]
+        if missing_columns:
+            # For this model type, the schema is missing columns required for the requested metrics.
+            return [
+                err.MissingRequiredColumnsMetricsValidation(
+                    model_type, metric_families, missing_columns
+                )
+            ]
+        return []
+
+    @staticmethod
+    def _check_model_mapping_combinations(
+        model_type: ModelTypes,
+        metric_families: List[Metrics],
+        schema: Schema,
+        required_columns_map: List[Dict[str, Any]],
+    ) -> Tuple[bool, List[str], List[List[str]]]:
+        missing_columns = []
+        for item in required_columns_map:
+            if model_type.name.lower() == item.get("external_model_type"):
+                is_valid_combination = False
+                metric_combinations = []
+                for mapping in item.get("mappings"):
+                    # This is a list of lists of metrics.
+                    # There may be a few metric combinations that map to the same column enforcement rules.
+                    for metrics_list in mapping.get("metrics"):
+                        metric_combinations.append(
+                            [metric.upper() for metric in metrics_list]
+                        )
+                        if set(metrics_list) == set(
+                            metric_family.name.lower()
+                            for metric_family in metric_families
+                        ):
+                            # This is a valid combination of model type + metrics.
+                            # Now validate that required columns are in the schema.
+                            is_valid_combination = True
+                            # If no prediction values are present, then latent actuals are being logged,
+                            # and we can't validate required columns.
+                            if (schema.prediction_label_column_name is not None) or (
+                                schema.prediction_score_column_name is not None
+                            ):
+                                # This is a list of lists.
+                                # In some cases, either one set of columns OR another set of columns is required.
+                                required_columns = (
+                                    mapping.get("required_columns")
+                                    .get("arrow")
+                                    .get("required")
+                                )
+                                for column_combination in required_columns:
+                                    missing_columns = []
+                                    if None in {
+                                        getattr(schema, column, None)
+                                        for column in column_combination
+                                    }:
+                                        for column in column_combination:
+                                            if not getattr(schema, column, None):
+                                                missing_columns.append(column)
+                                    else:
+                                        break
+                if not is_valid_combination:
+                    return False, [], metric_combinations
+        return True, missing_columns, []
+
+    @staticmethod
     def _check_missing_columns(
-        dataframe: pd.DataFrame, schema: Schema
+        dataframe: pd.DataFrame,
+        schema: Schema,
     ) -> List[err.MissingColumns]:
         # converting to a set first makes the checks run a lot faster
         existing_columns = set(dataframe.columns)
@@ -133,19 +294,20 @@ class Validator:
                     missing_columns.append(col)
 
         if schema.embedding_feature_column_names is not None:
-            for emb_col_names in schema.embedding_feature_column_names:
-                if emb_col_names.vector_column_name not in existing_columns:
-                    missing_columns.append(emb_col_names.vector_column_name)
+            for emb_feat_col_names in schema.embedding_feature_column_names.values():
+                if emb_feat_col_names.vector_column_name not in existing_columns:
+                    missing_columns.append(emb_feat_col_names.vector_column_name)
                 if (
-                    emb_col_names.data_column_name is not None
-                    and emb_col_names.data_column_name not in existing_columns
+                    emb_feat_col_names.data_column_name is not None
+                    and emb_feat_col_names.data_column_name not in existing_columns
                 ):
-                    missing_columns.append(emb_col_names.data_column_name)
+                    missing_columns.append(emb_feat_col_names.data_column_name)
                 if (
-                    emb_col_names.link_to_data_column_name is not None
-                    and emb_col_names.link_to_data_column_name not in existing_columns
+                    emb_feat_col_names.link_to_data_column_name is not None
+                    and emb_feat_col_names.link_to_data_column_name
+                    not in existing_columns
                 ):
-                    missing_columns.append(emb_col_names.link_to_data_column_name)
+                    missing_columns.append(emb_feat_col_names.link_to_data_column_name)
 
         if schema.tag_column_names is not None:
             for col in schema.tag_column_names:
@@ -243,8 +405,26 @@ class Validator:
         return [err.MissingPredActShap()]
 
     @staticmethod
+    def _check_existence_pred_act_shap_score_or_label(
+        schema: Schema,
+    ) -> List[err.MissingPredActShap]:
+        if (
+            (
+                schema.prediction_label_column_name is not None
+                or schema.prediction_score_column_name is not None
+            )
+            or (
+                schema.actual_label_column_name is not None
+                or schema.actual_score_column_name is not None
+            )
+            or schema.shap_values_column_names is not None
+        ):
+            return []
+        return [err.MissingPredActShapNumeric()]
+
+    @staticmethod
     def _check_existence_pred_label(
-            schema: Schema,
+        schema: Schema,
     ) -> List[err.MissingPredLabelScoreCategorical]:
         if (
             schema.prediction_score_column_name is not None
@@ -252,6 +432,24 @@ class Validator:
             and schema.prediction_label_column_name is None
         ):
             return [err.MissingPredLabelScoreCategorical()]
+        return []
+
+    @staticmethod
+    def _check_existence_preprod_pred_act_score_or_label(
+        schema: Schema,
+        environment: Environments,
+    ) -> List[err.MissingPreprodPredAct]:
+        if environment in (Environments.VALIDATION, Environments.TRAINING) and (
+            (
+                schema.prediction_label_column_name is None
+                and schema.prediction_score_column_name is None
+            )
+            or (
+                schema.actual_label_column_name is None
+                and schema.actual_score_column_name is None
+            )
+        ):
+            return [err.MissingPreprodPredActNumeric()]
         return []
 
     @staticmethod
@@ -373,26 +571,26 @@ class Validator:
             mistyped_vector_columns = []
             mistyped_data_columns = []
             mistyped_link_to_data_columns = []
-            for embFeatColNames in schema.embedding_feature_column_names:
+            for emb_feat_col_names in schema.embedding_feature_column_names.values():
                 # _check_missing_columns() checks that vector columns are present,
                 # hence I assume they are here
-                col = embFeatColNames.vector_column_name
+                col = emb_feat_col_names.vector_column_name
                 if (
                     col in column_types
                     and column_types[col] not in allowed_vector_datatypes
                 ):
                     mistyped_vector_columns.append(col)
 
-                if embFeatColNames.data_column_name:
-                    col = embFeatColNames.data_column_name
+                if emb_feat_col_names.data_column_name:
+                    col = emb_feat_col_names.data_column_name
                     if (
                         col in column_types
                         and column_types[col] not in allowed_data_datatypes
                     ):
                         mistyped_data_columns.append(col)
 
-                if embFeatColNames.link_to_data_column_name:
-                    col = embFeatColNames.link_to_data_column_name
+                if emb_feat_col_names.link_to_data_column_name:
+                    col = emb_feat_col_names.link_to_data_column_name
                     if (
                         col in column_types
                         and column_types[col] not in allowed_link_to_data_datatypes
@@ -545,7 +743,11 @@ class Validator:
                 pa.int8(),
             )
             for name, col in columns:
-                if col is not None and col in column_types and column_types[col] not in allowed_datatypes:
+                if (
+                    col is not None
+                    and col in column_types
+                    and column_types[col] not in allowed_datatypes
+                ):
                     errors.append(
                         err.InvalidType(name, expected_types=["float", "int"])
                     )
@@ -621,7 +823,9 @@ class Validator:
     def _check_value_ranking_category(
         dataframe: pd.DataFrame, schema: Schema
     ) -> List[Union[err.InvalidValueMissingValue, err.InvalidRankingCategoryValue]]:
-        if schema.attributions_column_name is not None:
+        if schema.relevance_labels_column_name is not None:
+            col = schema.relevance_labels_column_name
+        elif schema.attributions_column_name is not None:
             col = schema.attributions_column_name
         else:
             col = schema.actual_label_column_name
@@ -717,6 +921,7 @@ class Validator:
             ("Ranks", schema.rank_column_name),
             ("Attributions", schema.attributions_column_name),
             ("Relevance Score", schema.relevance_score_column_name),
+            ("Relevance Labels", schema.relevance_labels_column_name),
         )
         for name, col in columns:
             if col is not None and col in dataframe.columns:
@@ -775,7 +980,9 @@ class Validator:
     def _check_type_ranking_category(
         schema: Schema, column_types: Dict[str, Any]
     ) -> List[err.InvalidType]:
-        if schema.attributions_column_name is not None:
+        if schema.relevance_labels_column_name is not None:
+            col = schema.relevance_labels_column_name
+        elif schema.attributions_column_name is not None:
             col = schema.attributions_column_name
         else:
             col = schema.actual_label_column_name
@@ -784,7 +991,7 @@ class Validator:
             if column_types[col] not in allowed_datatypes:
                 return [
                     err.InvalidType(
-                        "attributions column for ranking models",
+                        "relevance labels column for ranking models",
                         expected_types=["list of string", "string"],
                     )
                 ]

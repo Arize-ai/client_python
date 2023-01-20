@@ -8,7 +8,7 @@ from requests import Response
 
 import arize.pandas.validation.errors as err
 from arize.pandas.logger import Client
-from arize.utils.types import Environments, ModelTypes, EmbeddingColumnNames, Schema
+from arize.utils.types import EmbeddingColumnNames, Environments, ModelTypes, Schema
 
 
 class MockResponse(Response):
@@ -97,20 +97,21 @@ def log_dataframe(df, schema=None):
             prediction_id_column_name="prediction_id",
             timestamp_column_name="prediction_timestamp",
             feature_column_names=list("ABCDEFGHI"),
-            embedding_feature_column_names=[
-                EmbeddingColumnNames(
-                    vector_column_name="image_vector",  # Will be name of embedding feature in the app
+            embedding_feature_column_names={
+                # Dictionary keys will be the displayed name of the embedding feature in the app
+                "image_embedding": EmbeddingColumnNames(
+                    vector_column_name="image_vector",
                     link_to_data_column_name="image_link",
                 ),
-                EmbeddingColumnNames(
-                    vector_column_name="sentence_vector",  # Will be name of embedding feature in the app
+                "sentence_embedding": EmbeddingColumnNames(
+                    vector_column_name="sentence_vector",
                     data_column_name="sentence_data",
                 ),
-                EmbeddingColumnNames(
-                    vector_column_name="token_array_vector",  # Will be name of embedding feature in the app
+                "token_embedding": EmbeddingColumnNames(
+                    vector_column_name="token_array_vector",
                     data_column_name="token_array_data",
                 ),
-            ],
+            },
             tag_column_names=list("ABCDEFGHI"),
             prediction_label_column_name="prediction_label",
             actual_label_column_name="actual_label",
@@ -139,8 +140,8 @@ def test_production_zero_errors():
 
     # use json here because some row elements are lists and are not readily comparable
     assert (
-        response.df.sort_index(axis=1).to_json()
-        == roundtrip_df(data_df).sort_index(axis=1).to_json()
+            response.df.sort_index(axis=1).to_json()
+            == roundtrip_df(data_df).sort_index(axis=1).to_json()
     )
 
 
@@ -200,8 +201,8 @@ def test_production_wrong_embedding_types():
 
     # use json here because some row elements are lists and are not readily comparable
     assert (
-        response.df.sort_index(axis=1).to_json()
-        == roundtrip_df(data_df).sort_index(axis=1).to_json()
+            response.df.sort_index(axis=1).to_json()
+            == roundtrip_df(data_df).sort_index(axis=1).to_json()
     )
 
 
@@ -234,20 +235,24 @@ def test_production_wrong_embedding_values():
         prediction_id_column_name="prediction_id",
         timestamp_column_name="prediction_timestamp",
         feature_column_names=list("ABCDEFGHI"),
-        embedding_feature_column_names=[
-            EmbeddingColumnNames(
-                vector_column_name="good_vector",
-            ),
-            EmbeddingColumnNames(
-                vector_column_name="multidimensional_vector",  # Should give error
-            ),
-            EmbeddingColumnNames(
-                vector_column_name="empty_vector",  # Should give error
-            ),
-            EmbeddingColumnNames(
-                vector_column_name="one_vector",  # Should give error
-            ),
-        ],
+        embedding_feature_column_names={
+            "good_embedding":
+                EmbeddingColumnNames(
+                    vector_column_name="good_vector",
+                ),
+            "multidimensional_embedding":
+                EmbeddingColumnNames(
+                    vector_column_name="multidimensional_vector",  # Should give error
+                ),
+            "empty_embedding":
+                EmbeddingColumnNames(
+                    vector_column_name="empty_vector",  # Should give error
+                ),
+            "one_embedding":
+                EmbeddingColumnNames(
+                    vector_column_name="one_vector",  # Should give error
+                ),
+        },
         tag_column_names=list("ABCDEFGHI"),
         prediction_label_column_name="prediction_label",
         actual_label_column_name="actual_label",

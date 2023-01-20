@@ -2,12 +2,16 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from typing import List
 
-from arize.utils.types import ModelTypes, Environments
+from arize.utils.types import Environments, Metrics, ModelTypes
 
 
 class ValidationError(ABC):
     def __str__(self) -> str:
         return self.error_message()
+
+    @abstractmethod
+    def __repr__(self):
+        pass
 
     @abstractmethod
     def error_message(self) -> str:
@@ -17,6 +21,35 @@ class ValidationError(ABC):
 class ValidationFailure(Exception):
     def __init__(self, errors: List[ValidationError]):
         self.errors = errors
+
+
+# ----------------------
+# Minimum requred checks
+# ----------------------
+class InvalidFieldTypeConversion(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Input_Type_Conversion"
+
+    def __init__(self, fields: Iterable, type: str) -> None:
+        self.fields = fields
+        self.type = type
+
+    def error_message(self) -> str:
+        return (
+            f"The following fields must be convertible to {self.type}: "
+            f"{', '.join(map(str, self.fields))}."
+        )
+
+
+class InvalidFieldTypeEmbeddingFeatures(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Input_Type_Embedding_Features"
+
+    def __init__(self) -> None:
+        pass
+
+    def error_message(self) -> str:
+        return "schema.embedding_feature_column_names should be a dictionary"
 
 
 # ----------------
@@ -36,6 +69,54 @@ class MissingColumns(ValidationError):
             "The following columns are declared in the schema "
             "but are not found in the dataframe: "
             f"{', '.join(map(str, self.missing_cols))}."
+        )
+
+
+class MissingRequiredColumnsMetricsValidation(ValidationError):
+    """
+    This error is used only for model mapping validations.
+    """
+
+    def __repr__(self) -> str:
+        return "Missing_Columns_Required_By_Metrics_Validation"
+
+    def __init__(
+        self, model_type: ModelTypes, metrics: List[Metrics], cols: Iterable
+    ) -> None:
+        self.model_type = model_type
+        self.metrics = metrics
+        self.missing_cols = cols
+
+    def error_message(self) -> str:
+        return (
+            f"For logging data to a {self.model_type.name} model with support for metrics "
+            f"{', '.join(m.name for m in self.metrics)}, schema must include: {', '.join(map(str, self.missing_cols))}."
+        )
+
+
+class InvalidModelTypeAndMetricsCombination(ValidationError):
+    """
+    This error is used only for model mapping validations.
+    """
+
+    def __repr__(self) -> str:
+        return "Invalid_ModelType_And_Metrics_Combination"
+
+    def __init__(
+        self,
+        model_type: ModelTypes,
+        metrics: List[Metrics],
+        suggested_model_metric_combinations: List[List[str]],
+    ) -> None:
+        self.model_type = model_type
+        self.metrics = metrics
+        self.suggested_model_metric_combinations = suggested_model_metric_combinations
+
+    def error_message(self) -> str:
+        return (
+            f"Invalid combination of model type {self.model_type.name} and metrics: "
+            f"{', '.join(m.name for m in self.metrics)}. "
+            f"Valid Metric combinations for this model type: {', or '.join('[' + ', '.join(combo) + ']' for combo in self.suggested_model_metric_combinations)}."
         )
 
 
@@ -61,7 +142,6 @@ class InvalidModelType(ValidationError):
         return (
             "Model type not valid. Choose one of the following: "
             f"{', '.join('ModelTypes.' + mt.name for mt in ModelTypes)}. "
-            "See https://docs.arize.com/arize/concepts-and-terminology/model-types"
         )
 
 
@@ -73,7 +153,6 @@ class InvalidEnvironment(ValidationError):
         return (
             "Environment not valid. Choose one of the following: "
             f"{', '.join('Environments.' + env.name for env in Environments)}. "
-            "See https://docs.arize.com/arize/concepts-and-terminology/model-environments"
         )
 
 
@@ -114,13 +193,25 @@ class MissingPredActShap(ValidationError):
         )
 
 
+class MissingPredActShapNumeric(ValidationError):
+    def __repr__(self) -> str:
+        return "Missing_Pred_or_Act_or_SHAP_Numeric"
+
+    def error_message(self) -> str:
+        return (
+            "For a numeric model, the schema must specify at least one of the following: "
+            "prediction label, prediction score, actual label, actual score, or SHAP value column names"
+        )
+
+
 class MissingPredLabelScoreCategorical(ValidationError):
     def __repr__(self) -> str:
         return "Missing_Pred_Label_Score_Categorical"
 
     def error_message(self) -> str:
         return (
-            "When sending a prediction score and an actual label, the schema must also include a prediction label."
+            "When sending a prediction score and an actual label, the schema must also include "
+            "a prediction label."
         )
 
 
@@ -135,6 +226,17 @@ class MissingPreprodPredAct(ValidationError):
         )
 
 
+class MissingPreprodPredActNumeric(ValidationError):
+    def __repr__(self) -> str:
+        return "Missing_Preproduction_Pred_and_Act_Numeric"
+
+    def error_message(self) -> str:
+        return (
+            "For logging pre-production data to a numeric model, "
+            "the schema must specify both prediction and actual label or score columns."
+        )
+
+
 class MissingRequiredColumnsForRankingModel(ValidationError):
     def __repr__(self) -> str:
         return "Missing_Required_Columns_For_Ranking_Model"
@@ -142,7 +244,7 @@ class MissingRequiredColumnsForRankingModel(ValidationError):
     def error_message(self) -> str:
         return (
             "For logging data to a ranking model, schema must specify: "
-            "prediction_group_id_column_name, rank_column_name, and actual_label_column_name"
+            "prediction_group_id_column_name and rank_column_name"
         )
 
 
@@ -248,7 +350,8 @@ class InvalidValueTimestamp(ValidationError):
         return (
             f"{self.name} is out of range. "
             f"Only values within {self.acceptable_range} from the current time are accepted. "
-            "If this is your pre-prodution data, you could also just remove the timestamp column from the Schema."
+            "If this is your pre-prodution data, you could also just remove the timestamp column "
+            "from the Schema."
         )
 
 
@@ -262,6 +365,7 @@ class InvalidValueMissingValue(ValidationError):
 
     def error_message(self) -> str:
         return f"{self.name} must not contain {self.missingness} values."
+
 
 class InvalidRankValue(ValidationError):
     def __repr__(self) -> str:
@@ -295,13 +399,13 @@ class InvalidPredictionGroupIDLength(ValidationError):
 
 class InvalidRankingCategoryValue(ValidationError):
     def __repr__(self) -> str:
-        return "Invalid_Ranking_Attributions_Value"
+        return "Invalid_Ranking_Relevance_Labels_Value"
 
     def __init__(self, name: str) -> None:
         self.name = name
 
     def error_message(self) -> str:
         return (
-            f"ranking attributions {self.name} column contains invalid value"
+            f"ranking relevance labels {self.name} column contains invalid value"
             f"make sure empty string is not present"
         )

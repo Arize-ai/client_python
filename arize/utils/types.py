@@ -1,8 +1,9 @@
+from dataclasses import dataclass
 from enum import Enum, unique
-from typing import List, Dict, Union, Optional, NamedTuple
+from typing import Dict, List, NamedTuple, Optional, Union
+
 import numpy as np
 import pandas as pd
-from dataclasses import dataclass
 
 
 @unique
@@ -10,6 +11,47 @@ class ModelTypes(Enum):
     NUMERIC = 1
     SCORE_CATEGORICAL = 2
     RANKING = 3
+    BINARY_CLASSIFICATION = 4
+    REGRESSION = 5
+
+
+NUMERIC_MODEL_TYPES = [ModelTypes.NUMERIC, ModelTypes.REGRESSION]
+CATEGORICAL_MODEL_TYPES = [
+    ModelTypes.SCORE_CATEGORICAL,
+    ModelTypes.BINARY_CLASSIFICATION,
+]
+
+
+class DocEnum(Enum):
+    def __new__(cls, value, doc=None):
+        self = object.__new__(cls)  # calling super().__new__(value) here would fail
+        self._value_ = value
+        if doc is not None:
+            self.__doc__ = doc
+        return self
+
+    def __repr__(self) -> str:
+        return f"{self.name} metrics include: {self.__doc__}"
+
+
+@unique
+class Metrics(DocEnum):
+    """
+    Metric groupings, used for validation of schema columns in log() call.
+
+    See docstring descriptions of the Enum with __doc__ or __repr__(), e.g.:
+    Metrics.RANKING.__doc__
+    repr(Metrics.RANKING)
+    """
+
+    REGRESSION = 1, "MAPE, MAE, RMSE, MSE, R-Squared, Mean Error"
+    CLASSIFICATION = (
+        2,
+        "Accuracy, Recall, Precision, FPR, FNR, F1, Sensitivity, Specificity",
+    )
+    RANKING = 3, "NDCG"
+    AUC_LOG_LOSS = 4, "AUC, PR-AUC, Log Loss"
+    RANKING_LABEL = 5, "GroupAUC, MAP, MRR (soon)"
 
 
 @unique
@@ -76,13 +118,15 @@ class Embedding(NamedTuple):
 
         if not Embedding.is_valid_iterable(vector):
             raise TypeError(
-                f'Embedding feature "{emb_name}" has vector type {type(vector)}. Must be list, np.ndarray or pd.Series'
+                f'Embedding feature "{emb_name}" has vector type {type(vector)}. Must be list, '
+                f"np.ndarray or pd.Series"
             )
         # Fail if not all elements in list are floats
         allowed_types = (int, float, np.int16, np.int32, np.float16, np.float32)
         if not all(isinstance(val, allowed_types) for val in vector):
             raise TypeError(
-                f"Embedding vector must be a vector of integers and/or floats. Got {emb_name}.vector = {vector}"
+                f"Embedding vector must be a vector of integers and/or floats. Got "
+                f"{emb_name}.vector = {vector}"
             )
 
     @staticmethod
@@ -95,7 +139,8 @@ class Embedding(NamedTuple):
 
         Args:
             emb_name (str, int, float): Name of the embedding feature the vector belongs to
-            data (str, List[str]): Piece of text represented by a string or a token array represented by a list of strings
+            data (str, List[str]): Piece of text represented by a string or a token array
+            represented by a list of strings
 
         Raises:
             TypeError: If the embedding does not satisfy requirements above
@@ -105,7 +150,8 @@ class Embedding(NamedTuple):
         is_allowed_iterable = not is_string and Embedding.is_valid_iterable(data)
         if not (is_string or is_allowed_iterable):
             raise TypeError(
-                f'Embedding feature "{emb_name}" data field must be str, list, np.ndarray or pd.Series'
+                f'Embedding feature "{emb_name}" data field must be str, list, np.ndarray or '
+                f"pd.Series"
             )
 
         if is_allowed_iterable:
@@ -129,7 +175,8 @@ class Embedding(NamedTuple):
         """
         if not isinstance(link_to_data, str):
             raise TypeError(
-                f'Embedding feature "{emb_name}" link_to_data field must be str and got {type(link_to_data)}'
+                f'Embedding feature "{emb_name}" link_to_data field must be str and got '
+                f"{type(link_to_data)}"
             )
 
     @staticmethod
@@ -160,8 +207,9 @@ class Schema:
     actual_score_column_name: Optional[str] = None
     shap_values_column_names: Optional[Dict[str, str]] = None
     actual_numeric_sequence_column_name: Optional[str] = None
-    embedding_feature_column_names: Optional[List[EmbeddingColumnNames]] = None
+    embedding_feature_column_names: Optional[Dict[str, EmbeddingColumnNames]] = None
     prediction_group_id_column_name: Optional[str] = None
     rank_column_name: Optional[str] = None
     attributions_column_name: Optional[str] = None
     relevance_score_column_name: Optional[str] = None
+    relevance_labels_column_name: Optional[str] = None
