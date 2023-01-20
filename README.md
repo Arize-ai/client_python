@@ -30,7 +30,7 @@ Start logging your model data with the following steps:
 
 ### 1. Create your account
 
-Sign up for a free account by filling out the [web form](https://arize.com/request-a-demo/).
+Sign up for a free account [HERE](https://app.arize.com/auth/join).
 
 <div align="center">
   <img src="https://storage.googleapis.com/arize-assets/Arize%20UI%20platform.jpg" /><br><br>

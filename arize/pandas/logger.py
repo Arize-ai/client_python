@@ -1,34 +1,38 @@
 import base64
-import logging
-import sys
 import tempfile
-from typing import Optional
+from typing import List, Optional
 
+import arize.pandas.validation.errors as err
 import pandas as pd
 import pandas.api.types as ptypes
 import pyarrow as pa
 import requests
 
-import arize.pandas.validation.errors as err
-from arize import public_pb2 as pb
 from arize.__init__ import __version__
 from arize.pandas.validation.validator import Validator
-from arize.utils.types import ModelTypes, Environments
-from arize.utils.types import Schema
+from arize.utils.types import (
+    CATEGORICAL_MODEL_TYPES,
+    Environments,
+    Metrics,
+    ModelTypes,
+    NUMERIC_MODEL_TYPES,
+    Schema,
+)
 from arize.utils.utils import reconstruct_url
 
-logger = logging.getLogger(__name__)
-if hasattr(sys, "ps1"):
-    # for python interactive mode
-    log_handler = logging.StreamHandler(sys.stdout)
-    log_handler.setLevel(logging.INFO)
-    logger.addHandler(log_handler)
-    logger.setLevel(logging.INFO)
+from arize import public_pb2 as pb
+from arize.__init__ import __version__
+from .validation import errors as err
+from .validation.validator import Validator
+from ..utils.logging import logger
+from ..utils.types import Environments, ModelTypes, Schema
+from ..utils.utils import reconstruct_url
 
 
 class Client:
     """
-    Arize API Client to  model predictions and actuals to the Arize AI platform from pandas.DataFrames
+    Arize API Client to  model predictions and actuals to the Arize AI platform from
+    pandas.DataFrames
     """
 
     def __init__(
@@ -40,7 +44,8 @@ class Client:
         """
         :param api_key (str): api key associated with your account with Arize AI.
         :param space_key (str): space key in Arize AI.
-        :param uri (str, optional): uri to send your records to Arize AI. Defaults to "https://api.arize.com/v1".
+        :param uri (str, optional): uri to send your records to Arize AI. Defaults to
+        "https://api.arize.com/v1".
         """
         self._api_key = api_key
         self._space_key = space_key
@@ -53,6 +58,7 @@ class Client:
         environment: Environments,
         model_id: str,
         model_type: ModelTypes,
+        metrics_validation: Optional[List[Metrics]] = None,
         model_version: Optional[str] = None,
         batch_id: Optional[str] = None,
         sync: Optional[bool] = False,
@@ -62,51 +68,80 @@ class Client:
         timeout: Optional[float] = None,
         verbose: Optional[bool] = False,
     ) -> requests.Response:
-        """Logs a pandas dataframe containing inferences to Arize via a POST request. Returns a :class:`Response` object from the Requests HTTP library.
+        """Logs a pandas dataframe containing inferences to Arize via a POST request. Returns a
+        :class:`Response` object from the Requests HTTP library.
         :param dataframe (pd.DataFrame): The dataframe containing inferences.
-        :param schema (Schema): A Schema instance that maps model inference data fields to column names in the provided dataframe.
-        :param environment (Environments): The environment that this dataframe is for (Production, Training, Validation).
+        :param schema (Schema): A Schema instance that maps model inference data fields to column
+        names in the provided dataframe.
+        :param environment (Environments): The environment that this dataframe is for (
+        Production, Training, Validation).
         :param model_id (str): The unique identifier for your model.
         :param model_type (ModelTypes): Declared what model type this prediction is for.
-        :param model_version (str, optional): Used to group together a subset of predictions and actuals for a given model_id. Defaults to None.
-        :param batch_id (str, optional): Used to distinguish different batch of data under the same model_id and  model_version. Defaults to None.
-        :param sync (bool, optional): When sync is set to True, the log call will block, or wait, until the data has been successfully ingested by the platform and immediately return the status of the log. Defaults to False.
-        :param validate (bool, optional): When set to True, validation is run before sending data. Defaults to True.
-        :param path (str, optional): Temporary directory/file to store the serialized data in binary before sending to Arize.
-        :param surrogate_explainability (bool, optional): Computes feature importance values using the surrogate explainability method. This requires that the arize module is installed with the [MimicExplainer] option. If feature importance values are already specified by the shap_values_column_names attribute in the Schema, this module will not run. Defaults to False.
-        :param timeout (float, optional): You can stop waiting for a response after a given number of seconds with the timeout parameter. Defaults to None.
+        :param metrics_validation (List[Metrics], optional): A list of desired metric types;
+        defaults to None. When populated, and if validate=True,
+        the presence of schema columns are validated against the desired metrics.
+        :param model_version (str, optional): Used to group together a subset of predictions and
+        actuals for a given model_id. Defaults to None.
+        :param batch_id (str, optional): Used to distinguish different batch of data under the
+        same model_id and  model_version. Defaults to None.
+        :param sync (bool, optional): When sync is set to True, the log call will block, or wait,
+        until the data has been successfully ingested by the platform and immediately return the
+        status of the log. Defaults to False.
+        :param validate (bool, optional): When set to True, validation is run before sending
+        data. Defaults to True.
+        :param path (str, optional): Temporary directory/file to store the serialized data in
+        binary before sending to Arize.
+        :param surrogate_explainability (bool, optional): Computes feature importance values
+        using the surrogate explainability method. This requires that the arize module is
+        installed with the [MimicExplainer] option. If feature importance values are already
+        specified by the shap_values_column_names attribute in the Schema, this module will not
+        run. Defaults to False.
+        :param timeout (float, optional): You can stop waiting for a response after a given
+        number of seconds with the timeout parameter. Defaults to None.
+        :param verbose: (bool, optional) = When set to true, info messages are printed. Defaults
+        to False.
         """
 
-        if model_id is not None and not isinstance(model_id, str):
-            try:
-                model_id = str(model_id)
-            except:
-                logger.error("model_id must be convertible to a string.")
-                raise
+        if verbose:
+            logger.info("Performing required validation.")
+        errors = Validator.validate_required_checks(
+            model_id=model_id,
+            schema=schema,
+            model_version=model_version,
+            batch_id=batch_id,
+        )
+        if errors:
+            for e in errors:
+                logger.error(e)
+            raise err.ValidationFailure(errors)
 
-        if model_version is not None and not isinstance(model_version, str):
-            try:
-                model_version = str(model_version)
-            except:
-                logger.error("model_version must be convertible to a string.")
-                raise
+        if model_id is not None:
+            model_id = str(model_id)
 
-        if batch_id is not None and not isinstance(batch_id, str):
-            try:
-                batch_id = str(batch_id)
-            except:
-                logger.error("batch_id must be convertible to a string.")
-                raise
+        if model_version is not None:
+            model_version = str(model_version)
+
+        if batch_id is not None:
+            batch_id = str(batch_id)
+
+        if (
+            schema.embedding_feature_column_names is not None
+            and type(schema.embedding_feature_column_names) != dict
+        ):
+            raise TypeError(
+                "schema.embedding_feature_column_names should be a dictionary"
+            )
 
         if validate:
             if verbose:
-                print("Performing parameters validation.")
+                logger.info("Performing parameters validation.")
             errors = Validator.validate_params(
                 dataframe=dataframe,
                 model_id=model_id,
                 model_type=model_type,
                 environment=environment,
                 schema=schema,
+                metric_families=metrics_validation,
                 model_version=model_version,
                 batch_id=batch_id,
             )
@@ -116,7 +151,7 @@ class Client:
                 raise err.ValidationFailure(errors)
 
         if verbose:
-            print("Removing unnecessary columns.")
+            logger.info("Removing unnecessary columns.")
         dataframe = self._remove_extraneous_columns(dataframe, schema)
 
         # always validate pd.Category is not present, if yes, convert to string
@@ -132,13 +167,14 @@ class Client:
 
         if surrogate_explainability:
             if verbose:
-                print("Running surrogate_explainability.")
+                logger.info("Running surrogate_explainability.")
             try:
                 from arize.pandas.surrogate_explainer.mimic import Mimic
             except ImportError:
                 raise ImportError(
                     "To enable surrogate explainability, "
-                    "the arize module must be installed with the MimicExplainer option: pip install 'arize[MimicExplainer]'."
+                    "the arize module must be installed with the MimicExplainer option: pip "
+                    "install 'arize[MimicExplainer]'."
                 )
             if schema.shap_values_column_names:
                 logger.info(
@@ -163,21 +199,20 @@ class Client:
         # error conditions that we're currently not aware of.
         try:
             if verbose:
-                print("Getting pyarrow schema from pandas dataframe.")
+                logger.info("Getting pyarrow schema from pandas dataframe.")
             pa_schema = pa.Schema.from_pandas(dataframe)
         except pa.ArrowInvalid as e:
             logger.error(
                 "The dataframe needs to convert to pyarrow but has failed to do so. "
                 "There may be unrecognized data types in the dataframe. "
-                "Another reason may be that a column in the dataframe has a mix of strings and numbers, "
-                "in which case you may want to convert the strings in that column to NaN. "
-                "See https://docs.arize.com/arize/api-reference/python-sdk/arize.pandas/mixed-types"
+                "Another reason may be that a column in the dataframe has a mix of strings and "
+                "numbers, in which case you may want to convert the strings in that column to NaN. "
             )
             raise
 
         if validate:
             if verbose:
-                print("Performing types validation.")
+                logger.info("Performing types validation.")
             errors = Validator.validate_types(
                 model_type=model_type,
                 schema=schema,
@@ -188,7 +223,7 @@ class Client:
                     logger.error(e)
                 raise err.ValidationFailure(errors)
             if verbose:
-                print("Performing values validation.")
+                logger.info("Performing values validation.")
             errors = Validator.validate_values(
                 dataframe=dataframe, schema=schema, model_type=model_type
             )
@@ -198,7 +233,7 @@ class Client:
                 raise err.ValidationFailure(errors)
 
         if verbose:
-            print("Getting pyarrow table from pandas dataframe.")
+            logger.info("Getting pyarrow table from pandas dataframe.")
         ta = pa.Table.from_pandas(dataframe)
 
         s = pb.Schema()
@@ -214,9 +249,10 @@ class Client:
         elif environment == Environments.TRAINING:
             s.constants.environment = pb.Schema.Environment.TRAINING
 
-        if model_type == ModelTypes.NUMERIC:
+        # Map user-friendly external model types -> internal model types when sending to Arize
+        if model_type in NUMERIC_MODEL_TYPES:
             s.constants.model_type = pb.Schema.ModelType.NUMERIC
-        elif model_type == ModelTypes.SCORE_CATEGORICAL:
+        elif model_type in CATEGORICAL_MODEL_TYPES:
             s.constants.model_type = pb.Schema.ModelType.SCORE_CATEGORICAL
         elif model_type == ModelTypes.RANKING:
             s.constants.model_type = pb.Schema.ModelType.RANKING
@@ -235,41 +271,59 @@ class Client:
             )
 
         if schema.prediction_score_column_name is not None:
-            s.arrow_schema.prediction_score_column_name = (
-                schema.prediction_score_column_name
-            )
+            if model_type in NUMERIC_MODEL_TYPES:
+                # allow numeric prediction to be sent in as either prediction_label (legacy) or prediction_score.
+                s.arrow_schema.prediction_label_column_name = (
+                    schema.prediction_score_column_name
+                )
+            else:
+                s.arrow_schema.prediction_score_column_name = (
+                    schema.prediction_score_column_name
+                )
 
         if schema.feature_column_names is not None:
             s.arrow_schema.feature_column_names.extend(schema.feature_column_names)
 
         if schema.embedding_feature_column_names is not None:
-            for embedding_feature_column_names in schema.embedding_feature_column_names:
-                embedding_name = (
-                    embedding_feature_column_names.vector_column_name
-                )  # how it will show in the UI
+            for (
+                emb_name,
+                emb_col_names,
+            ) in schema.embedding_feature_column_names.items():
+                # emb_name is how it will show in the UI
                 s.arrow_schema.embedding_feature_column_names_map[
-                    embedding_name
-                ].vector_column_name = embedding_feature_column_names.vector_column_name
-                if embedding_feature_column_names.data_column_name:
+                    emb_name
+                ].vector_column_name = emb_col_names.vector_column_name
+                if emb_col_names.data_column_name:
                     s.arrow_schema.embedding_feature_column_names_map[
-                        embedding_name
-                    ].data_column_name = embedding_feature_column_names.data_column_name
-                if embedding_feature_column_names.link_to_data_column_name:
+                        emb_name
+                    ].data_column_name = emb_col_names.data_column_name
+                if emb_col_names.link_to_data_column_name:
                     s.arrow_schema.embedding_feature_column_names_map[
-                        embedding_name
-                    ].link_to_data_column_name = (
-                        embedding_feature_column_names.link_to_data_column_name
-                    )
+                        emb_name
+                    ].link_to_data_column_name = emb_col_names.link_to_data_column_name
 
         if schema.tag_column_names is not None:
             s.arrow_schema.tag_column_names.extend(schema.tag_column_names)
 
-        if model_type == ModelTypes.RANKING and schema.attributions_column_name is not None:
+        if (
+            model_type == ModelTypes.RANKING
+            and schema.relevance_labels_column_name is not None
+        ):
+            s.arrow_schema.actual_label_column_name = (
+                schema.relevance_labels_column_name
+            )
+        elif (
+            model_type == ModelTypes.RANKING
+            and schema.attributions_column_name is not None
+        ):
             s.arrow_schema.actual_label_column_name = schema.attributions_column_name
         elif schema.actual_label_column_name is not None:
             s.arrow_schema.actual_label_column_name = schema.actual_label_column_name
 
-        if model_type == ModelTypes.RANKING and schema.relevance_score_column_name is not None:
+        if (
+            model_type == ModelTypes.RANKING
+            and schema.relevance_score_column_name is not None
+        ):
             s.arrow_schema.actual_score_column_name = schema.relevance_score_column_name
         elif schema.actual_score_column_name is not None:
             s.arrow_schema.actual_score_column_name = schema.actual_score_column_name
@@ -293,7 +347,7 @@ class Client:
             s.arrow_schema.rank_column_name = schema.rank_column_name
 
         if verbose:
-            print("Serializing schema.")
+            logger.info("Serializing schema.")
         base64_schema = base64.b64encode(s.SerializeToString())
 
         # limit the potential size of http headers to under 64 kilobytes
@@ -310,12 +364,12 @@ class Client:
 
         try:
             if verbose:
-                print("Writing table to temporary file: ", tmp_file)
+                logger.info("Writing table to temporary file: ", tmp_file)
             writer = pa.ipc.new_stream(tmp_file, pa_schema)
             writer.write_table(ta, max_chunksize=65536)
             writer.close()
             if verbose:
-                print("Sending file to Arize")
+                logger.info("Sending file to Arize")
             response = self._post_file(tmp_file, base64_schema, sync, timeout)
         finally:
             if path is None:
@@ -368,7 +422,7 @@ class Client:
                 cols_to_keep.add(col)
 
         if schema.embedding_feature_column_names is not None:
-            for emb_col_names in schema.embedding_feature_column_names:
+            for emb_col_names in schema.embedding_feature_column_names.values():
                 cols_to_keep.add(emb_col_names.vector_column_name)
                 if emb_col_names.data_column_name is not None:
                     cols_to_keep.add(emb_col_names.data_column_name)

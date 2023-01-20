@@ -1,0 +1,140 @@
+{
+  "external_model_types": [
+    "binary_classification",
+    "regression",
+    "ranking"
+  ],
+  "metric_families": [
+    "classification",
+    "regression",
+    "ranking",
+    "auc_log_loss",
+    "ranking_label"
+  ],
+  "required_columns_map": [
+    {
+      "external_model_type": "binary_classification",
+      "mappings": [
+        {
+          "metrics": [["classification"]],
+          "required_columns": {
+            "arrow": {
+                "required": [["prediction_label_column_name"]],
+                "latent": [["actual_label_column_name"]]
+            },
+            "generic": {
+                "required": [["prediction_label"]],
+                "latent": [["actual_label"]]
+            }
+          }
+        },
+        {
+          "metrics": [["regression"]],
+          "required_columns": {
+            "arrow": {
+              "required": [["prediction_score_column_name"]],
+              "latent": [["actual_score_column_name"]]
+            },
+            "generic": {
+              "required": [["prediction_score"]],
+              "latent": [["actual_score"]]
+            }
+          }
+        },
+        {
+          "metrics": [
+            ["auc_log_loss"],
+            ["auc_log_loss", "classification"],
+            ["regression", "classification"],
+            ["regression", "auc_log_loss"]
+          ],
+          "required_columns": {
+            "arrow": {
+                "required": [["prediction_label_column_name", "prediction_score_column_name"]],
+                "latent": [["actual_label_column_name"]]
+            },
+            "generic": {
+                "required": [["prediction_label", "prediction_score"]],
+                "latent": [["actual_label"]]
+            }
+          }
+        },
+        {
+          "metrics": [["auc_log_loss","classification", "regression"]],
+          "required_columns": {
+            "arrow": {
+                "required": [["prediction_label_column_name", "prediction_score_column_name"]],
+                "latent": [["actual_label_column_name", "actual_score_column_name"]]
+            },
+            "generic": {
+                "required": [["prediction_label", "prediction_score"]],
+                "latent": [["actual_label", "actual_score"]]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "external_model_type": "regression",
+      "mappings": [
+        {
+          "metrics": [["regression"]],
+          "required_columns": {
+            "arrow": {
+                "required": [["prediction_score_column_name"],["prediction_label_column_name"]],
+                "latent": [["actual_score_column_name"]]
+            },
+            "generic": {
+                "required": [["prediction_score"]],
+                "latent": [["actual_score"]]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "external_model_type": "ranking",
+      "mappings": [
+        {
+          "metrics": [["ranking"]],
+          "required_columns": {
+            "arrow": {
+                "required": [["rank_column_name"]],
+                "latent": [["relevance_labels_column_name"], ["relevance_score_column_name"]]
+            },
+            "generic": {
+              "required": [["rank"]],
+              "latent": [["actual_score"], ["actual_label"]]
+            }
+          }
+        },
+        {
+          "metrics": [["ranking_label"],["ranking", "ranking_label"]],
+          "required_columns": {
+            "arrow": {
+              "required": [["rank_column_name"]],
+              "latent": [["relevance_labels_column_name"]]
+            },
+            "generic": {
+              "required": [["rank","prediction_label"]],
+              "latent": [["actual_label"]]
+            }
+          }
+        },
+        {
+          "metrics": [["ranking", "auc_log_loss"], ["auc_log_loss"]],
+          "required_columns": {
+            "arrow": {
+              "required": [["rank_column_name", "prediction_score_column_name"]],
+              "latent": [["relevance_labels_column_name"]]
+            },
+            "generic": {
+              "required": [["rank", "prediction_score"]],
+              "latent": [["actual_label"]]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
