@@ -110,13 +110,14 @@ class InvalidModelTypeAndMetricsCombination(ValidationError):
     ) -> None:
         self.model_type = model_type
         self.metrics = metrics
-        self.suggested_model_metric_combinations = suggested_model_metric_combinations
+        self.suggested_combinations = suggested_model_metric_combinations
 
     def error_message(self) -> str:
+        valid_combos = ', or \n'.join('[' + ', '.join(combo) + ']' for combo in self.suggested_combinations)
         return (
             f"Invalid combination of model type {self.model_type.name} and metrics: "
             f"{', '.join(m.name for m in self.metrics)}. "
-            f"Valid Metric combinations for this model type: {', or '.join('[' + ', '.join(combo) + ']' for combo in self.suggested_model_metric_combinations)}."
+            f"Valid Metric combinations for this model type:\n{valid_combos}.\n"
         )
 
 
