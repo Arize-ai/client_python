@@ -1,6 +1,9 @@
 from typing import Callable, Tuple
 from arize.pandas.logger import Schema
-from arize.utils.types import ModelTypes
+from arize.utils.types import ( 
+CATEGORICAL_MODEL_TYPES,
+ModelTypes,
+)
 from dataclasses import replace
 import string, random
 import pandas as pd
@@ -18,11 +21,7 @@ class Mimic:
 
     def __init__(self, X: pd.DataFrame, model_func: Callable):
         self.explainer = MimicExplainer(
-            model_func,
-            X,
-            LGBMExplainableModel,
-            augment_data=False,
-            is_function=True,
+            model_func, X, LGBMExplainableModel, augment_data=False, is_function=True,
         )
 
     def explain(self, X: pd.DataFrame) -> pd.DataFrame:
@@ -43,7 +42,7 @@ class Mimic:
         if X.shape[1] == 0:
             return df, schema
 
-        if model_type == ModelTypes.SCORE_CATEGORICAL:
+        if model_type in CATEGORICAL_MODEL_TYPES:
 
             if not schema.prediction_score_column_name:
                 raise ValueError(
@@ -128,11 +127,7 @@ class Mimic:
         )
 
         aug_df = pd.concat(
-            [
-                df,
-                Mimic(X, model_func).explain(X).rename(col_map, axis=1),
-            ],
-            axis=1,
+            [df, Mimic(X, model_func).explain(X).rename(col_map, axis=1),], axis=1,
         )
 
         # Fill null with zero so they're not counted as missing records by server

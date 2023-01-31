@@ -9,7 +9,7 @@
 
 # Dev/Deployment
 pytest==6.2.2
-# sphinx_rtd_theme conflicts with latest sphinx while trying to resolve dependencies. 
+# sphinx_rtd_theme conflicts with latest sphinx while trying to resolve dependencies.
 sphinx~=5.3
 sphinx_rtd_theme
 nose

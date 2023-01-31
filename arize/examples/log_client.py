@@ -36,8 +36,7 @@ def get_embedding_features():
             link_to_data="https://my-bucket.s3.us-west-2.amazonaws.com/puppy.png",
         ),
         "nlp_embedding_sentence": Embedding(
-            vector=pd.Series([4.0, 5.0, 6.0, 7.0]),
-            data="This is a test sentence",
+            vector=pd.Series([4.0, 5.0, 6.0, 7.0]), data="This is a test sentence",
         ),
         "nlp_embedding_tokens": Embedding(
             vector=pd.Series([4.0, 5.0, 6.0, 7.0]),

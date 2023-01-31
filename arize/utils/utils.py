@@ -145,8 +145,7 @@ def get_value_embedding(val: Embedding) -> public__pb2.Embedding:
         )
     elif val.data == None:
         return public__pb2.Embedding(
-            vector=val.vector,
-            link_to_data=StringValue(value=val.link_to_data),
+            vector=val.vector, link_to_data=StringValue(value=val.link_to_data),
         )
 
     return None
