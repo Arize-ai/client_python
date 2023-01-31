@@ -23,8 +23,7 @@ pred_labels = pd.DataFrame(np.random.randint(0, 100000000, size=(NUM_RECORDS, 1)
 ids = pd.DataFrame([str(uuid.uuid4()) for _ in range(NUM_RECORDS)])
 column_overwrite = list("abcdefghijkl")
 shap_values = pd.DataFrame(
-    np.random.random(size=(NUM_RECORDS, 12)),
-    columns=list("abcdefghijkl"),
+    np.random.random(size=(NUM_RECORDS, 12)), columns=list("abcdefghijkl"),
 )
 print(shap_values)
 preds = arize.bulk_log(

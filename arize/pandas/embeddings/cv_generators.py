@@ -40,10 +40,7 @@ class EmbeddingGeneratorForCVImageClassification(CVEmbeddingGenerator):
 
         ds = Dataset.from_dict({"local_path": local_image_path_col})
         ds.set_transform(
-            partial(
-                self.extract_image_features,
-                local_image_feat_name="local_path",
-            )
+            partial(self.extract_image_features, local_image_feat_name="local_path",)
         )
         logger.info("Generating embedding vectors")
         ds = ds.map(

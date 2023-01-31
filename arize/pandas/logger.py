@@ -214,9 +214,7 @@ class Client:
             if verbose:
                 logger.info("Performing types validation.")
             errors = Validator.validate_types(
-                model_type=model_type,
-                schema=schema,
-                pyarrow_schema=pa_schema,
+                model_type=model_type, schema=schema, pyarrow_schema=pa_schema,
             )
             if errors:
                 for e in errors:
@@ -400,10 +398,7 @@ class Client:
             if sync:
                 headers["sync"] = "1"
             return requests.post(
-                self._files_uri,
-                timeout=timeout,
-                data=f,
-                headers=headers,
+                self._files_uri, timeout=timeout, data=f, headers=headers,
             )
 
     def _remove_extraneous_columns(

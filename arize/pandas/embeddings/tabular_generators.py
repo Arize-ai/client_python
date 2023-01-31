@@ -48,9 +48,7 @@ class EmbeddingGeneratorForTabularFeatures(NLPEmbeddingGenerator):
         )
 
     def __init__(
-        self,
-        model_name: str = "distilbert-base-uncased",
-        **kwargs,
+        self, model_name: str = "distilbert-base-uncased", **kwargs,
     ):
         if model_name not in TABULAR_PRETRAINED_MODELS:
             raise ValueError(
@@ -133,8 +131,9 @@ class EmbeddingGeneratorForTabularFeatures(NLPEmbeddingGenerator):
         )
 
         if return_prompt_col:
-            return cast(pd.DataFrame, ds.to_pandas())["embedding_vector"], cast(
-                pd.Series, prompts
+            return (
+                cast(pd.DataFrame, ds.to_pandas())["embedding_vector"],
+                cast(pd.Series, prompts),
             )
 
         return cast(pd.DataFrame, ds.to_pandas())["embedding_vector"]

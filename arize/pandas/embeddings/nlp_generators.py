@@ -24,9 +24,7 @@ class EmbeddingGeneratorForNLPSequenceClassification(NLPEmbeddingGenerator):
         )
 
     def generate_embeddings(
-        self,
-        text_col: pd.Series,
-        class_label_col: Optional[pd.Series] = None,
+        self, text_col: pd.Series, class_label_col: Optional[pd.Series] = None,
     ) -> pd.Series:
         """
         Obtain embedding vectors from your text data using pre-trained large language models.
@@ -44,8 +42,7 @@ class EmbeddingGeneratorForNLPSequenceClassification(NLPEmbeddingGenerator):
                 raise TypeError("class_label_col must be a pandas Series")
             df = pd.concat({"text": text_col, "class_label": class_label_col}, axis=1)
             prepared_text_col = df.apply(
-                lambda row: row["text"] + f" The "
-                f"classification label is {row['class_label']}.",
+                lambda row: f" The classification label is {row['class_label']}. {row['text']}",
                 axis=1,
             )
             ds = Dataset.from_dict({"text": prepared_text_col})
