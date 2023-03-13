@@ -4,17 +4,14 @@ from functools import partial
 from typing import Dict, List, Tuple, Union, cast
 
 import pandas as pd
-
 from arize.utils.logging import logger
-from arize.utils.utils import is_list_of
+from arize.utils.types import is_list_of
+
 from .base_generators import NLPEmbeddingGenerator
 from .constants import IMPORT_ERROR_MESSAGE
-from .usecases import UseCases
 
 try:
-    import torch
     from datasets import Dataset
-    from transformers import AutoTokenizer  # type: ignore
 except ImportError:
     raise ImportError(IMPORT_ERROR_MESSAGE)
 
@@ -48,12 +45,14 @@ class EmbeddingGeneratorForTabularFeatures(NLPEmbeddingGenerator):
         )
 
     def __init__(
-        self, model_name: str = "distilbert-base-uncased", **kwargs,
+        self,
+        model_name: str = "distilbert-base-uncased",
+        **kwargs,
     ):
         if model_name not in TABULAR_PRETRAINED_MODELS:
             raise ValueError(
-                f"model_name not supported. Check supported models with "
-                f"`EmbeddingGeneratorForTabularFeatures.list_pretrained_models()`"
+                "model_name not supported. Check supported models with "
+                "`EmbeddingGeneratorForTabularFeatures.list_pretrained_models()`"
             )
         super(EmbeddingGeneratorForTabularFeatures, self).__init__(
             use_case=UseCases.STRUCTURED.TABULAR_FEATURES,
@@ -77,7 +76,7 @@ class EmbeddingGeneratorForTabularFeatures(NLPEmbeddingGenerator):
         considered, see `selected_columns`.
         :param selected_columns: columns to be considered to construct the prompt to be passed to
         the LLM.
-        :param col_name_map: mapoing between selected column names and a more verbose description of
+        :param col_name_map: mapping between selected column names and a more verbose description of
         the name. This helps the LLM understand the features better.
         :param return_prompt_col: if set to True, an extra pandas Series will be returned
         containing the constructed prompts. Defaults to False.
@@ -97,14 +96,11 @@ class EmbeddingGeneratorForTabularFeatures(NLPEmbeddingGenerator):
 
         if not isinstance(col_name_map, dict):
             raise TypeError(
-                "col_name_map must be a dictionary mapping column names to new column "
-                "names"
+                "col_name_map must be a dictionary mapping column names to new column " "names"
             )
         for k, v in col_name_map.items():
             if not isinstance(k, str) or not isinstance(v, str):
-                raise ValueError(
-                    "col_name_map dictionary keys and values should be strings"
-                )
+                raise ValueError("col_name_map dictionary keys and values should be strings")
         missing_cols = set(col_name_map.keys()).difference(df.columns)
         if missing_cols:
             raise ValueError(
@@ -141,8 +137,7 @@ class EmbeddingGeneratorForTabularFeatures(NLPEmbeddingGenerator):
     @staticmethod
     def __prompt_fn(row: pd.DataFrame, columns: List[str]) -> str:
         return " ".join(
-            f"The {col.replace('_', ' ')} is {str(row[col]).strip()}."
-            for col in columns
+            f"The {col.replace('_', ' ')} is {str(row[col]).strip()}." for col in columns
         )
 
     def __get_method_for_embedding_calculation(self):
@@ -152,7 +147,7 @@ class EmbeddingGeneratorForTabularFeatures(NLPEmbeddingGenerator):
                 "distilbert-base-uncased": "avg_token",
                 "xlm-roberta-base": "cls_token",
             }[self.model_name]
-        except:
+        except Exception:
             raise ValueError(f"Unsupported model_name {self.model_name}")
 
     @staticmethod

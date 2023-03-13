@@ -20,7 +20,7 @@ class BoundedExecutor:
         self.semaphore.acquire()
         try:
             future = self.executor.submit(fn, *args, **kwargs)
-        except:
+        except Exception:
             self.semaphore.release()
             raise
         else:

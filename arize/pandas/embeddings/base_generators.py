@@ -4,14 +4,20 @@ from enum import Enum
 from typing import Dict, List
 
 from arize.utils.logging import logger
+
 from .constants import IMPORT_ERROR_MESSAGE
 from .models import CV_PRETRAINED_MODELS, NLP_PRETRAINED_MODELS
 
 try:
     import torch
-    from transformers import AutoTokenizer, AutoModel, AutoFeatureExtractor  # type: ignore
-    from transformers.utils import logging as transformer_logging  # type: ignore
     from PIL import Image
+    from transformers import (  # type: ignore
+        AutoFeatureExtractor,
+        AutoModel,
+        AutoTokenizer,
+        BatchEncoding,
+    )
+    from transformers.utils import logging as transformer_logging  # type: ignore
 except ImportError:
     raise ImportError(IMPORT_ERROR_MESSAGE)
 
@@ -103,13 +109,11 @@ class NLPEmbeddingGenerator(BaseEmbeddingGenerator):
             f")"
         )
 
-    def __init__(
-        self, use_case: Enum, model_name: str, tokenizer_max_length: int = 512, **kwargs
-    ):
+    def __init__(self, use_case: Enum, model_name: str, tokenizer_max_length: int = 512, **kwargs):
         if model_name not in NLP_PRETRAINED_MODELS:
             raise ValueError(
-                f"model_name not supported. Check supported models with "
-                f"`AutoEmbeddingGenerator.list_pretrained_models()`"
+                "model_name not supported. Check supported models with "
+                "`AutoEmbeddingGenerator.list_pretrained_models()`"
             )
         super(NLPEmbeddingGenerator, self).__init__(
             use_case=use_case, model_name=model_name, **kwargs
@@ -128,9 +132,7 @@ class NLPEmbeddingGenerator(BaseEmbeddingGenerator):
     def tokenizer_max_length(self) -> int:
         return self.__tokenizer_max_length
 
-    def tokenize(
-        self, batch: Dict[str, List[str]], text_feat_name: str
-    ) -> Dict[str, torch.Tensor]:
+    def tokenize(self, batch: Dict[str, List[str]], text_feat_name: str) -> BatchEncoding:
         return self.tokenizer(
             batch[text_feat_name],
             padding=True,
@@ -155,8 +157,8 @@ class CVEmbeddingGenerator(BaseEmbeddingGenerator):
     def __init__(self, use_case: Enum, model_name: str, **kwargs):
         if model_name not in CV_PRETRAINED_MODELS:
             raise ValueError(
-                f"model_name not supported. Check supported models with "
-                f"`AutoEmbeddingGenerator.list_pretrained_models()`"
+                "model_name not supported. Check supported models with "
+                "`AutoEmbeddingGenerator.list_pretrained_models()`"
             )
         super(CVEmbeddingGenerator, self).__init__(
             use_case=use_case, model_name=model_name, **kwargs
@@ -174,13 +176,8 @@ class CVEmbeddingGenerator(BaseEmbeddingGenerator):
             raise ValueError(f"Cannot find image {image_path}")
         return Image.open(image_path).convert("RGB")
 
-    def extract_image_features(
-        self, batch: Dict[str, List[str]], local_image_feat_name: str
-    ):
+    def extract_image_features(self, batch: Dict[str, List[str]], local_image_feat_name: str):
         return self.feature_extractor(
-            [
-                self.open_image(image_path)
-                for image_path in batch[local_image_feat_name]
-            ],
+            [self.open_image(image_path) for image_path in batch[local_image_feat_name]],
             return_tensors="pt",
         ).to(self.device)

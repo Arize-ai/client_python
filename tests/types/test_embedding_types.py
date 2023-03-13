@@ -1,8 +1,7 @@
-import pytest
-from arize.utils.types import Embedding
 import numpy as np
 import pandas as pd
-
+import pytest
+from arize.utils.types import Embedding
 
 input_embeddings = {
     "correct:complete:list_vector": Embedding(
@@ -33,6 +32,10 @@ input_embeddings = {
         vector=pd.Series([1.0, 2, 3]),
         data=["This", "is", "a", "test", "token", "array"],
     ),
+    "correct:empty_vector": Embedding(
+        vector=np.array([]),
+        data=["This", "is", "a", "test", "token", "array"],
+    ),
     "wrong_type:vector": Embedding(
         vector=pd.DataFrame([1.0, 2, 3]),
         data=2,
@@ -53,8 +56,8 @@ input_embeddings = {
         data=["This", "is", "a", "test", "token", "array"],
         link_to_data=True,
     ),
-    "wrong_value:empty_vector": Embedding(
-        vector=np.array([]),
+    "wrong_value:size_1_vector": Embedding(
+        vector=np.array([1.0]),
         data=["This", "is", "a", "test", "token", "array"],
     ),
 }
@@ -62,40 +65,39 @@ input_embeddings = {
 
 def test_correct_embeddings():
     keys = [key for key in input_embeddings.keys() if "correct:" in key]
-    assert len(keys) > 0, f"Test configuration error: keys must not be empty"
+    assert len(keys) > 0, "Test configuration error: keys must not be empty"
 
     for key in keys:
         embedding = input_embeddings[key]
         try:
-            Embedding.validate_embedding_object(key, embedding)
+            embedding.validate(key)
         except Exception as err:
-            assert (
-                False
-            ), f"Correct embeddings should give no errors. Failing key = {key:s}"
+            assert False, (
+                f"Correct embeddings should give no errors. Failing key = {key:s}. "
+                f"Error = {err}"
+            )
 
 
-def test_empty_vector():
+def test_wrong_value_fields():
     keys = [key for key in input_embeddings.keys() if "wrong_value:" in key]
-    assert len(keys) > 0, f"Test configuration error: keys must not be empty"
+    assert len(keys) > 0, "Test configuration error: keys must not be empty"
 
     for key in keys:
         embedding = input_embeddings[key]
         try:
-            Embedding.validate_embedding_object(key, embedding)
+            embedding.validate(key)
         except Exception as err:
-            assert (
-                type(err) == ValueError
-            ), "Wrong field values should raise value errors"
+            assert type(err) == ValueError, "Wrong field values should raise value errors"
 
 
 def test_wrong_type_fields():
     keys = [key for key in input_embeddings.keys() if "wrong_type:" in key]
-    assert len(keys) > 0, f"Test configuration error: keys must not be empty"
+    assert len(keys) > 0, "Test configuration error: keys must not be empty"
 
     for key in keys:
         embedding = input_embeddings[key]
         try:
-            Embedding.validate_embedding_object(key, embedding)
+            embedding.validate(key)
         except Exception as err:
             assert type(err) == TypeError, "Wrong field types should raise type errors"
 

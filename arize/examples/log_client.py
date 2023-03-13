@@ -1,13 +1,13 @@
+import concurrent.futures as cf
 import os
 import time
 import uuid
+from random import random
+
 import numpy as np
 import pandas as pd
-from random import random
-import concurrent.futures as cf
-
 from arize.api import Client
-from arize.utils.types import ModelTypes, Embedding
+from arize.utils.types import Embedding, ModelTypes
 
 ITERATIONS = 1
 NUM_FEATURES = 5
@@ -36,7 +36,8 @@ def get_embedding_features():
             link_to_data="https://my-bucket.s3.us-west-2.amazonaws.com/puppy.png",
         ),
         "nlp_embedding_sentence": Embedding(
-            vector=pd.Series([4.0, 5.0, 6.0, 7.0]), data="This is a test sentence",
+            vector=pd.Series([4.0, 5.0, 6.0, 7.0]),
+            data="This is a test sentence",
         ),
         "nlp_embedding_tokens": Embedding(
             vector=pd.Series([4.0, 5.0, 6.0, 7.0]),
@@ -77,7 +78,8 @@ for j in range(ITERATIONS):
 
 end_sending = time.time_ns()
 print(
-    f"INFO - {ITERATIONS} requests took a total of {int(end_sending - start)/1000000}ms to send. Waiting for responses."
+    f"INFO - {ITERATIONS} requests took a total of {int(end_sending - start) / 1000000}ms to send. "
+    f"Waiting for responses."
 )
 
 for future in cf.as_completed(resps):

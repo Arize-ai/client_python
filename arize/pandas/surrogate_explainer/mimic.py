@@ -1,19 +1,14 @@
-from typing import Callable, Tuple
-from arize.pandas.logger import Schema
-from arize.utils.types import ( 
-CATEGORICAL_MODEL_TYPES,
-ModelTypes,
-)
+import random
+import string
 from dataclasses import replace
-import string, random
-import pandas as pd
-import numpy as np
-from sklearn.preprocessing import LabelEncoder
+from typing import Callable, Tuple
 
-from interpret_community.mimic.mimic_explainer import (
-    MimicExplainer,
-    LGBMExplainableModel,
-)
+import numpy as np
+import pandas as pd
+from arize.pandas.logger import Schema
+from arize.utils.types import CATEGORICAL_MODEL_TYPES, ModelTypes
+from interpret_community.mimic.mimic_explainer import LGBMExplainableModel, MimicExplainer
+from sklearn.preprocessing import LabelEncoder
 
 
 class Mimic:
@@ -21,7 +16,11 @@ class Mimic:
 
     def __init__(self, X: pd.DataFrame, model_func: Callable):
         self.explainer = MimicExplainer(
-            model_func, X, LGBMExplainableModel, augment_data=False, is_function=True,
+            model_func,
+            X,
+            LGBMExplainableModel,
+            augment_data=False,
+            is_function=True,
         )
 
     def explain(self, X: pd.DataFrame) -> pd.DataFrame:
@@ -84,15 +83,13 @@ class Mimic:
 
         else:
             raise ValueError(
-                f"Surrogate explainability is not supported for the specified model type {model_type}."
+                "Surrogate explainability is not supported for the specified "
+                f"model type {model_type}."
             )
 
         # Column name mapping between features and feature importance values.
         # This is used to augment the schema.
-        col_map = {
-            ft: f"{''.join(random.choices(string.ascii_letters, k=8))}"
-            for ft in features
-        }
+        col_map = {ft: f"{''.join(random.choices(string.ascii_letters, k=8))}" for ft in features}
         aug_schema = replace(schema, shap_values_column_names=col_map)
 
         # Limit the total number of "cells" to 20M, unless it results in too few or
@@ -127,7 +124,11 @@ class Mimic:
         )
 
         aug_df = pd.concat(
-            [df, Mimic(X, model_func).explain(X).rename(col_map, axis=1),], axis=1,
+            [
+                df,
+                Mimic(X, model_func).explain(X).rename(col_map, axis=1),
+            ],
+            axis=1,
         )
 
         # Fill null with zero so they're not counted as missing records by server

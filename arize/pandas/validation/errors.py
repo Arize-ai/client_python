@@ -5,12 +5,12 @@ from typing import List
 from arize.utils.types import Environments, Metrics, ModelTypes
 
 
-class ValidationError(ABC):
+class ValidationError(Exception, ABC):
     def __str__(self) -> str:
         return self.error_message()
 
     @abstractmethod
-    def __repr__(self):
+    def __repr__(self) -> str:
         pass
 
     @abstractmethod
@@ -19,7 +19,7 @@ class ValidationError(ABC):
 
 
 class ValidationFailure(Exception):
-    def __init__(self, errors: List[ValidationError]):
+    def __init__(self, errors: List[ValidationError]) -> None:
         self.errors = errors
 
 
@@ -52,6 +52,17 @@ class InvalidFieldTypeEmbeddingFeatures(ValidationError):
         return "schema.embedding_feature_column_names should be a dictionary"
 
 
+class InvalidIndex(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Index"
+
+    def error_message(self) -> str:
+        return (
+            "The index of the dataframe is invalid; "
+            "reset the index by using df.reset_index(drop=True, inplace=True)"
+        )
+
+
 # ----------------
 # Parameter checks
 # ----------------
@@ -80,17 +91,16 @@ class MissingRequiredColumnsMetricsValidation(ValidationError):
     def __repr__(self) -> str:
         return "Missing_Columns_Required_By_Metrics_Validation"
 
-    def __init__(
-        self, model_type: ModelTypes, metrics: List[Metrics], cols: Iterable
-    ) -> None:
+    def __init__(self, model_type: ModelTypes, metrics: List[Metrics], cols: Iterable) -> None:
         self.model_type = model_type
         self.metrics = metrics
         self.missing_cols = cols
 
     def error_message(self) -> str:
         return (
-            f"For logging data to a {self.model_type.name} model with support for metrics "
-            f"{', '.join(m.name for m in self.metrics)}, schema must include: {', '.join(map(str, self.missing_cols))}."
+            f"For logging data for a {self.model_type.name} model with support for metrics "
+            f"{', '.join(m.name for m in self.metrics)}, "
+            f"schema must include: {', '.join(map(str, self.missing_cols))}."
         )
 
 
@@ -164,9 +174,7 @@ class InvalidBatchId(ValidationError):
         return "Invalid_Batch_ID"
 
     def error_message(self) -> str:
-        return (
-            "Batch ID must be a nonempty string if logging to validation environment."
-        )
+        return "Batch ID must be a nonempty string if logging to validation environment."
 
 
 class InvalidModelVersion(ValidationError):
@@ -203,7 +211,8 @@ class MissingPredActShapNumeric(ValidationError):
     def error_message(self) -> str:
         return (
             "For a numeric model, the schema must specify at least one of the following: "
-            "prediction label, prediction score, actual label, actual score, or SHAP value column names"
+            "prediction label, prediction score, actual label, actual score, or SHAP value column "
+            "names"
         )
 
 
@@ -213,7 +222,7 @@ class MissingPredLabelScoreCategorical(ValidationError):
 
     def error_message(self) -> str:
         return (
-            "When sending a prediction score and an actual label, the schema must also include "
+            "When sending a prediction confidence score and an actual label, the schema must also include "
             "a prediction label."
         )
 
@@ -235,8 +244,8 @@ class MissingPreprodPredActNumeric(ValidationError):
 
     def error_message(self) -> str:
         return (
-            "For logging pre-production data to a numeric model, "
-            "the schema must specify both prediction and actual label or score columns."
+            "For logging pre-production data for a numeric model, "
+            "the schema must specify both prediction and actual label or confidence score columns."
         )
 
 
@@ -246,8 +255,66 @@ class MissingRequiredColumnsForRankingModel(ValidationError):
 
     def error_message(self) -> str:
         return (
-            "For logging data to a ranking model, schema must specify: "
+            "For logging data for a ranking model, schema must specify: "
             "prediction_group_id_column_name and rank_column_name"
+        )
+
+
+class MissingObjectDetectionPredAct(ValidationError):
+    def __repr__(self) -> str:
+        return "Missing_Object_Detection_Prediction_or_Actual"
+
+    def __init__(self, environment: Environments):
+        self.environment = environment
+
+    def error_message(self) -> str:
+        if self.environment in (Environments.TRAINING, Environments.VALIDATION):
+            env = "pre-production"
+            opt = "and"
+        elif self.environment == Environments.PRODUCTION:
+            env = "production"
+            opt = "or"
+        return (
+            f"For logging {env} data for an Object Detection model,"
+            "the schema must specify 'object_detection_prediction_column_names'"
+            f"{opt} 'object_detection_actual_column_names'"
+        )
+
+
+class InvalidPredActColumnNamesForObjectDetectionModelType(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Prediction_or_Actual_Column_Names_for_Object_Detection_Model_Type"
+
+    def __init__(
+        self,
+        wrong_cols: List[str],
+    ) -> None:
+        self.wrong_cols = wrong_cols
+
+    def error_message(self) -> str:
+        return (
+            "Only 'object_detection_prediction_column_names' and "
+            "'object_detection_actual_column_names' are allowed for ModelTypes.OBJECT_DETECTION "
+            "in order to send predictions and actuals. The following column names "
+            f"were declared in the schema and are not allowed: {', '.join(self.wrong_cols)}"
+        )
+
+
+class InvalidPredActObjectDetectionColumnNamesForModelType(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Object_Detection_Prediction_or_Actual_Column_Names_for_Model_Type"
+
+    def __init__(
+        self,
+        invalid_model_type: ModelTypes,
+    ) -> None:
+        self.invalid_model_type = invalid_model_type
+
+    def error_message(self) -> str:
+        return (
+            f"Cannot use 'object_detection_prediction_column_names' or "
+            f"'object_detection_actual_column_names' for {self.invalid_model_type} model "
+            f"type. They are only allowed for ModelTypes.OBJECT_DETECTION models"
         )
 
 
@@ -273,12 +340,32 @@ class InvalidType(ValidationError):
         return f"{self.name} must be of type {type_list}."
 
 
+class InvalidTypeColumns(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Type_Columns"
+
+    def __init__(self, wrong_type_columns: List[str], expected_types: List[str]) -> None:
+        self.wrong_type_columns = wrong_type_columns
+        self.expected_types = expected_types
+
+    def error_message(self) -> str:
+        type_list = (
+            self.expected_types[0]
+            if len(self.expected_types) == 1
+            else f"{', '.join(map(str, self.expected_types[:-1]))} or {self.expected_types[-1]}"
+        )
+        return (
+            f"The columns {', '.join(self.wrong_type_columns[:-1])}, and {self.wrong_type_columns[-1]}; "
+            f"must be of type {type_list}."
+        )
+
+
 class InvalidTypeFeatures(ValidationError):
     def __repr__(self) -> str:
         return "Invalid_Type_Features"
 
     def __init__(self, cols: Iterable, expected_types: List[str]) -> None:
-        self.mistyped_cols = cols
+        self.wrong_type_columns = cols
         self.expected_types = expected_types
 
     def error_message(self) -> str:
@@ -290,7 +377,7 @@ class InvalidTypeFeatures(ValidationError):
         return (
             f"Features must be of type {type_list}. "
             "The following feature columns have unrecognized data types: "
-            f"{', '.join(map(str, self.mistyped_cols))}."
+            f"{', '.join(map(str, self.wrong_type_columns))}."
         )
 
 
@@ -299,7 +386,7 @@ class InvalidTypeTags(ValidationError):
         return "Invalid_Type_Tags"
 
     def __init__(self, cols: Iterable, expected_types: List[str]) -> None:
-        self.mistyped_cols = cols
+        self.wrong_type_columns = cols
         self.expected_types = expected_types
 
     def error_message(self) -> str:
@@ -311,7 +398,22 @@ class InvalidTypeTags(ValidationError):
         return (
             f"Tags must be of type {type_list}. "
             "The following tag columns have unrecognized data types: "
-            f"{', '.join(map(str, self.mistyped_cols))}."
+            f"{', '.join(map(str, self.wrong_type_columns))}."
+        )
+
+
+class InvalidValueLowEmbeddingVectorDimensionality(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Value_Low_Embedding_Vector_Dimensionality"
+
+    def __init__(self, cols: Iterable) -> None:
+        self.invalid_cols = cols
+
+    def error_message(self) -> str:
+        return (
+            "Embedding vectors cannot have length (dimensionality) == 1. "
+            "The following columns do not satisfy this condition: "
+            f"{', '.join(map(str, self.invalid_cols))}."
         )
 
 
@@ -320,7 +422,7 @@ class InvalidTypeShapValues(ValidationError):
         return "Invalid_Type_SHAP_Values"
 
     def __init__(self, cols: Iterable, expected_types: List[str]) -> None:
-        self.mistyped_cols = cols
+        self.wrong_type_columns = cols
         self.expected_types = expected_types
 
     def error_message(self) -> str:
@@ -332,7 +434,7 @@ class InvalidTypeShapValues(ValidationError):
         return (
             f"SHAP values must be of type {type_list}. "
             "The following SHAP columns have unrecognized data types: "
-            f"{', '.join(map(str, self.mistyped_cols))}."
+            f"{', '.join(map(str, self.wrong_type_columns))}."
         )
 
 
@@ -412,3 +514,113 @@ class InvalidRankingCategoryValue(ValidationError):
             f"ranking relevance labels {self.name} column contains invalid value"
             f"make sure empty string is not present"
         )
+
+
+class InvalidBoundingBoxesCoordinates(ValidationError, Exception):
+    def __repr__(self) -> str:
+        return "Invalid_Bounding_Boxes_Coordinates"
+
+    def __init__(self, reason) -> None:
+        self._check_valid_reason(reason)
+        self.reason = reason
+
+    @staticmethod
+    def _check_valid_reason(reason):
+        possible_reasons = (
+            "none_boxes",
+            "none_or_empty_box",
+            "boxes_coordinates_wrong_format",
+        )
+        if reason not in possible_reasons:
+            raise ValueError(
+                f"Invalid reason {reason}. Possible reasons are: " f"{', '.join(possible_reasons)}."
+            )
+
+    def error_message(self) -> str:
+        msg = "Invalid bounding boxes coordinates found. "
+        if self.reason == "none_boxes":
+            msg += (
+                "Found at least one list of bounding boxes coordinates with NoneType. List of "
+                "bounding boxes coordinates cannot be None, if you'd like to send no boxes, "
+                "send an empty list"
+            )
+        elif self.reason == "none_or_empty_box":
+            msg += (
+                "Found at least one bounding box with None value or without coordinates. All "
+                "bounding boxes in the list must contain its 4 coordinates"
+            )
+        elif self.reason == "boxes_coordinates_wrong_format":
+            msg += (
+                "Found at least one bound box's coordinates incorrectly formatted. Each "
+                "bounding box's coordinates must be a collection of 4 positive floats "
+                "representing the top-left & bottom-right corners of the box, in pixels"
+            )
+        return msg
+
+
+class InvalidBoundingBoxesCategories(ValidationError, Exception):
+    def __repr__(self) -> str:
+        return "Invalid_Bounding_Boxes_Categories"
+
+    def __init__(self, reason) -> None:
+        self._check_valid_reason(reason)
+        self.reason = reason
+
+    @staticmethod
+    def _check_valid_reason(reason):
+        possible_reasons = (
+            "none_category_list",
+            "none_category",
+        )
+        if reason not in possible_reasons:
+            raise ValueError(
+                f"Invalid reason {reason}. Possible reasons are: " f"{', '.join(possible_reasons)}."
+            )
+
+    def error_message(self) -> str:
+        msg = "Invalid bounding boxes categories found. "
+        if self.reason == "none_category_list":
+            msg += (
+                "Found at least one list of bounding box categories with None value. Must send a "
+                "list of categories, one category per bounding box."
+            )
+        elif self.reason == "none_category":
+            msg += (
+                "Found at least one category label with None vlaue. Each bounding box category "
+                "must be string. Empty strings are allowed"
+            )
+        return msg
+
+
+class InvalidBoundingBoxesScores(ValidationError, Exception):
+    def __repr__(self) -> str:
+        return "Invalid_Bounding_Boxes_Scores"
+
+    def __init__(self, reason) -> None:
+        self._check_valid_reason(reason)
+        self.reason = reason
+
+    @staticmethod
+    def _check_valid_reason(reason):
+        possible_reasons = (
+            "none_score_list",
+            "scores_out_of_bounds",
+        )
+        if reason not in possible_reasons:
+            raise ValueError(
+                f"Invalid reason {reason}. Possible reasons are: " f"{', '.join(possible_reasons)}."
+            )
+
+    def error_message(self) -> str:
+        msg = "Invalid bounding boxes scores found. "
+        if self.reason == "none_score_list":
+            msg += (
+                "Found at least one list of bounding box scores with None value. This field is "
+                "optional. If sent, you must send a confidence score per bounding box"
+            )
+        elif self.reason == "scores_out_of_bounds":
+            msg += (
+                "Found at least one confidence score out of bounds. "
+                "Confidence scores must be between 0 and 1"
+            )
+        return msg

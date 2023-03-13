@@ -1,7 +1,8 @@
-import pytest
 import json
-import arize.utils.utils as utils
 from collections import namedtuple
+
+import pytest
+from arize.utils import utils
 
 
 def test_response_url():

@@ -2,29 +2,23 @@ import base64
 import json
 import math
 import time
-from typing import Any, List, Optional, Sequence, TypeVar, Union
+from pathlib import Path
+from typing import Any, Optional, Union
 
 import pandas as pd
-from pathlib import Path
-
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.protobuf.wrappers_pb2 import StringValue
 
-from arize import public_pb2 as public__pb2
-from arize.utils.types import Embedding, ModelTypes
+from .. import public_pb2 as pb2
+from .types import Embedding
 
 MAX_BYTES_PER_BULK_RECORD = 100000
 MAX_DAYS_WITHIN_RANGE = 365
 MODEL_MAPPING_CONFIG = None
-T = TypeVar("T", bound=type)
 
 path = Path(__file__).with_name("model_mapping.json")
 with path.open("r") as f:
     MODEL_MAPPING_CONFIG = json.load(f)
-
-
-def is_list_of(lst: Sequence[object], tp: T) -> bool:
-    return isinstance(lst, list) and all(isinstance(x, tp) for x in lst)
 
 
 def validate_prediction_timestamps(prediction_ids, prediction_timestamps):
@@ -76,11 +70,9 @@ def bundle_records(records) -> {}:
     return recs
 
 
-def get_bulk_records(
-    space_key: str, model_id: str, model_version: Optional[str], records
-):
+def get_bulk_records(space_key: str, model_id: str, model_version: Optional[str], records):
     for k, r in records.items():
-        records[k] = public__pb2.BulkRecord(
+        records[k] = pb2.BulkRecord(
             records=r,
             space_key=space_key,
             model_id=model_id,
@@ -101,8 +93,20 @@ def convert_element(value):
     return val
 
 
+def convert_dictionary(d):
+    # Takes a dictionary and
+    # - casts the keys as strings
+    # - turns the values of the dictionary to our proto values pb2.Value()
+    converted_dict = {}
+    for (k, v) in d.items():
+        val = get_value_object(value=v, name=k)
+        if val is not None:
+            converted_dict[str(k)] = val
+    return converted_dict
+
+
 def get_value_object(name: Union[str, int, float], value):
-    if isinstance(value, public__pb2.Value):
+    if isinstance(value, pb2.Value):
         return value
     # The following `convert_element` done in single log validation
     # of features & tags. It is not done in bulk_log
@@ -110,13 +114,13 @@ def get_value_object(name: Union[str, int, float], value):
     if val is None:
         return None
     if isinstance(val, (str, bool)):
-        return public__pb2.Value(string=str(val))
+        return pb2.Value(string=str(val))
     if isinstance(val, int):
-        return public__pb2.Value(int=val)
+        return pb2.Value(int=val)
     if isinstance(val, float):
-        return public__pb2.Value(double=val)
+        return pb2.Value(double=val)
     if isinstance(val, Embedding):
-        return public__pb2.Value(embedding=get_value_embedding(val))
+        return pb2.Value(embedding=get_value_embedding(val))
     else:
         raise TypeError(
             f'dimension "{name}" = {value} is type {type(value)}, but must be one of: bool, str, '
@@ -124,28 +128,26 @@ def get_value_object(name: Union[str, int, float], value):
         )
 
 
-def get_value_embedding(val: Embedding) -> public__pb2.Embedding:
-    if Embedding.is_valid_iterable(val.data):
-        return public__pb2.Embedding(
+def get_value_embedding(val: Embedding) -> pb2.Embedding:
+    if Embedding._is_valid_iterable(val.data):
+        return pb2.Embedding(
             vector=val.vector,
-            raw_data=public__pb2.Embedding.RawData(
-                tokenArray=public__pb2.Embedding.TokenArray(tokens=val.data)
-            ),
+            raw_data=pb2.Embedding.RawData(tokenArray=pb2.Embedding.TokenArray(tokens=val.data)),
             link_to_data=StringValue(value=val.link_to_data),
         )
     elif isinstance(val.data, str):
-        return public__pb2.Embedding(
+        return pb2.Embedding(
             vector=val.vector,
-            raw_data=public__pb2.Embedding.RawData(
-                tokenArray=public__pb2.Embedding.TokenArray(
-                    tokens=[val.data]
-                )  # Convert to list of 1 string
+            raw_data=pb2.Embedding.RawData(
+                tokenArray=pb2.Embedding.TokenArray(tokens=[val.data])
+                # Convert to list of 1 string
             ),
             link_to_data=StringValue(value=val.link_to_data),
         )
-    elif val.data == None:
-        return public__pb2.Embedding(
-            vector=val.vector, link_to_data=StringValue(value=val.link_to_data),
+    elif val.data is None:
+        return pb2.Embedding(
+            vector=val.vector,
+            link_to_data=StringValue(value=val.link_to_data),
         )
 
     return None

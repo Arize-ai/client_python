@@ -2,7 +2,6 @@ from collections import ChainMap
 
 import pandas as pd
 import pytest
-
 from arize.pandas.logger import Schema
 from arize.pandas.validation.errors import InvalidShapSuffix
 from arize.pandas.validation.validator import Validator
@@ -67,9 +66,7 @@ def test_invalid_multiple():
     errors = Validator.validate_params(
         **ChainMap(
             {
-                "dataframe": kwargs["dataframe"].assign(
-                    feat_shap=[0], tag_shap=[0], shap=[0]
-                ),
+                "dataframe": kwargs["dataframe"].assign(feat_shap=[0], tag_shap=[0], shap=[0]),
                 "schema": Schema(
                     prediction_id_column_name="prediction_id",
                     prediction_label_column_name="prediction_label",

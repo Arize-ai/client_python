@@ -2,14 +2,13 @@ from functools import partial
 from typing import cast
 
 import pandas as pd
-
 from arize.utils.logging import logger
+
 from .base_generators import CVEmbeddingGenerator
 from .constants import IMPORT_ERROR_MESSAGE
 from .usecases import UseCases
 
 try:
-    import torch
     from datasets import Dataset
 except ImportError:
     raise ImportError(IMPORT_ERROR_MESSAGE)
@@ -34,13 +33,14 @@ class EmbeddingGeneratorForCVImageClassification(CVEmbeddingGenerator):
 
         # Validate that there are no null image paths
         if local_image_path_col.isnull().any():
-            raise ValueError(
-                f"There can't be any null values in the local_image_path_col series"
-            )
+            raise ValueError("There can't be any null values in the local_image_path_col series")
 
         ds = Dataset.from_dict({"local_path": local_image_path_col})
         ds.set_transform(
-            partial(self.extract_image_features, local_image_feat_name="local_path",)
+            partial(
+                self.extract_image_features,
+                local_image_feat_name="local_path",
+            )
         )
         logger.info("Generating embedding vectors")
         ds = ds.map(

@@ -1,20 +1,18 @@
-import pytest
-
-from typing import Tuple, List, Any
-from itertools import cycle
-import pandas as pd
-import numpy as np
-import pyarrow as pa
 import base64
+from itertools import cycle
+from typing import Any, Tuple
 
+import numpy as np
+import pandas as pd
+import pyarrow as pa
+import pytest
 from sklearn.datasets import load_breast_cancer, load_diabetes
 from sklearn.svm import SVC, SVR
 
-from arize.utils.types import Environments, ModelTypes
-from arize.pandas.logger import Client, Schema
-from arize import public_pb2 as pb
-
-from arize.pandas.surrogate_explainer.mimic import Mimic
+from ....arize import public_pb2 as pb2
+from ....arize.pandas.logger import Client, Schema
+from ....arize.pandas.surrogate_explainer.mimic import Mimic
+from ....arize.utils.types import Environments, ModelTypes
 
 Mimic._testing = True
 
@@ -24,7 +22,7 @@ class NoSendClient(Client):
         super().__init__("", "")
 
     def _post_file(self, path, schema, *_) -> Tuple[pd.DataFrame, Any]:
-        s = pb.Schema()
+        s = pb2.Schema()
         s.ParseFromString(base64.b64decode(schema))
         return (
             pa.ipc.open_stream(pa.OSFile(path)).read_pandas(),
@@ -85,7 +83,6 @@ def _reg_df() -> Tuple[pd.DataFrame, Any]:
 
 
 def test_classifier_with_flag_has_shap():
-
     # Multiply by 1,000 to enlarge df for testing the
     # sampling mechanism. Reduce value to make tests run faster
     df, features = _class_df(1000)
@@ -108,7 +105,7 @@ def test_classifier_with_flag_has_shap():
             schema=schema,
             surrogate_explainability=True,
         )
-    except:
+    except Exception:
         assert False
 
     # must add new columns
@@ -157,7 +154,7 @@ def test_regressor_with_flag_has_shap():
             schema=schema,
             surrogate_explainability=True,
         )
-    except:
+    except Exception:
         assert False
 
     # must add new columns
@@ -200,7 +197,7 @@ def test_classifier_no_flag_no_shap():
             environment=Environments.PRODUCTION,
             schema=schema,
         )
-    except:
+    except Exception:
         assert False
 
     # original dataframe must not change
@@ -232,7 +229,7 @@ def test_regressor_no_flag_no_shap():
             environment=Environments.PRODUCTION,
             schema=schema,
         )
-    except:
+    except Exception:
         assert False
 
     # original dataframe must not change
@@ -247,7 +244,6 @@ def test_regressor_no_flag_no_shap():
 
 
 def test_classifier_reject_inf_nan():
-
     for z in (float("inf"), float("-inf"), float("nan")):
         df, features = _class_df()
         df.at[df.index[0], "_score"] = z
@@ -270,7 +266,6 @@ def test_classifier_reject_inf_nan():
 
 
 def test_regressor_reject_inf_nan():
-
     for z in (float("inf"), float("-inf"), float("nan")):
         df, features = _reg_df()
         df.at[df.index[0], "_score"] = z

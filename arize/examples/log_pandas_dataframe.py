@@ -1,12 +1,12 @@
 import os
+import time
 import uuid
+from typing import List
 
 import numpy as np
 import pandas as pd
-import time
-from typing import List
 from arize.pandas.logger import Client, Schema
-from arize.utils.types import ModelTypes, Environments, EmbeddingColumnNames
+from arize.utils.types import EmbeddingColumnNames, Environments, ModelTypes
 
 ITERATIONS = 1
 NUM_RECORDS = 1000000
@@ -31,9 +31,7 @@ def main():
         columns=["prediction_label", "prediction_score"],
     )
     pred_labels["prediction_label"] = pred_labels["prediction_label"].astype(str)
-    ids = pd.DataFrame(
-        [str(uuid.uuid4()) for _ in range(NUM_RECORDS)], columns=["prediction_id"]
-    )
+    ids = pd.DataFrame([str(uuid.uuid4()) for _ in range(NUM_RECORDS)], columns=["prediction_id"])
     inferences = pd.concat([features, embedding_features, pred_labels, ids], axis=1)
 
     start = time.time_ns()
@@ -46,9 +44,7 @@ def main():
         environment=Environments.PRODUCTION,
         schema=Schema(
             prediction_id_column_name="prediction_id",
-            feature_column_names=[
-                col for col in inferences.columns if "feature_" in col
-            ],
+            feature_column_names=[col for col in inferences.columns if "feature_" in col],
             embedding_feature_column_names=getEmbeddingFeaturesColumnNames(),
             prediction_label_column_name="prediction_label",
             prediction_score_column_name="prediction_score",
@@ -61,7 +57,8 @@ def main():
 
     end = time.time_ns()
     print(
-        f" -- request took a total of {int(end - start)/1000000}ms to serialize and send {NUM_RECORDS} records.\n"
+        f" -- request took a total of {int(end - start) / 1000000}ms to serialize and "
+        f"send {NUM_RECORDS} records.\n"
     )
 
 
