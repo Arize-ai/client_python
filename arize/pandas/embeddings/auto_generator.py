@@ -9,14 +9,14 @@ from .usecases import UseCases
 
 
 class EmbeddingGenerator:
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: str):
         raise EnvironmentError(
             f"{self.__class__.__name__} is designed to be instantiated using the "
             f"`{self.__class__.__name__}.from_use_case(use_case, **kwargs)` method."
         )
 
     @staticmethod
-    def from_use_case(use_case: str, **kwargs) -> BaseEmbeddingGenerator:
+    def from_use_case(use_case: str, **kwargs: str) -> BaseEmbeddingGenerator:
         if use_case == UseCases.NLP.SEQUENCE_CLASSIFICATION:
             return EmbeddingGeneratorForNLPSequenceClassification(**kwargs)
         elif use_case == UseCases.CV.IMAGE_CLASSIFICATION:
@@ -27,8 +27,7 @@ class EmbeddingGenerator:
     @classmethod
     def list_pretrained_models(cls) -> pd.DataFrame:
         data = {
-            "Task": ["NLP" for _ in NLP_PRETRAINED_MODELS]
-            + ["CV" for _ in CV_PRETRAINED_MODELS],
+            "Task": ["NLP" for _ in NLP_PRETRAINED_MODELS] + ["CV" for _ in CV_PRETRAINED_MODELS],
             "Architecture": [
                 cls.__parse_model_arch(model)
                 for model in NLP_PRETRAINED_MODELS + CV_PRETRAINED_MODELS

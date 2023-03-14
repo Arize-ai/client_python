@@ -2,14 +2,13 @@ from functools import partial
 from typing import Optional, cast
 
 import pandas as pd
-
 from arize.utils.logging import logger
+
 from .base_generators import NLPEmbeddingGenerator
 from .constants import IMPORT_ERROR_MESSAGE
 from .usecases import UseCases
 
 try:
-    import torch
     from datasets import Dataset
 except ImportError:
     raise ImportError(IMPORT_ERROR_MESSAGE)
@@ -24,7 +23,9 @@ class EmbeddingGeneratorForNLPSequenceClassification(NLPEmbeddingGenerator):
         )
 
     def generate_embeddings(
-        self, text_col: pd.Series, class_label_col: Optional[pd.Series] = None,
+        self,
+        text_col: pd.Series,
+        class_label_col: Optional[pd.Series] = None,
     ) -> pd.Series:
         """
         Obtain embedding vectors from your text data using pre-trained large language models.

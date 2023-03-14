@@ -2,31 +2,25 @@ import base64
 import tempfile
 from typing import List, Optional
 
-import arize.pandas.validation.errors as err
 import pandas as pd
 import pandas.api.types as ptypes
 import pyarrow as pa
 import requests
 
-from arize.__init__ import __version__
-from arize.pandas.validation.validator import Validator
-from arize.utils.types import (
+from .. import public_pb2 as pb2
+from ..__init__ import __version__
+from ..utils.logging import logger
+from ..utils.types import (
     CATEGORICAL_MODEL_TYPES,
+    NUMERIC_MODEL_TYPES,
     Environments,
     Metrics,
     ModelTypes,
-    NUMERIC_MODEL_TYPES,
     Schema,
 )
-from arize.utils.utils import reconstruct_url
-
-from arize import public_pb2 as pb
-from arize.__init__ import __version__
+from ..utils.utils import reconstruct_url
 from .validation import errors as err
 from .validation.validator import Validator
-from ..utils.logging import logger
-from ..utils.types import Environments, ModelTypes, Schema
-from ..utils.utils import reconstruct_url
 
 
 class Client:
@@ -105,6 +99,7 @@ class Client:
         if verbose:
             logger.info("Performing required validation.")
         errors = Validator.validate_required_checks(
+            dataframe=dataframe,
             model_id=model_id,
             schema=schema,
             model_version=model_version,
@@ -128,9 +123,7 @@ class Client:
             schema.embedding_feature_column_names is not None
             and type(schema.embedding_feature_column_names) != dict
         ):
-            raise TypeError(
-                "schema.embedding_feature_column_names should be a dictionary"
-            )
+            raise TypeError("schema.embedding_feature_column_names should be a dictionary")
 
         if validate:
             if verbose:
@@ -201,7 +194,7 @@ class Client:
             if verbose:
                 logger.info("Getting pyarrow schema from pandas dataframe.")
             pa_schema = pa.Schema.from_pandas(dataframe)
-        except pa.ArrowInvalid as e:
+        except pa.ArrowInvalid:
             logger.error(
                 "The dataframe needs to convert to pyarrow but has failed to do so. "
                 "There may be unrecognized data types in the dataframe. "
@@ -214,7 +207,9 @@ class Client:
             if verbose:
                 logger.info("Performing types validation.")
             errors = Validator.validate_types(
-                model_type=model_type, schema=schema, pyarrow_schema=pa_schema,
+                model_type=model_type,
+                schema=schema,
+                pyarrow_schema=pa_schema,
             )
             if errors:
                 for e in errors:
@@ -234,26 +229,28 @@ class Client:
             logger.info("Getting pyarrow table from pandas dataframe.")
         ta = pa.Table.from_pandas(dataframe)
 
-        s = pb.Schema()
+        s = pb2.Schema()
         s.constants.model_id = model_id
 
         if model_version is not None:
             s.constants.model_version = model_version
 
         if environment == Environments.PRODUCTION:
-            s.constants.environment = pb.Schema.Environment.PRODUCTION
+            s.constants.environment = pb2.Schema.Environment.PRODUCTION
         elif environment == Environments.VALIDATION:
-            s.constants.environment = pb.Schema.Environment.VALIDATION
+            s.constants.environment = pb2.Schema.Environment.VALIDATION
         elif environment == Environments.TRAINING:
-            s.constants.environment = pb.Schema.Environment.TRAINING
+            s.constants.environment = pb2.Schema.Environment.TRAINING
 
         # Map user-friendly external model types -> internal model types when sending to Arize
         if model_type in NUMERIC_MODEL_TYPES:
-            s.constants.model_type = pb.Schema.ModelType.NUMERIC
+            s.constants.model_type = pb2.Schema.ModelType.NUMERIC
         elif model_type in CATEGORICAL_MODEL_TYPES:
-            s.constants.model_type = pb.Schema.ModelType.SCORE_CATEGORICAL
+            s.constants.model_type = pb2.Schema.ModelType.SCORE_CATEGORICAL
         elif model_type == ModelTypes.RANKING:
-            s.constants.model_type = pb.Schema.ModelType.RANKING
+            s.constants.model_type = pb2.Schema.ModelType.RANKING
+        elif model_type == ModelTypes.OBJECT_DETECTION:
+            s.constants.model_type = pb2.Schema.ModelType.OBJECT_DETECTION
 
         if batch_id is not None:
             s.constants.batch_id = batch_id
@@ -264,20 +261,30 @@ class Client:
             s.arrow_schema.timestamp_column_name = schema.timestamp_column_name
 
         if schema.prediction_label_column_name is not None:
-            s.arrow_schema.prediction_label_column_name = (
-                schema.prediction_label_column_name
+            s.arrow_schema.prediction_label_column_name = schema.prediction_label_column_name
+
+        if (
+            model_type == ModelTypes.OBJECT_DETECTION
+            and schema.object_detection_prediction_column_names is not None
+        ):
+            s.arrow_schema.prediction_object_detection_label_column_names.bboxes_coordinates_column_name = (
+                schema.object_detection_prediction_column_names.boxes_coords_column_name
             )
+            s.arrow_schema.prediction_object_detection_label_column_names.bboxes_categories_column_name = (
+                schema.object_detection_prediction_column_names.categories_column_name
+            )
+            if schema.object_detection_prediction_column_names.scores_column_name is not None:
+                s.arrow_schema.prediction_object_detection_label_column_names.bboxes_scores_column_name = (
+                    schema.object_detection_prediction_column_names.scores_column_name
+                )
 
         if schema.prediction_score_column_name is not None:
             if model_type in NUMERIC_MODEL_TYPES:
-                # allow numeric prediction to be sent in as either prediction_label (legacy) or prediction_score.
-                s.arrow_schema.prediction_label_column_name = (
-                    schema.prediction_score_column_name
-                )
+                # allow numeric prediction to be sent in as either prediction_label (legacy) or
+                # prediction_score.
+                s.arrow_schema.prediction_label_column_name = schema.prediction_score_column_name
             else:
-                s.arrow_schema.prediction_score_column_name = (
-                    schema.prediction_score_column_name
-                )
+                s.arrow_schema.prediction_score_column_name = schema.prediction_score_column_name
 
         if schema.feature_column_names is not None:
             s.arrow_schema.feature_column_names.extend(schema.feature_column_names)
@@ -303,46 +310,41 @@ class Client:
         if schema.tag_column_names is not None:
             s.arrow_schema.tag_column_names.extend(schema.tag_column_names)
 
-        if (
-            model_type == ModelTypes.RANKING
-            and schema.relevance_labels_column_name is not None
-        ):
-            s.arrow_schema.actual_label_column_name = (
-                schema.relevance_labels_column_name
-            )
-        elif (
-            model_type == ModelTypes.RANKING
-            and schema.attributions_column_name is not None
-        ):
+        if model_type == ModelTypes.RANKING and schema.relevance_labels_column_name is not None:
+            s.arrow_schema.actual_label_column_name = schema.relevance_labels_column_name
+        elif model_type == ModelTypes.RANKING and schema.attributions_column_name is not None:
             s.arrow_schema.actual_label_column_name = schema.attributions_column_name
         elif schema.actual_label_column_name is not None:
             s.arrow_schema.actual_label_column_name = schema.actual_label_column_name
 
-        if (
-            model_type == ModelTypes.RANKING
-            and schema.relevance_score_column_name is not None
-        ):
+        if model_type == ModelTypes.RANKING and schema.relevance_score_column_name is not None:
             s.arrow_schema.actual_score_column_name = schema.relevance_score_column_name
         elif schema.actual_score_column_name is not None:
             s.arrow_schema.actual_score_column_name = schema.actual_score_column_name
 
         if schema.shap_values_column_names is not None:
-            s.arrow_schema.shap_values_column_names.update(
-                schema.shap_values_column_names
-            )
-
-        if schema.actual_numeric_sequence_column_name is not None:
-            s.arrow_schema.actual_numeric_sequence_column_name = (
-                schema.actual_numeric_sequence_column_name
-            )
+            s.arrow_schema.shap_values_column_names.update(schema.shap_values_column_names)
 
         if schema.prediction_group_id_column_name is not None:
-            s.arrow_schema.prediction_group_id_column_name = (
-                schema.prediction_group_id_column_name
-            )
+            s.arrow_schema.prediction_group_id_column_name = schema.prediction_group_id_column_name
 
         if schema.rank_column_name is not None:
             s.arrow_schema.rank_column_name = schema.rank_column_name
+
+        if (
+            model_type == ModelTypes.OBJECT_DETECTION
+            and schema.object_detection_actual_column_names is not None
+        ):
+            s.arrow_schema.actual_object_detection_label_column_names.bboxes_coordinates_column_name = (
+                schema.object_detection_actual_column_names.boxes_coords_column_name
+            )
+            s.arrow_schema.actual_object_detection_label_column_names.bboxes_categories_column_name = (
+                schema.object_detection_actual_column_names.categories_column_name
+            )
+            if schema.object_detection_actual_column_names.scores_column_name is not None:
+                s.arrow_schema.actual_object_detection_label_column_names.bboxes_scores_column_name = (
+                    schema.object_detection_actual_column_names.scores_column_name
+                )
 
         if verbose:
             logger.info("Serializing schema.")
@@ -350,9 +352,7 @@ class Client:
 
         # limit the potential size of http headers to under 64 kilobytes
         if len(base64_schema) > 63000:
-            raise ValueError(
-                "The schema (after removing unnecessary columns) is too large."
-            )
+            raise ValueError("The schema (after removing unnecessary columns) is too large.")
 
         if path is None:
             f = tempfile.NamedTemporaryFile()
@@ -375,7 +375,7 @@ class Client:
 
         try:
             logger.info(f"Success! Check out your data at {reconstruct_url(response)}")
-        except:
+        except Exception:
             pass
 
         return response
@@ -398,12 +398,13 @@ class Client:
             if sync:
                 headers["sync"] = "1"
             return requests.post(
-                self._files_uri, timeout=timeout, data=f, headers=headers,
+                self._files_uri,
+                timeout=timeout,
+                data=f,
+                headers=headers,
             )
 
-    def _remove_extraneous_columns(
-        self, df: pd.DataFrame, schema: Schema
-    ) -> pd.DataFrame:
+    def _remove_extraneous_columns(self, df: pd.DataFrame, schema: Schema) -> pd.DataFrame:
         cols_to_keep = set()
 
         for field in schema.__dataclass_fields__:
@@ -430,6 +431,14 @@ class Client:
 
         if schema.shap_values_column_names is not None:
             for col in schema.shap_values_column_names.values():
+                cols_to_keep.add(col)
+
+        if schema.object_detection_prediction_column_names is not None:
+            for col in schema.object_detection_prediction_column_names:
+                cols_to_keep.add(col)
+
+        if schema.object_detection_actual_column_names is not None:
+            for col in schema.object_detection_actual_column_names:
                 cols_to_keep.add(col)
 
         return df[df.columns.intersection(cols_to_keep)]

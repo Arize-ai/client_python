@@ -1,10 +1,9 @@
 from collections import ChainMap
 from datetime import datetime, timedelta
 
+import arize.pandas.validation.errors as err
 import pandas as pd
 import pytest
-
-import arize.pandas.validation.errors as err
 from arize.pandas.logger import Schema
 from arize.pandas.validation.validator import Validator
 from arize.utils.types import Environments, ModelTypes

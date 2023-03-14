@@ -1,10 +1,10 @@
+import concurrent.futures as cf
 import os
 import time
 import uuid
-import numpy
 from random import random
-import concurrent.futures as cf
 
+import numpy
 from arize.api import Client
 from arize.utils.types import ModelTypes
 
@@ -54,7 +54,8 @@ for j in range(ITERATIONS):
 
 end_sending = time.time_ns()
 print(
-    f"{ITERATIONS} requests took a total of {int(end_sending - start)/1000000}ms to send. Waiting for responses."
+    f"{ITERATIONS} requests took a total of {int(end_sending - start) / 1000000}ms to send. "
+    "Waiting for responses."
 )
 
 for future in cf.as_completed(resps):

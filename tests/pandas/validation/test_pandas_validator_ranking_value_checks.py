@@ -1,10 +1,9 @@
 from collections import ChainMap
 from datetime import datetime, timedelta
 
+import arize.pandas.validation.errors as err
 import pandas as pd
 import pytest
-
-import arize.pandas.validation.errors as err
 from arize.pandas.logger import Schema
 from arize.pandas.validation.validator import Validator
 from arize.utils.types import ModelTypes
@@ -87,18 +86,14 @@ def test_prediction_group_id_length_1_36():
     long_ids = pd.Series(["A" * 37] * 4)
 
     errors = Validator.validate_values(
-        **ChainMap(
-            {"dataframe": pd.DataFrame({"prediction_group_id": null_ids})}, kwargs
-        )
+        **ChainMap({"dataframe": pd.DataFrame({"prediction_group_id": null_ids})}, kwargs)
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidValueMissingValue
 
     for ids in (empty_ids, long_ids):
         errors = Validator.validate_values(
-            **ChainMap(
-                {"dataframe": pd.DataFrame({"prediction_group_id": ids})}, kwargs
-            )
+            **ChainMap({"dataframe": pd.DataFrame({"prediction_group_id": ids})}, kwargs)
         )
         assert len(errors) == 1
         assert type(errors[0]) is err.InvalidPredictionGroupIDLength

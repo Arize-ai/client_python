@@ -1,11 +1,10 @@
+import concurrent.futures as cf
 import os
 import time
 import uuid
 
-import pandas as pd
 import numpy as np
-import concurrent.futures as cf
-
+import pandas as pd
 from arize.api import Client
 from arize.types import ModelTypes
 

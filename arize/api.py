@@ -4,24 +4,23 @@ from typing import Dict, Optional, Tuple, Union
 
 import numpy as np
 from google.protobuf.json_format import MessageToDict
+from google.protobuf.wrappers_pb2 import DoubleValue
 from requests_futures.sessions import FuturesSession
 
-from arize import public_pb2 as public__pb2
-from arize.__init__ import __version__
-from arize.bounded_executor import BoundedExecutor
-from arize.utils.types import (
+from . import public_pb2 as pb2
+from .__init__ import __version__
+from .bounded_executor import BoundedExecutor
+from .utils.types import (
     CATEGORICAL_MODEL_TYPES,
+    NUMERIC_MODEL_TYPES,
     Embedding,
     Environments,
     ModelTypes,
-    NUMERIC_MODEL_TYPES,
+    ObjectDetectionLabel,
+    RankingActualLabel,
+    RankingPredictionLabel,
 )
-from arize.utils.utils import (
-    convert_element,
-    get_timestamp,
-    get_value_object,
-    is_timestamp_in_range,
-)
+from .utils.utils import convert_dictionary, convert_element, get_timestamp, is_timestamp_in_range
 
 
 class Client:
@@ -52,16 +51,12 @@ class Client:
         """
 
         if not isinstance(space_key, str):
-            raise TypeError(
-                f"space_key {space_key} is type {type(space_key)}, but must be a str"
-            )
+            raise TypeError(f"space_key {space_key} is type {type(space_key)}, but must be a str")
         self._uri = uri + "/log"
         self._api_key = api_key
         self._space_key = space_key
         self._timeout = timeout
-        self._session = FuturesSession(
-            executor=BoundedExecutor(max_queue_bound, max_workers)
-        )
+        self._session = FuturesSession(executor=BoundedExecutor(max_queue_bound, max_workers))
         # Grpc-Metadata prefix is required to pass non-standard md through via grpc-gateway
         self._header = {
             "authorization": api_key,
@@ -78,8 +73,24 @@ class Client:
         environment: Environments,
         model_version: Optional[str] = None,
         prediction_timestamp: Optional[int] = None,
-        prediction_label: Union[str, bool, int, float, Tuple[str, float]] = None,
-        actual_label: Union[str, bool, int, float, Tuple[str, float]] = None,
+        prediction_label: Union[
+            str,
+            bool,
+            int,
+            float,
+            Tuple[str, float],
+            ObjectDetectionLabel,
+            RankingPredictionLabel,
+        ] = None,
+        actual_label: Union[
+            str,
+            bool,
+            int,
+            float,
+            Tuple[str, float],
+            ObjectDetectionLabel,
+            RankingActualLabel,
+        ] = None,
         features: Optional[Dict[str, Union[str, bool, float, int]]] = None,
         embedding_features: Optional[Dict[str, Embedding]] = None,
         shap_values: Dict[str, float] = None,
@@ -98,25 +109,27 @@ class Client:
         :param model_version (str, optional): Field used to group together a subset of
         predictions and actuals for a given model_id. Defaults to None.
         :param prediction_timestamp (int, optional): Unix epoch time in seconds for prediction.
-        Defaults to None.
-                    If None, prediction uses current timestamp.
-        :param prediction_label (bool, int, float, str, or Tuple(str, float); optional): The
-        predicted value for a given model input. Defaults to None.
-        :param actual_label (bool, int, float, str, or Tuple[str, float]; optional): The actual
-        true value for a given model input. This actual will be matched to the prediction with
-        the same prediction_id as the one in this call. Defaults to None.
+        If None, prediction uses current timestamp. Defaults to None.
+        :param prediction_label (bool, int, float, str, Tuple(str, float), ObjectDetectionLabel
+        or RankingPredictionLabel;
+        optional): The predicted value for a given model input. Defaults to None.
+        :param actual_label (bool, int, float, str, Tuple[str, float], ObjectDetectionLabel
+        or RankingActualLabel;
+        optional):
+        The actual true value for a given model input. This actual will be matched to the
+        prediction with the same prediction_id as the one in this call. Defaults to None.
         :param features (Dict[str, <value>], optional): Dictionary containing human readable and
-        debuggable model features. Keys must be strings.
-                    Values must be one of str, bool, float, long. Defaults to None.
+        debuggable model features. Keys must be strings. Values must be one of str, bool, float,
+        long. Defaults to None.
         :param embedding_features (Dict[str, Embedding], optional): Dictionary containing model
-        embedding features. Keys must be strings.
-                    Values must be of Embedding type. Defaults to None.
+        embedding features. Keys must be strings. Values must be of Embedding type. Defaults to
+        None.
         :param shap_values (Dict[str, float], optional): Dictionary containing human readable and
         debuggable model features keys, along with SHAP feature importance values. Keys must be
         str, while values must be float. Defaults to None.
         :param tags (Dict[str, <value>], optional): Dictionary containing human readable and
-        debuggable model tags. Keys must be strings.
-                    Values must be one of str, bool, float, long. Defaults to None.
+        debuggable model tags. Keys must be strings. Values must be one of str, bool, float,
+        long. Defaults to None.
         :param batch_id (str, optional): Used to distinguish different batch of data under the
         same model_id and model_version. Required when environment is VALIDATION. Defaults to None.
         :return: `concurrent.futures.Future` object
@@ -124,9 +137,7 @@ class Client:
 
         # Validate model_id
         if not isinstance(model_id, str):
-            raise TypeError(
-                f"model_id {model_id} is type {type(model_id)}, but must be a str"
-            )
+            raise TypeError(f"model_id {model_id} is type {type(model_id)}, but must be a str")
         # Validate model_type
         if not isinstance(model_type, ModelTypes):
             raise TypeError(
@@ -141,11 +152,7 @@ class Client:
             )
         # Validate batch_id
         if environment == Environments.VALIDATION:
-            if (
-                batch_id is None
-                or not isinstance(batch_id, str)
-                or len(batch_id.strip()) == 0
-            ):
+            if batch_id is None or not isinstance(batch_id, str) or len(batch_id.strip()) == 0:
                 raise ValueError(
                     "Batch ID must be a nonempty string if logging to validation environment."
                 )
@@ -163,14 +170,16 @@ class Client:
 
         # Validate embedding_features type
         if embedding_features:
+            if model_type == ModelTypes.OBJECT_DETECTION:
+                # Check that there is only 1 embedding feature for OD model types
+                if len(embedding_features.keys()) > 1:
+                    raise ValueError("Object Detection models only support one embedding feature")
             for emb_name, emb_obj in embedding_features.items():
                 _validate_mapping_key(emb_name)
                 # Must verify embedding type
-                if type(emb_obj) != Embedding:
-                    raise TypeError(
-                        f'Embedding feature "{emb_name}" must be of embedding type'
-                    )
-                Embedding.validate_embedding_object(emb_name, emb_obj)
+                if not isinstance(emb_obj, Embedding):
+                    raise TypeError(f'Embedding feature "{emb_name}" must be of embedding type')
+                emb_obj.validate(emb_name)
 
         # Validate tag types
         if tags:
@@ -183,14 +192,10 @@ class Client:
                         f"but expected one of: str, bool, float, int"
                     )
                 if isinstance(tag_name, str) and tag_name.endswith("_shap"):
-                    raise ValueError(
-                        f"tag {tag_name} must not be named with a `_shap` suffix"
-                    )
+                    raise ValueError(f"tag {tag_name} must not be named with a `_shap` suffix")
 
         # Check the timestamp present on the event
-        if prediction_timestamp is not None and not isinstance(
-            prediction_timestamp, int
-        ):
+        if prediction_timestamp is not None and not isinstance(prediction_timestamp, int):
             raise TypeError(
                 f"prediction_timestamp {prediction_timestamp} is type "
                 f"{type(prediction_timestamp)} but expected int"
@@ -213,40 +218,33 @@ class Client:
                     f"model_version {model_version} is type {type(model_version)}, but must be a "
                     f"str"
                 )
-            _validate_label(model_type, label=convert_element(prediction_label))
-            p = public__pb2.Prediction(
-                label=_get_label(
-                    name="prediction", value=prediction_label, model_type=model_type,
+            _validate_label(
+                prediction_or_actual="prediction",
+                model_type=model_type,
+                label=convert_element(prediction_label),
+                embedding_features=embedding_features,
+            )
+            p = pb2.Prediction(
+                prediction_label=_get_label(
+                    prediction_or_actual="prediction",
+                    value=prediction_label,
+                    model_type=model_type,
                 ),
                 model_version=model_version,
             )
             if features is not None:
-                converted_feats = {}
-                for (k, v) in features.items():
-                    val = get_value_object(value=v, name=k)
-                    if val is not None:
-                        converted_feats[str(k)] = val
-                feats = public__pb2.Prediction(features=converted_feats)
+                converted_feats = convert_dictionary(features)
+                feats = pb2.Prediction(features=converted_feats)
                 p.MergeFrom(feats)
 
             if embedding_features is not None:
-                converted_embedding_feats = {}
-                for (k, v) in embedding_features.items():
-                    val = get_value_object(value=v, name=k)
-                    if val is not None:
-                        converted_embedding_feats[str(k)] = val
-                embedding_feats = public__pb2.Prediction(
-                    features=converted_embedding_feats
-                )
+                converted_embedding_feats = convert_dictionary(embedding_features)
+                embedding_feats = pb2.Prediction(features=converted_embedding_feats)
                 p.MergeFrom(embedding_feats)
 
             if tags is not None:
-                converted_tags = {}
-                for (k, v) in tags.items():
-                    val = get_value_object(value=v, name=k)
-                    if val is not None:
-                        converted_tags[str(k)] = val
-                tgs = public__pb2.Prediction(tags=converted_tags)
+                converted_tags = convert_dictionary(tags)
+                tgs = pb2.Prediction(tags=converted_tags)
                 p.MergeFrom(tgs)
 
             if prediction_timestamp is not None:
@@ -255,20 +253,23 @@ class Client:
         # Validate and construct the optional actual
         a = None
         if actual_label is not None:
-            _validate_label(model_type, label=convert_element(actual_label))
-            a = public__pb2.Actual(
-                label=_get_label(
-                    name="actual", value=actual_label, model_type=model_type
+            _validate_label(
+                prediction_or_actual="actual",
+                model_type=model_type,
+                label=convert_element(actual_label),
+                embedding_features=embedding_features,
+            )
+            a = pb2.Actual(
+                actual_label=_get_label(
+                    prediction_or_actual="actual",
+                    value=actual_label,
+                    model_type=model_type,
                 )
             )
             # Added to support latent tags on actuals.
             if tags is not None:
-                converted_tags = {}
-                for (k, v) in tags.items():
-                    val = get_value_object(value=v, name=k)
-                    if val is not None:
-                        converted_tags[str(k)] = val
-                tgs = public__pb2.Actual(tags=converted_tags)
+                converted_tags = convert_dictionary(tags)
+                tgs = pb2.Actual(tags=converted_tags)
                 a.MergeFrom(tgs)
 
         # Validate and construct the optional feature importances
@@ -280,41 +281,33 @@ class Client:
                         f"feature {k} with value {v} is type {type(v)}, but expected one of: float"
                     )
                 if isinstance(k, str) and k.endswith("_shap"):
-                    raise ValueError(
-                        f"feature {k} must not be named with a `_shap` suffix"
-                    )
-            fi = public__pb2.FeatureImportances(feature_importances=shap_values)
+                    raise ValueError(f"feature {k} must not be named with a `_shap` suffix")
+            fi = pb2.FeatureImportances(feature_importances=shap_values)
 
         if p is None and a is None and fi is None:
             raise ValueError(
-                f"must provide at least one of prediction_label, actual_label, or shap_values"
+                "must provide at least one of prediction_label, actual_label, or shap_values"
             )
 
         env_params = None
         if environment == Environments.TRAINING:
             if p is None or a is None:
-                raise ValueError(
-                    "Training records must have both Prediction and Actual"
-                )
-            env_params = public__pb2.Record.EnvironmentParams(
-                training=public__pb2.Record.EnvironmentParams.Training()
+                raise ValueError("Training records must have both Prediction and Actual")
+            env_params = pb2.Record.EnvironmentParams(
+                training=pb2.Record.EnvironmentParams.Training()
             )
         elif environment == Environments.VALIDATION:
             if p is None or a is None:
-                raise ValueError(
-                    "Validation records must have both Prediction and Actual"
-                )
-            env_params = public__pb2.Record.EnvironmentParams(
-                validation=public__pb2.Record.EnvironmentParams.Validation(
-                    batch_id=batch_id
-                )
+                raise ValueError("Validation records must have both Prediction and Actual")
+            env_params = pb2.Record.EnvironmentParams(
+                validation=pb2.Record.EnvironmentParams.Validation(batch_id=batch_id)
             )
         elif environment == Environments.PRODUCTION:
-            env_params = public__pb2.Record.EnvironmentParams(
-                production=public__pb2.Record.EnvironmentParams.Production()
+            env_params = pb2.Record.EnvironmentParams(
+                production=pb2.Record.EnvironmentParams.Production()
             )
 
-        rec = public__pb2.Record(
+        rec = pb2.Record(
             space_key=self._space_key,
             model_id=model_id,
             prediction_id=str(prediction_id),
@@ -339,98 +332,255 @@ class Client:
 
 
 def _validate_label(
+    prediction_or_actual: str,
+    model_type: ModelTypes,
+    label: Union[
+        str,
+        bool,
+        int,
+        float,
+        Tuple[Union[str, bool], float],
+        ObjectDetectionLabel,
+        RankingPredictionLabel,
+        RankingActualLabel,
+    ],
+    embedding_features: Dict[str, Embedding],
+):
+    if model_type in NUMERIC_MODEL_TYPES:
+        _validate_numeric_label(model_type, label)
+    elif model_type in CATEGORICAL_MODEL_TYPES:
+        _validate_categorical_label(model_type, label)
+    elif model_type == ModelTypes.OBJECT_DETECTION:
+        _validate_object_detection_label(
+            prediction_or_actual, model_type, label, embedding_features
+        )
+    elif model_type == ModelTypes.RANKING:
+        _validate_ranking_label(prediction_or_actual, model_type, label)
+    else:
+        raise TypeError(
+            f"model_type {model_type} is type {type(model_type)}, but must be of "
+            f"arize.utils.ModelTypes"
+        )
+
+
+def _validate_numeric_label(
     model_type: ModelTypes,
     label: Union[str, bool, int, float, Tuple[Union[str, bool], float]],
 ):
-    if model_type in NUMERIC_MODEL_TYPES:
-        if not isinstance(label, (float, int)):
-            raise TypeError(
-                f"label {label} has type {type(label)}, but must be either float or int for ModelTypes.{model_type}"
-            )
-        elif label is np.nan:
-            raise ValueError(f"label for ModelTypes.{model_type} cannot be null value")
-    elif model_type in CATEGORICAL_MODEL_TYPES:
-        is_valid = (
-            isinstance(label, str)
-            or isinstance(label, bool)
-            or (
-                isinstance(label, tuple)
-                and isinstance(label[0], (str, bool))
-                and isinstance(label[1], float)
-            )
+    if not isinstance(label, (float, int)):
+        raise TypeError(
+            f"label {label} has type {type(label)}, but must be either float or int for "
+            f"ModelTypes.{model_type}"
         )
-        if not is_valid:
-            raise TypeError(
-                f"label {label} has type {type(label)}, but must be str, bool, or Tuple[str, float] for ModelTypes.{model_type}"
-            )
-        if isinstance(label, tuple) and label[1] is np.nan:
-            raise ValueError(
-                f"Prediction score for ModelTypes.{model_type} cannot be null value"
-            )
+    elif label is np.nan:
+        raise ValueError(f"label for ModelTypes.{model_type} cannot be null value")
+
+
+def _validate_categorical_label(
+    model_type: ModelTypes,
+    label: Union[str, bool, int, float, Tuple[Union[str, bool], float]],
+):
+    is_valid = (
+        isinstance(label, str)
+        or isinstance(label, bool)
+        or (
+            isinstance(label, tuple)
+            and isinstance(label[0], (str, bool))
+            and isinstance(label[1], float)
+        )
+    )
+    if not is_valid:
+        raise TypeError(
+            f"label {label} has type {type(label)}, but must be str, bool, or Tuple[str, "
+            f"float] for ModelTypes.{model_type}"
+        )
+    if isinstance(label, tuple) and label[1] is np.nan:
+        raise ValueError(
+            f"Prediction confidence score for ModelTypes.{model_type} cannot be null value"
+        )
+
+
+def _validate_object_detection_label(
+    prediction_or_actual: str,
+    model_type: ModelTypes,
+    label: ObjectDetectionLabel,
+    embedding_features: Dict[str, Embedding],
+):
+    if not isinstance(label, ObjectDetectionLabel):
+        raise TypeError(
+            f"label {label} has type {type(label)}, but must be ObjectDetectionLabel for ModelTypes"
+            f".{model_type}"
+        )
+    if embedding_features is None:
+        raise ValueError("Cannot use Object Detection Labels without an embedding feature")
+    if len(embedding_features.keys()) != 1:
+        raise ValueError("Object Detection Labels must be sent with exactly one embedding feature")
+    label.validate(prediction_or_actual=prediction_or_actual)
+
+
+def _validate_ranking_label(
+    prediction_or_actual: str,
+    model_type: ModelTypes,
+    label: Union[RankingPredictionLabel, RankingActualLabel],
+):
+    if not isinstance(label, (RankingPredictionLabel, RankingActualLabel)):
+        raise TypeError(
+            f"label {label} has type {type(label)}, but must be RankingPredictionLabel"
+            f"or RankingActualLabel for ModelTypes.{model_type}"
+        )
+    label.validate()
 
 
 def _get_label(
-    name: str,
-    value: Union[str, bool, int, float, Tuple[str, float]],
+    prediction_or_actual: str,
+    value: Union[
+        str,
+        bool,
+        int,
+        float,
+        Tuple[str, float],
+        ObjectDetectionLabel,
+        RankingPredictionLabel,
+        RankingActualLabel,
+    ],
     model_type: ModelTypes,
-) -> public__pb2.Label:
+) -> Union[pb2.PredictionLabel, pb2.ActualLabel]:
     value = convert_element(value)
     if model_type in NUMERIC_MODEL_TYPES:
-        return _get_numeric_label(name, value)
+        return _get_numeric_label(prediction_or_actual, value)
     elif model_type in CATEGORICAL_MODEL_TYPES:
-        return _get_score_categorical_label(name, value)
+        return _get_score_categorical_label(prediction_or_actual, value)
+    elif model_type == ModelTypes.OBJECT_DETECTION:
+        return _get_object_detection_label(prediction_or_actual, value)
+    elif model_type == ModelTypes.RANKING:
+        return _get_ranking_label(value)
     raise ValueError(
-        f"model_type must be one of: {[mt.name for mt in ModelTypes]} "
-        f"Got {model_type} instead."
+        f"model_type must be one of: {[mt.prediction_or_actual for mt in ModelTypes]} "
+        f"Got "
+        f"{model_type} instead."
     )
 
 
-def _get_numeric_label(name: str, value: Union[int, float],) -> public__pb2.Label:
-    if isinstance(value, (int, float)):
-        return public__pb2.Label(numeric=value)
-    else:
+def _get_numeric_label(
+    prediction_or_actual: str,
+    value: Union[int, float],
+) -> Union[pb2.PredictionLabel, pb2.ActualLabel]:
+    if not isinstance(value, (int, float)):
         raise TypeError(
-            f"Received {name}_label = {value}, of type {type(value)}. "
-            + f"{[mt.name for mt in NUMERIC_MODEL_TYPES]} models accept labels of type int or float"
+            f"Received {prediction_or_actual}_label = {value}, of type {type(value)}. "
+            + f"{[mt.prediction_or_actual for mt in NUMERIC_MODEL_TYPES]} models accept labels of "
+            f"type int or float"
         )
+    if prediction_or_actual == "prediction":
+        return pb2.PredictionLabel(numeric=value)
+    elif prediction_or_actual == "actual":
+        return pb2.ActualLabel(numeric=value)
 
 
 def _get_score_categorical_label(
-    name: str, value: Union[bool, str, Tuple[str, float]],
-) -> public__pb2.Label:
-    sc = public__pb2.ScoreCategorical()
+    prediction_or_actual: str,
+    value: Union[bool, str, Tuple[str, float]],
+) -> Union[pb2.PredictionLabel, pb2.ActualLabel]:
+    sc = pb2.ScoreCategorical()
     if isinstance(value, bool):
         sc.category.category = str(value)
-        return public__pb2.Label(score_categorical=sc)
     elif isinstance(value, str):
         sc.category.category = value
-        return public__pb2.Label(score_categorical=sc)
     elif isinstance(value, tuple):
         # Expect Tuple[str,float]
         if value[1] is None:
             raise TypeError(
-                f"Received {name}_label = {value}, of type {type(value)}[{type(value[0])}, None]. "
-                + f"{[mt.name for mt in CATEGORICAL_MODEL_TYPES]} models accept values "
-                f"of type str, bool, or Tuple[str, float]"
+                f"Received {prediction_or_actual}_label = {value}, of type "
+                f"{type(value)}[{type(value[0])}, None]. "
+                f"{[mt.prediction_or_actual for mt in CATEGORICAL_MODEL_TYPES]} models accept "
+                "values of type str, bool, or Tuple[str, float]"
             )
         if not isinstance(value[0], (bool, str)) or not isinstance(value[1], float):
             raise TypeError(
-                f"Received {name}_label = {value}, of type {type(value)}[{type(value[0])}, {type(value[1])}]. "
-                + f"{[mt.name for mt in CATEGORICAL_MODEL_TYPES]} models accept values "
-                f"of type str, bool, or Tuple[str or bool, float]"
+                f"Received {prediction_or_actual}_label = {value}, of type "
+                f"{type(value)}[{type(value[0])}, {type(value[1])}]. "
+                f"{[mt.prediction_or_actual for mt in CATEGORICAL_MODEL_TYPES]} models accept "
+                "values of type str, bool, or Tuple[str or bool, float]"
             )
         if isinstance(value[0], bool):
             sc.score_category.category = str(value[0])
         else:
             sc.score_category.category = value[0]
         sc.score_category.score = value[1]
-        return public__pb2.Label(score_categorical=sc)
     else:
         raise TypeError(
-            f"Received {name}_label = {value}, of type {type(value)}. "
-            + f"{[mt.name for mt in CATEGORICAL_MODEL_TYPES]} models accept values "
+            f"Received {prediction_or_actual}_label = {value}, of type {type(value)}. "
+            + f"{[mt.prediction_or_actual for mt in CATEGORICAL_MODEL_TYPES]} models accept values "
             f"of type str, bool, or Tuple[str, float]"
         )
+    if prediction_or_actual == "prediction":
+        return pb2.PredictionLabel(score_categorical=sc)
+    elif prediction_or_actual == "actual":
+        return pb2.ActualLabel(score_categorical=sc)
+
+
+def _get_object_detection_label(
+    prediction_or_actual: str,
+    value: ObjectDetectionLabel,
+) -> Union[pb2.PredictionLabel, pb2.ActualLabel]:
+    if not isinstance(value, ObjectDetectionLabel):
+        raise TypeError(
+            f"label {value} has type {type(value)}, but must be ObjectDetectionLabel for ModelTypes"
+            f".OBJECT_DETECTION"
+        )
+    od = pb2.ObjectDetection()
+    bounding_boxes = []
+    for i in range(len(value.bounding_boxes_coordinates)):
+        coordinates = value.bounding_boxes_coordinates[i]
+        category = value.categories[i]
+        if value.scores is None:
+            bounding_boxes.append(
+                pb2.ObjectDetection.BoundingBox(coordinates=coordinates, category=category)
+            )
+        else:
+            score = value.scores[i]
+            bounding_boxes.append(
+                pb2.ObjectDetection.BoundingBox(
+                    coordinates=coordinates,
+                    category=category,
+                    score=DoubleValue(value=score),
+                )
+            )
+
+    od.bounding_boxes.extend(bounding_boxes)
+    if prediction_or_actual == "prediction":
+        return pb2.PredictionLabel(object_detection=od)
+    elif prediction_or_actual == "actual":
+        return pb2.ActualLabel(object_detection=od)
+
+
+def _get_ranking_label(
+    value: Union[RankingPredictionLabel, RankingActualLabel]
+) -> Union[pb2.PredictionLabel, pb2.ActualLabel]:
+    if not isinstance(value, (RankingPredictionLabel, RankingActualLabel)):
+        raise TypeError(
+            f"label {value} has type {type(value)}, but must be RankingPredictionLabel"
+            f" or RankingActualLabel for ModelTypes.RANKING"
+        )
+    if isinstance(value, RankingPredictionLabel):
+        rp = pb2.RankingPrediction()
+        # If validation has passed, rank and group_id are guaranteed to be not None
+        rp.rank = value.rank
+        rp.prediction_group_id = value.group_id
+        # score and label are optional
+        if value.score is not None:
+            rp.prediction_score.value = value.score
+        if value.label is not None:
+            rp.label = value.label
+        return pb2.PredictionLabel(ranking=rp)
+    elif isinstance(value, RankingActualLabel):
+        ra = pb2.RankingActual()
+        # relevance_labels and relevance_score are optional
+        if value.relevance_labels is not None:
+            ra.category.values.extend(value.relevance_labels)
+        if value.relevance_score is not None:
+            ra.relevance_score.value = value.relevance_score
+        return pb2.ActualLabel(ranking=ra)
 
 
 def _validate_mapping_key(feat_name):

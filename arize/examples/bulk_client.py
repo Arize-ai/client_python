@@ -1,10 +1,10 @@
-import os
-import uuid
-import time
-import pandas as pd
-import numpy as np
 import concurrent.futures as cf
+import os
+import time
+import uuid
 
+import numpy as np
+import pandas as pd
 from arize.api import Client
 from arize.utils.types import ModelTypes
 
@@ -38,7 +38,8 @@ preds = arize.bulk_log(
 
 end_enqueue = time.time_ns()
 print(
-    f"request took a total of {int(end_enqueue - start)/1000000}ms to enqueue. Waiting for responses.\n"
+    f"request took a total of {int(end_enqueue - start) / 1000000}ms to enqueue. "
+    "Waiting for responses.\n"
 )
 
 for future in cf.as_completed(preds):
@@ -49,5 +50,5 @@ for future in cf.as_completed(preds):
 
 end_sending = time.time_ns()
 print(
-    f"Process took a total of {int(end_sending - start)/1000000}ms to send {NUM_RECORDS} records."
+    f"Process took a total of {int(end_sending - start) / 1000000}ms to send {NUM_RECORDS} records."
 )

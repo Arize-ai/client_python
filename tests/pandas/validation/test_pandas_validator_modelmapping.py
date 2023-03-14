@@ -1,23 +1,25 @@
 from collections import ChainMap
 
-import numpy as np
 import pandas as pd
 import pytest
-
-from arize.pandas.logger import Schema
+from arize.pandas.validation.errors import (
+    InvalidModelTypeAndMetricsCombination,
+    MissingRequiredColumnsMetricsValidation,
+)
 from arize.pandas.validation.validator import Validator
-from arize.pandas.validation.errors import InvalidModelTypeAndMetricsCombination, MissingRequiredColumnsMetricsValidation
-from arize.utils.types import EmbeddingColumnNames, Environments, Metrics, ModelTypes
+from arize.utils.types import Environments, Metrics, ModelTypes, Schema
 
 
-def test__check_model_type_and_metrics_no_metrics_selected():
+def test__check_model_type_metrics_no_metrics_selected():
     # This would otherwise raise a validation error because rank_column_name is required for
     # the combination of ranking model & ranking metrics.
-    errors = Validator.validate_params(**ChainMap(kwargs),)
+    errors = Validator.validate_params(
+        **ChainMap(kwargs),
+    )
     assert len(errors) == 0
 
 
-def test__check_model_type_and_metrics_old_model_type():
+def test__check_model_type_metrics_old_model_type():
     # This would otherwise raise a validation error because the combination of metrics is not valid.
     errors = Validator.validate_params(
         **ChainMap(
@@ -31,7 +33,7 @@ def test__check_model_type_and_metrics_old_model_type():
     assert len(errors) == 0
 
 
-def test__check_model_type_and_metrics_bad_metric_combo():
+def test__check_model_type_metrics_bad_metric_combo():
     errors = Validator.validate_params(
         **ChainMap(
             {
@@ -57,7 +59,7 @@ def test__check_model_type_and_metrics_bad_metric_combo():
     assert type(errors[0]) is InvalidModelTypeAndMetricsCombination
 
 
-def test__check_model_type_and_metrics_binary_classification_with_classification_metrics():
+def test__check_model_type_metrics_bin_classif_with_classification_metrics():
     errors = Validator.validate_params(
         **ChainMap(
             {
@@ -71,7 +73,7 @@ def test__check_model_type_and_metrics_binary_classification_with_classification
     assert len(errors) == 0
 
 
-def test__check_model_type_and_metrics_binary_classification_with_classification_auc_log_loss_metrics():
+def test__check_model_type_metrics_bin_classif_with_classification_auc_logloss_metrics():
     errors = Validator.validate_params(
         **ChainMap(
             {
@@ -98,7 +100,7 @@ def test__check_model_type_and_metrics_binary_classification_with_classification
     assert type(errors[0]) is MissingRequiredColumnsMetricsValidation
 
 
-def test__check_model_type_and_metrics_binary_classification_with_classification_regression_metrics():
+def test__check_model_type_metrics_bin_classif_with_classification_regression_metrics():
     errors = Validator.validate_params(
         **ChainMap(
             {
@@ -125,12 +127,16 @@ def test__check_model_type_and_metrics_binary_classification_with_classification
     assert type(errors[0]) is MissingRequiredColumnsMetricsValidation
 
 
-def test__check_model_type_and_metrics_binary_classification_with_classification_auc_log_loss_regression_metrics():
+def test__check_model_type_metrics_bin_classif_with_classification_auc_logloss_regression_metrics():
     errors = Validator.validate_params(
         **ChainMap(
             {
                 "model_type": ModelTypes.BINARY_CLASSIFICATION,
-                "metric_families": [Metrics.CLASSIFICATION, Metrics.AUC_LOG_LOSS, Metrics.REGRESSION],
+                "metric_families": [
+                    Metrics.CLASSIFICATION,
+                    Metrics.AUC_LOG_LOSS,
+                    Metrics.REGRESSION,
+                ],
             },
             classification_with_score,
             kwargs,
@@ -142,7 +148,11 @@ def test__check_model_type_and_metrics_binary_classification_with_classification
         **ChainMap(
             {
                 "model_type": ModelTypes.BINARY_CLASSIFICATION,
-                "metric_families": [Metrics.CLASSIFICATION, Metrics.AUC_LOG_LOSS, Metrics.REGRESSION],
+                "metric_families": [
+                    Metrics.CLASSIFICATION,
+                    Metrics.AUC_LOG_LOSS,
+                    Metrics.REGRESSION,
+                ],
             },
             classification_no_score,
             kwargs,
@@ -152,7 +162,7 @@ def test__check_model_type_and_metrics_binary_classification_with_classification
     assert type(errors[0]) is MissingRequiredColumnsMetricsValidation
 
 
-def test__check_model_type_and_metrics_regression_with_regression_metrics():
+def test__check_model_type_metrics_regression_with_regression_metrics():
     errors = Validator.validate_params(
         **ChainMap(
             {
@@ -166,7 +176,7 @@ def test__check_model_type_and_metrics_regression_with_regression_metrics():
     assert len(errors) == 0
 
 
-def test__check_model_type_and_metrics_ranking_with_ranking_metrics():
+def test__check_model_type_metrics_ranking_with_ranking_metrics():
     errors = Validator.validate_params(
         **ChainMap(
             {
@@ -180,7 +190,7 @@ def test__check_model_type_and_metrics_ranking_with_ranking_metrics():
     assert len(errors) == 0
 
 
-def test__check_model_type_and_metrics_ranking_with_ranking_auc_logloss_metrics():
+def test__check_model_type_metrics_ranking_with_ranking_auc_logloss_metrics():
     errors = Validator.validate_params(
         **ChainMap(
             {
@@ -288,7 +298,9 @@ ranking_score = {
 }
 
 kwargs = {
-    "dataframe": pd.DataFrame({"prediction_id": pd.Series(["0"]), "prediction_label": pd.Series(["3"])}),
+    "dataframe": pd.DataFrame(
+        {"prediction_id": pd.Series(["0"]), "prediction_label": pd.Series(["3"])}
+    ),
     "model_id": "fraud",
     "model_version": "v1.0",
     "environment": Environments.PRODUCTION,
