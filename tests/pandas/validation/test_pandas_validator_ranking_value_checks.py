@@ -80,10 +80,10 @@ def test_rank_is_not_null_and_between_1_and_100():
         assert type(errors[0]) is err.InvalidRankValue
 
 
-def test_prediction_group_id_length_1_36():
+def test_prediction_group_id_length_1_128():
     null_ids = pd.Series([None, None, "A", "B"])
     empty_ids = pd.Series(["", "", "", ""])
-    long_ids = pd.Series(["A" * 37] * 4)
+    long_ids = pd.Series(["A" * 129] * 4)
 
     errors = Validator.validate_values(
         **ChainMap({"dataframe": pd.DataFrame({"prediction_group_id": null_ids})}, kwargs)
@@ -96,7 +96,7 @@ def test_prediction_group_id_length_1_36():
             **ChainMap({"dataframe": pd.DataFrame({"prediction_group_id": ids})}, kwargs)
         )
         assert len(errors) == 1
-        assert type(errors[0]) is err.InvalidPredictionGroupIDLength
+        assert type(errors[0]) is err.InvalidStringLength
 
 
 def test_raking_category_empty_list():

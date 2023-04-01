@@ -1,3 +1,4 @@
+# type: ignore[pb2]
 import base64
 import tempfile
 from typing import List, Optional
@@ -18,14 +19,14 @@ from ..utils.types import (
     ModelTypes,
     Schema,
 )
-from ..utils.utils import reconstruct_url
+from ..utils.utils import get_python_version, reconstruct_url
 from .validation import errors as err
 from .validation.validator import Validator
 
 
 class Client:
     """
-    Arize API Client to  model predictions and actuals to the Arize AI platform from
+    Arize API Client to log predictions and actuals to the Arize platform from
     pandas.DataFrames
     """
 
@@ -36,9 +37,11 @@ class Client:
         uri: Optional[str] = "https://api.arize.com/v1",
     ) -> None:
         """
-        :param api_key (str): api key associated with your account with Arize AI.
-        :param space_key (str): space key in Arize AI.
-        :param uri (str, optional): uri to send your records to Arize AI. Defaults to
+        :param api_key (str): Arize provided API key associated with your account. Located on the
+        data upload page.
+        :param space_key (str): Arize provided identifier to connect records to spaces. Located on
+        the data upload page.
+        :param uri (str, optional): URI endpoint to send your records to Arize AI. Defaults to
         "https://api.arize.com/v1".
         """
         self._api_key = api_key
@@ -62,38 +65,42 @@ class Client:
         timeout: Optional[float] = None,
         verbose: Optional[bool] = False,
     ) -> requests.Response:
-        """Logs a pandas dataframe containing inferences to Arize via a POST request. Returns a
-        :class:`Response` object from the Requests HTTP library.
-        :param dataframe (pd.DataFrame): The dataframe containing inferences.
-        :param schema (Schema): A Schema instance that maps model inference data fields to column
-        names in the provided dataframe.
-        :param environment (Environments): The environment that this dataframe is for (
-        Production, Training, Validation).
-        :param model_id (str): The unique identifier for your model.
-        :param model_type (ModelTypes): Declared what model type this prediction is for.
+        """
+        Logs a pandas dataframe containing inferences to Arize via a POST request. Returns a
+        :class:`Response` object from the Requests HTTP library to ensure successful delivery of
+        records.
+
+        :param dataframe (pd.DataFrame): The dataframe containing model data.
+        :param schema (Schema): A Schema instance that specifies the column names for corresponding
+        data in the dataframe.
+        :param environment (Environments): The environment the data corresponds to (Production,
+        Training, Validation).
+        :param model_id (str): A unique name to identify your model in the Arize platform.
+        :param model_type (ModelTypes): Declare your model type. Can check the supported model types
+        running `ModelTypes.list_types()`.
         :param metrics_validation (List[Metrics], optional): A list of desired metric types;
-        defaults to None. When populated, and if validate=True,
-        the presence of schema columns are validated against the desired metrics.
-        :param model_version (str, optional): Used to group together a subset of predictions and
-        actuals for a given model_id. Defaults to None.
-        :param batch_id (str, optional): Used to distinguish different batch of data under the
-        same model_id and  model_version. Defaults to None.
+        defaults to None. When populated, and if validate=True, the presence of schema columns are
+        validated against the desired metrics.
+        :param model_version (str, optional): Used to group a subset of predictions and actuals for
+        a given model_id to compare and track changes. Defaults to None.
+        :param batch_id (str, optional): Used to distinguish different batch of data under the same
+        model_id and  model_version. Defaults to None.
         :param sync (bool, optional): When sync is set to True, the log call will block, or wait,
         until the data has been successfully ingested by the platform and immediately return the
         status of the log. Defaults to False.
-        :param validate (bool, optional): When set to True, validation is run before sending
-        data. Defaults to True.
-        :param path (str, optional): Temporary directory/file to store the serialized data in
-        binary before sending to Arize.
-        :param surrogate_explainability (bool, optional): Computes feature importance values
-        using the surrogate explainability method. This requires that the arize module is
-        installed with the [MimicExplainer] option. If feature importance values are already
-        specified by the shap_values_column_names attribute in the Schema, this module will not
-        run. Defaults to False.
-        :param timeout (float, optional): You can stop waiting for a response after a given
-        number of seconds with the timeout parameter. Defaults to None.
-        :param verbose: (bool, optional) = When set to true, info messages are printed. Defaults
-        to False.
+        :param validate (bool, optional): When set to True, validation is run before sending data.
+        Defaults to True.
+        :param path (str, optional): Temporary directory/file to store the serialized data in binary
+        before sending to Arize.
+        :param surrogate_explainability (bool, optional): Computes feature importance values using
+        the surrogate explainability method. This requires that the arize module is installed with
+        the [MimicExplainer] option. If feature importance values are already specified by the
+        shap_values_column_names attribute in the Schema, this module will not run. Defaults to
+        False.
+        :param timeout (float, optional): You can stop waiting for a response after a given number
+        of seconds with the timeout parameter. Defaults to None.
+        :param verbose: (bool, optional) = When set to true, info messages are printed. Defaults to
+        False.
         """
 
         if verbose:
@@ -118,12 +125,6 @@ class Client:
 
         if batch_id is not None:
             batch_id = str(batch_id)
-
-        if (
-            schema.embedding_feature_column_names is not None
-            and type(schema.embedding_feature_column_names) != dict
-        ):
-            raise TypeError("schema.embedding_feature_column_names should be a dictionary")
 
         if validate:
             if verbose:
@@ -193,7 +194,12 @@ class Client:
         try:
             if verbose:
                 logger.info("Getting pyarrow schema from pandas dataframe.")
-            pa_schema = pa.Schema.from_pandas(dataframe)
+            if model_type == ModelTypes.GENERATIVE_LLM and schema.prediction_id_column_name is None:
+                pred_label_df = pd.DataFrame({"default_prediction_label": [1] * len(dataframe)})
+                pa_schema = pa.Schema.from_pandas(pd.concat([dataframe, pred_label_df], axis=1))
+                schema = schema.replace(prediction_label_column_name="default_prediction_label")
+            else:
+                pa_schema = pa.Schema.from_pandas(dataframe)
         except pa.ArrowInvalid:
             logger.error(
                 "The dataframe needs to convert to pyarrow but has failed to do so. "
@@ -215,6 +221,17 @@ class Client:
                 for e in errors:
                     logger.error(e)
                 raise err.ValidationFailure(errors)
+        # Mapping GENERATIVE_LLM to SCORE_CATEGORICAL model
+        if model_type == ModelTypes.GENERATIVE_LLM:
+            prompt_response_map = {
+                "prompt": schema.prompt_column_names,
+                "response": schema.response_column_names,
+            }
+            if schema.embedding_feature_column_names is None:
+                schema = schema.replace(embedding_feature_column_names=prompt_response_map)
+            else:
+                schema.embedding_feature_column_names.update(prompt_response_map)
+        if validate:
             if verbose:
                 logger.info("Performing values validation.")
             errors = Validator.validate_values(
@@ -251,11 +268,14 @@ class Client:
             s.constants.model_type = pb2.Schema.ModelType.RANKING
         elif model_type == ModelTypes.OBJECT_DETECTION:
             s.constants.model_type = pb2.Schema.ModelType.OBJECT_DETECTION
+        elif model_type == ModelTypes.GENERATIVE_LLM:
+            s.constants.model_type = pb2.Schema.ModelType.SCORE_CATEGORICAL
 
         if batch_id is not None:
             s.constants.batch_id = batch_id
 
-        s.arrow_schema.prediction_id_column_name = schema.prediction_id_column_name
+        if schema.prediction_id_column_name is not None:
+            s.arrow_schema.prediction_id_column_name = schema.prediction_id_column_name
 
         if schema.timestamp_column_name is not None:
             s.arrow_schema.timestamp_column_name = schema.timestamp_column_name
@@ -268,7 +288,7 @@ class Client:
             and schema.object_detection_prediction_column_names is not None
         ):
             s.arrow_schema.prediction_object_detection_label_column_names.bboxes_coordinates_column_name = (
-                schema.object_detection_prediction_column_names.boxes_coords_column_name
+                schema.object_detection_prediction_column_names.bounding_boxes_coordinates_column_name
             )
             s.arrow_schema.prediction_object_detection_label_column_names.bboxes_categories_column_name = (
                 schema.object_detection_prediction_column_names.categories_column_name
@@ -336,7 +356,7 @@ class Client:
             and schema.object_detection_actual_column_names is not None
         ):
             s.arrow_schema.actual_object_detection_label_column_names.bboxes_coordinates_column_name = (
-                schema.object_detection_actual_column_names.boxes_coords_column_name
+                schema.object_detection_actual_column_names.bounding_boxes_coordinates_column_name
             )
             s.arrow_schema.actual_object_detection_label_column_names.bboxes_categories_column_name = (
                 schema.object_detection_actual_column_names.categories_column_name
@@ -375,6 +395,21 @@ class Client:
 
         try:
             logger.info(f"Success! Check out your data at {reconstruct_url(response)}")
+
+            if (
+                schema.prediction_score_column_name is None
+                and schema.prediction_label_column_name is None
+                and schema.rank_column_name is None
+                and schema.prediction_group_id_column_name is None
+                and schema.object_detection_prediction_column_names is None
+            ):
+                logger.warning(
+                    "Logging actuals without any predictions may result in "
+                    "unexpected behavior if corresponding predictions have not been logged prior. "
+                    "Please see the docs at https://docs.arize.com/arize/sending-data/sending-data-faq"
+                    "#what-happens-after-i-send-in-actual-data"
+                )
+
         except Exception:
             pass
 
@@ -392,6 +427,7 @@ class Client:
                 "authorization": self._api_key,
                 "space": self._space_key,
                 "schema": schema,
+                "python-version": get_python_version(),
                 "sdk-version": __version__,
                 "sdk": "py",
             }
@@ -440,5 +476,15 @@ class Client:
         if schema.object_detection_actual_column_names is not None:
             for col in schema.object_detection_actual_column_names:
                 cols_to_keep.add(col)
+
+        if schema.prompt_column_names is not None:
+            cols_to_keep.add(schema.prompt_column_names.vector_column_name)
+            if schema.prompt_column_names.data_column_name is not None:
+                cols_to_keep.add(schema.prompt_column_names.data_column_name)
+
+        if schema.response_column_names is not None:
+            cols_to_keep.add(schema.response_column_names.vector_column_name)
+            if schema.response_column_names.data_column_name is not None:
+                cols_to_keep.add(schema.response_column_names.data_column_name)
 
         return df[df.columns.intersection(cols_to_keep)]

@@ -135,6 +135,53 @@ data_df_object_detection = pd.DataFrame(
         ),
     }
 )
+data_generative_df = pd.DataFrame(
+    {
+        "prediction_id": pd.Series([0, 1, 2]),
+        "prediction_timestamp": pd.Series(
+            [
+                datetime.datetime.now(),
+                datetime.datetime.now() - datetime.timedelta(days=364),
+                datetime.datetime.now() + datetime.timedelta(days=364),
+            ]
+        ),
+        "actual_label": pd.Categorical(
+            ["not fraud", "fraud", "not fraud"],
+            ordered=True,
+            categories=["fraud", "not fraud"],
+        ),
+        #####
+        "A": pd.Series([0, 1, 2]),
+        "B": pd.Series([0.0, 1.0, 2.0]),
+        "C": pd.Series([float("NaN"), float("NaN"), float("NaN")]),
+        "D": pd.Series([0, float("NaN"), 2]),
+        "E": pd.Series([0, None, 2]),
+        "F": pd.Series([None, float("NaN"), None]),
+        "G": pd.Series(["foo", "bar", "baz"]),
+        "H": pd.Series([True, False, True]),
+        "I": pd.Categorical(["a", "b", "c"], ordered=True, categories=["c", "b", "a"]),
+        #####
+        "prompt_vector": np.random.randn(3, EMBEDDING_SIZE).tolist(),
+        "response_vector": np.random.randn(3, EMBEDDING_SIZE).tolist(),
+        "prompt_data": ["data_" + str(x) for x in range(3)],
+        "response_data": ["data_" + str(x) for x in range(3)],
+        #####
+        "a": pd.Series([0, 1, 2]),
+        "b": pd.Series([0.0, 1.0, 2.0]),
+        "c": pd.Series([float("NaN"), float("NaN"), float("NaN")]),
+        "d": pd.Series([0, float("NaN"), 2]),
+        "e": pd.Series([0, None, 2]),
+        "f": pd.Series([None, float("NaN"), None]),
+        #####
+        "excluded_from_schema": pd.Series(
+            [
+                "should also be excluded from pyarrow",
+                0,
+                "otherwise would cause error (because of mixed types)",
+            ]
+        ),
+    }
+)
 
 
 # roundtrip df is the expected df that would be re-constructed from the pyarrow serialization, where
@@ -195,12 +242,12 @@ def log_object_detection_dataframe(df, schema=None):
             timestamp_column_name="prediction_timestamp",
             feature_column_names=list("ABCDEFGHI"),
             object_detection_prediction_column_names=ObjectDetectionColumnNames(
-                boxes_coords_column_name="bounding_boxes_coordinates",
+                bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
                 categories_column_name="bounding_boxes_categories",
                 scores_column_name="bounding_boxes_scores",
             ),
             object_detection_actual_column_names=ObjectDetectionColumnNames(
-                boxes_coords_column_name="bounding_boxes_coordinates",
+                bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
                 categories_column_name="bounding_boxes_categories",
             ),
             embedding_feature_column_names={
@@ -218,6 +265,123 @@ def log_object_detection_dataframe(df, schema=None):
         model_id="model-id",
         model_version="1.0",
         model_type=ModelTypes.OBJECT_DETECTION,
+        environment=Environments.PRODUCTION,
+        schema=schema,
+    )
+    return response
+
+
+def log_generative_dataframe(df, schema=None):
+    client = NoSendClient("apikey", "spaceKey")
+    if schema is None:
+        schema = Schema(
+            prediction_id_column_name="prediction_id",
+            timestamp_column_name="prediction_timestamp",
+            feature_column_names=list("ABCDEFGHI"),
+            tag_column_names=list("ABCDEFGHI"),
+            actual_label_column_name="actual_label",
+            shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
+            prompt_column_names=EmbeddingColumnNames(
+                vector_column_name="prompt_vector",
+                data_column_name="prompt_data",
+            ),
+            response_column_names=EmbeddingColumnNames(
+                vector_column_name="response_vector",
+                data_column_name="response_data",
+            ),
+        )
+
+    response = client.log(
+        dataframe=df,
+        model_id="model-id",
+        model_version="1.0",
+        model_type=ModelTypes.GENERATIVE_LLM,
+        environment=Environments.PRODUCTION,
+        schema=schema,
+    )
+    return response
+
+
+def log_generative_dataframe_with_embedding_features(df, schema=None):
+    client = NoSendClient("apikey", "spaceKey")
+    if schema is None:
+        schema = Schema(
+            prediction_id_column_name="prediction_id",
+            timestamp_column_name="prediction_timestamp",
+            feature_column_names=list("ABCDEFGHI"),
+            tag_column_names=list("ABCDEFGHI"),
+            actual_label_column_name="actual_label",
+            shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
+            embedding_feature_column_names={
+                # Dictionary keys will be the displayed name of the embedding feature in the app
+                "image_embedding": EmbeddingColumnNames(
+                    vector_column_name="image_vector",
+                    link_to_data_column_name="image_link",
+                ),
+                "sentence_embedding": EmbeddingColumnNames(
+                    vector_column_name="sentence_vector",
+                    data_column_name="sentence_data",
+                ),
+                "token_embedding": EmbeddingColumnNames(
+                    vector_column_name="token_array_vector",
+                    data_column_name="token_array_data",
+                ),
+            },
+            prompt_column_names=EmbeddingColumnNames(
+                vector_column_name="prompt_vector",
+                data_column_name="prompt_data",
+            ),
+            response_column_names=EmbeddingColumnNames(
+                vector_column_name="response_vector",
+                data_column_name="response_data",
+            ),
+        )
+
+    response = client.log(
+        dataframe=df,
+        model_id="model-id",
+        model_version="1.0",
+        model_type=ModelTypes.GENERATIVE_LLM,
+        environment=Environments.PRODUCTION,
+        schema=schema,
+    )
+    return response
+
+
+def log_dataframe_without_prediction_id(df):
+    client = NoSendClient("apikey", "spaceKey")
+    schema = Schema(
+        prediction_id_column_name=None,
+        timestamp_column_name="prediction_timestamp",
+        feature_column_names=list("ABCDEFGHI"),
+        embedding_feature_column_names={
+            # Dictionary keys will be the displayed name of the embedding feature in the app
+            "image_embedding": EmbeddingColumnNames(
+                vector_column_name="image_vector",
+                link_to_data_column_name="image_link",
+            ),
+            "sentence_embedding": EmbeddingColumnNames(
+                vector_column_name="sentence_vector",
+                data_column_name="sentence_data",
+            ),
+            "token_embedding": EmbeddingColumnNames(
+                vector_column_name="token_array_vector",
+                data_column_name="token_array_data",
+            ),
+        },
+        tag_column_names=list("ABCDEFGHI"),
+        prediction_label_column_name="prediction_label",
+        actual_label_column_name="actual_label",
+        prediction_score_column_name="prediction_score",
+        actual_score_column_name="actual_score",
+        shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
+    )
+
+    response = client.log(
+        dataframe=df,
+        model_id="model-id",
+        model_version="1.0",
+        model_type=ModelTypes.SCORE_CATEGORICAL,
         environment=Environments.PRODUCTION,
         schema=schema,
     )
@@ -243,6 +407,41 @@ def test_production_zero_errors():
     assert (
         response.df.sort_index(axis=1).to_json()
         == roundtrip_df(data_df_object_detection).sort_index(axis=1).to_json()
+    )
+    try:
+        response = log_dataframe_without_prediction_id(data_df)
+    except err.ValidationFailure:
+        assert False
+    data_df_no_prediction_id = data_df.drop(columns=["prediction_id"])
+    # use json here because some row elements are lists and are not readily comparable
+    assert (
+        response.df.sort_index(axis=1).to_json()
+        == roundtrip_df(data_df_no_prediction_id).sort_index(axis=1).to_json()
+    )
+    embedding_features_df = pd.DataFrame(
+        {
+            "image_vector": np.random.randn(3, EMBEDDING_SIZE).tolist(),
+            "image_link": ["link_" + str(x) for x in range(3)],
+            "sentence_vector": [np.random.randn(EMBEDDING_SIZE) for x in range(3)],
+            "sentence_data": ["data_" + str(x) for x in range(3)],
+            "token_array_vector": [np.random.randn(EMBEDDING_SIZE) for x in range(3)],
+            "token_array_data": [["Token", "array", str(x)] for x in range(3)],
+        }
+    )
+    data_generative_with_embedding_features_df = pd.concat(
+        [data_generative_df, embedding_features_df], axis=1
+    )
+    try:
+        response = log_generative_dataframe_with_embedding_features(
+            data_generative_with_embedding_features_df
+        )
+    except err.ValidationFailure:
+        assert False
+
+    # use json here because some row elements are lists and are not readily comparable
+    assert (
+        response.df.sort_index(axis=1).to_json()
+        == roundtrip_df(data_generative_with_embedding_features_df).sort_index(axis=1).to_json()
     )
 
 
@@ -360,6 +559,65 @@ def test_production_wrong_embedding_values():
 
     try:
         _ = log_dataframe(data_df, schema)
+    except Exception as e:
+        assert isinstance(e, err.ValidationFailure)
+
+
+def test_production_wrong_prompt_response_types():
+    # Check prompt_vector of strings are not allowed
+    data_generative_df["prompt_vector"] = np.random.randn(3, EMBEDDING_SIZE).astype(str).tolist()
+    try:
+        _ = log_generative_dataframe(data_generative_df)
+    except Exception as e:
+        assert isinstance(e, err.ValidationFailure)
+    # Reset
+    data_generative_df["prompt_vector"] = np.random.randn(3, EMBEDDING_SIZE).tolist()
+
+    # Check response_vector of booleans are not allowed
+    data_generative_df["response_vector"] = np.random.choice(
+        a=[True, False], size=(3, EMBEDDING_SIZE)
+    ).tolist()
+    try:
+        _ = log_generative_dataframe(data_generative_df)
+    except Exception as e:
+        assert isinstance(e, err.ValidationFailure)
+    # Reset
+    data_generative_df["response_vector"] = np.random.randn(3, EMBEDDING_SIZE).tolist()
+
+    # Check response_data of float are not allowed
+    data_generative_df["response_data"] = [x for x in range(3)]
+    try:
+        _ = log_generative_dataframe(data_generative_df)
+    except Exception as e:
+        assert isinstance(e, err.ValidationFailure)
+    # Reset
+    data_generative_df["response_data"] = ["data_" + str(x) for x in range(3)]
+
+    # Check all resets were successful
+    try:
+        response = log_generative_dataframe(data_generative_df)
+    except err.ValidationFailure:
+        assert False
+
+    # use json here because some row elements are lists and are not readily comparable
+    assert (
+        response.df.sort_index(axis=1).to_json()
+        == roundtrip_df(data_generative_df).sort_index(axis=1).to_json()
+    )
+
+
+def test_production_generative_without_prompt_response():
+    schema_no_prompt_response = Schema(
+        prediction_id_column_name="prediction_id",
+        timestamp_column_name="prediction_timestamp",
+        feature_column_names=list("ABCDEFGHI"),
+        tag_column_names=list("ABCDEFGHI"),
+        actual_label_column_name="actual_label",
+        shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
+    )
+
+    try:
+        _ = log_generative_dataframe(data_generative_df, schema=schema_no_prompt_response)
     except Exception as e:
         assert isinstance(e, err.ValidationFailure)
 

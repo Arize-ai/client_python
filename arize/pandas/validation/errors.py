@@ -24,7 +24,7 @@ class ValidationFailure(Exception):
 
 
 # ----------------------
-# Minimum requred checks
+# Minimum required checks
 # ----------------------
 class InvalidFieldTypeConversion(ValidationError):
     def __repr__(self) -> str:
@@ -49,7 +49,21 @@ class InvalidFieldTypeEmbeddingFeatures(ValidationError):
         pass
 
     def error_message(self) -> str:
-        return "schema.embedding_feature_column_names should be a dictionary"
+        return (
+            "schema.embedding_feature_column_names should be a dictionary mapping strings "
+            "to EmbeddingColumnNames objects"
+        )
+
+
+class InvalidFieldTypePromptResponse(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Input_Type_Prompt_Response"
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    def error_message(self) -> str:
+        return f"{self.name} must be of type EmbeddingColumnNames"
 
 
 class InvalidIndex(ValidationError):
@@ -204,6 +218,17 @@ class MissingPredActShap(ValidationError):
         )
 
 
+class MissingPromptResponseGenerativeLLM(ValidationError):
+    def __repr__(self) -> str:
+        return "Missing_Prompt_Response_Generative_LLM"
+
+    def error_message(self) -> str:
+        return (
+            "The schema must specify prompt_column_names and response_column_names for "
+            "ModelTypes.GENERATIVE_LLM models"
+        )
+
+
 class MissingPredActShapNumeric(ValidationError):
     def __repr__(self) -> str:
         return "Missing_Pred_or_Act_or_SHAP_Numeric"
@@ -232,10 +257,16 @@ class MissingPreprodPredAct(ValidationError):
         return "Missing_Preproduction_Pred_and_Act"
 
     def error_message(self) -> str:
-        return (
-            "For logging pre-production data, "
-            "the schema must specify both prediction and actual label columns."
-        )
+        return "For logging pre-production data, the schema must specify both "
+        "prediction and actual label columns."
+
+
+class MissingPreprodAct(ValidationError):
+    def __repr__(self) -> str:
+        return "Missing_Preproduction_Act"
+
+    def error_message(self) -> str:
+        return "For logging pre-production data, the schema must specify actual label column."
 
 
 class MissingPreprodPredActNumeric(ValidationError):
@@ -274,6 +305,8 @@ class MissingObjectDetectionPredAct(ValidationError):
         elif self.environment == Environments.PRODUCTION:
             env = "production"
             opt = "or"
+        else:
+            raise TypeError("Invalid environment")
         return (
             f"For logging {env} data for an Object Detection model,"
             "the schema must specify 'object_detection_prediction_column_names'"
@@ -381,6 +414,27 @@ class InvalidTypeFeatures(ValidationError):
         )
 
 
+class InvalidTypePromptResponse(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Type_Prompt_Response_Column_Names"
+
+    def __init__(self, wrong_type_columns: List[str], expected_types: List[str]) -> None:
+        self.wrong_type_columns = wrong_type_columns
+        self.expected_types = expected_types
+
+    def error_message(self) -> str:
+        type_list = (
+            self.expected_types[0]
+            if len(self.expected_types) == 1
+            else f"{', '.join(map(str, self.expected_types[:-1]))} or {self.expected_types[-1]}"
+        )
+        return (
+            f"prompt_column_names and response_column_names must be of type {type_list}. "
+            "The following columns have unrecognized data types: "
+            f"{', '.join(map(str, self.wrong_type_columns))}."
+        )
+
+
 class InvalidTypeTags(ValidationError):
     def __repr__(self) -> str:
         return "Invalid_Type_Tags"
@@ -455,7 +509,7 @@ class InvalidValueTimestamp(ValidationError):
         return (
             f"{self.name} is out of range. "
             f"Only values within {self.acceptable_range} from the current time are accepted. "
-            "If this is your pre-prodution data, you could also just remove the timestamp column "
+            "If this is your pre-production data, you could also just remove the timestamp column "
             "from the Schema."
         )
 
@@ -464,12 +518,12 @@ class InvalidValueMissingValue(ValidationError):
     def __repr__(self) -> str:
         return "Invalid_Missing_Value"
 
-    def __init__(self, name: str, missingness: str) -> None:
+    def __init__(self, name: str, wrong_values: str) -> None:
         self.name = name
-        self.missingness = missingness
+        self.wrong_values = wrong_values
 
     def error_message(self) -> str:
-        return f"{self.name} must not contain {self.missingness} values."
+        return f"{self.name} must not contain {self.wrong_values} values."
 
 
 class InvalidRankValue(ValidationError):
@@ -487,18 +541,20 @@ class InvalidRankValue(ValidationError):
         )
 
 
-class InvalidPredictionGroupIDLength(ValidationError):
+class InvalidStringLength(ValidationError):
     def __repr__(self) -> str:
-        return "Invalid_Prediction_Group_ID_Length"
+        return "Invalid_String_Length"
 
-    def __init__(self, name: str, acceptable_range: str) -> None:
-        self.name = name
-        self.acceptable_range = acceptable_range
+    def __init__(self, schema_name: str, col_name: str, min_length: int, max_length: int) -> None:
+        self.schema_name = schema_name
+        self.col_name = col_name
+        self.min_length = min_length
+        self.max_length = max_length
 
     def error_message(self) -> str:
         return (
-            f"prediction group id {self.name} column contains invalid values"
-            f"Only string values of length within {self.acceptable_range}  are accepted. "
+            f"{self.schema_name} column {self.col_name} contains invalid values. "
+            f"Only string values of length within {self.min_length} - {self.max_length} are accepted."
         )
 
 
@@ -586,7 +642,7 @@ class InvalidBoundingBoxesCategories(ValidationError, Exception):
             )
         elif self.reason == "none_category":
             msg += (
-                "Found at least one category label with None vlaue. Each bounding box category "
+                "Found at least one category label with None value. Each bounding box category "
                 "must be string. Empty strings are allowed"
             )
         return msg
