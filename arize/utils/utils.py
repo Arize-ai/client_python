@@ -1,6 +1,7 @@
 import base64
 import json
 import math
+import sys
 import time
 from pathlib import Path
 from typing import Any, Optional, Union
@@ -14,6 +15,8 @@ from .types import Embedding
 
 MAX_BYTES_PER_BULK_RECORD = 100000
 MAX_DAYS_WITHIN_RANGE = 365
+MIN_PREDICTION_ID_LEN = 1
+MAX_PREDICTION_ID_LEN = 128
 MODEL_MAPPING_CONFIG = None
 
 path = Path(__file__).with_name("model_mapping.json")
@@ -188,3 +191,7 @@ def reconstruct_url(response: Any):
         f"{encodedSpace}/models/modelName/{parts[-1]}"
     )
     return reconstructed
+
+
+def get_python_version():
+    return f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"

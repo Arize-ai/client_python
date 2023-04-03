@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from dataclasses import replace as dataclass_replace
 from enum import Enum, unique
 from typing import Dict, List, NamedTuple, Optional, Sequence, TypeVar, Union
 
@@ -14,6 +15,11 @@ class ModelTypes(Enum):
     BINARY_CLASSIFICATION = 4
     REGRESSION = 5
     OBJECT_DETECTION = 6
+    GENERATIVE_LLM = 7
+
+    @classmethod
+    def list_types(cls):
+        return [t.name for t in cls]
 
 
 NUMERIC_MODEL_TYPES = [ModelTypes.NUMERIC, ModelTypes.REGRESSION]
@@ -62,10 +68,22 @@ class Environments(Enum):
     PRODUCTION = 3
 
 
-class EmbeddingColumnNames(NamedTuple):
-    vector_column_name: str
+@dataclass
+class EmbeddingColumnNames:
+    vector_column_name: str = ""
     data_column_name: Optional[str] = None
     link_to_data_column_name: Optional[str] = None
+
+    def __post_init__(self):
+        if not self.vector_column_name:
+            raise TypeError(
+                "embedding_features require a vector to be specified. You can utilize Arize's "
+                "EmbeddingGenerator (from arize.pandas.embeddings) to create embeddings "
+                "if you do not have them"
+            )
+
+    def __iter__(self):
+        return iter((self.vector_column_name, self.data_column_name, self.link_to_data_column_name))
 
 
 class Embedding(NamedTuple):
@@ -174,7 +192,7 @@ class Embedding(NamedTuple):
             )
 
     @staticmethod
-    def _is_valid_iterable(data: Union[str, List[str], np.ndarray, pd.Series]) -> bool:
+    def _is_valid_iterable(data: Union[str, List[str], List[float], np.ndarray, pd.Series]) -> bool:
         """Validates that the input data field is of the correct iterable type. That is:
         1. List or
         2. numpy array or
@@ -190,7 +208,7 @@ class Embedding(NamedTuple):
 
 
 class ObjectDetectionColumnNames(NamedTuple):
-    boxes_coords_column_name: str
+    bounding_boxes_coordinates_column_name: str
     categories_column_name: str
     scores_column_name: Optional[str] = None
 
@@ -359,7 +377,7 @@ class RankingActualLabel(NamedTuple):
 
 @dataclass(frozen=True)
 class Schema:
-    prediction_id_column_name: str
+    prediction_id_column_name: Optional[str] = None
     feature_column_names: Optional[List[str]] = None
     tag_column_names: Optional[List[str]] = None
     timestamp_column_name: Optional[str] = None
@@ -368,7 +386,7 @@ class Schema:
     actual_label_column_name: Optional[str] = None
     actual_score_column_name: Optional[str] = None
     shap_values_column_names: Optional[Dict[str, str]] = None
-    embedding_feature_column_names: Optional[Dict[str, EmbeddingColumnNames]] = None
+    embedding_feature_column_names: Optional[Dict[str, EmbeddingColumnNames]] = None  # type:ignore
     prediction_group_id_column_name: Optional[str] = None
     rank_column_name: Optional[str] = None
     attributions_column_name: Optional[str] = None
@@ -376,6 +394,54 @@ class Schema:
     relevance_labels_column_name: Optional[str] = None
     object_detection_prediction_column_names: Optional[ObjectDetectionColumnNames] = None
     object_detection_actual_column_names: Optional[ObjectDetectionColumnNames] = None
+    prompt_column_names: Optional[EmbeddingColumnNames] = None
+    response_column_names: Optional[EmbeddingColumnNames] = None
+    """
+    Used to organize and map column names containing model data within your Pandas dataframe to
+    Arize.
+
+    :param prediction_id_column_name (str, optional): Column name for the predictions unique
+    identifier. This value is used to match a prediction to delayed actuals in Arize. If predictions
+    are not provided, it will default to an empty string "" and Arize will create a random
+    prediction id on the server side.
+    Contents must be a string and indicate a unique prediction event. Limited to 128 characters.
+    :param feature_column_names (List[str], optional): List of column names for features. The
+    content of this column can be int, float, string.
+    :param tag_column_names (List[str], optional): List of column names for tags. The content of
+    this column can be int, float, string.
+    :param timestamp_column_name (str, optional): Column name for timestamps. The
+    content of this column must be int Unix Timestamps in seconds.
+    :param prediction_label_column_name (str, optional): Column name for categorical prediction
+    values. The content of this column must be convertible to string.
+    :param prediction_score_column_name (str, optional): Column name for numeric prediction values.
+    The content of this column must be int/float.
+    :param actual_label_column_name (str, optional): Column name for categorical ground truth
+    values. The content of this column must be convertible to string.
+    :param actual_score_column_name (str, optional): Column name for numeric ground truth values.
+    The content of this column must be int/float.
+    :param shap_values_column_names (Dict[str, str], optional): Dictionary mapping
+    human readable and debuggable model features keys and SHAP feature importance values.
+    Keys must be str, while values must be float.
+    :param embedding_feature_column_names (Dict[str, EmbeddingColumnNames], optional): Dictionary
+    mapping embedding display names to EmbeddingColumnNames objects.
+    :param prediction_group_id_column_name (str, optional): Column name for ranking groups or lists
+    in ranking models. The content of this column must be string and is limited to 128 characters.
+    :param rank_column_name (str, optional): Column name for rank of each element on the its group
+    or list. The content of this column must be integer between 1-100.
+    :param relevance_score_column_name (str, optional): Column name for ranking model type numeric
+    ground truth values. The content of this column must be int/float.
+    :param relevance_labels_column_name (str, optional): Column name for ranking model type
+    categorical ground truth values. The content of this column must be a string.
+    :param object_detection_prediction_column_name (ObjectDetectionColumnNames, optional):
+    ObjectDetectionColumnNames object containing information defining the predicted bounding boxes'
+    coordinates, categories, and scores.
+    :param object_detection_prediction_column_name (ObjectDetectionColumnNames, optional):
+    ObjectDetectionColumnNames object containing information defining the actual bounding boxes'
+    coordinates, categories, and scores.
+    """
+
+    def replace(self, **changes):
+        return dataclass_replace(self, **changes)
 
 
 T = TypeVar("T", bound=type)

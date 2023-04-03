@@ -5,7 +5,12 @@ import pandas as pd
 import pytest
 from arize.pandas.logger import Schema
 from arize.pandas.validation.validator import Validator
-from arize.utils.types import Environments, ModelTypes, ObjectDetectionColumnNames
+from arize.utils.types import (
+    EmbeddingColumnNames,
+    Environments,
+    ModelTypes,
+    ObjectDetectionColumnNames,
+)
 
 
 def get_standard_kwargs():
@@ -59,12 +64,12 @@ def get_object_detection_kwargs():
         "schema": Schema(
             prediction_id_column_name="prediction_id",
             object_detection_prediction_column_names=ObjectDetectionColumnNames(
-                boxes_coords_column_name="bounding_boxes_coordinates",
+                bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
                 categories_column_name="bounding_boxes_categories",
                 scores_column_name="bounding_boxes_scores",
             ),
             object_detection_actual_column_names=ObjectDetectionColumnNames(
-                boxes_coords_column_name="bounding_boxes_coordinates",
+                bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
                 categories_column_name="bounding_boxes_categories",
                 scores_column_name="bounding_boxes_scores",
             ),
@@ -308,6 +313,33 @@ def test_missing_preprod_pred_act_train():
     assert type(errors[0]) is err.MissingPreprodPredAct
 
 
+def test_missing_preprod_act_train():
+    kwargs = get_standard_kwargs()
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "model_version": "1.0",
+                "model_type": ModelTypes.GENERATIVE_LLM,
+                "environment": Environments.TRAINING,
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    prompt_column_names=EmbeddingColumnNames(
+                        vector_column_name="prompt_vector",
+                        data_column_name="prompt_data",
+                    ),
+                    response_column_names=EmbeddingColumnNames(
+                        vector_column_name="response_vector",
+                        data_column_name="response_data",
+                    ),
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is err.MissingPreprodAct
+
+
 def test_missing_multiple_train():
     kwargs = get_standard_kwargs()
     errors = Validator.validate_params(
@@ -365,6 +397,22 @@ def test_missing_multiple_val():
     assert any(type(e) is err.MissingPredActShap for e in errors)
 
 
+def test_existence_prompt_response_column_names():
+    kwargs = get_standard_kwargs()
+    # Test that Generative LLM models contain the prompt/response column names
+    # It is equivalent to test_missing_columns but for Generative LLM.
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.GENERATIVE_LLM,
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is err.MissingPromptResponseGenerativeLLM
+
+
 def test_existence_pred_act_od_column_names():
     object_detection_kwargs = get_object_detection_kwargs()
     # Test that Object Detection models contain the prediction/actual column names
@@ -399,12 +447,12 @@ def test_non_existence_pred_act_od_column_names():
                     actual_label_column_name="actual_label",
                     prediction_score_column_name="prediction_score",
                     object_detection_prediction_column_names=ObjectDetectionColumnNames(
-                        boxes_coords_column_name="bounding_boxes_coordinates",
+                        bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
                         categories_column_name="bounding_boxes_categories",
                         scores_column_name="bounding_boxes_scores",
                     ),
                     object_detection_actual_column_names=ObjectDetectionColumnNames(
-                        boxes_coords_column_name="bounding_boxes_coordinates",
+                        bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
                         categories_column_name="bounding_boxes_categories",
                         scores_column_name="bounding_boxes_scores",
                     ),
@@ -456,12 +504,12 @@ def test_non_existence_pred_act_column_name():
                     actual_label_column_name="actual_label",
                     prediction_score_column_name="prediction_score",
                     object_detection_prediction_column_names=ObjectDetectionColumnNames(
-                        boxes_coords_column_name="bounding_boxes_coordinates",
+                        bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
                         categories_column_name="bounding_boxes_categories",
                         scores_column_name="bounding_boxes_scores",
                     ),
                     object_detection_actual_column_names=ObjectDetectionColumnNames(
-                        boxes_coords_column_name="bounding_boxes_coordinates",
+                        bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
                         categories_column_name="bounding_boxes_categories",
                         scores_column_name="bounding_boxes_scores",
                     ),

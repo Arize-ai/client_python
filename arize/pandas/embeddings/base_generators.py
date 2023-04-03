@@ -26,7 +26,7 @@ transformer_logging.enable_progress_bar()
 
 
 class BaseEmbeddingGenerator(ABC):
-    def __init__(self, use_case: Enum, model_name: str, batch_size: int = 100):
+    def __init__(self, use_case: Enum, model_name: str, batch_size: int = 100, **kwargs):
         self.__use_case = self._parse_use_case(use_case=use_case)
         self.__model_name = model_name
         self.__device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -38,7 +38,7 @@ class BaseEmbeddingGenerator(ABC):
             )
         self.__batch_size = batch_size
         logger.info(f"Downloading pre-trained model '{self.model_name}'")
-        self.__model = AutoModel.from_pretrained(self.model_name).to(self.device)
+        self.__model = AutoModel.from_pretrained(self.model_name, **kwargs).to(self.device)
 
     @property
     def use_case(self) -> str:

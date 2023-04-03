@@ -5,6 +5,7 @@ from .base_generators import BaseEmbeddingGenerator
 from .cv_generators import EmbeddingGeneratorForCVImageClassification
 from .models import CV_PRETRAINED_MODELS, NLP_PRETRAINED_MODELS
 from .nlp_generators import EmbeddingGeneratorForNLPSequenceClassification
+from .tabular_generators import EmbeddingGeneratorForTabularFeatures
 from .usecases import UseCases
 
 
@@ -21,6 +22,8 @@ class EmbeddingGenerator:
             return EmbeddingGeneratorForNLPSequenceClassification(**kwargs)
         elif use_case == UseCases.CV.IMAGE_CLASSIFICATION:
             return EmbeddingGeneratorForCVImageClassification(**kwargs)
+        elif use_case == UseCases.STRUCTURED.TABULAR_EMBEDDINGS:
+            return EmbeddingGeneratorForTabularFeatures(**kwargs)
         else:
             raise ValueError(f"Invalid use case {use_case}")
 

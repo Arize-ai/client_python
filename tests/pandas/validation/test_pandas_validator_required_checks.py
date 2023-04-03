@@ -6,6 +6,7 @@ from arize.pandas.logger import Schema
 from arize.pandas.validation.errors import (
     InvalidFieldTypeConversion,
     InvalidFieldTypeEmbeddingFeatures,
+    InvalidFieldTypePromptResponse,
     InvalidIndex,
 )
 from arize.pandas.validation.validator import Validator
@@ -30,6 +31,14 @@ def get_standard_kwargs():
                     link_to_data_column_name="image_link",
                 ),
             },
+            prompt_column_names=EmbeddingColumnNames(
+                vector_column_name="prompt_vector",
+                data_column_name="prompt",
+            ),
+            response_column_names=EmbeddingColumnNames(
+                vector_column_name="response_vector",
+                data_column_name="response",
+            ),
         ),
         "model_version": "v1",
         "batch_id": "validation",
@@ -99,6 +108,36 @@ def test_field_type_embedding_features_column_names():
     )
     assert len(errors) == 1
     assert isinstance(errors[0], InvalidFieldTypeEmbeddingFeatures)
+
+
+def test_field_type_prompt_response_column_names():
+    kwargs = get_standard_kwargs()
+    # This gives string objects
+    prompt_column_names_incorrect = "prompt_vector"
+    response_column_names_incorrect = "response_vector"
+
+    errors = Validator.validate_required_checks(
+        **ChainMap(
+            kwargs,
+        ),
+    )
+    assert len(errors) == 0
+
+    errors = Validator.validate_required_checks(
+        **ChainMap(
+            {
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    prediction_score_column_name="prediction_score",
+                    prompt_column_names=prompt_column_names_incorrect,
+                    response_column_names=response_column_names_incorrect,
+                ),
+            },
+            kwargs,
+        ),
+    )
+    assert len(errors) == 1
+    assert isinstance(errors[0], InvalidFieldTypePromptResponse)
 
 
 def test_field_convertible_to_str():

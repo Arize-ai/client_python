@@ -331,6 +331,40 @@ def test_invalid_prediction_id_none():
     assert type(errors[0]) is err.InvalidValueMissingValue
 
 
+def test_prediction_id_length():
+    long_ids = pd.Series(["A" * 129] * 4)
+    empty_ids = pd.Series([""] * 4)
+    kwargs = get_standard_kwargs()
+    good_vector = []
+    for i in range(4):
+        good_vector.append(np.arange(float(6)))
+
+    for ids in (long_ids, empty_ids):
+        errors = Validator.validate_values(
+            **ChainMap(
+                {
+                    "schema": Schema(
+                        prediction_id_column_name="prediction_id",
+                        embedding_feature_column_names={
+                            "good_vector": EmbeddingColumnNames(
+                                vector_column_name="good_vector",  # Should not give error
+                            ),
+                        },
+                    ),
+                },
+                {"dataframe": pd.DataFrame({"prediction_id": ids, "good_vector": good_vector})},
+                kwargs,
+            )
+        )
+        assert len(errors) == 1
+        assert type(errors[0]) is err.InvalidStringLength
+        err_string = (
+            "prediction_id_column_name column prediction_id contains invalid values. "
+            "Only string values of length within 1 - 128 are accepted."
+        )
+        assert errors[0].error_message() == err_string
+
+
 def test_multiple():
     kwargs = get_standard_kwargs()
     errors = Validator.validate_values(
@@ -724,12 +758,12 @@ def get_object_detection_kwargs():
         "schema": Schema(
             prediction_id_column_name="prediction_id",
             object_detection_prediction_column_names=ObjectDetectionColumnNames(
-                boxes_coords_column_name="prediction_bounding_boxes_coordinates",
+                bounding_boxes_coordinates_column_name="prediction_bounding_boxes_coordinates",
                 categories_column_name="prediction_bounding_boxes_categories",
                 scores_column_name="prediction_bounding_boxes_scores",
             ),
             object_detection_actual_column_names=ObjectDetectionColumnNames(
-                boxes_coords_column_name="actual_bounding_boxes_coordinates",
+                bounding_boxes_coordinates_column_name="actual_bounding_boxes_coordinates",
                 categories_column_name="actual_bounding_boxes_categories",
             ),
         ),

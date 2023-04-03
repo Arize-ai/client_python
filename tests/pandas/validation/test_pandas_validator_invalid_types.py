@@ -2,12 +2,13 @@ import datetime
 from collections import ChainMap
 
 import arize.pandas.validation.errors as err
+import numpy as np
 import pandas as pd
 import pyarrow as pa
 import pytest
 from arize.pandas.logger import Schema
 from arize.pandas.validation.validator import Validator
-from arize.utils.types import ModelTypes, ObjectDetectionColumnNames
+from arize.utils.types import EmbeddingColumnNames, ModelTypes, ObjectDetectionColumnNames
 
 
 def test_zero_errors():
@@ -439,6 +440,39 @@ def test_invalid_type_bounding_boxes():
         assert type(error) == type(expected_error)
 
 
+def test_invalid_type_prompt_response():
+    kwargs = get_kwargs()
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.GENERATIVE_LLM,
+            },
+            kwargs,
+        )
+    )
+    expected_errors = [
+        err.InvalidTypePromptResponse(
+            wrong_type_columns=[
+                "wrong_prompt_vector",
+                "wrong_response_vector",
+            ],
+            expected_types=["list[float], np.array[float]"],
+        ),
+        err.InvalidTypePromptResponse(
+            wrong_type_columns=[
+                "wrong_prompt_data",
+                "wrong_response_data",
+            ],
+            expected_types=["list[string]"],
+        ),
+    ]
+
+    assert len(errors) == len(expected_errors)
+    for error, expected_error in zip(errors, expected_errors):
+        assert error.error_message() == expected_error.error_message()
+        assert type(error) == type(expected_error)
+
+
 def get_kwargs():
     return {
         "model_type": ModelTypes.SCORE_CATEGORICAL,
@@ -453,14 +487,22 @@ def get_kwargs():
             tag_column_names=list("ABCDEFG"),
             shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
             object_detection_prediction_column_names=ObjectDetectionColumnNames(
-                boxes_coords_column_name="pred_wrong_bounding_boxes_coordinates",
+                bounding_boxes_coordinates_column_name="pred_wrong_bounding_boxes_coordinates",
                 categories_column_name="pred_wrong_bounding_boxes_categories",
                 scores_column_name="pred_wrong_bounding_boxes_scores",
             ),
             object_detection_actual_column_names=ObjectDetectionColumnNames(
-                boxes_coords_column_name="actual_wrong_bounding_boxes_coordinates",
+                bounding_boxes_coordinates_column_name="actual_wrong_bounding_boxes_coordinates",
                 categories_column_name="actual_wrong_bounding_boxes_categories",
                 scores_column_name="actual_wrong_bounding_boxes_scores",
+            ),
+            prompt_column_names=EmbeddingColumnNames(
+                vector_column_name="wrong_prompt_vector",
+                data_column_name="wrong_prompt_data",
+            ),
+            response_column_names=EmbeddingColumnNames(
+                vector_column_name="wrong_response_vector",
+                data_column_name="wrong_response_data",
             ),
         ),
         "pyarrow_schema": pa.Schema.from_pandas(
@@ -525,6 +567,13 @@ def get_kwargs():
                             ["wrong_type", "wrong_type"],
                         ]
                     ),
+                    # Wrong type
+                    "wrong_prompt_vector": np.random.randn(3, 3).astype(str).tolist(),
+                    "wrong_response_vector": np.random.choice(
+                        a=[True, False], size=(3, 3)
+                    ).tolist(),
+                    "wrong_prompt_data": [x for x in range(3)],
+                    "wrong_response_data": [x for x in range(3)],
                 }
             )
         ),

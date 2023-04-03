@@ -1025,6 +1025,47 @@ def test_object_detection_wrong_coordinates_format():
     )
 
 
+def test_valid_prediction_id_embeddings():
+    c = get_stubbed_client()
+
+    # test case - too long prediction_id
+    with pytest.raises(ValueError) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_type=inputs["model_type_binary_classification"],
+            model_version=inputs["model_version"],
+            environment=inputs["environment_production"],
+            prediction_id="A" * 129,
+            prediction_label=inputs["label_str"],
+            actual_label=inputs["label_str"],
+            features=inputs["features"],
+            embedding_features=inputs["embedding_features"],
+            tags=inputs["tags"],
+        )
+    assert "The string length of prediction_id" in str(excinfo.value)
+
+
+def test_no_prediction_id():
+    c = get_stubbed_client()
+
+    # test case - None prediction_id
+    try:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_type=inputs["model_type_binary_classification"],
+            model_version=inputs["model_version"],
+            environment=inputs["environment_production"],
+            prediction_id=None,
+            prediction_label=inputs["label_str"],
+            actual_label=inputs["label_str"],
+            features=inputs["features"],
+            embedding_features=inputs["embedding_features"],
+            tags=inputs["tags"],
+        )
+    except Exception as e:
+        assert False, f"Logging data without prediction_id raised an exception {e}"
+
+
 def test_object_detection_wrong_categories():
     c = get_stubbed_client()
 

@@ -12,7 +12,13 @@ class CVUseCases(Enum):
     IMAGE_CLASSIFICATION = auto()
 
 
+@unique
+class TabularUsecases(Enum):
+    TABULAR_EMBEDDINGS = auto()
+
+
 @dataclass
 class UseCases:
     NLP = NLPUseCases
     CV = CVUseCases
+    STRUCTURED = TabularUsecases
