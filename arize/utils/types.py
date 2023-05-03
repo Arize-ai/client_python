@@ -1,10 +1,10 @@
-from dataclasses import dataclass
-from dataclasses import replace as dataclass_replace
+from dataclasses import asdict, dataclass, replace
 from enum import Enum, unique
-from typing import Dict, List, NamedTuple, Optional, Sequence, TypeVar, Union
+from typing import Dict, List, NamedTuple, Optional, Sequence, Set, TypeVar, Union
 
 import numpy as np
 import pandas as pd
+from arize.utils.constants import MAX_PREDICTION_ID_LEN, MIN_PREDICTION_ID_LEN
 
 
 @unique
@@ -92,13 +92,16 @@ class Embedding(NamedTuple):
     link_to_data: Optional[str] = None
 
     def validate(self, emb_name: Union[str, int, float]) -> None:
-        """Validates that the embedding object passed is of the correct format. That is,
-        validations must be passed for vector, data & link_to_data.
+        """
+        Validates that the embedding object passed is of the correct format. That is, validations must
+        be passed for vector, data & link_to_data.
 
-        Args:
+        Arguments:
+        ----------
             emb_name (str, int, float): Name of the embedding feature the vector belongs to
 
         Raises:
+        -------
             TypeError: If the embedding fields are of the wrong type
         """
 
@@ -119,15 +122,18 @@ class Embedding(NamedTuple):
         self,
         emb_name: Union[str, int, float],
     ) -> None:
-        """Validates that the embedding vector passed is of the correct format. That is:
-        1. Type must be list or convertible to list (like numpy arrays, pandas Series)
-        2. List must not be empty
-        3. Elements in list must be floats
+        """
+        Validates that the embedding vector passed is of the correct format. That is:
+            1. Type must be list or convertible to list (like numpy arrays, pandas Series)
+            2. List must not be empty
+            3. Elements in list must be floats
 
-        Args:
+        Arguments:
+        ----------
             emb_name (str, int, float): Name of the embedding feature the vector belongs to
 
         Raises:
+        -------
             TypeError: If the embedding does not satisfy requirements above
         """
 
@@ -152,13 +158,16 @@ class Embedding(NamedTuple):
         self,
         emb_name: Union[str, int, float],
     ) -> None:
-        """Validates that the embedding raw data field is of the correct format. That is:
-        1. Must be string or list of strings (NLP case)
+        """
+        Validates that the embedding raw data field is of the correct format. That is:
+            1. Must be string or list of strings (NLP case)
 
-        Args:
+        Arguments:
+        ----------
             emb_name (str, int, float): Name of the embedding feature the vector belongs to
 
         Raises:
+        -------
             TypeError: If the embedding does not satisfy requirements above
         """
         # Validate that data is a string or iterable of strings
@@ -176,13 +185,16 @@ class Embedding(NamedTuple):
                 raise TypeError("Embedding data field must contain strings")
 
     def _validate_embedding_link_to_data(self, emb_name: Union[str, int, float]) -> None:
-        """Validates that the embedding link to data field is of the correct format. That is:
-        1. Must be string
+        """
+        Validates that the embedding link to data field is of the correct format. That is:
+            1. Must be string
 
-        Args:
+        Arguments:
+        ----------
             emb_name (str, int, float): Name of the embedding feature the vector belongs to
 
         Raises:
+        -------
             TypeError: If the embedding does not satisfy requirements above
         """
         if not isinstance(self.link_to_data, str):
@@ -193,15 +205,18 @@ class Embedding(NamedTuple):
 
     @staticmethod
     def _is_valid_iterable(data: Union[str, List[str], List[float], np.ndarray, pd.Series]) -> bool:
-        """Validates that the input data field is of the correct iterable type. That is:
-        1. List or
-        2. numpy array or
-        3. pandas Series
+        """
+        Validates that the input data field is of the correct iterable type. That is:
+            1. List or
+            2. numpy array or
+            3. pandas Series
 
-        Args:
+        Arguments:
+        ----------
             data: input iterable
 
         Returns:
+        --------
             True if the data type is one of the accepted iterable types, false otherwise
         """
         return any(isinstance(data, t) for t in (list, np.ndarray, pd.Series))
@@ -396,52 +411,122 @@ class Schema:
     object_detection_actual_column_names: Optional[ObjectDetectionColumnNames] = None
     prompt_column_names: Optional[EmbeddingColumnNames] = None
     response_column_names: Optional[EmbeddingColumnNames] = None
-    """
+    f"""
     Used to organize and map column names containing model data within your Pandas dataframe to
     Arize.
 
-    :param prediction_id_column_name (str, optional): Column name for the predictions unique
-    identifier. This value is used to match a prediction to delayed actuals in Arize. If predictions
-    are not provided, it will default to an empty string "" and Arize will create a random
-    prediction id on the server side.
-    Contents must be a string and indicate a unique prediction event. Limited to 128 characters.
-    :param feature_column_names (List[str], optional): List of column names for features. The
-    content of this column can be int, float, string.
-    :param tag_column_names (List[str], optional): List of column names for tags. The content of
-    this column can be int, float, string.
-    :param timestamp_column_name (str, optional): Column name for timestamps. The
-    content of this column must be int Unix Timestamps in seconds.
-    :param prediction_label_column_name (str, optional): Column name for categorical prediction
-    values. The content of this column must be convertible to string.
-    :param prediction_score_column_name (str, optional): Column name for numeric prediction values.
-    The content of this column must be int/float.
-    :param actual_label_column_name (str, optional): Column name for categorical ground truth
-    values. The content of this column must be convertible to string.
-    :param actual_score_column_name (str, optional): Column name for numeric ground truth values.
-    The content of this column must be int/float.
-    :param shap_values_column_names (Dict[str, str], optional): Dictionary mapping
-    human readable and debuggable model features keys and SHAP feature importance values.
-    Keys must be str, while values must be float.
-    :param embedding_feature_column_names (Dict[str, EmbeddingColumnNames], optional): Dictionary
-    mapping embedding display names to EmbeddingColumnNames objects.
-    :param prediction_group_id_column_name (str, optional): Column name for ranking groups or lists
-    in ranking models. The content of this column must be string and is limited to 128 characters.
-    :param rank_column_name (str, optional): Column name for rank of each element on the its group
-    or list. The content of this column must be integer between 1-100.
-    :param relevance_score_column_name (str, optional): Column name for ranking model type numeric
-    ground truth values. The content of this column must be int/float.
-    :param relevance_labels_column_name (str, optional): Column name for ranking model type
-    categorical ground truth values. The content of this column must be a string.
-    :param object_detection_prediction_column_name (ObjectDetectionColumnNames, optional):
-    ObjectDetectionColumnNames object containing information defining the predicted bounding boxes'
-    coordinates, categories, and scores.
-    :param object_detection_prediction_column_name (ObjectDetectionColumnNames, optional):
-    ObjectDetectionColumnNames object containing information defining the actual bounding boxes'
-    coordinates, categories, and scores.
+    Arguments:
+    ----------
+        prediction_id_column_name (str, optional): Column name for the predictions unique identifier.
+            Unique IDs are used to match a prediction to delayed actuals or feature importances in Arize.
+            If prediction ids are not provided, it will default to an empty string "" and, when possible,
+            Arize will create a random prediction id on the server side. Contents must be a string and
+            indicate a unique prediction event. Must contain a minimum of {MIN_PREDICTION_ID_LEN} and a
+            maximum of {MAX_PREDICTION_ID_LEN} characters.
+        feature_column_names (List[str], optional): List of column names for features. The content
+            of this column can be int, float, string.
+        tag_column_names (List[str], optional): List of column names for tags. The content of this
+            column can be int, float, string.
+        timestamp_column_name (str, optional): Column name for timestamps. The content of this
+            column must be int Unix Timestamps in seconds.
+        prediction_label_column_name (str, optional): Column name for categorical prediction values.
+            The content of this column must be convertible to string.
+        prediction_score_column_name (str, optional): Column name for numeric prediction values. The
+            content of this column must be int/float.
+        actual_label_column_name (str, optional): Column name for categorical ground truth values.
+            The content of this column must be convertible to string.
+        actual_score_column_name (str, optional): Column name for numeric ground truth values. The
+            content of this column must be int/float.
+        shap_values_column_names (Dict[str, str], optional): Dictionary mapping feature column name
+            and corresponding SHAP feature importance column name. e.g.
+            {{"feat_A": "feat_A_shap", "feat_B": "feat_B_shap"}}
+        embedding_feature_column_names (Dict[str, EmbeddingColumnNames], optional): Dictionary
+            mapping embedding display names to EmbeddingColumnNames objects.
+        prediction_group_id_column_name (str, optional): Column name for ranking groups or lists in
+            ranking models. The content of this column must be string and is limited to 128 characters.
+        rank_column_name (str, optional): Column name for rank of each element on the its group or
+            list. The content of this column must be integer between 1-100.
+        relevance_score_column_name (str, optional): Column name for ranking model type numeric
+            ground truth values. The content of this column must be int/float.
+        relevance_labels_column_name (str, optional): Column name for ranking model type categorical
+            ground truth values. The content of this column must be a string.
+        object_detection_prediction_column_names (ObjectDetectionColumnNames, optional):
+            ObjectDetectionColumnNames object containing information defining the predicted bounding
+            boxes' coordinates, categories, and scores.
+        object_detection_actual_column_names (ObjectDetectionColumnNames, optional):
+            ObjectDetectionColumnNames object containing information defining the actual bounding
+            boxes' coordinates, categories, and scores.
+        prompt_column_names (EmbeddingCoulumnNames, optional): EmbeddingCoulumnNames object containing
+            the embedding vector data (required) and raw text (optional) for the input text your
+            model acts on.
+        response_column_names (EmbeddingCoulumnNames, optional): EmbeddingCoulumnNames object
+            containing the embedding vector data (required) and raw text (optional) for the text
+            your model generates.
+
+    Methods:
+    --------
+        replace(**changes):
+            Replaces fields of the schema
+        asdict():
+            Returns the schema as a dictionary. Warning: the types are not maintained, fields are
+            converted to strings.
+        get_used_columns():
+            Returns a set with the unique collection of columns to be used from the dataframe.
     """
 
     def replace(self, **changes):
-        return dataclass_replace(self, **changes)
+        return replace(self, **changes)
+
+    def asdict(self) -> Dict[str, str]:
+        return asdict(self)
+
+    def get_used_columns(self) -> Set[str]:
+        columns_used = set()
+
+        for field in self.__dataclass_fields__:
+            if field.endswith("column_name"):
+                col = getattr(self, field)
+                if col is not None:
+                    columns_used.add(col)
+
+        if self.feature_column_names is not None:
+            for col in self.feature_column_names:
+                columns_used.add(col)
+        if self.embedding_feature_column_names is not None:
+            for emb_col_names in self.embedding_feature_column_names.values():
+                columns_used.add(emb_col_names.vector_column_name)
+                if emb_col_names.data_column_name is not None:
+                    columns_used.add(emb_col_names.data_column_name)
+                if emb_col_names.link_to_data_column_name is not None:
+                    columns_used.add(emb_col_names.link_to_data_column_name)
+
+        if self.tag_column_names is not None:
+            for col in self.tag_column_names:
+                columns_used.add(col)
+
+        if self.shap_values_column_names is not None:
+            for col in self.shap_values_column_names.values():
+                columns_used.add(col)
+
+        if self.object_detection_prediction_column_names is not None:
+            for col in self.object_detection_prediction_column_names:
+                columns_used.add(col)
+
+        if self.object_detection_actual_column_names is not None:
+            for col in self.object_detection_actual_column_names:
+                columns_used.add(col)
+
+        if self.prompt_column_names is not None:
+            columns_used.add(self.prompt_column_names.vector_column_name)
+            if self.prompt_column_names.data_column_name is not None:
+                columns_used.add(self.prompt_column_names.data_column_name)
+
+        if self.response_column_names is not None:
+            columns_used.add(self.response_column_names.vector_column_name)
+            if self.response_column_names.data_column_name is not None:
+                columns_used.add(self.response_column_names.data_column_name)
+
+        return columns_used
 
 
 T = TypeVar("T", bound=type)

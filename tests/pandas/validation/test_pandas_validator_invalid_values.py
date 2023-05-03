@@ -1,4 +1,5 @@
 import datetime
+import uuid
 from collections import ChainMap
 
 import numpy as np
@@ -6,7 +7,14 @@ import pandas as pd
 import pytest
 from arize.pandas.validation import errors as err
 from arize.pandas.validation.validator import Validator
-from arize.utils.types import EmbeddingColumnNames, ModelTypes, ObjectDetectionColumnNames, Schema
+from arize.utils.constants import MAX_PREDICTION_ID_LEN, MAX_TAG_LENGTH, MIN_PREDICTION_ID_LEN
+from arize.utils.types import (
+    EmbeddingColumnNames,
+    Environments,
+    ModelTypes,
+    ObjectDetectionColumnNames,
+    Schema,
+)
 
 
 def test_zero_errors():
@@ -61,7 +69,11 @@ def test_invalid_ts_date32_min():
                 "dataframe": pd.DataFrame(
                     {
                         "prediction_timestamp": pd.Series(
-                            [(datetime.datetime.now() - datetime.timedelta(days=365)).date()]
+                            [
+                                (
+                                    datetime.datetime.now() - datetime.timedelta(days=365 * 2 + 1)
+                                ).date()
+                            ]
                         )
                     }
                 )
@@ -84,7 +96,7 @@ def test_invalid_ts_date32_max():
                             [
                                 (
                                     datetime.datetime.now()
-                                    + datetime.timedelta(days=366)
+                                    + datetime.timedelta(days=365 + 1)
                                     # need to fudge a little b/c time is always moving forward
                                 ).date()
                             ]
@@ -107,7 +119,11 @@ def test_invalid_ts_float64_min():
                 "dataframe": pd.DataFrame(
                     {
                         "prediction_timestamp": pd.Series(
-                            [(datetime.datetime.now() - datetime.timedelta(days=365)).timestamp()]
+                            [
+                                (
+                                    datetime.datetime.now() - datetime.timedelta(days=365 * 2 + 1)
+                                ).timestamp()
+                            ]
                         )
                     }
                 )
@@ -131,7 +147,7 @@ def test_invalid_ts_float64_max():
                                 (
                                     datetime.datetime.now()
                                     + datetime.timedelta(
-                                        days=366
+                                        days=365 + 1
                                     )  # need to fudge a little b/c time is always moving forward
                                 ).timestamp()
                             ]
@@ -157,7 +173,8 @@ def test_invalid_ts_int64_min():
                             [
                                 int(
                                     (
-                                        datetime.datetime.now() - datetime.timedelta(days=365)
+                                        datetime.datetime.now()
+                                        - datetime.timedelta(days=365 * 2 + 1)
                                     ).timestamp()
                                 )
                             ]
@@ -185,7 +202,7 @@ def test_invalid_ts_int64_max():
                                     (
                                         datetime.datetime.now()
                                         + datetime.timedelta(
-                                            days=366
+                                            days=365 + 1
                                         )  # need to fudge a little b/c time always moves forward
                                     ).timestamp()
                                 )
@@ -209,7 +226,7 @@ def test_invalid_ts_datetime_min():
                 "dataframe": pd.DataFrame(
                     {
                         "prediction_timestamp": pd.Series(
-                            [(datetime.datetime.now() - datetime.timedelta(days=365))]
+                            [(datetime.datetime.now() - datetime.timedelta(days=365 * 2 + 1))]
                         )
                     }
                 )
@@ -232,7 +249,7 @@ def test_invalid_ts_datetime_max():
                             [
                                 datetime.datetime.now()
                                 + datetime.timedelta(
-                                    days=366
+                                    days=365 + 1
                                 )  # need to fudge a little b/c time is always moving forward
                             ]
                         )
@@ -246,56 +263,79 @@ def test_invalid_ts_datetime_max():
     assert type(errors[0]) is err.InvalidValueTimestamp
 
 
-def test_invalid_prediction_label_none_value():
+def test_valid_prediction_label_none_value():
     kwargs = get_standard_kwargs()
     errors = Validator.validate_values(
         **ChainMap(
-            {"dataframe": pd.DataFrame({"prediction_label": pd.Series(["foo", None, "baz"])})},
+            {
+                "dataframe": pd.DataFrame(
+                    {
+                        "prediction_label": pd.Series(["foo", None, "baz"]),
+                        "prediction_score": pd.Series([0.2, 0.3, 0.4]),
+                    }
+                )
+            },
             kwargs,
         )
     )
-    assert len(errors) == 1
-    assert type(errors[0]) is err.InvalidValueMissingValue
+    assert len(errors) == 0
 
 
-def test_invalid_actual_label_none_value():
+def test_valid_actual_label_none_value():
     kwargs = get_standard_kwargs()
     errors = Validator.validate_values(
         **ChainMap(
-            {"dataframe": pd.DataFrame({"actual_label": pd.Series(["foo", None, "baz"])})},
+            {
+                "dataframe": pd.DataFrame(
+                    {
+                        "actual_label": pd.Series(["foo", None, "baz"]),
+                        "actual_score": pd.Series([0, 1, 0]),
+                    }
+                )
+            },
             kwargs,
         )
     )
-    msgs = [e.error_message() for e in errors]
-    assert len(errors) == 1, f"msg is {msgs}"
-    assert type(errors[0]) is err.InvalidValueMissingValue
+    assert len(errors) == 0
 
 
-def test_invalid_prediction_label_nan_value():
+def test_valid_prediction_label_nan_value():
     kwargs = get_standard_kwargs()
     errors = Validator.validate_values(
         **ChainMap(
-            {"dataframe": pd.DataFrame({"prediction_label": pd.Series([0, float("NaN"), 1])})},
+            {
+                "dataframe": pd.DataFrame(
+                    {
+                        "prediction_label": pd.Series([0, float("NaN"), 1]),
+                        "prediction_score": pd.Series([0.2, 0.3, 0.4]),
+                    }
+                )
+            },
             kwargs,
         )
     )
-    assert len(errors) == 1
-    assert type(errors[0]) is err.InvalidValueMissingValue
+    assert len(errors) == 0
 
 
-def test_invalid_actual_label_nan_value():
+def test_valid_actual_label_nan_value():
     kwargs = get_standard_kwargs()
     errors = Validator.validate_values(
         **ChainMap(
-            {"dataframe": pd.DataFrame({"actual_label": pd.Series([0, float("NaN"), 1])})},
+            {
+                "dataframe": pd.DataFrame(
+                    {
+                        "actual_label": pd.Series([0, float("NaN"), 1]),
+                        "actual_score": pd.Series([0, 1, 0]),
+                    }
+                )
+            },
             kwargs,
         )
     )
-    assert len(errors) == 1
-    assert type(errors[0]) is err.InvalidValueMissingValue
+    assert len(errors) == 0
 
 
-def test_invalid_prediction_label_inf_value():
+def test_valid_prediction_label_inf_value():
     kwargs = get_standard_kwargs()
     errors = Validator.validate_values(
         **ChainMap(
@@ -303,11 +343,10 @@ def test_invalid_prediction_label_inf_value():
             kwargs,
         )
     )
-    assert len(errors) == 1
-    assert type(errors[0]) is err.InvalidValueMissingValue
+    assert len(errors) == 0
 
 
-def test_invalid_actual_label_inf_value():
+def test_valid_actual_label_inf_value():
     kwargs = get_standard_kwargs()
     errors = Validator.validate_values(
         **ChainMap(
@@ -315,15 +354,18 @@ def test_invalid_actual_label_inf_value():
             kwargs,
         )
     )
-    assert len(errors) == 1
-    assert type(errors[0]) is err.InvalidValueMissingValue
+    assert len(errors) == 0
 
 
 def test_invalid_prediction_id_none():
     kwargs = get_standard_kwargs()
     errors = Validator.validate_values(
         **ChainMap(
-            {"dataframe": pd.DataFrame({"prediction_id": pd.Series(["0", None, "1"])})},
+            {
+                "dataframe": pd.DataFrame(
+                    {"prediction_id": pd.Series([str(uuid.uuid4()), None, str(uuid.uuid4())])}
+                )
+            },
             kwargs,
         )
     )
@@ -360,9 +402,26 @@ def test_prediction_id_length():
         assert type(errors[0]) is err.InvalidStringLength
         err_string = (
             "prediction_id_column_name column prediction_id contains invalid values. "
-            "Only string values of length within 1 - 128 are accepted."
+            f"Only string values of length between {MIN_PREDICTION_ID_LEN} and {MAX_PREDICTION_ID_LEN} "
+            "are accepted."
         )
         assert errors[0].error_message() == err_string
+
+
+def test_tag_length():
+    long_tags = pd.Series(["a" * (MAX_TAG_LENGTH + 1)] * 3)
+    kwargs = get_standard_kwargs()
+    errors = Validator.validate_values(
+        **ChainMap({"dataframe": pd.DataFrame({"A": long_tags})}, kwargs)
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is err.InvalidTagLength
+    err_string = (
+        f"Only tag values with less than or equal to {MAX_TAG_LENGTH} characters are supported."
+        f"The following tag columns have more than {MAX_TAG_LENGTH} characters: "
+        "A."
+    )
+    assert errors[0].error_message() == err_string
 
 
 def test_multiple():
@@ -376,16 +435,14 @@ def test_multiple():
                             [(datetime.datetime.now() - datetime.timedelta(days=365)).date()] * 3
                         ),
                         "prediction_label": pd.Series(["foo", None, "baz"]),
-                        "actual_label": pd.Series([0, float("NaN"), 1]),
+                        "actual_label": pd.Series([0, 1, float("NaN")]),
                     }
                 )
             },
             kwargs,
         )
     )
-    assert len(errors) == 3
-    assert any(type(e) is err.InvalidValueTimestamp for e in errors)
-    assert any(type(e) is err.InvalidValueMissingValue for e in errors)
+    assert len(errors) == 0
 
 
 def test_invalid_embedding_dimensionality():
@@ -666,6 +723,7 @@ def test_invalid_value_bounding_boxes_scores():
 def get_standard_kwargs():
     return {
         "model_type": ModelTypes.SCORE_CATEGORICAL,
+        "environment": Environments.PRODUCTION,
         "schema": Schema(
             prediction_id_column_name="prediction_id",
             timestamp_column_name="prediction_timestamp",
@@ -679,7 +737,7 @@ def get_standard_kwargs():
         ),
         "dataframe": pd.DataFrame(
             {
-                "prediction_id": pd.Series(["0", "1", "2"]),
+                "prediction_id": pd.Series([str(uuid.uuid4()) for _ in range(3)]),
                 "prediction_timestamp": pd.Series(
                     [
                         datetime.datetime.now(),
@@ -715,9 +773,10 @@ def get_standard_kwargs():
 def get_object_detection_kwargs():
     return {
         "model_type": ModelTypes.OBJECT_DETECTION,
+        "environment": Environments.PRODUCTION,
         "dataframe": pd.DataFrame(
             {
-                "prediction_id": pd.Series(["0", "1", "2"]),
+                "prediction_id": pd.Series([str(uuid.uuid4()) for _ in range(3)]),
                 "prediction_bounding_boxes_coordinates": pd.Series(
                     [
                         [[0.11, 0.12, 0.13, 0.14], [0.11, 0.12, 0.13, 0.14]],

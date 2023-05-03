@@ -1,8 +1,10 @@
 import os
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Dict, List
+from typing import Dict, List, Union
 
+import arize.pandas.embeddings.errors as err
+import pandas as pd
 from arize.utils.logging import logger
 
 from .constants import IMPORT_ERROR_MESSAGE
@@ -90,6 +92,14 @@ class BaseEmbeddingGenerator(ABC):
         else:
             raise ValueError(f"Invalid method = {method}")
         return {"embedding_vector": embeddings.cpu().numpy()}
+
+    @staticmethod
+    def check_invalid_index(field: Union[pd.Series, pd.DataFrame]) -> None:
+        if (field.index != field.reset_index(drop=True).index).any():
+            if isinstance(field, pd.DataFrame):
+                raise err.InvalidIndexError("DataFrame")
+            else:
+                raise err.InvalidIndexError(field.name)
 
     @abstractmethod
     def __repr__(self) -> str:

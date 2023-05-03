@@ -1,61 +1,21 @@
+# type: ignore[pb2]
 import base64
 import json
 import math
 import sys
-import time
-from pathlib import Path
 from typing import Any, Optional, Union
 
 import pandas as pd
+from arize.utils.constants import (
+    MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
+    MAX_PAST_YEARS_FROM_CURRENT_TIME,
+)
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.protobuf.wrappers_pb2 import StringValue
 
 from .. import public_pb2 as pb2
-from .types import Embedding
-
-MAX_BYTES_PER_BULK_RECORD = 100000
-MAX_DAYS_WITHIN_RANGE = 365
-MIN_PREDICTION_ID_LEN = 1
-MAX_PREDICTION_ID_LEN = 128
-MODEL_MAPPING_CONFIG = None
-
-path = Path(__file__).with_name("model_mapping.json")
-with path.open("r") as f:
-    MODEL_MAPPING_CONFIG = json.load(f)
-
-
-def validate_prediction_timestamps(prediction_ids, prediction_timestamps):
-    if prediction_timestamps is None:
-        return
-    else:
-        expected_count = prediction_ids.shape[0]
-
-    if isinstance(prediction_timestamps, pd.Series):
-        if prediction_timestamps.shape[0] != expected_count:
-            raise ValueError(
-                f"prediction_timestamps has {prediction_timestamps.shape[0]} elements, but must "
-                f"have same number of "
-                f"elements as prediction_ids: {expected_count}. "
-            )
-    elif isinstance(prediction_timestamps, list):
-        if len(prediction_timestamps) != expected_count:
-            raise ValueError(
-                f"prediction_timestamps has length {len(prediction_timestamps)} but must have "
-                f"same number of elements as "
-                f"prediction_ids: {expected_count}. "
-            )
-    else:
-        raise TypeError(
-            f"prediction_timestamps is type {type(prediction_timestamps)}, but expected one of: "
-            f"pd.Series, list<int>"
-        )
-    now = int(time.time())
-    for ts in prediction_timestamps:
-        if not is_timestamp_in_range(now, ts):
-            raise ValueError(
-                f"timestamp: {ts} in prediction_timestamps is out of range. Value must be within "
-                f"1 year of the current time."
-            )
+from .constants import MAX_BYTES_PER_BULK_RECORD
+from .types import Embedding, Schema
 
 
 def num_chunks(records):
@@ -101,7 +61,7 @@ def convert_dictionary(d):
     # - casts the keys as strings
     # - turns the values of the dictionary to our proto values pb2.Value()
     converted_dict = {}
-    for (k, v) in d.items():
+    for k, v in d.items():
         val = get_value_object(value=v, name=k)
         if val is not None:
             converted_dict[str(k)] = val
@@ -172,13 +132,9 @@ def get_timestamp(time_overwrite):
 
 
 def is_timestamp_in_range(now: int, ts: int):
-    max_time = now + (MAX_DAYS_WITHIN_RANGE * 24 * 60 * 60)
-    min_time = now - (MAX_DAYS_WITHIN_RANGE * 24 * 60 * 60)
-    if ts > max_time:
-        return False
-    if ts < min_time:
-        return False
-    return True
+    max_time = now + (MAX_FUTURE_YEARS_FROM_CURRENT_TIME * 365 * 24 * 60 * 60)
+    min_time = now - (MAX_PAST_YEARS_FROM_CURRENT_TIME * 365 * 24 * 60 * 60)
+    return min_time <= ts <= max_time
 
 
 def reconstruct_url(response: Any):
@@ -195,3 +151,56 @@ def reconstruct_url(response: Any):
 
 def get_python_version():
     return f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+
+
+def overwrite_schema_fields(schema1: Schema, schema2: Schema) -> Schema:
+    """This function overwrites a base Schema `schema1` with the fields of `schema2`
+    that are not None
+
+    Arguments:
+    ----------
+        schema1 (Schema): Base Schema with fields to be overwritten
+        schema2 (Schema): New Schema used to overwrite schema1
+
+    Returns:
+    --------
+        Schema: The resulting schema
+    """
+    schema_dict_fields = (
+        "embedding_feature_column_names",
+        "shap_values_column_names",
+        "prompt_column_names",
+        "response_column_names",
+    )
+    changes = {
+        k: v for k, v in schema2.asdict().items() if v is not None and k not in schema_dict_fields
+    }
+    schema = schema1.replace(**changes)
+
+    # Embedding column names need to be treated separately for being in a dictionary
+    if schema2.embedding_feature_column_names is not None:
+        emb_feat_col_names = schema1.embedding_feature_column_names
+        if emb_feat_col_names is None:
+            emb_feat_col_names = {}
+        for k, v in schema2.embedding_feature_column_names.items():
+            emb_feat_col_names[k] = v
+        # replace embedding column names in schema
+        schema = schema.replace(embedding_feature_column_names=emb_feat_col_names)
+
+    # Prompt and response need to be treated separately
+    if schema2.prompt_column_names is not None:
+        schema = schema.replace(prompt_column_names=schema2.prompt_column_names)
+    if schema2.response_column_names is not None:
+        schema = schema.replace(response_column_names=schema2.response_column_names)
+
+    # Shap values column names need to be treated separately for being in a dictionary
+    if schema2.shap_values_column_names is not None:
+        shap_val_col_names = schema1.shap_values_column_names
+        if shap_val_col_names is None:
+            shap_val_col_names = {}
+        for k, v in schema2.shap_values_column_names.items():
+            shap_val_col_names[k] = v
+        # replace embedding column names in schema
+        schema = schema.replace(shap_values_column_names=shap_val_col_names)
+
+    return schema

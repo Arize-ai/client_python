@@ -1,6 +1,7 @@
 from collections import ChainMap
 
 import arize.pandas.validation.errors as err
+import numpy as np
 import pandas as pd
 import pytest
 from arize.pandas.logger import Schema
@@ -11,6 +12,8 @@ from arize.utils.types import (
     ModelTypes,
     ObjectDetectionColumnNames,
 )
+
+EMBEDDING_SIZE = 15
 
 
 def get_standard_kwargs():
@@ -25,6 +28,14 @@ def get_standard_kwargs():
                 "prediction_score": pd.Series([1]),
                 "actual_label": pd.Series(["not fraud"]),
                 "actual_score": pd.Series([0]),
+                #####
+                "A": pd.Series([0]),
+                "B": pd.Series([0.0]),
+                #####
+                "a": pd.Series([0]),
+                "b": pd.Series([0.0]),
+                "image_vector": np.random.randn(1, 1).tolist(),
+                "image_link": ["link_1"],
             }
         ),
         "schema": Schema(
@@ -32,6 +43,7 @@ def get_standard_kwargs():
             prediction_label_column_name="prediction_label",
             actual_label_column_name="actual_label",
             prediction_score_column_name="prediction_score",
+            shap_values_column_names=dict(zip("AB", "ab")),
         ),
     }
 
@@ -85,21 +97,21 @@ def test_zero_error():
 
 def test_invalid_model_id():
     kwargs = get_standard_kwargs()
-    errors = Validator.validate_params(**ChainMap({"model_id": " "}, kwargs))
+    errors = Validator.validate_params(**ChainMap({"model_id": " "}, kwargs))  # type: ignore
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidModelId
 
 
 def test_invalid_model_type():
     kwargs = get_standard_kwargs()
-    errors = Validator.validate_params(**ChainMap({"model_type": -1}, kwargs))
+    errors = Validator.validate_params(**ChainMap({"model_type": -1}, kwargs))  # type: ignore
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidModelType
 
 
 def test_invalid_environment():
     kwargs = get_standard_kwargs()
-    errors = Validator.validate_params(**ChainMap({"environment": -1}, kwargs))
+    errors = Validator.validate_params(**ChainMap({"environment": -1}, kwargs))  # type: ignore
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidEnvironment
 
@@ -107,7 +119,7 @@ def test_invalid_environment():
 def test_multiple():
     kwargs = get_standard_kwargs()
     errors = Validator.validate_params(
-        **ChainMap({"model_id": " ", "model_type": -1, "environment": -1}, kwargs)
+        **ChainMap({"model_id": " ", "model_type": -1, "environment": -1}, kwargs)  # type: ignore
     )
     assert len(errors) == 3
     assert any(type(e) is err.InvalidModelId for e in errors)
@@ -125,7 +137,7 @@ def test_invalid_batch_id_none():
                 "batch_id": None,
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidBatchId
@@ -141,7 +153,7 @@ def test_invalid_batch_id_empty_str():
                 "batch_id": "",
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidBatchId
@@ -157,7 +169,7 @@ def test_invalid_batch_id_blank_str():
                 "batch_id": "  ",
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidBatchId
@@ -172,7 +184,7 @@ def test_invalid_model_version_int_train():
                 "environment": Environments.TRAINING,
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidModelVersion
@@ -187,7 +199,7 @@ def test_invalid_model_version_empty_str_train():
                 "environment": Environments.TRAINING,
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidModelVersion
@@ -202,7 +214,7 @@ def test_invalid_model_version_blank_str_train():
                 "environment": Environments.TRAINING,
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidModelVersion
@@ -218,7 +230,7 @@ def test_invalid_model_version_int_val():
                 "batch_id": "1",
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidModelVersion
@@ -234,7 +246,7 @@ def test_invalid_model_version_empty_str_val():
                 "batch_id": "1",
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidModelVersion
@@ -250,7 +262,7 @@ def test_invalid_model_version_blank_str_val():
                 "batch_id": "1",
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidModelVersion
@@ -267,10 +279,10 @@ def test_missing_pred_act_shap():
                 ),
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
-    assert type(errors[0]) is err.MissingPredActShap
+    assert type(errors[0]) is err.MissingPredActShapNumericAndCategorical
 
 
 def test_missing_pred_label_score_categorical():
@@ -288,10 +300,9 @@ def test_missing_pred_label_score_categorical():
                 ),
             },
             kwargs,
-        )
+        )  # type: ignore
     )
-    assert len(errors) == 1
-    assert type(errors[0]) is err.MissingPredLabelScoreCategorical
+    assert len(errors) == 0
 
 
 def test_missing_preprod_pred_act_train():
@@ -307,10 +318,10 @@ def test_missing_preprod_pred_act_train():
                 ),
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
-    assert type(errors[0]) is err.MissingPreprodPredAct
+    assert type(errors[0]) is err.MissingPreprodPredActNumericAndCategorical
 
 
 def test_missing_preprod_act_train():
@@ -334,7 +345,7 @@ def test_missing_preprod_act_train():
                 ),
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.MissingPreprodAct
@@ -351,11 +362,11 @@ def test_missing_multiple_train():
                 ),
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 2
-    assert any(type(e) is err.MissingPreprodPredAct for e in errors)
-    assert any(type(e) is err.MissingPredActShap for e in errors)
+    assert any(type(e) is err.MissingPreprodPredActNumericAndCategorical for e in errors)
+    assert any(type(e) is err.MissingPredActShapNumericAndCategorical for e in errors)
 
 
 def test_missing_preprod_pred_act_val():
@@ -372,10 +383,10 @@ def test_missing_preprod_pred_act_val():
                 ),
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
-    assert type(errors[0]) is err.MissingPreprodPredAct
+    assert type(errors[0]) is err.MissingPreprodPredActNumericAndCategorical
 
 
 def test_missing_multiple_val():
@@ -389,12 +400,12 @@ def test_missing_multiple_val():
                 ),
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 3
     assert any(type(e) is err.InvalidBatchId for e in errors)
-    assert any(type(e) is err.MissingPreprodPredAct for e in errors)
-    assert any(type(e) is err.MissingPredActShap for e in errors)
+    assert any(type(e) is err.MissingPreprodPredActNumericAndCategorical for e in errors)
+    assert any(type(e) is err.MissingPredActShapNumericAndCategorical for e in errors)
 
 
 def test_existence_prompt_response_column_names():
@@ -407,7 +418,7 @@ def test_existence_prompt_response_column_names():
                 "model_type": ModelTypes.GENERATIVE_LLM,
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.MissingPromptResponseGenerativeLLM
@@ -426,7 +437,7 @@ def test_existence_pred_act_od_column_names():
                 ),
             },
             object_detection_kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     for error in errors:
@@ -483,7 +494,7 @@ def test_non_existence_pred_act_od_column_names():
                 ),
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     for error in errors:
@@ -540,11 +551,141 @@ def test_non_existence_pred_act_column_name():
                 ),
             },
             object_detection_kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     for error in errors:
         assert type(error) == err.InvalidPredActColumnNamesForObjectDetectionModelType
+
+
+def test_duplicate_column_names_in_dataframe():
+    kwargs = get_standard_kwargs()
+    # We add a duplicate "prediction_score" column
+    df_with_duplicate_column = pd.concat(
+        [kwargs["dataframe"], pd.DataFrame({"prediction_score": pd.Series([1])})], axis=1
+    )
+
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "dataframe": df_with_duplicate_column,
+            },
+            kwargs,
+        ),  # type: ignore
+    )
+    assert len(errors) == 1
+    assert isinstance(errors[0], err.DuplicateColumnsInDataframe)
+    # We add a duplicate "A" column that is used as a feature
+    df_with_duplicate_feature_column = pd.concat(
+        [kwargs["dataframe"], pd.DataFrame({"A": pd.Series([2])})], axis=1
+    )
+
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "dataframe": df_with_duplicate_feature_column,
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    prediction_score_column_name="prediction_score",
+                    feature_column_names=list("A"),
+                    prediction_label_column_name="prediction_label",
+                    actual_label_column_name="actual_label",
+                ),
+            },
+            kwargs,
+        ),  # type: ignore
+    )
+    assert len(errors) == 1
+    assert isinstance(errors[0], err.DuplicateColumnsInDataframe)
+    # We add a duplicate "image_vector" column used in embedding_feature_column
+    df_with_duplicate_embedding_feature_column = pd.concat(
+        [
+            kwargs["dataframe"],
+            pd.DataFrame({"image_vector": np.random.randn(1, EMBEDDING_SIZE).tolist()}),
+        ],
+        axis=1,
+    )
+
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "dataframe": df_with_duplicate_embedding_feature_column,
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    prediction_label_column_name="prediction_label",
+                    actual_label_column_name="actual_label",
+                    embedding_feature_column_names={
+                        "image_embedding": EmbeddingColumnNames(
+                            vector_column_name="image_vector",
+                            link_to_data_column_name="image_link",
+                        ),
+                    },
+                ),
+            },
+            kwargs,
+        ),  # type: ignore
+    )
+    assert len(errors) == 1
+    assert isinstance(errors[0], err.DuplicateColumnsInDataframe)
+
+
+def test_existence_prediction_id_column():
+    kwargs = get_standard_kwargs()
+    # Test case - prediction_id_column_name not None, not latent info
+    errors = Validator.validate_params(**kwargs)
+    assert len(errors) == 0
+    # Test case - prediction_id_column_name not None, latent info
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    actual_label_column_name="actual_label",
+                ),
+            },
+            kwargs,
+        ),  # type: ignore
+    )
+    assert len(errors) == 0
+    # Test case - prediction_id_column_name None, not latent info
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "schema": Schema(
+                    prediction_label_column_name="prediction_label",
+                    actual_label_column_name="actual_label",
+                ),
+            },
+            kwargs,
+        ),  # type: ignore
+    )
+    assert len(errors) == 0
+    # Test case - prediction_id_column_name None, latent actuals
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "schema": Schema(
+                    actual_label_column_name="actual_label",
+                ),
+            },
+            kwargs,
+        ),  # type: ignore
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is err.MissingPredictionIdColumnForDelayedRecords
+    # Test case - prediction_id_column_name None, latent shap
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "schema": Schema(
+                    shap_values_column_names=dict(zip("AB", "ab")),
+                ),
+            },
+            kwargs,
+        ),  # type: ignore
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is err.MissingPredictionIdColumnForDelayedRecords
 
 
 if __name__ == "__main__":

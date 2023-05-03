@@ -5,6 +5,7 @@ from enum import Enum, auto, unique
 @unique
 class NLPUseCases(Enum):
     SEQUENCE_CLASSIFICATION = auto()
+    SUMMARIZATION = auto()
 
 
 @unique

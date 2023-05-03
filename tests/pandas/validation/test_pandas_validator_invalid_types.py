@@ -34,19 +34,42 @@ def test_reject_all_nones():
 
 
 def test_invalid_type_prediction_id():
-    kwargs = get_kwargs()
-    errors = Validator.validate_types(
-        **ChainMap(
-            {
-                "pyarrow_schema": pa.Schema.from_pandas(
-                    pd.DataFrame({"prediction_id": pd.Series([datetime.datetime.now()])})
-                )
-            },
-            kwargs,
-        )
+    model_type = ModelTypes.SCORE_CATEGORICAL
+    schema = Schema(
+        prediction_id_column_name="prediction_id",
+        timestamp_column_name="prediction_timestamp",
+        prediction_label_column_name="prediction_label",
+        actual_label_column_name="actual_label",
+        prediction_score_column_name="prediction_score",
+        actual_score_column_name="actual_score",
     )
+    ts = datetime.datetime.now()
+    df = pd.DataFrame(
+        {
+            "prediction_id": pd.Series(["0", "1", "2"]),
+            "prediction_timestamp": pd.Series([ts, ts, ts]),
+            "prediction_label": pd.Series(["fraud", "not fraud", "fraud"]),
+            "prediction_score": pd.Series([0.2, 0.3, 0.4]),
+            "actual_label": pd.Series(["not fraud", "fraud", "not fraud"]),
+            "actual_score": pd.Series([0, 1, 0]),
+        }
+    )
+    # Test case - prediction id of correct type
+    pyarrow_schema = pa.Schema.from_pandas(df)
+    errors = Validator.validate_types(model_type, schema, pyarrow_schema)
+    assert len(errors) == 0
+    # Test case - prediction id of incorrect type
+    df["prediction_id"] = df["prediction_timestamp"]
+    pyarrow_schema = pa.Schema.from_pandas(df)
+    errors = Validator.validate_types(model_type, schema, pyarrow_schema)
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidType
+    # Test case - prediction id not provided
+    schema = schema.replace(prediction_id_column_name=None)
+    df.drop(columns=["prediction_id"], inplace=True)
+    pyarrow_schema = pa.Schema.from_pandas(df)
+    errors = Validator.validate_types(model_type, schema, pyarrow_schema)
+    assert len(errors) == 0
 
 
 def test_invalid_type_prediction_id_float():
@@ -190,6 +213,21 @@ def test_invalid_label():
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidType
+
+
+def test_valid_null_label():
+    kwargs = get_kwargs()
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"prediction_label": pd.Series([None])})
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 0
 
 
 def test_valid_label_int():
@@ -408,7 +446,7 @@ def test_invalid_type_bounding_boxes():
                 "model_type": ModelTypes.OBJECT_DETECTION,
             },
             kwargs,
-        )
+        )  # type:ignore
     )
     expected_errors = [
         err.InvalidTypeColumns(
@@ -448,7 +486,7 @@ def test_invalid_type_prompt_response():
                 "model_type": ModelTypes.GENERATIVE_LLM,
             },
             kwargs,
-        )
+        )  # type:ignore
     )
     expected_errors = [
         err.InvalidTypePromptResponse(

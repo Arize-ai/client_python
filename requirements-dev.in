@@ -22,9 +22,11 @@ keyring==23.9.3
 secretstorage==3.3.3
 wheel
 #grpcio-tools
-black
 # Examples
 numpy==1.22.0
 #conflicts with scipy==1.7.1 in requirements-dev
 #scipy==1.5.2
+black==22.3.0
+flake8==5.0.4
+isort==5.10.1
 

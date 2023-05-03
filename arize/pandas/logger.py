@@ -1,7 +1,7 @@
 # type: ignore[pb2]
 import base64
 import tempfile
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import pandas as pd
 import pandas.api.types as ptypes
@@ -35,18 +35,39 @@ class Client:
         api_key: str,
         space_key: str,
         uri: Optional[str] = "https://api.arize.com/v1",
+        additional_headers: Optional[Dict[str, str]] = None,
     ) -> None:
         """
-        :param api_key (str): Arize provided API key associated with your account. Located on the
-        data upload page.
-        :param space_key (str): Arize provided identifier to connect records to spaces. Located on
-        the data upload page.
-        :param uri (str, optional): URI endpoint to send your records to Arize AI. Defaults to
-        "https://api.arize.com/v1".
+        Initializes the Arize Client
+
+        Arguments:
+        ----------
+            api_key (str): Arize provided API key associated with your account. Located on the
+                data upload page.
+            space_key (str): Arize provided identifier to connect records to spaces. Located on
+                the data upload page.
+            uri (str, optional): URI endpoint to send your records to Arize AI. Defaults to
+                "https://api.arize.com/v1".
+            additional_headers (Dict[str, str], optional): Dictionary of additional headers to
+                append to request
         """
         self._api_key = api_key
         self._space_key = space_key
         self._files_uri = uri + "/pandas_arrow"
+        self._additional_headers = {}
+        if additional_headers is not None:
+            reserved_headers = {
+                "authorization",
+                "space",
+                "sdk-version",
+                "schema",
+                "sdk",
+                "python-version",
+                "sync",
+            }
+            if conflicting_keys := reserved_headers & additional_headers.keys():
+                raise err.InvalidAdditionalHeaders(conflicting_keys)
+            self._additional_headers.update(additional_headers)
 
     def log(
         self,
@@ -70,38 +91,48 @@ class Client:
         :class:`Response` object from the Requests HTTP library to ensure successful delivery of
         records.
 
-        :param dataframe (pd.DataFrame): The dataframe containing model data.
-        :param schema (Schema): A Schema instance that specifies the column names for corresponding
-        data in the dataframe.
-        :param environment (Environments): The environment the data corresponds to (Production,
-        Training, Validation).
-        :param model_id (str): A unique name to identify your model in the Arize platform.
-        :param model_type (ModelTypes): Declare your model type. Can check the supported model types
-        running `ModelTypes.list_types()`.
-        :param metrics_validation (List[Metrics], optional): A list of desired metric types;
-        defaults to None. When populated, and if validate=True, the presence of schema columns are
-        validated against the desired metrics.
-        :param model_version (str, optional): Used to group a subset of predictions and actuals for
-        a given model_id to compare and track changes. Defaults to None.
-        :param batch_id (str, optional): Used to distinguish different batch of data under the same
-        model_id and  model_version. Defaults to None.
-        :param sync (bool, optional): When sync is set to True, the log call will block, or wait,
-        until the data has been successfully ingested by the platform and immediately return the
-        status of the log. Defaults to False.
-        :param validate (bool, optional): When set to True, validation is run before sending data.
-        Defaults to True.
-        :param path (str, optional): Temporary directory/file to store the serialized data in binary
-        before sending to Arize.
-        :param surrogate_explainability (bool, optional): Computes feature importance values using
-        the surrogate explainability method. This requires that the arize module is installed with
-        the [MimicExplainer] option. If feature importance values are already specified by the
-        shap_values_column_names attribute in the Schema, this module will not run. Defaults to
-        False.
-        :param timeout (float, optional): You can stop waiting for a response after a given number
-        of seconds with the timeout parameter. Defaults to None.
-        :param verbose: (bool, optional) = When set to true, info messages are printed. Defaults to
-        False.
+        Arguments:
+        ----------
+            dataframe (pd.DataFrame): The dataframe containing model data.
+            schema (Schema): A Schema instance that specifies the column names for corresponding
+                data in the dataframe.
+            environment (Environments): The environment the data corresponds to (Production,
+                Training, Validation).
+            model_id (str): A unique name to identify your model in the Arize platform.
+            model_type (ModelTypes): Declare your model type. Can check the supported model types
+                running `ModelTypes.list_types()`.
+            metrics_validation (List[Metrics], optional): A list of desired metric types;
+                defaults to None. When populated, and if validate=True, the presence of schema columns are
+                validated against the desired metrics.
+            model_version (str, optional): Used to group a subset of predictions and actuals for
+                a given model_id to compare and track changes. Defaults to None.
+            batch_id (str, optional): Used to distinguish different batch of data under the same
+                model_id and  model_version. Defaults to None.
+            sync (bool, optional): When sync is set to True, the log call will block, or wait,
+                until the data has been successfully ingested by the platform and immediately return the
+                status of the log. Defaults to False.
+            validate (bool, optional): When set to True, validation is run before sending data.
+                Defaults to True.
+            path (str, optional): Temporary directory/file to store the serialized data in binary
+                before sending to Arize.
+            surrogate_explainability (bool, optional): Computes feature importance values using
+                the surrogate explainability method. This requires that the arize module is installed with
+                the [MimicExplainer] option. If feature importance values are already specified by the
+                shap_values_column_names attribute in the Schema, this module will not run. Defaults to
+                False.
+            timeout (float, optional): You can stop waiting for a response after a given number
+                of seconds with the timeout parameter. Defaults to None.
+            verbose: (bool, optional) = When set to true, info messages are printed. Defaults to
+                False.
+
+        Returns:
+        --------
+            `Response` object
         """
+        # Warning for when prediction_label is not provided and we generate default prediction
+        # labels for GENERATIVE_LLM models
+        if model_type == ModelTypes.GENERATIVE_LLM:
+            self._generative_model_warnings(dataframe, schema)
 
         if verbose:
             logger.info("Performing required validation.")
@@ -194,12 +225,13 @@ class Client:
         try:
             if verbose:
                 logger.info("Getting pyarrow schema from pandas dataframe.")
-            if model_type == ModelTypes.GENERATIVE_LLM and schema.prediction_id_column_name is None:
-                pred_label_df = pd.DataFrame({"default_prediction_label": [1] * len(dataframe)})
-                pa_schema = pa.Schema.from_pandas(pd.concat([dataframe, pred_label_df], axis=1))
+            if (
+                model_type == ModelTypes.GENERATIVE_LLM
+                and schema.prediction_label_column_name is None
+            ):
+                dataframe = self._add_default_prediction_label_column(dataframe)
                 schema = schema.replace(prediction_label_column_name="default_prediction_label")
-            else:
-                pa_schema = pa.Schema.from_pandas(dataframe)
+            pa_schema = pa.Schema.from_pandas(dataframe)
         except pa.ArrowInvalid:
             logger.error(
                 "The dataframe needs to convert to pyarrow but has failed to do so. "
@@ -235,7 +267,10 @@ class Client:
             if verbose:
                 logger.info("Performing values validation.")
             errors = Validator.validate_values(
-                dataframe=dataframe, schema=schema, model_type=model_type
+                dataframe=dataframe,
+                environment=environment,
+                schema=schema,
+                model_type=model_type,
             )
             if errors:
                 for e in errors:
@@ -269,7 +304,7 @@ class Client:
         elif model_type == ModelTypes.OBJECT_DETECTION:
             s.constants.model_type = pb2.Schema.ModelType.OBJECT_DETECTION
         elif model_type == ModelTypes.GENERATIVE_LLM:
-            s.constants.model_type = pb2.Schema.ModelType.SCORE_CATEGORICAL
+            s.constants.model_type = pb2.Schema.ModelType.GENERATIVE_LLM
 
         if batch_id is not None:
             s.constants.batch_id = batch_id
@@ -431,6 +466,7 @@ class Client:
                 "sdk-version": __version__,
                 "sdk": "py",
             }
+            headers.update(self._additional_headers)
             if sync:
                 headers["sync"] = "1"
             return requests.post(
@@ -440,51 +476,33 @@ class Client:
                 headers=headers,
             )
 
+    def _add_default_prediction_label_column(self, df: pd.DataFrame) -> pd.DataFrame:
+        df["default_prediction_label"] = [1] * len(df)
+        return df
+
     def _remove_extraneous_columns(self, df: pd.DataFrame, schema: Schema) -> pd.DataFrame:
-        cols_to_keep = set()
+        return df[df.columns.intersection(schema.get_used_columns())]
 
-        for field in schema.__dataclass_fields__:
-            if field.endswith("column_name"):
-                col = getattr(schema, field)
-                if col is not None:
-                    cols_to_keep.add(col)
-
-        if schema.feature_column_names is not None:
-            for col in schema.feature_column_names:
-                cols_to_keep.add(col)
-
-        if schema.embedding_feature_column_names is not None:
-            for emb_col_names in schema.embedding_feature_column_names.values():
-                cols_to_keep.add(emb_col_names.vector_column_name)
-                if emb_col_names.data_column_name is not None:
-                    cols_to_keep.add(emb_col_names.data_column_name)
-                if emb_col_names.link_to_data_column_name is not None:
-                    cols_to_keep.add(emb_col_names.link_to_data_column_name)
-
-        if schema.tag_column_names is not None:
-            for col in schema.tag_column_names:
-                cols_to_keep.add(col)
-
-        if schema.shap_values_column_names is not None:
-            for col in schema.shap_values_column_names.values():
-                cols_to_keep.add(col)
-
-        if schema.object_detection_prediction_column_names is not None:
-            for col in schema.object_detection_prediction_column_names:
-                cols_to_keep.add(col)
-
-        if schema.object_detection_actual_column_names is not None:
-            for col in schema.object_detection_actual_column_names:
-                cols_to_keep.add(col)
-
-        if schema.prompt_column_names is not None:
-            cols_to_keep.add(schema.prompt_column_names.vector_column_name)
-            if schema.prompt_column_names.data_column_name is not None:
-                cols_to_keep.add(schema.prompt_column_names.data_column_name)
-
-        if schema.response_column_names is not None:
-            cols_to_keep.add(schema.response_column_names.vector_column_name)
-            if schema.response_column_names.data_column_name is not None:
-                cols_to_keep.add(schema.response_column_names.data_column_name)
-
-        return df[df.columns.intersection(cols_to_keep)]
+    def _generative_model_warnings(self, df: pd.DataFrame, schema: Schema):
+        # Warning for when prediction_label_column_name is not provided
+        if schema.prediction_label_column_name is None:
+            logger.warning(
+                "prediction_label_column_name was not provided, a default prediction label equal "
+                "to 1 will be set for GENERATIVE_LLM models."
+            )
+            # Warning for when actual_label is also not provided
+            if schema.actual_label_column_name is None:
+                logger.warning(
+                    "actual_label_column_name was not provided. Some metrics that require actual labels, "
+                    "e.g. correctness or accuracy, may not be computed."
+                )
+            # Warning for when default prediction labels are 0/1 but actual_labels are not
+            elif not df[schema.actual_label_column_name].isin([0, 1]).all():
+                logger.warning(
+                    f"actual labels in the {schema.actual_label_column_name} column do not follow the "
+                    "standard, i.e. 1/0, used for the prediction label (defaulted to 1). Some "
+                    "metrics that require actual labels, e.g. correctness or accuracy, may not "
+                    "be computed accurately. Consider providing a prediction_label_column_name "
+                    "column containing the positive class from the values in the "
+                    f"{schema.actual_label_column_name} column."
+                )

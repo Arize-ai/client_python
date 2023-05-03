@@ -1,3 +1,4 @@
+import uuid
 from collections import ChainMap
 from datetime import datetime, timedelta
 
@@ -6,10 +7,11 @@ import pandas as pd
 import pytest
 from arize.pandas.logger import Schema
 from arize.pandas.validation.validator import Validator
-from arize.utils.types import ModelTypes
+from arize.utils.types import Environments, ModelTypes
 
 kwargs = {
     "model_type": ModelTypes.RANKING,
+    "environment": Environments.PRODUCTION,
     "dataframe": pd.DataFrame(
         {
             "prediction_timestamp": pd.Series(
@@ -20,8 +22,8 @@ kwargs = {
                     datetime.now() + timedelta(days=364),
                 ]
             ),
-            "prediction_id": pd.Series(["x_1", "x_2", "y_1", "y_2"]),
-            "prediction_group_id": pd.Series(["X", "X", "Y", "Y"]),
+            "prediction_id": pd.Series([str(uuid.uuid4()) for _ in range(4)]),
+            "prediction_group_id": pd.Series(["X" * 10, "X" * 10, "Y" * 10, "Y" * 10]),
             "item_type": pd.Series(["toy", "game", "game", "pens"]),
             "ranking_rank": pd.Series([1, 2, 1, 2]),
             "ranking_category": pd.Series(
@@ -80,8 +82,8 @@ def test_rank_is_not_null_and_between_1_and_100():
         assert type(errors[0]) is err.InvalidRankValue
 
 
-def test_prediction_group_id_length_1_128():
-    null_ids = pd.Series([None, None, "A", "B"])
+def test_prediction_group_id_length():
+    null_ids = pd.Series([None, None, "A" * 10, "B" * 10])
     empty_ids = pd.Series(["", "", "", ""])
     long_ids = pd.Series(["A" * 129] * 4)
 
@@ -99,16 +101,42 @@ def test_prediction_group_id_length_1_128():
         assert type(errors[0]) is err.InvalidStringLength
 
 
-def test_raking_category_empty_list():
+def test_ranking_category_empty_list():
     null_category = pd.Series([None, None, ["buy", "click"], ["buy"]])
     empty_list_category = pd.Series([[], [], ["buy", "click"], ["buy"]])
 
-    for cat in (null_category, empty_list_category):
-        errors = Validator.validate_values(
-            **ChainMap({"dataframe": pd.DataFrame({"ranking_category": cat})}, kwargs)
+    # null values are ok for ranking actual_label_column
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "dataframe": pd.DataFrame(
+                    {
+                        "ranking_category": null_category,
+                        "ranking_relevance": pd.Series([1, 0, 2, 0]),
+                    }
+                )
+            },
+            kwargs,
         )
+    )
+    assert len(errors) == 0
 
-        assert len(errors) == 1
+    # empty lists are NOT ok for ranking actual_label_column
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "dataframe": pd.DataFrame(
+                    {
+                        "ranking_category": empty_list_category,
+                        "ranking_relevance": pd.Series([1, 0, 2, 0]),
+                    }
+                )
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is err.InvalidValueMissingValue
 
 
 if __name__ == "__main__":
