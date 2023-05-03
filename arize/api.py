@@ -1,9 +1,18 @@
+# type: ignore[pb2]
 import concurrent.futures as cf
 import time
 from typing import Dict, Optional, Tuple, Union
 
 import numpy as np
-from arize.utils.utils import MAX_PREDICTION_ID_LEN, MIN_PREDICTION_ID_LEN
+from arize.pandas.validation.errors import InvalidAdditionalHeaders
+from arize.utils.constants import (
+    MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
+    MAX_PAST_YEARS_FROM_CURRENT_TIME,
+    MAX_PREDICTION_ID_LEN,
+    MAX_TAG_LENGTH,
+    MIN_PREDICTION_ID_LEN,
+)
+from arize.utils.logging import logger
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.wrappers_pb2 import DoubleValue
 from requests_futures.sessions import FuturesSession
@@ -29,6 +38,25 @@ from .utils.utils import (
     is_timestamp_in_range,
 )
 
+PredictionLabelTypes = Union[
+    str,
+    bool,
+    int,
+    float,
+    Tuple[str, float],
+    ObjectDetectionLabel,
+    RankingPredictionLabel,
+]
+ActualLabelTypes = Union[
+    str,
+    bool,
+    int,
+    float,
+    Tuple[str, float],
+    ObjectDetectionLabel,
+    RankingActualLabel,
+]
+
 
 class Client:
     """
@@ -43,25 +71,32 @@ class Client:
         max_workers: Optional[int] = 8,
         max_queue_bound: Optional[int] = 5000,
         timeout: Optional[int] = 200,
+        additional_headers: Optional[Dict[str, str]] = None,
     ) -> None:
         """
-        :param api_key (str): Arize provided API key associated with your account. Located on the
-        data upload page.
-        :param space_key (str): Arize provided identifier to connect records to spaces. Located on
-        the data upload page.
-        :param uri (str, optional): URI to send your records to Arize AI. Defaults to
-        "https://api.arize.com/v1".
-        :param max_workers (int, optional): maximum number of concurrent requests to Arize. Defaults
-        to 8.
-        :param max_queue_bound (int, optional): maximum number of concurrent future objects
-        generated for publishing to Arize. Defaults to 5000.
-        :param timeout (int, optional): How long to wait for the server to send data before giving
-        up. Defaults to 200.
+        Initializes the Arize Client
+
+        Arguments:
+        ----------
+            api_key (str): Arize provided API key associated with your account. Located on the
+                data upload page.
+            space_key (str): Arize provided identifier to connect records to spaces. Located on
+                the data upload page.
+            uri (str, optional): URI to send your records to Arize AI. Defaults to
+                "https://api.arize.com/v1".
+            max_workers (int, optional): maximum number of concurrent requests to Arize. Defaults
+                to 8.
+            max_queue_bound (int, optional): maximum number of concurrent future objects
+                generated for publishing to Arize. Defaults to 5000.
+            timeout (int, optional): How long to wait for the server to send data before giving
+                up. Defaults to 200.
+            additional_headers (Dict[str, str], optional): Dictionary of additional headers to
+                append to request
         """
 
         if not isinstance(space_key, str):
             raise TypeError(f"space_key {space_key} is type {type(space_key)}, but must be a str")
-        self._uri = uri + "/log"
+        self._uri = f"{uri}/log"
         self._api_key = api_key
         self._space_key = space_key
         self._timeout = timeout
@@ -74,6 +109,10 @@ class Client:
             "Grpc-Metadata-sdk-version": __version__,
             "Grpc-Metadata-sdk": "py",
         }
+        if additional_headers is not None:
+            if conflicting_keys := self._header.keys() & additional_headers.keys():
+                raise InvalidAdditionalHeaders(conflicting_keys)
+            self._header.update(additional_headers)
 
     def log(
         self,
@@ -83,68 +122,55 @@ class Client:
         model_version: Optional[str] = None,
         prediction_id: Optional[Union[str, int, float]] = None,
         prediction_timestamp: Optional[int] = None,
-        prediction_label: Union[
-            str,
-            bool,
-            int,
-            float,
-            Tuple[str, float],
-            ObjectDetectionLabel,
-            RankingPredictionLabel,
-        ] = None,
-        actual_label: Union[
-            str,
-            bool,
-            int,
-            float,
-            Tuple[str, float],
-            ObjectDetectionLabel,
-            RankingActualLabel,
-        ] = None,
+        prediction_label: Optional[PredictionLabelTypes] = None,
+        actual_label: Optional[ActualLabelTypes] = None,
         features: Optional[Dict[str, Union[str, bool, float, int]]] = None,
         embedding_features: Optional[Dict[str, Embedding]] = None,
-        shap_values: Dict[str, float] = None,
+        shap_values: Optional[Dict[str, float]] = None,
         tags: Optional[Dict[str, Union[str, bool, float, int]]] = None,
         batch_id: Optional[str] = None,
     ) -> cf.Future:
         """
         Logs a record to Arize via a POST request.
 
-        :param model_id (str): A unique name to identify your model in the Arize platform.
-        :param model_type (ModelTypes): Declare your model type. Can check the supported model types
-        running `ModelTypes.list_types()`
-        :param environment (Environments): The environment that this dataframe is for (Production,
-        Training, Validation).
-        :param model_version (str, optional): Used to group together a subset of predictions
-        and actuals for a given model_id to track and compare changes. Defaults to None.
-        :param prediction_id (str, int, or float, optional): A unique string to identify a
-        prediction event. This value is used to match a prediction to delayed actuals in Arize. If
-        predictions are not provided, it will default to an empty string "" and Arize will create a
-        random prediction id on the server side.
-        :param prediction_timestamp (int, optional): Unix timestamp in seconds. If None, prediction
-        uses current timestamp. Defaults to None.
-        :param prediction_label (bool, int, float, str, Tuple(str, float), ObjectDetectionLabel or
-        RankingPredictionLabel; optional): The predicted value for a given model input. Defaults to
-        None.
-        :param actual_label (bool, int, float, str, Tuple[str, float], ObjectDetectionLabel or
-        RankingActualLabel; optional): The ground truth value for a given model input. This will be
-        be matched to the prediction with the same prediction_id as the one in this call. Defaults
-        to None.
-        :param features (Dict[str, Union[str, bool, float, int]], optional): Dictionary containing
-        human readable and debuggable model features. Defaults to None.
-        :param embedding_features (Dict[str, Embedding], optional): Dictionary containing model
-        embedding features. Keys must be strings. Values must be of Embedding type. Defaults to
-        None.
-        :param shap_values (Dict[str, float], optional): Dictionary containing human readable and
-        debuggable model features keys, along with SHAP feature importance values. Defaults to None.
-        :param tags (Dict[str, Union[str, bool, float, int]], optional): Dictionary containing human
-        readable and debuggable model tags. Defaults to None.
-        :param batch_id (str, optional): Used to distinguish different batch of data under the same
-        model_id and model_version. Required for VALIDATION environments. Defaults to None.
+        Arguments:
+        ----------
+            model_id (str): A unique name to identify your model in the Arize platform.
+            model_type (ModelTypes): Declare your model type. Can check the supported model types
+                running `ModelTypes.list_types()`
+            environment (Environments): The environment that this dataframe is for (Production,
+                Training, Validation).
+            model_version (str, optional): Used to group together a subset of predictions
+                and actuals for a given model_id to track and compare changes. Defaults to None.
+            prediction_id (str, int, or float, optional): A unique string to identify a
+                prediction event. This value is used to match a prediction to delayed actuals in Arize. If
+                prediction id is not provided, Arize will, when possible, create a random prediction
+                id on the server side.
+            prediction_timestamp (int, optional): Unix timestamp in seconds. If None, prediction
+                uses current timestamp. Defaults to None.
+            prediction_label (bool, int, float, str, Tuple(str, float), ObjectDetectionLabel or
+                RankingPredictionLabel; optional): The predicted value for a given model input. Defaults to
+                None.
+            actual_label (bool, int, float, str, Tuple[str, float], ObjectDetectionLabel or
+                RankingActualLabel; optional): The ground truth value for a given model input. This will be
+                be matched to the prediction with the same prediction_id as the one in this call. Defaults
+                to None.
+            features (Dict[str, Union[str, bool, float, int]], optional): Dictionary containing
+                human readable and debuggable model features. Defaults to None.
+            embedding_features (Dict[str, Embedding], optional): Dictionary containing model
+                embedding features. Keys must be strings. Values must be of Embedding type. Defaults to
+                None.
+            shap_values (Dict[str, float], optional): Dictionary containing human readable and
+                debuggable model features keys, along with SHAP feature importance values. Defaults to None.
+            tags (Dict[str, Union[str, bool, float, int]], optional): Dictionary containing human
+                readable and debuggable model tags. Defaults to None.
+            batch_id (str, optional): Used to distinguish different batch of data under the same
+                model_id and model_version. Required for VALIDATION environments. Defaults to None.
 
-        :return: `concurrent.futures.Future` object
+        Returns:
+        --------
+            `concurrent.futures.Future` object
         """
-
         # Validate model_id
         if not isinstance(model_id, str):
             raise TypeError(f"model_id {model_id} is type {type(model_id)}, but must be a str")
@@ -167,13 +193,10 @@ class Client:
                     "Batch ID must be a nonempty string if logging to validation environment."
                 )
 
-        # Validate prediction_id
-        if prediction_id is not None:
-            check_length = embedding_features is not None
-            _validate_prediction_id(prediction_id, check_length)
-            prediction_id = str(prediction_id)
-        else:
-            prediction_id = ""
+        # Convert & Validate prediction_id
+        prediction_id = _validate_and_convert_prediction_id(
+            prediction_id, environment, prediction_label, actual_label, shap_values
+        )
         # Validate feature types
         if features:
             for feat_name, feat_value in features.items():
@@ -210,23 +233,36 @@ class Client:
                     )
                 if isinstance(tag_name, str) and tag_name.endswith("_shap"):
                     raise ValueError(f"tag {tag_name} must not be named with a `_shap` suffix")
+                if len(str(val)) > MAX_TAG_LENGTH:
+                    raise ValueError(
+                        f"The number of characters for each tag must be less than or equal to "
+                        f"{MAX_TAG_LENGTH}. The tag {tag_name} with value {tag_value} has "
+                        f"{len(str(val))} characters."
+                    )
 
         # Check the timestamp present on the event
-        if prediction_timestamp is not None and not isinstance(prediction_timestamp, int):
-            raise TypeError(
-                f"prediction_timestamp {prediction_timestamp} is type "
-                f"{type(prediction_timestamp)} but expected int"
-            )
-
-        now = int(time.time())
-        if prediction_timestamp is not None and not is_timestamp_in_range(
-            now, prediction_timestamp
-        ):
-            raise ValueError(
-                f"prediction_timestamp: {prediction_timestamp} is out of range. Value must be "
-                f"within 1 year of the current time."
-            )
-
+        if prediction_timestamp is not None:
+            if not isinstance(prediction_timestamp, int):
+                raise TypeError(
+                    f"prediction_timestamp {prediction_timestamp} is type "
+                    f"{type(prediction_timestamp)} but expected int"
+                )
+            # Send warning if prediction is sent with future timestamp
+            now = int(time.time())
+            if prediction_timestamp > now:
+                logger.warning(
+                    "Caution when sending a prediction with future timestamp."
+                    "Arize only stores 2 years worth of data. For example, if you sent a prediction "
+                    "to Arize from 1.5 years ago, and now send a prediction with timestamp of a year in "
+                    "the future, the oldest 0.5 years will be dropped to maintain the 2 years worth of data "
+                    "requirement."
+                )
+            if not is_timestamp_in_range(now, prediction_timestamp):
+                raise ValueError(
+                    f"prediction_timestamp: {prediction_timestamp} is out of range."
+                    f"Prediction timestamps must be within {MAX_FUTURE_YEARS_FROM_CURRENT_TIME} year in the "
+                    f"future and {MAX_PAST_YEARS_FROM_CURRENT_TIME} years in the past from the current time."
+                )
         # Construct the prediction
         p = None
         if prediction_label is not None:
@@ -283,7 +319,7 @@ class Client:
                     model_type=model_type,
                 )
             )
-            # Added to support latent tags on actuals.
+            # Added to support delayed tags on actuals.
             if tags is not None:
                 converted_tags = convert_dictionary(tags)
                 tgs = pb2.Actual(tags=converted_tags)
@@ -400,6 +436,8 @@ def _validate_categorical_label(
     is_valid = (
         isinstance(label, str)
         or isinstance(label, bool)
+        or isinstance(label, int)
+        or isinstance(label, float)
         or (
             isinstance(label, tuple)
             and isinstance(label[0], (str, bool))
@@ -408,7 +446,7 @@ def _validate_categorical_label(
     )
     if not is_valid:
         raise TypeError(
-            f"label {label} has type {type(label)}, but must be str, bool, or Tuple[str, "
+            f"label {label} has type {type(label)}, but must be str, bool, int, float or Tuple[str, "
             f"float] for ModelTypes.{model_type}"
         )
     if isinstance(label, tuple) and label[1] is np.nan:
@@ -503,6 +541,8 @@ def _get_score_categorical_label(
         sc.category.category = str(value)
     elif isinstance(value, str):
         sc.category.category = value
+    elif isinstance(value, int) or isinstance(value, float):
+        sc.score_value.value = value
     elif isinstance(value, tuple):
         # Expect Tuple[str,float]
         if value[1] is None:
@@ -528,7 +568,7 @@ def _get_score_categorical_label(
         raise TypeError(
             f"Received {prediction_or_actual}_label = {value}, of type {type(value)}. "
             + f"{[mt.prediction_or_actual for mt in CATEGORICAL_MODEL_TYPES]} models accept values "
-            f"of type str, bool, or Tuple[str, float]"
+            f"of type str, bool, int, float or Tuple[str, float]"
         )
     if prediction_or_actual == "prediction":
         return pb2.PredictionLabel(score_categorical=sc)
@@ -610,18 +650,47 @@ def _validate_mapping_key(feat_name):
     return
 
 
-def _validate_prediction_id(prediction_id: Union[str, int, float], validate_length: bool = False):
-    if prediction_id is not None and not isinstance(prediction_id, str):
+def _convert_prediction_id(prediction_id: Union[str, int, float]) -> str:
+    if not isinstance(prediction_id, str):
         try:
-            str(prediction_id)
+            prediction_id = str(
+                prediction_id
+            ).strip()  # strip ensures we don't receive whitespaces as part of the prediction id
         except Exception:
             raise ValueError(f"prediction_id value {prediction_id} must be convertible to a string")
 
-    if validate_length:
-        if prediction_id is None or len(str(prediction_id)) not in range(
-            MIN_PREDICTION_ID_LEN, MAX_PREDICTION_ID_LEN + 1
-        ):
+    if len(prediction_id) not in range(MIN_PREDICTION_ID_LEN, MAX_PREDICTION_ID_LEN + 1):
+        raise ValueError(
+            f"The string length of prediction_id {prediction_id} must be between {MIN_PREDICTION_ID_LEN} "
+            f"and {MAX_PREDICTION_ID_LEN}"
+        )
+    return prediction_id
+
+
+def _validate_and_convert_prediction_id(
+    prediction_id: Optional[Union[str, int, float]],
+    environment: Environments,
+    prediction_label: Optional[PredictionLabelTypes] = None,
+    actual_label: Optional[ActualLabelTypes] = None,
+    shap_values: Optional[Dict[str, float]] = None,
+) -> str:
+    # If the user does not provide prediction id
+    if prediction_id is None:
+        # delayed records have actual information but not prediction information
+        is_delayed_record = prediction_label is None and (
+            actual_label is not None or shap_values is not None
+        )
+        # Pre-production environment does not need prediction id
+        # Production environment needs prediction id for delayed record, since joins are needed
+        if is_delayed_record and environment == Environments.PRODUCTION:
             raise ValueError(
-                f"The string length of prediction_id {prediction_id} must be between {MIN_PREDICTION_ID_LEN} "
-                f"and {MAX_PREDICTION_ID_LEN}"
+                "prediction_id value cannot be None for delayed records, i.e., records ",
+                "without prediction_label and with either actual_label or shap_values",
             )
+        # Prediction ids are optional for:
+        # pre-production records and
+        # production records that are not delayed records
+        return ""
+
+    # If prediction id is given by user, convert it to string and validate length
+    return _convert_prediction_id(prediction_id)

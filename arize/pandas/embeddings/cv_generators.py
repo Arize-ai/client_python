@@ -30,6 +30,7 @@ class EmbeddingGeneratorForCVImageClassification(CVEmbeddingGenerator):
         """
         if not isinstance(local_image_path_col, pd.Series):
             raise TypeError("local_image_path_col_name must be pandas Series object")
+        self.check_invalid_index(field=local_image_path_col)
 
         # Validate that there are no null image paths
         if local_image_path_col.isnull().any():

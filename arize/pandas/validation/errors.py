@@ -2,6 +2,11 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from typing import List
 
+from arize.utils.constants import (
+    MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
+    MAX_PAST_YEARS_FROM_CURRENT_TIME,
+    MAX_TAG_LENGTH,
+)
 from arize.utils.types import Environments, Metrics, ModelTypes
 
 
@@ -26,6 +31,19 @@ class ValidationFailure(Exception):
 # ----------------------
 # Minimum required checks
 # ----------------------
+class InvalidColumnNameEmptyString(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Column_Name_Empty_String"
+
+    @staticmethod
+    def error_message() -> str:
+        return (
+            "Empty column name found: ''. The schema cannot point to columns in the "
+            "dataframe denoted by an empty string. You can see the columns used in the "
+            "schema by running schema.get_used_columns()"
+        )
+
+
 class InvalidFieldTypeConversion(ValidationError):
     def __repr__(self) -> str:
         return "Invalid_Input_Type_Conversion"
@@ -80,6 +98,31 @@ class InvalidIndex(ValidationError):
 # ----------------
 # Parameter checks
 # ----------------
+
+
+class MissingPredictionIdColumnForDelayedRecords(ValidationError):
+    def __repr__(self) -> str:
+        return "Missing_Prediction_Id_Column_For_Delayed_Records"
+
+    def __init__(self, has_actual_info, has_feature_importance_info) -> None:
+        self.has_actual_info = has_actual_info
+        self.has_feature_importance_info = has_feature_importance_info
+
+    def error_message(self) -> str:
+        actual = "actual" if self.has_actual_info else ""
+        feat_imp = "feature importance" if self.has_feature_importance_info else ""
+        if self.has_actual_info and self.has_feature_importance_info:
+            msg = " and ".join([actual, feat_imp])
+        else:
+            msg = "".join([actual, feat_imp])
+
+        return (
+            "Missing 'prediction_id_column_name'. While prediction id is optional for most cases, "
+            "it is required when sending delayed actuals, i.e. when sending actual or feature importances "
+            f"without predictions. In this case, {msg} information was found (without predictions)"
+            "To learn more about delayed joins, please see the docs at "
+            "https://docs.arize.com/arize/sending-data-guides/how-to-send-delayed-actuals"
+        )
 
 
 class MissingColumns(ValidationError):
@@ -229,26 +272,15 @@ class MissingPromptResponseGenerativeLLM(ValidationError):
         )
 
 
-class MissingPredActShapNumeric(ValidationError):
+class MissingPredActShapNumericAndCategorical(ValidationError):
     def __repr__(self) -> str:
-        return "Missing_Pred_or_Act_or_SHAP_Numeric"
+        return "Missing_Pred_or_Act_or_SHAP_Numeric_and_Categorical"
 
     def error_message(self) -> str:
         return (
-            "For a numeric model, the schema must specify at least one of the following: "
-            "prediction label, prediction score, actual label, actual score, or SHAP value column "
-            "names"
-        )
-
-
-class MissingPredLabelScoreCategorical(ValidationError):
-    def __repr__(self) -> str:
-        return "Missing_Pred_Label_Score_Categorical"
-
-    def error_message(self) -> str:
-        return (
-            "When sending a prediction confidence score and an actual label, the schema must also include "
-            "a prediction label."
+            "For a numeric model or a categorical model, the schema must specify at least one "
+            "of the following: prediction label, prediction score, actual label, actual score, "
+            "or SHAP value column names"
         )
 
 
@@ -269,14 +301,14 @@ class MissingPreprodAct(ValidationError):
         return "For logging pre-production data, the schema must specify actual label column."
 
 
-class MissingPreprodPredActNumeric(ValidationError):
+class MissingPreprodPredActNumericAndCategorical(ValidationError):
     def __repr__(self) -> str:
-        return "Missing_Preproduction_Pred_and_Act_Numeric"
+        return "Missing_Preproduction_Pred_and_Act_Numeric_and_Categorical"
 
     def error_message(self) -> str:
         return (
-            "For logging pre-production data for a numeric model, "
-            "the schema must specify both prediction and actual label or confidence score columns."
+            "For logging pre-production data for a numeric or a categorical model, "
+            "the schema must specify both prediction and actual label or score columns."
         )
 
 
@@ -348,6 +380,20 @@ class InvalidPredActObjectDetectionColumnNamesForModelType(ValidationError):
             f"Cannot use 'object_detection_prediction_column_names' or "
             f"'object_detection_actual_column_names' for {self.invalid_model_type} model "
             f"type. They are only allowed for ModelTypes.OBJECT_DETECTION models"
+        )
+
+
+class DuplicateColumnsInDataframe(ValidationError):
+    def __repr__(self) -> str:
+        return "Duplicate_Columns_In_Dataframe"
+
+    def __init__(self, cols: Iterable) -> None:
+        self.duplicate_cols = cols
+
+    def error_message(self) -> str:
+        return (
+            "The following columns are present in the schema and have duplicates in the dataframe: "
+            f"{self.duplicate_cols}. "
         )
 
 
@@ -501,16 +547,16 @@ class InvalidValueTimestamp(ValidationError):
     def __repr__(self) -> str:
         return "Invalid_Timestamp_Value"
 
-    def __init__(self, name: str, acceptable_range: str) -> None:
-        self.name = name
-        self.acceptable_range = acceptable_range
+    def __init__(self, timestamp_col_name: str) -> None:
+        self.timestamp_col_name = timestamp_col_name
 
     def error_message(self) -> str:
         return (
-            f"{self.name} is out of range. "
-            f"Only values within {self.acceptable_range} from the current time are accepted. "
-            "If this is your pre-production data, you could also just remove the timestamp column "
-            "from the Schema."
+            f"Prediction timestamp in {self.timestamp_col_name} is out of range. "
+            f"Prediction timestamps must be within {MAX_FUTURE_YEARS_FROM_CURRENT_TIME} year "
+            f"in the future and {MAX_PAST_YEARS_FROM_CURRENT_TIME} years in the past from "
+            "the current time. If this is your pre-production data, you could also just "
+            "remove the timestamp column from the Schema."
         )
 
 
@@ -554,7 +600,22 @@ class InvalidStringLength(ValidationError):
     def error_message(self) -> str:
         return (
             f"{self.schema_name} column {self.col_name} contains invalid values. "
-            f"Only string values of length within {self.min_length} - {self.max_length} are accepted."
+            f"Only string values of length between {self.min_length} and {self.max_length} are accepted."
+        )
+
+
+class InvalidTagLength(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Tag_Length"
+
+    def __init__(self, cols: Iterable) -> None:
+        self.wrong_value_columns = cols
+
+    def error_message(self) -> str:
+        return (
+            f"Only tag values with less than or equal to {MAX_TAG_LENGTH} characters are supported."
+            f"The following tag columns have more than {MAX_TAG_LENGTH} characters: "
+            f"{', '.join(map(str, self.wrong_value_columns))}."
         )
 
 
@@ -680,3 +741,32 @@ class InvalidBoundingBoxesScores(ValidationError, Exception):
                 "Confidence scores must be between 0 and 1"
             )
         return msg
+
+
+class InvalidAdditionalHeaders(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Additional_Headers"
+
+    def __init__(self, invalid_headers: Iterable) -> None:
+        self.invalid_header_names = invalid_headers
+
+    def error_message(self) -> str:
+        return (
+            "Found invalid additional header, cannot use reserved headers named: "
+            f"{', '.join(map(str, self.invalid_header_names))}."
+        )
+
+
+class InvalidRecord(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Record"
+
+    def __init__(self, columns: List[str], indexes: List[int]) -> None:
+        self.columns = columns
+        self.indexes = indexes
+
+    def error_message(self) -> str:
+        return (
+            f"{', '.join(self.columns)} must not all be null at row"
+            f"{', '.join(str(x) for x in self.indexes)}"
+        )

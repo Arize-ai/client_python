@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 
 import arize.public_pb2 as pb2
@@ -5,6 +6,12 @@ import numpy as np
 import pandas as pd
 import pytest
 from arize.api import Client, Embedding
+from arize.pandas.validation.errors import InvalidAdditionalHeaders
+from arize.utils.constants import (
+    MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
+    MAX_PAST_YEARS_FROM_CURRENT_TIME,
+    MAX_TAG_LENGTH,
+)
 from arize.utils.types import (
     Environments,
     ModelTypes,
@@ -12,6 +19,7 @@ from arize.utils.types import (
     RankingActualLabel,
     RankingPredictionLabel,
 )
+from arize.utils.utils import get_python_version
 from google.protobuf.wrappers_pb2 import DoubleValue, StringValue
 
 BOOL_VAL = True
@@ -30,10 +38,6 @@ inputs = {
     "model_type_binary_classification": ModelTypes.BINARY_CLASSIFICATION,
     "model_type_object_detection": ModelTypes.OBJECT_DETECTION,
     "model_type_ranking": ModelTypes.RANKING,
-    "model_version": "v1.2.3.4",
-    "environment_training": Environments.TRAINING,
-    "environment_validation": Environments.VALIDATION,
-    "environment_production": Environments.PRODUCTION,
     "batch_id": "batch_id",
     "batch": "batch1234",
     "api_key": "API_KEY",
@@ -331,8 +335,13 @@ def _attach_tags_to_actual() -> pb2.Actual:
     return pb2.Actual(tags=tags)
 
 
-def get_stubbed_client():
-    c = Client(space_key="test_space", api_key="API_KEY", uri="https://localhost:443")
+def get_stubbed_client(additional_headers=None):
+    c = Client(
+        space_key=inputs["space_key"],
+        api_key=inputs["api_key"],
+        uri="https://localhost:443",
+        additional_headers=additional_headers,
+    )
 
     def _post(record, uri, indexes):
         return record
@@ -351,7 +360,7 @@ def test_build_pred_and_actual_label_bool():
     record = c.log(
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
-        environment=inputs["environment_production"],
+        environment=Environments.PRODUCTION,
         model_type=inputs["model_type_score_categorical"],
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_bool"],
@@ -362,7 +371,7 @@ def test_build_pred_and_actual_label_bool():
     )
 
     #   Get environment in proto format
-    ep = _get_proto_environment_params(inputs["environment_production"])
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
     #   Start constructing expected result by building the prediction
     p = _build_basic_prediction("score_categorical_bool")
     a = _build_basic_actual("score_categorical_bool")
@@ -383,7 +392,7 @@ def test_build_pred_and_actual_label_str():
     record = c.log(
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
-        environment=inputs["environment_production"],
+        environment=Environments.PRODUCTION,
         model_type=inputs["model_type_score_categorical"],
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_str"],
@@ -394,7 +403,7 @@ def test_build_pred_and_actual_label_str():
     )
 
     #   Get environment in proto format
-    ep = _get_proto_environment_params(inputs["environment_production"])
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
     #   Start constructing expected result by building the prediction
     p = _build_basic_prediction("score_categorical_str")
     a = _build_basic_actual("score_categorical_str")
@@ -415,7 +424,7 @@ def test_build_pred_and_actual_label_int():
     record = c.log(
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
-        environment=inputs["environment_production"],
+        environment=Environments.PRODUCTION,
         model_type=inputs["model_type_numeric"],
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_int"],
@@ -428,7 +437,7 @@ def test_build_pred_and_actual_label_int():
     record_new_model_type = c.log(
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
-        environment=inputs["environment_production"],
+        environment=Environments.PRODUCTION,
         model_type=inputs["model_type_regression"],
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_int"],
@@ -439,7 +448,7 @@ def test_build_pred_and_actual_label_int():
     )
 
     #   Get environment in proto format
-    ep = _get_proto_environment_params(inputs["environment_production"])
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
     #   Start constructing expected result by building the prediction
     p = _build_basic_prediction("numeric_int")
     a = _build_basic_actual("numeric_int")
@@ -460,7 +469,7 @@ def test_build_pred_and_actual_label_float():
     record = c.log(
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
-        environment=inputs["environment_production"],
+        environment=Environments.PRODUCTION,
         model_type=inputs["model_type_numeric"],
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_float"],
@@ -473,7 +482,7 @@ def test_build_pred_and_actual_label_float():
     record_new_model_type = c.log(
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
-        environment=inputs["environment_production"],
+        environment=Environments.PRODUCTION,
         model_type=inputs["model_type_regression"],
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_float"],
@@ -484,7 +493,7 @@ def test_build_pred_and_actual_label_float():
     )
 
     #   Get environment in proto format
-    ep = _get_proto_environment_params(inputs["environment_production"])
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
     #   Start constructing expected result by building the prediction
     p = _build_basic_prediction("numeric_float")
     a = _build_basic_actual("numeric_float")
@@ -505,7 +514,7 @@ def test_build_pred_and_actual_label_tuple():
     record = c.log(
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
-        environment=inputs["environment_production"],
+        environment=Environments.PRODUCTION,
         model_type=inputs["model_type_score_categorical"],
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_tuple"],
@@ -518,7 +527,7 @@ def test_build_pred_and_actual_label_tuple():
     record_new_model_type = c.log(
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
-        environment=inputs["environment_production"],
+        environment=Environments.PRODUCTION,
         model_type=inputs["model_type_binary_classification"],
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_tuple"],
@@ -529,7 +538,7 @@ def test_build_pred_and_actual_label_tuple():
     )
 
     #   Get environment in proto format
-    ep = _get_proto_environment_params(inputs["environment_production"])
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
     #   Start constructing expected result by building the prediction
     p = _build_basic_prediction("score_categorical_tuple")
     a = _build_basic_actual("score_categorical_tuple")
@@ -560,7 +569,7 @@ def test_build_pred_and_actual_label_ranking():
     record = c.log(
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
-        environment=inputs["environment_production"],
+        environment=Environments.PRODUCTION,
         model_type=inputs["model_type_ranking"],
         prediction_id=inputs["prediction_id"],
         prediction_label=pred_label,
@@ -570,7 +579,7 @@ def test_build_pred_and_actual_label_ranking():
     )
 
     #   Get environment in proto format
-    ep = _get_proto_environment_params(inputs["environment_production"])
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
     #   Start constructing expected result by building the prediction
     p = _build_basic_prediction("ranking")
     a = _build_basic_actual("ranking")
@@ -583,6 +592,42 @@ def test_build_pred_and_actual_label_ranking():
     expected_record = _build_expected_record(p=p, a=a, ep=ep)
     #   Check result is as expected
     assert record == expected_record
+
+
+def test_build_wrong_timestamp():
+    c = get_stubbed_client()
+    wrong_min_time = int(time.time()) - (MAX_PAST_YEARS_FROM_CURRENT_TIME * 365 * 24 * 60 * 60 + 1)
+    wrong_max_time = int(time.time()) + (
+        MAX_FUTURE_YEARS_FROM_CURRENT_TIME * 365 * 24 * 60 * 60 + 1
+    )
+
+    with pytest.raises(ValueError) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            prediction_timestamp=wrong_min_time,
+            model_type=inputs["model_type_numeric"],
+            prediction_id=inputs["prediction_id"],
+            prediction_label=inputs["label_float"],
+            features=inputs["features"],
+            tags=inputs["tags"],
+        )
+    assert f"prediction_timestamp: {wrong_min_time} is out of range." in str(excinfo.value)
+
+    with pytest.raises(ValueError) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            prediction_timestamp=wrong_max_time,
+            model_type=inputs["model_type_numeric"],
+            prediction_id=inputs["prediction_id"],
+            prediction_label=inputs["label_float"],
+            features=inputs["features"],
+            tags=inputs["tags"],
+        )
+    assert f"prediction_timestamp: {wrong_max_time} is out of range." in str(excinfo.value)
 
 
 def test_ranking_label_missing_group_id_rank():
@@ -620,7 +665,7 @@ def test_build_wrong_ranking_rank():
         _ = c.log(
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
-            environment=inputs["environment_production"],
+            environment=Environments.PRODUCTION,
             model_type=inputs["model_type_ranking"],
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
@@ -631,7 +676,7 @@ def test_build_wrong_ranking_rank():
     assert "Rank must be between 1 and 100, inclusive. Found 101" in str(excinfo.value)
 
 
-def test_build_wrong_ranking_group_id():
+def test_ranking_group_id():
     c = get_stubbed_client()
     pred_label = RankingPredictionLabel(
         group_id=1,
@@ -648,7 +693,7 @@ def test_build_wrong_ranking_group_id():
         _ = c.log(
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
-            environment=inputs["environment_production"],
+            environment=Environments.PRODUCTION,
             model_type=inputs["model_type_ranking"],
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
@@ -669,7 +714,7 @@ def test_build_wrong_ranking_group_id():
         _ = c.log(
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
-            environment=inputs["environment_production"],
+            environment=Environments.PRODUCTION,
             model_type=inputs["model_type_ranking"],
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
@@ -696,7 +741,7 @@ def test_build_wrong_ranking_relevance_labels():
         _ = c.log(
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
-            environment=inputs["environment_production"],
+            environment=Environments.PRODUCTION,
             model_type=inputs["model_type_ranking"],
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
@@ -723,7 +768,7 @@ def test_build_wrong_ranking_relevance_scores():
         _ = c.log(
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
-            environment=inputs["environment_production"],
+            environment=Environments.PRODUCTION,
             model_type=inputs["model_type_ranking"],
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
@@ -748,7 +793,7 @@ def test_build_pred_and_actual_label_object_detection():
     record = c.log(
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
-        environment=inputs["environment_production"],
+        environment=Environments.PRODUCTION,
         model_type=inputs["model_type_object_detection"],
         prediction_id=inputs["prediction_id"],
         prediction_label=pred_label,
@@ -759,7 +804,7 @@ def test_build_pred_and_actual_label_object_detection():
     )
 
     #   Get environment in proto format
-    ep = _get_proto_environment_params(inputs["environment_production"])
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
     #   Start constructing expected result by building the prediction
     p = _build_basic_prediction("object_detection")
     a = _build_basic_actual("object_detection")
@@ -780,7 +825,7 @@ def test_build_prediction_no_embedding_features():
     record = c.log(
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
-        environment=inputs["environment_production"],
+        environment=Environments.PRODUCTION,
         model_type=inputs["model_type_numeric"],
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_float"],
@@ -789,7 +834,7 @@ def test_build_prediction_no_embedding_features():
     )
 
     #   Get environment in proto format
-    ep = _get_proto_environment_params(inputs["environment_production"])
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
     #   Start constructing expected result by building the prediction
     p = _build_basic_prediction("numeric_float")
     #   Add props to prediction according to this test
@@ -807,7 +852,7 @@ def test_build_prediction_no_structured_features():
     record = c.log(
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
-        environment=inputs["environment_production"],
+        environment=Environments.PRODUCTION,
         model_type=inputs["model_type_numeric"],
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_float"],
@@ -816,7 +861,7 @@ def test_build_prediction_no_structured_features():
     )
 
     #   Get environment in proto format
-    ep = _get_proto_environment_params(inputs["environment_production"])
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
     #   Start constructing expected result by building the prediction
     p = _build_basic_prediction("numeric_float")
     #   Add props to prediction according to this test
@@ -833,7 +878,7 @@ def test_build_prediction_no_features():
     record = c.log(
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
-        environment=inputs["environment_production"],
+        environment=Environments.PRODUCTION,
         model_type=inputs["model_type_numeric"],
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_float"],
@@ -841,7 +886,7 @@ def test_build_prediction_no_features():
     )
 
     #   Get environment in proto format
-    ep = _get_proto_environment_params(inputs["environment_production"])
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
     #   Start constructing expected result by building the prediction
     p = _build_basic_prediction("numeric_float")
     #   Add props to prediction according to this test
@@ -857,7 +902,7 @@ def test_build_prediction_no_tags():
     record = c.log(
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
-        environment=inputs["environment_production"],
+        environment=Environments.PRODUCTION,
         model_type=inputs["model_type_numeric"],
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_float"],
@@ -866,7 +911,7 @@ def test_build_prediction_no_tags():
     )
 
     #   Get environment in proto format
-    ep = _get_proto_environment_params(inputs["environment_production"])
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
     #   Start constructing expected result by building the prediction
     p = _build_basic_prediction("numeric_float")
     #   Add props to prediction according to this test
@@ -883,14 +928,14 @@ def test_build_prediction_no_tags_no_features():
     record = c.log(
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
-        environment=inputs["environment_production"],
+        environment=Environments.PRODUCTION,
         model_type=inputs["model_type_numeric"],
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_float"],
     )
 
     #   Get environment in proto format
-    ep = _get_proto_environment_params(inputs["environment_production"])
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
     #   Start constructing expected result by building the prediction
     p = _build_basic_prediction("numeric_float")
     #   Build expected record using built prediction
@@ -905,7 +950,7 @@ def test_missing_model_type():
         _ = c.log(
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
-            environment=inputs["environment_production"],
+            environment=Environments.PRODUCTION,
             prediction_id=inputs["prediction_id"],
             prediction_label=inputs["label_str"],
             actual_label=inputs["label_str"],
@@ -920,14 +965,14 @@ def test_model_version_optional():
     c = get_stubbed_client()
     record = c.log(
         model_id=inputs["model_id"],
-        environment=inputs["environment_production"],
+        environment=Environments.PRODUCTION,
         model_type=inputs["model_type_numeric"],
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_float"],
     )
 
     #   Get environment in proto format
-    ep = _get_proto_environment_params(inputs["environment_production"])
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
     #   Start constructing expected result by building the prediction
     p = _build_basic_prediction("numeric_float")
     p.model_version = ""
@@ -967,7 +1012,7 @@ def test_object_detection_item_count_match():
         _ = c.log(
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
-            environment=inputs["environment_production"],
+            environment=Environments.PRODUCTION,
             model_type=inputs["model_type_object_detection"],
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
@@ -993,7 +1038,7 @@ def test_object_detection_wrong_coordinates_format():
         _ = c.log(
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
-            environment=inputs["environment_production"],
+            environment=Environments.PRODUCTION,
             model_type=inputs["model_type_object_detection"],
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
@@ -1012,7 +1057,7 @@ def test_object_detection_wrong_coordinates_format():
         _ = c.log(
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
-            environment=inputs["environment_production"],
+            environment=Environments.PRODUCTION,
             model_type=inputs["model_type_object_detection"],
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
@@ -1034,7 +1079,7 @@ def test_valid_prediction_id_embeddings():
             model_id=inputs["model_id"],
             model_type=inputs["model_type_binary_classification"],
             model_version=inputs["model_version"],
-            environment=inputs["environment_production"],
+            environment=Environments.PRODUCTION,
             prediction_id="A" * 129,
             prediction_label=inputs["label_str"],
             actual_label=inputs["label_str"],
@@ -1045,25 +1090,91 @@ def test_valid_prediction_id_embeddings():
     assert "The string length of prediction_id" in str(excinfo.value)
 
 
-def test_no_prediction_id():
+def test_prediction_id():
     c = get_stubbed_client()
 
-    # test case - None prediction_id
-    try:
-        _ = c.log(
-            model_id=inputs["model_id"],
-            model_type=inputs["model_type_binary_classification"],
-            model_version=inputs["model_version"],
-            environment=inputs["environment_production"],
-            prediction_id=None,
-            prediction_label=inputs["label_str"],
-            actual_label=inputs["label_str"],
-            features=inputs["features"],
-            embedding_features=inputs["embedding_features"],
-            tags=inputs["tags"],
-        )
-    except Exception as e:
-        assert False, f"Logging data without prediction_id raised an exception {e}"
+    correct_cases = [
+        {
+            # test case - None prediction_id, Training
+            "prediction_id": None,
+            "environment": Environments.TRAINING,
+            "prediction_label": inputs["label_str"],
+        },
+        {
+            # test case - None prediction_id, Production, not a delayed record
+            "prediction_id": None,
+            "environment": Environments.PRODUCTION,
+            "prediction_label": inputs["label_str"],
+        },
+    ]
+    for case in correct_cases:
+        try:
+            _ = c.log(
+                model_id=inputs["model_id"],
+                model_type=inputs["model_type_binary_classification"],
+                model_version=inputs["model_version"],
+                environment=case["environment"],
+                prediction_id=case["prediction_id"],
+                prediction_label=case["prediction_label"],
+                actual_label=inputs["label_str"],
+                features=inputs["features"],
+                embedding_features=inputs["embedding_features"],
+                tags=inputs["tags"],
+            )
+        except Exception as e:
+            msg = (
+                f"Logging data without prediction_id raised an exception {e}. "
+                + f"prediction_id={case['prediction_id']}, environment={case['environment']}, "
+                + f"prediction_label={case['prediction_label']}."
+            )
+            assert False, msg
+
+    short_prediction_id = "2-small"
+    incorrect_cases = [
+        {
+            # test case - None prediction_id, Production, delayed record
+            "prediction_id": None,
+            "environment": Environments.PRODUCTION,
+            "prediction_label": None,
+            "err_msg": "prediction_id value cannot be None for delayed records",
+        },
+        {
+            # test case - Wrong length prediction_id, Training
+            "prediction_id": short_prediction_id,
+            "environment": Environments.TRAINING,
+            "prediction_label": inputs["label_str"],
+            "err_msg": f"The string length of prediction_id {short_prediction_id} must be between",
+        },
+        {
+            # test case - Wrong length prediction_id, Production, delayed record
+            "prediction_id": short_prediction_id,
+            "environment": Environments.PRODUCTION,
+            "prediction_label": None,
+            "err_msg": f"The string length of prediction_id {short_prediction_id} must be between",
+        },
+        {
+            # test case - Wrong length prediction_id, Production, not a delayed record
+            "prediction_id": short_prediction_id,
+            "environment": Environments.PRODUCTION,
+            "prediction_label": inputs["label_str"],
+            "err_msg": f"The string length of prediction_id {short_prediction_id} must be between",
+        },
+    ]
+    for case in incorrect_cases:
+        with pytest.raises(ValueError) as exc_info:
+            _ = c.log(
+                model_id=inputs["model_id"],
+                model_type=inputs["model_type_binary_classification"],
+                model_version=inputs["model_version"],
+                environment=case["environment"],
+                prediction_id=case["prediction_id"],
+                prediction_label=case["prediction_label"],
+                actual_label=inputs["label_str"],
+                features=inputs["features"],
+                embedding_features=inputs["embedding_features"],
+                tags=inputs["tags"],
+            )
+        assert case["err_msg"] in str(exc_info.value)
 
 
 def test_object_detection_wrong_categories():
@@ -1078,7 +1189,7 @@ def test_object_detection_wrong_categories():
         _ = c.log(
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
-            environment=inputs["environment_production"],
+            environment=Environments.PRODUCTION,
             model_type=inputs["model_type_object_detection"],
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
@@ -1101,7 +1212,7 @@ def test_object_detection_wrong_scores():
         _ = c.log(
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
-            environment=inputs["environment_production"],
+            environment=Environments.PRODUCTION,
             model_type=inputs["model_type_object_detection"],
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
@@ -1120,7 +1231,7 @@ def test_object_detection_wrong_scores():
         _ = c.log(
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
-            environment=inputs["environment_production"],
+            environment=Environments.PRODUCTION,
             model_type=inputs["model_type_object_detection"],
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
@@ -1129,6 +1240,55 @@ def test_object_detection_wrong_scores():
             tags=inputs["tags"],
         )
     assert "Bounding box confidence scores must be between 0 and 1, inclusive" in str(excinfo.value)
+
+
+def test_invalid_tags():
+    c = get_stubbed_client()
+    wrong_tags = {
+        "tag_str_incorrect": "a" * (MAX_TAG_LENGTH + 1),
+    }
+
+    # test case - too long tag value
+    with pytest.raises(ValueError) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_type=inputs["model_type_binary_classification"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            prediction_id=inputs["prediction_id"],
+            prediction_label=inputs["label_str"],
+            actual_label=inputs["label_str"],
+            features=inputs["features"],
+            tags=wrong_tags,
+        )
+    assert (
+        f"The number of characters for each tag must be less than or equal to {MAX_TAG_LENGTH}."
+        in str(excinfo.value)
+    )
+
+
+def test_instantiating_client_duplicated_header():
+    with pytest.raises(InvalidAdditionalHeaders) as excinfo:
+        _ = get_stubbed_client({"authorization": "FAKE_VALUE"})
+    assert (
+        "Found invalid additional header, cannot use reserved headers named: authorization."
+        in str(excinfo.value)
+    )
+
+
+def test_instantiating_client_additional_header():
+    c = get_stubbed_client({"JWT": "FAKE_VALUE"})
+    import arize
+
+    expected = {
+        "authorization": inputs["api_key"],
+        "Grpc-Metadata-space": inputs["space_key"],
+        "Grpc-Metadata-sdk-version": arize.__version__,
+        "Grpc-Metadata-python-version": get_python_version(),
+        "Grpc-Metadata-sdk": "py",
+        "JWT": "FAKE_VALUE",
+    }
+    assert c._header == expected
 
 
 if __name__ == "__main__":

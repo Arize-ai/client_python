@@ -85,6 +85,8 @@ class EmbeddingGeneratorForTabularFeatures(NLPEmbeddingGenerator):
         """
         if not isinstance(df, pd.DataFrame):
             raise TypeError("df must be a pandas DataFrame")
+        self.check_invalid_index(field=df)
+
         if not is_list_of(selected_columns, str):
             raise TypeError("columns must be a list of column names (strings)")
         missing_cols = set(selected_columns).difference(df.columns)

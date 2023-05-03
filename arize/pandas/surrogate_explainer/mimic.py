@@ -34,7 +34,6 @@ class Mimic:
     def augment(
         df: pd.DataFrame, schema: Schema, model_type: ModelTypes
     ) -> Tuple[pd.DataFrame, Schema]:
-
         features = schema.feature_column_names
         X = df[features]
 
@@ -42,7 +41,6 @@ class Mimic:
             return df, schema
 
         if model_type in CATEGORICAL_MODEL_TYPES:
-
             if not schema.prediction_score_column_name:
                 raise ValueError(
                     "To calculate surrogate explainability, "
@@ -65,7 +63,6 @@ class Mimic:
                 return np.column_stack((1 - y, y))
 
         elif model_type == ModelTypes.NUMERIC:
-
             y_col_name = schema.prediction_label_column_name
             y = df[y_col_name].to_numpy()
 

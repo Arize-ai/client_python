@@ -43,10 +43,8 @@
         },
         {
           "metrics": [
-            ["auc_log_loss"],
             ["auc_log_loss", "classification"],
-            ["regression", "classification"],
-            ["regression", "auc_log_loss"]
+            ["regression", "classification"]
           ],
           "required_columns": {
             "arrow": {
@@ -56,6 +54,36 @@
             "generic": {
                 "required": [["prediction_label", "prediction_score"]],
                 "latent": [["actual_label"]]
+            }
+          }
+        },
+        {
+          "metrics": [
+            ["auc_log_loss"]
+          ],
+          "required_columns": {
+            "arrow": {
+              "required": [["prediction_score_column_name"]],
+              "latent": [["actual_label_column_name"]]
+            },
+            "generic": {
+              "required": [["prediction_score"]],
+              "latent": [["actual_label"]]
+            }
+          }
+        },
+        {
+          "metrics": [
+            ["regression", "auc_log_loss"]
+          ],
+          "required_columns": {
+            "arrow": {
+              "required": [["prediction_score_column_name"]],
+              "latent": [["actual_score_column_name", "actual_label_column_name"]]
+            },
+            "generic": {
+              "required": [["prediction_score"]],
+              "latent": [["actual_score", "actual_label"]]
             }
           }
         },

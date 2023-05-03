@@ -69,9 +69,8 @@ def test_invalid_type_shap_values():
 
 
 def test_invalid_timestamp():
-    err_msg = str(err.InvalidValueTimestamp("Spinosaurus", "Megalosaurus"))
+    err_msg = str(err.InvalidValueTimestamp("Spinosaurus"))
     assert "Spinosaurus" in err_msg
-    assert "Megalosaurus" in err_msg
 
 
 def test_invalid_missing_value():

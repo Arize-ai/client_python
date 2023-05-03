@@ -6,6 +6,15 @@ import arize.pandas.validation.errors as err
 import numpy as np
 import pandas as pd
 import pyarrow as pa
+from arize.utils.constants import (
+    MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
+    MAX_PAST_YEARS_FROM_CURRENT_TIME,
+    MAX_PREDICTION_ID_LEN,
+    MAX_TAG_LENGTH,
+    MIN_PREDICTION_ID_LEN,
+    MODEL_MAPPING_CONFIG,
+)
+from arize.utils.logging import logger
 from arize.utils.types import (
     CATEGORICAL_MODEL_TYPES,
     NUMERIC_MODEL_TYPES,
@@ -15,7 +24,6 @@ from arize.utils.types import (
     ModelTypes,
     Schema,
 )
-from arize.utils.utils import MAX_PREDICTION_ID_LEN, MIN_PREDICTION_ID_LEN, MODEL_MAPPING_CONFIG
 
 
 class Validator:
@@ -50,12 +58,15 @@ class Validator:
     ) -> List[err.ValidationError]:
         # general checks
         general_checks = chain(
+            Validator._check_column_names_for_empty_strings(schema),
+            Validator._check_existence_prediction_id_column_delayed_records(schema),
             Validator._check_invalid_model_id(model_id),
             Validator._check_invalid_model_version(model_version),
             Validator._check_invalid_model_type(model_type),
             Validator._check_invalid_environment(environment),
             Validator._check_invalid_batch_id(batch_id, environment),
             Validator._check_missing_columns(dataframe, schema),
+            Validator._check_dataframe_for_duplicate_columns(schema, dataframe),
             Validator._check_invalid_shap_suffix(schema),
             # model mapping checks
             Validator._check_model_type_and_metrics(model_type, metric_families, schema),
@@ -70,9 +81,8 @@ class Validator:
             return list(chain(general_checks, num_checks))
         elif model_type in CATEGORICAL_MODEL_TYPES:
             sc_checks = chain(
-                Validator._check_existence_pred_act_shap(schema),
-                Validator._check_existence_preprod_pred_act(schema, environment),
-                Validator._check_existence_pred_label(schema),
+                Validator._check_existence_pred_act_shap_score_or_label(schema),
+                Validator._check_existence_preprod_pred_act_score_or_label(schema, environment),
                 Validator._check_missing_object_detection_columns(schema, model_type),
             )
             return list(chain(general_checks, sc_checks))
@@ -144,7 +154,10 @@ class Validator:
 
     @staticmethod
     def validate_values(
-        dataframe: pd.DataFrame, schema: Schema, model_type: ModelTypes
+        dataframe: pd.DataFrame,
+        environment: Environments,
+        schema: Schema,
+        model_type: ModelTypes,
     ) -> List[err.ValidationError]:
         # ASSUMPTION: at this point the param and type checks should have passed.
         # This function may crash if that is not true, e.g. if columns are missing
@@ -152,15 +165,23 @@ class Validator:
 
         general_checks = chain(
             Validator._check_value_timestamp(dataframe, schema),
-            Validator._check_value_missing(dataframe, schema),
-            Validator._check_value_prediction_id(dataframe, schema),
+            Validator._check_invalid_missing_values(dataframe, schema, model_type),
+            Validator._check_id_field_str_length(
+                dataframe, "prediction_id_column_name", schema.prediction_id_column_name
+            ),
             Validator._check_embedding_features_dimensionality(dataframe, schema),
+            Validator._check_invalid_record_prod(dataframe, environment, schema, model_type),
+            Validator._check_invalid_record_training(dataframe, environment, schema, model_type),
+            Validator._check_value_tag(dataframe, schema),
         )
-
         if model_type == ModelTypes.RANKING:
             r_checks = chain(
                 Validator._check_value_rank(dataframe, schema),
-                Validator._check_value_prediction_group_id(dataframe, schema),
+                Validator._check_id_field_str_length(
+                    dataframe,
+                    "prediction_group_id_column_name",
+                    schema.prediction_group_id_column_name,
+                ),
                 Validator._check_value_ranking_category(dataframe, schema),
             )
             return list(chain(general_checks, r_checks))
@@ -176,6 +197,14 @@ class Validator:
     # ----------------------
     # Minimum requred checks
     # ----------------------
+    @staticmethod
+    def _check_column_names_for_empty_strings(
+        schema: Schema,
+    ) -> List[err.InvalidColumnNameEmptyString]:
+        if "" in schema.get_used_columns():
+            return [err.InvalidColumnNameEmptyString()]
+        return []
+
     @staticmethod
     def _check_field_convertible_to_str(
         model_id, model_version, batch_id
@@ -304,7 +333,7 @@ class Validator:
                             # This is a valid combination of model type + metrics.
                             # Now validate that required columns are in the schema.
                             is_valid_combination = True
-                            # If no prediction values are present, then latent actuals are being
+                            # If no prediction values are present, then delayed actuals are being
                             # logged, and we can't validate required columns.
                             if (schema.prediction_label_column_name is not None) or (
                                 schema.prediction_score_column_name is not None
@@ -329,6 +358,51 @@ class Validator:
                 if not is_valid_combination:
                     return False, [], metric_combinations
         return True, missing_columns, []
+
+    @staticmethod
+    def _check_existence_prediction_id_column_delayed_records(
+        schema: Schema,
+    ) -> List[err.MissingPredictionIdColumnForDelayedRecords]:
+        if schema.prediction_id_column_name is not None:
+            return []
+        prediction_cols = (
+            schema.prediction_label_column_name,
+            schema.prediction_score_column_name,
+            schema.rank_column_name,
+            schema.prediction_group_id_column_name,
+            schema.object_detection_prediction_column_names,
+        )
+        actual_cols = (
+            schema.actual_label_column_name,
+            schema.actual_score_column_name,
+            schema.relevance_labels_column_name,
+            schema.relevance_score_column_name,
+            schema.object_detection_actual_column_names,
+        )
+        feature_importance_cols = (schema.shap_values_column_names,)
+
+        has_prediction_info = any(col is not None for col in prediction_cols)
+        has_actual_info = any(col is not None for col in actual_cols)
+        has_feature_importance_info = any(col is not None for col in feature_importance_cols)
+
+        is_delayed_record = (
+            has_actual_info or has_feature_importance_info
+        ) and not has_prediction_info
+        if is_delayed_record:
+            return [
+                err.MissingPredictionIdColumnForDelayedRecords(
+                    has_actual_info, has_feature_importance_info
+                )
+            ]
+        # Warning for when prediction_id is not provided by the user and we generate the default
+        # prediction ids
+        logger.warning(
+            "Prediction ID is not specified. Arize generates UUIDs for the model's predictions "
+            "if not provided by the user. Please note, you won't be able to send delayed data for "
+            "joining if a Prediction ID is not provided."
+        )
+
+        return []
 
     @staticmethod
     def _check_missing_columns(
@@ -465,18 +539,6 @@ class Validator:
         return [err.InvalidEnvironment()]
 
     @staticmethod
-    def _check_existence_pred_act_shap(
-        schema: Schema,
-    ) -> List[err.MissingPredActShap]:
-        if (
-            schema.prediction_label_column_name is not None
-            or schema.actual_label_column_name is not None
-            or schema.shap_values_column_names is not None
-        ):
-            return []
-        return [err.MissingPredActShap()]
-
-    @staticmethod
     def _check_existence_prompt_response_generative_llm(
         schema: Schema,
     ) -> List[err.MissingPromptResponseGenerativeLLM]:
@@ -487,7 +549,7 @@ class Validator:
     @staticmethod
     def _check_existence_pred_act_shap_score_or_label(
         schema: Schema,
-    ) -> List[err.MissingPredActShapNumeric]:
+    ) -> List[err.MissingPredActShapNumericAndCategorical]:
         if (
             (
                 schema.prediction_label_column_name is not None
@@ -500,25 +562,13 @@ class Validator:
             or schema.shap_values_column_names is not None
         ):
             return []
-        return [err.MissingPredActShapNumeric()]
-
-    @staticmethod
-    def _check_existence_pred_label(
-        schema: Schema,
-    ) -> List[err.MissingPredLabelScoreCategorical]:
-        if (
-            schema.prediction_score_column_name is not None
-            and schema.actual_label_column_name is not None
-            and schema.prediction_label_column_name is None
-        ):
-            return [err.MissingPredLabelScoreCategorical()]
-        return []
+        return [err.MissingPredActShapNumericAndCategorical()]
 
     @staticmethod
     def _check_existence_preprod_pred_act_score_or_label(
         schema: Schema,
         environment: Environments,
-    ) -> List[err.MissingPreprodPredActNumeric]:
+    ) -> List[err.MissingPreprodPredActNumericAndCategorical]:
         if environment in (Environments.VALIDATION, Environments.TRAINING) and (
             (
                 schema.prediction_label_column_name is None
@@ -526,7 +576,7 @@ class Validator:
             )
             or (schema.actual_label_column_name is None and schema.actual_score_column_name is None)
         ):
-            return [err.MissingPreprodPredActNumeric()]
+            return [err.MissingPreprodPredActNumericAndCategorical()]
         return []
 
     @staticmethod
@@ -588,17 +638,6 @@ class Validator:
         return []
 
     @staticmethod
-    def _check_existence_preprod_pred_act(
-        schema: Schema,
-        environment: Environments,
-    ) -> List[err.MissingPreprodPredAct]:
-        if environment in (Environments.VALIDATION, Environments.TRAINING) and (
-            schema.prediction_label_column_name is None or schema.actual_label_column_name is None
-        ):
-            return [err.MissingPreprodPredAct()]
-        return []
-
-    @staticmethod
     def _check_existence_preprod_act(
         schema: Schema,
         environment: Environments,
@@ -620,6 +659,20 @@ class Validator:
         )
         if any(col is None for col in required):
             return [err.MissingRequiredColumnsForRankingModel()]
+        return []
+
+    @staticmethod
+    def _check_dataframe_for_duplicate_columns(
+        schema: Schema, dataframe: pd.DataFrame
+    ) -> List[err.DuplicateColumnsInDataframe]:
+        # Get the columns used in the schema
+        schema_col_used = schema.get_used_columns()
+        # Get the duplicated column names from the dataframe
+        df_duplicate_cols = dataframe.loc[:, dataframe.columns.duplicated()].columns.to_list()
+        # These are the duplicated columns from the dataframe that are referred to by the schema
+        schema_duplicate_cols = [col for col in df_duplicate_cols if col in schema_col_used]
+        if schema_duplicate_cols:
+            return [err.DuplicateColumnsInDataframe(schema_duplicate_cols)]
         return []
 
     # -----------
@@ -821,9 +874,14 @@ class Validator:
                 pa.float32(),
                 pa.int16(),
                 pa.int8(),
+                pa.null(),
             )
             for name, col in columns:
-                if col in column_types and column_types[col] not in allowed_datatypes:
+                if (
+                    col is not None
+                    and col in column_types
+                    and column_types[col] not in allowed_datatypes
+                ):
                     errors.append(
                         err.InvalidType(name, expected_types=["float", "int", "bool", "str"])
                     )
@@ -838,7 +896,11 @@ class Validator:
                 pa.int8(),
             )
             for name, col in columns:
-                if col in column_types and column_types[col] not in allowed_datatypes:
+                if (
+                    col is not None
+                    and col in column_types
+                    and column_types[col] not in allowed_datatypes
+                ):
                     errors.append(err.InvalidType(name, expected_types=["float", "int"]))
         return errors
 
@@ -865,6 +927,7 @@ class Validator:
                 pa.int32(),
                 pa.int16(),
                 pa.int8(),
+                pa.null(),
             )
             for name, col in columns:
                 if (
@@ -1093,42 +1156,38 @@ class Validator:
         return []
 
     @staticmethod
-    def _check_value_prediction_id(
-        dataframe: pd.DataFrame, schema: Schema
-    ) -> List[err.InvalidStringLength]:
+    def _check_id_field_str_length(
+        dataframe: pd.DataFrame, schema_name: str, id_col_name: Optional[str]
+    ) -> List[err.ValidationError]:
+        f"""
+        Require prediction_id to be a string of length between {MIN_PREDICTION_ID_LEN}
+        and {MAX_PREDICTION_ID_LEN}
         """
-        Require prediction_id to be a string of length 1 - 128 if the model needs embeddings calculations.
-        """
-        col = schema.prediction_id_column_name
-        if schema.embedding_feature_column_names is not None and not Validator._valid_char_limit(
-            col, dataframe, MIN_PREDICTION_ID_LEN, MAX_PREDICTION_ID_LEN
-        ):
-            return [
-                err.InvalidStringLength(
-                    schema_name="prediction_id_column_name",
-                    col_name=col,
-                    min_length=MIN_PREDICTION_ID_LEN,
-                    max_length=MAX_PREDICTION_ID_LEN,
-                )
-            ]
-        return []
+        # We check whether the column name can be None is allowed in `Validator.validate_params`
+        if id_col_name is None:
+            return []
 
-    @staticmethod
-    def _check_value_prediction_group_id(
-        dataframe: pd.DataFrame, schema: Schema
-    ) -> List[err.InvalidStringLength]:
-        col = schema.prediction_group_id_column_name
-        if not Validator._valid_char_limit(
-            col, dataframe, MIN_PREDICTION_ID_LEN, MAX_PREDICTION_ID_LEN
-        ):
-            return [
-                err.InvalidStringLength(
-                    schema_name="prediction_group_id_column_name",
-                    col_name=col,
-                    min_length=MIN_PREDICTION_ID_LEN,
-                    max_length=MAX_PREDICTION_ID_LEN,
-                )
-            ]
+        # _check_value_missing will return error if there are missing values in the id fields
+        # We can then proceed to check the character count of the values that are not None or missing.
+        if id_col_name in dataframe.columns:
+            if not (
+                # Check that the non-None values of the desired colum have a
+                # string length between min_len and max_len
+                # Does not check the None values
+                dataframe[~dataframe[id_col_name].isnull()][id_col_name]
+                .astype(str)
+                .str.len()
+                .between(MIN_PREDICTION_ID_LEN, MAX_PREDICTION_ID_LEN)
+                .all()
+            ):
+                return [
+                    err.InvalidStringLength(
+                        schema_name=schema_name,
+                        col_name=id_col_name,
+                        min_length=MIN_PREDICTION_ID_LEN,
+                        max_length=MAX_PREDICTION_ID_LEN,
+                    )
+                ]
         return []
 
     @staticmethod
@@ -1139,6 +1198,22 @@ class Validator:
             if not (dataframe[col_name].astype(str).str.len().between(min_len, max_len).all()):
                 return False
         return True
+
+    @staticmethod
+    def _check_value_tag(dataframe: pd.DataFrame, schema: Schema) -> List[err.InvalidTagLength]:
+        if schema.tag_column_names is not None and len(dataframe):
+            wrong_tag_cols = []
+            for col in schema.tag_column_names:
+                # This is to be defensive, validate_params should guarantee that this column is in
+                # the dataframe, via _check_missing_columns, and return an error before reaching this
+                # block if not
+                if col in dataframe.columns:
+                    max_tag_len = len(str(dataframe[col].agg(["max"])["max"]))
+                    if max_tag_len > MAX_TAG_LENGTH:
+                        wrong_tag_cols.append(col)
+            if wrong_tag_cols:
+                return [err.InvalidTagLength(wrong_tag_cols)]
+        return []
 
     @staticmethod
     def _check_value_ranking_category(
@@ -1153,15 +1228,16 @@ class Validator:
         if col is not None and col in dataframe.columns and len(dataframe):
             if dataframe[col].isnull().values.any():
                 # do not attach duplicated missing value error
-                # which would be caught by_check_value_missing
+                # which would be caught by _check_value_missing
                 return []
             if dataframe[col].astype(str).str.len().min() == 0:
                 return [err.InvalidRankingCategoryValue(col)]
             # empty list
-            if dataframe[col].map(len).min() == 0:
+            not_null_filter = dataframe[col].notnull()
+            if dataframe[not_null_filter][col].map(len).min() == 0:
                 return [err.InvalidValueMissingValue(col, "empty list")]
             # no empty string in list
-            if dataframe[col].map(lambda x: (min(map(len, x)))).min() == 0:
+            if dataframe[not_null_filter][col].map(lambda x: (min(map(len, x)))).min() == 0:
                 return [err.InvalidRankingCategoryValue(col)]
         return []
 
@@ -1182,8 +1258,12 @@ class Validator:
 
             now_t = datetime.datetime.now()
             lbound, ubound = (
-                (now_t - datetime.timedelta(days=365)).timestamp(),
-                (now_t + datetime.timedelta(days=365)).timestamp(),
+                (
+                    now_t - datetime.timedelta(days=MAX_PAST_YEARS_FROM_CURRENT_TIME * 365)
+                ).timestamp(),
+                (
+                    now_t + datetime.timedelta(days=MAX_FUTURE_YEARS_FROM_CURRENT_TIME * 365)
+                ).timestamp(),
             )
 
             # faster than pyarrow compute
@@ -1192,11 +1272,35 @@ class Validator:
             ta = pa.Table.from_pandas(stats.to_frame())
             type_ = ta.column(0).type
             min_, max_ = ta.column(0)
-
-            # this part needs improvement: dealing with python types is hard :(
+            # Add warning when future timestamps are sent
             if (
                 (
-                    type(type_) == pa.TimestampType
+                    isinstance(type_, pa.TimestampType)
+                    and stats["max"].timestamp() > now_t.timestamp()
+                )
+                or (type_ in (pa.int64(), pa.float64()) and max_.as_py() > now_t.timestamp())
+                or (
+                    type_ == pa.date32()
+                    and (int(max_.cast(pa.int32()).as_py() * 60 * 60 * 24) > now_t.timestamp())
+                )
+                or (
+                    type_ == pa.date64()
+                    and (int(max_.cast(pa.int64()).as_py() // 1000) > now_t.timestamp())
+                )
+            ):
+                logger.warning(
+                    "Caution when sending predictions with future timestamps."
+                    "Arize only stores 2 years worth of data. For example, if you sent predictions "
+                    "to Arize from 1.5 years ago, and now send predictions with timestamps of a year in "
+                    "the future, the oldest 0.5 years will be dropped to maintain the 2 years worth of data "
+                    "requirement."
+                )
+
+            # this part needs improvement: dealing with python types is hard :(
+            # Return error if timestamp is out of range
+            if (
+                (
+                    isinstance(type_, pa.TimestampType)
                     and (stats["min"].timestamp() < lbound or stats["max"].timestamp() > ubound)
                 )
                 or (
@@ -1218,27 +1322,27 @@ class Validator:
                     )
                 )
             ):
-                return [
-                    err.InvalidValueTimestamp("Prediction timestamp", acceptable_range="one year")
-                ]
+                return [err.InvalidValueTimestamp(timestamp_col_name=col)]
 
         return []
 
+    # _check_invalid_missing_values validates that columns that cannot have any null values
+    # do not have any null values and returns an error if they do
     @staticmethod
-    def _check_value_missing(
-        dataframe: pd.DataFrame, schema: Schema
+    def _check_invalid_missing_values(
+        dataframe: pd.DataFrame, schema: Schema, model_type: ModelTypes
     ) -> List[err.InvalidValueMissingValue]:
         errors = []
-        columns = (
-            ("Prediction IDs", schema.prediction_id_column_name),
-            ("Prediction labels", schema.prediction_label_column_name),
-            ("Actual labels", schema.actual_label_column_name),
-            ("Prediction Group IDs", schema.prediction_group_id_column_name),
-            ("Ranks", schema.rank_column_name),
-            ("Attributions", schema.attributions_column_name),
-            ("Relevance Score", schema.relevance_score_column_name),
-            ("Relevance Labels", schema.relevance_labels_column_name),
-        )
+        columns = ()
+        if model_type == ModelTypes.RANKING:
+            columns = (
+                ("Prediction IDs", schema.prediction_id_column_name),
+                ("Prediction Group IDs", schema.prediction_group_id_column_name),
+                ("Ranks", schema.rank_column_name),
+            )
+        else:
+            columns = (("Prediction IDs", schema.prediction_id_column_name),)
+            # TODO: add separate logic for objective detection and generative model types
         for name, col in columns:
             if col is not None and col in dataframe.columns:
                 if dataframe[col].isnull().any():
@@ -1249,6 +1353,95 @@ class Validator:
                 ):
                     errors.append(err.InvalidValueMissingValue(name, wrong_values="infinite"))
         return errors
+
+    # _check_invalid_record_prod validates there's not a single row in the dataframe
+    # with pred_label, pred_score, actual_label, actual_score, and shap_value
+    # columns all evaluates to null and returns an error with the row numbers
+    # where that is the case
+    @staticmethod
+    def _check_invalid_record_prod(
+        dataframe: pd.DataFrame, environment: Environments, schema: Schema, model_type: ModelTypes
+    ) -> List[err.InvalidRecord]:
+        if environment in (Environments.VALIDATION, Environments.TRAINING):
+            return []
+
+        if model_type in CATEGORICAL_MODEL_TYPES or model_type in NUMERIC_MODEL_TYPES:
+            columns_to_validate = [
+                schema.prediction_label_column_name,
+                schema.prediction_score_column_name,
+                schema.actual_label_column_name,
+                schema.actual_score_column_name,
+            ]
+        elif model_type == ModelTypes.RANKING:
+            columns_to_validate = [
+                schema.prediction_label_column_name,
+                schema.prediction_score_column_name,
+                schema.actual_label_column_name,
+                schema.actual_score_column_name,
+                schema.relevance_score_column_name,
+                schema.relevance_labels_column_name,
+            ]
+        else:
+            columns_to_validate = []
+            # TODO: add separate logic for objective detection and generative model types
+
+        if schema.shap_values_column_names is not None:
+            columns_to_validate.extend(list(schema.shap_values_column_names.values()))
+
+        return Validator._check_invalid_record_helper(dataframe, columns_to_validate)
+
+    # _check_invalid_record_training validates there's not a single row in the dataframe
+    # with pred_label, pred_score all evaluates to null OR with actual_label, actual_score
+    # all evaluates to null and returns errors if either of the two cases exists
+    def _check_invalid_record_training(
+        dataframe: pd.DataFrame, environment: Environments, schema: Schema, model_type: ModelTypes
+    ) -> List[err.InvalidRecord]:
+        if environment == Environments.PRODUCTION:
+            return []
+
+        if model_type in CATEGORICAL_MODEL_TYPES or model_type in NUMERIC_MODEL_TYPES:
+            pred_columns_to_validate = [
+                schema.prediction_label_column_name,
+                schema.prediction_score_column_name,
+            ]
+            actual_columns_to_validate = [
+                schema.actual_label_column_name,
+                schema.actual_score_column_name,
+            ]
+        elif model_type == ModelTypes.RANKING:
+            pred_columns_to_validate = [
+                schema.prediction_label_column_name,
+                schema.prediction_score_column_name,
+            ]
+            actual_columns_to_validate = [
+                schema.actual_label_column_name,
+                schema.actual_score_column_name,
+                schema.relevance_score_column_name,
+                schema.relevance_labels_column_name,
+            ]
+        else:
+            pred_columns_to_validate = []
+            actual_columns_to_validate = []
+            # TODO: add separate logic for objective detection and generative model types
+
+        return Validator._check_invalid_record_helper(
+            dataframe, pred_columns_to_validate
+        ) + Validator._check_invalid_record_helper(dataframe, actual_columns_to_validate)
+
+    def _check_invalid_record_helper(
+        dataframe: pd.DataFrame, column_names: List[str]
+    ) -> List[err.InvalidRecord]:
+        columns_subset = []
+        for col in column_names:
+            if col is not None and col in dataframe.columns:
+                columns_subset.append(col)
+        if len(columns_subset) == 0:
+            return []
+        null_filter = dataframe[columns_subset].isnull().all(axis=1)
+        null_index = null_filter[null_filter].index.values
+        if len(null_index) == 0:
+            return []
+        return [err.InvalidRecord(columns_subset, null_index)]
 
     @staticmethod
     def _check_type_prediction_group_id(

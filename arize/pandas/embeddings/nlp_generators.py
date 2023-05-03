@@ -38,6 +38,8 @@ class EmbeddingGeneratorForNLPSequenceClassification(NLPEmbeddingGenerator):
         if not isinstance(text_col, pd.Series):
             raise TypeError("text_col must be a pandas Series")
 
+        self.check_invalid_index(field=text_col)
+
         if class_label_col is not None:
             if not isinstance(class_label_col, pd.Series):
                 raise TypeError("class_label_col must be a pandas Series")
@@ -49,6 +51,40 @@ class EmbeddingGeneratorForNLPSequenceClassification(NLPEmbeddingGenerator):
             ds = Dataset.from_dict({"text": prepared_text_col})
         else:
             ds = Dataset.from_dict({"text": text_col})
+
+        ds.set_transform(partial(self.tokenize, text_feat_name="text"))
+        logger.info("Generating embedding vectors")
+        ds = ds.map(
+            lambda batch: self._get_embedding_vector(batch, "cls_token"),
+            batched=True,
+            batch_size=self.batch_size,
+        )
+        return cast(pd.DataFrame, ds.to_pandas())["embedding_vector"]
+
+
+class EmbeddingGeneratorForNLPSummarization(NLPEmbeddingGenerator):
+    def __init__(self, model_name: str = "distilbert-base-uncased", **kwargs):
+        super(EmbeddingGeneratorForNLPSummarization, self).__init__(
+            use_case=UseCases.NLP.SUMMARIZATION,
+            model_name=model_name,
+            **kwargs,
+        )
+
+    def generate_embeddings(
+        self,
+        text_col: pd.Series,
+    ) -> pd.Series:
+        """
+        Obtain embedding vectors from your text data using pre-trained large language models.
+
+        :param text_col: a pandas Series containing the different pieces of text.
+        :return: a pandas Series containing the embedding vectors.
+        """
+        if not isinstance(text_col, pd.Series):
+            raise TypeError("text_col must be a pandas Series")
+        self.check_invalid_index(field=text_col)
+
+        ds = Dataset.from_dict({"text": text_col})
 
         ds.set_transform(partial(self.tokenize, text_feat_name="text"))
         logger.info("Generating embedding vectors")
