@@ -10,7 +10,9 @@ from arize.pandas.validation.errors import InvalidAdditionalHeaders
 from arize.utils.constants import (
     MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
     MAX_PAST_YEARS_FROM_CURRENT_TIME,
+    MAX_PREDICTION_ID_LEN,
     MAX_TAG_LENGTH,
+    MIN_PREDICTION_ID_LEN,
 )
 from arize.utils.types import (
     Environments,
@@ -1129,7 +1131,8 @@ def test_prediction_id():
             )
             assert False, msg
 
-    short_prediction_id = "2-small"
+    short_prediction_id = "x" * (MIN_PREDICTION_ID_LEN - 1)
+    long_prediction_id = "x" * (MAX_PREDICTION_ID_LEN + 1)
     incorrect_cases = [
         {
             # test case - None prediction_id, Production, delayed record
@@ -1154,10 +1157,10 @@ def test_prediction_id():
         },
         {
             # test case - Wrong length prediction_id, Production, not a delayed record
-            "prediction_id": short_prediction_id,
+            "prediction_id": long_prediction_id,
             "environment": Environments.PRODUCTION,
             "prediction_label": inputs["label_str"],
-            "err_msg": f"The string length of prediction_id {short_prediction_id} must be between",
+            "err_msg": f"The string length of prediction_id {long_prediction_id} must be between",
         },
     ]
     for case in incorrect_cases:
@@ -1283,9 +1286,9 @@ def test_instantiating_client_additional_header():
     expected = {
         "authorization": inputs["api_key"],
         "Grpc-Metadata-space": inputs["space_key"],
+        "Grpc-Metadata-sdk-language": "python",
+        "Grpc-Metadata-language-version": get_python_version(),
         "Grpc-Metadata-sdk-version": arize.__version__,
-        "Grpc-Metadata-python-version": get_python_version(),
-        "Grpc-Metadata-sdk": "py",
         "JWT": "FAKE_VALUE",
     }
     assert c._header == expected

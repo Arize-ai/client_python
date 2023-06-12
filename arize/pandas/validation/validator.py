@@ -24,6 +24,7 @@ from arize.utils.types import (
     ModelTypes,
     Schema,
 )
+from arize.utils.utils import is_delayed_schema
 
 
 class Validator:
@@ -59,7 +60,7 @@ class Validator:
         # general checks
         general_checks = chain(
             Validator._check_column_names_for_empty_strings(schema),
-            Validator._check_existence_prediction_id_column_delayed_records(schema),
+            Validator._check_existence_prediction_id_column_delayed_schema(schema),
             Validator._check_invalid_model_id(model_id),
             Validator._check_invalid_model_version(model_version),
             Validator._check_invalid_model_type(model_type),
@@ -335,9 +336,7 @@ class Validator:
                             is_valid_combination = True
                             # If no prediction values are present, then delayed actuals are being
                             # logged, and we can't validate required columns.
-                            if (schema.prediction_label_column_name is not None) or (
-                                schema.prediction_score_column_name is not None
-                            ):
+                            if schema.has_prediction_columns():
                                 # This is a list of lists.
                                 # In some cases, either one set of columns OR another set of
                                 # columns is required.
@@ -360,38 +359,15 @@ class Validator:
         return True, missing_columns, []
 
     @staticmethod
-    def _check_existence_prediction_id_column_delayed_records(
+    def _check_existence_prediction_id_column_delayed_schema(
         schema: Schema,
     ) -> List[err.MissingPredictionIdColumnForDelayedRecords]:
         if schema.prediction_id_column_name is not None:
             return []
-        prediction_cols = (
-            schema.prediction_label_column_name,
-            schema.prediction_score_column_name,
-            schema.rank_column_name,
-            schema.prediction_group_id_column_name,
-            schema.object_detection_prediction_column_names,
-        )
-        actual_cols = (
-            schema.actual_label_column_name,
-            schema.actual_score_column_name,
-            schema.relevance_labels_column_name,
-            schema.relevance_score_column_name,
-            schema.object_detection_actual_column_names,
-        )
-        feature_importance_cols = (schema.shap_values_column_names,)
-
-        has_prediction_info = any(col is not None for col in prediction_cols)
-        has_actual_info = any(col is not None for col in actual_cols)
-        has_feature_importance_info = any(col is not None for col in feature_importance_cols)
-
-        is_delayed_record = (
-            has_actual_info or has_feature_importance_info
-        ) and not has_prediction_info
-        if is_delayed_record:
+        if is_delayed_schema(schema):
             return [
                 err.MissingPredictionIdColumnForDelayedRecords(
-                    has_actual_info, has_feature_importance_info
+                    schema.has_actual_columns(), schema.has_feature_importance_columns()
                 )
             ]
         # Warning for when prediction_id is not provided by the user and we generate the default
@@ -653,11 +629,20 @@ class Validator:
         schema: Schema,
     ) -> List[err.MissingRequiredColumnsForRankingModel]:
         # prediction_group_id and rank columns are required as ranking prediction columns.
+        ranking_prediction_cols = (
+            schema.prediction_label_column_name,
+            schema.prediction_score_column_name,
+            schema.rank_column_name,
+            schema.prediction_group_id_column_name,
+        )
+        has_prediction_info = any(col is not None for col in ranking_prediction_cols)
         required = (
             schema.prediction_group_id_column_name,
             schema.rank_column_name,
         )
-        if any(col is None for col in required):
+        # If there is prediction information (not delayed actuals),
+        # there must exist a rank and prediction group id columns
+        if has_prediction_info and any(col is None for col in required):
             return [err.MissingRequiredColumnsForRankingModel()]
         return []
 
@@ -694,7 +679,13 @@ class Validator:
                 pa.int8(),
             )
             if column_types[col] not in allowed_datatypes:
-                return [err.InvalidType("Prediction IDs", expected_types=["str", "int"])]
+                return [
+                    err.InvalidType(
+                        "Prediction IDs",
+                        expected_types=["str", "int"],
+                        found_data_type=column_types[col],
+                    )
+                ]
         return []
 
     @staticmethod
@@ -716,6 +707,7 @@ class Validator:
                     err.InvalidType(
                         "Prediction timestamp",
                         expected_types=["Date", "Timestamp", "int", "float"],
+                        found_data_type=t,
                     )
                 ]
         return []
@@ -735,6 +727,7 @@ class Validator:
                 pa.float32(),
                 pa.int16(),
                 pa.int8(),
+                pa.null(),
             )
             wrong_type_cols = []
             for col in schema.feature_column_names:
@@ -825,6 +818,7 @@ class Validator:
                 pa.float32(),
                 pa.int16(),
                 pa.int8(),
+                pa.null(),
             )
             wrong_type_cols = []
             for col in schema.tag_column_names:
@@ -883,7 +877,11 @@ class Validator:
                     and column_types[col] not in allowed_datatypes
                 ):
                     errors.append(
-                        err.InvalidType(name, expected_types=["float", "int", "bool", "str"])
+                        err.InvalidType(
+                            name,
+                            expected_types=["float", "int", "bool", "str"],
+                            found_data_type=column_types[col],
+                        )
                     )
         elif model_type in NUMERIC_MODEL_TYPES:
             # should mirror server side
@@ -894,6 +892,7 @@ class Validator:
                 pa.int32(),
                 pa.int16(),
                 pa.int8(),
+                pa.null(),
             )
             for name, col in columns:
                 if (
@@ -901,7 +900,11 @@ class Validator:
                     and col in column_types
                     and column_types[col] not in allowed_datatypes
                 ):
-                    errors.append(err.InvalidType(name, expected_types=["float", "int"]))
+                    errors.append(
+                        err.InvalidType(
+                            name, expected_types=["float", "int"], found_data_type=column_types[col]
+                        )
+                    )
         return errors
 
     @staticmethod
@@ -935,7 +938,11 @@ class Validator:
                     and col in column_types
                     and column_types[col] not in allowed_datatypes
                 ):
-                    errors.append(err.InvalidType(name, expected_types=["float", "int"]))
+                    errors.append(
+                        err.InvalidType(
+                            name, expected_types=["float", "int"], found_data_type=column_types[col]
+                        )
+                    )
         return errors
 
     @staticmethod
@@ -1336,22 +1343,26 @@ class Validator:
         columns = ()
         if model_type == ModelTypes.RANKING:
             columns = (
-                ("Prediction IDs", schema.prediction_id_column_name),
-                ("Prediction Group IDs", schema.prediction_group_id_column_name),
-                ("Ranks", schema.rank_column_name),
+                ("Prediction ID", schema.prediction_id_column_name),
+                ("Prediction Group ID", schema.prediction_group_id_column_name),
+                ("Rank", schema.rank_column_name),
             )
         else:
-            columns = (("Prediction IDs", schema.prediction_id_column_name),)
+            columns = (("Prediction ID", schema.prediction_id_column_name),)
             # TODO: add separate logic for objective detection and generative model types
         for name, col in columns:
             if col is not None and col in dataframe.columns:
                 if dataframe[col].isnull().any():
-                    errors.append(err.InvalidValueMissingValue(name, wrong_values="missing"))
+                    errors.append(
+                        err.InvalidValueMissingValue(name, wrong_values="missing", column=col)
+                    )
                 elif (
                     dataframe[col].dtype in (np.dtype("float64"), np.dtype("float32"))
                     and np.isinf(dataframe[col]).any()
                 ):
-                    errors.append(err.InvalidValueMissingValue(name, wrong_values="infinite"))
+                    errors.append(
+                        err.InvalidValueMissingValue(name, wrong_values="infinite", column=col)
+                    )
         return errors
 
     # _check_invalid_record_prod validates there's not a single row in the dataframe
@@ -1376,6 +1387,8 @@ class Validator:
             columns_to_validate = [
                 schema.prediction_label_column_name,
                 schema.prediction_score_column_name,
+                schema.prediction_group_id_column_name,
+                schema.rank_column_name,
                 schema.actual_label_column_name,
                 schema.actual_score_column_name,
                 schema.relevance_score_column_name,
@@ -1412,6 +1425,8 @@ class Validator:
             pred_columns_to_validate = [
                 schema.prediction_label_column_name,
                 schema.prediction_score_column_name,
+                schema.prediction_group_id_column_name,
+                schema.rank_column_name,
             ]
             actual_columns_to_validate = [
                 schema.actual_label_column_name,
@@ -1431,6 +1446,15 @@ class Validator:
     def _check_invalid_record_helper(
         dataframe: pd.DataFrame, column_names: List[str]
     ) -> List[err.InvalidRecord]:
+        """
+        This function checks that there are no null values in a subset of columns,
+        returning an error if so. The column subset is computed from the input list of
+        columns `column_names` that are not None and that are present in the dataframe
+
+        Returns:
+            List[err.InvalidRecord]: An error expressing the rows that are problematic
+        """
+
         columns_subset = []
         for col in column_names:
             if col is not None and col in dataframe.columns:
@@ -1458,7 +1482,13 @@ class Validator:
                 pa.int8(),
             )
             if column_types[col] not in allowed_datatypes:
-                return [err.InvalidType("prediction_group_ids", expected_types=["str", "int"])]
+                return [
+                    err.InvalidType(
+                        "prediction_group_ids",
+                        expected_types=["str", "int"],
+                        found_data_type=column_types[col],
+                    )
+                ]
         return []
 
     @staticmethod
@@ -1472,7 +1502,11 @@ class Validator:
                 pa.int8(),
             )
             if column_types[col] not in allowed_datatypes:
-                return [err.InvalidType("rank", expected_types=["int"])]
+                return [
+                    err.InvalidType(
+                        "rank", expected_types=["int"], found_data_type=column_types[col]
+                    )
+                ]
         return []
 
     @staticmethod
@@ -1486,12 +1520,13 @@ class Validator:
         else:
             col = schema.actual_label_column_name
         if col is not None and col in column_types:
-            allowed_datatypes = (pa.list_(pa.string()), pa.string())
+            allowed_datatypes = (pa.list_(pa.string()), pa.string(), pa.null())
             if column_types[col] not in allowed_datatypes:
                 return [
                     err.InvalidType(
                         "relevance labels column for ranking models",
                         expected_types=["list of string", "string"],
+                        found_data_type=column_types[col],
                     )
                 ]
         return []

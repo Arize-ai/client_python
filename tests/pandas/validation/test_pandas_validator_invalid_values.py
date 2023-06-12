@@ -417,7 +417,7 @@ def test_tag_length():
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidTagLength
     err_string = (
-        f"Only tag values with less than or equal to {MAX_TAG_LENGTH} characters are supported."
+        f"Only tag values with less than or equal to {MAX_TAG_LENGTH} characters are supported. "
         f"The following tag columns have more than {MAX_TAG_LENGTH} characters: "
         "A."
     )

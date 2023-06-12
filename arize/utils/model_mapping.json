@@ -2,7 +2,8 @@
   "external_model_types": [
     "binary_classification",
     "regression",
-    "ranking"
+    "ranking",
+    "object_detection"
   ],
   "metric_families": [
     "classification",
@@ -19,12 +20,12 @@
           "metrics": [["classification"]],
           "required_columns": {
             "arrow": {
-                "required": [["prediction_label_column_name"]],
-                "latent": [["actual_label_column_name"]]
+              "required": [["prediction_label_column_name"]],
+              "latent": [["actual_label_column_name"]]
             },
             "generic": {
-                "required": [["prediction_label"]],
-                "latent": [["actual_label"]]
+              "required": [["prediction_label"]],
+              "latent": [["actual_label"]]
             }
           }
         },
@@ -48,19 +49,19 @@
           ],
           "required_columns": {
             "arrow": {
-                "required": [["prediction_label_column_name", "prediction_score_column_name"]],
-                "latent": [["actual_label_column_name"]]
+              "required": [
+                ["prediction_label_column_name", "prediction_score_column_name"]
+              ],
+              "latent": [["actual_label_column_name"]]
             },
             "generic": {
-                "required": [["prediction_label", "prediction_score"]],
-                "latent": [["actual_label"]]
+              "required": [["prediction_label", "prediction_score"]],
+              "latent": [["actual_label"]]
             }
           }
         },
         {
-          "metrics": [
-            ["auc_log_loss"]
-          ],
+          "metrics": [["auc_log_loss"]],
           "required_columns": {
             "arrow": {
               "required": [["prediction_score_column_name"]],
@@ -73,13 +74,13 @@
           }
         },
         {
-          "metrics": [
-            ["regression", "auc_log_loss"]
-          ],
+          "metrics": [["regression", "auc_log_loss"]],
           "required_columns": {
             "arrow": {
               "required": [["prediction_score_column_name"]],
-              "latent": [["actual_score_column_name", "actual_label_column_name"]]
+              "latent": [
+                ["actual_score_column_name", "actual_label_column_name"]
+              ]
             },
             "generic": {
               "required": [["prediction_score"]],
@@ -88,15 +89,19 @@
           }
         },
         {
-          "metrics": [["auc_log_loss","classification", "regression"]],
+          "metrics": [["auc_log_loss", "classification", "regression"]],
           "required_columns": {
             "arrow": {
-                "required": [["prediction_label_column_name", "prediction_score_column_name"]],
-                "latent": [["actual_label_column_name", "actual_score_column_name"]]
+              "required": [
+                ["prediction_label_column_name", "prediction_score_column_name"]
+              ],
+              "latent": [
+                ["actual_label_column_name", "actual_score_column_name"]
+              ]
             },
             "generic": {
-                "required": [["prediction_label", "prediction_score"]],
-                "latent": [["actual_label", "actual_score"]]
+              "required": [["prediction_label", "prediction_score"]],
+              "latent": [["actual_label", "actual_score"]]
             }
           }
         }
@@ -109,12 +114,15 @@
           "metrics": [["regression"]],
           "required_columns": {
             "arrow": {
-                "required": [["prediction_score_column_name"],["prediction_label_column_name"]],
-                "latent": [["actual_score_column_name"]]
+              "required": [
+                ["prediction_score_column_name"],
+                ["prediction_label_column_name"]
+              ],
+              "latent": [["actual_score_column_name"]]
             },
             "generic": {
-                "required": [["prediction_score"]],
-                "latent": [["actual_score"]]
+              "required": [["prediction_score"]],
+              "latent": [["actual_score"]]
             }
           }
         }
@@ -127,8 +135,11 @@
           "metrics": [["ranking"]],
           "required_columns": {
             "arrow": {
-                "required": [["rank_column_name"]],
-                "latent": [["relevance_labels_column_name"], ["relevance_score_column_name"]]
+              "required": [["rank_column_name"]],
+              "latent": [
+                ["relevance_labels_column_name"],
+                ["relevance_score_column_name"]
+              ]
             },
             "generic": {
               "required": [["rank"]],
@@ -137,14 +148,14 @@
           }
         },
         {
-          "metrics": [["ranking_label"],["ranking", "ranking_label"]],
+          "metrics": [["ranking_label"], ["ranking", "ranking_label"]],
           "required_columns": {
             "arrow": {
               "required": [["rank_column_name"]],
               "latent": [["relevance_labels_column_name"]]
             },
             "generic": {
-              "required": [["rank","prediction_label"]],
+              "required": [["rank", "prediction_label"]],
               "latent": [["actual_label"]]
             }
           }
@@ -153,12 +164,32 @@
           "metrics": [["ranking", "auc_log_loss"], ["auc_log_loss"]],
           "required_columns": {
             "arrow": {
-              "required": [["rank_column_name", "prediction_score_column_name"]],
+              "required": [
+                ["rank_column_name", "prediction_score_column_name"]
+              ],
               "latent": [["relevance_labels_column_name"]]
             },
             "generic": {
               "required": [["rank", "prediction_score"]],
               "latent": [["actual_label"]]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "external_model_type": "object_detection",
+      "mappings": [
+        {
+          "metrics": [["classification"]],
+          "required_columns": {
+            "arrow": {
+              "required": [["object_detection_prediction_column_names"]],
+              "latent": [["object_detection_actual_column_names"]]
+            },
+            "generic": {
+              "required": [["object_detection_prediction"]],
+              "latent": [["object_detection_actual"]]
             }
           }
         }

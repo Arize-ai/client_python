@@ -29,10 +29,11 @@ def test_invalid_environment():
 
 
 def test_Invalid_type():
-    err_msg = str(err.InvalidType("123", ["456", "789"]))
+    err_msg = str(err.InvalidType("123", ["456", "789"], "112"))
     assert "123" in err_msg
     assert "456" in err_msg
     assert "789" in err_msg
+    assert "112" in err_msg
 
 
 def test_invalid_type_features():

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
-from typing import List
+from typing import List, Optional
 
 from arize.utils.constants import (
     MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
@@ -119,7 +119,7 @@ class MissingPredictionIdColumnForDelayedRecords(ValidationError):
         return (
             "Missing 'prediction_id_column_name'. While prediction id is optional for most cases, "
             "it is required when sending delayed actuals, i.e. when sending actual or feature importances "
-            f"without predictions. In this case, {msg} information was found (without predictions)"
+            f"without predictions. In this case, {msg} information was found (without predictions). "
             "To learn more about delayed joins, please see the docs at "
             "https://docs.arize.com/arize/sending-data-guides/how-to-send-delayed-actuals"
         )
@@ -406,9 +406,10 @@ class InvalidType(ValidationError):
     def __repr__(self) -> str:
         return "Invalid_Type"
 
-    def __init__(self, name: str, expected_types: List[str]) -> None:
+    def __init__(self, name: str, expected_types: List[str], found_data_type: str) -> None:
         self.name = name
         self.expected_types = expected_types
+        self.found_data_type = found_data_type
 
     def error_message(self) -> str:
         type_list = (
@@ -416,7 +417,11 @@ class InvalidType(ValidationError):
             if len(self.expected_types) == 1
             else f"{', '.join(map(str, self.expected_types[:-1]))} or {self.expected_types[-1]}"
         )
-        return f"{self.name} must be of type {type_list}."
+        return (
+            f"{self.name} must be of type {type_list} but found {self.found_data_type}. "
+            "Warning: if you are sending a column with integers, presence of a null "
+            "value can convert the data type of the entire column to float."
+        )
 
 
 class InvalidTypeColumns(ValidationError):
@@ -564,12 +569,18 @@ class InvalidValueMissingValue(ValidationError):
     def __repr__(self) -> str:
         return "Invalid_Missing_Value"
 
-    def __init__(self, name: str, wrong_values: str) -> None:
+    def __init__(self, name: str, wrong_values: str, column: Optional[str] = None) -> None:
         self.name = name
         self.wrong_values = wrong_values
+        self.column = column
 
     def error_message(self) -> str:
-        return f"{self.name} must not contain {self.wrong_values} values."
+        if self.name in ["Prediction ID", "Prediction Group ID", "Rank"]:
+            return (
+                f"{self.name} column '{self.column}' must not contain {self.wrong_values} values."
+            )
+        else:
+            return f"{self.name} must not contain {self.wrong_values} values."
 
 
 class InvalidRankValue(ValidationError):
@@ -613,7 +624,7 @@ class InvalidTagLength(ValidationError):
 
     def error_message(self) -> str:
         return (
-            f"Only tag values with less than or equal to {MAX_TAG_LENGTH} characters are supported."
+            f"Only tag values with less than or equal to {MAX_TAG_LENGTH} characters are supported. "
             f"The following tag columns have more than {MAX_TAG_LENGTH} characters: "
             f"{', '.join(map(str, self.wrong_value_columns))}."
         )
@@ -767,6 +778,8 @@ class InvalidRecord(ValidationError):
 
     def error_message(self) -> str:
         return (
-            f"{', '.join(self.columns)} must not all be null at row"
-            f"{', '.join(str(x) for x in self.indexes)}"
+            f"columns {', '.join(self.columns)} have all null values in the following rows: "
+            f"{', '.join(str(x) for x in self.indexes)}. This violates one of the following requirements: \n"
+            "Prediction or actual columns cannot all be null for training models.\n"
+            "Prediction and actual columns cannot all be null for production models.\n"
         )

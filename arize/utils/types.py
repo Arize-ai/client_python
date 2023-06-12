@@ -226,6 +226,22 @@ class ObjectDetectionColumnNames(NamedTuple):
     bounding_boxes_coordinates_column_name: str
     categories_column_name: str
     scores_column_name: Optional[str] = None
+    """
+    Used to log object detection prediction and actual values that are assigned to the prediction or
+    actual schema parameter.
+
+    Arguments:
+    ----------
+        bounding_boxes_coordinates_column_name (str): Column name containing the coordinates of the
+            rectangular outline that locates an object within an image or video. Pascal VOC format
+            required. The contents of this column must be a List[List[float]].
+        categories_column_name (str): Column name containing the predefined classes or labels used
+            by the model to classify the detected objects. The contents of this column must be List[str].
+        scores_column_names (str, optional): Column name containint the confidence scores that the
+            model assigns to it's predictions, indicating how certain the model is that the predicted
+            class is contained within the bounding box. This argument is only applicable for prediction
+            values. The contents of this column must be List[float].
+    """
 
 
 class ObjectDetectionLabel(NamedTuple):
@@ -527,6 +543,30 @@ class Schema:
                 columns_used.add(self.response_column_names.data_column_name)
 
         return columns_used
+
+    def has_prediction_columns(self) -> bool:
+        prediction_cols = (
+            self.prediction_label_column_name,
+            self.prediction_score_column_name,
+            self.rank_column_name,
+            self.prediction_group_id_column_name,
+            self.object_detection_prediction_column_names,
+        )
+        return any(col is not None for col in prediction_cols)
+
+    def has_actual_columns(self) -> bool:
+        actual_cols = (
+            self.actual_label_column_name,
+            self.actual_score_column_name,
+            self.relevance_labels_column_name,
+            self.relevance_score_column_name,
+            self.object_detection_actual_column_names,
+        )
+        return any(col is not None for col in actual_cols)
+
+    def has_feature_importance_columns(self) -> bool:
+        feature_importance_cols = (self.shap_values_column_names,)
+        return any(col is not None for col in feature_importance_cols)
 
 
 T = TypeVar("T", bound=type)

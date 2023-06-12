@@ -3,7 +3,6 @@ import concurrent.futures as cf
 import time
 from typing import Dict, Optional, Tuple, Union
 
-import numpy as np
 from arize.pandas.validation.errors import InvalidAdditionalHeaders
 from arize.utils.constants import (
     MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
@@ -105,9 +104,9 @@ class Client:
         self._header = {
             "authorization": api_key,
             "Grpc-Metadata-space": space_key,
-            "Grpc-Metadata-python-version": get_python_version(),
+            "Grpc-Metadata-sdk-language": "python",
+            "Grpc-Metadata-language-version": get_python_version(),
             "Grpc-Metadata-sdk-version": __version__,
-            "Grpc-Metadata-sdk": "py",
         }
         if additional_headers is not None:
             if conflicting_keys := self._header.keys() & additional_headers.keys():
@@ -425,8 +424,6 @@ def _validate_numeric_label(
             f"label {label} has type {type(label)}, but must be either float or int for "
             f"ModelTypes.{model_type}"
         )
-    elif label is np.nan:
-        raise ValueError(f"label for ModelTypes.{model_type} cannot be null value")
 
 
 def _validate_categorical_label(
@@ -448,10 +445,6 @@ def _validate_categorical_label(
         raise TypeError(
             f"label {label} has type {type(label)}, but must be str, bool, int, float or Tuple[str, "
             f"float] for ModelTypes.{model_type}"
-        )
-    if isinstance(label, tuple) and label[1] is np.nan:
-        raise ValueError(
-            f"Prediction confidence score for ModelTypes.{model_type} cannot be null value"
         )
 
 

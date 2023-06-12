@@ -7,7 +7,7 @@ from arize.pandas.validation.errors import (
     MissingRequiredColumnsMetricsValidation,
 )
 from arize.pandas.validation.validator import Validator
-from arize.utils.types import Environments, Metrics, ModelTypes, Schema
+from arize.utils.types import Environments, Metrics, ModelTypes, ObjectDetectionColumnNames, Schema
 
 
 def test__check_model_type_metrics_no_metrics_selected():
@@ -217,6 +217,35 @@ def test__check_model_type_metrics_ranking_with_ranking_auc_logloss_metrics():
     assert type(errors[0]) is MissingRequiredColumnsMetricsValidation
 
 
+def test__check_model_type_metrics_object_detection_with_classification_metrics():
+    kwargs = get_object_detection_kwargs()
+    errors = Validator.validate_params(
+        **ChainMap(
+            kwargs,
+        ),
+    )
+    assert len(errors) == 0
+
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    prediction_label_column_name="prediction_id",
+                    object_detection_actual_column_names=ObjectDetectionColumnNames(
+                        bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
+                        categories_column_name="bounding_boxes_categories",
+                        scores_column_name="bounding_boxes_scores",
+                    ),
+                ),
+            },
+            kwargs,
+        ),
+    )
+    assert len(errors) == 2
+    assert MissingRequiredColumnsMetricsValidation in (type(e) for e in errors)
+
+
 # Helpers #
 
 classification_with_score = {
@@ -311,6 +340,49 @@ kwargs = {
         prediction_label_column_name="prediction_label",
     ),
 }
+
+
+def get_object_detection_kwargs():
+    return {
+        "model_id": "object_detection",
+        "model_type": ModelTypes.OBJECT_DETECTION,
+        "environment": Environments.PRODUCTION,
+        "metric_families": [Metrics.CLASSIFICATION],
+        "dataframe": pd.DataFrame(
+            {
+                "prediction_id": pd.Series(["0"]),
+                "bounding_boxes_coordinates": pd.Series(
+                    [
+                        [[0.31, 0.32, 0.33, 0.34], [0.31, 0.32, 0.33, 0.34]],
+                    ]
+                ),
+                "bounding_boxes_categories": pd.Series(
+                    [
+                        ["dog", "cat"],
+                    ]
+                ),
+                "bounding_boxes_scores": pd.Series(
+                    [
+                        [0.18, 0.33],
+                    ]
+                ),
+            }
+        ),
+        "schema": Schema(
+            prediction_id_column_name="prediction_id",
+            object_detection_prediction_column_names=ObjectDetectionColumnNames(
+                bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
+                categories_column_name="bounding_boxes_categories",
+                scores_column_name="bounding_boxes_scores",
+            ),
+            object_detection_actual_column_names=ObjectDetectionColumnNames(
+                bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
+                categories_column_name="bounding_boxes_categories",
+                scores_column_name="bounding_boxes_scores",
+            ),
+        ),
+    }
+
 
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__]))
