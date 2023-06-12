@@ -67,7 +67,17 @@ def test_rank_is_not_null_and_between_1_and_100():
     # missing value
     errors = Validator.validate_values(
         **ChainMap(
-            {"dataframe": pd.DataFrame({"ranking_rank": ranks_with_none})},
+            {
+                "dataframe": pd.DataFrame(
+                    {
+                        "ranking_rank": ranks_with_none,
+                        "ranking_category": pd.Series(
+                            [["click", "purchase"], ["click", "favor"], ["favor"], ["click"]]
+                        ),
+                        "ranking_relevance": pd.Series([1, 0, 2, 0]),
+                    }
+                )
+            },
             kwargs,
         )
     )
@@ -88,7 +98,20 @@ def test_prediction_group_id_length():
     long_ids = pd.Series(["A" * 129] * 4)
 
     errors = Validator.validate_values(
-        **ChainMap({"dataframe": pd.DataFrame({"prediction_group_id": null_ids})}, kwargs)
+        **ChainMap(
+            {
+                "dataframe": pd.DataFrame(
+                    {
+                        "prediction_group_id": null_ids,
+                        "ranking_category": pd.Series(
+                            [["click", "purchase"], ["click", "favor"], ["favor"], ["click"]]
+                        ),
+                        "ranking_relevance": pd.Series([1, 0, 2, 0]),
+                    }
+                )
+            },
+            kwargs,
+        )
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidValueMissingValue

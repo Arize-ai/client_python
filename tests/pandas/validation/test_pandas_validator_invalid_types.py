@@ -18,7 +18,7 @@ def test_zero_errors():
 
 
 # may need to revisit this case
-def test_reject_all_nones():
+def test_accept_all_nones():
     kwargs = get_kwargs()
     errors = Validator.validate_types(
         **ChainMap(
@@ -28,9 +28,7 @@ def test_reject_all_nones():
             kwargs,
         )
     )
-    assert len(errors) == 2
-    assert type(errors[0]) is err.InvalidTypeFeatures
-    assert type(errors[1]) is err.InvalidTypeTags
+    assert len(errors) == 0
 
 
 def test_invalid_type_prediction_id():

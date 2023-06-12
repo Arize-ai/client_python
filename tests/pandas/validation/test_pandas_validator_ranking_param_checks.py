@@ -49,6 +49,26 @@ def test_ranking_param_check_happy_path():
     assert len(errors) == 0
 
 
+def test_ranking_param_check_allow_delayed_actuals():
+    # The following Schema has no prediction information
+    # we should allow delayed actuals
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    timestamp_column_name="prediction_timestamp",
+                    feature_column_names=["item_type"],
+                    actual_score_column_name="ranking_relevance",
+                    actual_label_column_name="ranking_category",
+                )
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 0
+
+
 def test_ranking_param_check_missing_prediction_group_id():
     errors = Validator.validate_params(
         **ChainMap(

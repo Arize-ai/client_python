@@ -375,7 +375,12 @@ class Client:
         if model_type == ModelTypes.RANKING and schema.relevance_score_column_name is not None:
             s.arrow_schema.actual_score_column_name = schema.relevance_score_column_name
         elif schema.actual_score_column_name is not None:
-            s.arrow_schema.actual_score_column_name = schema.actual_score_column_name
+            if model_type in NUMERIC_MODEL_TYPES:
+                # allow numeric prediction to be sent in as either prediction_label (legacy) or
+                # prediction_score.
+                s.arrow_schema.actual_label_column_name = schema.actual_score_column_name
+            else:
+                s.arrow_schema.actual_score_column_name = schema.actual_score_column_name
 
         if schema.shap_values_column_names is not None:
             s.arrow_schema.shap_values_column_names.update(schema.shap_values_column_names)
@@ -462,9 +467,9 @@ class Client:
                 "authorization": self._api_key,
                 "space": self._space_key,
                 "schema": schema,
-                "python-version": get_python_version(),
+                "sdk-language": "python",
+                "language-version": get_python_version(),
                 "sdk-version": __version__,
-                "sdk": "py",
             }
             headers.update(self._additional_headers)
             if sync:

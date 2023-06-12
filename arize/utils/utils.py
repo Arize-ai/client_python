@@ -204,3 +204,19 @@ def overwrite_schema_fields(schema1: Schema, schema2: Schema) -> Schema:
         schema = schema.replace(shap_values_column_names=shap_val_col_names)
 
     return schema
+
+
+def is_delayed_schema(schema: Schema) -> bool:
+    """
+    This function checks if the given schema, according to the columns provided by the user,
+    has inherently latent information
+    Args:
+        schema (Schema): The schema to analyze
+
+    Returns:
+        bool: True if the schema is "delayed", i.e., does not possess prediction columns and has actual or
+        feature importance columns.
+    """
+    return (
+        schema.has_actual_columns() or schema.has_feature_importance_columns()
+    ) and not schema.has_prediction_columns()

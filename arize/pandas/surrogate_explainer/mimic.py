@@ -6,7 +6,7 @@ from typing import Callable, Tuple
 import numpy as np
 import pandas as pd
 from arize.pandas.logger import Schema
-from arize.utils.types import CATEGORICAL_MODEL_TYPES, ModelTypes
+from arize.utils.types import CATEGORICAL_MODEL_TYPES, NUMERIC_MODEL_TYPES, ModelTypes
 from interpret_community.mimic.mimic_explainer import LGBMExplainableModel, MimicExplainer
 from sklearn.preprocessing import LabelEncoder
 
@@ -62,8 +62,10 @@ class Mimic:
             def model_func(_):
                 return np.column_stack((1 - y, y))
 
-        elif model_type == ModelTypes.NUMERIC:
+        elif model_type in NUMERIC_MODEL_TYPES:
             y_col_name = schema.prediction_label_column_name
+            if schema.prediction_score_column_name is not None:
+                y_col_name = schema.prediction_score_column_name
             y = df[y_col_name].to_numpy()
 
             _finite_count = np.isfinite(y).sum()
