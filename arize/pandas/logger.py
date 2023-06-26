@@ -54,20 +54,21 @@ class Client:
         self._api_key = api_key
         self._space_key = space_key
         self._files_uri = uri + "/pandas_arrow"
-        self._additional_headers = {}
+        self._headers = {
+            "authorization": self._api_key,
+            "space": self._space_key,
+            "sdk-language": "python",
+            "language-version": get_python_version(),
+            "sdk-version": __version__,
+            "sync": "0",  # Defaults to async logging
+        }
         if additional_headers is not None:
-            reserved_headers = {
-                "authorization",
-                "space",
-                "sdk-version",
-                "schema",
-                "sdk",
-                "python-version",
-                "sync",
-            }
+            reserved_headers = set(self._headers.keys())
+            # The header 'schema' is updated in the _post_file method
+            reserved_headers.add("schema")
             if conflicting_keys := reserved_headers & additional_headers.keys():
                 raise err.InvalidAdditionalHeaders(conflicting_keys)
-            self._additional_headers.update(additional_headers)
+            self._headers.update(additional_headers)
 
     def log(
         self,
@@ -225,6 +226,8 @@ class Client:
         try:
             if verbose:
                 logger.info("Getting pyarrow schema from pandas dataframe.")
+            # TODO: Addition of column for GENERATIVE models should occur at the
+            # beginning of the log function, so validations are applied to the resulting schema
             if (
                 model_type == ModelTypes.GENERATIVE_LLM
                 and schema.prediction_label_column_name is None
@@ -436,13 +439,7 @@ class Client:
         try:
             logger.info(f"Success! Check out your data at {reconstruct_url(response)}")
 
-            if (
-                schema.prediction_score_column_name is None
-                and schema.prediction_label_column_name is None
-                and schema.rank_column_name is None
-                and schema.prediction_group_id_column_name is None
-                and schema.object_detection_prediction_column_names is None
-            ):
+            if not schema.has_prediction_columns():
                 logger.warning(
                     "Logging actuals without any predictions may result in "
                     "unexpected behavior if corresponding predictions have not been logged prior. "
@@ -463,22 +460,13 @@ class Client:
         timeout: Optional[float] = None,
     ) -> requests.Response:
         with open(path, "rb") as f:
-            headers = {
-                "authorization": self._api_key,
-                "space": self._space_key,
-                "schema": schema,
-                "sdk-language": "python",
-                "language-version": get_python_version(),
-                "sdk-version": __version__,
-            }
-            headers.update(self._additional_headers)
-            if sync:
-                headers["sync"] = "1"
+            self._headers.update({"schema": schema})
+            self._headers.update({"sync": "1" if sync is True else "0"})
             return requests.post(
                 self._files_uri,
                 timeout=timeout,
                 data=f,
-                headers=headers,
+                headers=self._headers,
             )
 
     def _add_default_prediction_label_column(self, df: pd.DataFrame) -> pd.DataFrame:

@@ -59,7 +59,7 @@ class Mimic:
                 )
 
             # model func requires 1 positional argument
-            def model_func(_):
+            def model_func(_):  # type: ignore
                 return np.column_stack((1 - y, y))
 
         elif model_type in NUMERIC_MODEL_TYPES:
@@ -77,7 +77,7 @@ class Mimic:
                 )
 
             # model func requires 1 positional argument
-            def model_func(_):
+            def model_func(_):  # type: ignore
                 return y
 
         else:

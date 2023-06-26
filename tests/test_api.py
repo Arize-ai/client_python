@@ -5,6 +5,7 @@ import arize.public_pb2 as pb2
 import numpy as np
 import pandas as pd
 import pytest
+from arize import __version__ as arize_version
 from arize.api import Client, Embedding
 from arize.pandas.validation.errors import InvalidAdditionalHeaders
 from arize.utils.constants import (
@@ -22,7 +23,7 @@ from arize.utils.types import (
     RankingPredictionLabel,
 )
 from arize.utils.utils import get_python_version
-from google.protobuf.wrappers_pb2 import DoubleValue, StringValue
+from google.protobuf.wrappers_pb2 import BoolValue, DoubleValue, StringValue
 
 BOOL_VAL = True
 STR_VAL = "arize"
@@ -34,12 +35,6 @@ file_to_open = Path(__file__).parent / "fixtures/mpg.csv"
 inputs = {
     "model_id": "model_v0",
     "model_version": "v1.2.3.4",
-    "model_type_numeric": ModelTypes.NUMERIC,
-    "model_type_score_categorical": ModelTypes.SCORE_CATEGORICAL,
-    "model_type_regression": ModelTypes.REGRESSION,
-    "model_type_binary_classification": ModelTypes.BINARY_CLASSIFICATION,
-    "model_type_object_detection": ModelTypes.OBJECT_DETECTION,
-    "model_type_ranking": ModelTypes.RANKING,
     "batch_id": "batch_id",
     "batch": "batch1234",
     "api_key": "API_KEY",
@@ -100,6 +95,14 @@ inputs = {
         "feature_bool": BOOL_VAL,
         "feature_numpy_float": NP_FLOAT,
     },
+    "prompt": Embedding(
+        vector=pd.Series([4.0, 5.0, 6.0, 7.0]),
+        data="This is a test prompt",
+    ),
+    "response": Embedding(
+        vector=pd.Series([4.0, 5.0, 6.0, 7.0]),
+        data="This is a test response",
+    ),
 }
 
 
@@ -108,6 +111,7 @@ def _build_expected_record(
     p: pb2.PredictionLabel = None,
     a: pb2.ActualLabel = None,
     fi: pb2.FeatureImportances = None,
+    is_generative_llm_record: BoolValue = BoolValue(value=False),
 ) -> pb2.Record:
     return pb2.Record(
         space_key=inputs["space_key"],
@@ -117,6 +121,7 @@ def _build_expected_record(
         actual=a,
         feature_importances=fi,
         environment_params=ep,
+        is_generative_llm_record=is_generative_llm_record,
     )
 
 
@@ -148,16 +153,30 @@ def _build_basic_prediction(type: str) -> pb2.Prediction:
             prediction_label=pb2.PredictionLabel(numeric=inputs["label_float"]),
             model_version=inputs["model_version"],
         )
-    elif type == "score_categorical_bool":
+    elif type == "score_categorical_bool" or type == "generative_bool":
         sc = pb2.ScoreCategorical()
         sc.category.category = str(inputs["label_bool"])
         return pb2.Prediction(
             prediction_label=pb2.PredictionLabel(score_categorical=sc),
             model_version=inputs["model_version"],
         )
-    elif type == "score_categorical_str":
+    elif type == "score_categorical_str" or type == "generative_str":
         sc = pb2.ScoreCategorical()
         sc.category.category = inputs["label_str"]
+        return pb2.Prediction(
+            prediction_label=pb2.PredictionLabel(score_categorical=sc),
+            model_version=inputs["model_version"],
+        )
+    elif type == "score_categorical_int" or type == "generative_int":
+        sc = pb2.ScoreCategorical()
+        sc.score_value.value = inputs["label_int"]
+        return pb2.Prediction(
+            prediction_label=pb2.PredictionLabel(score_categorical=sc),
+            model_version=inputs["model_version"],
+        )
+    elif type == "score_categorical_float" or type == "generative_float":
+        sc = pb2.ScoreCategorical()
+        sc.score_value.value = inputs["label_float"]
         return pb2.Prediction(
             prediction_label=pb2.PredictionLabel(score_categorical=sc),
             model_version=inputs["model_version"],
@@ -210,15 +229,27 @@ def _build_basic_actual(type: str) -> pb2.Actual:
         return pb2.Actual(
             actual_label=pb2.ActualLabel(numeric=inputs["label_float"]),
         )
-    elif type == "score_categorical_bool":
+    elif type == "score_categorical_bool" or type == "generative_bool":
         sc = pb2.ScoreCategorical()
         sc.category.category = str(inputs["label_bool"])
         return pb2.Actual(
             actual_label=pb2.ActualLabel(score_categorical=sc),
         )
-    elif type == "score_categorical_str":
+    elif type == "score_categorical_str" or type == "generative_str":
         sc = pb2.ScoreCategorical()
         sc.category.category = inputs["label_str"]
+        return pb2.Actual(
+            actual_label=pb2.ActualLabel(score_categorical=sc),
+        )
+    elif type == "score_categorical_int" or type == "generative_int":
+        sc = pb2.ScoreCategorical()
+        sc.score_value.value = inputs["label_int"]
+        return pb2.Actual(
+            actual_label=pb2.ActualLabel(score_categorical=sc),
+        )
+    elif type == "score_categorical_float" or type == "generative_float":
+        sc = pb2.ScoreCategorical()
+        sc.score_value.value = inputs["label_float"]
         return pb2.Actual(
             actual_label=pb2.ActualLabel(score_categorical=sc),
         )
@@ -317,6 +348,36 @@ def _attach_embedding_features_to_prediction() -> pb2.Prediction:
     return pb2.Prediction(features=embedding_features)
 
 
+def _attach_prompt_and_response_to_prediction() -> pb2.Prediction:
+    input_prompt = inputs["prompt"]
+    input_response = inputs["response"]
+    embedding_features = {
+        "prompt": pb2.Value(
+            embedding=pb2.Embedding(
+                vector=input_prompt.vector,
+                raw_data=pb2.Embedding.RawData(
+                    tokenArray=pb2.Embedding.TokenArray(
+                        tokens=[input_prompt.data],  # List of a single string
+                    )
+                ),
+                link_to_data=StringValue(value=input_prompt.link_to_data),
+            )
+        ),
+        "response": pb2.Value(
+            embedding=pb2.Embedding(
+                vector=input_response.vector,
+                raw_data=pb2.Embedding.RawData(
+                    tokenArray=pb2.Embedding.TokenArray(
+                        tokens=[input_response.data],  # List of a single string
+                    )
+                ),
+                link_to_data=StringValue(value=input_response.link_to_data),
+            )
+        ),
+    }
+    return pb2.Prediction(features=embedding_features)
+
+
 def _attach_tags_to_prediction() -> pb2.Prediction:
     tags = {
         "tag_str": pb2.Value(string=STR_VAL),
@@ -363,7 +424,7 @@ def test_build_pred_and_actual_label_bool():
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
         environment=Environments.PRODUCTION,
-        model_type=inputs["model_type_score_categorical"],
+        model_type=ModelTypes.SCORE_CATEGORICAL,
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_bool"],
         actual_label=inputs["label_bool"],
@@ -395,7 +456,7 @@ def test_build_pred_and_actual_label_str():
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
         environment=Environments.PRODUCTION,
-        model_type=inputs["model_type_score_categorical"],
+        model_type=ModelTypes.SCORE_CATEGORICAL,
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_str"],
         actual_label=inputs["label_str"],
@@ -427,7 +488,7 @@ def test_build_pred_and_actual_label_int():
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
         environment=Environments.PRODUCTION,
-        model_type=inputs["model_type_numeric"],
+        model_type=ModelTypes.NUMERIC,
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_int"],
         actual_label=inputs["label_int"],
@@ -440,7 +501,7 @@ def test_build_pred_and_actual_label_int():
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
         environment=Environments.PRODUCTION,
-        model_type=inputs["model_type_regression"],
+        model_type=ModelTypes.REGRESSION,
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_int"],
         actual_label=inputs["label_int"],
@@ -472,7 +533,7 @@ def test_build_pred_and_actual_label_float():
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
         environment=Environments.PRODUCTION,
-        model_type=inputs["model_type_numeric"],
+        model_type=ModelTypes.NUMERIC,
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_float"],
         actual_label=inputs["label_float"],
@@ -485,7 +546,7 @@ def test_build_pred_and_actual_label_float():
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
         environment=Environments.PRODUCTION,
-        model_type=inputs["model_type_regression"],
+        model_type=ModelTypes.REGRESSION,
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_float"],
         actual_label=inputs["label_float"],
@@ -517,7 +578,7 @@ def test_build_pred_and_actual_label_tuple():
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
         environment=Environments.PRODUCTION,
-        model_type=inputs["model_type_score_categorical"],
+        model_type=ModelTypes.SCORE_CATEGORICAL,
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_tuple"],
         actual_label=inputs["label_tuple"],
@@ -530,7 +591,7 @@ def test_build_pred_and_actual_label_tuple():
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
         environment=Environments.PRODUCTION,
-        model_type=inputs["model_type_binary_classification"],
+        model_type=ModelTypes.BINARY_CLASSIFICATION,
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_tuple"],
         actual_label=inputs["label_tuple"],
@@ -572,7 +633,7 @@ def test_build_pred_and_actual_label_ranking():
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
         environment=Environments.PRODUCTION,
-        model_type=inputs["model_type_ranking"],
+        model_type=ModelTypes.RANKING,
         prediction_id=inputs["prediction_id"],
         prediction_label=pred_label,
         actual_label=act_label,
@@ -609,7 +670,7 @@ def test_build_wrong_timestamp():
             model_version=inputs["model_version"],
             environment=Environments.PRODUCTION,
             prediction_timestamp=wrong_min_time,
-            model_type=inputs["model_type_numeric"],
+            model_type=ModelTypes.NUMERIC,
             prediction_id=inputs["prediction_id"],
             prediction_label=inputs["label_float"],
             features=inputs["features"],
@@ -623,7 +684,7 @@ def test_build_wrong_timestamp():
             model_version=inputs["model_version"],
             environment=Environments.PRODUCTION,
             prediction_timestamp=wrong_max_time,
-            model_type=inputs["model_type_numeric"],
+            model_type=ModelTypes.NUMERIC,
             prediction_id=inputs["prediction_id"],
             prediction_label=inputs["label_float"],
             features=inputs["features"],
@@ -668,7 +729,7 @@ def test_build_wrong_ranking_rank():
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
             environment=Environments.PRODUCTION,
-            model_type=inputs["model_type_ranking"],
+            model_type=ModelTypes.RANKING,
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
             actual_label=act_label,
@@ -696,7 +757,7 @@ def test_ranking_group_id():
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
             environment=Environments.PRODUCTION,
-            model_type=inputs["model_type_ranking"],
+            model_type=ModelTypes.RANKING,
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
             actual_label=act_label,
@@ -717,7 +778,7 @@ def test_ranking_group_id():
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
             environment=Environments.PRODUCTION,
-            model_type=inputs["model_type_ranking"],
+            model_type=ModelTypes.RANKING,
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
             actual_label=act_label,
@@ -744,7 +805,7 @@ def test_build_wrong_ranking_relevance_labels():
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
             environment=Environments.PRODUCTION,
-            model_type=inputs["model_type_ranking"],
+            model_type=ModelTypes.RANKING,
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
             actual_label=act_label,
@@ -771,7 +832,7 @@ def test_build_wrong_ranking_relevance_scores():
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
             environment=Environments.PRODUCTION,
-            model_type=inputs["model_type_ranking"],
+            model_type=ModelTypes.RANKING,
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
             actual_label=act_label,
@@ -796,7 +857,7 @@ def test_build_pred_and_actual_label_object_detection():
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
         environment=Environments.PRODUCTION,
-        model_type=inputs["model_type_object_detection"],
+        model_type=ModelTypes.OBJECT_DETECTION,
         prediction_id=inputs["prediction_id"],
         prediction_label=pred_label,
         actual_label=act_label,
@@ -828,7 +889,7 @@ def test_build_prediction_no_embedding_features():
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
         environment=Environments.PRODUCTION,
-        model_type=inputs["model_type_numeric"],
+        model_type=ModelTypes.NUMERIC,
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_float"],
         features=inputs["features"],
@@ -855,7 +916,7 @@ def test_build_prediction_no_structured_features():
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
         environment=Environments.PRODUCTION,
-        model_type=inputs["model_type_numeric"],
+        model_type=ModelTypes.NUMERIC,
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_float"],
         embedding_features=inputs["embedding_features"],
@@ -881,7 +942,7 @@ def test_build_prediction_no_features():
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
         environment=Environments.PRODUCTION,
-        model_type=inputs["model_type_numeric"],
+        model_type=ModelTypes.NUMERIC,
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_float"],
         tags=inputs["tags"],
@@ -905,7 +966,7 @@ def test_build_prediction_no_tags():
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
         environment=Environments.PRODUCTION,
-        model_type=inputs["model_type_numeric"],
+        model_type=ModelTypes.NUMERIC,
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_float"],
         features=inputs["features"],
@@ -931,7 +992,7 @@ def test_build_prediction_no_tags_no_features():
         model_id=inputs["model_id"],
         model_version=inputs["model_version"],
         environment=Environments.PRODUCTION,
-        model_type=inputs["model_type_numeric"],
+        model_type=ModelTypes.NUMERIC,
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_float"],
     )
@@ -968,7 +1029,7 @@ def test_model_version_optional():
     record = c.log(
         model_id=inputs["model_id"],
         environment=Environments.PRODUCTION,
-        model_type=inputs["model_type_numeric"],
+        model_type=ModelTypes.NUMERIC,
         prediction_id=inputs["prediction_id"],
         prediction_label=inputs["label_float"],
     )
@@ -990,7 +1051,7 @@ def test_missing_environment():
         _ = c.log(
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
-            model_type=inputs["model_type_numeric"],
+            model_type=ModelTypes.NUMERIC,
             prediction_id=inputs["prediction_id"],
             prediction_label=inputs["label_str"],
             actual_label=inputs["label_str"],
@@ -1015,7 +1076,7 @@ def test_object_detection_item_count_match():
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
             environment=Environments.PRODUCTION,
-            model_type=inputs["model_type_object_detection"],
+            model_type=ModelTypes.OBJECT_DETECTION,
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
             features=inputs["features"],
@@ -1041,7 +1102,7 @@ def test_object_detection_wrong_coordinates_format():
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
             environment=Environments.PRODUCTION,
-            model_type=inputs["model_type_object_detection"],
+            model_type=ModelTypes.OBJECT_DETECTION,
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
             features=inputs["features"],
@@ -1060,7 +1121,7 @@ def test_object_detection_wrong_coordinates_format():
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
             environment=Environments.PRODUCTION,
-            model_type=inputs["model_type_object_detection"],
+            model_type=ModelTypes.OBJECT_DETECTION,
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
             features=inputs["features"],
@@ -1079,7 +1140,7 @@ def test_valid_prediction_id_embeddings():
     with pytest.raises(ValueError) as excinfo:
         _ = c.log(
             model_id=inputs["model_id"],
-            model_type=inputs["model_type_binary_classification"],
+            model_type=ModelTypes.BINARY_CLASSIFICATION,
             model_version=inputs["model_version"],
             environment=Environments.PRODUCTION,
             prediction_id="A" * 129,
@@ -1113,7 +1174,7 @@ def test_prediction_id():
         try:
             _ = c.log(
                 model_id=inputs["model_id"],
-                model_type=inputs["model_type_binary_classification"],
+                model_type=ModelTypes.BINARY_CLASSIFICATION,
                 model_version=inputs["model_version"],
                 environment=case["environment"],
                 prediction_id=case["prediction_id"],
@@ -1167,7 +1228,7 @@ def test_prediction_id():
         with pytest.raises(ValueError) as exc_info:
             _ = c.log(
                 model_id=inputs["model_id"],
-                model_type=inputs["model_type_binary_classification"],
+                model_type=ModelTypes.BINARY_CLASSIFICATION,
                 model_version=inputs["model_version"],
                 environment=case["environment"],
                 prediction_id=case["prediction_id"],
@@ -1193,7 +1254,7 @@ def test_object_detection_wrong_categories():
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
             environment=Environments.PRODUCTION,
-            model_type=inputs["model_type_object_detection"],
+            model_type=ModelTypes.OBJECT_DETECTION,
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
             features=inputs["features"],
@@ -1216,7 +1277,7 @@ def test_object_detection_wrong_scores():
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
             environment=Environments.PRODUCTION,
-            model_type=inputs["model_type_object_detection"],
+            model_type=ModelTypes.OBJECT_DETECTION,
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
             features=inputs["features"],
@@ -1235,7 +1296,7 @@ def test_object_detection_wrong_scores():
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
             environment=Environments.PRODUCTION,
-            model_type=inputs["model_type_object_detection"],
+            model_type=ModelTypes.OBJECT_DETECTION,
             prediction_id=inputs["prediction_id"],
             prediction_label=pred_label,
             features=inputs["features"],
@@ -1243,6 +1304,199 @@ def test_object_detection_wrong_scores():
             tags=inputs["tags"],
         )
     assert "Bounding box confidence scores must be between 0 and 1, inclusive" in str(excinfo.value)
+
+
+def test_valid_label_type_generative_model():
+    c = get_stubbed_client()
+    # Test allowed label types
+    for label_type in ["str", "bool", "int", "float"]:
+        prediction_label = inputs[f"label_{label_type}"]
+        actual_label = prediction_label
+        record = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            model_type=ModelTypes.GENERATIVE_LLM,
+            prediction_id=inputs["prediction_id"],
+            prediction_label=prediction_label,
+            actual_label=actual_label,
+            features=inputs["features"],
+            embedding_features=inputs["embedding_features"],
+            tags=inputs["tags"],
+            prompt=inputs["prompt"],
+            response=inputs["response"],
+        )
+        #   Get environment in proto format
+        ep = _get_proto_environment_params(Environments.PRODUCTION)
+        #   Start constructing expected result by building the prediction
+        p = _build_basic_prediction(f"generative_{label_type}")
+        a = _build_basic_actual(f"generative_{label_type}")
+        #   Add props to prediction according to this test
+        p.MergeFrom(_attach_features_to_prediction())
+        p.MergeFrom(_attach_embedding_features_to_prediction())
+        p.MergeFrom(_attach_prompt_and_response_to_prediction())
+        p.MergeFrom(_attach_tags_to_prediction())
+        #   Add props to actual according to this test
+        a.MergeFrom(_attach_tags_to_actual())
+        #   Build expected record using built prediction
+        expected_record = _build_expected_record(
+            p=p, a=a, ep=ep, is_generative_llm_record=BoolValue(value=True)
+        )
+        #   Check result is as expected
+        assert record == expected_record
+
+
+def test_default_prediction_label_generative_model():
+    c = get_stubbed_client()
+    # Test allowed label types
+    record = c.log(
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        environment=Environments.PRODUCTION,
+        model_type=ModelTypes.GENERATIVE_LLM,
+        prediction_id=inputs["prediction_id"],
+        actual_label=inputs["label_int"],
+        features=inputs["features"],
+        embedding_features=inputs["embedding_features"],
+        tags=inputs["tags"],
+        prompt=inputs["prompt"],
+        response=inputs["response"],
+    )
+    #   Get environment in proto format
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
+    #   Start constructing expected result by building the prediction
+    # This prediction was not passed to the log call, but should be
+    # created by default for GENERATIVE models
+    sc = pb2.ScoreCategorical()
+    sc.score_value.value = 1
+    p = pb2.Prediction(
+        prediction_label=pb2.PredictionLabel(score_categorical=sc),
+        model_version=inputs["model_version"],
+    )
+    a = _build_basic_actual("generative_int")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_features_to_prediction())
+    p.MergeFrom(_attach_embedding_features_to_prediction())
+    p.MergeFrom(_attach_prompt_and_response_to_prediction())
+    p.MergeFrom(_attach_tags_to_prediction())
+    #   Add props to actual according to this test
+    a.MergeFrom(_attach_tags_to_actual())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(
+        p=p, a=a, ep=ep, is_generative_llm_record=BoolValue(value=True)
+    )
+    #   Check result is as expected
+    assert record == expected_record
+
+
+def test_invalid_generative_model():
+    c = get_stubbed_client()
+
+    # Test that GENERATIVE_LLM models must contain prompt and response. Missing prompt
+    with pytest.raises(ValueError) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            model_type=ModelTypes.GENERATIVE_LLM,
+            prediction_id=inputs["prediction_id"],
+            prediction_label=1,
+            features=inputs["features"],
+            tags=inputs["tags"],
+            prompt=inputs["prompt"],
+        )
+    assert "The following fields cannot be None for GENERATIVE_LLM models: prompt, response" in str(
+        excinfo.value
+    )
+    # Test that GENERATIVE_LLM models must contain prompt and response. Missing response
+    with pytest.raises(ValueError) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            model_type=ModelTypes.GENERATIVE_LLM,
+            prediction_id=inputs["prediction_id"],
+            prediction_label=1,
+            features=inputs["features"],
+            tags=inputs["tags"],
+            response=inputs["response"],
+        )
+    assert "The following fields cannot be None for GENERATIVE_LLM models: prompt, response" in str(
+        excinfo.value
+    )
+    # Test that GENERATIVE_LLM models cannot contain embedding named prompt or response
+    with pytest.raises(KeyError) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            model_type=ModelTypes.GENERATIVE_LLM,
+            prediction_id=inputs["prediction_id"],
+            prediction_label=1,
+            features=inputs["features"],
+            tags=inputs["tags"],
+            embedding_features={"prompt": inputs["prompt"]},
+            prompt=inputs["prompt"],
+            response=inputs["response"],
+        )
+    assert (
+        "embedding features cannot use the reserved feature names ('prompt', 'response') "
+        "for GENERATIVE_LLM models" in str(excinfo.value)
+    )
+    # Test that prompt and repsonse must be Embedding type for GENERATIVE_LLM models
+    with pytest.raises(TypeError) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            model_type=ModelTypes.GENERATIVE_LLM,
+            prediction_id=inputs["prediction_id"],
+            prediction_label=1,
+            features=inputs["features"],
+            tags=inputs["tags"],
+            prompt=2,
+            response=inputs["response"],
+        )
+    assert "Both prompt and response objects must be of type Embedding" in str(excinfo.value)
+
+
+def test_invalid_prompt_response_for_model_type():
+    c = get_stubbed_client()
+
+    # Test that 'prompt' must be None for models other than GENERATIVE_LLM
+    with pytest.raises(ValueError) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            model_type=ModelTypes.SCORE_CATEGORICAL,
+            prediction_id=inputs["prediction_id"],
+            prediction_label=1,
+            features=inputs["features"],
+            tags=inputs["tags"],
+            prompt=inputs["prompt"],
+        )
+    assert (
+        "The fields 'prompt' and 'response' must be None for model types other than GENERATIVE_LLM"
+        in str(excinfo.value)
+    )
+    # Test that 'response' must be None for models other than GENERATIVE_LLM
+    with pytest.raises(ValueError) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            model_type=ModelTypes.SCORE_CATEGORICAL,
+            prediction_id=inputs["prediction_id"],
+            prediction_label=1,
+            features=inputs["features"],
+            tags=inputs["tags"],
+            response=inputs["response"],
+        )
+    assert (
+        "The fields 'prompt' and 'response' must be None for model types other than GENERATIVE_LLM"
+        in str(excinfo.value)
+    )
 
 
 def test_invalid_tags():
@@ -1255,7 +1509,7 @@ def test_invalid_tags():
     with pytest.raises(ValueError) as excinfo:
         _ = c.log(
             model_id=inputs["model_id"],
-            model_type=inputs["model_type_binary_classification"],
+            model_type=ModelTypes.BINARY_CLASSIFICATION,
             model_version=inputs["model_version"],
             environment=Environments.PRODUCTION,
             prediction_id=inputs["prediction_id"],
@@ -1281,17 +1535,16 @@ def test_instantiating_client_duplicated_header():
 
 def test_instantiating_client_additional_header():
     c = get_stubbed_client({"JWT": "FAKE_VALUE"})
-    import arize
 
     expected = {
         "authorization": inputs["api_key"],
         "Grpc-Metadata-space": inputs["space_key"],
         "Grpc-Metadata-sdk-language": "python",
         "Grpc-Metadata-language-version": get_python_version(),
-        "Grpc-Metadata-sdk-version": arize.__version__,
+        "Grpc-Metadata-sdk-version": arize_version,
         "JWT": "FAKE_VALUE",
     }
-    assert c._header == expected
+    assert c._headers == expected
 
 
 if __name__ == "__main__":
