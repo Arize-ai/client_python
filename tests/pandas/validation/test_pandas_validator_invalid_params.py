@@ -686,6 +686,27 @@ def test_existence_prediction_id_column():
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.MissingPredictionIdColumnForDelayedRecords
+    # Test case - prediction_id_column_name None, latent actual, generative model type
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.GENERATIVE_LLM,
+                "schema": Schema(
+                    actual_label_column_name="actual_label",
+                    prompt_column_names=EmbeddingColumnNames(
+                        vector_column_name="prompt_vector",
+                        data_column_name="prompt_data",
+                    ),
+                    response_column_names=EmbeddingColumnNames(
+                        vector_column_name="response_vector",
+                        data_column_name="response_data",
+                    ),
+                ),
+            },
+            kwargs,
+        ),  # type: ignore
+    )
+    assert len(errors) == 0
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ ARIZE_API_KEY = os.getenv("ARIZE_API_KEY")
 
 # Default API endpoint when not provided through env variable nor profile
 DEFAULT_ARIZE_FLIGHT_HOST = "flight.arize.com"
-DEFAULT_ARIZE_FLIGHT_PORT = "443"
+DEFAULT_ARIZE_FLIGHT_PORT = 443
 
 # Name of the current package.
 DEFAULT_PACKAGE_NAME = "arize_python_export_client"
@@ -41,3 +41,6 @@ DEFAULT_RETRY_INITIAL_WAIT_TIME = 0.25
 
 # Default maximum wait time for retries in seconds.
 DEFAULT_RETRY_MAX_WAIT_TIME = 10.0
+
+# Default to use grpc + tls scheme.
+DEFAULT_TRANSPORT_SCHEME = "grpc+tls"

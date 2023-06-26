@@ -1,4 +1,4 @@
-from typing import Dict, Iterable, List, Optional
+from typing import Callable, Dict, Iterable, List, Optional
 
 import pandas as pd
 from arize.pandas.logger import Schema
@@ -12,15 +12,21 @@ def _get_suffix(suffix):
     return lambda colname: colname[-1 * len(suffix) :] == suffix
 
 
-def _get_colname(colname):
+def _get_prefix(prefix):
+    return lambda colname: colname[: len(prefix)] == prefix
+
+
+def _get_colname(colname) -> Callable:
     return lambda columns: colname if colname in columns else None
 
 
-# Helper functions for embeddings:
+# Helper functions for data types:
 is_vector = _get_suffix("__embVector")
 is_raw_data = _get_suffix("__rawData")
 is_link = _get_suffix("__linkToData")
 is_tag = _get_suffix("__tag")
+is_prompt = _get_prefix("prompt")
+is_response = _get_prefix("response")
 
 
 # Object detection columns:
@@ -51,10 +57,6 @@ get_ranking_relevance = _get_colname("ranking:relevance")
 get_ranking_label = _get_colname("ranking:label")
 get_rank = _get_colname("ranking:rank")
 
-# LLM
-get_prompt = _get_colname("prompt")
-get_response = _get_colname("response")
-
 
 def get_tags(df_columns: Iterable) -> List[str]:
     return [c for c in df_columns if is_tag(c)]
@@ -65,7 +67,7 @@ def get_embedding_dict(
 ) -> Dict[str, EmbeddingColumnNames]:
     embedding_dict = {"vector_column_name": vector_col_name}
 
-    prefix = vector_col_name[:-11]
+    prefix = vector_col_name.split("__embVector")[0]
     for other_col in df_columns:
         if prefix in other_col:
             if is_raw_data(other_col):
@@ -79,11 +81,38 @@ def get_embedding_dict(
 def get_embeddings(df_columns: Iterable[str]) -> Dict[str, EmbeddingColumnNames]:
     embed_dict = {}
     for col in df_columns:
-        if is_vector(col):
+        # We exclude prompt/response from embedding features
+        if is_vector(col) and not (is_prompt(col) or is_response(col)):
             single_embed = get_embedding_dict(col, df_columns)
             embed_dict = {**embed_dict, **single_embed}
 
     return embed_dict
+
+
+def _get_prompt_or_response(
+    prefix: str, df_columns: Iterable[str]
+) -> Optional[EmbeddingColumnNames]:
+    vec = _get_colname(f"{prefix}__embVector")(df_columns)
+    if vec is None:
+        return None
+
+    embedding_dict = {"vector_column_name": vec}
+    if f"{prefix}__rawData" in df_columns:
+        embedding_dict["data_column_name"] = _get_colname(f"{prefix}__rawData")(df_columns)
+    if f"{prefix}__linkToData" in df_columns:
+        embedding_dict["link_to_data_column_name"] = _get_colname(f"{prefix}__linkToData")(
+            df_columns
+        )
+
+    return EmbeddingColumnNames(**embedding_dict)
+
+
+def get_prompt(df_columns: Iterable[str]) -> Optional[EmbeddingColumnNames]:
+    return _get_prompt_or_response("prompt", df_columns)
+
+
+def get_response(df_columns: Iterable[str]) -> Optional[EmbeddingColumnNames]:
+    return _get_prompt_or_response("response", df_columns)
 
 
 def get_object_detection_prediction(cols: Iterable[str]) -> Optional[ObjectDetectionColumnNames]:

@@ -110,11 +110,11 @@ class Embedding(NamedTuple):
 
         # Validate embedding raw data, if present
         if self.data is not None:
-            self._validate_embedding_data(emb_name)
+            self._validate_embedding_data(emb_name, self.data)
 
         # Validate embedding link to data, if present
         if self.link_to_data is not None:
-            self._validate_embedding_link_to_data(emb_name)
+            self._validate_embedding_link_to_data(emb_name, self.link_to_data)
 
         return None
 
@@ -145,7 +145,7 @@ class Embedding(NamedTuple):
             )
         # Fail if not all elements in list are floats
         allowed_types = (int, float, np.int16, np.int32, np.float16, np.float32)
-        if not all(isinstance(val, allowed_types) for val in self.vector):
+        if not all(isinstance(val, allowed_types) for val in self.vector):  # type: ignore
             raise TypeError(
                 f"Embedding vector must be a vector of integers and/or floats. Got "
                 f"{emb_name}.vector = {self.vector}"
@@ -154,9 +154,9 @@ class Embedding(NamedTuple):
         if len(self.vector) == 1:
             raise ValueError("Embedding vector must not have a size of 1")
 
+    @staticmethod
     def _validate_embedding_data(
-        self,
-        emb_name: Union[str, int, float],
+        emb_name: Union[str, int, float], data: Union[str, List[str]]
     ) -> None:
         """
         Validates that the embedding raw data field is of the correct format. That is:
@@ -165,14 +165,15 @@ class Embedding(NamedTuple):
         Arguments:
         ----------
             emb_name (str, int, float): Name of the embedding feature the vector belongs to
+            data (str, int, float): Raw data associated with the embedding feature. Typically raw text.
 
         Raises:
         -------
             TypeError: If the embedding does not satisfy requirements above
         """
         # Validate that data is a string or iterable of strings
-        is_string = isinstance(self.data, str)
-        is_allowed_iterable = not is_string and Embedding._is_valid_iterable(self.data)
+        is_string = isinstance(data, str)
+        is_allowed_iterable = not is_string and Embedding._is_valid_iterable(data)
         if not (is_string or is_allowed_iterable):
             raise TypeError(
                 f'Embedding feature "{emb_name}" data field must be str, list, np.ndarray or '
@@ -181,10 +182,13 @@ class Embedding(NamedTuple):
 
         if is_allowed_iterable:
             # Fail if not all elements in iterable are strings
-            if not all(isinstance(val, str) for val in self.data):
+            if not all(isinstance(val, str) for val in data):
                 raise TypeError("Embedding data field must contain strings")
 
-    def _validate_embedding_link_to_data(self, emb_name: Union[str, int, float]) -> None:
+    @staticmethod
+    def _validate_embedding_link_to_data(
+        emb_name: Union[str, int, float], link_to_data: str
+    ) -> None:
         """
         Validates that the embedding link to data field is of the correct format. That is:
             1. Must be string
@@ -192,15 +196,17 @@ class Embedding(NamedTuple):
         Arguments:
         ----------
             emb_name (str, int, float): Name of the embedding feature the vector belongs to
+            link_to_data (str): Link to source data of embedding feature, typically an image file on
+                cloud storage
 
         Raises:
         -------
             TypeError: If the embedding does not satisfy requirements above
         """
-        if not isinstance(self.link_to_data, str):
+        if not isinstance(link_to_data, str):
             raise TypeError(
                 f'Embedding feature "{emb_name}" link_to_data field must be str and got '
-                f"{type(self.link_to_data)}"
+                f"{type(link_to_data)}"
             )
 
     @staticmethod
@@ -237,7 +243,7 @@ class ObjectDetectionColumnNames(NamedTuple):
             required. The contents of this column must be a List[List[float]].
         categories_column_name (str): Column name containing the predefined classes or labels used
             by the model to classify the detected objects. The contents of this column must be List[str].
-        scores_column_names (str, optional): Column name containint the confidence scores that the
+        scores_column_names (str, optional): Column name containing the confidence scores that the
             model assigns to it's predictions, indicating how certain the model is that the predicted
             class is contained within the bounding box. This argument is only applicable for prediction
             values. The contents of this column must be List[float].
@@ -390,19 +396,21 @@ class RankingActualLabel(NamedTuple):
     def validate(self):
         # Validate relevance_labels type
         if self.relevance_labels is not None:
-            self._validate_relevance_labels()
+            self._validate_relevance_labels(self.relevance_labels)
         # Validate relevance score type
         if self.relevance_score is not None:
-            self._validate_relevance_score()
+            self._validate_relevance_score(self.relevance_score)
 
-    def _validate_relevance_labels(self):
-        if not is_list_of(self.relevance_labels, str):
+    @staticmethod
+    def _validate_relevance_labels(relevance_labels: List[str]):
+        if not is_list_of(relevance_labels, str):
             raise TypeError("Actual Relevance Labels must be a list of strings")
-        if any(label == "" for label in self.relevance_labels):
+        if any(label == "" for label in relevance_labels):
             raise ValueError("Actual Relevance Labels must be not contain empty strings")
 
-    def _validate_relevance_score(self):
-        if not isinstance(self.relevance_score, (float, int)):
+    @staticmethod
+    def _validate_relevance_score(relevance_score: float):
+        if not isinstance(relevance_score, (float, int)):
             raise TypeError("Actual Relevance score must be a float or an int")
 
 
@@ -472,10 +480,10 @@ class Schema:
         object_detection_actual_column_names (ObjectDetectionColumnNames, optional):
             ObjectDetectionColumnNames object containing information defining the actual bounding
             boxes' coordinates, categories, and scores.
-        prompt_column_names (EmbeddingCoulumnNames, optional): EmbeddingCoulumnNames object containing
+        prompt_column_names (EmbeddingColumnNames, optional): EmbeddingColumnNames object containing
             the embedding vector data (required) and raw text (optional) for the input text your
             model acts on.
-        response_column_names (EmbeddingCoulumnNames, optional): EmbeddingCoulumnNames object
+        response_column_names (EmbeddingColumnNames, optional): EmbeddingColumnNames object
             containing the embedding vector data (required) and raw text (optional) for the text
             your model generates.
 

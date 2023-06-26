@@ -10,3 +10,4 @@ interpret==0.2.7
 interpret-community>=0.22.0
 lightgbm>=2.2.3
 pyarrow>=11.0.0
+tqdm >=4.60.0

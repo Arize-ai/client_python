@@ -2,10 +2,10 @@ import datetime
 from itertools import chain
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-import arize.pandas.validation.errors as err
 import numpy as np
 import pandas as pd
 import pyarrow as pa
+from arize.pandas.validation import errors as err
 from arize.utils.constants import (
     MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
     MAX_PAST_YEARS_FROM_CURRENT_TIME,
@@ -60,7 +60,7 @@ class Validator:
         # general checks
         general_checks = chain(
             Validator._check_column_names_for_empty_strings(schema),
-            Validator._check_existence_prediction_id_column_delayed_schema(schema),
+            Validator._check_existence_prediction_id_column_delayed_schema(schema, model_type),
             Validator._check_invalid_model_id(model_id),
             Validator._check_invalid_model_version(model_version),
             Validator._check_invalid_model_type(model_type),
@@ -172,7 +172,7 @@ class Validator:
             ),
             Validator._check_embedding_features_dimensionality(dataframe, schema),
             Validator._check_invalid_record_prod(dataframe, environment, schema, model_type),
-            Validator._check_invalid_record_training(dataframe, environment, schema, model_type),
+            Validator._check_invalid_record_preprod(dataframe, environment, schema, model_type),
             Validator._check_value_tag(dataframe, schema),
         )
         if model_type == ModelTypes.RANKING:
@@ -270,9 +270,9 @@ class Validator:
 
     @staticmethod
     def _check_model_type_and_metrics(
-        model_type: ModelTypes, metric_families: List[Metrics], schema: Schema
+        model_type: ModelTypes, metric_families: Optional[List[Metrics]], schema: Schema
     ) -> List[err.ValidationError]:
-        if not metric_families:
+        if metric_families is None:
             return []
 
         external_model_types = MODEL_MAPPING_CONFIG.get("external_model_types")
@@ -322,61 +322,70 @@ class Validator:
             if model_type.name.lower() == item.get("external_model_type"):
                 is_valid_combination = False
                 metric_combinations = []
-                for mapping in item.get("mappings"):
-                    # This is a list of lists of metrics.
-                    # There may be a few metric combinations that map to the same column
-                    # enforcement rules.
-                    for metrics_list in mapping.get("metrics"):
-                        metric_combinations.append([metric.upper() for metric in metrics_list])
-                        if set(metrics_list) == set(
-                            metric_family.name.lower() for metric_family in metric_families
-                        ):
-                            # This is a valid combination of model type + metrics.
-                            # Now validate that required columns are in the schema.
-                            is_valid_combination = True
-                            # If no prediction values are present, then delayed actuals are being
-                            # logged, and we can't validate required columns.
-                            if schema.has_prediction_columns():
-                                # This is a list of lists.
-                                # In some cases, either one set of columns OR another set of
-                                # columns is required.
-                                required_columns = (
-                                    mapping.get("required_columns").get("arrow").get("required")
-                                )
-                                for column_combination in required_columns:
-                                    missing_columns = []
-                                    if None in {
-                                        getattr(schema, column, None)
-                                        for column in column_combination
-                                    }:
-                                        for column in column_combination:
-                                            if not getattr(schema, column, None):
-                                                missing_columns.append(column)
-                                    else:
-                                        break
+                mappings = item.get("mappings")
+                if mappings is not None:
+                    for mapping in mappings:
+                        # This is a list of lists of metrics.
+                        # There may be a few metric combinations that map to the same column
+                        # enforcement rules.
+                        for metrics_list in mapping.get("metrics"):
+                            metric_combinations.append([metric.upper() for metric in metrics_list])
+                            if set(metrics_list) == set(
+                                metric_family.name.lower() for metric_family in metric_families
+                            ):
+                                # This is a valid combination of model type + metrics.
+                                # Now validate that required columns are in the schema.
+                                is_valid_combination = True
+                                # If no prediction values are present, then delayed actuals are being
+                                # logged, and we can't validate required columns.
+                                if schema.has_prediction_columns():
+                                    # This is a list of lists.
+                                    # In some cases, either one set of columns OR another set of
+                                    # columns is required.
+                                    required_columns = (
+                                        mapping.get("required_columns").get("arrow").get("required")
+                                    )
+                                    for column_combination in required_columns:
+                                        missing_columns = []
+                                        if None in {
+                                            getattr(schema, column, None)
+                                            for column in column_combination
+                                        }:
+                                            for column in column_combination:
+                                                if not getattr(schema, column, None):
+                                                    missing_columns.append(column)
+                                        else:
+                                            break
                 if not is_valid_combination:
                     return False, [], metric_combinations
         return True, missing_columns, []
 
     @staticmethod
     def _check_existence_prediction_id_column_delayed_schema(
-        schema: Schema,
+        schema: Schema, model_type: ModelTypes
     ) -> List[err.MissingPredictionIdColumnForDelayedRecords]:
         if schema.prediction_id_column_name is not None:
             return []
-        if is_delayed_schema(schema):
+        # TODO: Revise logic once predicion_label column addition (for generative models)
+        # is moved to beginning of log function
+        if is_delayed_schema(schema) and model_type is not ModelTypes.GENERATIVE_LLM:
+            # We skip GENERATIVE model types since they are assigned a default
+            # prediction label column with values equal 1
             return [
                 err.MissingPredictionIdColumnForDelayedRecords(
                     schema.has_actual_columns(), schema.has_feature_importance_columns()
                 )
             ]
-        # Warning for when prediction_id is not provided by the user and we generate the default
-        # prediction ids
-        logger.warning(
-            "Prediction ID is not specified. Arize generates UUIDs for the model's predictions "
-            "if not provided by the user. Please note, you won't be able to send delayed data for "
-            "joining if a Prediction ID is not provided."
-        )
+        # We don't allow delayed actuals for generative models, since we give a default prediction
+        # label column with 1 as default value
+        if model_type is not ModelTypes.GENERATIVE_LLM:
+            # Warning for when prediction_id is not provided by the user and we generate the default
+            # prediction ids
+            logger.warning(
+                "Prediction ID is not specified. Arize generates UUIDs for the model's predictions "
+                "if not provided by the user. Please note, you won't be able to send delayed data for "
+                "joining if a Prediction ID is not provided."
+            )
 
         return []
 
@@ -653,9 +662,9 @@ class Validator:
         # Get the columns used in the schema
         schema_col_used = schema.get_used_columns()
         # Get the duplicated column names from the dataframe
-        df_duplicate_cols = dataframe.loc[:, dataframe.columns.duplicated()].columns.to_list()
+        duplicate_columns = dataframe.columns[dataframe.columns.duplicated()]
         # These are the duplicated columns from the dataframe that are referred to by the schema
-        schema_duplicate_cols = [col for col in df_duplicate_cols if col in schema_col_used]
+        schema_duplicate_cols = [col for col in duplicate_columns if col in schema_col_used]
         if schema_duplicate_cols:
             return [err.DuplicateColumnsInDataframe(schema_duplicate_cols)]
         return []
@@ -1233,7 +1242,7 @@ class Validator:
         else:
             col = schema.actual_label_column_name
         if col is not None and col in dataframe.columns and len(dataframe):
-            if dataframe[col].isnull().values.any():
+            if dataframe[col].isnull().values.any():  # type: ignore
                 # do not attach duplicated missing value error
                 # which would be caught by _check_value_missing
                 return []
@@ -1260,7 +1269,7 @@ class Validator:
             # When a timestamp column has Date and NaN, pyarrow will be fine, but
             # pandas min/max will fail due to type incompatibility. So we check for
             # missing value first.
-            if dataframe[col].isnull().values.any():
+            if dataframe[col].isnull().values.any():  # type: ignore
                 return [err.InvalidValueMissingValue("Prediction timestamp", "missing")]
 
             now_t = datetime.datetime.now()
@@ -1396,19 +1405,22 @@ class Validator:
             ]
         else:
             columns_to_validate = []
-            # TODO: add separate logic for objective detection and generative model types
+        # TODO: add separate logic for objective detection and generative model types
 
         if schema.shap_values_column_names is not None:
             columns_to_validate.extend(list(schema.shap_values_column_names.values()))
 
         return Validator._check_invalid_record_helper(dataframe, columns_to_validate)
 
-    # _check_invalid_record_training validates there's not a single row in the dataframe
-    # with pred_label, pred_score all evaluates to null OR with actual_label, actual_score
-    # all evaluates to null and returns errors if either of the two cases exists
-    def _check_invalid_record_training(
+    @staticmethod
+    def _check_invalid_record_preprod(
         dataframe: pd.DataFrame, environment: Environments, schema: Schema, model_type: ModelTypes
     ) -> List[err.InvalidRecord]:
+        """
+        Validates there's not a single row in the dataframe with pred_label, pred_score all
+        evaluates to null OR with actual_label, actual_score all evaluates to null and returns
+        errors if either of the two cases exists
+        """
         if environment == Environments.PRODUCTION:
             return []
 
@@ -1443,8 +1455,9 @@ class Validator:
             dataframe, pred_columns_to_validate
         ) + Validator._check_invalid_record_helper(dataframe, actual_columns_to_validate)
 
+    @staticmethod
     def _check_invalid_record_helper(
-        dataframe: pd.DataFrame, column_names: List[str]
+        dataframe: pd.DataFrame, column_names: List[Optional[str]]
     ) -> List[err.InvalidRecord]:
         """
         This function checks that there are no null values in a subset of columns,
@@ -1465,7 +1478,7 @@ class Validator:
         null_index = null_filter[null_filter].index.values
         if len(null_index) == 0:
             return []
-        return [err.InvalidRecord(columns_subset, null_index)]
+        return [err.InvalidRecord(columns_subset, null_index)]  # type: ignore
 
     @staticmethod
     def _check_type_prediction_group_id(

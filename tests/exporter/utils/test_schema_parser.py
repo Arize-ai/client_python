@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 from arize.exporter.utils.schema_parser import get_arize_schema
 from arize.pandas.logger import Schema
 from arize.utils.types import ObjectDetectionColumnNames
@@ -57,14 +58,16 @@ def test_object_detection():
                     [1, 2, 3, 4],
                 ],
                 "boxActualLabels": ["banana", "grapes"],
-                "boxPredictionLabels": ["apples"],
-                "boxPredictionScores": [0.5],
                 "time": "2023-04-10 00:00:00+0000",
                 "predictionID": "002b4c71-d335-47f0-92d3-4fd2b337ac95",
+                "image_embedding__embVector": [4, 5, 6],
+                "image_embedding__linkToData": "www.google.com",
                 "boxActualCoordinates": [
                     [579.06226, 46.043736, 592.70807, 106.160675],
                     [75.80126, 90.106964, 113.96147, 396.76505],
                 ],
+                "boxPredictionLabels": ["apples"],
+                "boxPredictionScores": [0.5],
                 "feature_1": "asdf",
             }
         ]
@@ -78,7 +81,13 @@ def test_object_detection():
         "actual_label_column_name": None,
         "actual_score_column_name": None,
         "attributions_column_name": None,
-        "embedding_feature_column_names": {},
+        "embedding_feature_column_names": {
+            "image_embedding": {
+                "vector_column_name": "image_embedding__embVector",
+                "data_column_name": None,
+                "link_to_data_column_name": "image_embedding__linkToData",
+            },
+        },
         "feature_column_names": None,
         "object_detection_actual_column_names": ObjectDetectionColumnNames(
             bounding_boxes_coordinates_column_name="boxActualCoordinates",
@@ -206,8 +215,15 @@ def test_llm():
             {
                 "predictionID": "0",
                 "time": "2023-04-11 18:00:00+0000",
-                "prompt": "blah",
-                "response": "blahblah",
+                "embedding1__embVector": [1, 2, 3],
+                "embedding1__rawData": "Test sentence",
+                "embedding2__embVector": [4, 5, 6],
+                "embedding2__linkToData": "www.google.com",
+                "prompt__embVector": [1, 2, 3, 4],
+                "prompt__rawData": "Test prompt",
+                "response__embVector": [5, 6, 7, 8],
+                "response__rawData": "Test response",
+                "response__linkToData": None,
             }
         ]
     )
@@ -220,7 +236,18 @@ def test_llm():
         "actual_label_column_name": None,
         "actual_score_column_name": None,
         "attributions_column_name": None,
-        "embedding_feature_column_names": {},
+        "embedding_feature_column_names": {
+            "embedding1": {
+                "vector_column_name": "embedding1__embVector",
+                "data_column_name": "embedding1__rawData",
+                "link_to_data_column_name": None,
+            },
+            "embedding2": {
+                "vector_column_name": "embedding2__embVector",
+                "data_column_name": None,
+                "link_to_data_column_name": "embedding2__linkToData",
+            },
+        },
         "feature_column_names": None,
         "object_detection_actual_column_names": None,
         "object_detection_prediction_column_names": None,
@@ -228,14 +255,22 @@ def test_llm():
         "prediction_id_column_name": "predictionID",
         "prediction_label_column_name": None,
         "prediction_score_column_name": None,
-        "prompt_column_names": "prompt",
         "rank_column_name": None,
         "relevance_labels_column_name": None,
         "relevance_score_column_name": None,
-        "response_column_names": "response",
         "shap_values_column_names": None,
         "tag_column_names": [],
         "timestamp_column_name": "time",
+        "prompt_column_names": {
+            "vector_column_name": "prompt__embVector",
+            "data_column_name": "prompt__rawData",
+            "link_to_data_column_name": None,
+        },
+        "response_column_names": {
+            "vector_column_name": "response__embVector",
+            "data_column_name": "response__rawData",
+            "link_to_data_column_name": "response__linkToData",
+        },
     }
 
 
@@ -255,7 +290,6 @@ def test_regression():
     schema = get_arize_schema(embedding_df)
 
     assert isinstance(schema, Schema)
-    schema.object_detection_actual_column_names
 
     assert schema.asdict() == {
         "actual_label_column_name": None,
@@ -269,12 +303,16 @@ def test_regression():
         "prediction_id_column_name": "predictionID",
         "prediction_label_column_name": None,
         "prediction_score_column_name": "numericPredictionLabel",
-        "prompt_column_names": "prompt",
+        "prompt_column_names": None,
         "rank_column_name": None,
         "relevance_labels_column_name": None,
         "relevance_score_column_name": None,
-        "response_column_names": "response",
+        "response_column_names": None,
         "shap_values_column_names": None,
         "tag_column_names": [],
         "timestamp_column_name": "time",
     }
+
+
+if __name__ == "__main__":
+    raise SystemExit(pytest.main([__file__]))

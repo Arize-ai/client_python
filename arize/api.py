@@ -13,7 +13,7 @@ from arize.utils.constants import (
 )
 from arize.utils.logging import logger
 from google.protobuf.json_format import MessageToDict
-from google.protobuf.wrappers_pb2 import DoubleValue
+from google.protobuf.wrappers_pb2 import BoolValue, DoubleValue
 from requests_futures.sessions import FuturesSession
 
 from . import public_pb2 as pb2
@@ -101,7 +101,7 @@ class Client:
         self._timeout = timeout
         self._session = FuturesSession(executor=BoundedExecutor(max_queue_bound, max_workers))
         # Grpc-Metadata prefix is required to pass non-standard md through via grpc-gateway
-        self._header = {
+        self._headers = {
             "authorization": api_key,
             "Grpc-Metadata-space": space_key,
             "Grpc-Metadata-sdk-language": "python",
@@ -109,9 +109,9 @@ class Client:
             "Grpc-Metadata-sdk-version": __version__,
         }
         if additional_headers is not None:
-            if conflicting_keys := self._header.keys() & additional_headers.keys():
+            if conflicting_keys := self._headers.keys() & additional_headers.keys():
                 raise InvalidAdditionalHeaders(conflicting_keys)
-            self._header.update(additional_headers)
+            self._headers.update(additional_headers)
 
     def log(
         self,
@@ -128,6 +128,8 @@ class Client:
         shap_values: Optional[Dict[str, float]] = None,
         tags: Optional[Dict[str, Union[str, bool, float, int]]] = None,
         batch_id: Optional[str] = None,
+        prompt: Optional[Embedding] = None,
+        response: Optional[Embedding] = None,
     ) -> cf.Future:
         """
         Logs a record to Arize via a POST request.
@@ -157,7 +159,7 @@ class Client:
             features (Dict[str, Union[str, bool, float, int]], optional): Dictionary containing
                 human readable and debuggable model features. Defaults to None.
             embedding_features (Dict[str, Embedding], optional): Dictionary containing model
-                embedding features. Keys must be strings. Values must be of Embedding type. Defaults to
+                embedding features. Keys must be strings. Values must be of type Embedding. Defaults to
                 None.
             shap_values (Dict[str, float], optional): Dictionary containing human readable and
                 debuggable model features keys, along with SHAP feature importance values. Defaults to None.
@@ -165,6 +167,12 @@ class Client:
                 readable and debuggable model tags. Defaults to None.
             batch_id (str, optional): Used to distinguish different batch of data under the same
                 model_id and model_version. Required for VALIDATION environments. Defaults to None.
+            prompt (Embedding, optional): Embedding object containing the embedding vector (required) and raw
+                text (optional, but recommended) for the input text on which your GENERATIVE_LLM model acts
+                on. Required for GENERATIVE_LLM models. Defaults to None.
+            response (Embedding, optional): Embedding object containing the embedding vector (required) and
+                raw text (optional, but recommended) for the text GENERATIVE_LLM model generates.
+                Required for GENERATIVE_LLM models. Defaults to None.
 
         Returns:
         --------
@@ -213,11 +221,19 @@ class Client:
                 # Check that there is only 1 embedding feature for OD model types
                 if len(embedding_features.keys()) > 1:
                     raise ValueError("Object Detection models only support one embedding feature")
+            if model_type == ModelTypes.GENERATIVE_LLM:
+                # Check reserved keys are not used
+                reserved_emb_feat_names = {"prompt", "response"}
+                if reserved_emb_feat_names & embedding_features.keys():
+                    raise KeyError(
+                        "embedding features cannot use the reserved feature names ('prompt', 'response') "
+                        "for GENERATIVE_LLM models"
+                    )
             for emb_name, emb_obj in embedding_features.items():
                 _validate_mapping_key(emb_name)
                 # Must verify embedding type
                 if not isinstance(emb_obj, Embedding):
-                    raise TypeError(f'Embedding feature "{emb_name}" must be of embedding type')
+                    raise TypeError(f'Embedding feature "{emb_name}" must be of type Embedding')
                 emb_obj.validate(emb_name)
 
         # Validate tag types
@@ -262,8 +278,29 @@ class Client:
                     f"Prediction timestamps must be within {MAX_FUTURE_YEARS_FROM_CURRENT_TIME} year in the "
                     f"future and {MAX_PAST_YEARS_FROM_CURRENT_TIME} years in the past from the current time."
                 )
+
+        # Validate GENERATIVE_LLM models requirements
+        if model_type == ModelTypes.GENERATIVE_LLM:
+            if prompt is None or response is None:
+                raise ValueError(
+                    "The following fields cannot be None for GENERATIVE_LLM models: prompt, response"
+                )
+            for emb_name, emb_obj in {"prompt": prompt, "response": response}.items():
+                # Must verify embedding type
+                if not isinstance(emb_obj, Embedding):
+                    raise TypeError("Both prompt and response objects must be of type Embedding")
+                emb_obj.validate(emb_name)
+        else:
+            if prompt is not None or response is not None:
+                raise ValueError(
+                    "The fields 'prompt' and 'response' must be None for model types other "
+                    "than GENERATIVE_LLM"
+                )
+
         # Construct the prediction
         p = None
+        if model_type == ModelTypes.GENERATIVE_LLM and prediction_label is None:
+            prediction_label = 1
         if prediction_label is not None:
             if model_version is not None and not isinstance(model_version, str):
                 raise TypeError(
@@ -289,8 +326,13 @@ class Client:
                 feats = pb2.Prediction(features=converted_feats)
                 p.MergeFrom(feats)
 
-            if embedding_features is not None:
-                converted_embedding_feats = convert_dictionary(embedding_features)
+            if embedding_features or prompt or response:
+                # NOTE: Deep copy is necessary to avoid side effects on the original input dictionary
+                combined_embedding_features = {k: v for k, v in embedding_features.items()}
+                # Map prompt/response as embedding features for generative models
+                if model_type == ModelTypes.GENERATIVE_LLM:
+                    combined_embedding_features.update({"prompt": prompt, "response": response})
+                converted_embedding_feats = convert_dictionary(combined_embedding_features)
                 embedding_feats = pb2.Prediction(features=converted_embedding_feats)
                 p.MergeFrom(embedding_feats)
 
@@ -367,13 +409,14 @@ class Client:
             actual=a,
             feature_importances=fi,
             environment_params=env_params,
+            is_generative_llm_record=BoolValue(value=model_type == ModelTypes.GENERATIVE_LLM),
         )
         return self._post(record=rec, uri=self._uri, indexes=None)
 
     def _post(self, record, uri, indexes):
         resp = self._session.post(
             uri,
-            headers=self._header,
+            headers=self._headers,
             timeout=self._timeout,
             json=MessageToDict(message=record, preserving_proto_field_name=True),
         )
@@ -403,11 +446,11 @@ def _validate_label(
     elif model_type in CATEGORICAL_MODEL_TYPES:
         _validate_categorical_label(model_type, label)
     elif model_type == ModelTypes.OBJECT_DETECTION:
-        _validate_object_detection_label(
-            prediction_or_actual, model_type, label, embedding_features
-        )
+        _validate_object_detection_label(prediction_or_actual, label, embedding_features)
     elif model_type == ModelTypes.RANKING:
-        _validate_ranking_label(prediction_or_actual, model_type, label)
+        _validate_ranking_label(label)
+    elif model_type == ModelTypes.GENERATIVE_LLM:
+        _validate_generative_llm_label(label)
     else:
         raise TypeError(
             f"model_type {model_type} is type {type(model_type)}, but must be of "
@@ -422,7 +465,7 @@ def _validate_numeric_label(
     if not isinstance(label, (float, int)):
         raise TypeError(
             f"label {label} has type {type(label)}, but must be either float or int for "
-            f"ModelTypes.{model_type}"
+            f"{model_type}"
         )
 
 
@@ -444,20 +487,19 @@ def _validate_categorical_label(
     if not is_valid:
         raise TypeError(
             f"label {label} has type {type(label)}, but must be str, bool, int, float or Tuple[str, "
-            f"float] for ModelTypes.{model_type}"
+            f"float] for {model_type}"
         )
 
 
 def _validate_object_detection_label(
     prediction_or_actual: str,
-    model_type: ModelTypes,
     label: ObjectDetectionLabel,
     embedding_features: Dict[str, Embedding],
 ):
     if not isinstance(label, ObjectDetectionLabel):
         raise TypeError(
-            f"label {label} has type {type(label)}, but must be ObjectDetectionLabel for ModelTypes"
-            f".{model_type}"
+            f"label {label} has type {type(label)}, but must be ObjectDetectionLabel for"
+            f"{ModelTypes.OBJECT_DETECTION}"
         )
     if embedding_features is None:
         raise ValueError("Cannot use Object Detection Labels without an embedding feature")
@@ -467,16 +509,30 @@ def _validate_object_detection_label(
 
 
 def _validate_ranking_label(
-    prediction_or_actual: str,
-    model_type: ModelTypes,
     label: Union[RankingPredictionLabel, RankingActualLabel],
 ):
     if not isinstance(label, (RankingPredictionLabel, RankingActualLabel)):
         raise TypeError(
             f"label {label} has type {type(label)}, but must be RankingPredictionLabel"
-            f"or RankingActualLabel for ModelTypes.{model_type}"
+            f"or RankingActualLabel for {ModelTypes.RANKING}"
         )
     label.validate()
+
+
+def _validate_generative_llm_label(
+    label: Union[str, bool, int, float],
+):
+    is_valid = (
+        isinstance(label, str)
+        or isinstance(label, bool)
+        or isinstance(label, int)
+        or isinstance(label, float)
+    )
+    if not is_valid:
+        raise TypeError(
+            f"label {label} has type {type(label)}, but must be str, bool, int, float "
+            f"for {ModelTypes.GENERATIVE_LLM}"
+        )
 
 
 def _get_label(
@@ -496,7 +552,7 @@ def _get_label(
     value = convert_element(value)
     if model_type in NUMERIC_MODEL_TYPES:
         return _get_numeric_label(prediction_or_actual, value)
-    elif model_type in CATEGORICAL_MODEL_TYPES:
+    elif model_type in CATEGORICAL_MODEL_TYPES or model_type == ModelTypes.GENERATIVE_LLM:
         return _get_score_categorical_label(prediction_or_actual, value)
     elif model_type == ModelTypes.OBJECT_DETECTION:
         return _get_object_detection_label(prediction_or_actual, value)

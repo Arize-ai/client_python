@@ -19,7 +19,7 @@ try:
         AutoTokenizer,
         BatchEncoding,
     )
-    from transformers.utils import logging as transformer_logging  # type: ignore
+    from transformers.utils import logging as transformer_logging
 except ImportError:
     raise ImportError(IMPORT_ERROR_MESSAGE)
 
@@ -99,7 +99,7 @@ class BaseEmbeddingGenerator(ABC):
             if isinstance(field, pd.DataFrame):
                 raise err.InvalidIndexError("DataFrame")
             else:
-                raise err.InvalidIndexError(field.name)
+                raise err.InvalidIndexError(str(field.name))
 
     @abstractmethod
     def __repr__(self) -> str:

@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import pyarrow as pa
 import pytest
+from arize import __version__ as arize_version
 from arize.pandas.logger import Client
 from arize.utils.types import (
     EmbeddingColumnNames,
@@ -14,7 +15,7 @@ from arize.utils.types import (
     ObjectDetectionColumnNames,
     Schema,
 )
-from arize.utils.utils import overwrite_schema_fields
+from arize.utils.utils import get_python_version, overwrite_schema_fields
 from requests import Response
 
 EMBEDDING_SIZE = 15
@@ -559,8 +560,16 @@ def test_instantiating_client_duplicated_header():
 
 def test_instantiating_client_additional_header():
     c = get_stubbed_client({"JWT": "FAKE_VALUE"})
-    expected = {"JWT": "FAKE_VALUE"}
-    assert c._additional_headers == expected
+    expected = {
+        "authorization": "api_key",
+        "space": "space_key",
+        "sdk-language": "python",
+        "language-version": get_python_version(),
+        "sdk-version": arize_version,
+        "sync": "0",  # Defaults to async logging
+        "JWT": "FAKE_VALUE",
+    }
+    assert c._headers == expected
 
 
 if __name__ == "__main__":
