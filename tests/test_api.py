@@ -5,6 +5,7 @@ import arize.public_pb2 as pb2
 import numpy as np
 import pandas as pd
 import pytest
+import os
 from arize import __version__ as arize_version
 from arize.api import Client, Embedding
 from arize.pandas.validation.errors import InvalidAdditionalHeaders
@@ -14,6 +15,8 @@ from arize.utils.constants import (
     MAX_PREDICTION_ID_LEN,
     MAX_TAG_LENGTH,
     MIN_PREDICTION_ID_LEN,
+    SPACE_KEY_ENVVAR_NAME,
+    API_KEY_ENVVAR_NAME,
 )
 from arize.utils.types import (
     Environments,
@@ -1546,6 +1549,30 @@ def test_instantiating_client_additional_header():
     }
     assert c._headers == expected
 
+def test_client_throws_if_missing_auth():
+    with pytest.raises(ValueError, match="space_key must be supplied"):
+        c = Client()
+    with pytest.raises(ValueError, match="api_key must be supplied"):
+        c = Client(space_key=inputs["space_key"])
+    with pytest.raises(ValueError, match="space_key must be supplied"):
+        c = Client(api_key=inputs["api_key"])
+    
+    # acceptable input
+    c = Client(space_key=inputs["space_key"], api_key=inputs["api_key"])
+
+@pytest.fixture(autouse=False)
+def set_auth_envvars():
+    originalEnviron = os.environ
+    os.environ[SPACE_KEY_ENVVAR_NAME] = inputs["space_key"]
+    os.environ[API_KEY_ENVVAR_NAME] = inputs["api_key"]
+    yield
+    os.environ[SPACE_KEY_ENVVAR_NAME] = originalEnviron.get(SPACE_KEY_ENVVAR_NAME)
+    os.environ[API_KEY_ENVVAR_NAME] = originalEnviron.get(API_KEY_ENVVAR_NAME)
+
+def test_client_uses_envvars(set_auth_envvars):    
+    c = Client()
+    assert c._space_key == inputs["space_key"]
+    assert c._api_key == inputs["api_key"]
 
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__]))

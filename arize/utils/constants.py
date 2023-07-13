@@ -15,3 +15,6 @@ MAX_FUTURE_YEARS_FROM_CURRENT_TIME = 1
 path = Path(__file__).with_name("model_mapping.json")
 with path.open("r") as f:
     MODEL_MAPPING_CONFIG = json.load(f)
+
+SPACE_KEY_ENVVAR_NAME = "ARIZE_SPACE_KEY"
+API_KEY_ENVVAR_NAME = "ARIZE_API_KEY"

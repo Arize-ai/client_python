@@ -1,6 +1,6 @@
 # type: ignore[pb2]
 import concurrent.futures as cf
-import time
+import time, os
 from typing import Dict, Optional, Tuple, Union
 
 from arize.pandas.validation.errors import InvalidAdditionalHeaders
@@ -10,6 +10,8 @@ from arize.utils.constants import (
     MAX_PREDICTION_ID_LEN,
     MAX_TAG_LENGTH,
     MIN_PREDICTION_ID_LEN,
+    SPACE_KEY_ENVVAR_NAME,
+    API_KEY_ENVVAR_NAME,
 )
 from arize.utils.logging import logger
 from google.protobuf.json_format import MessageToDict
@@ -64,8 +66,8 @@ class Client:
 
     def __init__(
         self,
-        api_key: str,
-        space_key: str,
+        api_key: Optional[str] = None,
+        space_key: Optional[str] = None,
         uri: Optional[str] = "https://api.arize.com/v1",
         max_workers: Optional[int] = 8,
         max_queue_bound: Optional[int] = 5000,
@@ -77,9 +79,9 @@ class Client:
 
         Arguments:
         ----------
-            api_key (str): Arize provided API key associated with your account. Located on the
+            api_key (str, optional): Arize provided API key associated with your account. Located on the
                 data upload page.
-            space_key (str): Arize provided identifier to connect records to spaces. Located on
+            space_key (str, optional): Arize provided identifier to connect records to spaces. Located on
                 the data upload page.
             uri (str, optional): URI to send your records to Arize AI. Defaults to
                 "https://api.arize.com/v1".
@@ -93,6 +95,14 @@ class Client:
                 append to request
         """
 
+        if space_key is None:
+            space_key = os.getenv(SPACE_KEY_ENVVAR_NAME)
+            if space_key is None:
+                raise ValueError(f"space_key must be supplied as a parameter or in {SPACE_KEY_ENVVAR_NAME}")
+        if api_key is None:
+            api_key = os.getenv(API_KEY_ENVVAR_NAME)
+            if api_key is None:
+                raise ValueError(f"api_key must be supplied as a parameter or in {API_KEY_ENVVAR_NAME}")
         if not isinstance(space_key, str):
             raise TypeError(f"space_key {space_key} is type {type(space_key)}, but must be a str")
         self._uri = f"{uri}/log"
