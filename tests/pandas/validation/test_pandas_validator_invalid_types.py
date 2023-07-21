@@ -18,12 +18,50 @@ def test_zero_errors():
 
 
 # may need to revisit this case
-def test_accept_all_nones():
+def test_accept_all_nones_features_tags():
     kwargs = get_kwargs()
     errors = Validator.validate_types(
         **ChainMap(
             {
                 "pyarrow_schema": pa.Schema.from_pandas(pd.DataFrame({"A": pd.Series([None])})),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 0
+
+
+def test_accept_all_nones_labels():
+    kwargs = get_kwargs()
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame(
+                        {
+                            "prediction_label": pd.Series([None, None, None]),
+                        }
+                    )
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 0
+
+
+def test_accept_all_nones_scores():
+    kwargs = get_kwargs()
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame(
+                        {
+                            "actual_score": pd.Series([None, None, None]),
+                        }
+                    )
+                ),
             },
             kwargs,
         )
@@ -187,14 +225,19 @@ def test_invalid_type_dimensions():
 
 def test_invalid_type_shap_values():
     kwargs = get_kwargs()
-    errors = Validator.validate_types(
-        **ChainMap(
-            {"pyarrow_schema": pa.Schema.from_pandas(pd.DataFrame({"a": pd.Series([list()])}))},
-            kwargs,
-        )
+    invalid_shap_values = (
+        pd.Series([list()]),
+        pd.Series([None]),
     )
-    assert len(errors) == 1
-    assert type(errors[0]) is err.InvalidTypeShapValues
+    for value in invalid_shap_values:
+        errors = Validator.validate_types(
+            **ChainMap(
+                {"pyarrow_schema": pa.Schema.from_pandas(pd.DataFrame({"a": value}))},
+                kwargs,
+            )
+        )
+        assert len(errors) == 1
+        assert type(errors[0]) is err.InvalidTypeShapValues
 
 
 def test_invalid_label():

@@ -74,6 +74,7 @@ def test_invalid_type_prediction_group_id():
         pd.Series([["1.0"], ["2.0"], ["3.0"], ["4.0"]]),
         pd.Series([datetime.now()] * 4),
         pd.Series([True, False, True, False]),
+        pd.Series([None, None, None, None]),
     )
     for ids in invalid_typed_group_id:
         errors = Validator.validate_types(
@@ -96,6 +97,7 @@ def test_invalid_type_rank():
         pd.Series([["1.0"], ["2.0"], ["3.0"], ["4.0"]]),
         pd.Series([datetime.now()] * 4),
         pd.Series([True, False, True, False]),
+        pd.Series([None, None, None, None]),
     )
 
     for ranks in invalid_typed_rank:
@@ -142,6 +144,42 @@ def test_invalid_type_rank_category():
         )
         assert len(errors) == 1
         assert type(errors[0]) is err.InvalidType
+
+
+def test_ranking_columns_type_valid_all_null_scores():
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame(
+                        {
+                            "ranking_relevance": pd.Series([None, None, None, None]),
+                        }
+                    )
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 0
+
+
+def test_ranking_columns_type_valid_all_null_ranking_category():
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame(
+                        {
+                            "ranking_category": pd.Series([None, None, None, None]),
+                        }
+                    )
+                ),
+            },
+            kwargs,
+        )
+    )
+    assert len(errors) == 0
 
 
 if __name__ == "__main__":
