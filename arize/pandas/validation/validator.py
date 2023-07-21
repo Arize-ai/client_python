@@ -1223,8 +1223,9 @@ class Validator:
                 # This is to be defensive, validate_params should guarantee that this column is in
                 # the dataframe, via _check_missing_columns, and return an error before reaching this
                 # block if not
-                if col in dataframe.columns:
-                    max_tag_len = len(str(dataframe[col].agg(["max"])["max"]))
+                # Checks max tag length when any values in a column are strings
+                if col in dataframe.columns and dataframe[col].map(type).eq(str).any():
+                    max_tag_len = dataframe[col].apply(_check_value_tag_string_length_helper).max()
                     if max_tag_len > MAX_TAG_LENGTH:
                         wrong_tag_cols.append(col)
             if wrong_tag_cols:
@@ -1600,6 +1601,13 @@ class Validator:
                 if error is not None:
                     errors.append(error)
         return errors
+
+
+def _check_value_tag_string_length_helper(x):
+    if isinstance(x, str):
+        return len(x)
+    else:
+        return 0
 
 
 def _check_value_bounding_boxes_coordinates_helper(

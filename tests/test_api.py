@@ -1,3 +1,4 @@
+import os
 import time
 from pathlib import Path
 
@@ -9,12 +10,15 @@ from arize import __version__ as arize_version
 from arize.api import Client, Embedding
 from arize.pandas.validation.errors import InvalidAdditionalHeaders
 from arize.utils.constants import (
+    API_KEY_ENVVAR_NAME,
     MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
     MAX_PAST_YEARS_FROM_CURRENT_TIME,
     MAX_PREDICTION_ID_LEN,
     MAX_TAG_LENGTH,
     MIN_PREDICTION_ID_LEN,
+    SPACE_KEY_ENVVAR_NAME,
 )
+from arize.utils.errors import AuthError
 from arize.utils.types import (
     Environments,
     ModelTypes,
@@ -1545,6 +1549,60 @@ def test_instantiating_client_additional_header():
         "JWT": "FAKE_VALUE",
     }
     assert c._headers == expected
+
+
+def test_invalid_client_auth_passed_vars():
+    with pytest.raises(AuthError) as excinfo:
+        _ = Client()
+    assert excinfo.value.__str__() == AuthError(None, None).error_message()
+    assert "Missing: ['api_key', 'space_key']" in str(excinfo.value)
+
+    with pytest.raises(AuthError) as excinfo:
+        _ = Client(space_key=inputs["space_key"])
+    assert excinfo.value.__str__() == AuthError(None, inputs["space_key"]).error_message()
+    assert "Missing: ['api_key']" in str(excinfo.value)
+
+    with pytest.raises(AuthError) as excinfo:
+        _ = Client(api_key=inputs["api_key"])
+    assert excinfo.value.__str__() == AuthError(inputs["api_key"], None).error_message()
+    assert "Missing: ['space_key']" in str(excinfo.value)
+
+    # acceptable input
+    try:
+        _ = Client(space_key=inputs["space_key"], api_key=inputs["api_key"])
+    except Exception:
+        pytest.fail("Unexpected error!")
+
+
+def test_invalid_client_auth_environment_vars():
+    with pytest.raises(AuthError) as excinfo:
+        _ = Client()
+    assert excinfo.value.__str__() == AuthError(None, None).error_message()
+    assert "Missing: ['api_key', 'space_key']" in str(excinfo.value)
+
+    os.environ[SPACE_KEY_ENVVAR_NAME] = inputs["space_key"]
+    with pytest.raises(AuthError) as excinfo:
+        c = Client()
+        assert c._space_key == inputs["space_key"]
+    assert excinfo.value.__str__() == AuthError(None, inputs["space_key"]).error_message()
+    assert "Missing: ['api_key']" in str(excinfo.value)
+
+    os.environ.pop(SPACE_KEY_ENVVAR_NAME)
+    os.environ[API_KEY_ENVVAR_NAME] = inputs["api_key"]
+    with pytest.raises(AuthError) as excinfo:
+        c = Client()
+        assert c._api_key == inputs["api_key"]
+    assert excinfo.value.__str__() == AuthError(inputs["api_key"], None).error_message()
+    assert "Missing: ['space_key']" in str(excinfo.value)
+
+    # acceptable input
+    os.environ[SPACE_KEY_ENVVAR_NAME] = inputs["space_key"]
+    try:
+        c = Client()
+    except Exception:
+        pytest.fail("Unexpected error!")
+    assert c._space_key == inputs["space_key"]
+    assert c._api_key == inputs["api_key"]
 
 
 if __name__ == "__main__":

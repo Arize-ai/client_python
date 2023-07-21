@@ -12,6 +12,10 @@ MAX_PAST_YEARS_FROM_CURRENT_TIME = 2
 # The maximum number of acceptable years in the future from current time for prediction_timestamps
 MAX_FUTURE_YEARS_FROM_CURRENT_TIME = 1
 
+# Authentication via environment variables
+SPACE_KEY_ENVVAR_NAME = "ARIZE_SPACE_KEY"
+API_KEY_ENVVAR_NAME = "ARIZE_API_KEY"
+
 path = Path(__file__).with_name("model_mapping.json")
 with path.open("r") as f:
     MODEL_MAPPING_CONFIG = json.load(f)

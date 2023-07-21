@@ -1,15 +1,18 @@
 # type: ignore[pb2]
 import concurrent.futures as cf
+import os
 import time
 from typing import Dict, Optional, Tuple, Union
 
 from arize.pandas.validation.errors import InvalidAdditionalHeaders
 from arize.utils.constants import (
+    API_KEY_ENVVAR_NAME,
     MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
     MAX_PAST_YEARS_FROM_CURRENT_TIME,
     MAX_PREDICTION_ID_LEN,
     MAX_TAG_LENGTH,
     MIN_PREDICTION_ID_LEN,
+    SPACE_KEY_ENVVAR_NAME,
 )
 from arize.utils.logging import logger
 from google.protobuf.json_format import MessageToDict
@@ -19,6 +22,7 @@ from requests_futures.sessions import FuturesSession
 from . import public_pb2 as pb2
 from .__init__ import __version__
 from .bounded_executor import BoundedExecutor
+from .utils.errors import AuthError
 from .utils.types import (
     CATEGORICAL_MODEL_TYPES,
     NUMERIC_MODEL_TYPES,
@@ -64,8 +68,8 @@ class Client:
 
     def __init__(
         self,
-        api_key: str,
-        space_key: str,
+        api_key: Optional[str] = None,
+        space_key: Optional[str] = None,
         uri: Optional[str] = "https://api.arize.com/v1",
         max_workers: Optional[int] = 8,
         max_queue_bound: Optional[int] = 5000,
@@ -93,11 +97,13 @@ class Client:
                 append to request
         """
 
-        if not isinstance(space_key, str):
-            raise TypeError(f"space_key {space_key} is type {type(space_key)}, but must be a str")
-        self._uri = f"{uri}/log"
+        api_key = api_key or os.getenv(API_KEY_ENVVAR_NAME)
+        space_key = space_key or os.getenv(SPACE_KEY_ENVVAR_NAME)
+        if api_key is None or space_key is None:
+            raise AuthError(api_key, space_key)
         self._api_key = api_key
         self._space_key = space_key
+        self._uri = f"{uri}/log"
         self._timeout = timeout
         self._session = FuturesSession(executor=BoundedExecutor(max_queue_bound, max_workers))
         # Grpc-Metadata prefix is required to pass non-standard md through via grpc-gateway

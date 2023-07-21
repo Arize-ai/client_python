@@ -1,5 +1,7 @@
 # type: ignore[pb2]
 import base64
+import os
+import shutil
 import tempfile
 from typing import Dict, List, Optional
 
@@ -10,6 +12,8 @@ import requests
 
 from .. import public_pb2 as pb2
 from ..__init__ import __version__
+from ..utils.constants import API_KEY_ENVVAR_NAME, SPACE_KEY_ENVVAR_NAME
+from ..utils.errors import AuthError
 from ..utils.logging import logger
 from ..utils.types import (
     CATEGORICAL_MODEL_TYPES,
@@ -32,8 +36,8 @@ class Client:
 
     def __init__(
         self,
-        api_key: str,
-        space_key: str,
+        api_key: Optional[str] = None,
+        space_key: Optional[str] = None,
         uri: Optional[str] = "https://api.arize.com/v1",
         additional_headers: Optional[Dict[str, str]] = None,
     ) -> None:
@@ -51,6 +55,10 @@ class Client:
             additional_headers (Dict[str, str], optional): Dictionary of additional headers to
                 append to request
         """
+        api_key = api_key or os.getenv(API_KEY_ENVVAR_NAME)
+        space_key = space_key or os.getenv(SPACE_KEY_ENVVAR_NAME)
+        if api_key is None or space_key is None:
+            raise AuthError(api_key, space_key)
         self._api_key = api_key
         self._space_key = space_key
         self._files_uri = uri + "/pandas_arrow"
@@ -418,8 +426,14 @@ class Client:
             raise ValueError("The schema (after removing unnecessary columns) is too large.")
 
         if path is None:
-            f = tempfile.NamedTemporaryFile()
-            tmp_file = f.name
+            tmp_dir = tempfile.mkdtemp()
+            fd, tmp_file = tempfile.mkstemp(dir=tmp_dir)
+            # This way of handling temp files is not ideal, but necessary for it to work
+            # for Windows machines. A Windows corner case is on exiting a tempfile context manager,
+            # PermissionError can be thrown if non-writable files are placed into a
+            # tempfile.TemporaryDirectory. Python 3.10 fixed this issue by adding argument
+            # TemporaryDirectory(ignore_cleanup_errors=True). See code that will work well across
+            # operating systems: https://www.scivision.dev/python-tempfile-permission-error-windows/
         else:
             tmp_file = path
 
@@ -434,7 +448,13 @@ class Client:
             response = self._post_file(tmp_file, base64_schema, sync, timeout)
         finally:
             if path is None:
-                f.close()
+                # NOTE: This try-catch should also be updated/removed when
+                # Python >=3.10 is required, see comment above
+                try:
+                    os.close(fd)
+                    shutil.rmtree(tmp_dir)
+                except PermissionError:
+                    pass
 
         try:
             logger.info(f"Success! Check out your data at {reconstruct_url(response)}")

@@ -423,6 +423,12 @@ def test_tag_length():
     )
     assert errors[0].error_message() == err_string
 
+    correct_tags = pd.Series(["a" * (MAX_TAG_LENGTH)] * 3)
+    errors = Validator.validate_values(
+        **ChainMap({"dataframe": pd.DataFrame({"A": correct_tags})}, kwargs)
+    )
+    assert len(errors) == 0
+
 
 def test_multiple():
     kwargs = get_standard_kwargs()
