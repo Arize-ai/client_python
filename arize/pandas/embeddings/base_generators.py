@@ -1,20 +1,21 @@
 import os
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Dict, List, Union
+from functools import partial
+from typing import Dict, List, Union, cast
 
 import arize.pandas.embeddings.errors as err
 import pandas as pd
 from arize.utils.logging import logger
 
 from .constants import IMPORT_ERROR_MESSAGE
-from .models import CV_PRETRAINED_MODELS, NLP_PRETRAINED_MODELS
 
 try:
     import torch
+    from datasets import Dataset
     from PIL import Image
     from transformers import (  # type: ignore
-        AutoFeatureExtractor,
+        AutoImageProcessor,
         AutoModel,
         AutoTokenizer,
         BatchEncoding,
@@ -40,7 +41,12 @@ class BaseEmbeddingGenerator(ABC):
             )
         self.__batch_size = batch_size
         logger.info(f"Downloading pre-trained model '{self.model_name}'")
-        self.__model = AutoModel.from_pretrained(self.model_name, **kwargs).to(self.device)
+        try:
+            self.__model = AutoModel.from_pretrained(self.model_name, **kwargs).to(self.device)
+        except OSError:
+            raise err.HuggingFaceRepositoryNotFound(model_name)
+        except Exception as e:
+            raise e
 
     @property
     def use_case(self) -> str:
@@ -91,7 +97,7 @@ class BaseEmbeddingGenerator(ABC):
             embeddings = torch.mean(outputs.last_hidden_state, 1)
         else:
             raise ValueError(f"Invalid method = {method}")
-        return {"embedding_vector": embeddings.cpu().numpy()}
+        return {"embedding_vector": embeddings.cpu().numpy().astype(float)}
 
     @staticmethod
     def check_invalid_index(field: Union[pd.Series, pd.DataFrame]) -> None:
@@ -120,15 +126,12 @@ class NLPEmbeddingGenerator(BaseEmbeddingGenerator):
         )
 
     def __init__(self, use_case: Enum, model_name: str, tokenizer_max_length: int = 512, **kwargs):
-        if model_name not in NLP_PRETRAINED_MODELS:
-            raise ValueError(
-                "model_name not supported. Check supported models with "
-                "`AutoEmbeddingGenerator.list_pretrained_models()`"
-            )
         super(NLPEmbeddingGenerator, self).__init__(
             use_case=use_case, model_name=model_name, **kwargs
         )
         self.__tokenizer_max_length = tokenizer_max_length
+        # We don't check for the tokenizer's existence since it is coupled with the corresponding model
+        # We check the model's existence in `BaseEmbeddingGenerator`
         logger.info(f"Downloading tokenizer for '{self.model_name}'")
         self.__tokenizer = AutoTokenizer.from_pretrained(
             self.model_name, model_max_length=self.tokenizer_max_length
@@ -158,27 +161,24 @@ class CVEmbeddingGenerator(BaseEmbeddingGenerator):
             f"{self.__class__.__name__}(\n"
             f"  use_case={self.use_case},\n"
             f"  model_name='{self.model_name}',\n"
-            f"  feature_extractor={self.feature_extractor.__class__},\n"
+            f"  image_processor={self.image_processor.__class__},\n"
             f"  model={self.model.__class__},\n"
             f"  batch_size={self.batch_size},\n"
             f")"
         )
 
     def __init__(self, use_case: Enum, model_name: str, **kwargs):
-        if model_name not in CV_PRETRAINED_MODELS:
-            raise ValueError(
-                "model_name not supported. Check supported models with "
-                "`AutoEmbeddingGenerator.list_pretrained_models()`"
-            )
         super(CVEmbeddingGenerator, self).__init__(
             use_case=use_case, model_name=model_name, **kwargs
         )
-        logger.info("Downloading feature extractor")
-        self.__feature_extractor = AutoFeatureExtractor.from_pretrained(self.model_name)
+        logger.info("Downloading image processor")
+        # We don't check for the image processor's existence since it is coupled with the corresponding model
+        # We check the model's existence in `BaseEmbeddingGenerator`
+        self.__image_processor = AutoImageProcessor.from_pretrained(self.model_name)
 
     @property
-    def feature_extractor(self):
-        return self.__feature_extractor
+    def image_processor(self):
+        return self.__image_processor
 
     @staticmethod
     def open_image(image_path: str) -> Image.Image:
@@ -186,8 +186,39 @@ class CVEmbeddingGenerator(BaseEmbeddingGenerator):
             raise ValueError(f"Cannot find image {image_path}")
         return Image.open(image_path).convert("RGB")
 
-    def extract_image_features(self, batch: Dict[str, List[str]], local_image_feat_name: str):
-        return self.feature_extractor(
+    def preprocess_image(self, batch: Dict[str, List[str]], local_image_feat_name: str):
+        return self.image_processor(
             [self.open_image(image_path) for image_path in batch[local_image_feat_name]],
             return_tensors="pt",
         ).to(self.device)
+
+    def generate_embeddings(self, local_image_path_col: pd.Series) -> pd.Series:
+        """
+        Obtain embedding vectors from your image data using pre-trained image models.
+
+        :param local_image_path_col: a pandas Series containing the local path to the images to
+        be used to generate the embedding vectors.
+        :return: a pandas Series containing the embedding vectors.
+        """
+        if not isinstance(local_image_path_col, pd.Series):
+            raise TypeError("local_image_path_col_name must be pandas Series object")
+        self.check_invalid_index(field=local_image_path_col)
+
+        # Validate that there are no null image paths
+        if local_image_path_col.isnull().any():
+            raise ValueError("There can't be any null values in the local_image_path_col series")
+
+        ds = Dataset.from_dict({"local_path": local_image_path_col})
+        ds.set_transform(
+            partial(
+                self.preprocess_image,
+                local_image_feat_name="local_path",
+            )
+        )
+        logger.info("Generating embedding vectors")
+        ds = ds.map(
+            lambda batch: self._get_embedding_vector(batch, "avg_token"),
+            batched=True,
+            batch_size=self.batch_size,
+        )
+        return cast(pd.DataFrame, ds.to_pandas())["embedding_vector"]

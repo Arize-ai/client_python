@@ -11,6 +11,7 @@ class NLPUseCases(Enum):
 @unique
 class CVUseCases(Enum):
     IMAGE_CLASSIFICATION = auto()
+    OBJECT_DETECTION = auto()
 
 
 @unique

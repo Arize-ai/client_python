@@ -2,8 +2,19 @@ import pandas as pd
 
 from . import constants
 from .base_generators import BaseEmbeddingGenerator
-from .cv_generators import EmbeddingGeneratorForCVImageClassification
-from .models import CV_PRETRAINED_MODELS, NLP_PRETRAINED_MODELS
+from .constants import (
+    CV_PRETRAINED_MODELS,
+    DEFAULT_CV_IMAGE_CLASSIFICATION_MODEL,
+    DEFAULT_CV_OBJECT_DETECTION_MODEL,
+    DEFAULT_NLP_SEQUENCE_CLASSIFICATION_MODEL,
+    DEFAULT_NLP_SUMMARIZATION_MODEL,
+    DEFAULT_TABULAR_MODEL,
+    NLP_PRETRAINED_MODELS,
+)
+from .cv_generators import (
+    EmbeddingGeneratorForCVImageClassification,
+    EmbeddingGeneratorForCVObjectDetection,
+)
 from .nlp_generators import (
     EmbeddingGeneratorForNLPSequenceClassification,
     EmbeddingGeneratorForNLPSummarization,
@@ -27,10 +38,36 @@ class EmbeddingGenerator:
             return EmbeddingGeneratorForNLPSummarization(**kwargs)
         elif use_case == UseCases.CV.IMAGE_CLASSIFICATION:
             return EmbeddingGeneratorForCVImageClassification(**kwargs)
+        elif use_case == UseCases.CV.OBJECT_DETECTION:
+            return EmbeddingGeneratorForCVObjectDetection(**kwargs)
         elif use_case == UseCases.STRUCTURED.TABULAR_EMBEDDINGS:
             return EmbeddingGeneratorForTabularFeatures(**kwargs)
         else:
             raise ValueError(f"Invalid use case {use_case}")
+
+    @classmethod
+    def list_default_models(cls) -> pd.DataFrame:
+        df = pd.DataFrame(
+            {
+                "Area": ["NLP", "NLP", "CV", "CV", "STRUCTURED"],
+                "Usecase": [
+                    UseCases.NLP.SEQUENCE_CLASSIFICATION.name,
+                    UseCases.NLP.SUMMARIZATION.name,
+                    UseCases.CV.IMAGE_CLASSIFICATION.name,
+                    UseCases.CV.OBJECT_DETECTION.name,
+                    UseCases.STRUCTURED.TABULAR_EMBEDDINGS.name,
+                ],
+                "Model Name": [
+                    DEFAULT_NLP_SEQUENCE_CLASSIFICATION_MODEL,
+                    DEFAULT_NLP_SUMMARIZATION_MODEL,
+                    DEFAULT_CV_IMAGE_CLASSIFICATION_MODEL,
+                    DEFAULT_CV_OBJECT_DETECTION_MODEL,
+                    DEFAULT_TABULAR_MODEL,
+                ],
+            }
+        )
+        df.sort_values(by=[col for col in df.columns], ascending=True, inplace=True)
+        return df.reset_index(drop=True)
 
     @classmethod
     def list_pretrained_models(cls) -> pd.DataFrame:
