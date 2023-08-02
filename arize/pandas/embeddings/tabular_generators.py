@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-from enum import Enum, auto, unique
 from functools import partial
 from typing import Dict, List, Tuple, Union, cast
 
@@ -8,7 +6,8 @@ from arize.utils.logging import logger
 from arize.utils.types import is_list_of
 
 from .base_generators import NLPEmbeddingGenerator
-from .constants import IMPORT_ERROR_MESSAGE
+from .constants import DEFAULT_TABULAR_MODEL, IMPORT_ERROR_MESSAGE
+from .usecases import UseCases
 
 try:
     from datasets import Dataset
@@ -20,16 +19,6 @@ TABULAR_PRETRAINED_MODELS = [
     "distilbert-base-uncased",
     "xlm-roberta-base",
 ]
-
-
-@unique
-class StructuredUseCases(Enum):
-    TABULAR_FEATURES = auto()
-
-
-@dataclass
-class UseCases:
-    STRUCTURED = StructuredUseCases
 
 
 class EmbeddingGeneratorForTabularFeatures(NLPEmbeddingGenerator):
@@ -46,7 +35,7 @@ class EmbeddingGeneratorForTabularFeatures(NLPEmbeddingGenerator):
 
     def __init__(
         self,
-        model_name: str = "distilbert-base-uncased",
+        model_name: str = DEFAULT_TABULAR_MODEL,
         **kwargs,
     ):
         if model_name not in TABULAR_PRETRAINED_MODELS:
@@ -55,7 +44,7 @@ class EmbeddingGeneratorForTabularFeatures(NLPEmbeddingGenerator):
                 "`EmbeddingGeneratorForTabularFeatures.list_pretrained_models()`"
             )
         super(EmbeddingGeneratorForTabularFeatures, self).__init__(
-            use_case=UseCases.STRUCTURED.TABULAR_FEATURES,
+            use_case=UseCases.STRUCTURED.TABULAR_EMBEDDINGS,
             model_name=model_name,
             **kwargs,
         )

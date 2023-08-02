@@ -5,7 +5,11 @@ import pandas as pd
 from arize.utils.logging import logger
 
 from .base_generators import NLPEmbeddingGenerator
-from .constants import IMPORT_ERROR_MESSAGE
+from .constants import (
+    DEFAULT_NLP_SEQUENCE_CLASSIFICATION_MODEL,
+    DEFAULT_NLP_SUMMARIZATION_MODEL,
+    IMPORT_ERROR_MESSAGE,
+)
 from .usecases import UseCases
 
 try:
@@ -15,7 +19,7 @@ except ImportError:
 
 
 class EmbeddingGeneratorForNLPSequenceClassification(NLPEmbeddingGenerator):
-    def __init__(self, model_name: str = "distilbert-base-uncased", **kwargs):
+    def __init__(self, model_name: str = DEFAULT_NLP_SEQUENCE_CLASSIFICATION_MODEL, **kwargs):
         super(EmbeddingGeneratorForNLPSequenceClassification, self).__init__(
             use_case=UseCases.NLP.SEQUENCE_CLASSIFICATION,
             model_name=model_name,
@@ -63,7 +67,7 @@ class EmbeddingGeneratorForNLPSequenceClassification(NLPEmbeddingGenerator):
 
 
 class EmbeddingGeneratorForNLPSummarization(NLPEmbeddingGenerator):
-    def __init__(self, model_name: str = "distilbert-base-uncased", **kwargs):
+    def __init__(self, model_name: str = DEFAULT_NLP_SUMMARIZATION_MODEL, **kwargs):
         super(EmbeddingGeneratorForNLPSummarization, self).__init__(
             use_case=UseCases.NLP.SUMMARIZATION,
             model_name=model_name,
