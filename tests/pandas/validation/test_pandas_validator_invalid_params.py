@@ -6,11 +6,14 @@ import pandas as pd
 import pytest
 from arize.pandas.logger import Schema
 from arize.pandas.validation.validator import Validator
+from arize.utils.constants import MAX_NUMBER_OF_EMBEDDINGS
 from arize.utils.types import (
     EmbeddingColumnNames,
     Environments,
+    LLMConfigColumnNames,
     ModelTypes,
     ObjectDetectionColumnNames,
+    PromptTemplateColumnNames,
 )
 
 EMBEDDING_SIZE = 15
@@ -707,6 +710,90 @@ def test_existence_prediction_id_column():
         ),  # type: ignore
     )
     assert len(errors) == 0
+
+
+def test_missing_prompt_templates_and_llm_config_columns():
+    kwargs = get_standard_kwargs()
+    schema = kwargs["schema"].replace(
+        prompt_template_column_names=PromptTemplateColumnNames(
+            template_column_name="prompt_templates",
+            template_version_column_name="prompt_template_version",
+        ),
+        llm_config_column_names=LLMConfigColumnNames(
+            model_column_name="llm_model_name",
+            params_column_name="llm_params",
+        ),
+    )
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "schema": schema,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    assert isinstance(errors[0], err.MissingColumns)
+
+    dataframe = kwargs["dataframe"]
+    dataframe["prompt_templates"] = ["This is the template with version {{version}}"]
+    dataframe["prompt_template_version"] = ["Template A"]
+    dataframe["llm_model_name"] = ["gpt-3.5turbo"]
+    dataframe["llm_params"] = [
+        {"temperature": 1 / 4, "presence_penalty": 1 / 3, "stop": [".", "?", "!"]}
+    ]
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "dataframe": dataframe,
+                "schema": schema,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 0
+
+
+def test_invalid_number_of_embeddings():
+    kwargs = get_standard_kwargs()
+    schema = kwargs["schema"]
+    # Testing success
+    embedding_features = {
+        f"embedding_feat_{i:02d}": EmbeddingColumnNames(
+            vector_column_name="image_vector",
+            link_to_data_column_name="image_link",
+        )
+        for i in range(MAX_NUMBER_OF_EMBEDDINGS)
+    }
+    schema = schema.replace(
+        embedding_feature_column_names=embedding_features,
+    )
+    errors = Validator.validate_params(
+        **ChainMap(
+            {"schema": schema},
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 0
+    # Testing error
+    embedding_features = {
+        f"embedding_feat_{i:02d}": EmbeddingColumnNames(
+            vector_column_name="image_vector",
+            link_to_data_column_name="image_link",
+        )
+        for i in range(MAX_NUMBER_OF_EMBEDDINGS + 1)
+    }
+    schema = schema.replace(
+        embedding_feature_column_names=embedding_features,
+    )
+    errors = Validator.validate_params(
+        **ChainMap(
+            {"schema": schema},
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is err.InvalidNumberOfEmbeddings
 
 
 if __name__ == "__main__":

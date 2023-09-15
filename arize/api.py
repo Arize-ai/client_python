@@ -4,12 +4,16 @@ import os
 import time
 from typing import Dict, Optional, Tuple, Union
 
-from arize.pandas.validation.errors import InvalidAdditionalHeaders
+from arize.pandas.validation.errors import InvalidAdditionalHeaders, InvalidNumberOfEmbeddings
 from arize.utils.constants import (
     API_KEY_ENVVAR_NAME,
     MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
+    MAX_LLM_MODEL_NAME_LENGTH,
+    MAX_NUMBER_OF_EMBEDDINGS,
     MAX_PAST_YEARS_FROM_CURRENT_TIME,
     MAX_PREDICTION_ID_LEN,
+    MAX_PROMPT_TEMPLATE_LENGTH,
+    MAX_PROMPT_TEMPLATE_VERSION_LENGTH,
     MAX_TAG_LENGTH,
     MIN_PREDICTION_ID_LEN,
     SPACE_KEY_ENVVAR_NAME,
@@ -22,7 +26,7 @@ from requests_futures.sessions import FuturesSession
 from . import public_pb2 as pb2
 from .__init__ import __version__
 from .bounded_executor import BoundedExecutor
-from .utils.errors import AuthError
+from .utils.errors import AuthError, InvalidStringLength, InvalidValueType
 from .utils.types import (
     CATEGORICAL_MODEL_TYPES,
     NUMERIC_MODEL_TYPES,
@@ -136,6 +140,10 @@ class Client:
         batch_id: Optional[str] = None,
         prompt: Optional[Embedding] = None,
         response: Optional[Embedding] = None,
+        prompt_template: Optional[str] = None,
+        prompt_template_version: Optional[str] = None,
+        llm_model_name: Optional[str] = None,
+        llm_params: Optional[Dict[str, Union[str, bool, float, int]]] = None,
     ) -> cf.Future:
         """
         Logs a record to Arize via a POST request.
@@ -179,6 +187,17 @@ class Client:
             response (Embedding, optional): Embedding object containing the embedding vector (required) and
                 raw text (optional, but recommended) for the text GENERATIVE_LLM model generates.
                 Required for GENERATIVE_LLM models. Defaults to None.
+            prompt_template (str, optional): template used to construct the prompt passed to a large language
+                model. It can include variable using the double braces notation. Example: 'Given the context
+                {{context}}, answer the following question {{user_question}}.
+            prompt_template_version (str, optional): version of the template used.
+            llm_model_name (str, optional): name of the llm used. Example: 'gpt-4'.
+            llm_params (str, optional): hyperparameters passed to the large language model. Example:
+                {
+                   "temperature": 0.9,
+                   "presence_penalty": 0.34,
+                   "stop": [".", "?", "!"],
+                }
 
         Returns:
         --------
@@ -186,19 +205,13 @@ class Client:
         """
         # Validate model_id
         if not isinstance(model_id, str):
-            raise TypeError(f"model_id {model_id} is type {type(model_id)}, but must be a str")
+            raise InvalidValueType("model_id", model_id, "str")
         # Validate model_type
         if not isinstance(model_type, ModelTypes):
-            raise TypeError(
-                f"model_type {model_type} is type {type(model_type)}, but must be of "
-                f"arize.utils.ModelTypes"
-            )
+            raise InvalidValueType("model_type", model_type, "arize.utils.ModelTypes")
         # Validate environment
         if not isinstance(environment, Environments):
-            raise TypeError(
-                f"environment {environment} is type {type(environment)}, but must be of "
-                f"arize.utils.Environments"
-            )
+            raise InvalidValueType("environment", environment, "arize.utils.Environments")
         # Validate batch_id
         if environment == Environments.VALIDATION:
             if batch_id is None or not isinstance(batch_id, str) or len(batch_id.strip()) == 0:
@@ -212,17 +225,22 @@ class Client:
         )
         # Validate feature types
         if features:
+            if not isinstance(features, dict):
+                raise InvalidValueType("features", features, "dict")
             for feat_name, feat_value in features.items():
-                _validate_mapping_key(feat_name)
+                _validate_mapping_key(feat_name, "features")
                 val = convert_element(feat_value)
                 if val is not None and not isinstance(val, (str, bool, float, int)):
-                    raise TypeError(
-                        f"feature {feat_name} with value {feat_value} is type {type(feat_value)}, "
-                        f"but expected one of: str, bool, float, int"
+                    raise InvalidValueType(
+                        f"feature '{feat_name}'", feat_value, "one of: bool, int, float, str"
                     )
 
         # Validate embedding_features type
         if embedding_features:
+            if not isinstance(embedding_features, dict):
+                raise InvalidValueType("embedding_features", embedding_features, "dict")
+            if len(embedding_features) > MAX_NUMBER_OF_EMBEDDINGS:
+                raise InvalidNumberOfEmbeddings(len(embedding_features))
             if model_type == ModelTypes.OBJECT_DETECTION:
                 # Check that there is only 1 embedding feature for OD model types
                 if len(embedding_features.keys()) > 1:
@@ -236,21 +254,22 @@ class Client:
                         "for GENERATIVE_LLM models"
                     )
             for emb_name, emb_obj in embedding_features.items():
-                _validate_mapping_key(emb_name)
+                _validate_mapping_key(emb_name, "embedding features")
                 # Must verify embedding type
                 if not isinstance(emb_obj, Embedding):
-                    raise TypeError(f'Embedding feature "{emb_name}" must be of type Embedding')
+                    raise InvalidValueType(f"embedding feature '{emb_name}'", emb_obj, "Embedding")
                 emb_obj.validate(emb_name)
 
         # Validate tag types
         if tags:
+            if not isinstance(tags, dict):
+                raise InvalidValueType("tags", tags, "dict")
             for tag_name, tag_value in tags.items():
-                _validate_mapping_key(tag_name)
+                _validate_mapping_key(tag_name, "tags")
                 val = convert_element(tag_value)
                 if val is not None and not isinstance(val, (str, bool, float, int)):
-                    raise TypeError(
-                        f"tag {tag_name} with value {tag_value} is type {type(tag_value)}, "
-                        f"but expected one of: str, bool, float, int"
+                    raise InvalidValueType(
+                        f"tag '{tag_name}'", tag_value, "one of: bool, int, float, str"
                     )
                 if isinstance(tag_name, str) and tag_name.endswith("_shap"):
                     raise ValueError(f"tag {tag_name} must not be named with a `_shap` suffix")
@@ -264,10 +283,7 @@ class Client:
         # Check the timestamp present on the event
         if prediction_timestamp is not None:
             if not isinstance(prediction_timestamp, int):
-                raise TypeError(
-                    f"prediction_timestamp {prediction_timestamp} is type "
-                    f"{type(prediction_timestamp)} but expected int"
-                )
+                raise InvalidValueType("prediction_timestamp", prediction_timestamp, "int")
             # Send warning if prediction is sent with future timestamp
             now = int(time.time())
             if prediction_timestamp > now:
@@ -287,6 +303,7 @@ class Client:
 
         # Validate GENERATIVE_LLM models requirements
         if model_type == ModelTypes.GENERATIVE_LLM:
+            # Validate that prompt and response are not None
             if prompt is None or response is None:
                 raise ValueError(
                     "The following fields cannot be None for GENERATIVE_LLM models: prompt, response"
@@ -296,6 +313,11 @@ class Client:
                 if not isinstance(emb_obj, Embedding):
                     raise TypeError("Both prompt and response objects must be of type Embedding")
                 emb_obj.validate(emb_name)
+
+            # Validate prompt templates workflow information
+            _validate_prompt_templates_and_llm_config(
+                prompt_template, prompt_template_version, llm_model_name, llm_params
+            )
         else:
             if prompt is not None or response is not None:
                 raise ValueError(
@@ -309,10 +331,7 @@ class Client:
             prediction_label = 1
         if prediction_label is not None:
             if model_version is not None and not isinstance(model_version, str):
-                raise TypeError(
-                    f"model_version {model_version} is type {type(model_version)}, but must be a "
-                    f"str"
-                )
+                raise InvalidValueType("model_version", model_version, "str")
             _validate_label(
                 prediction_or_actual="prediction",
                 model_type=model_type,
@@ -334,7 +353,9 @@ class Client:
 
             if embedding_features or prompt or response:
                 # NOTE: Deep copy is necessary to avoid side effects on the original input dictionary
-                combined_embedding_features = {k: v for k, v in embedding_features.items()}
+                combined_embedding_features = (
+                    {k: v for k, v in embedding_features.items()} if embedding_features else {}
+                )
                 # Map prompt/response as embedding features for generative models
                 if model_type == ModelTypes.GENERATIVE_LLM:
                     combined_embedding_features.update({"prompt": prompt, "response": response})
@@ -346,6 +367,15 @@ class Client:
                 converted_tags = convert_dictionary(tags)
                 tgs = pb2.Prediction(tags=converted_tags)
                 p.MergeFrom(tgs)
+
+            if prompt_template or prompt_template_version or llm_model_name or llm_params:
+                llm_fields = pb2.LLMFields(
+                    prompt_template=prompt_template or "",
+                    prompt_template_name=prompt_template_version or "",
+                    llm_model_name=llm_model_name or "",
+                    llm_params=convert_dictionary(llm_params),
+                )
+                p.MergeFrom(pb2.Prediction(llm_fields=llm_fields))
 
             if prediction_timestamp is not None:
                 p.timestamp.MergeFrom(get_timestamp(prediction_timestamp))
@@ -377,9 +407,7 @@ class Client:
         if shap_values is not None and bool(shap_values):
             for k, v in shap_values.items():
                 if not isinstance(convert_element(v), float):
-                    raise TypeError(
-                        f"feature {k} with value {v} is type {type(v)}, but expected one of: float"
-                    )
+                    raise InvalidValueType(f"feature '{k}'", v, "float")
                 if isinstance(k, str) and k.endswith("_shap"):
                     raise ValueError(f"feature {k} must not be named with a `_shap` suffix")
             fi = pb2.FeatureImportances(feature_importances=shap_values)
@@ -458,10 +486,7 @@ def _validate_label(
     elif model_type == ModelTypes.GENERATIVE_LLM:
         _validate_generative_llm_label(label)
     else:
-        raise TypeError(
-            f"model_type {model_type} is type {type(model_type)}, but must be of "
-            f"arize.utils.ModelTypes"
-        )
+        raise InvalidValueType("model_type", model_type, "arize.utils.ModelTypes")
 
 
 def _validate_numeric_label(
@@ -469,9 +494,8 @@ def _validate_numeric_label(
     label: Union[str, bool, int, float, Tuple[Union[str, bool], float]],
 ):
     if not isinstance(label, (float, int)):
-        raise TypeError(
-            f"label {label} has type {type(label)}, but must be either float or int for "
-            f"{model_type}"
+        raise InvalidValueType(
+            f"label {label}", label, f"either float or int for model_type {model_type}"
         )
 
 
@@ -491,9 +515,10 @@ def _validate_categorical_label(
         )
     )
     if not is_valid:
-        raise TypeError(
-            f"label {label} has type {type(label)}, but must be str, bool, int, float or Tuple[str, "
-            f"float] for {model_type}"
+        raise InvalidValueType(
+            f"label {label}",
+            label,
+            f"one of: bool, int, float, str or Tuple[str, float] for model type {model_type}",
         )
 
 
@@ -503,9 +528,10 @@ def _validate_object_detection_label(
     embedding_features: Dict[str, Embedding],
 ):
     if not isinstance(label, ObjectDetectionLabel):
-        raise TypeError(
-            f"label {label} has type {type(label)}, but must be ObjectDetectionLabel for"
-            f"{ModelTypes.OBJECT_DETECTION}"
+        raise InvalidValueType(
+            f"label {label}",
+            label,
+            f"ObjectDetectionLabel for model type {ModelTypes.OBJECT_DETECTION}",
         )
     if embedding_features is None:
         raise ValueError("Cannot use Object Detection Labels without an embedding feature")
@@ -518,9 +544,10 @@ def _validate_ranking_label(
     label: Union[RankingPredictionLabel, RankingActualLabel],
 ):
     if not isinstance(label, (RankingPredictionLabel, RankingActualLabel)):
-        raise TypeError(
-            f"label {label} has type {type(label)}, but must be RankingPredictionLabel"
-            f"or RankingActualLabel for {ModelTypes.RANKING}"
+        raise InvalidValueType(
+            f"label {label}",
+            label,
+            f"RankingPredictionLabel or RankingActualLabel for model type {ModelTypes.RANKING}",
         )
     label.validate()
 
@@ -535,9 +562,10 @@ def _validate_generative_llm_label(
         or isinstance(label, float)
     )
     if not is_valid:
-        raise TypeError(
-            f"label {label} has type {type(label)}, but must be str, bool, int, float "
-            f"for {ModelTypes.GENERATIVE_LLM}"
+        raise InvalidValueType(
+            f"label {label}",
+            label,
+            f"one of: bool, int, float, str for model type {ModelTypes.GENERATIVE_LLM}",
         )
 
 
@@ -636,9 +664,10 @@ def _get_object_detection_label(
     value: ObjectDetectionLabel,
 ) -> Union[pb2.PredictionLabel, pb2.ActualLabel]:
     if not isinstance(value, ObjectDetectionLabel):
-        raise TypeError(
-            f"label {value} has type {type(value)}, but must be ObjectDetectionLabel for ModelTypes"
-            f".OBJECT_DETECTION"
+        raise InvalidValueType(
+            "object detection label",
+            value,
+            f"ObjectDetectionLabel for model type {ModelTypes.OBJECT_DETECTION}",
         )
     od = pb2.ObjectDetection()
     bounding_boxes = []
@@ -670,9 +699,10 @@ def _get_ranking_label(
     value: Union[RankingPredictionLabel, RankingActualLabel]
 ) -> Union[pb2.PredictionLabel, pb2.ActualLabel]:
     if not isinstance(value, (RankingPredictionLabel, RankingActualLabel)):
-        raise TypeError(
-            f"label {value} has type {type(value)}, but must be RankingPredictionLabel"
-            f" or RankingActualLabel for ModelTypes.RANKING"
+        raise InvalidValueType(
+            "ranking label",
+            value,
+            f"RankingPredictionLabel or RankingActualLabel for model type {ModelTypes.RANKING}",
         )
     if isinstance(value, RankingPredictionLabel):
         rp = pb2.RankingPrediction()
@@ -695,13 +725,15 @@ def _get_ranking_label(
         return pb2.ActualLabel(ranking=ra)
 
 
-def _validate_mapping_key(feat_name):
-    if not isinstance(feat_name, str):
+def _validate_mapping_key(key_name: str, name: str):
+    if not isinstance(key_name, str):
         raise ValueError(
-            f"feature {feat_name} must be named with string, type used: {type(feat_name)}"
+            f"{name} dictionary key {key_name} must be named with string, type used: {type(key_name)}"
         )
-    if feat_name.endswith("_shap"):
-        raise ValueError(f"feature {feat_name} must not be named with a `_shap` suffix")
+    if key_name.endswith("_shap"):
+        raise ValueError(
+            f"{name} dictionary key {key_name} must not be named with a `_shap` suffix"
+        )
     return
 
 
@@ -749,3 +781,59 @@ def _validate_and_convert_prediction_id(
 
     # If prediction id is given by user, convert it to string and validate length
     return _convert_prediction_id(prediction_id)
+
+
+def _validate_prompt_templates_and_llm_config(
+    prompt_template: Optional[str],
+    prompt_template_version: Optional[str],
+    llm_model_name: Optional[str],
+    llm_params: Optional[Dict[str, Union[str, bool, float, int]]],
+) -> None:
+    if prompt_template is not None:
+        if not isinstance(prompt_template, str):
+            raise InvalidValueType(
+                "prompt_template",
+                prompt_template,
+                "str",
+            )
+        if len(prompt_template) > MAX_PROMPT_TEMPLATE_LENGTH:
+            raise InvalidStringLength("prompt_template", 0, MAX_PROMPT_TEMPLATE_LENGTH)
+
+    if prompt_template_version is not None:
+        if not isinstance(prompt_template_version, str):
+            raise InvalidValueType(
+                "prompt_template_version",
+                prompt_template_version,
+                "str",
+            )
+        if len(prompt_template_version) > MAX_PROMPT_TEMPLATE_VERSION_LENGTH:
+            raise InvalidStringLength(
+                "prompt_template_version", 0, MAX_PROMPT_TEMPLATE_VERSION_LENGTH
+            )
+
+    if llm_model_name is not None:
+        if not isinstance(llm_model_name, str):
+            raise InvalidValueType(
+                "llm_model_name",
+                llm_model_name,
+                "str",
+            )
+        if len(llm_model_name) > MAX_LLM_MODEL_NAME_LENGTH:
+            raise InvalidStringLength("llm_model_name", 0, MAX_LLM_MODEL_NAME_LENGTH)
+
+    if llm_params is not None:
+        if not isinstance(llm_params, dict):
+            raise InvalidValueType(
+                "llm_params",
+                llm_params,
+                "dict",
+            )
+        for param_name, param_value in llm_params.items():
+            _validate_mapping_key(param_name, "llm_params")
+            val = convert_element(param_value)
+            if val is not None and not isinstance(val, (bool, int, float, str, list[str])):
+                raise InvalidValueType(
+                    f"llm param '{param_name}'",
+                    param_value,
+                    "one of: bool, int, float, str, list[str]",
+                )

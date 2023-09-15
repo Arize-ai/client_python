@@ -1,24 +1,26 @@
+import itertools
 import os
 import time
 from pathlib import Path
 
 import arize.public_pb2 as pb2
+import arize.utils.errors as err
 import numpy as np
 import pandas as pd
 import pytest
 from arize import __version__ as arize_version
 from arize.api import Client, Embedding
-from arize.pandas.validation.errors import InvalidAdditionalHeaders
+from arize.pandas.validation.errors import InvalidAdditionalHeaders, InvalidNumberOfEmbeddings
 from arize.utils.constants import (
     API_KEY_ENVVAR_NAME,
     MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
+    MAX_NUMBER_OF_EMBEDDINGS,
     MAX_PAST_YEARS_FROM_CURRENT_TIME,
     MAX_PREDICTION_ID_LEN,
     MAX_TAG_LENGTH,
     MIN_PREDICTION_ID_LEN,
     SPACE_KEY_ENVVAR_NAME,
 )
-from arize.utils.errors import AuthError
 from arize.utils.types import (
     Environments,
     ModelTypes,
@@ -26,7 +28,7 @@ from arize.utils.types import (
     RankingActualLabel,
     RankingPredictionLabel,
 )
-from arize.utils.utils import get_python_version
+from arize.utils.utils import convert_dictionary, get_python_version
 from google.protobuf.wrappers_pb2 import BoolValue, DoubleValue, StringValue
 
 BOOL_VAL = True
@@ -296,6 +298,18 @@ def _attach_features_to_prediction() -> pb2.Prediction:
         "feature_bool": pb2.Value(string=str(BOOL_VAL)),
     }
     return pb2.Prediction(features=features)
+
+
+def _attach_llm_field_to_prediction(
+    prompt_template=None, prompt_template_version=None, llm_model_name=None, llm_params=None
+) -> pb2.Prediction:
+    llm_fields = pb2.LLMFields(
+        prompt_template=prompt_template or "",
+        prompt_template_name=prompt_template_version or "",
+        llm_model_name=llm_model_name or "",
+        llm_params=convert_dictionary(llm_params),
+    )
+    return pb2.Prediction(llm_fields=llm_fields)
 
 
 def _attach_image_embedding_feature_to_prediction() -> pb2.Prediction:
@@ -1464,7 +1478,7 @@ def test_invalid_generative_model():
     assert "Both prompt and response objects must be of type Embedding" in str(excinfo.value)
 
 
-def test_invalid_prompt_response_for_model_type():
+def test_invalid_prompt_response_embeddings_for_model_type():
     c = get_stubbed_client()
 
     # Test that 'prompt' must be None for models other than GENERATIVE_LLM
@@ -1501,6 +1515,142 @@ def test_invalid_prompt_response_for_model_type():
         "The fields 'prompt' and 'response' must be None for model types other than GENERATIVE_LLM"
         in str(excinfo.value)
     )
+
+
+def test_invalid_generative_prompt_template_and_llm_config_types():
+    c = get_stubbed_client()
+    # Test that 'llm_model_name' must be a string with limited amount of characters
+    with pytest.raises(err.InvalidValueType) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            model_type=ModelTypes.GENERATIVE_LLM,
+            prediction_id=inputs["prediction_id"],
+            prediction_label=inputs["label_int"],
+            features=inputs["features"],
+            tags=inputs["tags"],
+            prompt=inputs["prompt"],
+            response=inputs["response"],
+            llm_model_name=0,
+        )
+    assert "llm_model_name" in str(excinfo.value)
+    assert "str" in str(excinfo.value)
+    # Test that 'prompt_template' must be a string with limited amount of characters
+    with pytest.raises(err.InvalidValueType) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            model_type=ModelTypes.GENERATIVE_LLM,
+            prediction_id=inputs["prediction_id"],
+            prediction_label=inputs["label_int"],
+            features=inputs["features"],
+            tags=inputs["tags"],
+            prompt=inputs["prompt"],
+            response=inputs["response"],
+            prompt_template=0,
+        )
+    assert "prompt_template" in str(excinfo.value)
+    assert "str" in str(excinfo.value)
+    # Test that 'prompt_template_version' must be a string with limited amount of characters
+    with pytest.raises(err.InvalidValueType) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            model_type=ModelTypes.GENERATIVE_LLM,
+            prediction_id=inputs["prediction_id"],
+            prediction_label=inputs["label_int"],
+            features=inputs["features"],
+            tags=inputs["tags"],
+            prompt=inputs["prompt"],
+            response=inputs["response"],
+            prompt_template_version=0,
+        )
+    assert "prompt_template_version" in str(excinfo.value)
+    assert "str" in str(excinfo.value)
+    # Test that 'llm_params' must be a string with limited amount of characters
+    with pytest.raises(err.InvalidValueType) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            model_type=ModelTypes.GENERATIVE_LLM,
+            prediction_id=inputs["prediction_id"],
+            prediction_label=inputs["label_int"],
+            features=inputs["features"],
+            tags=inputs["tags"],
+            prompt=inputs["prompt"],
+            response=inputs["response"],
+            llm_params=0,
+        )
+    assert "llm_params" in str(excinfo.value)
+    assert "dict" in str(excinfo.value)
+
+
+def test_valid_generative_prompt_template_and_llm_config():
+    c = get_stubbed_client()
+    llm_model_names = [None, "gpt-4"]
+    prompt_templates = [None, "This is a test template with context {{context}}"]
+    prompt_template_versions = [None, "Template A"]
+    llm_params_list = [None, {"temperature": 0.9, "presence_pnlty": 0.34, "stop": [".", "?", "!"]}]
+    # Test allowed label types
+    combinations = list(
+        itertools.product(
+            *[llm_model_names, prompt_templates, prompt_template_versions, llm_params_list]
+        )
+    )
+    label_type = "int"
+    prediction_label = inputs[f"label_{label_type}"]
+    actual_label = prediction_label
+    for comb in combinations:
+        llm_model_name, prompt_template, prompt_template_version, llm_params = comb
+        record = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            model_type=ModelTypes.GENERATIVE_LLM,
+            prediction_id=inputs["prediction_id"],
+            prediction_label=prediction_label,
+            actual_label=actual_label,
+            features=inputs["features"],
+            embedding_features=inputs["embedding_features"],
+            tags=inputs["tags"],
+            prompt=inputs["prompt"],
+            response=inputs["response"],
+            llm_model_name=llm_model_name,
+            prompt_template=prompt_template,
+            prompt_template_version=prompt_template_version,
+            llm_params=llm_params,
+        )
+        #   Get environment in proto format
+        ep = _get_proto_environment_params(Environments.PRODUCTION)
+        #   Start constructing expected result by building the prediction
+        p = _build_basic_prediction(f"generative_{label_type}")
+        a = _build_basic_actual(f"generative_{label_type}")
+        #   Add props to prediction according to this test
+        p.MergeFrom(_attach_features_to_prediction())
+        p.MergeFrom(_attach_embedding_features_to_prediction())
+        p.MergeFrom(_attach_prompt_and_response_to_prediction())
+        p.MergeFrom(_attach_tags_to_prediction())
+        if llm_model_name or prompt_template or prompt_template_version or llm_params:
+            p.MergeFrom(
+                _attach_llm_field_to_prediction(
+                    prompt_template=prompt_template,
+                    prompt_template_version=prompt_template_version,
+                    llm_model_name=llm_model_name,
+                    llm_params=llm_params,
+                )
+            )
+        #   Add props to actual according to this test
+        a.MergeFrom(_attach_tags_to_actual())
+        #   Build expected record using built prediction
+        expected_record = _build_expected_record(
+            p=p, a=a, ep=ep, is_generative_llm_record=BoolValue(value=True)
+        )
+        #   Check result is as expected
+        assert record == expected_record
 
 
 def test_invalid_tags():
@@ -1552,19 +1702,19 @@ def test_instantiating_client_additional_header():
 
 
 def test_invalid_client_auth_passed_vars():
-    with pytest.raises(AuthError) as excinfo:
+    with pytest.raises(err.AuthError) as excinfo:
         _ = Client()
-    assert excinfo.value.__str__() == AuthError(None, None).error_message()
+    assert excinfo.value.__str__() == err.AuthError(None, None).error_message()
     assert "Missing: ['api_key', 'space_key']" in str(excinfo.value)
 
-    with pytest.raises(AuthError) as excinfo:
+    with pytest.raises(err.AuthError) as excinfo:
         _ = Client(space_key=inputs["space_key"])
-    assert excinfo.value.__str__() == AuthError(None, inputs["space_key"]).error_message()
+    assert excinfo.value.__str__() == err.AuthError(None, inputs["space_key"]).error_message()
     assert "Missing: ['api_key']" in str(excinfo.value)
 
-    with pytest.raises(AuthError) as excinfo:
+    with pytest.raises(err.AuthError) as excinfo:
         _ = Client(api_key=inputs["api_key"])
-    assert excinfo.value.__str__() == AuthError(inputs["api_key"], None).error_message()
+    assert excinfo.value.__str__() == err.AuthError(inputs["api_key"], None).error_message()
     assert "Missing: ['space_key']" in str(excinfo.value)
 
     # acceptable input
@@ -1575,24 +1725,24 @@ def test_invalid_client_auth_passed_vars():
 
 
 def test_invalid_client_auth_environment_vars():
-    with pytest.raises(AuthError) as excinfo:
+    with pytest.raises(err.AuthError) as excinfo:
         _ = Client()
-    assert excinfo.value.__str__() == AuthError(None, None).error_message()
+    assert excinfo.value.__str__() == err.AuthError(None, None).error_message()
     assert "Missing: ['api_key', 'space_key']" in str(excinfo.value)
 
     os.environ[SPACE_KEY_ENVVAR_NAME] = inputs["space_key"]
-    with pytest.raises(AuthError) as excinfo:
+    with pytest.raises(err.AuthError) as excinfo:
         c = Client()
         assert c._space_key == inputs["space_key"]
-    assert excinfo.value.__str__() == AuthError(None, inputs["space_key"]).error_message()
+    assert excinfo.value.__str__() == err.AuthError(None, inputs["space_key"]).error_message()
     assert "Missing: ['api_key']" in str(excinfo.value)
 
     os.environ.pop(SPACE_KEY_ENVVAR_NAME)
     os.environ[API_KEY_ENVVAR_NAME] = inputs["api_key"]
-    with pytest.raises(AuthError) as excinfo:
+    with pytest.raises(err.AuthError) as excinfo:
         c = Client()
         assert c._api_key == inputs["api_key"]
-    assert excinfo.value.__str__() == AuthError(inputs["api_key"], None).error_message()
+    assert excinfo.value.__str__() == err.AuthError(inputs["api_key"], None).error_message()
     assert "Missing: ['space_key']" in str(excinfo.value)
 
     # acceptable input
@@ -1603,6 +1753,74 @@ def test_invalid_client_auth_environment_vars():
         pytest.fail("Unexpected error!")
     assert c._space_key == inputs["space_key"]
     assert c._api_key == inputs["api_key"]
+
+
+def test_invalid_number_of_embeddings():
+    c = get_stubbed_client()
+    # Test failure
+    N = MAX_NUMBER_OF_EMBEDDINGS + 1
+    embedding_features = {
+        f"embedding_feat_{i:02d}": inputs["embedding_features"]["image_embedding"] for i in range(N)
+    }
+    with pytest.raises(InvalidNumberOfEmbeddings) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            model_type=ModelTypes.SCORE_CATEGORICAL,
+            prediction_id=inputs["prediction_id"],
+            prediction_label=inputs["label_bool"],
+            actual_label=inputs["label_bool"],
+            features=inputs["features"],
+            embedding_features=embedding_features,
+            tags=inputs["tags"],
+        )
+    err_msg = (
+        f"The schema contains {N} different embeddings when a maximum of "
+        f"{MAX_NUMBER_OF_EMBEDDINGS} is allowed."
+    )
+    assert err_msg in str(excinfo.value)
+
+    # Test success
+    N = MAX_NUMBER_OF_EMBEDDINGS
+    embedding_features = {
+        f"embedding_feat_{i:02d}": inputs["embedding_features"]["image_embedding"] for i in range(N)
+    }
+    record = c.log(
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        environment=Environments.PRODUCTION,
+        model_type=ModelTypes.SCORE_CATEGORICAL,
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["label_bool"],
+        actual_label=inputs["label_bool"],
+        features=inputs["features"],
+        embedding_features=embedding_features,
+        tags=inputs["tags"],
+    )
+    #   Get environment in proto format
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("score_categorical_bool")
+    a = _build_basic_actual("score_categorical_bool")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_features_to_prediction())
+    emb_feats = {}
+    for emb_feat_name, emb_feat_value in embedding_features.items():
+        emb_feats[emb_feat_name] = pb2.Value(
+            embedding=pb2.Embedding(
+                vector=emb_feat_value.vector,
+                link_to_data=StringValue(value=emb_feat_value.link_to_data),
+            )  # type: ignore
+        )  # type: ignore
+    p.MergeFrom(pb2.Prediction(features=emb_feats))
+    p.MergeFrom(_attach_tags_to_prediction())
+    #   Add props to prediction according to this test
+    a.MergeFrom(_attach_tags_to_actual())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p, a=a, ep=ep)
+    #   Check result is as expected
+    assert record == expected_record
 
 
 if __name__ == "__main__":

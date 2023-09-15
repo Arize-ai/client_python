@@ -1,16 +1,11 @@
 from collections import ChainMap
 
+import arize.pandas.validation.errors as err
 import pandas as pd
 import pytest
 from arize.pandas.logger import Schema
-from arize.pandas.validation.errors import (
-    InvalidFieldTypeConversion,
-    InvalidFieldTypeEmbeddingFeatures,
-    InvalidFieldTypePromptResponse,
-    InvalidIndex,
-)
 from arize.pandas.validation.validator import Validator
-from arize.utils.types import EmbeddingColumnNames
+from arize.utils.types import EmbeddingColumnNames, LLMConfigColumnNames
 
 
 def get_standard_kwargs():
@@ -68,13 +63,13 @@ def test_invalid_index():
         ),
     )
     assert len(errors) == 1
-    assert isinstance(errors[0], InvalidIndex)
+    assert isinstance(errors[0], err.InvalidIndex)
 
 
 def test_field_type_embedding_features_column_names():
     kwargs = get_standard_kwargs()
-    embeddings_embedding_feature_column_correct = kwargs["schema"].embedding_feature_column_names
-    embeddings_embedding_feature_column_incorrect = [
+    embedding_feature_column_correct = kwargs["schema"].embedding_feature_column_names
+    embedding_feature_column_incorrect = [
         EmbeddingColumnNames(
             vector_column_name="image_vector",
             link_to_data_column_name="image_link",
@@ -86,11 +81,11 @@ def test_field_type_embedding_features_column_names():
                 "schema": Schema(
                     prediction_id_column_name="prediction_id",
                     prediction_score_column_name="prediction_score",
-                    embedding_feature_column_names=embeddings_embedding_feature_column_correct,
+                    embedding_feature_column_names=embedding_feature_column_correct,  # type: ignore
                 ),
             },
             kwargs,
-        ),
+        ),  # type: ignore
     )
     assert len(errors) == 0
 
@@ -100,14 +95,14 @@ def test_field_type_embedding_features_column_names():
                 "schema": Schema(
                     prediction_id_column_name="prediction_id",
                     prediction_score_column_name="prediction_score",
-                    embedding_feature_column_names=embeddings_embedding_feature_column_incorrect,
-                ),
+                    embedding_feature_column_names=embedding_feature_column_incorrect,  # type: ignore
+                ),  # type: ignore
             },
             kwargs,
-        ),
+        ),  # type: ignore
     )
     assert len(errors) == 1
-    assert isinstance(errors[0], InvalidFieldTypeEmbeddingFeatures)
+    assert isinstance(errors[0], err.InvalidFieldTypeEmbeddingFeatures)
 
 
 def test_field_type_prompt_response_column_names():
@@ -129,15 +124,100 @@ def test_field_type_prompt_response_column_names():
                 "schema": Schema(
                     prediction_id_column_name="prediction_id",
                     prediction_score_column_name="prediction_score",
-                    prompt_column_names=prompt_column_names_incorrect,
-                    response_column_names=response_column_names_incorrect,
+                    prompt_column_names=prompt_column_names_incorrect,  # type: ignore
+                    response_column_names=response_column_names_incorrect,  # type: ignore
                 ),
             },
             kwargs,
+        ),  # type: ignore
+    )
+    assert len(errors) == 2
+    for e in errors:
+        assert isinstance(e, err.InvalidFieldTypePromptResponse)
+
+
+def test_field_type_prompt_template_and_llm_config_column_names():
+    kwargs = get_standard_kwargs()
+    # This gives string objects
+    prompt_template_column_names_incorrect = "prompt_templates"
+    llm_config_column_names_incorrect = "llm_config"
+
+    errors = Validator.validate_required_checks(
+        **ChainMap(
+            kwargs,
         ),
     )
+    assert len(errors) == 0
+
+    errors = Validator.validate_required_checks(
+        **ChainMap(
+            {
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    prediction_score_column_name="prediction_score",
+                    prompt_template_column_names=prompt_template_column_names_incorrect,  # type: ignore
+                ),
+            },
+            kwargs,
+        ),  # type: ignore
+    )
     assert len(errors) == 1
-    assert isinstance(errors[0], InvalidFieldTypePromptResponse)
+    assert isinstance(errors[0], err.InvalidFieldTypePromptTemplates)
+
+    errors = Validator.validate_required_checks(
+        **ChainMap(
+            {
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    prediction_score_column_name="prediction_score",
+                    llm_config_column_names=llm_config_column_names_incorrect,  # type:ignore
+                ),
+            },
+            kwargs,
+        ),  # type: ignore
+    )
+    assert len(errors) == 1
+    assert isinstance(errors[0], err.InvalidFieldTypeLlmConfig)
+
+
+def test_type_llm_params():
+    kwargs = get_standard_kwargs()
+    dataframe_correct = kwargs["dataframe"]
+    dataframe_correct["llm_params"] = [
+        {"temperature": i / 4, "presence_penalty": i / 3, "stop": [".", "?", "!"]} for i in range(5)
+    ]
+    errors = Validator.validate_required_checks(
+        **ChainMap(
+            {
+                "dataframe": dataframe_correct,
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    prediction_score_column_name="prediction_score",
+                    llm_config_column_names=LLMConfigColumnNames(params_column_name="llm_params"),
+                ),
+            },
+            kwargs,
+        ),  # type: ignore
+    )
+    assert len(errors) == 0
+
+    dataframe_incorrect = dataframe_correct
+    dataframe_incorrect["llm_params"] = [i for i in range(5)]
+    errors = Validator.validate_required_checks(
+        **ChainMap(
+            {
+                "dataframe": dataframe_incorrect,
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    prediction_score_column_name="prediction_score",
+                    llm_config_column_names=LLMConfigColumnNames(params_column_name="llm_params"),
+                ),
+            },
+            kwargs,
+        ),  # type: ignore
+    )
+    assert len(errors) == 1
+    assert isinstance(errors[0], err.InvalidTypeColumns)
 
 
 def test_field_convertible_to_str():
@@ -160,10 +240,10 @@ def test_field_convertible_to_str():
                 "batch_id": Dummy_class(),
             },
             kwargs,
-        ),
+        ),  # type: ignore
     )
     assert len(errors) == 1
-    assert isinstance(errors[0], InvalidFieldTypeConversion)
+    assert isinstance(errors[0], err.InvalidFieldTypeConversion)
     assert "model_id" in errors[0].error_message()
     assert "model_version" in errors[0].error_message()
     assert "batch_id" in errors[0].error_message()

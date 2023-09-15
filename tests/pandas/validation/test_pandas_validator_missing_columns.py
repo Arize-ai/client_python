@@ -19,7 +19,7 @@ def test_missing_prediction_id():
                 ),
             },
             kwargs,
-        ),
+        ),  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is MissingColumns
@@ -36,7 +36,7 @@ def test_missing_timestamp():
                 )
             },
             kwargs,
-        ),
+        ),  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is MissingColumns
@@ -53,7 +53,7 @@ def test_missing_feature_columns():
                 )
             },
             kwargs,
-        ),
+        ),  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is MissingColumns
@@ -70,7 +70,7 @@ def test_missing_tag_columns():
                 )
             },
             kwargs,
-        ),
+        ),  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is MissingColumns
@@ -87,7 +87,7 @@ def test_missing_shap_columns():
                 )
             },
             kwargs,
-        ),
+        ),  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is MissingColumns
@@ -103,7 +103,7 @@ def test_missing_prediction_label():
                 )
             },
             kwargs,
-        ),
+        ),  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is MissingColumns
@@ -120,7 +120,7 @@ def test_missing_prediction_score():
                 )
             },
             kwargs,
-        ),
+        ),  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is MissingColumns
@@ -137,7 +137,7 @@ def test_missing_actual_label():
                 )
             },
             kwargs,
-        ),
+        ),  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is MissingColumns
@@ -154,7 +154,7 @@ def test_missing_actual_score():
                 )
             },
             kwargs,
-        ),
+        ),  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is MissingColumns
@@ -177,7 +177,7 @@ def test_missing_multiple():
                 )
             },
             kwargs,
-        ),
+        ),  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is MissingColumns

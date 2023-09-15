@@ -8,7 +8,13 @@ import pyarrow as pa
 import pytest
 from arize.pandas.logger import Schema
 from arize.pandas.validation.validator import Validator
-from arize.utils.types import EmbeddingColumnNames, ModelTypes, ObjectDetectionColumnNames
+from arize.utils.types import (
+    EmbeddingColumnNames,
+    LLMConfigColumnNames,
+    ModelTypes,
+    ObjectDetectionColumnNames,
+    PromptTemplateColumnNames,
+)
 
 
 def test_zero_errors():
@@ -519,7 +525,7 @@ def test_invalid_type_bounding_boxes():
         assert type(error) == type(expected_error)
 
 
-def test_invalid_type_prompt_response():
+def test_invalid_type_generative():
     kwargs = get_kwargs()
     errors = Validator.validate_types(
         **ChainMap(
@@ -530,19 +536,33 @@ def test_invalid_type_prompt_response():
         )  # type:ignore
     )
     expected_errors = [
-        err.InvalidTypePromptResponse(
+        err.InvalidTypeColumns(
             wrong_type_columns=[
                 "wrong_prompt_vector",
                 "wrong_response_vector",
             ],
             expected_types=["list[float], np.array[float]"],
         ),
-        err.InvalidTypePromptResponse(
+        err.InvalidTypeColumns(
             wrong_type_columns=[
                 "wrong_prompt_data",
                 "wrong_response_data",
             ],
             expected_types=["list[string]"],
+        ),
+        err.InvalidTypeColumns(
+            wrong_type_columns=[
+                "wrong_template",
+                "wrong_template_version",
+            ],
+            expected_types=["string"],
+        ),
+        err.InvalidTypeColumns(
+            wrong_type_columns=[
+                "wrong_model_name",
+                "wrong_llm_params",
+            ],
+            expected_types=["string"],
         ),
     ]
 
@@ -582,6 +602,14 @@ def get_kwargs():
             response_column_names=EmbeddingColumnNames(
                 vector_column_name="wrong_response_vector",
                 data_column_name="wrong_response_data",
+            ),
+            prompt_template_column_names=PromptTemplateColumnNames(
+                template_column_name="wrong_template",
+                template_version_column_name="wrong_template_version",
+            ),
+            llm_config_column_names=LLMConfigColumnNames(
+                model_column_name="wrong_model_name",
+                params_column_name="wrong_llm_params",
             ),
         ),
         "pyarrow_schema": pa.Schema.from_pandas(
@@ -653,6 +681,10 @@ def get_kwargs():
                     ).tolist(),
                     "wrong_prompt_data": [x for x in range(3)],
                     "wrong_response_data": [x for x in range(3)],
+                    "wrong_template": [x for x in range(3)],
+                    "wrong_template_version": [x for x in range(3)],
+                    "wrong_model_name": [x for x in range(3)],
+                    "wrong_llm_params": [x for x in range(3)],
                 }
             )
         ),

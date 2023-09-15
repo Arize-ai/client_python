@@ -1,5 +1,6 @@
 # type: ignore[pb2]
 import base64
+import json
 import os
 import shutil
 import tempfile
@@ -12,13 +13,19 @@ import requests
 
 from .. import public_pb2 as pb2
 from ..__init__ import __version__
-from ..utils.constants import API_KEY_ENVVAR_NAME, SPACE_KEY_ENVVAR_NAME
+from ..utils.constants import (
+    API_KEY_ENVVAR_NAME,
+    GENERATED_LLM_PARAMS_JSON_COL,
+    GENERATED_PREDICTION_LABEL_COL,
+    SPACE_KEY_ENVVAR_NAME,
+)
 from ..utils.errors import AuthError
 from ..utils.logging import logger
 from ..utils.types import (
     CATEGORICAL_MODEL_TYPES,
     NUMERIC_MODEL_TYPES,
     Environments,
+    LLMConfigColumnNames,
     Metrics,
     ModelTypes,
     Schema,
@@ -236,12 +243,25 @@ class Client:
                 logger.info("Getting pyarrow schema from pandas dataframe.")
             # TODO: Addition of column for GENERATIVE models should occur at the
             # beginning of the log function, so validations are applied to the resulting schema
-            if (
-                model_type == ModelTypes.GENERATIVE_LLM
-                and schema.prediction_label_column_name is None
-            ):
-                dataframe = self._add_default_prediction_label_column(dataframe)
-                schema = schema.replace(prediction_label_column_name="default_prediction_label")
+            if model_type == ModelTypes.GENERATIVE_LLM:
+                if schema.prediction_label_column_name is None:
+                    dataframe = self._add_default_prediction_label_column(dataframe)
+                    schema = schema.replace(
+                        prediction_label_column_name=GENERATED_PREDICTION_LABEL_COL
+                    )
+                if (
+                    schema.llm_config_column_names
+                    and schema.llm_config_column_names.params_column_name
+                ) is not None:
+                    dataframe = self._add_json_llm_params_column(
+                        dataframe, schema.llm_config_column_names.params_column_name
+                    )
+                    schema = schema.replace(
+                        llm_config_column_names=LLMConfigColumnNames(
+                            model_column_name=schema.llm_config_column_names.model_column_name,
+                            params_column_name=GENERATED_LLM_PARAMS_JSON_COL,
+                        )
+                    )
             pa_schema = pa.Schema.from_pandas(dataframe)
         except pa.ArrowInvalid:
             logger.error(
@@ -264,7 +284,6 @@ class Client:
                 for e in errors:
                     logger.error(e)
                 raise err.ValidationFailure(errors)
-        # Mapping GENERATIVE_LLM to SCORE_CATEGORICAL model
         if model_type == ModelTypes.GENERATIVE_LLM:
             prompt_response_map = {
                 "prompt": schema.prompt_column_names,
@@ -417,6 +436,21 @@ class Client:
                     schema.object_detection_actual_column_names.scores_column_name
                 )
 
+        if model_type == ModelTypes.GENERATIVE_LLM:
+            if schema.prompt_template_column_names is not None:
+                s.arrow_schema.prompt_template_column_names.template_column_name = (
+                    schema.prompt_template_column_names.template_column_name
+                )
+                s.arrow_schema.prompt_template_column_names.template_version_column_name = (
+                    schema.prompt_template_column_names.template_version_column_name
+                )
+            if schema.llm_config_column_names is not None:
+                s.arrow_schema.llm_config_column_names.model_column_name = (
+                    schema.llm_config_column_names.model_column_name
+                )
+                s.arrow_schema.llm_config_column_names.params_map_column_name = (
+                    schema.llm_config_column_names.params_column_name
+                )
         if verbose:
             logger.info("Serializing schema.")
         base64_schema = base64.b64encode(s.SerializeToString())
@@ -490,7 +524,15 @@ class Client:
             )
 
     def _add_default_prediction_label_column(self, df: pd.DataFrame) -> pd.DataFrame:
-        df["default_prediction_label"] = [1] * len(df)
+        df[GENERATED_PREDICTION_LABEL_COL] = [1] * len(df)
+        return df
+
+    def _add_json_llm_params_column(
+        self, df: pd.DataFrame, llm_params_col_name: str
+    ) -> pd.DataFrame:
+        df[GENERATED_LLM_PARAMS_JSON_COL] = df[llm_params_col_name].apply(
+            lambda d: json.dumps(d, indent=4)
+        )
         return df
 
     def _remove_extraneous_columns(self, df: pd.DataFrame, schema: Schema) -> pd.DataFrame:
