@@ -121,7 +121,7 @@ def test_prediction_group_id_length():
             **ChainMap({"dataframe": pd.DataFrame({"prediction_group_id": ids})}, kwargs)
         )
         assert len(errors) == 1
-        assert type(errors[0]) is err.InvalidStringLength
+        assert type(errors[0]) is err.InvalidStringLengthInColumn
 
 
 def test_ranking_category_empty_list():

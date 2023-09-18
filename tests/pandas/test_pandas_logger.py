@@ -9,16 +9,26 @@ import pyarrow as pa
 import pytest
 from arize import __version__ as arize_version
 from arize.pandas.logger import Client
-from arize.utils.constants import API_KEY_ENVVAR_NAME, SPACE_KEY_ENVVAR_NAME
+from arize.utils.constants import (
+    API_KEY_ENVVAR_NAME,
+    GENERATED_LLM_PARAMS_JSON_COL,
+    GENERATED_PREDICTION_LABEL_COL,
+    MAX_LLM_MODEL_NAME_LENGTH,
+    MAX_PROMPT_TEMPLATE_LENGTH,
+    MAX_PROMPT_TEMPLATE_VERSION_LENGTH,
+    SPACE_KEY_ENVVAR_NAME,
+)
 from arize.utils.errors import AuthError
 from arize.utils.types import (
     EmbeddingColumnNames,
     Environments,
+    LLMConfigColumnNames,
     ModelTypes,
     ObjectDetectionColumnNames,
+    PromptTemplateColumnNames,
     Schema,
 )
-from arize.utils.utils import get_python_version, overwrite_schema_fields
+from arize.utils.utils import get_python_version
 from requests import Response
 
 EMBEDDING_SIZE = 15
@@ -202,6 +212,17 @@ def get_generative_df() -> pd.DataFrame:
             "response_vector": np.random.randn(3, EMBEDDING_SIZE).tolist(),
             "prompt_data": ["data_" + str(x) for x in range(3)],
             "response_data": ["data_" + str(x) for x in range(3)],
+            "llm_model_name": ["gpt-" + str(x) for x in range(3)],
+            "prompt_template": ["This is the template with version {{version}}" for _ in range(3)],
+            "prompt_template_version": ["Template {x}" + str(x) for x in range(3)],
+            "llm_params": [
+                {
+                    "presence_penalty": x / 3,
+                    "stop": [".", "?", "!"],
+                    "temperature": x / 4,
+                }
+                for x in range(3)
+            ],
         }
     )
 
@@ -215,6 +236,14 @@ def get_generative_schema() -> Schema:
         response_column_names=EmbeddingColumnNames(
             vector_column_name="response_vector",
             data_column_name="response_data",
+        ),
+        prompt_template_column_names=PromptTemplateColumnNames(
+            template_column_name="prompt_template",
+            template_version_column_name="prompt_template_version",
+        ),
+        llm_config_column_names=LLMConfigColumnNames(
+            model_column_name="llm_model_name",
+            params_column_name="llm_params",
         ),
     )
 
@@ -246,8 +275,8 @@ def log_dataframe(
 def test_zero_errors():
     # CHECK score categorical model with embeddings
     data_df = pd.concat([get_base_df(), get_score_categorical_df(), get_embeddings_df()], axis=1)
-    schema = overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
-    schema = overwrite_schema_fields(schema, get_embeddings_schema())
+    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(schema, get_embeddings_schema())
     try:
         response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
         response_df: pd.DataFrame = response.df  # type:ignore
@@ -273,9 +302,9 @@ def test_zero_errors():
         == roundtrip_df(data_df).sort_index(axis=1).to_json()
     )
 
-    # CHECK logging object detection
+    # CHECK logging object detection model
     data_df = pd.concat([get_base_df(), get_object_detection_df()], axis=1)
-    schema = overwrite_schema_fields(get_base_schema(), get_object_detection_schema())
+    schema = _overwrite_schema_fields(get_base_schema(), get_object_detection_schema())
     try:
         response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.OBJECT_DETECTION)
         response_df: pd.DataFrame = response.df  # type:ignore
@@ -287,19 +316,21 @@ def test_zero_errors():
         == roundtrip_df(data_df).sort_index(axis=1).to_json()
     )
 
+    # CHECK logging generative model
     data_df = pd.concat(
         [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
         axis=1,
     )
-    schema = overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
-    schema = overwrite_schema_fields(schema, get_embeddings_schema())
-    schema = overwrite_schema_fields(schema, get_generative_schema())
+    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(schema, get_embeddings_schema())
+    schema = _overwrite_schema_fields(schema, get_generative_schema())
     try:
         response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
         response_df: pd.DataFrame = response.df  # type:ignore
     except Exception:
         assert False
     # use json here because some row elements are lists and are not readily comparable
+    response_df = response_df.drop(columns=[GENERATED_LLM_PARAMS_JSON_COL])
     assert (
         response_df.sort_index(axis=1).to_json()
         == roundtrip_df(data_df).sort_index(axis=1).to_json()
@@ -308,8 +339,8 @@ def test_zero_errors():
 
 def test_wrong_embedding_types():
     data_df = pd.concat([get_base_df(), get_score_categorical_df(), get_embeddings_df()], axis=1)
-    schema = overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
-    schema = overwrite_schema_fields(schema, get_embeddings_schema())
+    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(schema, get_embeddings_schema())
     # Check embedding_vector of strings are not allowed
     data_df["image_vector"] = np.random.randn(3, EMBEDDING_SIZE).astype(str).tolist()
     try:
@@ -406,8 +437,8 @@ def test_wrong_embedding_values():
     data_df["empty_vector"] = empty_vector
     data_df["one_vector"] = one_vector
 
-    schema = overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
-    schema = overwrite_schema_fields(
+    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(
         schema,
         Schema(
             embedding_feature_column_names={
@@ -440,9 +471,9 @@ def test_wrong_prompt_response_types():
         [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
         axis=1,
     )
-    schema = overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
-    schema = overwrite_schema_fields(schema, get_embeddings_schema())
-    schema = overwrite_schema_fields(schema, get_generative_schema())
+    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(schema, get_embeddings_schema())
+    schema = _overwrite_schema_fields(schema, get_generative_schema())
 
     # Check prompt_vector of strings are not allowed
     data_df["prompt_vector"] = np.random.randn(3, EMBEDDING_SIZE).astype(str).tolist()
@@ -451,7 +482,7 @@ def test_wrong_prompt_response_types():
     except Exception as excpt:
         assert isinstance(excpt, err.ValidationFailure)
         for e in excpt.errors:
-            assert isinstance(e, err.InvalidTypePromptResponse)
+            assert isinstance(e, err.InvalidTypeColumns)
     # Reset
     data_df["prompt_vector"] = np.random.randn(3, EMBEDDING_SIZE).tolist()
 
@@ -464,7 +495,7 @@ def test_wrong_prompt_response_types():
     except Exception as excpt:
         assert isinstance(excpt, err.ValidationFailure)
         for e in excpt.errors:
-            assert isinstance(e, err.InvalidTypePromptResponse)
+            assert isinstance(e, err.InvalidTypeColumns)
     # Reset
     data_df["response_vector"] = np.random.randn(3, EMBEDDING_SIZE).tolist()
 
@@ -475,7 +506,7 @@ def test_wrong_prompt_response_types():
     except Exception as excpt:
         assert isinstance(excpt, err.ValidationFailure)
         for e in excpt.errors:
-            assert isinstance(e, err.InvalidTypePromptResponse)
+            assert isinstance(e, err.InvalidTypeColumns)
     # Reset
     data_df["response_data"] = ["data_" + str(x) for x in range(3)]
 
@@ -487,10 +518,63 @@ def test_wrong_prompt_response_types():
         assert False
 
     # use json here because some row elements are lists and are not readily comparable
+    response_df = response_df.drop(columns=[GENERATED_LLM_PARAMS_JSON_COL])
     assert (
         response_df.sort_index(axis=1).to_json()
         == roundtrip_df(data_df).sort_index(axis=1).to_json()
     )
+
+
+def test_wrong_prompt_template_and_llm_config_types():
+    data_df = pd.concat(
+        [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
+        axis=1,
+    )
+    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(schema, get_embeddings_schema())
+    schema = _overwrite_schema_fields(schema, get_generative_schema())
+
+    # Check llm_model_name of floats is not allowed
+    data_df["llm_model_name"] = np.random.randn(3).tolist()
+    try:
+        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+    except Exception as excpt:
+        assert isinstance(excpt, err.ValidationFailure)
+        for e in excpt.errors:
+            assert isinstance(e, err.InvalidTypeColumns)
+    # Reset
+    data_df["llm_model_name"] = ["gpt-" + str(x) for x in range(3)]
+
+    # Check prompt_template of floats is not allowed
+    data_df["prompt_template"] = np.random.randn(3).tolist()
+    try:
+        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+    except Exception as excpt:
+        assert isinstance(excpt, err.ValidationFailure)
+        for e in excpt.errors:
+            assert isinstance(e, err.InvalidTypeColumns)
+    # Reset
+    data_df["prompt_template"] = ["This is the template with version {{version}}" for _ in range(3)]
+
+    # Check prompt_template_version of floats is not allowed
+    data_df["prompt_template_version"] = np.random.randn(3).tolist()
+    try:
+        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+    except Exception as excpt:
+        assert isinstance(excpt, err.ValidationFailure)
+        for e in excpt.errors:
+            assert isinstance(e, err.InvalidTypeColumns)
+    # Reset
+    data_df["prompt_template_version"] = ["Template {x}" + str(x) for x in range(3)]
+
+    # Check llm_params of strings is not allowed
+    data_df["llm_params"] = np.random.randn(3).astype(str).tolist()
+    try:
+        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+    except Exception as excpt:
+        assert isinstance(excpt, err.ValidationFailure)
+        for e in excpt.errors:
+            assert isinstance(e, err.InvalidTypeColumns)
 
 
 def test_generative_without_prompt_response():
@@ -498,9 +582,9 @@ def test_generative_without_prompt_response():
         [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
         axis=1,
     )
-    schema = overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
-    schema = overwrite_schema_fields(schema, get_embeddings_schema())
-    schema = overwrite_schema_fields(schema, get_generative_schema())
+    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(schema, get_embeddings_schema())
+    schema = _overwrite_schema_fields(schema, get_generative_schema())
     schema = schema.replace(prompt_column_names=None)
     schema = schema.replace(response_column_names=None)
 
@@ -517,9 +601,9 @@ def test_generative_without_prediction_label_column_name():
         [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
         axis=1,
     ).drop(columns=["prediction_label"])
-    schema = overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
-    schema = overwrite_schema_fields(schema, get_embeddings_schema())
-    schema = overwrite_schema_fields(schema, get_generative_schema())
+    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(schema, get_embeddings_schema())
+    schema = _overwrite_schema_fields(schema, get_generative_schema())
     # Check logging without prediction_id
     schema = schema.replace(prediction_label_column_name=None)
 
@@ -529,17 +613,43 @@ def test_generative_without_prediction_label_column_name():
     except Exception:
         assert False
     # Check if defualt_prediction_labels are generated
-    if "default_prediction_label" not in response_df.columns:
+    if GENERATED_PREDICTION_LABEL_COL not in response_df.columns:
         assert False
     # Check all values of defualt_prediction_label are equal to 1
-    if (response_df["default_prediction_label"] != 1).any():
+    if (response_df[GENERATED_PREDICTION_LABEL_COL] != 1).any():
         assert False
 
-    response_df = response_df.drop(columns=["default_prediction_label"])
+    response_df = response_df.drop(
+        columns=[GENERATED_PREDICTION_LABEL_COL, GENERATED_LLM_PARAMS_JSON_COL]
+    )
     assert (
         response_df.sort_index(axis=1).to_json()
         == roundtrip_df(data_df).sort_index(axis=1).to_json()
     )
+
+
+def test_invalid_generative_llm_prompt_template_and_llm_config_values():
+    data_df = pd.concat(
+        [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
+        axis=1,
+    )
+    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(schema, get_embeddings_schema())
+    schema = _overwrite_schema_fields(schema, get_generative_schema())
+
+    # Check fields with too many characters is not allowed
+    data_df["llm_model_name"] = pd.Series(["a" * (MAX_LLM_MODEL_NAME_LENGTH + 1)] * 3)
+    data_df["prompt_template"] = pd.Series(["a" * (MAX_PROMPT_TEMPLATE_LENGTH + 1)] * 3)
+    data_df["prompt_template_version"] = pd.Series(
+        ["a" * (MAX_PROMPT_TEMPLATE_VERSION_LENGTH + 1)] * 3
+    )
+    try:
+        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+    except Exception as excpt:
+        assert isinstance(excpt, err.ValidationFailure)
+        assert len(excpt.errors) == 3
+        for e in excpt.errors:
+            assert isinstance(e, err.InvalidStringLengthInColumn)
 
 
 def get_stubbed_client(additional_headers=None):
@@ -627,6 +737,67 @@ def test_invalid_client_auth_environment_vars():
         pytest.fail("Unexpected error!")
     assert c._space_key == "space_key"
     assert c._api_key == "api_key"
+
+
+def _overwrite_schema_fields(schema1: Schema, schema2: Schema) -> Schema:
+    """This function overwrites a base Schema `schema1` with the fields of `schema2`
+    that are not None
+
+    Arguments:
+    ----------
+        schema1 (Schema): Base Schema with fields to be overwritten
+        schema2 (Schema): New Schema used to overwrite schema1
+
+    Returns:
+    --------
+        Schema: The resulting schema
+    """
+    schema_dict_fields = (
+        "embedding_feature_column_names",
+        "shap_values_column_names",
+        "prompt_column_names",
+        "response_column_names",
+        "prompt_template_column_names",
+        "llm_config_column_names",
+    )
+    changes = {
+        k: v for k, v in schema2.asdict().items() if v is not None and k not in schema_dict_fields
+    }
+    schema = schema1.replace(**changes)
+
+    # Embedding column names need to be treated separately for being in a dictionary
+    if schema2.embedding_feature_column_names is not None:
+        emb_feat_col_names = schema1.embedding_feature_column_names
+        if emb_feat_col_names is None:
+            emb_feat_col_names = {}
+        for k, v in schema2.embedding_feature_column_names.items():
+            emb_feat_col_names[k] = v
+        # replace embedding column names in schema
+        schema = schema.replace(embedding_feature_column_names=emb_feat_col_names)
+
+    # Prompt and response need to be treated separately
+    if schema2.prompt_column_names is not None:
+        schema = schema.replace(prompt_column_names=schema2.prompt_column_names)
+    if schema2.response_column_names is not None:
+        schema = schema.replace(response_column_names=schema2.response_column_names)
+
+    # Shap values column names need to be treated separately for being in a dictionary
+    if schema2.shap_values_column_names is not None:
+        shap_val_col_names = schema1.shap_values_column_names
+        if shap_val_col_names is None:
+            shap_val_col_names = {}
+        for k, v in schema2.shap_values_column_names.items():
+            shap_val_col_names[k] = v
+        # replace embedding column names in schema
+        schema = schema.replace(shap_values_column_names=shap_val_col_names)
+
+    # prompt_template_column_names and llm_config_column_names need to be treated separately
+    if schema2.prompt_template_column_names is not None:
+        schema = schema.replace(prompt_template_column_names=schema2.prompt_template_column_names)
+    if schema2.llm_config_column_names is not None:
+        schema = schema.replace(llm_config_column_names=schema2.llm_config_column_names)
+
+    return schema
 
 
 if __name__ == "__main__":

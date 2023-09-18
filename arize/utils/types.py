@@ -76,7 +76,7 @@ class EmbeddingColumnNames:
 
     def __post_init__(self):
         if not self.vector_column_name:
-            raise TypeError(
+            raise ValueError(
                 "embedding_features require a vector to be specified. You can utilize Arize's "
                 "EmbeddingGenerator (from arize.pandas.embeddings) to create embeddings "
                 "if you do not have them"
@@ -414,6 +414,24 @@ class RankingActualLabel(NamedTuple):
             raise TypeError("Actual Relevance score must be a float or an int")
 
 
+@dataclass
+class PromptTemplateColumnNames:
+    template_column_name: Optional[str] = None
+    template_version_column_name: Optional[str] = None
+
+    def __iter__(self):
+        return iter((self.template_column_name, self.template_version_column_name))
+
+
+@dataclass
+class LLMConfigColumnNames:
+    model_column_name: Optional[str] = None
+    params_column_name: Optional[str] = None
+
+    def __iter__(self):
+        return iter((self.model_column_name, self.params_column_name))
+
+
 @dataclass(frozen=True)
 class Schema:
     prediction_id_column_name: Optional[str] = None
@@ -435,6 +453,8 @@ class Schema:
     object_detection_actual_column_names: Optional[ObjectDetectionColumnNames] = None
     prompt_column_names: Optional[EmbeddingColumnNames] = None
     response_column_names: Optional[EmbeddingColumnNames] = None
+    prompt_template_column_names: Optional[PromptTemplateColumnNames] = None
+    llm_config_column_names: Optional[LLMConfigColumnNames] = None
     f"""
     Used to organize and map column names containing model data within your Pandas dataframe to
     Arize.
@@ -486,6 +506,10 @@ class Schema:
         response_column_names (EmbeddingColumnNames, optional): EmbeddingColumnNames object
             containing the embedding vector data (required) and raw text (optional) for the text
             your model generates.
+        prompt_template_column_names (PromptTemplateColumnNames, optional): PromptTemplateColumnNames object
+            containing the prompt template and the prompt template version.
+        llm_config_column_names (LLMConfigColumnNames, optional): LLMConfigColumnNames object containing
+            the LLM's model name and its hyper parameters used at inference.
 
     Methods:
     --------
@@ -549,6 +573,14 @@ class Schema:
             columns_used.add(self.response_column_names.vector_column_name)
             if self.response_column_names.data_column_name is not None:
                 columns_used.add(self.response_column_names.data_column_name)
+
+        if self.prompt_template_column_names is not None:
+            for col in self.prompt_template_column_names:
+                columns_used.add(col)
+
+        if self.llm_config_column_names is not None:
+            for col in self.llm_config_column_names:
+                columns_used.add(col)
 
         return columns_used
 

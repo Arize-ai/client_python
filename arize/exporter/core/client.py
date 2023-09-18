@@ -76,6 +76,7 @@ class ArizeExportClient:
         include_actuals: bool = False,
         model_version: Optional[str] = None,
         batch_id: Optional[str] = None,
+        where: Optional[str] = None,
     ) -> pd.DataFrame:
         """
         Exports data of a specific model in the Arize platform to a pandas dataframe for a defined
@@ -102,6 +103,8 @@ class ArizeExportClient:
             batch_id (str, optional): An optional input to indicate the batch name of the model to export.
                 Batches only apply to the Validation environment, and can be found in the Datasets tab on
                 the model page in the Arize UI. Defaults to None.
+            where (str, optional): An optional input to provide sql like where statement to filter a
+                subset of records from the model, e.g. "age > 50 And state='CA'". Defaults to None.
 
         Returns:
         --------
@@ -116,6 +119,7 @@ class ArizeExportClient:
             include_actuals=include_actuals,
             model_version=model_version,
             batch_id=batch_id,
+            where=where,
         )
         if stream_reader is None:
             return pd.DataFrame()
@@ -147,6 +151,7 @@ class ArizeExportClient:
         include_actuals: bool = False,
         model_version: Optional[str] = None,
         batch_id: Optional[str] = None,
+        where: Optional[str] = None,
     ) -> None:
         """
         Exports data of a specific model in the Arize platform to a parquet file for a defined time
@@ -175,6 +180,8 @@ class ArizeExportClient:
             batch_id (str, optional): An optional input to indicate the batch name of the model to export.
                 Batches only apply to the Validation environment, and can be found in the Datasets tab on
                 the model page in the Arize UI. Defaults to None.
+            where (str, optional): An optional input to provide sql like where statement to filter a
+                subset of records from the model, e.g. "age > 50 And state='CA'". Defaults to None.
 
         Returns:
         --------
@@ -190,6 +197,7 @@ class ArizeExportClient:
             include_actuals=include_actuals,
             model_version=model_version,
             batch_id=batch_id,
+            where=where,
         )
         if stream_reader is None:
             return None
@@ -215,6 +223,7 @@ class ArizeExportClient:
         include_actuals: bool = False,
         model_version: Optional[str] = None,
         batch_id: Optional[str] = None,
+        where: Optional[str] = None,
     ) -> Tuple[flight.FlightStreamReader, int]:
         Validator.validate_input_type(space_id, "space_id", str)
         Validator.validate_input_type(model_id, "model_id", str)
@@ -225,6 +234,7 @@ class ArizeExportClient:
         Validator.validate_input_type(model_version, "model_version", str)
         Validator.validate_input_type(batch_id, "batch_id", str)
         Validator.validate_start_end_time(start_time, end_time)
+        Validator.validate_input_type(where, "where", str)
 
         # Create query descriptor
         query_descriptor = exp_pb2.RecordQueryDescriptor(
@@ -236,6 +246,7 @@ class ArizeExportClient:
             include_actuals=include_actuals,
             start_time=Timestamp(seconds=int(start_time.timestamp())),
             end_time=Timestamp(seconds=int(end_time.timestamp())),
+            filter_expression=where,
         )
 
         flight_client = self.session.connect()

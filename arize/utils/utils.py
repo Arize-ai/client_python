@@ -57,6 +57,8 @@ def convert_element(value):
 
 
 def convert_dictionary(d):
+    if d is None:
+        return {}
     # Takes a dictionary and
     # - casts the keys as strings
     # - turns the values of the dictionary to our proto values pb2.Value()
@@ -151,59 +153,6 @@ def reconstruct_url(response: Any):
 
 def get_python_version():
     return f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
-
-
-def overwrite_schema_fields(schema1: Schema, schema2: Schema) -> Schema:
-    """This function overwrites a base Schema `schema1` with the fields of `schema2`
-    that are not None
-
-    Arguments:
-    ----------
-        schema1 (Schema): Base Schema with fields to be overwritten
-        schema2 (Schema): New Schema used to overwrite schema1
-
-    Returns:
-    --------
-        Schema: The resulting schema
-    """
-    schema_dict_fields = (
-        "embedding_feature_column_names",
-        "shap_values_column_names",
-        "prompt_column_names",
-        "response_column_names",
-    )
-    changes = {
-        k: v for k, v in schema2.asdict().items() if v is not None and k not in schema_dict_fields
-    }
-    schema = schema1.replace(**changes)
-
-    # Embedding column names need to be treated separately for being in a dictionary
-    if schema2.embedding_feature_column_names is not None:
-        emb_feat_col_names = schema1.embedding_feature_column_names
-        if emb_feat_col_names is None:
-            emb_feat_col_names = {}
-        for k, v in schema2.embedding_feature_column_names.items():
-            emb_feat_col_names[k] = v
-        # replace embedding column names in schema
-        schema = schema.replace(embedding_feature_column_names=emb_feat_col_names)
-
-    # Prompt and response need to be treated separately
-    if schema2.prompt_column_names is not None:
-        schema = schema.replace(prompt_column_names=schema2.prompt_column_names)
-    if schema2.response_column_names is not None:
-        schema = schema.replace(response_column_names=schema2.response_column_names)
-
-    # Shap values column names need to be treated separately for being in a dictionary
-    if schema2.shap_values_column_names is not None:
-        shap_val_col_names = schema1.shap_values_column_names
-        if shap_val_col_names is None:
-            shap_val_col_names = {}
-        for k, v in schema2.shap_values_column_names.items():
-            shap_val_col_names[k] = v
-        # replace embedding column names in schema
-        schema = schema.replace(shap_values_column_names=shap_val_col_names)
-
-    return schema
 
 
 def is_delayed_schema(schema: Schema) -> bool:

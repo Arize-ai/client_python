@@ -7,12 +7,21 @@ import pandas as pd
 import pytest
 from arize.pandas.validation import errors as err
 from arize.pandas.validation.validator import Validator
-from arize.utils.constants import MAX_PREDICTION_ID_LEN, MAX_TAG_LENGTH, MIN_PREDICTION_ID_LEN
+from arize.utils.constants import (
+    MAX_LLM_MODEL_NAME_LENGTH,
+    MAX_PREDICTION_ID_LEN,
+    MAX_PROMPT_TEMPLATE_LENGTH,
+    MAX_PROMPT_TEMPLATE_VERSION_LENGTH,
+    MAX_TAG_LENGTH,
+    MIN_PREDICTION_ID_LEN,
+)
 from arize.utils.types import (
     EmbeddingColumnNames,
     Environments,
+    LLMConfigColumnNames,
     ModelTypes,
     ObjectDetectionColumnNames,
+    PromptTemplateColumnNames,
     Schema,
 )
 
@@ -40,7 +49,7 @@ def test_invalid_ts_missing_value():
                 )
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidValueMissingValue
@@ -56,7 +65,7 @@ def test_valid_ts_empty_df():
                 )
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 0
 
@@ -79,7 +88,7 @@ def test_invalid_ts_date32_min():
                 )
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidValueTimestamp
@@ -105,7 +114,7 @@ def test_invalid_ts_date32_max():
                 )
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidValueTimestamp
@@ -129,7 +138,7 @@ def test_invalid_ts_float64_min():
                 )
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidValueTimestamp
@@ -156,7 +165,7 @@ def test_invalid_ts_float64_max():
                 )
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidValueTimestamp
@@ -183,7 +192,7 @@ def test_invalid_ts_int64_min():
                 )
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidValueTimestamp
@@ -212,7 +221,7 @@ def test_invalid_ts_int64_max():
                 )
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidValueTimestamp
@@ -232,7 +241,7 @@ def test_invalid_ts_datetime_min():
                 )
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidValueTimestamp
@@ -257,7 +266,7 @@ def test_invalid_ts_datetime_max():
                 )
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidValueTimestamp
@@ -276,7 +285,7 @@ def test_valid_prediction_label_none_value():
                 )
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 0
 
@@ -294,7 +303,7 @@ def test_valid_actual_label_none_value():
                 )
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 0
 
@@ -312,7 +321,7 @@ def test_valid_prediction_label_nan_value():
                 )
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 0
 
@@ -330,7 +339,7 @@ def test_valid_actual_label_nan_value():
                 )
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 0
 
@@ -341,7 +350,7 @@ def test_valid_prediction_label_inf_value():
         **ChainMap(
             {"dataframe": pd.DataFrame({"prediction_label": pd.Series([0, float("-inf"), 1])})},
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 0
 
@@ -352,7 +361,7 @@ def test_valid_actual_label_inf_value():
         **ChainMap(
             {"dataframe": pd.DataFrame({"actual_label": pd.Series([0, float("-inf"), 1])})},
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 0
 
@@ -367,7 +376,7 @@ def test_invalid_prediction_id_none():
                 )
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidValueMissingValue
@@ -396,12 +405,12 @@ def test_prediction_id_length():
                 },
                 {"dataframe": pd.DataFrame({"prediction_id": ids, "good_vector": good_vector})},
                 kwargs,
-            )
+            )  # type: ignore
         )
         assert len(errors) == 1
-        assert type(errors[0]) is err.InvalidStringLength
+        assert type(errors[0]) is err.InvalidStringLengthInColumn
         err_string = (
-            "prediction_id_column_name column prediction_id contains invalid values. "
+            "prediction_id_column_name column 'prediction_id' contains invalid values. "
             f"Only string values of length between {MIN_PREDICTION_ID_LEN} and {MAX_PREDICTION_ID_LEN} "
             "are accepted."
         )
@@ -412,7 +421,7 @@ def test_tag_length():
     long_tags = pd.Series(["a" * (MAX_TAG_LENGTH + 1)] * 3)
     kwargs = get_standard_kwargs()
     errors = Validator.validate_values(
-        **ChainMap({"dataframe": pd.DataFrame({"A": long_tags})}, kwargs)
+        **ChainMap({"dataframe": pd.DataFrame({"A": long_tags})}, kwargs)  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidTagLength
@@ -425,7 +434,129 @@ def test_tag_length():
 
     correct_tags = pd.Series(["a" * (MAX_TAG_LENGTH)] * 3)
     errors = Validator.validate_values(
-        **ChainMap({"dataframe": pd.DataFrame({"A": correct_tags})}, kwargs)
+        **ChainMap({"dataframe": pd.DataFrame({"A": correct_tags})}, kwargs)  # type: ignore
+    )
+    assert len(errors) == 0
+
+
+def test_llm_model_name_str_length():
+    long_llm_model_names = pd.Series(["a" * (MAX_LLM_MODEL_NAME_LENGTH + 1)] * 3)
+    kwargs = get_standard_kwargs()
+    schema = kwargs["schema"].replace(
+        llm_config_column_names=LLMConfigColumnNames(
+            model_column_name="llm_model_name",
+        ),
+    )
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.GENERATIVE_LLM,
+                "dataframe": pd.DataFrame({"llm_model_name": long_llm_model_names}),
+                "schema": schema,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is err.InvalidStringLengthInColumn
+    err_string = (
+        f"llm_config_column_names.model_column_name column 'llm_model_name' contains invalid values. "
+        f"Only string values of length between 0 and {MAX_LLM_MODEL_NAME_LENGTH} are accepted."
+    )
+    assert errors[0].error_message() == err_string
+
+    correct_llm_model_name = pd.Series(["a" * (MAX_LLM_MODEL_NAME_LENGTH)] * 3)
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.GENERATIVE_LLM,
+                "dataframe": pd.DataFrame({"llm_model_name": correct_llm_model_name}),
+                "schema": schema,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 0
+
+
+def test_prompt_template_str_length():
+    long_prompt_template = pd.Series(["a" * (MAX_PROMPT_TEMPLATE_LENGTH + 1)] * 3)
+    kwargs = get_standard_kwargs()
+    schema = kwargs["schema"].replace(
+        prompt_template_column_names=PromptTemplateColumnNames(
+            template_column_name="prompt_template",
+        ),
+    )
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.GENERATIVE_LLM,
+                "dataframe": pd.DataFrame({"prompt_template": long_prompt_template}),
+                "schema": schema,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is err.InvalidStringLengthInColumn
+    err_string = (
+        f"prompt_template_column_names.template_column_name column 'prompt_template' "
+        "contains invalid values. "
+        f"Only string values of length between 0 and {MAX_PROMPT_TEMPLATE_LENGTH} are accepted."
+    )
+    assert errors[0].error_message() == err_string
+
+    correct_prompt_template = pd.Series(["a" * (MAX_PROMPT_TEMPLATE_LENGTH)] * 3)
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.GENERATIVE_LLM,
+                "dataframe": pd.DataFrame({"prompt_template": correct_prompt_template}),
+                "schema": schema,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 0
+
+
+def test_prompt_template_version_str_length():
+    long_template_version = pd.Series(["a" * (MAX_PROMPT_TEMPLATE_VERSION_LENGTH + 1)] * 3)
+    kwargs = get_standard_kwargs()
+    schema = kwargs["schema"].replace(
+        prompt_template_column_names=PromptTemplateColumnNames(
+            template_version_column_name="prompt_template_version",
+        ),
+    )
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.GENERATIVE_LLM,
+                "dataframe": pd.DataFrame({"prompt_template_version": long_template_version}),
+                "schema": schema,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is err.InvalidStringLengthInColumn
+    err_string = (
+        f"prompt_template_column_names.template_version_column_name column 'prompt_template_version' "
+        "contains invalid values. "
+        f"Only string values of length between 0 and {MAX_PROMPT_TEMPLATE_VERSION_LENGTH} are accepted."
+    )
+    assert errors[0].error_message() == err_string
+
+    correct_template_version = pd.Series(["a" * (MAX_PROMPT_TEMPLATE_VERSION_LENGTH)] * 3)
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.GENERATIVE_LLM,
+                "dataframe": pd.DataFrame({"prompt_template_version": correct_template_version}),
+                "schema": schema,
+            },
+            kwargs,
+        )  # type: ignore
     )
     assert len(errors) == 0
 
@@ -446,7 +577,7 @@ def test_multiple():
                 )
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 0
 
@@ -504,7 +635,7 @@ def test_invalid_embedding_dimensionality():
                 ),
             },
             kwargs,
-        )
+        )  # type: ignore
     )
     assert len(errors) == 1
     assert type(errors[0]) is err.InvalidValueLowEmbeddingVectorDimensionality
@@ -740,6 +871,14 @@ def get_standard_kwargs():
             feature_column_names=list("ABCDEFG"),
             tag_column_names=list("ABCDEFG"),
             shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
+            # prompt_template_column_names=PromptTemplateColumnNames(
+            #     template_column_name="prompt_template",
+            #     template_version_column_name="prompt_template_version",
+            # ),
+            # llm_config_column_names=LLMConfigColumnNames(
+            #     model_column_name="llm_model_name",
+            #     params_column_name="llm_params",
+            # ),
         ),
         "dataframe": pd.DataFrame(
             {

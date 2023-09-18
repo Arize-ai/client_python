@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 
 from .constants import API_KEY_ENVVAR_NAME, SPACE_KEY_ENVVAR_NAME
 
@@ -27,4 +27,60 @@ class AuthError(Exception):
             f" - {API_KEY_ENVVAR_NAME} for the api key\n"
             f" - {SPACE_KEY_ENVVAR_NAME} for the space key\n"
             f"Missing: {missing_list}"
+        )
+
+
+class InvalidStringLength(Exception):
+    def __init__(self, name: str, min_length: int, max_length: int) -> None:
+        self.name = name
+        self.min_length = min_length
+        self.max_length = max_length
+
+    def __repr__(self) -> str:
+        return "Invalid_String_Length"
+
+    def __str__(self) -> str:
+        return self.error_message()
+
+    def error_message(self) -> str:
+        return f"{self.name} must be of length between {self.min_length} and {self.max_length} characters."
+
+
+class InvalidFieldType(Exception):
+    def __init__(self, name: str, value: Union[bool, int, float, str], correct_type: int) -> None:
+        self.name = name
+        self.value = value
+        self.correct_type = correct_type
+
+    def __repr__(self) -> str:
+        return "Invalid_Field_Type"
+
+    def __str__(self) -> str:
+        return self.error_message()
+
+    def error_message(self) -> str:
+        return f"{self.name} {self.value} is of type {type(self.value)}, but must be of {self.correct_type}"
+
+
+class InvalidValueType(Exception):
+    def __init__(
+        self,
+        value_name: str,
+        value: Union[bool, int, float, str],
+        correct_type: int,
+    ) -> None:
+        self.value_name = value_name
+        self.value = value
+        self.correct_type = correct_type
+
+    def __repr__(self) -> str:
+        return "Invalid_Value_Type"
+
+    def __str__(self) -> str:
+        return self.error_message()
+
+    def error_message(self) -> str:
+        return (
+            f"{self.value_name} with value {self.value} is of type {type(self.value).__name__}, "
+            f"but expected {self.correct_type}"
         )

@@ -11,6 +11,18 @@ MAX_TAG_LENGTH = 1000
 MAX_PAST_YEARS_FROM_CURRENT_TIME = 2
 # The maximum number of acceptable years in the future from current time for prediction_timestamps
 MAX_FUTURE_YEARS_FROM_CURRENT_TIME = 1
+# The maximum number of character for llm model name
+MAX_LLM_MODEL_NAME_LENGTH = 50
+# The maximum number of character for prompt template
+MAX_PROMPT_TEMPLATE_LENGTH = 5000
+# The maximum number of character for prompt template version
+MAX_PROMPT_TEMPLATE_VERSION_LENGTH = 50
+# The maximum number of embeddings
+MAX_NUMBER_OF_EMBEDDINGS = 30
+
+# Arize generated columns
+GENERATED_PREDICTION_LABEL_COL = "arize_generated_prediction_label"
+GENERATED_LLM_PARAMS_JSON_COL = "arize_generated_llm_params_json"
 
 # Authentication via environment variables
 SPACE_KEY_ENVVAR_NAME = "ARIZE_SPACE_KEY"

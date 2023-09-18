@@ -46,6 +46,8 @@ def test_classification_model():
         "shap_values_column_names": None,
         "tag_column_names": ["this_is_a_tag__tag"],
         "timestamp_column_name": "time",
+        "prompt_template_column_names": None,
+        "llm_config_column_names": None,
     }
 
 
@@ -111,6 +113,8 @@ def test_object_detection():
         "shap_values_column_names": None,
         "tag_column_names": [],
         "timestamp_column_name": "time",
+        "prompt_template_column_names": None,
+        "llm_config_column_names": None,
     }
 
 
@@ -163,6 +167,8 @@ def test_embeddings():
         "shap_values_column_names": None,
         "tag_column_names": [],
         "timestamp_column_name": "time",
+        "prompt_template_column_names": None,
+        "llm_config_column_names": None,
     }
 
 
@@ -206,6 +212,8 @@ def test_rankings():
         "shap_values_column_names": None,
         "tag_column_names": [],
         "timestamp_column_name": "time",
+        "prompt_template_column_names": None,
+        "llm_config_column_names": None,
     }
 
 
@@ -271,6 +279,8 @@ def test_llm():
             "data_column_name": "response__rawData",
             "link_to_data_column_name": "response__linkToData",
         },
+        "prompt_template_column_names": None,
+        "llm_config_column_names": None,
     }
 
 
@@ -311,6 +321,8 @@ def test_regression():
         "shap_values_column_names": None,
         "tag_column_names": [],
         "timestamp_column_name": "time",
+        "prompt_template_column_names": None,
+        "llm_config_column_names": None,
     }
 
 

@@ -4,6 +4,7 @@ from typing import List, Optional
 
 from arize.utils.constants import (
     MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
+    MAX_NUMBER_OF_EMBEDDINGS,
     MAX_PAST_YEARS_FROM_CURRENT_TIME,
     MAX_TAG_LENGTH,
 )
@@ -397,6 +398,20 @@ class DuplicateColumnsInDataframe(ValidationError):
         )
 
 
+class InvalidNumberOfEmbeddings(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Number_Of_Embeddings"
+
+    def __init__(self, number_of_embeddings: int) -> None:
+        self.number_of_embeddings = number_of_embeddings
+
+    def error_message(self) -> str:
+        return (
+            f"The schema contains {self.number_of_embeddings} different embeddings when a maximum of "
+            f"{MAX_NUMBER_OF_EMBEDDINGS} is allowed."
+        )
+
+
 # -----------
 # Type checks
 # -----------
@@ -433,15 +448,17 @@ class InvalidTypeColumns(ValidationError):
         self.expected_types = expected_types
 
     def error_message(self) -> str:
+        col_list = (
+            self.wrong_type_columns[0]
+            if len(self.wrong_type_columns) == 1
+            else f"{', '.join(self.wrong_type_columns[:-1])}, and {self.wrong_type_columns[-1]}"
+        )
         type_list = (
             self.expected_types[0]
             if len(self.expected_types) == 1
             else f"{', '.join(map(str, self.expected_types[:-1]))} or {self.expected_types[-1]}"
         )
-        return (
-            f"The columns {', '.join(self.wrong_type_columns[:-1])}, and {self.wrong_type_columns[-1]}; "
-            f"must be of type {type_list}."
-        )
+        return f"The column(s) {col_list}; " f"must be of type {type_list}."
 
 
 class InvalidTypeFeatures(ValidationError):
@@ -465,25 +482,20 @@ class InvalidTypeFeatures(ValidationError):
         )
 
 
-class InvalidTypePromptResponse(ValidationError):
+class InvalidFieldTypePromptTemplates(ValidationError):
     def __repr__(self) -> str:
-        return "Invalid_Type_Prompt_Response_Column_Names"
-
-    def __init__(self, wrong_type_columns: List[str], expected_types: List[str]) -> None:
-        self.wrong_type_columns = wrong_type_columns
-        self.expected_types = expected_types
+        return "Invalid_Input_Type_Prompt_Templates"
 
     def error_message(self) -> str:
-        type_list = (
-            self.expected_types[0]
-            if len(self.expected_types) == 1
-            else f"{', '.join(map(str, self.expected_types[:-1]))} or {self.expected_types[-1]}"
-        )
-        return (
-            f"prompt_column_names and response_column_names must be of type {type_list}. "
-            "The following columns have unrecognized data types: "
-            f"{', '.join(map(str, self.wrong_type_columns))}."
-        )
+        return "prompt_template_column_names must be of type PromptTemplateColumnNames"
+
+
+class InvalidFieldTypeLlmConfig(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Input_Type_LLM_Config"
+
+    def error_message(self) -> str:
+        return "llm_config_column_names must be of type LLMConfigColumnNames"
 
 
 class InvalidTypeTags(ValidationError):
@@ -598,9 +610,9 @@ class InvalidRankValue(ValidationError):
         )
 
 
-class InvalidStringLength(ValidationError):
+class InvalidStringLengthInColumn(ValidationError):
     def __repr__(self) -> str:
-        return "Invalid_String_Length"
+        return "Invalid_String_Length_In_Column"
 
     def __init__(self, schema_name: str, col_name: str, min_length: int, max_length: int) -> None:
         self.schema_name = schema_name
@@ -610,7 +622,7 @@ class InvalidStringLength(ValidationError):
 
     def error_message(self) -> str:
         return (
-            f"{self.schema_name} column {self.col_name} contains invalid values. "
+            f"{self.schema_name} column '{self.col_name}' contains invalid values. "
             f"Only string values of length between {self.min_length} and {self.max_length} are accepted."
         )
 

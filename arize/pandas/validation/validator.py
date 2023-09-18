@@ -8,8 +8,12 @@ import pyarrow as pa
 from arize.pandas.validation import errors as err
 from arize.utils.constants import (
     MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
+    MAX_LLM_MODEL_NAME_LENGTH,
+    MAX_NUMBER_OF_EMBEDDINGS,
     MAX_PAST_YEARS_FROM_CURRENT_TIME,
     MAX_PREDICTION_ID_LEN,
+    MAX_PROMPT_TEMPLATE_LENGTH,
+    MAX_PROMPT_TEMPLATE_VERSION_LENGTH,
     MAX_TAG_LENGTH,
     MIN_PREDICTION_ID_LEN,
     MODEL_MAPPING_CONFIG,
@@ -20,8 +24,10 @@ from arize.utils.types import (
     NUMERIC_MODEL_TYPES,
     EmbeddingColumnNames,
     Environments,
+    LLMConfigColumnNames,
     Metrics,
     ModelTypes,
+    PromptTemplateColumnNames,
     Schema,
 )
 from arize.utils.utils import is_delayed_schema
@@ -42,6 +48,9 @@ class Validator:
             Validator._check_field_type_embedding_features_column_names(schema),
             Validator._check_field_type_prompt_response(schema),
             Validator._check_invalid_index(dataframe),
+            Validator._check_field_type_prompt_templates(schema),
+            Validator._check_field_type_llm_config(schema),
+            Validator._check_invalid_type_llm_params(dataframe, schema),
         )
 
         return list(required_checks)
@@ -66,6 +75,7 @@ class Validator:
             Validator._check_invalid_model_type(model_type),
             Validator._check_invalid_environment(environment),
             Validator._check_invalid_batch_id(batch_id, environment),
+            Validator._check_invalid_number_of_embeddings(schema),
             Validator._check_missing_columns(dataframe, schema),
             Validator._check_dataframe_for_duplicate_columns(schema, dataframe),
             Validator._check_invalid_shap_suffix(schema),
@@ -133,6 +143,8 @@ class Validator:
                 Validator._check_type_pred_act_labels(model_type, schema, column_types),
                 Validator._check_type_pred_act_scores(model_type, schema, column_types),
                 Validator._check_type_prompt_response(schema, column_types),
+                Validator._check_type_llm_prompt_templates(schema, column_types),
+                Validator._check_type_llm_config(schema, column_types),
             )
             return list(chain(general_checks, gllm_checks))
         elif model_type == ModelTypes.RANKING:
@@ -193,6 +205,13 @@ class Validator:
                 Validator._check_value_bounding_boxes_scores(dataframe, schema),
             )
             return list(chain(general_checks, od_checks))
+        if model_type == ModelTypes.GENERATIVE_LLM:
+            gen_llm_checks = chain(
+                Validator._check_value_llm_model_name(dataframe, schema),
+                Validator._check_value_llm_prompt_template(dataframe, schema),
+                Validator._check_value_llm_prompt_template_version(dataframe, schema),
+            )
+            return list(chain(general_checks, gen_llm_checks))
         return list(general_checks)
 
     # ----------------------
@@ -248,14 +267,54 @@ class Validator:
     def _check_field_type_prompt_response(
         schema: Schema,
     ) -> List[err.InvalidFieldTypePromptResponse]:
+        errors = []
         if schema.response_column_names is not None and not isinstance(
             schema.response_column_names, EmbeddingColumnNames
         ):
-            return [err.InvalidFieldTypePromptResponse("response_column_names")]
+            errors.append(err.InvalidFieldTypePromptResponse("response_column_names"))
         if schema.prompt_column_names is not None and not isinstance(
             schema.prompt_column_names, EmbeddingColumnNames
         ):
-            return [err.InvalidFieldTypePromptResponse("prompt_column_names")]
+            errors.append(err.InvalidFieldTypePromptResponse("prompt_column_names"))
+        return errors
+
+    @staticmethod
+    def _check_field_type_prompt_templates(
+        schema: Schema,
+    ) -> List[err.InvalidFieldTypePromptTemplates]:
+        if schema.prompt_template_column_names is not None and not isinstance(
+            schema.prompt_template_column_names, PromptTemplateColumnNames
+        ):
+            return [err.InvalidFieldTypePromptTemplates()]
+        return []
+
+    @staticmethod
+    def _check_field_type_llm_config(
+        schema: Schema,
+    ) -> List[err.InvalidFieldTypeLlmConfig]:
+        if schema.llm_config_column_names is not None and not isinstance(
+            schema.llm_config_column_names, LLMConfigColumnNames
+        ):
+            return [err.InvalidFieldTypeLlmConfig()]
+        return []
+
+    @staticmethod
+    def _check_invalid_type_llm_params(
+        dataframe: pd.DataFrame,
+        schema: Schema,
+    ) -> List[err.InvalidTypeColumns]:
+        if schema.llm_config_column_names is not None and isinstance(
+            schema.llm_config_column_names, LLMConfigColumnNames
+        ):  # see _check_field_type_llm_config
+            col = schema.llm_config_column_names.params_column_name
+            if col is not None:
+                if any(type(val) != dict for val in dataframe[col]):
+                    return [
+                        err.InvalidTypeColumns(
+                            wrong_type_columns=[col],
+                            expected_types=["Dict[str, (bool, int, float, string or list[str])]"],
+                        )
+                    ]
         return []
 
     @staticmethod
@@ -441,6 +500,16 @@ class Validator:
 
         if schema.object_detection_actual_column_names is not None:
             for col in schema.object_detection_actual_column_names:
+                if col is not None and col not in existing_columns:
+                    missing_columns.append(col)
+
+        if schema.prompt_template_column_names is not None:
+            for col in schema.prompt_template_column_names:
+                if col is not None and col not in existing_columns:
+                    missing_columns.append(col)
+
+        if schema.llm_config_column_names is not None:
+            for col in schema.llm_config_column_names:
                 if col is not None and col not in existing_columns:
                     missing_columns.append(col)
 
@@ -667,6 +736,16 @@ class Validator:
         schema_duplicate_cols = [col for col in duplicate_columns if col in schema_col_used]
         if schema_duplicate_cols:
             return [err.DuplicateColumnsInDataframe(schema_duplicate_cols)]
+        return []
+
+    @staticmethod
+    def _check_invalid_number_of_embeddings(
+        schema: Schema,
+    ) -> List[err.InvalidNumberOfEmbeddings]:
+        if schema.embedding_feature_column_names is not None:
+            number_of_embeddings = len(schema.embedding_feature_column_names)
+            if number_of_embeddings > MAX_NUMBER_OF_EMBEDDINGS:
+                return [err.InvalidNumberOfEmbeddings(number_of_embeddings)]
         return []
 
     # -----------
@@ -957,7 +1036,7 @@ class Validator:
     @staticmethod
     def _check_type_prompt_response(
         schema: Schema, column_types: Dict[str, Any]
-    ) -> List[err.InvalidTypePromptResponse]:
+    ) -> List[err.InvalidTypeColumns]:
         fields_to_check = []
         if schema.prompt_column_names is not None:
             fields_to_check.append(schema.prompt_column_names)
@@ -990,19 +1069,76 @@ class Validator:
         wrong_type_embedding_errors = []
         if wrong_type_vector_columns:
             wrong_type_embedding_errors.append(
-                err.InvalidTypePromptResponse(
+                err.InvalidTypeColumns(
                     wrong_type_vector_columns,
                     expected_types=["list[float], np.array[float]"],
                 )
             )
         if wrong_type_data_columns:
             wrong_type_embedding_errors.append(
-                err.InvalidTypePromptResponse(
-                    wrong_type_data_columns, expected_types=["list[string]"]
-                )
+                err.InvalidTypeColumns(wrong_type_data_columns, expected_types=["list[string]"])
             )
 
         return wrong_type_embedding_errors  # Will be empty list if no errors
+
+    @staticmethod
+    def _check_type_llm_prompt_templates(
+        schema: Schema, column_types: Dict[str, Any]
+    ) -> List[err.InvalidTypeColumns]:
+        if schema.prompt_template_column_names is None:
+            return []
+
+        allowed_datatypes = (pa.string(),)
+        wrong_type_cols = []
+        # Check type of template_column
+        if schema.prompt_template_column_names.template_column_name is not None:
+            col = schema.prompt_template_column_names.template_column_name
+            if col in column_types and column_types[col] not in allowed_datatypes:
+                wrong_type_cols.append(col)
+        # Check type of template_column_version
+        if schema.prompt_template_column_names.template_version_column_name is not None:
+            col = schema.prompt_template_column_names.template_version_column_name
+            if col in column_types and column_types[col] not in allowed_datatypes:
+                wrong_type_cols.append(col)
+
+        # Return errors if any
+        if wrong_type_cols:
+            return [
+                err.InvalidTypeColumns(
+                    wrong_type_columns=wrong_type_cols, expected_types=["string"]
+                )
+            ]
+        return []
+
+    @staticmethod
+    def _check_type_llm_config(
+        schema: Schema, column_types: Dict[str, Any]
+    ) -> List[err.InvalidTypeColumns]:
+        if schema.llm_config_column_names is None:
+            return []
+
+        allowed_datatypes = (pa.string(),)
+        wrong_type_cols = []
+        # Check type of model_column
+        if schema.llm_config_column_names.model_column_name is not None:
+            col = schema.llm_config_column_names.model_column_name
+            if col in column_types and column_types[col] not in allowed_datatypes:
+                wrong_type_cols.append(col)
+        # Check type of params_column.
+        # We are assuming at this point we have turned the dictionaries into json
+        if schema.llm_config_column_names.params_column_name is not None:
+            col = schema.llm_config_column_names.params_column_name
+            if col in column_types and column_types[col] not in allowed_datatypes:
+                wrong_type_cols.append(col)
+
+        # Return erros if any
+        if wrong_type_cols:
+            return [
+                err.InvalidTypeColumns(
+                    wrong_type_columns=wrong_type_cols, expected_types=["string"]
+                )
+            ]
+        return []
 
     @staticmethod
     def _check_type_bounding_boxes_coordinates(
@@ -1197,7 +1333,7 @@ class Validator:
                 .all()
             ):
                 return [
-                    err.InvalidStringLength(
+                    err.InvalidStringLengthInColumn(
                         schema_name=schema_name,
                         col_name=id_col_name,
                         min_length=MIN_PREDICTION_ID_LEN,
@@ -1224,8 +1360,10 @@ class Validator:
                 # the dataframe, via _check_missing_columns, and return an error before reaching this
                 # block if not
                 # Checks max tag length when any values in a column are strings
-                if col in dataframe.columns and dataframe[col].map(type).eq(str).any():
-                    max_tag_len = dataframe[col].apply(_check_value_tag_string_length_helper).max()
+                if (
+                    col in dataframe.columns and dataframe[col].map(type).eq(str).any()
+                ):  # type:ignore
+                    max_tag_len = dataframe[col].apply(_check_value_string_length_helper).max()
                     if max_tag_len > MAX_TAG_LENGTH:
                         wrong_tag_cols.append(col)
             if wrong_tag_cols:
@@ -1602,8 +1740,68 @@ class Validator:
                     errors.append(error)
         return errors
 
+    @staticmethod
+    def _check_value_llm_model_name(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[err.InvalidStringLengthInColumn]:
+        if schema.llm_config_column_names is None:
+            return []
+        col = schema.llm_config_column_names.model_column_name
+        if col is not None and len(dataframe):
+            max_len = dataframe[col].apply(_check_value_string_length_helper).max()
+            if max_len > MAX_LLM_MODEL_NAME_LENGTH:
+                return [
+                    err.InvalidStringLengthInColumn(
+                        schema_name="llm_config_column_names.model_column_name",
+                        col_name=col,
+                        min_length=0,
+                        max_length=MAX_LLM_MODEL_NAME_LENGTH,
+                    )
+                ]
+        return []
 
-def _check_value_tag_string_length_helper(x):
+    @staticmethod
+    def _check_value_llm_prompt_template(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[err.InvalidStringLengthInColumn]:
+        if schema.prompt_template_column_names is None:
+            return []
+        col = schema.prompt_template_column_names.template_column_name
+        if col is not None and len(dataframe):
+            max_len = dataframe[col].apply(_check_value_string_length_helper).max()
+            if max_len > MAX_PROMPT_TEMPLATE_LENGTH:
+                return [
+                    err.InvalidStringLengthInColumn(
+                        schema_name="prompt_template_column_names.template_column_name",
+                        col_name=col,
+                        min_length=0,
+                        max_length=MAX_PROMPT_TEMPLATE_LENGTH,
+                    )
+                ]
+        return []
+
+    @staticmethod
+    def _check_value_llm_prompt_template_version(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[err.InvalidStringLengthInColumn]:
+        if schema.prompt_template_column_names is None:
+            return []
+        col = schema.prompt_template_column_names.template_version_column_name
+        if col is not None and len(dataframe):
+            max_len = dataframe[col].apply(_check_value_string_length_helper).max()
+            if max_len > MAX_PROMPT_TEMPLATE_VERSION_LENGTH:
+                return [
+                    err.InvalidStringLengthInColumn(
+                        schema_name="prompt_template_column_names.template_version_column_name",
+                        col_name=col,
+                        min_length=0,
+                        max_length=MAX_PROMPT_TEMPLATE_VERSION_LENGTH,
+                    )
+                ]
+        return []
+
+
+def _check_value_string_length_helper(x):
     if isinstance(x, str):
         return len(x)
     else:
