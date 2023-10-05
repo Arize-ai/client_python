@@ -30,9 +30,11 @@ from ..utils.types import (
     ModelTypes,
     Schema,
 )
-from ..utils.utils import get_python_version, reconstruct_url
+from ..utils.utils import get_python_version, is_python_version_below_required_min, reconstruct_url
 from .validation import errors as err
 from .validation.validator import Validator
+
+SURROGATE_EXPLAINER_MIN_PYTHON_VERSION = "3.8.0"
 
 
 class Client:
@@ -81,7 +83,8 @@ class Client:
             reserved_headers = set(self._headers.keys())
             # The header 'schema' is updated in the _post_file method
             reserved_headers.add("schema")
-            if conflicting_keys := reserved_headers & additional_headers.keys():
+            conflicting_keys = reserved_headers & additional_headers.keys()
+            if conflicting_keys:
                 raise err.InvalidAdditionalHeaders(conflicting_keys)
             self._headers.update(additional_headers)
 
@@ -209,6 +212,15 @@ class Client:
         if surrogate_explainability:
             if verbose:
                 logger.info("Running surrogate_explainability.")
+
+            if is_python_version_below_required_min(
+                min_req_version=SURROGATE_EXPLAINER_MIN_PYTHON_VERSION
+            ):
+                raise RuntimeError(
+                    "Cannot use Arize's Surrogate Explainer. "
+                    f"Minimum Python version required is {SURROGATE_EXPLAINER_MIN_PYTHON_VERSION} and "
+                    f"{get_python_version()} was found instead"
+                )
             try:
                 from arize.pandas.surrogate_explainer.mimic import Mimic
             except ImportError:
@@ -474,7 +486,7 @@ class Client:
         try:
             if verbose:
                 logger.info("Writing table to temporary file: ", tmp_file)
-            writer = pa.ipc.new_stream(tmp_file, pa_schema)
+            writer = pa.ipc.RecordBatchStreamWriter(tmp_file, pa_schema)
             writer.write_table(ta, max_chunksize=65536)
             writer.close()
             if verbose:

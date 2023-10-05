@@ -169,3 +169,15 @@ def is_delayed_schema(schema: Schema) -> bool:
     return (
         schema.has_actual_columns() or schema.has_feature_importance_columns()
     ) and not schema.has_prediction_columns()
+
+
+def is_python_version_below_required_min(min_req_version: str) -> None:
+    min_major = int(min_req_version.split(".")[0])
+    min_minor = int(min_req_version.split(".")[1])
+    min_micro = int(min_req_version.split(".")[2])
+    min_version = (min_major, min_minor, min_micro)
+    version = sys.version_info[:3]
+
+    if version < min_version:
+        return True
+    return False

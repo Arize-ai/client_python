@@ -6,13 +6,12 @@ import numpy as np
 import pandas as pd
 import pyarrow as pa
 import pytest
+from arize import public_pb2 as pb2
+from arize.pandas.logger import Client, Schema
+from arize.pandas.surrogate_explainer.mimic import Mimic
+from arize.utils.types import Environments, ModelTypes
 from sklearn.datasets import load_breast_cancer, load_diabetes
 from sklearn.svm import SVC, SVR
-
-from ....arize import public_pb2 as pb2
-from ....arize.pandas.logger import Client, Schema
-from ....arize.pandas.surrogate_explainer.mimic import Mimic
-from ....arize.utils.types import Environments, ModelTypes
 
 Mimic._testing = True
 

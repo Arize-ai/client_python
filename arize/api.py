@@ -19,6 +19,7 @@ from arize.utils.constants import (
     SPACE_KEY_ENVVAR_NAME,
 )
 from arize.utils.logging import logger
+from arize.utils.types import is_list_of
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.wrappers_pb2 import BoolValue, DoubleValue
 from requests_futures.sessions import FuturesSession
@@ -119,7 +120,8 @@ class Client:
             "Grpc-Metadata-sdk-version": __version__,
         }
         if additional_headers is not None:
-            if conflicting_keys := self._headers.keys() & additional_headers.keys():
+            conflicting_keys = self._headers.keys() & additional_headers.keys()
+            if conflicting_keys:
                 raise InvalidAdditionalHeaders(conflicting_keys)
             self._headers.update(additional_headers)
 
@@ -831,7 +833,10 @@ def _validate_prompt_templates_and_llm_config(
         for param_name, param_value in llm_params.items():
             _validate_mapping_key(param_name, "llm_params")
             val = convert_element(param_value)
-            if val is not None and not isinstance(val, (bool, int, float, str, list[str])):
+            if val is None:
+                continue
+            is_correct_type = isinstance(val, (bool, int, float, str)) or is_list_of(val, str)
+            if not is_correct_type:
                 raise InvalidValueType(
                     f"llm param '{param_name}'",
                     param_value,

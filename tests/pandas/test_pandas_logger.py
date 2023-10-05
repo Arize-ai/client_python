@@ -1,5 +1,5 @@
 import datetime
-import os
+import sys
 import uuid
 
 import arize.pandas.validation.errors as err
@@ -302,20 +302,6 @@ def test_zero_errors():
         == roundtrip_df(data_df).sort_index(axis=1).to_json()
     )
 
-    # CHECK logging object detection model
-    data_df = pd.concat([get_base_df(), get_object_detection_df()], axis=1)
-    schema = _overwrite_schema_fields(get_base_schema(), get_object_detection_schema())
-    try:
-        response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.OBJECT_DETECTION)
-        response_df: pd.DataFrame = response.df  # type:ignore
-    except Exception:
-        assert False
-    # use json here because some row elements are lists and are not readily comparable
-    assert (
-        response_df.sort_index(axis=1).to_json()
-        == roundtrip_df(data_df).sort_index(axis=1).to_json()
-    )
-
     # CHECK logging generative model
     data_df = pd.concat(
         [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
@@ -331,6 +317,23 @@ def test_zero_errors():
         assert False
     # use json here because some row elements are lists and are not readily comparable
     response_df = response_df.drop(columns=[GENERATED_LLM_PARAMS_JSON_COL])
+    assert (
+        response_df.sort_index(axis=1).to_json()
+        == roundtrip_df(data_df).sort_index(axis=1).to_json()
+    )
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
+def test_zero_errors_object_detection():
+    # CHECK logging object detection model
+    data_df = pd.concat([get_base_df(), get_object_detection_df()], axis=1)
+    schema = _overwrite_schema_fields(get_base_schema(), get_object_detection_schema())
+    try:
+        response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.OBJECT_DETECTION)
+        response_df: pd.DataFrame = response.df  # type:ignore
+    except Exception:
+        assert False
+    # use json here because some row elements are lists and are not readily comparable
     assert (
         response_df.sort_index(axis=1).to_json()
         == roundtrip_df(data_df).sort_index(axis=1).to_json()
@@ -708,21 +711,21 @@ def test_invalid_client_auth_passed_vars():
         pytest.fail("Unexpected error!")
 
 
-def test_invalid_client_auth_environment_vars():
+def test_invalid_client_auth_environment_vars(monkeypatch):
     with pytest.raises(AuthError) as excinfo:
         _ = Client()
     assert excinfo.value.__str__() == AuthError(None, None).error_message()
     assert "Missing: ['api_key', 'space_key']" in str(excinfo.value)
 
-    os.environ[SPACE_KEY_ENVVAR_NAME] = "space_key"
+    monkeypatch.setenv(SPACE_KEY_ENVVAR_NAME, "space_key")
     with pytest.raises(AuthError) as excinfo:
         c = Client()
         assert c._space_key == "space_key"
     assert excinfo.value.__str__() == AuthError(None, "space_key").error_message()
     assert "Missing: ['api_key']" in str(excinfo.value)
 
-    os.environ.pop(SPACE_KEY_ENVVAR_NAME)
-    os.environ[API_KEY_ENVVAR_NAME] = "api_key"
+    monkeypatch.delenv(SPACE_KEY_ENVVAR_NAME)
+    monkeypatch.setenv(API_KEY_ENVVAR_NAME, "api_key")
     with pytest.raises(AuthError) as excinfo:
         c = Client()
         assert c._api_key == "api_key"
@@ -730,7 +733,7 @@ def test_invalid_client_auth_environment_vars():
     assert "Missing: ['space_key']" in str(excinfo.value)
 
     # acceptable input
-    os.environ[SPACE_KEY_ENVVAR_NAME] = "space_key"
+    monkeypatch.setenv(SPACE_KEY_ENVVAR_NAME, "space_key")
     try:
         c = Client()
     except Exception:
