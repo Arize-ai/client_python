@@ -1,3 +1,5 @@
+import sys
+
 import pandas as pd
 import pytest
 from arize.exporter.utils.schema_parser import get_arize_schema
@@ -51,6 +53,7 @@ def test_classification_model():
     }
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
 def test_object_detection():
     od_df = pd.DataFrame(
         [
@@ -77,7 +80,6 @@ def test_object_detection():
     schema = get_arize_schema(od_df)
 
     assert isinstance(schema, Schema)
-    schema.object_detection_actual_column_names
 
     assert schema.asdict() == {
         "actual_label_column_name": None,

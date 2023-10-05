@@ -1,5 +1,4 @@
 import itertools
-import os
 import time
 from pathlib import Path
 
@@ -9,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from arize import __version__ as arize_version
-from arize.api import Client, Embedding
+from arize.api import Client
 from arize.pandas.validation.errors import InvalidAdditionalHeaders, InvalidNumberOfEmbeddings
 from arize.utils.constants import (
     API_KEY_ENVVAR_NAME,
@@ -22,6 +21,7 @@ from arize.utils.constants import (
     SPACE_KEY_ENVVAR_NAME,
 )
 from arize.utils.types import (
+    Embedding,
     Environments,
     ModelTypes,
     ObjectDetectionLabel,
@@ -1724,21 +1724,21 @@ def test_invalid_client_auth_passed_vars():
         pytest.fail("Unexpected error!")
 
 
-def test_invalid_client_auth_environment_vars():
+def test_invalid_client_auth_environment_vars(monkeypatch):
     with pytest.raises(err.AuthError) as excinfo:
         _ = Client()
     assert excinfo.value.__str__() == err.AuthError(None, None).error_message()
     assert "Missing: ['api_key', 'space_key']" in str(excinfo.value)
 
-    os.environ[SPACE_KEY_ENVVAR_NAME] = inputs["space_key"]
+    monkeypatch.setenv(SPACE_KEY_ENVVAR_NAME, inputs["space_key"])
     with pytest.raises(err.AuthError) as excinfo:
         c = Client()
         assert c._space_key == inputs["space_key"]
     assert excinfo.value.__str__() == err.AuthError(None, inputs["space_key"]).error_message()
     assert "Missing: ['api_key']" in str(excinfo.value)
 
-    os.environ.pop(SPACE_KEY_ENVVAR_NAME)
-    os.environ[API_KEY_ENVVAR_NAME] = inputs["api_key"]
+    monkeypatch.delenv(SPACE_KEY_ENVVAR_NAME)
+    monkeypatch.setenv(API_KEY_ENVVAR_NAME, inputs["api_key"])
     with pytest.raises(err.AuthError) as excinfo:
         c = Client()
         assert c._api_key == inputs["api_key"]
@@ -1746,7 +1746,7 @@ def test_invalid_client_auth_environment_vars():
     assert "Missing: ['space_key']" in str(excinfo.value)
 
     # acceptable input
-    os.environ[SPACE_KEY_ENVVAR_NAME] = inputs["space_key"]
+    monkeypatch.setenv(SPACE_KEY_ENVVAR_NAME, inputs["space_key"])
     try:
         c = Client()
     except Exception:

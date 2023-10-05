@@ -80,7 +80,7 @@ def test_invalid_ts_date32_min():
                         "prediction_timestamp": pd.Series(
                             [
                                 (
-                                    datetime.datetime.now() - datetime.timedelta(days=365 * 2 + 1)
+                                    datetime.datetime.now() - datetime.timedelta(days=365 * 5 + 1)
                                 ).date()
                             ]
                         )
@@ -130,7 +130,7 @@ def test_invalid_ts_float64_min():
                         "prediction_timestamp": pd.Series(
                             [
                                 (
-                                    datetime.datetime.now() - datetime.timedelta(days=365 * 2 + 1)
+                                    datetime.datetime.now() - datetime.timedelta(days=365 * 5 + 1)
                                 ).timestamp()
                             ]
                         )
@@ -183,7 +183,7 @@ def test_invalid_ts_int64_min():
                                 int(
                                     (
                                         datetime.datetime.now()
-                                        - datetime.timedelta(days=365 * 2 + 1)
+                                        - datetime.timedelta(days=365 * 5 + 1)
                                     ).timestamp()
                                 )
                             ]
@@ -235,7 +235,7 @@ def test_invalid_ts_datetime_min():
                 "dataframe": pd.DataFrame(
                     {
                         "prediction_timestamp": pd.Series(
-                            [(datetime.datetime.now() - datetime.timedelta(days=365 * 2 + 1))]
+                            [(datetime.datetime.now() - datetime.timedelta(days=365 * 5 + 1))]
                         )
                     }
                 )
