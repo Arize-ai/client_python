@@ -15,7 +15,7 @@ from google.protobuf.wrappers_pb2 import StringValue
 
 from .. import public_pb2 as pb2
 from .constants import MAX_BYTES_PER_BULK_RECORD
-from .types import Embedding, Schema
+from .types import Embedding, Schema, _PromptOrResponseText, is_list_of
 
 
 def num_chunks(records):
@@ -73,19 +73,23 @@ def convert_dictionary(d):
 def get_value_object(name: Union[str, int, float], value):
     if isinstance(value, pb2.Value):
         return value
+    if value is not None and is_list_of(value, str):
+        return pb2.Value(multi_value=pb2.MultiValue(values=value))
     # The following `convert_element` done in single log validation
     # of features & tags. It is not done in bulk_log
     val = convert_element(value)
     if val is None:
         return None
-    if isinstance(val, (str, bool)):
+    elif isinstance(val, (str, bool)):
         return pb2.Value(string=str(val))
-    if isinstance(val, int):
+    elif isinstance(val, int):
         return pb2.Value(int=val)
-    if isinstance(val, float):
+    elif isinstance(val, float):
         return pb2.Value(double=val)
-    if isinstance(val, Embedding):
-        return pb2.Value(embedding=get_value_embedding(val))
+    elif isinstance(val, Embedding):
+        return pb2.Value(embedding=get_proto_embedding(val))
+    elif isinstance(val, _PromptOrResponseText):
+        return pb2.Value(embedding=get_proto_embedding_from_prompt_or_response_test(val))
     else:
         raise TypeError(
             f'dimension "{name}" = {value} is type {type(value)}, but must be one of: bool, str, '
@@ -93,7 +97,7 @@ def get_value_object(name: Union[str, int, float], value):
         )
 
 
-def get_value_embedding(val: Embedding) -> pb2.Embedding:
+def get_proto_embedding(val: Embedding) -> pb2.Embedding:
     if Embedding._is_valid_iterable(val.data):
         return pb2.Embedding(
             vector=val.vector,
@@ -116,6 +120,15 @@ def get_value_embedding(val: Embedding) -> pb2.Embedding:
         )
 
     return None
+
+
+def get_proto_embedding_from_prompt_or_response_test(val: _PromptOrResponseText) -> pb2.Embedding:
+    return pb2.Embedding(
+        raw_data=pb2.Embedding.RawData(
+            tokenArray=pb2.Embedding.TokenArray(tokens=[val.data])
+            # Convert to list of 1 string
+        ),
+    )
 
 
 def get_timestamp(time_overwrite):

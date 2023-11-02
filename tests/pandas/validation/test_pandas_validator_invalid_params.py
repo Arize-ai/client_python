@@ -4,16 +4,17 @@ import arize.pandas.validation.errors as err
 import numpy as np
 import pandas as pd
 import pytest
-from arize.pandas.logger import Schema
 from arize.pandas.validation.validator import Validator
 from arize.utils.constants import MAX_NUMBER_OF_EMBEDDINGS
 from arize.utils.types import (
+    CorpusSchema,
     EmbeddingColumnNames,
     Environments,
     LLMConfigColumnNames,
     ModelTypes,
     ObjectDetectionColumnNames,
     PromptTemplateColumnNames,
+    Schema,
 )
 
 EMBEDDING_SIZE = 15
@@ -39,6 +40,10 @@ def get_standard_kwargs():
                 "b": pd.Series([0.0]),
                 "image_vector": np.random.randn(1, 1).tolist(),
                 "image_link": ["link_1"],
+                "prompt_vector": np.random.randn(1, 1).tolist(),
+                "prompt_data": ["This is a test prompt"],
+                "response_vector": np.random.randn(1, 1).tolist(),
+                "response_data": ["This is a test response"],
             }
         ),
         "schema": Schema(
@@ -87,6 +92,30 @@ def get_object_detection_kwargs():
                 bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
                 categories_column_name="bounding_boxes_categories",
                 scores_column_name="bounding_boxes_scores",
+            ),
+        ),
+    }
+
+
+def get_corpus_kwargs():
+    return {
+        "model_id": "corpus_model",
+        "model_type": ModelTypes.GENERATIVE_LLM,
+        "environment": Environments.CORPUS,
+        "dataframe": pd.DataFrame(
+            {
+                "document_id": pd.Series(["id" + str(x) for x in range(3)]),
+                "document_version": ["Version {x}" + str(x) for x in range(3)],
+                "document_vector": [np.random.randn(EMBEDDING_SIZE) for x in range(3)],
+                "document_data": ["data_" + str(x) for x in range(3)],
+            }
+        ),
+        "schema": CorpusSchema(
+            document_id_column_name="document_id",
+            document_version_column_name="document_version",
+            document_text_embedding_column_names=EmbeddingColumnNames(
+                vector_column_name="document_vector",
+                data_column_name="document_data",
             ),
         ),
     }
@@ -423,8 +452,7 @@ def test_existence_prompt_response_column_names():
             kwargs,
         )  # type: ignore
     )
-    assert len(errors) == 1
-    assert type(errors[0]) is err.MissingPromptResponseGenerativeLLM
+    assert len(errors) == 0
 
 
 def test_existence_pred_act_od_column_names():
@@ -752,6 +780,60 @@ def test_missing_prompt_templates_and_llm_config_columns():
         )  # type: ignore
     )
     assert len(errors) == 0
+
+
+def test_missing_document_columns():
+    # test valid
+    kwargs = get_corpus_kwargs()
+    errors = Validator.validate_params(**kwargs)
+    assert len(errors) == 0
+
+    # missing document id column
+    kwargs = get_corpus_kwargs()
+    schema = kwargs["schema"].replace(document_id_column_name="nonexistent_column")
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "schema": schema,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    assert isinstance(errors[0], err.MissingColumns)
+
+    # missing document version column
+    kwargs = get_corpus_kwargs()
+    schema = kwargs["schema"].replace(document_version_column_name="nonexistent_column")
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "schema": schema,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    assert isinstance(errors[0], err.MissingColumns)
+
+    # missing document embedding column
+    kwargs = get_corpus_kwargs()
+    schema = kwargs["schema"].replace(
+        document_text_embedding_column_names=EmbeddingColumnNames(
+            vector_column_name="nonexistent_column",
+            data_column_name="nonexistent_column",
+        ),
+    )
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "schema": schema,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    assert isinstance(errors[0], err.MissingColumns)
 
 
 def test_invalid_number_of_embeddings():

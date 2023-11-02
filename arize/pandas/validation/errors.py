@@ -3,9 +3,11 @@ from collections.abc import Iterable
 from typing import List, Optional
 
 from arize.utils.constants import (
+    MAX_EMBEDDING_DIMENSIONALITY,
     MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
     MAX_NUMBER_OF_EMBEDDINGS,
     MAX_PAST_YEARS_FROM_CURRENT_TIME,
+    MAX_RAW_DATA_CHARACTERS,
     MAX_TAG_LENGTH,
 )
 from arize.utils.types import Environments, Metrics, ModelTypes
@@ -82,7 +84,7 @@ class InvalidFieldTypePromptResponse(ValidationError):
         self.name = name
 
     def error_message(self) -> str:
-        return f"{self.name} must be of type EmbeddingColumnNames"
+        return f"{self.name} must be of type str or EmbeddingColumnNames"
 
 
 class InvalidIndex(ValidationError):
@@ -94,6 +96,18 @@ class InvalidIndex(ValidationError):
             "The index of the dataframe is invalid; "
             "reset the index by using df.reset_index(drop=True, inplace=True)"
         )
+
+
+class InvalidSchemaType(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Schema_Type"
+
+    def __init__(self, schema_type: str, environment: Environments) -> None:
+        self.schema_type = schema_type
+        self.environment = environment
+
+    def error_message(self) -> str:
+        return f"Cannot use a {self.schema_type} for a model with environment: {self.environment}"
 
 
 # ----------------
@@ -159,6 +173,21 @@ class MissingRequiredColumnsMetricsValidation(ValidationError):
             f"For logging data for a {self.model_type.name} model with support for metrics "
             f"{', '.join(m.name for m in self.metrics)}, "
             f"schema must include: {', '.join(map(str, self.missing_cols))}."
+        )
+
+
+class ReservedColumns(ValidationError):
+    def __repr__(self) -> str:
+        return "Reserved_Columns"
+
+    def __init__(self, cols: Iterable) -> None:
+        self.reserved_columns = cols
+
+    def error_message(self) -> str:
+        return (
+            "The following columns are reserved and can only be specified "
+            "in the proper fields of the schema: "
+            f"{', '.join(map(str, self.reserved_columns))}."
         )
 
 
@@ -259,17 +288,6 @@ class MissingPredActShap(ValidationError):
         return (
             "The schema must specify at least one of the following: "
             "prediction label, actual label, or SHAP value column names"
-        )
-
-
-class MissingPromptResponseGenerativeLLM(ValidationError):
-    def __repr__(self) -> str:
-        return "Missing_Prompt_Response_Generative_LLM"
-
-    def error_message(self) -> str:
-        return (
-            "The schema must specify prompt_column_names and response_column_names for "
-            "ModelTypes.GENERATIVE_LLM models"
         )
 
 
@@ -458,7 +476,7 @@ class InvalidTypeColumns(ValidationError):
             if len(self.expected_types) == 1
             else f"{', '.join(map(str, self.expected_types[:-1]))} or {self.expected_types[-1]}"
         )
-        return f"The column(s) {col_list}; " f"must be of type {type_list}."
+        return f"The column(s) {col_list}; must be of type {type_list}."
 
 
 class InvalidTypeFeatures(ValidationError):
@@ -519,16 +537,40 @@ class InvalidTypeTags(ValidationError):
         )
 
 
-class InvalidValueLowEmbeddingVectorDimensionality(ValidationError):
+class InvalidValueEmbeddingVectorDimensionality(ValidationError):
     def __repr__(self) -> str:
-        return "Invalid_Value_Low_Embedding_Vector_Dimensionality"
+        return "Invalid_Value_Embedding_Vector_Dimensionality"
+
+    def __init__(self, dim_1_cols: List[str], high_dim_cols: List[str]) -> None:
+        self.dim_1_cols = dim_1_cols
+        self.high_dim_cols = high_dim_cols
+
+    def error_message(self) -> str:
+        msg = (
+            "Embedding vectors cannot have length (dimensionality) of 1 or higher "
+            f"than {MAX_EMBEDDING_DIMENSIONALITY}. "
+        )
+        if self.dim_1_cols:
+            msg += f"The following columns have dimensionality of 1: {','.join(self.dim_1_cols)}. "
+        if self.high_dim_cols:
+            msg += (
+                f"The following columns have dimensionality greater than {MAX_EMBEDDING_DIMENSIONALITY}: "
+                f"{','.join(self.high_dim_cols)}. "
+            )
+
+        return msg
+
+
+class InvalidValueEmbeddingRawDataTooLong(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Value_Embedding_Raw_Data_Too_Long"
 
     def __init__(self, cols: Iterable) -> None:
         self.invalid_cols = cols
 
     def error_message(self) -> str:
         return (
-            "Embedding vectors cannot have length (dimensionality) == 1. "
+            f"Embedding raw data cannot have more than {MAX_RAW_DATA_CHARACTERS} characters. "
             "The following columns do not satisfy this condition: "
             f"{', '.join(map(str, self.invalid_cols))}."
         )

@@ -1,8 +1,19 @@
+import random
+import string
+
 import numpy as np
 import pandas as pd
 import pytest
+from arize.utils.constants import MAX_RAW_DATA_CHARACTERS
 from arize.utils.types import Embedding
 
+
+def random_string(N: int) -> str:
+    return "".join(random.choices(string.ascii_uppercase + string.digits, k=N))
+
+
+long_raw_data_string = random_string(MAX_RAW_DATA_CHARACTERS)
+long_raw_data_token_array = [random_string(7) for _ in range(11000)]
 input_embeddings = {
     "correct:complete:list_vector": Embedding(
         vector=[1.0, 2, 3],
@@ -60,6 +71,14 @@ input_embeddings = {
         vector=np.array([1.0]),
         data=["This", "is", "a", "test", "token", "array"],
     ),
+    "wrong_value:raw_data_string_too_long": Embedding(
+        vector=pd.Series([1.0, 2, 3]),
+        data=long_raw_data_string,
+    ),
+    "wrong_value:raw_data_token_array_too_long": Embedding(
+        vector=pd.Series([1.0, 2, 3]),
+        data=long_raw_data_token_array,
+    ),
 }
 
 
@@ -87,7 +106,7 @@ def test_wrong_value_fields():
         try:
             embedding.validate(key)
         except Exception as err:
-            assert type(err) == ValueError, "Wrong field values should raise value errors"
+            assert isinstance(err, ValueError), "Wrong field values should raise value errors"
 
 
 def test_wrong_type_fields():
@@ -99,7 +118,7 @@ def test_wrong_type_fields():
         try:
             embedding.validate(key)
         except Exception as err:
-            assert type(err) == TypeError, "Wrong field types should raise type errors"
+            assert isinstance(err, TypeError), "Wrong field types should raise type errors"
 
 
 if __name__ == "__main__":

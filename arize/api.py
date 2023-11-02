@@ -1,5 +1,6 @@
 # type: ignore[pb2]
 import concurrent.futures as cf
+import copy
 import os
 import time
 from typing import Dict, Optional, Tuple, Union
@@ -7,19 +8,26 @@ from typing import Dict, Optional, Tuple, Union
 from arize.pandas.validation.errors import InvalidAdditionalHeaders, InvalidNumberOfEmbeddings
 from arize.utils.constants import (
     API_KEY_ENVVAR_NAME,
+    LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME,
+    LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME,
+    LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME,
+    LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME,
     MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
     MAX_LLM_MODEL_NAME_LENGTH,
+    MAX_LLM_MODEL_NAME_LENGTH_TRUNCATION,
     MAX_NUMBER_OF_EMBEDDINGS,
     MAX_PAST_YEARS_FROM_CURRENT_TIME,
     MAX_PREDICTION_ID_LEN,
     MAX_PROMPT_TEMPLATE_LENGTH,
+    MAX_PROMPT_TEMPLATE_LENGTH_TRUNCATION,
     MAX_PROMPT_TEMPLATE_VERSION_LENGTH,
+    MAX_PROMPT_TEMPLATE_VERSION_LENGTH_TRUNCATION,
     MAX_TAG_LENGTH,
+    MAX_TAG_LENGTH_TRUNCATION,
     MIN_PREDICTION_ID_LEN,
+    RESERVED_TAG_COLS,
     SPACE_KEY_ENVVAR_NAME,
 )
-from arize.utils.logging import logger
-from arize.utils.types import is_list_of
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.wrappers_pb2 import BoolValue, DoubleValue
 from requests_futures.sessions import FuturesSession
@@ -28,15 +36,19 @@ from . import public_pb2 as pb2
 from .__init__ import __version__
 from .bounded_executor import BoundedExecutor
 from .utils.errors import AuthError, InvalidStringLength, InvalidValueType
+from .utils.logging import get_truncation_warning_message, logger
 from .utils.types import (
     CATEGORICAL_MODEL_TYPES,
     NUMERIC_MODEL_TYPES,
     Embedding,
     Environments,
+    LLMRunMetadata,
     ModelTypes,
     ObjectDetectionLabel,
     RankingActualLabel,
     RankingPredictionLabel,
+    _PromptOrResponseText,
+    is_list_of,
 )
 from .utils.utils import (
     convert_dictionary,
@@ -140,12 +152,13 @@ class Client:
         shap_values: Optional[Dict[str, float]] = None,
         tags: Optional[Dict[str, Union[str, bool, float, int]]] = None,
         batch_id: Optional[str] = None,
-        prompt: Optional[Embedding] = None,
-        response: Optional[Embedding] = None,
+        prompt: Optional[Union[str, Embedding]] = None,
+        response: Optional[Union[str, Embedding]] = None,
         prompt_template: Optional[str] = None,
         prompt_template_version: Optional[str] = None,
         llm_model_name: Optional[str] = None,
         llm_params: Optional[Dict[str, Union[str, bool, float, int]]] = None,
+        llm_run_metadata: Optional[LLMRunMetadata] = None,
     ) -> cf.Future:
         """
         Logs a record to Arize via a POST request.
@@ -183,12 +196,12 @@ class Client:
                 readable and debuggable model tags. Defaults to None.
             batch_id (str, optional): Used to distinguish different batch of data under the same
                 model_id and model_version. Required for VALIDATION environments. Defaults to None.
-            prompt (Embedding, optional): Embedding object containing the embedding vector (required) and raw
-                text (optional, but recommended) for the input text on which your GENERATIVE_LLM model acts
-                on. Required for GENERATIVE_LLM models. Defaults to None.
-            response (Embedding, optional): Embedding object containing the embedding vector (required) and
-                raw text (optional, but recommended) for the text GENERATIVE_LLM model generates.
-                Required for GENERATIVE_LLM models. Defaults to None.
+            prompt (str or Embedding, optional): input text on which the GENERATIVE_LLM model acts. It
+                accepts a string or Embedding object (if sending embedding vectors is desired). Required
+                for GENERATIVE_LLM models. Defaults to None.
+            response (str or Embedding, optional): output text from GENERATIVE_LLM model. It accepts
+                a string or Embedding object (if sending embedding vectors is desired). Required for
+                GENERATIVE_LLM models. Defaults to None.
             prompt_template (str, optional): template used to construct the prompt passed to a large language
                 model. It can include variable using the double braces notation. Example: 'Given the context
                 {{context}}, answer the following question {{user_question}}.
@@ -200,6 +213,13 @@ class Client:
                    "presence_penalty": 0.34,
                    "stop": [".", "?", "!"],
                 }
+            llm_run_metadata (LLMRunMetadata, optional): run metadata for llm calls. Example:
+                LLMRunMetadata(
+                   total_token_count=400,
+                   prompt_token_count=300,
+                   response_token_count=100,
+                   response_latency_ms=2000,
+                )
 
         Returns:
         --------
@@ -231,11 +251,14 @@ class Client:
                 raise InvalidValueType("features", features, "dict")
             for feat_name, feat_value in features.items():
                 _validate_mapping_key(feat_name, "features")
-                val = convert_element(feat_value)
-                if val is not None and not isinstance(val, (str, bool, float, int)):
-                    raise InvalidValueType(
-                        f"feature '{feat_name}'", feat_value, "one of: bool, int, float, str"
-                    )
+                if is_list_of(feat_value, str):
+                    continue
+                else:
+                    val = convert_element(feat_value)
+                    if val is not None and not isinstance(val, (str, bool, float, int)):
+                        raise InvalidValueType(
+                            f"feature '{feat_name}'", feat_value, "one of: bool, int, float, str"
+                        )
 
         # Validate embedding_features type
         if embedding_features:
@@ -266,6 +289,11 @@ class Client:
         if tags:
             if not isinstance(tags, dict):
                 raise InvalidValueType("tags", tags, "dict")
+            wrong_tags = [tag_name for tag_name in tags.keys() if tag_name in RESERVED_TAG_COLS]
+            if wrong_tags:
+                raise KeyError(
+                    f"The following tag names are not allowed as they are reserved: {wrong_tags}"
+                )
             for tag_name, tag_value in tags.items():
                 _validate_mapping_key(tag_name, "tags")
                 val = convert_element(tag_value)
@@ -280,6 +308,10 @@ class Client:
                         f"The number of characters for each tag must be less than or equal to "
                         f"{MAX_TAG_LENGTH}. The tag {tag_name} with value {tag_value} has "
                         f"{len(str(val))} characters."
+                    )
+                elif len(str(val)) > MAX_TAG_LENGTH_TRUNCATION:
+                    logger.warning(
+                        get_truncation_warning_message("tags", MAX_TAG_LENGTH_TRUNCATION)
                     )
 
         # Check the timestamp present on the event
@@ -305,21 +337,32 @@ class Client:
 
         # Validate GENERATIVE_LLM models requirements
         if model_type == ModelTypes.GENERATIVE_LLM:
-            # Validate that prompt and response are not None
-            if prompt is None or response is None:
-                raise ValueError(
-                    "The following fields cannot be None for GENERATIVE_LLM models: prompt, response"
-                )
-            for emb_name, emb_obj in {"prompt": prompt, "response": response}.items():
-                # Must verify embedding type
-                if not isinstance(emb_obj, Embedding):
-                    raise TypeError("Both prompt and response objects must be of type Embedding")
-                emb_obj.validate(emb_name)
+            if prompt is not None:
+                if not isinstance(prompt, (str, Embedding)):
+                    raise TypeError(
+                        f"prompt must be of type str or Embedding, but found {type(val)}"
+                    )
+                if isinstance(prompt, str):
+                    prompt = _PromptOrResponseText(data=prompt)
+                # Validate content of prompt, type is either Embedding or _PromptOrResponseText
+                prompt.validate("prompt")
+            if response is not None:
+                if not isinstance(response, (str, Embedding)):
+                    raise TypeError(
+                        f"response must be of type str or Embedding, but found {type(val)}"
+                    )
+                if isinstance(response, str):
+                    response = _PromptOrResponseText(data=response)
+                # Validate content of response, type is either Embedding or _PromptOrResponseText
+                response.validate("response")
 
             # Validate prompt templates workflow information
             _validate_prompt_templates_and_llm_config(
                 prompt_template, prompt_template_version, llm_model_name, llm_params
             )
+            # Validate llm run metadata
+            if llm_run_metadata is not None:
+                llm_run_metadata.validate()
         else:
             if prompt is not None or response is not None:
                 raise ValueError(
@@ -358,15 +401,36 @@ class Client:
                 combined_embedding_features = (
                     {k: v for k, v in embedding_features.items()} if embedding_features else {}
                 )
-                # Map prompt/response as embedding features for generative models
-                if model_type == ModelTypes.GENERATIVE_LLM:
-                    combined_embedding_features.update({"prompt": prompt, "response": response})
+                # Map prompt as embedding features for generative models
+                if prompt is not None:
+                    combined_embedding_features.update({"prompt": prompt})
+                # Map response as embedding features for generative models
+                if response is not None:
+                    combined_embedding_features.update({"response": response})
                 converted_embedding_feats = convert_dictionary(combined_embedding_features)
                 embedding_feats = pb2.Prediction(features=converted_embedding_feats)
                 p.MergeFrom(embedding_feats)
 
-            if tags is not None:
-                converted_tags = convert_dictionary(tags)
+            if tags or llm_run_metadata:
+                joined_tags = copy.deepcopy(tags)
+                if llm_run_metadata:
+                    if llm_run_metadata.total_token_count is not None:
+                        joined_tags[
+                            LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME
+                        ] = llm_run_metadata.total_token_count
+                    if llm_run_metadata.prompt_token_count is not None:
+                        joined_tags[
+                            LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME
+                        ] = llm_run_metadata.prompt_token_count
+                    if llm_run_metadata.response_token_count is not None:
+                        joined_tags[
+                            LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME
+                        ] = llm_run_metadata.response_token_count
+                    if llm_run_metadata.response_latency_ms is not None:
+                        joined_tags[
+                            LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME
+                        ] = llm_run_metadata.response_latency_ms
+                converted_tags = convert_dictionary(joined_tags)
                 tgs = pb2.Prediction(tags=converted_tags)
                 p.MergeFrom(tgs)
 
@@ -800,6 +864,12 @@ def _validate_prompt_templates_and_llm_config(
             )
         if len(prompt_template) > MAX_PROMPT_TEMPLATE_LENGTH:
             raise InvalidStringLength("prompt_template", 0, MAX_PROMPT_TEMPLATE_LENGTH)
+        elif len(prompt_template) > MAX_PROMPT_TEMPLATE_LENGTH_TRUNCATION:
+            logger.warning(
+                get_truncation_warning_message(
+                    "prompt templates", MAX_PROMPT_TEMPLATE_LENGTH_TRUNCATION
+                )
+            )
 
     if prompt_template_version is not None:
         if not isinstance(prompt_template_version, str):
@@ -812,6 +882,12 @@ def _validate_prompt_templates_and_llm_config(
             raise InvalidStringLength(
                 "prompt_template_version", 0, MAX_PROMPT_TEMPLATE_VERSION_LENGTH
             )
+        elif len(prompt_template_version) > MAX_PROMPT_TEMPLATE_VERSION_LENGTH_TRUNCATION:
+            logger.warning(
+                get_truncation_warning_message(
+                    "prompt template versions", MAX_PROMPT_TEMPLATE_VERSION_LENGTH_TRUNCATION
+                )
+            )
 
     if llm_model_name is not None:
         if not isinstance(llm_model_name, str):
@@ -822,6 +898,12 @@ def _validate_prompt_templates_and_llm_config(
             )
         if len(llm_model_name) > MAX_LLM_MODEL_NAME_LENGTH:
             raise InvalidStringLength("llm_model_name", 0, MAX_LLM_MODEL_NAME_LENGTH)
+        elif len(llm_model_name) > MAX_LLM_MODEL_NAME_LENGTH_TRUNCATION:
+            logger.warning(
+                get_truncation_warning_message(
+                    "LLM model names", MAX_LLM_MODEL_NAME_LENGTH_TRUNCATION
+                )
+            )
 
     if llm_params is not None:
         if not isinstance(llm_params, dict):

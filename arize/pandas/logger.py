@@ -1,5 +1,6 @@
 # type: ignore[pb2]
 import base64
+import copy
 import json
 import os
 import shutil
@@ -13,17 +14,21 @@ import requests
 
 from .. import public_pb2 as pb2
 from ..__init__ import __version__
+from ..utils import proto
 from ..utils.constants import (
     API_KEY_ENVVAR_NAME,
     GENERATED_LLM_PARAMS_JSON_COL,
     GENERATED_PREDICTION_LABEL_COL,
+    LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME,
+    LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME,
+    LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME,
+    LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME,
     SPACE_KEY_ENVVAR_NAME,
 )
 from ..utils.errors import AuthError
 from ..utils.logging import logger
 from ..utils.types import (
-    CATEGORICAL_MODEL_TYPES,
-    NUMERIC_MODEL_TYPES,
+    BaseSchema,
     Environments,
     LLMConfigColumnNames,
     Metrics,
@@ -91,7 +96,7 @@ class Client:
     def log(
         self,
         dataframe: pd.DataFrame,
-        schema: Schema,
+        schema: BaseSchema,
         environment: Environments,
         model_id: str,
         model_type: ModelTypes,
@@ -113,8 +118,9 @@ class Client:
         Arguments:
         ----------
             dataframe (pd.DataFrame): The dataframe containing model data.
-            schema (Schema): A Schema instance that specifies the column names for corresponding
-                data in the dataframe.
+            schema (BaseSchema): A BaseSchema instance that specifies the column names for corresponding
+                data in the dataframe. Can be either a Schema or CorpusSchema (if the environment is
+                Environments.CORPUS) object.
             environment (Environments): The environment the data corresponds to (Production,
                 Training, Validation).
             model_id (str): A unique name to identify your model in the Arize platform.
@@ -148,9 +154,14 @@ class Client:
         --------
             `Response` object
         """
+
+        # Deep copy the schema since we might modify it to add certain columns and don't
+        # want to cause side effects
+        schema = copy.deepcopy(schema)
+
         # Warning for when prediction_label is not provided and we generate default prediction
         # labels for GENERATIVE_LLM models
-        if model_type == ModelTypes.GENERATIVE_LLM:
+        if model_type == ModelTypes.GENERATIVE_LLM and environment != Environments.CORPUS:
             self._generative_model_warnings(dataframe, schema)
 
         if verbose:
@@ -158,6 +169,7 @@ class Client:
         errors = Validator.validate_required_checks(
             dataframe=dataframe,
             model_id=model_id,
+            environment=environment,
             schema=schema,
             model_version=model_version,
             batch_id=batch_id,
@@ -255,25 +267,9 @@ class Client:
                 logger.info("Getting pyarrow schema from pandas dataframe.")
             # TODO: Addition of column for GENERATIVE models should occur at the
             # beginning of the log function, so validations are applied to the resulting schema
-            if model_type == ModelTypes.GENERATIVE_LLM:
-                if schema.prediction_label_column_name is None:
-                    dataframe = self._add_default_prediction_label_column(dataframe)
-                    schema = schema.replace(
-                        prediction_label_column_name=GENERATED_PREDICTION_LABEL_COL
-                    )
-                if (
-                    schema.llm_config_column_names
-                    and schema.llm_config_column_names.params_column_name
-                ) is not None:
-                    dataframe = self._add_json_llm_params_column(
-                        dataframe, schema.llm_config_column_names.params_column_name
-                    )
-                    schema = schema.replace(
-                        llm_config_column_names=LLMConfigColumnNames(
-                            model_column_name=schema.llm_config_column_names.model_column_name,
-                            params_column_name=GENERATED_LLM_PARAMS_JSON_COL,
-                        )
-                    )
+            if model_type == ModelTypes.GENERATIVE_LLM and environment != Environments.CORPUS:
+                dataframe, schema = self._add_generative_llm_columns(dataframe, schema)
+
             pa_schema = pa.Schema.from_pandas(dataframe)
         except pa.ArrowInvalid:
             logger.error(
@@ -296,15 +292,6 @@ class Client:
                 for e in errors:
                     logger.error(e)
                 raise err.ValidationFailure(errors)
-        if model_type == ModelTypes.GENERATIVE_LLM:
-            prompt_response_map = {
-                "prompt": schema.prompt_column_names,
-                "response": schema.response_column_names,
-            }
-            if schema.embedding_feature_column_names is None:
-                schema = schema.replace(embedding_feature_column_names=prompt_response_map)
-            else:
-                schema.embedding_feature_column_names.update(prompt_response_map)
         if validate:
             if verbose:
                 logger.info("Performing values validation.")
@@ -323,146 +310,33 @@ class Client:
             logger.info("Getting pyarrow table from pandas dataframe.")
         ta = pa.Table.from_pandas(dataframe)
 
-        s = pb2.Schema()
-        s.constants.model_id = model_id
-
-        if model_version is not None:
-            s.constants.model_version = model_version
-
-        if environment == Environments.PRODUCTION:
-            s.constants.environment = pb2.Schema.Environment.PRODUCTION
-        elif environment == Environments.VALIDATION:
-            s.constants.environment = pb2.Schema.Environment.VALIDATION
-        elif environment == Environments.TRAINING:
-            s.constants.environment = pb2.Schema.Environment.TRAINING
-
-        # Map user-friendly external model types -> internal model types when sending to Arize
-        if model_type in NUMERIC_MODEL_TYPES:
-            s.constants.model_type = pb2.Schema.ModelType.NUMERIC
-        elif model_type in CATEGORICAL_MODEL_TYPES:
-            s.constants.model_type = pb2.Schema.ModelType.SCORE_CATEGORICAL
-        elif model_type == ModelTypes.RANKING:
-            s.constants.model_type = pb2.Schema.ModelType.RANKING
-        elif model_type == ModelTypes.OBJECT_DETECTION:
-            s.constants.model_type = pb2.Schema.ModelType.OBJECT_DETECTION
-        elif model_type == ModelTypes.GENERATIVE_LLM:
-            s.constants.model_type = pb2.Schema.ModelType.GENERATIVE_LLM
-
-        if batch_id is not None:
-            s.constants.batch_id = batch_id
-
-        if schema.prediction_id_column_name is not None:
-            s.arrow_schema.prediction_id_column_name = schema.prediction_id_column_name
-
-        if schema.timestamp_column_name is not None:
-            s.arrow_schema.timestamp_column_name = schema.timestamp_column_name
-
-        if schema.prediction_label_column_name is not None:
-            s.arrow_schema.prediction_label_column_name = schema.prediction_label_column_name
-
-        if (
-            model_type == ModelTypes.OBJECT_DETECTION
-            and schema.object_detection_prediction_column_names is not None
-        ):
-            s.arrow_schema.prediction_object_detection_label_column_names.bboxes_coordinates_column_name = (
-                schema.object_detection_prediction_column_names.bounding_boxes_coordinates_column_name
+        if environment == Environments.CORPUS:
+            s = proto._get_pb_schema_corpus(schema, model_id, model_type, environment)
+        else:
+            s = proto._get_pb_schema(
+                schema, model_id, model_version, model_type, environment, batch_id
             )
-            s.arrow_schema.prediction_object_detection_label_column_names.bboxes_categories_column_name = (
-                schema.object_detection_prediction_column_names.categories_column_name
+
+        if isinstance(schema, Schema) and not schema.has_prediction_columns():
+            logger.warning(
+                "Logging actuals without any predictions may result in "
+                "unexpected behavior if corresponding predictions have not been logged prior. "
+                "Please see the docs at https://docs.arize.com/arize/sending-data/sending-data-faq"
+                "#what-happens-after-i-send-in-actual-data"
             )
-            if schema.object_detection_prediction_column_names.scores_column_name is not None:
-                s.arrow_schema.prediction_object_detection_label_column_names.bboxes_scores_column_name = (
-                    schema.object_detection_prediction_column_names.scores_column_name
-                )
 
-        if schema.prediction_score_column_name is not None:
-            if model_type in NUMERIC_MODEL_TYPES:
-                # allow numeric prediction to be sent in as either prediction_label (legacy) or
-                # prediction_score.
-                s.arrow_schema.prediction_label_column_name = schema.prediction_score_column_name
-            else:
-                s.arrow_schema.prediction_score_column_name = schema.prediction_score_column_name
+        return self._log_arrow(path, s, pa_schema, ta, timeout, verbose, sync)
 
-        if schema.feature_column_names is not None:
-            s.arrow_schema.feature_column_names.extend(schema.feature_column_names)
-
-        if schema.embedding_feature_column_names is not None:
-            for (
-                emb_name,
-                emb_col_names,
-            ) in schema.embedding_feature_column_names.items():
-                # emb_name is how it will show in the UI
-                s.arrow_schema.embedding_feature_column_names_map[
-                    emb_name
-                ].vector_column_name = emb_col_names.vector_column_name
-                if emb_col_names.data_column_name:
-                    s.arrow_schema.embedding_feature_column_names_map[
-                        emb_name
-                    ].data_column_name = emb_col_names.data_column_name
-                if emb_col_names.link_to_data_column_name:
-                    s.arrow_schema.embedding_feature_column_names_map[
-                        emb_name
-                    ].link_to_data_column_name = emb_col_names.link_to_data_column_name
-
-        if schema.tag_column_names is not None:
-            s.arrow_schema.tag_column_names.extend(schema.tag_column_names)
-
-        if model_type == ModelTypes.RANKING and schema.relevance_labels_column_name is not None:
-            s.arrow_schema.actual_label_column_name = schema.relevance_labels_column_name
-        elif model_type == ModelTypes.RANKING and schema.attributions_column_name is not None:
-            s.arrow_schema.actual_label_column_name = schema.attributions_column_name
-        elif schema.actual_label_column_name is not None:
-            s.arrow_schema.actual_label_column_name = schema.actual_label_column_name
-
-        if model_type == ModelTypes.RANKING and schema.relevance_score_column_name is not None:
-            s.arrow_schema.actual_score_column_name = schema.relevance_score_column_name
-        elif schema.actual_score_column_name is not None:
-            if model_type in NUMERIC_MODEL_TYPES:
-                # allow numeric prediction to be sent in as either prediction_label (legacy) or
-                # prediction_score.
-                s.arrow_schema.actual_label_column_name = schema.actual_score_column_name
-            else:
-                s.arrow_schema.actual_score_column_name = schema.actual_score_column_name
-
-        if schema.shap_values_column_names is not None:
-            s.arrow_schema.shap_values_column_names.update(schema.shap_values_column_names)
-
-        if schema.prediction_group_id_column_name is not None:
-            s.arrow_schema.prediction_group_id_column_name = schema.prediction_group_id_column_name
-
-        if schema.rank_column_name is not None:
-            s.arrow_schema.rank_column_name = schema.rank_column_name
-
-        if (
-            model_type == ModelTypes.OBJECT_DETECTION
-            and schema.object_detection_actual_column_names is not None
-        ):
-            s.arrow_schema.actual_object_detection_label_column_names.bboxes_coordinates_column_name = (
-                schema.object_detection_actual_column_names.bounding_boxes_coordinates_column_name
-            )
-            s.arrow_schema.actual_object_detection_label_column_names.bboxes_categories_column_name = (
-                schema.object_detection_actual_column_names.categories_column_name
-            )
-            if schema.object_detection_actual_column_names.scores_column_name is not None:
-                s.arrow_schema.actual_object_detection_label_column_names.bboxes_scores_column_name = (
-                    schema.object_detection_actual_column_names.scores_column_name
-                )
-
-        if model_type == ModelTypes.GENERATIVE_LLM:
-            if schema.prompt_template_column_names is not None:
-                s.arrow_schema.prompt_template_column_names.template_column_name = (
-                    schema.prompt_template_column_names.template_column_name
-                )
-                s.arrow_schema.prompt_template_column_names.template_version_column_name = (
-                    schema.prompt_template_column_names.template_version_column_name
-                )
-            if schema.llm_config_column_names is not None:
-                s.arrow_schema.llm_config_column_names.model_column_name = (
-                    schema.llm_config_column_names.model_column_name
-                )
-                s.arrow_schema.llm_config_column_names.params_map_column_name = (
-                    schema.llm_config_column_names.params_column_name
-                )
+    def _log_arrow(
+        self,
+        path: Optional[str],
+        s: pb2.Schema,
+        pa_schema: pa.Schema,
+        pa_table: pa.Table,
+        timeout: Optional[float] = None,
+        verbose: Optional[bool] = False,
+        sync: Optional[bool] = False,
+    ) -> requests.Response:
         if verbose:
             logger.info("Serializing schema.")
         base64_schema = base64.b64encode(s.SerializeToString())
@@ -487,7 +361,7 @@ class Client:
             if verbose:
                 logger.info("Writing table to temporary file: ", tmp_file)
             writer = pa.ipc.RecordBatchStreamWriter(tmp_file, pa_schema)
-            writer.write_table(ta, max_chunksize=65536)
+            writer.write_table(pa_table, max_chunksize=65536)
             writer.close()
             if verbose:
                 logger.info("Sending file to Arize")
@@ -504,15 +378,6 @@ class Client:
 
         try:
             logger.info(f"Success! Check out your data at {reconstruct_url(response)}")
-
-            if not schema.has_prediction_columns():
-                logger.warning(
-                    "Logging actuals without any predictions may result in "
-                    "unexpected behavior if corresponding predictions have not been logged prior. "
-                    "Please see the docs at https://docs.arize.com/arize/sending-data/sending-data-faq"
-                    "#what-happens-after-i-send-in-actual-data"
-                )
-
         except Exception:
             pass
 
@@ -539,6 +404,56 @@ class Client:
         df[GENERATED_PREDICTION_LABEL_COL] = [1] * len(df)
         return df
 
+    # Add in all the relevant columns for generative LLMs and modify the schema accordingly
+    def _add_generative_llm_columns(
+        self, dataframe: pd.DataFrame, schema: Schema
+    ) -> (pd.DataFrame, Schema):
+        if schema.prediction_label_column_name is None:
+            dataframe = self._add_default_prediction_label_column(dataframe)
+            schema = schema.replace(prediction_label_column_name=GENERATED_PREDICTION_LABEL_COL)
+        if (
+            schema.llm_config_column_names and schema.llm_config_column_names.params_column_name
+        ) is not None:
+            dataframe = self._add_json_llm_params_column(
+                dataframe, schema.llm_config_column_names.params_column_name
+            )
+            schema = schema.replace(
+                llm_config_column_names=LLMConfigColumnNames(
+                    model_column_name=schema.llm_config_column_names.model_column_name,
+                    params_column_name=GENERATED_LLM_PARAMS_JSON_COL,
+                )
+            )
+        if schema.llm_run_metadata_column_names is not None:
+            if schema.llm_run_metadata_column_names.total_token_count_column_name is not None:
+                dataframe = self._add_reserved_tag_column(
+                    dataframe,
+                    LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME,
+                    schema.llm_run_metadata_column_names.total_token_count_column_name,
+                )
+                schema.tag_column_names.append(LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME)
+            if schema.llm_run_metadata_column_names.prompt_token_count_column_name is not None:
+                dataframe = self._add_reserved_tag_column(
+                    dataframe,
+                    LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME,
+                    schema.llm_run_metadata_column_names.prompt_token_count_column_name,
+                )
+                schema.tag_column_names.append(LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME)
+            if schema.llm_run_metadata_column_names.response_token_count_column_name is not None:
+                dataframe = self._add_reserved_tag_column(
+                    dataframe,
+                    LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME,
+                    schema.llm_run_metadata_column_names.response_token_count_column_name,
+                )
+                schema.tag_column_names.append(LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME)
+            if schema.llm_run_metadata_column_names.response_latency_ms_column_name is not None:
+                dataframe = self._add_reserved_tag_column(
+                    dataframe,
+                    LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME,
+                    schema.llm_run_metadata_column_names.response_latency_ms_column_name,
+                )
+                schema.tag_column_names.append(LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME)
+        return dataframe, schema
+
     def _add_json_llm_params_column(
         self, df: pd.DataFrame, llm_params_col_name: str
     ) -> pd.DataFrame:
@@ -547,8 +462,19 @@ class Client:
         )
         return df
 
+    # Adds in a new column to the dataframe under the name of reserved_tag_column_name that is a
+    # copy of the tag_column_name column
+    def _add_reserved_tag_column(
+        self, df: pd.DataFrame, reserved_tag_column_name: str, tag_column_name: str
+    ) -> pd.DataFrame:
+        if reserved_tag_column_name == tag_column_name:
+            return df
+        df[reserved_tag_column_name] = df[tag_column_name]
+        return df
+
     def _remove_extraneous_columns(self, df: pd.DataFrame, schema: Schema) -> pd.DataFrame:
-        return df[df.columns.intersection(schema.get_used_columns())]
+        df = df.loc[:, df.columns.intersection(schema.get_used_columns())]
+        return df
 
     def _generative_model_warnings(self, df: pd.DataFrame, schema: Schema):
         # Warning for when prediction_label_column_name is not provided

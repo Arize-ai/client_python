@@ -3,9 +3,14 @@ from collections import ChainMap
 import arize.pandas.validation.errors as err
 import pandas as pd
 import pytest
-from arize.pandas.logger import Schema
 from arize.pandas.validation.validator import Validator
-from arize.utils.types import EmbeddingColumnNames, LLMConfigColumnNames
+from arize.utils.types import (
+    CorpusSchema,
+    EmbeddingColumnNames,
+    Environments,
+    LLMConfigColumnNames,
+    Schema,
+)
 
 
 def get_standard_kwargs():
@@ -17,6 +22,7 @@ def get_standard_kwargs():
             }
         ),
         "model_id": "fraud",
+        "environment": Environments.PRODUCTION,
         "schema": Schema(
             prediction_id_column_name="prediction_id",
             prediction_score_column_name="prediction_score",
@@ -106,10 +112,9 @@ def test_field_type_embedding_features_column_names():
 
 
 def test_field_type_prompt_response_column_names():
+    # This contains a dataframe with EmbeddingColumNames prompt & response
     kwargs = get_standard_kwargs()
-    # This gives string objects
-    prompt_column_names_incorrect = "prompt_vector"
-    response_column_names_incorrect = "response_vector"
+    schema = kwargs["schema"]
 
     errors = Validator.validate_required_checks(
         **ChainMap(
@@ -118,15 +123,29 @@ def test_field_type_prompt_response_column_names():
     )
     assert len(errors) == 0
 
+    schema = schema.replace(
+        prompt_column_names="prompt_column",
+        response_column_names="response_column",
+    )
     errors = Validator.validate_required_checks(
         **ChainMap(
             {
-                "schema": Schema(
-                    prediction_id_column_name="prediction_id",
-                    prediction_score_column_name="prediction_score",
-                    prompt_column_names=prompt_column_names_incorrect,  # type: ignore
-                    response_column_names=response_column_names_incorrect,  # type: ignore
-                ),
+                "schema": schema,
+            },
+            kwargs,
+        ),
+    )
+    assert len(errors) == 0
+
+    # This gives string objects
+    schema = schema.replace(
+        prompt_column_names=2,
+        response_column_names=2,
+    )
+    errors = Validator.validate_required_checks(
+        **ChainMap(
+            {
+                "schema": schema,
             },
             kwargs,
         ),  # type: ignore
@@ -247,6 +266,58 @@ def test_field_convertible_to_str():
     assert "model_id" in errors[0].error_message()
     assert "model_version" in errors[0].error_message()
     assert "batch_id" in errors[0].error_message()
+
+
+def test_invalid_schema_type():
+    kwargs = get_standard_kwargs()
+    # Corpus schema with Corpus environment should pass
+    errors = Validator.validate_required_checks(
+        **ChainMap(
+            {
+                "schema": CorpusSchema(
+                    document_id_column_name="document_id",
+                    document_version_column_name="document_version",
+                    document_text_embedding_column_names=EmbeddingColumnNames(
+                        vector_column_name="document_vector",
+                        data_column_name="document_data",
+                    ),
+                ),
+                "environment": Environments.CORPUS,
+            },
+            kwargs,
+        ),
+    )
+    assert len(errors) == 0
+
+    # Corpus schema with non Corpus environment should not pass
+    errors = Validator.validate_required_checks(
+        **ChainMap(
+            {
+                "schema": CorpusSchema(
+                    document_id_column_name="document_id",
+                    document_version_column_name="document_version",
+                    document_text_embedding_column_names=EmbeddingColumnNames(
+                        vector_column_name="document_vector",
+                        data_column_name="document_data",
+                    ),
+                ),
+                "environment": Environments.PRODUCTION,
+            },
+            kwargs,
+        ),
+    )
+    assert len(errors) == 1
+    assert isinstance(errors[0], err.InvalidSchemaType)
+
+    # non Corpus schema with Corpus environment should not pass
+    errors = Validator.validate_required_checks(
+        **ChainMap(
+            {"environment": Environments.CORPUS},
+            kwargs,
+        ),
+    )
+    assert len(errors) == 1
+    assert isinstance(errors[0], err.InvalidSchemaType)
 
 
 if __name__ == "__main__":

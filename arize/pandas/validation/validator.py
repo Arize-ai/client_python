@@ -7,21 +7,36 @@ import pandas as pd
 import pyarrow as pa
 from arize.pandas.validation import errors as err
 from arize.utils.constants import (
+    LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME,
+    LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME,
+    LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME,
+    LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME,
+    MAX_DOCUMENT_ID_LEN,
+    MAX_EMBEDDING_DIMENSIONALITY,
     MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
     MAX_LLM_MODEL_NAME_LENGTH,
+    MAX_LLM_MODEL_NAME_LENGTH_TRUNCATION,
     MAX_NUMBER_OF_EMBEDDINGS,
     MAX_PAST_YEARS_FROM_CURRENT_TIME,
     MAX_PREDICTION_ID_LEN,
     MAX_PROMPT_TEMPLATE_LENGTH,
+    MAX_PROMPT_TEMPLATE_LENGTH_TRUNCATION,
     MAX_PROMPT_TEMPLATE_VERSION_LENGTH,
+    MAX_PROMPT_TEMPLATE_VERSION_LENGTH_TRUNCATION,
+    MAX_RAW_DATA_CHARACTERS,
+    MAX_RAW_DATA_CHARACTERS_TRUNCATION,
     MAX_TAG_LENGTH,
+    MAX_TAG_LENGTH_TRUNCATION,
+    MIN_DOCUMENT_ID_LEN,
     MIN_PREDICTION_ID_LEN,
     MODEL_MAPPING_CONFIG,
 )
-from arize.utils.logging import logger
+from arize.utils.logging import get_truncation_warning_message, logger
 from arize.utils.types import (
     CATEGORICAL_MODEL_TYPES,
     NUMERIC_MODEL_TYPES,
+    BaseSchema,
+    CorpusSchema,
     EmbeddingColumnNames,
     Environments,
     LLMConfigColumnNames,
@@ -29,6 +44,7 @@ from arize.utils.types import (
     ModelTypes,
     PromptTemplateColumnNames,
     Schema,
+    count_characters_raw_data,
 )
 from arize.utils.utils import is_delayed_schema
 
@@ -38,22 +54,34 @@ class Validator:
     def validate_required_checks(
         dataframe: pd.DataFrame,
         model_id: str,
-        schema: Schema,
+        environment: Environments,
+        schema: BaseSchema,
         model_version: Optional[str] = None,
         batch_id: Optional[str] = None,
     ) -> List[err.ValidationError]:
-        # minimum required checks
-        required_checks = chain(
+        general_checks = chain(
+            Validator._check_valid_schema_type(schema, environment),
             Validator._check_field_convertible_to_str(model_id, model_version, batch_id),
-            Validator._check_field_type_embedding_features_column_names(schema),
-            Validator._check_field_type_prompt_response(schema),
             Validator._check_invalid_index(dataframe),
-            Validator._check_field_type_prompt_templates(schema),
-            Validator._check_field_type_llm_config(schema),
-            Validator._check_invalid_type_llm_params(dataframe, schema),
         )
-
-        return list(required_checks)
+        # If the schema is a CorpusSchema then for the log to be valid the environment must
+        # be CORPUS. By including both conditions here we do not need to modify the
+        # other checks below to account for possible CorpusSchema (which would not be valid
+        # in those checks).
+        if environment == Environments.CORPUS or isinstance(schema, CorpusSchema):
+            return list(general_checks)
+        elif isinstance(schema, Schema):
+            return list(
+                chain(
+                    general_checks,
+                    Validator._check_field_type_embedding_features_column_names(schema),
+                    Validator._check_field_type_prompt_response(schema),
+                    Validator._check_field_type_prompt_templates(schema),
+                    Validator._check_field_type_llm_config(schema),
+                    Validator._check_invalid_type_llm_params(dataframe, schema),
+                )
+            )
+        return []
 
     @staticmethod
     def validate_params(
@@ -61,7 +89,7 @@ class Validator:
         model_id: str,
         model_type: ModelTypes,
         environment: Environments,
-        schema: Schema,
+        schema: BaseSchema,
         metric_families: Optional[List[Metrics]] = None,
         model_version: Optional[str] = None,
         batch_id: Optional[str] = None,
@@ -69,157 +97,190 @@ class Validator:
         # general checks
         general_checks = chain(
             Validator._check_column_names_for_empty_strings(schema),
-            Validator._check_existence_prediction_id_column_delayed_schema(schema, model_type),
             Validator._check_invalid_model_id(model_id),
             Validator._check_invalid_model_version(model_version),
             Validator._check_invalid_model_type(model_type),
             Validator._check_invalid_environment(environment),
-            Validator._check_invalid_batch_id(batch_id, environment),
-            Validator._check_invalid_number_of_embeddings(schema),
-            Validator._check_missing_columns(dataframe, schema),
             Validator._check_dataframe_for_duplicate_columns(schema, dataframe),
-            Validator._check_invalid_shap_suffix(schema),
-            # model mapping checks
-            Validator._check_model_type_and_metrics(model_type, metric_families, schema),
+            Validator._check_missing_columns(dataframe, schema),
+            Validator._check_reserved_columns(schema, model_type),
         )
+        if isinstance(schema, CorpusSchema):
+            return list(general_checks)
+        elif isinstance(schema, Schema):
+            general_checks = chain(
+                general_checks,
+                Validator._check_existence_prediction_id_column_delayed_schema(schema, model_type),
+                Validator._check_invalid_batch_id(batch_id, environment),
+                Validator._check_invalid_number_of_embeddings(schema),
+                Validator._check_invalid_shap_suffix(schema),
+                # model mapping checks
+                Validator._check_model_type_and_metrics(model_type, metric_families, schema),
+            )
 
-        if model_type in NUMERIC_MODEL_TYPES:
-            num_checks = chain(
-                Validator._check_existence_pred_act_shap_score_or_label(schema),
-                Validator._check_existence_preprod_pred_act_score_or_label(schema, environment),
-                Validator._check_missing_object_detection_columns(schema, model_type),
-            )
-            return list(chain(general_checks, num_checks))
-        elif model_type in CATEGORICAL_MODEL_TYPES:
-            sc_checks = chain(
-                Validator._check_existence_pred_act_shap_score_or_label(schema),
-                Validator._check_existence_preprod_pred_act_score_or_label(schema, environment),
-                Validator._check_missing_object_detection_columns(schema, model_type),
-            )
-            return list(chain(general_checks, sc_checks))
-        elif model_type == ModelTypes.GENERATIVE_LLM:
-            gllm_checks = chain(
-                Validator._check_existence_prompt_response_generative_llm(schema),
-                Validator._check_existence_preprod_act(schema, environment),
-                Validator._check_missing_object_detection_columns(schema, model_type),
-            )
-            return list(chain(general_checks, gllm_checks))
-        elif model_type == ModelTypes.RANKING:
-            r_checks = chain(
-                Validator._check_existence_group_id_rank_category_relevance(schema),
-                Validator._check_missing_object_detection_columns(schema, model_type),
-            )
-            return list(chain(general_checks, r_checks))
-        elif model_type == ModelTypes.OBJECT_DETECTION:
-            od_checks = chain(
-                Validator._check_existence_pred_act_od_column_names(schema, environment),
-                Validator._check_missing_non_object_detection_columns(schema, model_type),
-            )
-            return list(chain(general_checks, od_checks))
+            if model_type in NUMERIC_MODEL_TYPES:
+                num_checks = chain(
+                    Validator._check_existence_pred_act_shap_score_or_label(schema),
+                    Validator._check_existence_preprod_pred_act_score_or_label(schema, environment),
+                    Validator._check_missing_object_detection_columns(schema, model_type),
+                )
+                return list(chain(general_checks, num_checks))
+            elif model_type in CATEGORICAL_MODEL_TYPES:
+                sc_checks = chain(
+                    Validator._check_existence_pred_act_shap_score_or_label(schema),
+                    Validator._check_existence_preprod_pred_act_score_or_label(schema, environment),
+                    Validator._check_missing_object_detection_columns(schema, model_type),
+                )
+                return list(chain(general_checks, sc_checks))
+            elif model_type == ModelTypes.GENERATIVE_LLM:
+                gllm_checks = chain(
+                    Validator._check_existence_preprod_act(schema, environment),
+                    Validator._check_missing_object_detection_columns(schema, model_type),
+                )
+                return list(chain(general_checks, gllm_checks))
+            elif model_type == ModelTypes.RANKING:
+                r_checks = chain(
+                    Validator._check_existence_group_id_rank_category_relevance(schema),
+                    Validator._check_missing_object_detection_columns(schema, model_type),
+                )
+                return list(chain(general_checks, r_checks))
+            elif model_type == ModelTypes.OBJECT_DETECTION:
+                od_checks = chain(
+                    Validator._check_existence_pred_act_od_column_names(schema, environment),
+                    Validator._check_missing_non_object_detection_columns(schema, model_type),
+                )
+                return list(chain(general_checks, od_checks))
         return list(general_checks)
 
     @staticmethod
     def validate_types(
-        model_type: ModelTypes, schema: Schema, pyarrow_schema: pa.Schema
+        model_type: ModelTypes,
+        schema: BaseSchema,
+        pyarrow_schema: pa.Schema,
     ) -> List[err.ValidationError]:
         column_types = dict(zip(pyarrow_schema.names, pyarrow_schema.types))
-        general_checks = chain(
-            Validator._check_type_prediction_id(schema, column_types),
-            Validator._check_type_timestamp(schema, column_types),
-            Validator._check_type_features(schema, column_types),
-            Validator._check_type_embedding_features(schema, column_types),
-            Validator._check_type_tags(schema, column_types),
-            Validator._check_type_shap_values(schema, column_types),
-        )
 
-        if model_type in CATEGORICAL_MODEL_TYPES or model_type in NUMERIC_MODEL_TYPES:
-            scn_checks = chain(
-                Validator._check_type_pred_act_labels(model_type, schema, column_types),
-                Validator._check_type_pred_act_scores(model_type, schema, column_types),
+        if isinstance(schema, CorpusSchema):
+            return list(chain(Validator._check_type_document_columns(schema, column_types)))
+        elif isinstance(schema, Schema):
+            general_checks = chain(
+                Validator._check_type_prediction_id(schema, column_types),
+                Validator._check_type_timestamp(schema, column_types),
+                Validator._check_type_features(schema, column_types),
+                Validator._check_type_embedding_features(schema, column_types),
+                Validator._check_type_tags(schema, column_types),
+                Validator._check_type_shap_values(schema, column_types),
+                Validator._check_type_retrieved_document_ids(schema, column_types),
             )
-            return list(chain(general_checks, scn_checks))
-        if model_type == ModelTypes.GENERATIVE_LLM:
-            gllm_checks = chain(
-                Validator._check_type_pred_act_labels(model_type, schema, column_types),
-                Validator._check_type_pred_act_scores(model_type, schema, column_types),
-                Validator._check_type_prompt_response(schema, column_types),
-                Validator._check_type_llm_prompt_templates(schema, column_types),
-                Validator._check_type_llm_config(schema, column_types),
-            )
-            return list(chain(general_checks, gllm_checks))
-        elif model_type == ModelTypes.RANKING:
-            r_checks = chain(
-                Validator._check_type_prediction_group_id(schema, column_types),
-                Validator._check_type_rank(schema, column_types),
-                Validator._check_type_ranking_category(schema, column_types),
-                Validator._check_type_pred_act_scores(model_type, schema, column_types),
-            )
-            return list(chain(general_checks, r_checks))
-        elif model_type == ModelTypes.OBJECT_DETECTION:
-            od_checks = chain(
-                Validator._check_type_bounding_boxes_coordinates(schema, column_types),
-                Validator._check_type_bounding_boxes_categories(schema, column_types),
-                Validator._check_type_bounding_boxes_scores(schema, column_types),
-            )
-            return list(chain(general_checks, od_checks))
 
-        return list(general_checks)
+            if model_type in CATEGORICAL_MODEL_TYPES or model_type in NUMERIC_MODEL_TYPES:
+                scn_checks = chain(
+                    Validator._check_type_pred_act_labels(model_type, schema, column_types),
+                    Validator._check_type_pred_act_scores(model_type, schema, column_types),
+                )
+                return list(chain(general_checks, scn_checks))
+            if model_type == ModelTypes.GENERATIVE_LLM:
+                gllm_checks = chain(
+                    Validator._check_type_pred_act_labels(model_type, schema, column_types),
+                    Validator._check_type_pred_act_scores(model_type, schema, column_types),
+                    Validator._check_type_prompt_response(schema, column_types),
+                    Validator._check_type_llm_prompt_templates(schema, column_types),
+                    Validator._check_type_llm_config(schema, column_types),
+                    Validator._check_type_llm_run_metadata(schema, column_types),
+                )
+                return list(chain(general_checks, gllm_checks))
+            elif model_type == ModelTypes.RANKING:
+                r_checks = chain(
+                    Validator._check_type_prediction_group_id(schema, column_types),
+                    Validator._check_type_rank(schema, column_types),
+                    Validator._check_type_ranking_category(schema, column_types),
+                    Validator._check_type_pred_act_scores(model_type, schema, column_types),
+                )
+                return list(chain(general_checks, r_checks))
+            elif model_type == ModelTypes.OBJECT_DETECTION:
+                od_checks = chain(
+                    Validator._check_type_bounding_boxes_coordinates(schema, column_types),
+                    Validator._check_type_bounding_boxes_categories(schema, column_types),
+                    Validator._check_type_bounding_boxes_scores(schema, column_types),
+                )
+                return list(chain(general_checks, od_checks))
+
+            return list(general_checks)
+        return []
 
     @staticmethod
     def validate_values(
         dataframe: pd.DataFrame,
         environment: Environments,
-        schema: Schema,
+        schema: BaseSchema,
         model_type: ModelTypes,
     ) -> List[err.ValidationError]:
         # ASSUMPTION: at this point the param and type checks should have passed.
         # This function may crash if that is not true, e.g. if columns are missing
         # or are of the wrong types.
+        if len(dataframe) == 0:
+            return []
 
         general_checks = chain(
-            Validator._check_value_timestamp(dataframe, schema),
             Validator._check_invalid_missing_values(dataframe, schema, model_type),
-            Validator._check_id_field_str_length(
-                dataframe, "prediction_id_column_name", schema.prediction_id_column_name
-            ),
-            Validator._check_embedding_features_dimensionality(dataframe, schema),
-            Validator._check_invalid_record_prod(dataframe, environment, schema, model_type),
-            Validator._check_invalid_record_preprod(dataframe, environment, schema, model_type),
-            Validator._check_value_tag(dataframe, schema),
         )
-        if model_type == ModelTypes.RANKING:
-            r_checks = chain(
-                Validator._check_value_rank(dataframe, schema),
+        if isinstance(schema, CorpusSchema):
+            return list(
+                chain(
+                    general_checks,
+                    Validator._check_document_id_field_str_length(
+                        dataframe, "document_id_column_name", schema.document_id_column_name
+                    ),
+                )
+            )
+        elif isinstance(schema, Schema):
+            general_checks = chain(
+                general_checks,
+                Validator._check_value_timestamp(dataframe, schema),
                 Validator._check_id_field_str_length(
-                    dataframe,
-                    "prediction_group_id_column_name",
-                    schema.prediction_group_id_column_name,
+                    dataframe, "prediction_id_column_name", schema.prediction_id_column_name
                 ),
-                Validator._check_value_ranking_category(dataframe, schema),
+                Validator._check_embedding_vectors_dimensionality(dataframe, schema),
+                Validator._check_embedding_raw_data_characters(dataframe, schema),
+                Validator._check_invalid_record_prod(dataframe, environment, schema, model_type),
+                Validator._check_invalid_record_preprod(dataframe, environment, schema, model_type),
+                Validator._check_value_tag(dataframe, schema),
             )
-            return list(chain(general_checks, r_checks))
-        if model_type == ModelTypes.OBJECT_DETECTION:
-            od_checks = chain(
-                Validator._check_value_bounding_boxes_coordinates(dataframe, schema),
-                Validator._check_value_bounding_boxes_categories(dataframe, schema),
-                Validator._check_value_bounding_boxes_scores(dataframe, schema),
-            )
-            return list(chain(general_checks, od_checks))
-        if model_type == ModelTypes.GENERATIVE_LLM:
-            gen_llm_checks = chain(
-                Validator._check_value_llm_model_name(dataframe, schema),
-                Validator._check_value_llm_prompt_template(dataframe, schema),
-                Validator._check_value_llm_prompt_template_version(dataframe, schema),
-            )
-            return list(chain(general_checks, gen_llm_checks))
-        return list(general_checks)
+            if model_type == ModelTypes.RANKING:
+                r_checks = chain(
+                    Validator._check_value_rank(dataframe, schema),
+                    Validator._check_id_field_str_length(
+                        dataframe,
+                        "prediction_group_id_column_name",
+                        schema.prediction_group_id_column_name,
+                    ),
+                    Validator._check_value_ranking_category(dataframe, schema),
+                )
+                return list(chain(general_checks, r_checks))
+            if model_type == ModelTypes.OBJECT_DETECTION:
+                od_checks = chain(
+                    Validator._check_value_bounding_boxes_coordinates(dataframe, schema),
+                    Validator._check_value_bounding_boxes_categories(dataframe, schema),
+                    Validator._check_value_bounding_boxes_scores(dataframe, schema),
+                )
+                return list(chain(general_checks, od_checks))
+            if model_type == ModelTypes.GENERATIVE_LLM:
+                gen_llm_checks = chain(
+                    Validator._check_value_prompt_response(dataframe, schema),
+                    Validator._check_value_llm_model_name(dataframe, schema),
+                    Validator._check_value_llm_prompt_template(dataframe, schema),
+                    Validator._check_value_llm_prompt_template_version(dataframe, schema),
+                )
+                return list(chain(general_checks, gen_llm_checks))
+            return list(general_checks)
+        return []
 
     # ----------------------
     # Minimum requred checks
     # ----------------------
     @staticmethod
     def _check_column_names_for_empty_strings(
-        schema: Schema,
+        schema: BaseSchema,
     ) -> List[err.InvalidColumnNameEmptyString]:
         if "" in schema.get_used_columns():
             return [err.InvalidColumnNameEmptyString()]
@@ -268,14 +329,14 @@ class Validator:
         schema: Schema,
     ) -> List[err.InvalidFieldTypePromptResponse]:
         errors = []
-        if schema.response_column_names is not None and not isinstance(
-            schema.response_column_names, EmbeddingColumnNames
-        ):
-            errors.append(err.InvalidFieldTypePromptResponse("response_column_names"))
         if schema.prompt_column_names is not None and not isinstance(
-            schema.prompt_column_names, EmbeddingColumnNames
+            schema.prompt_column_names, (str, EmbeddingColumnNames)
         ):
             errors.append(err.InvalidFieldTypePromptResponse("prompt_column_names"))
+        if schema.response_column_names is not None and not isinstance(
+            schema.response_column_names, (str, EmbeddingColumnNames)
+        ):
+            errors.append(err.InvalidFieldTypePromptResponse("response_column_names"))
         return errors
 
     @staticmethod
@@ -451,6 +512,17 @@ class Validator:
     @staticmethod
     def _check_missing_columns(
         dataframe: pd.DataFrame,
+        schema: BaseSchema,
+    ) -> List[err.MissingColumns]:
+        if isinstance(schema, CorpusSchema):
+            return Validator._check_missing_columns_corpus_schema(dataframe, schema)
+        elif isinstance(schema, Schema):
+            return Validator._check_missing_columns_schema(dataframe, schema)
+        return []
+
+    @staticmethod
+    def _check_missing_columns_schema(
+        dataframe: pd.DataFrame,
         schema: Schema,
     ) -> List[err.MissingColumns]:
         # converting to a set first makes the checks run a lot faster
@@ -503,6 +575,36 @@ class Validator:
                 if col is not None and col not in existing_columns:
                     missing_columns.append(col)
 
+        if schema.prompt_column_names is not None:
+            if isinstance(schema.prompt_column_names, str):
+                col = schema.prompt_column_names
+                if col not in existing_columns:
+                    missing_columns.append(col)
+            elif isinstance(schema.prompt_column_names, EmbeddingColumnNames):
+                prompt_emb_col_names = schema.prompt_column_names
+                if prompt_emb_col_names.vector_column_name not in existing_columns:
+                    missing_columns.append(prompt_emb_col_names.vector_column_name)
+                if (
+                    prompt_emb_col_names.data_column_name is not None
+                    and prompt_emb_col_names.data_column_name not in existing_columns
+                ):
+                    missing_columns.append(prompt_emb_col_names.data_column_name)
+
+        if schema.response_column_names is not None:
+            if isinstance(schema.response_column_names, str):
+                col = schema.response_column_names
+                if col not in existing_columns:
+                    missing_columns.append(col)
+            elif isinstance(schema.response_column_names, EmbeddingColumnNames):
+                response_emb_col_names = schema.response_column_names
+                if response_emb_col_names.vector_column_name not in existing_columns:
+                    missing_columns.append(response_emb_col_names.vector_column_name)
+                if (
+                    response_emb_col_names.data_column_name is not None
+                    and response_emb_col_names.data_column_name not in existing_columns
+                ):
+                    missing_columns.append(response_emb_col_names.data_column_name)
+
         if schema.prompt_template_column_names is not None:
             for col in schema.prompt_template_column_names:
                 if col is not None and col not in existing_columns:
@@ -515,6 +617,69 @@ class Validator:
 
         if missing_columns:
             return [err.MissingColumns(missing_columns)]
+        return []
+
+    @staticmethod
+    def _check_missing_columns_corpus_schema(
+        dataframe: pd.DataFrame,
+        schema: CorpusSchema,
+    ) -> List[err.MissingColumns]:
+        # converting to a set first makes the checks run a lot faster
+        existing_columns = set(dataframe.columns)
+        missing_columns = []
+
+        for field in schema.__dataclass_fields__:
+            if field.endswith("column_name"):
+                col = getattr(schema, field)
+                if col is not None and col not in existing_columns:
+                    missing_columns.append(col)
+
+        if (
+            schema.document_id_column_name is not None
+            and schema.document_id_column_name not in existing_columns
+        ):
+            missing_columns.append(schema.document_id_column_name)
+        if (
+            schema.document_version_column_name is not None
+            and schema.document_version_column_name not in existing_columns
+        ):
+            missing_columns.append(schema.document_version_column_name)
+        if schema.document_text_embedding_column_names is not None:
+            if (
+                schema.document_text_embedding_column_names.vector_column_name is not None
+                and schema.document_text_embedding_column_names.vector_column_name
+                not in existing_columns
+            ):
+                missing_columns.append(
+                    schema.document_text_embedding_column_names.vector_column_name
+                )
+            if (
+                schema.document_text_embedding_column_names.data_column_name is not None
+                and schema.document_text_embedding_column_names.data_column_name
+                not in existing_columns
+            ):
+                missing_columns.append(schema.document_text_embedding_column_names.data_column_name)
+            if (
+                schema.document_text_embedding_column_names.link_to_data_column_name is not None
+                and schema.document_text_embedding_column_names.link_to_data_column_name
+                not in existing_columns
+            ):
+                missing_columns.append(
+                    schema.document_text_embedding_column_names.link_to_data_column_name
+                )
+        if missing_columns:
+            return [err.MissingColumns(missing_columns)]
+        return []
+
+    @staticmethod
+    def _check_valid_schema_type(
+        schema: BaseSchema,
+        environment: Environments,
+    ) -> List[err.InvalidSchemaType]:
+        if environment == Environments.CORPUS and not (isinstance(schema, CorpusSchema)):
+            return [err.InvalidSchemaType(schema_type=str(type(schema)), environment=environment)]
+        if environment != Environments.CORPUS and isinstance(schema, CorpusSchema):
+            return [err.InvalidSchemaType(schema_type=str(type(schema)), environment=environment)]
         return []
 
     @staticmethod
@@ -546,6 +711,65 @@ class Validator:
 
         if invalid_column_names:
             return [err.InvalidShapSuffix(invalid_column_names)]
+        return []
+
+    @staticmethod
+    def _check_reserved_columns(
+        schema: BaseSchema,
+        model_type: ModelTypes,
+    ) -> List[err.ReservedColumns]:
+        if isinstance(schema, CorpusSchema):
+            return []
+        elif isinstance(schema, Schema):
+            reserved_columns = []
+            column_counts = schema.get_used_columns_counts()
+            if model_type == ModelTypes.GENERATIVE_LLM:
+                # Check whether the reserved columns are found in any parts of the schema they are not
+                # permitted to be. To do this, count the number of times the reserved columns appear in
+                # the schema. If it's found just once, make sure it's in the correct place. If it's found
+                # more than once, we know it is somewhere it should not be.
+                if column_counts.get(LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME, 0) == 1:
+                    if (
+                        not schema.llm_run_metadata_column_names
+                        or schema.llm_run_metadata_column_names.total_token_count_column_name
+                        != LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME
+                    ):
+                        reserved_columns.append(LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME)
+                if column_counts.get(LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME, 0) > 1:
+                    reserved_columns.append(LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME)
+
+                if column_counts.get(LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME, 0) == 1:
+                    if (
+                        not schema.llm_run_metadata_column_names
+                        or schema.llm_run_metadata_column_names.prompt_token_count_column_name
+                        != LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME
+                    ):
+                        reserved_columns.append(LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME)
+                if column_counts.get(LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME, 0) > 1:
+                    reserved_columns.append(LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME)
+
+                if column_counts.get(LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME, 0) == 1:
+                    if (
+                        not schema.llm_run_metadata_column_names
+                        or schema.llm_run_metadata_column_names.response_token_count_column_name
+                        != LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME
+                    ):
+                        reserved_columns.append(LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME)
+                if column_counts.get(LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME, 0) > 1:
+                    reserved_columns.append(LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME)
+
+                if column_counts.get(LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME, 0) == 1:
+                    if (
+                        not schema.llm_run_metadata_column_names
+                        or schema.llm_run_metadata_column_names.response_latency_ms_column_name
+                        != LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME
+                    ):
+                        reserved_columns.append(LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME)
+                if column_counts.get(LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME, 0) > 1:
+                    reserved_columns.append(LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME)
+
+            if reserved_columns:
+                return [err.ReservedColumns(reserved_columns)]
         return []
 
     @staticmethod
@@ -591,14 +815,6 @@ class Validator:
         if environment in (env for env in Environments):
             return []
         return [err.InvalidEnvironment()]
-
-    @staticmethod
-    def _check_existence_prompt_response_generative_llm(
-        schema: Schema,
-    ) -> List[err.MissingPromptResponseGenerativeLLM]:
-        if schema.prompt_column_names is None or schema.response_column_names is None:
-            return [err.MissingPromptResponseGenerativeLLM()]
-        return []
 
     @staticmethod
     def _check_existence_pred_act_shap_score_or_label(
@@ -726,7 +942,7 @@ class Validator:
 
     @staticmethod
     def _check_dataframe_for_duplicate_columns(
-        schema: Schema, dataframe: pd.DataFrame
+        schema: BaseSchema, dataframe: pd.DataFrame
     ) -> List[err.DuplicateColumnsInDataframe]:
         # Get the columns used in the schema
         schema_col_used = schema.get_used_columns()
@@ -816,6 +1032,7 @@ class Validator:
                 pa.int16(),
                 pa.int8(),
                 pa.null(),
+                pa.list_(pa.string()),
             )
             wrong_type_cols = []
             for col in schema.feature_column_names:
@@ -824,7 +1041,8 @@ class Validator:
             if wrong_type_cols:
                 return [
                     err.InvalidTypeFeatures(
-                        wrong_type_cols, expected_types=["float", "int", "bool", "str"]
+                        wrong_type_cols,
+                        expected_types=["float", "int", "bool", "str", "list[str]"],
                     )
                 ]
         return []
@@ -1012,12 +1230,12 @@ class Validator:
         ):
             # should mirror server side
             allowed_datatypes = (
-                pa.float64(),
+                pa.int8(),
+                pa.int16(),
+                pa.int32(),
                 pa.int64(),
                 pa.float32(),
-                pa.int32(),
-                pa.int16(),
-                pa.int8(),
+                pa.float64(),
                 pa.null(),
             )
             for name, col in columns:
@@ -1054,32 +1272,44 @@ class Validator:
         )
         wrong_type_vector_columns = []
         wrong_type_data_columns = []
+        wrong_type_str_columns = []
         for field in fields_to_check:
-            # _check_missing_columns() checks that vector columns are present,
-            # hence we assume they are here
-            col = field.vector_column_name
-            if col in column_types and column_types[col] not in allowed_vector_datatypes:
-                wrong_type_vector_columns.append(col)
+            # If we pass a column name as string, said column must contain only strings as prompt/response
+            if isinstance(field, str):
+                if field in column_types and column_types[field] != pa.string():
+                    wrong_type_str_columns.append(field)
+            # If we pass a column names in a EmbeddingColumnNames object,
+            # we validate the column type of both vector and data
+            elif isinstance(field, EmbeddingColumnNames):
+                # _check_missing_columns() checks that vector columns are present,
+                # hence we assume they are here
+                col = field.vector_column_name
+                if col in column_types and column_types[col] not in allowed_vector_datatypes:
+                    wrong_type_vector_columns.append(col)
 
-            if field.data_column_name:
-                col = field.data_column_name
-                if col in column_types and column_types[col] not in allowed_data_datatypes:
-                    wrong_type_data_columns.append(col)
+                if field.data_column_name:
+                    col = field.data_column_name
+                    if col in column_types and column_types[col] not in allowed_data_datatypes:
+                        wrong_type_data_columns.append(col)
 
-        wrong_type_embedding_errors = []
+        wrong_type_col_errors = []
         if wrong_type_vector_columns:
-            wrong_type_embedding_errors.append(
+            wrong_type_col_errors.append(
                 err.InvalidTypeColumns(
                     wrong_type_vector_columns,
                     expected_types=["list[float], np.array[float]"],
                 )
             )
         if wrong_type_data_columns:
-            wrong_type_embedding_errors.append(
-                err.InvalidTypeColumns(wrong_type_data_columns, expected_types=["list[string]"])
+            wrong_type_col_errors.append(
+                err.InvalidTypeColumns(wrong_type_data_columns, expected_types=["str, list[str]"])
+            )
+        if wrong_type_str_columns:
+            wrong_type_col_errors.append(
+                err.InvalidTypeColumns(wrong_type_str_columns, expected_types=["str"])
             )
 
-        return wrong_type_embedding_errors  # Will be empty list if no errors
+        return wrong_type_col_errors  # Will be empty list if no errors
 
     @staticmethod
     def _check_type_llm_prompt_templates(
@@ -1131,13 +1361,98 @@ class Validator:
             if col in column_types and column_types[col] not in allowed_datatypes:
                 wrong_type_cols.append(col)
 
-        # Return erros if any
+        # Return errors if any
         if wrong_type_cols:
             return [
                 err.InvalidTypeColumns(
                     wrong_type_columns=wrong_type_cols, expected_types=["string"]
                 )
             ]
+        return []
+
+    @staticmethod
+    def _check_type_llm_run_metadata(
+        schema: Schema, column_types: Dict[str, Any]
+    ) -> List[err.InvalidTypeColumns]:
+        if schema.llm_run_metadata_column_names is None:
+            return []
+
+        allowed_datatypes = (
+            pa.int8(),
+            pa.int16(),
+            pa.int32(),
+            pa.int64(),
+            pa.float32(),
+            pa.float64(),
+            pa.null(),
+        )
+        wrong_type_cols = []
+        if schema.tag_column_names:
+            if LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME in schema.tag_column_names:
+                if (
+                    LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME in column_types
+                    and column_types[LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME]
+                    not in allowed_datatypes
+                ):
+                    wrong_type_cols.append(
+                        schema.llm_run_metadata_column_names.total_token_count_column_name
+                    )
+            if LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME in schema.tag_column_names:
+                if (
+                    LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME in column_types
+                    and column_types[LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME]
+                    not in allowed_datatypes
+                ):
+                    wrong_type_cols.append(
+                        schema.llm_run_metadata_column_names.prompt_token_count_column_name
+                    )
+            if LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME in schema.tag_column_names:
+                if (
+                    LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME in column_types
+                    and column_types[LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME]
+                    not in allowed_datatypes
+                ):
+                    wrong_type_cols.append(
+                        schema.llm_run_metadata_column_names.response_token_count_column_name
+                    )
+            if LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME in schema.tag_column_names:
+                if (
+                    LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME in column_types
+                    and column_types[LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME]
+                    not in allowed_datatypes
+                ):
+                    wrong_type_cols.append(
+                        schema.llm_run_metadata_column_names.response_latency_ms_column_name
+                    )
+
+            # Return errors if any
+            if wrong_type_cols:
+                return [
+                    err.InvalidTypeColumns(
+                        wrong_type_columns=wrong_type_cols, expected_types=["int", "float"]
+                    )
+                ]
+        return []
+
+    @staticmethod
+    def _check_type_retrieved_document_ids(
+        schema: Schema, column_types: Dict[str, Any]
+    ) -> List[err.InvalidType]:
+        col = schema.retrieved_document_ids_column_name
+        if col in column_types:
+            # should mirror server side
+            allowed_datatypes = (
+                pa.list_(pa.string()),
+                pa.null(),
+            )
+            if column_types[col] not in allowed_datatypes:
+                return [
+                    err.InvalidType(
+                        "Retrieved Document IDs",
+                        expected_types=["List[str]"],
+                        found_data_type=column_types[col],
+                    )
+                ]
         return []
 
     @staticmethod
@@ -1268,40 +1583,66 @@ class Validator:
     # ------------
 
     @staticmethod
-    def _check_embedding_features_dimensionality(
+    def _check_embedding_vectors_dimensionality(
         dataframe: pd.DataFrame, schema: Schema
     ) -> List[err.ValidationError]:
         if schema.embedding_feature_column_names is None:
             return []
 
-        low_dimensionality_vector_columns = []
+        cols_to_check = []
         for emb_feat_col_names in schema.embedding_feature_column_names.values():
-            # _check_missing_columns() checks that vector columns are present,
-            # hence I assume they are here
-            vector_col = emb_feat_col_names.vector_column_name
-            vector_series = dataframe[vector_col]
+            col = emb_feat_col_names.vector_column_name
+            cols_to_check.append(col)
 
-            if (
-                len(vector_series) > 0
-                and (
-                    vector_series.apply(lambda vec: 0 if vec is None or vec is np.NaN else len(vec))
-                    == 1
-                ).any()
-            ):
-                low_dimensionality_vector_columns.append(vector_col)
+        (
+            invalid_low_dim_vector_cols,
+            invalid_high_dim_vector_cols,
+        ) = _check_value_vector_dimensionality_helper(dataframe, cols_to_check)
 
         return (
-            [err.InvalidValueLowEmbeddingVectorDimensionality(low_dimensionality_vector_columns)]
-            if low_dimensionality_vector_columns
+            [
+                err.InvalidValueEmbeddingVectorDimensionality(
+                    invalid_low_dim_vector_cols,
+                    invalid_high_dim_vector_cols,
+                ),
+            ]
+            if invalid_low_dim_vector_cols or invalid_high_dim_vector_cols
             else []
         )
+
+    @staticmethod
+    def _check_embedding_raw_data_characters(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[err.ValidationError]:
+        if schema.embedding_feature_column_names is None:
+            return []
+
+        cols_to_check = []
+        for emb_feat_col_names in schema.embedding_feature_column_names.values():
+            col = emb_feat_col_names.data_column_name
+            if col:
+                cols_to_check.append(col)
+        (
+            invalid_long_string_data_cols,
+            truncated_long_string_data_cols,
+        ) = _check_value_raw_data_length_helper(dataframe, cols_to_check)
+
+        if invalid_long_string_data_cols:
+            return [err.InvalidValueEmbeddingRawDataTooLong(invalid_long_string_data_cols)]
+        elif truncated_long_string_data_cols:
+            logger.warning(
+                get_truncation_warning_message(
+                    "Embedding raw data fields", MAX_RAW_DATA_CHARACTERS_TRUNCATION
+                )
+            )
+        return []
 
     @staticmethod
     def _check_value_rank(dataframe: pd.DataFrame, schema: Schema) -> List[err.InvalidRankValue]:
         col = schema.rank_column_name
         lbound, ubound = (1, 100)
 
-        if col is not None and col in dataframe.columns and len(dataframe):
+        if col is not None and col in dataframe.columns:
             rank_min_max = dataframe[col].agg(["min", "max"])
             if rank_min_max["min"] < lbound or rank_min_max["max"] > ubound:
                 return [err.InvalidRankValue(col, "1-100")]
@@ -1343,6 +1684,41 @@ class Validator:
         return []
 
     @staticmethod
+    def _check_document_id_field_str_length(
+        dataframe: pd.DataFrame, schema_name: str, id_col_name: Optional[str]
+    ) -> List[err.ValidationError]:
+        f"""
+        Require document id to be a string of length between {MIN_DOCUMENT_ID_LEN}
+        and {MAX_DOCUMENT_ID_LEN}
+        """
+        # We check whether the column name can be None is allowed in `Validator.validate_params`
+        if id_col_name is None:
+            return []
+
+        # _check_value_missing will return error if there are missing values in the id fields
+        # We can then proceed to check the character count of the values that are not None or missing.
+        if id_col_name in dataframe.columns:
+            if not (
+                # Check that the non-None values of the desired colum have a
+                # string length between min_len and max_len
+                # Does not check the None values
+                dataframe[~dataframe[id_col_name].isnull()][id_col_name]
+                .astype(str)
+                .str.len()
+                .between(MIN_DOCUMENT_ID_LEN, MAX_DOCUMENT_ID_LEN)
+                .all()
+            ):
+                return [
+                    err.InvalidStringLengthInColumn(
+                        schema_name=schema_name,
+                        col_name=id_col_name,
+                        min_length=MIN_DOCUMENT_ID_LEN,
+                        max_length=MAX_DOCUMENT_ID_LEN,
+                    )
+                ]
+        return []
+
+    @staticmethod
     def _valid_char_limit(
         col_name: str, dataframe: pd.DataFrame, min_len: int, max_len: int
     ) -> bool:
@@ -1353,21 +1729,26 @@ class Validator:
 
     @staticmethod
     def _check_value_tag(dataframe: pd.DataFrame, schema: Schema) -> List[err.InvalidTagLength]:
-        if schema.tag_column_names is not None and len(dataframe):
-            wrong_tag_cols = []
-            for col in schema.tag_column_names:
-                # This is to be defensive, validate_params should guarantee that this column is in
-                # the dataframe, via _check_missing_columns, and return an error before reaching this
-                # block if not
-                # Checks max tag length when any values in a column are strings
-                if (
-                    col in dataframe.columns and dataframe[col].map(type).eq(str).any()
-                ):  # type:ignore
-                    max_tag_len = dataframe[col].apply(_check_value_string_length_helper).max()
-                    if max_tag_len > MAX_TAG_LENGTH:
-                        wrong_tag_cols.append(col)
-            if wrong_tag_cols:
-                return [err.InvalidTagLength(wrong_tag_cols)]
+        if schema.tag_column_names is None:
+            return []
+
+        wrong_tag_cols = []
+        truncated_tag_cols = []
+        for col in schema.tag_column_names:
+            # This is to be defensive, validate_params should guarantee that this column is in
+            # the dataframe, via _check_missing_columns, and return an error before reaching this
+            # block if not
+            # Checks max tag length when any values in a column are strings
+            if col in dataframe.columns and dataframe[col].map(type).eq(str).any():  # type:ignore
+                max_tag_len = dataframe[col].apply(_check_value_string_length_helper).max()
+                if max_tag_len > MAX_TAG_LENGTH:
+                    wrong_tag_cols.append(col)
+                elif max_tag_len > MAX_TAG_LENGTH_TRUNCATION:
+                    truncated_tag_cols.append(col)
+        if wrong_tag_cols:
+            return [err.InvalidTagLength(wrong_tag_cols)]
+        elif truncated_tag_cols:
+            logger.warning(get_truncation_warning_message("tags", MAX_TAG_LENGTH_TRUNCATION))
         return []
 
     @staticmethod
@@ -1380,7 +1761,7 @@ class Validator:
             col = schema.attributions_column_name
         else:
             col = schema.actual_label_column_name
-        if col is not None and col in dataframe.columns and len(dataframe):
+        if col is not None and col in dataframe.columns:
             if dataframe[col].isnull().values.any():  # type: ignore
                 # do not attach duplicated missing value error
                 # which would be caught by _check_value_missing
@@ -1398,13 +1779,14 @@ class Validator:
 
     @staticmethod
     def _check_value_timestamp(
-        dataframe: pd.DataFrame, schema: Schema
+        dataframe: pd.DataFrame,
+        schema: Schema,
     ) -> List[Union[err.InvalidValueMissingValue, err.InvalidValueTimestamp]]:
         # Due to the timing difference between checking this here and the data finally
         # hitting the same check on server side, there's a some chance for a false
         # result, i.e. the check here suceeeds but the same check on server side fails.
         col = schema.timestamp_column_name
-        if col is not None and col in dataframe.columns and len(dataframe):
+        if col is not None and col in dataframe.columns:
             # When a timestamp column has Date and NaN, pyarrow will be fine, but
             # pandas min/max will fail due to type incompatibility. So we check for
             # missing value first.
@@ -1485,19 +1867,21 @@ class Validator:
     # do not have any null values and returns an error if they do
     @staticmethod
     def _check_invalid_missing_values(
-        dataframe: pd.DataFrame, schema: Schema, model_type: ModelTypes
+        dataframe: pd.DataFrame, schema: BaseSchema, model_type: ModelTypes
     ) -> List[err.InvalidValueMissingValue]:
         errors = []
         columns = ()
-        if model_type == ModelTypes.RANKING:
-            columns = (
-                ("Prediction ID", schema.prediction_id_column_name),
-                ("Prediction Group ID", schema.prediction_group_id_column_name),
-                ("Rank", schema.rank_column_name),
-            )
-        else:
-            columns = (("Prediction ID", schema.prediction_id_column_name),)
-            # TODO: add separate logic for objective detection and generative model types
+        if isinstance(schema, CorpusSchema):
+            columns = (("Document ID", schema.document_id_column_name),)
+        elif isinstance(schema, Schema):
+            if model_type == ModelTypes.RANKING:
+                columns = (
+                    ("Prediction ID", schema.prediction_id_column_name),
+                    ("Prediction Group ID", schema.prediction_group_id_column_name),
+                    ("Rank", schema.rank_column_name),
+                )
+            else:
+                columns = (("Prediction ID", schema.prediction_id_column_name),)
         for name, col in columns:
             if col is not None and col in dataframe.columns:
                 if dataframe[col].isnull().any():
@@ -1741,13 +2125,61 @@ class Validator:
         return errors
 
     @staticmethod
+    def _check_value_prompt_response(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[err.ValidationError]:
+        vector_cols_to_check = []
+        text_cols_to_check = []
+        if isinstance(schema.prompt_column_names, str):
+            text_cols_to_check.append(schema.prompt_column_names)
+        elif isinstance(schema.prompt_column_names, EmbeddingColumnNames):
+            vector_cols_to_check.append(schema.prompt_column_names.vector_column_name)
+            text_cols_to_check.append(schema.prompt_column_names.data_column_name)
+
+        if isinstance(schema.response_column_names, str):
+            text_cols_to_check.append(schema.response_column_names)
+        elif isinstance(schema.response_column_names, EmbeddingColumnNames):
+            vector_cols_to_check.append(schema.response_column_names.vector_column_name)
+            text_cols_to_check.append(schema.response_column_names.data_column_name)
+
+        (
+            invalid_long_string_data_cols,
+            truncated_long_string_data_cols,
+        ) = _check_value_raw_data_length_helper(dataframe, text_cols_to_check)
+        (
+            invalid_low_dim_vector_cols,
+            invalid_high_dim_vector_cols,
+        ) = _check_value_vector_dimensionality_helper(dataframe, vector_cols_to_check)
+
+        errors = []
+        if invalid_long_string_data_cols:
+            errors.append(err.InvalidValueEmbeddingRawDataTooLong(invalid_long_string_data_cols))
+        if invalid_low_dim_vector_cols or invalid_high_dim_vector_cols:
+            errors.append(
+                err.InvalidValueEmbeddingVectorDimensionality(
+                    invalid_low_dim_vector_cols,
+                    invalid_high_dim_vector_cols,
+                )
+            )
+        if errors:
+            return errors
+        if truncated_long_string_data_cols:
+            logger.warning(
+                get_truncation_warning_message(
+                    "prompt and response text fields", MAX_RAW_DATA_CHARACTERS_TRUNCATION
+                )
+            )
+
+        return []
+
+    @staticmethod
     def _check_value_llm_model_name(
         dataframe: pd.DataFrame, schema: Schema
     ) -> List[err.InvalidStringLengthInColumn]:
         if schema.llm_config_column_names is None:
             return []
         col = schema.llm_config_column_names.model_column_name
-        if col is not None and len(dataframe):
+        if col is not None:
             max_len = dataframe[col].apply(_check_value_string_length_helper).max()
             if max_len > MAX_LLM_MODEL_NAME_LENGTH:
                 return [
@@ -1758,6 +2190,12 @@ class Validator:
                         max_length=MAX_LLM_MODEL_NAME_LENGTH,
                     )
                 ]
+            elif max_len > MAX_LLM_MODEL_NAME_LENGTH_TRUNCATION:
+                logger.warning(
+                    get_truncation_warning_message(
+                        "LLM model names", MAX_LLM_MODEL_NAME_LENGTH_TRUNCATION
+                    )
+                )
         return []
 
     @staticmethod
@@ -1767,7 +2205,7 @@ class Validator:
         if schema.prompt_template_column_names is None:
             return []
         col = schema.prompt_template_column_names.template_column_name
-        if col is not None and len(dataframe):
+        if col is not None:
             max_len = dataframe[col].apply(_check_value_string_length_helper).max()
             if max_len > MAX_PROMPT_TEMPLATE_LENGTH:
                 return [
@@ -1778,6 +2216,12 @@ class Validator:
                         max_length=MAX_PROMPT_TEMPLATE_LENGTH,
                     )
                 ]
+            elif max_len > MAX_PROMPT_TEMPLATE_LENGTH_TRUNCATION:
+                logger.warning(
+                    get_truncation_warning_message(
+                        "prompt templates", MAX_PROMPT_TEMPLATE_LENGTH_TRUNCATION
+                    )
+                )
         return []
 
     @staticmethod
@@ -1787,7 +2231,7 @@ class Validator:
         if schema.prompt_template_column_names is None:
             return []
         col = schema.prompt_template_column_names.template_version_column_name
-        if col is not None and len(dataframe):
+        if col is not None:
             max_len = dataframe[col].apply(_check_value_string_length_helper).max()
             if max_len > MAX_PROMPT_TEMPLATE_VERSION_LENGTH:
                 return [
@@ -1798,6 +2242,97 @@ class Validator:
                         max_length=MAX_PROMPT_TEMPLATE_VERSION_LENGTH,
                     )
                 ]
+            elif max_len > MAX_PROMPT_TEMPLATE_VERSION_LENGTH_TRUNCATION:
+                logger.warning(
+                    get_truncation_warning_message(
+                        "prompt template versions", MAX_PROMPT_TEMPLATE_VERSION_LENGTH_TRUNCATION
+                    )
+                )
+        return []
+
+    @staticmethod
+    def _check_type_document_columns(
+        schema: CorpusSchema, column_types: Dict[str, Any]
+    ) -> List[err.InvalidTypeColumns]:
+        invalid_types = []
+        # Check document id
+        col = schema.document_id_column_name
+        if col in column_types:
+            allowed_datatypes = (
+                pa.string(),
+                pa.int64(),
+                pa.int32(),
+                pa.int16(),
+                pa.int8(),
+            )
+            if column_types[col] not in allowed_datatypes:
+                invalid_types += [
+                    err.InvalidTypeColumns(
+                        wrong_type_columns=[col],
+                        expected_types=["str", "int"],
+                    )
+                ]
+
+        # Check document version
+        col = schema.document_version_column_name
+        if col in column_types:
+            allowed_datatype = pa.string()
+            if column_types[col] != allowed_datatype:
+                invalid_types += [
+                    err.InvalidTypeColumns(
+                        wrong_type_columns=[col],
+                        expected_types=["str"],
+                    )
+                ]
+
+        if not schema.document_text_embedding_column_names:
+            return invalid_types
+
+        # Check document embedding vector
+        col = schema.document_text_embedding_column_names.vector_column_name
+        if col in column_types:
+            allowed_datatypes = (
+                pa.list_(pa.float64()),
+                pa.list_(pa.float32()),
+            )
+            if column_types[col] not in allowed_datatypes:
+                invalid_types += [
+                    err.InvalidTypeColumns(
+                        wrong_type_columns=[col],
+                        expected_types=["list[float], np.array[float]"],
+                    )
+                ]
+
+        # Check document embedding data
+        col = schema.document_text_embedding_column_names.data_column_name
+        if col in column_types:
+            allowed_datatypes = (
+                pa.string(),  # Text
+                pa.list_(pa.string()),  # Token Array
+            )
+            if column_types[col] not in allowed_datatypes:
+                invalid_types += [
+                    err.InvalidTypeColumns(
+                        wrong_type_columns=[col],
+                        expected_types=["list[str]"],
+                    )
+                ]
+
+        # Check document embedding link to data
+        col = schema.document_text_embedding_column_names.link_to_data_column_name
+        if col in column_types:
+            allowed_datatypes = (pa.string(),)
+            if column_types[col] not in allowed_datatypes:
+                invalid_types += [
+                    err.InvalidTypeColumns(
+                        wrong_type_columns=[col],
+                        expected_types=["str"],
+                    )
+                ]
+
+        if invalid_types:
+            return invalid_types
+
         return []
 
 
@@ -1806,6 +2341,41 @@ def _check_value_string_length_helper(x):
         return len(x)
     else:
         return 0
+
+
+def _check_value_vector_dimensionality_helper(
+    dataframe: pd.DataFrame, cols_to_check: List[str]
+) -> Tuple[List[str], List[str]]:
+    invalid_low_dimensionality_vector_cols = []
+    invalid_high_dimensionality_vector_cols = []
+    for col in cols_to_check:
+        vector_dims = dataframe[col].apply(
+            lambda vec: 0 if vec is None or vec is np.NaN else len(vec)
+        )
+        if (vector_dims == 1).any():
+            invalid_low_dimensionality_vector_cols.append(col)
+        if (vector_dims > MAX_EMBEDDING_DIMENSIONALITY).any():
+            invalid_high_dimensionality_vector_cols.append(col)
+
+    return invalid_low_dimensionality_vector_cols, invalid_high_dimensionality_vector_cols
+
+
+def _check_value_raw_data_length_helper(
+    dataframe: pd.DataFrame, cols_to_check: List[str]
+) -> Tuple[List[str], List[str]]:
+    invalid_long_string_data_cols = []
+    truncated_long_string_data_cols = []
+    for col in cols_to_check:
+        max_data_len = (
+            dataframe[col]
+            .apply(lambda data: 0 if data is None else count_characters_raw_data(data))
+            .max()
+        )
+        if max_data_len > MAX_RAW_DATA_CHARACTERS:
+            invalid_long_string_data_cols.append(col)
+        elif max_data_len > MAX_RAW_DATA_CHARACTERS_TRUNCATION:
+            truncated_long_string_data_cols.append(col)
+    return invalid_long_string_data_cols, truncated_long_string_data_cols
 
 
 def _check_value_bounding_boxes_coordinates_helper(
