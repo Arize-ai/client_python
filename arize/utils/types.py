@@ -4,7 +4,14 @@ from typing import Dict, List, NamedTuple, Optional, Sequence, Set, TypeVar, Uni
 
 import numpy as np
 import pandas as pd
-from arize.utils.constants import MAX_PREDICTION_ID_LEN, MIN_PREDICTION_ID_LEN
+from arize.utils.constants import (
+    MAX_PREDICTION_ID_LEN,
+    MAX_RAW_DATA_CHARACTERS,
+    MAX_RAW_DATA_CHARACTERS_TRUNCATION,
+    MIN_PREDICTION_ID_LEN,
+)
+from arize.utils.errors import InvalidValueType
+from arize.utils.logging import get_truncation_warning_message, logger
 
 
 @unique
@@ -66,6 +73,7 @@ class Environments(Enum):
     TRAINING = 1
     VALIDATION = 2
     PRODUCTION = 3
+    CORPUS = 4
 
 
 @dataclass
@@ -185,6 +193,19 @@ class Embedding(NamedTuple):
             if not all(isinstance(val, str) for val in data):
                 raise TypeError("Embedding data field must contain strings")
 
+        character_count = count_characters_raw_data(data)
+        if character_count > MAX_RAW_DATA_CHARACTERS:
+            raise ValueError(
+                f"Embedding data field must not contain more than {MAX_RAW_DATA_CHARACTERS} characters. "
+                f"Found {character_count}."
+            )
+        elif character_count > MAX_RAW_DATA_CHARACTERS_TRUNCATION:
+            logger.warning(
+                get_truncation_warning_message(
+                    "Embedding raw data fields", MAX_RAW_DATA_CHARACTERS_TRUNCATION
+                )
+            )
+
     @staticmethod
     def _validate_embedding_link_to_data(
         emb_name: Union[str, int, float], link_to_data: str
@@ -226,6 +247,62 @@ class Embedding(NamedTuple):
             True if the data type is one of the accepted iterable types, false otherwise
         """
         return any(isinstance(data, t) for t in (list, np.ndarray, pd.Series))
+
+
+@dataclass
+class _PromptOrResponseText:
+    data: str
+
+    def validate(self, name: str) -> None:
+        # Validate that data is a string
+        if not isinstance(self.data, str):
+            raise TypeError(f"'{name}' must be a str")
+
+        character_count = len(self.data)
+        if character_count > MAX_RAW_DATA_CHARACTERS:
+            raise ValueError(
+                f"'{name}' field must not contain more than {MAX_RAW_DATA_CHARACTERS} characters. "
+                f"Found {character_count}."
+            )
+        elif character_count > MAX_RAW_DATA_CHARACTERS_TRUNCATION:
+            logger.warning(
+                get_truncation_warning_message(f"'{name}'", MAX_RAW_DATA_CHARACTERS_TRUNCATION)
+            )
+        return None
+
+
+class LLMRunMetadata(NamedTuple):
+    total_token_count: Optional[int] = None
+    prompt_token_count: Optional[int] = None
+    response_token_count: Optional[int] = None
+    response_latency_ms: Optional[Union[int, float]] = None
+
+    def validate(self) -> None:
+        allowed_types = (int, float, np.int16, np.int32, np.float16, np.float32)
+        if not isinstance(self.total_token_count, allowed_types):
+            raise InvalidValueType(
+                "total_token_count",
+                self.total_token_count,
+                "one of: int, float",
+            )
+        if not isinstance(self.prompt_token_count, allowed_types):
+            raise InvalidValueType(
+                "prompt_token_count",
+                self.prompt_token_count,
+                "one of: int, float",
+            )
+        if not isinstance(self.response_token_count, allowed_types):
+            raise InvalidValueType(
+                "response_token_count",
+                self.response_token_count,
+                "one of: int, float",
+            )
+        if not isinstance(self.response_latency_ms, allowed_types):
+            raise InvalidValueType(
+                "response_latency_ms",
+                self.response_latency_ms,
+                "one of: int, float",
+            )
 
 
 class ObjectDetectionColumnNames(NamedTuple):
@@ -432,8 +509,57 @@ class LLMConfigColumnNames:
         return iter((self.model_column_name, self.params_column_name))
 
 
+@dataclass
+class LLMRunMetadataColumnNames:
+    total_token_count_column_name: Optional[str] = None
+    prompt_token_count_column_name: Optional[str] = None
+    response_token_count_column_name: Optional[str] = None
+    response_latency_ms_column_name: Optional[str] = None
+
+    def __iter__(self):
+        return iter(
+            (
+                self.total_token_count_column_name,
+                self.prompt_token_count_column_name,
+                self.response_token_count_column_name,
+                self.response_latency_ms_column_name,
+            )
+        )
+
+
+@dataclass
+class DocumentColumnNames:
+    id_column_name: Optional[str] = None
+    version_column_name: Optional[str] = None
+    text_embedding_column_names: Optional[EmbeddingColumnNames] = None
+
+    def __iter__(self):
+        return iter(
+            (
+                self.id_column_name,
+                self.version_column_name,
+                self.text_embedding_column_names,
+            )
+        )
+
+
 @dataclass(frozen=True)
-class Schema:
+class BaseSchema:
+    def replace(self, **changes):
+        return replace(self, **changes)
+
+    def asdict(self) -> Dict[str, str]:
+        return asdict(self)
+
+    def get_used_columns(self) -> Set[str]:
+        return set(self.get_used_columns_counts().keys())
+
+    def get_used_columns_counts(self) -> Dict[str, int]:
+        raise NotImplementedError()
+
+
+@dataclass(frozen=True)
+class Schema(BaseSchema):
     prediction_id_column_name: Optional[str] = None
     feature_column_names: Optional[List[str]] = None
     tag_column_names: Optional[List[str]] = None
@@ -451,10 +577,12 @@ class Schema:
     relevance_labels_column_name: Optional[str] = None
     object_detection_prediction_column_names: Optional[ObjectDetectionColumnNames] = None
     object_detection_actual_column_names: Optional[ObjectDetectionColumnNames] = None
-    prompt_column_names: Optional[EmbeddingColumnNames] = None
-    response_column_names: Optional[EmbeddingColumnNames] = None
+    prompt_column_names: Optional[Union[str, EmbeddingColumnNames]] = None
+    response_column_names: Optional[Union[str, EmbeddingColumnNames]] = None
     prompt_template_column_names: Optional[PromptTemplateColumnNames] = None
     llm_config_column_names: Optional[LLMConfigColumnNames] = None
+    llm_run_metadata_column_names: Optional[LLMRunMetadataColumnNames] = None
+    retrieved_document_ids_column_name: Optional[List[str]] = None
     f"""
     Used to organize and map column names containing model data within your Pandas dataframe to
     Arize.
@@ -500,16 +628,22 @@ class Schema:
         object_detection_actual_column_names (ObjectDetectionColumnNames, optional):
             ObjectDetectionColumnNames object containing information defining the actual bounding
             boxes' coordinates, categories, and scores.
-        prompt_column_names (EmbeddingColumnNames, optional): EmbeddingColumnNames object containing
-            the embedding vector data (required) and raw text (optional) for the input text your
-            model acts on.
-        response_column_names (EmbeddingColumnNames, optional): EmbeddingColumnNames object
-            containing the embedding vector data (required) and raw text (optional) for the text
-            your model generates.
+        prompt_column_names (str or EmbeddingColumnNames, optional): column names for text that is passed
+            to the GENERATIVE_LLM model. It accepts a string (if sending only a text column) or
+            EmbeddingColumnNames object containing the embedding vector data (required) and raw text
+            (optional) for the input text your model acts on.
+        response_column_names (str or EmbeddingColumnNames, optional): column names for text generated by
+            the GENERATIVE_LLM model. It accepts a string (if sending only a text column) or
+            EmbeddingColumnNames object containing the embedding vector data (required) and raw text
+            (optional) for the text your model generates.
         prompt_template_column_names (PromptTemplateColumnNames, optional): PromptTemplateColumnNames object
             containing the prompt template and the prompt template version.
         llm_config_column_names (LLMConfigColumnNames, optional): LLMConfigColumnNames object containing
             the LLM's model name and its hyper parameters used at inference.
+        llm_run_metadata_column_names (LLMRunMetadataColumnNames, optional): LLMRunMetadataColumnNames
+            object containing token counts and latency metrics
+        retrieved_document_ids_column_name (str, optional): Column name for retrieved document ids.
+            The content of this column must be lists with entries convertible to strings.
 
     Methods:
     --------
@@ -522,67 +656,86 @@ class Schema:
             Returns a set with the unique collection of columns to be used from the dataframe.
     """
 
-    def replace(self, **changes):
-        return replace(self, **changes)
-
-    def asdict(self) -> Dict[str, str]:
-        return asdict(self)
-
-    def get_used_columns(self) -> Set[str]:
-        columns_used = set()
+    def get_used_columns_counts(self) -> Dict[str, int]:
+        columns_used_counts = {}
 
         for field in self.__dataclass_fields__:
             if field.endswith("column_name"):
                 col = getattr(self, field)
                 if col is not None:
-                    columns_used.add(col)
+                    add_to_column_count_dictionary(columns_used_counts, col)
 
         if self.feature_column_names is not None:
             for col in self.feature_column_names:
-                columns_used.add(col)
+                add_to_column_count_dictionary(columns_used_counts, col)
+
         if self.embedding_feature_column_names is not None:
             for emb_col_names in self.embedding_feature_column_names.values():
-                columns_used.add(emb_col_names.vector_column_name)
+                add_to_column_count_dictionary(
+                    columns_used_counts, emb_col_names.vector_column_name
+                )
                 if emb_col_names.data_column_name is not None:
-                    columns_used.add(emb_col_names.data_column_name)
+                    add_to_column_count_dictionary(
+                        columns_used_counts, emb_col_names.data_column_name
+                    )
                 if emb_col_names.link_to_data_column_name is not None:
-                    columns_used.add(emb_col_names.link_to_data_column_name)
+                    add_to_column_count_dictionary(
+                        columns_used_counts, emb_col_names.link_to_data_column_name
+                    )
 
         if self.tag_column_names is not None:
             for col in self.tag_column_names:
-                columns_used.add(col)
+                add_to_column_count_dictionary(columns_used_counts, col)
 
         if self.shap_values_column_names is not None:
             for col in self.shap_values_column_names.values():
-                columns_used.add(col)
+                add_to_column_count_dictionary(columns_used_counts, col)
 
         if self.object_detection_prediction_column_names is not None:
             for col in self.object_detection_prediction_column_names:
-                columns_used.add(col)
+                add_to_column_count_dictionary(columns_used_counts, col)
 
         if self.object_detection_actual_column_names is not None:
             for col in self.object_detection_actual_column_names:
-                columns_used.add(col)
+                add_to_column_count_dictionary(columns_used_counts, col)
 
         if self.prompt_column_names is not None:
-            columns_used.add(self.prompt_column_names.vector_column_name)
-            if self.prompt_column_names.data_column_name is not None:
-                columns_used.add(self.prompt_column_names.data_column_name)
+            if isinstance(self.prompt_column_names, str):
+                add_to_column_count_dictionary(columns_used_counts, self.prompt_column_names)
+            elif isinstance(self.prompt_column_names, EmbeddingColumnNames):
+                add_to_column_count_dictionary(
+                    columns_used_counts, self.prompt_column_names.vector_column_name
+                )
+                if self.prompt_column_names.data_column_name is not None:
+                    add_to_column_count_dictionary(
+                        columns_used_counts, self.prompt_column_names.data_column_name
+                    )
 
         if self.response_column_names is not None:
-            columns_used.add(self.response_column_names.vector_column_name)
-            if self.response_column_names.data_column_name is not None:
-                columns_used.add(self.response_column_names.data_column_name)
+            if isinstance(self.response_column_names, str):
+                add_to_column_count_dictionary(columns_used_counts, self.response_column_names)
+            elif isinstance(self.response_column_names, EmbeddingColumnNames):
+                add_to_column_count_dictionary(
+                    columns_used_counts, self.response_column_names.vector_column_name
+                )
+                if self.response_column_names.data_column_name is not None:
+                    add_to_column_count_dictionary(
+                        columns_used_counts, self.response_column_names.data_column_name
+                    )
 
         if self.prompt_template_column_names is not None:
             for col in self.prompt_template_column_names:
-                columns_used.add(col)
+                add_to_column_count_dictionary(columns_used_counts, col)
 
         if self.llm_config_column_names is not None:
             for col in self.llm_config_column_names:
-                columns_used.add(col)
+                add_to_column_count_dictionary(columns_used_counts, col)
 
-        return columns_used
+        if self.llm_run_metadata_column_names is not None:
+            for col in self.llm_run_metadata_column_names:
+                add_to_column_count_dictionary(columns_used_counts, col)
+
+        return columns_used_counts
 
     def has_prediction_columns(self) -> bool:
         prediction_cols = (
@@ -609,8 +762,54 @@ class Schema:
         return any(col is not None for col in feature_importance_cols)
 
 
+@dataclass(frozen=True)
+class CorpusSchema(BaseSchema):
+    document_id_column_name: Optional[str] = None
+    document_version_column_name: Optional[str] = None
+    document_text_embedding_column_names: Optional[EmbeddingColumnNames] = None
+
+    def get_used_columns_counts(self) -> Dict[str, int]:
+        columns_used_counts = {}
+
+        if self.document_id_column_name is not None:
+            add_to_column_count_dictionary(columns_used_counts, self.document_id_column_name)
+        if self.document_version_column_name is not None:
+            add_to_column_count_dictionary(columns_used_counts, self.document_version_column_name)
+        if self.document_text_embedding_column_names is not None:
+            add_to_column_count_dictionary(
+                columns_used_counts, self.document_text_embedding_column_names.vector_column_name
+            )
+            if self.document_text_embedding_column_names.data_column_name is not None:
+                add_to_column_count_dictionary(
+                    columns_used_counts, self.document_text_embedding_column_names.data_column_name
+                )
+            if self.document_text_embedding_column_names.link_to_data_column_name is not None:
+                add_to_column_count_dictionary(
+                    columns_used_counts,
+                    self.document_text_embedding_column_names.link_to_data_column_name,
+                )
+        return columns_used_counts
+
+
 T = TypeVar("T", bound=type)
 
 
 def is_list_of(lst: Sequence[object], tp: T) -> bool:
     return isinstance(lst, list) and all(isinstance(x, tp) for x in lst)
+
+
+def count_characters_raw_data(data: Union[str, List[str]]) -> int:
+    character_count = 0
+    if isinstance(data, str):
+        return len(data)
+    for string in data:
+        character_count += len(string)
+    return character_count
+
+
+def add_to_column_count_dictionary(column_dictionary: Dict[str, int], col: Optional[str]):
+    if col:
+        if col in column_dictionary:
+            column_dictionary[col] += 1
+        else:
+            column_dictionary[col] = 1

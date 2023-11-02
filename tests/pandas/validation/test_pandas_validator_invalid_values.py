@@ -1,4 +1,6 @@
 import datetime
+import random
+import string
 import uuid
 from collections import ChainMap
 
@@ -8,14 +10,19 @@ import pytest
 from arize.pandas.validation import errors as err
 from arize.pandas.validation.validator import Validator
 from arize.utils.constants import (
+    MAX_DOCUMENT_ID_LEN,
+    MAX_EMBEDDING_DIMENSIONALITY,
     MAX_LLM_MODEL_NAME_LENGTH,
     MAX_PREDICTION_ID_LEN,
     MAX_PROMPT_TEMPLATE_LENGTH,
     MAX_PROMPT_TEMPLATE_VERSION_LENGTH,
+    MAX_RAW_DATA_CHARACTERS,
     MAX_TAG_LENGTH,
+    MIN_DOCUMENT_ID_LEN,
     MIN_PREDICTION_ID_LEN,
 )
 from arize.utils.types import (
+    CorpusSchema,
     EmbeddingColumnNames,
     Environments,
     LLMConfigColumnNames,
@@ -24,6 +31,10 @@ from arize.utils.types import (
     PromptTemplateColumnNames,
     Schema,
 )
+
+
+def random_string(N: int) -> str:
+    return "".join(random.choices(string.ascii_uppercase + string.digits, k=N))
 
 
 def test_zero_errors():
@@ -386,9 +397,7 @@ def test_prediction_id_length():
     long_ids = pd.Series(["A" * 129] * 4)
     empty_ids = pd.Series([""] * 4)
     kwargs = get_standard_kwargs()
-    good_vector = []
-    for i in range(4):
-        good_vector.append(np.arange(float(6)))
+    good_vector = kwargs["dataframe"]["embedding_vector"]
 
     for ids in (long_ids, empty_ids):
         errors = Validator.validate_values(
@@ -437,6 +446,217 @@ def test_tag_length():
         **ChainMap({"dataframe": pd.DataFrame({"A": correct_tags})}, kwargs)  # type: ignore
     )
     assert len(errors) == 0
+
+
+def test_valid_value_prompt_response():
+    kwargs = get_standard_kwargs()
+    schema = Schema(
+        prediction_id_column_name="prediction_id",
+        timestamp_column_name="prediction_timestamp",
+        prediction_label_column_name="prediction_label",
+        actual_label_column_name="actual_label",
+        feature_column_names=list("ABCDEFG"),
+        tag_column_names=list("ABCDEFG"),
+        shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
+        embedding_feature_column_names={
+            "good_embedding": EmbeddingColumnNames(
+                vector_column_name="embedding_vector", data_column_name="embedding_text"
+            ),
+        },
+        prompt_column_names=EmbeddingColumnNames(
+            vector_column_name="embedding_vector",
+            data_column_name="prompt_str",
+        ),
+        response_column_names=EmbeddingColumnNames(
+            vector_column_name="embedding_vector",
+            data_column_name="response_str",
+        ),
+    )
+    # prompt type: EmbeddingColumnNames
+    # response type: EmbeddingColumnNames
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "schema": schema,
+                "model_type": ModelTypes.GENERATIVE_LLM,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 0
+
+    # prompt type: str
+    # response type: EmbeddingColumnNames
+    schema = schema.replace(prompt_column_names="prompt_str")
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "schema": schema,
+                "model_type": ModelTypes.GENERATIVE_LLM,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 0
+
+    # prompt type: EmbeddingColumnNames
+    # response type: str
+    schema = schema.replace(
+        prompt_column_names=EmbeddingColumnNames(
+            vector_column_name="embedding_vector",
+            data_column_name="prompt_str",
+        ),
+        response_column_names="response_str",
+    )
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "schema": schema,
+                "model_type": ModelTypes.GENERATIVE_LLM,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 0
+
+    # prompt type: str
+    # response type: str
+    schema = schema.replace(prompt_column_names="prompt_str")
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "schema": schema,
+                "model_type": ModelTypes.GENERATIVE_LLM,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 0
+
+
+def test_invalid_value_prompt_response():
+    kwargs = get_standard_kwargs()
+    schema = Schema(
+        prediction_id_column_name="prediction_id",
+        timestamp_column_name="prediction_timestamp",
+        prediction_label_column_name="prediction_label",
+        actual_label_column_name="actual_label",
+        feature_column_names=list("ABCDEFG"),
+        tag_column_names=list("ABCDEFG"),
+        shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
+        embedding_feature_column_names={
+            "good_embedding": EmbeddingColumnNames(
+                vector_column_name="embedding_vector", data_column_name="embedding_text"
+            ),
+        },
+        prompt_column_names=EmbeddingColumnNames(
+            vector_column_name="prompt_response_vector",
+            data_column_name="prompt_str",
+        ),
+        response_column_names=EmbeddingColumnNames(
+            vector_column_name="prompt_response_vector",
+            data_column_name="response_str",
+        ),
+    )
+    dataframe = kwargs["dataframe"]
+    dataframe["prompt_response_vector"] = pd.Series(
+        [np.arange(float(MAX_EMBEDDING_DIMENSIONALITY + 1)) for _ in range(3)]
+    )
+    dataframe["prompt_str"] = pd.Series(["x" * (MAX_RAW_DATA_CHARACTERS + 1)] * 3)
+    dataframe["response_str"] = pd.Series(["x" * (MAX_RAW_DATA_CHARACTERS + 1)] * 3)
+    # prompt type: EmbeddingColumnNames
+    # response type: EmbeddingColumnNames
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "schema": schema,
+                "model_type": ModelTypes.GENERATIVE_LLM,
+                "dataframe": dataframe,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 2
+    for error in errors:
+        assert isinstance(
+            error,
+            (
+                err.InvalidValueEmbeddingRawDataTooLong,
+                err.InvalidValueEmbeddingVectorDimensionality,
+            ),
+        )
+
+    # prompt type: str
+    # response type: EmbeddingColumnNames
+    schema = schema.replace(prompt_column_names="prompt_str")
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "schema": schema,
+                "model_type": ModelTypes.GENERATIVE_LLM,
+                "dataframe": dataframe,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 2
+    for error in errors:
+        assert isinstance(
+            error,
+            (
+                err.InvalidValueEmbeddingRawDataTooLong,
+                err.InvalidValueEmbeddingVectorDimensionality,
+            ),
+        )
+
+    # prompt type: EmbeddingColumnNames
+    # response type: str
+    schema = schema.replace(
+        prompt_column_names=EmbeddingColumnNames(
+            vector_column_name="prompt_response_vector",
+            data_column_name="prompt_str",
+        ),
+        response_column_names="response_str",
+    )
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "schema": schema,
+                "model_type": ModelTypes.GENERATIVE_LLM,
+                "dataframe": dataframe,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 2
+    for error in errors:
+        assert isinstance(
+            error,
+            (
+                err.InvalidValueEmbeddingRawDataTooLong,
+                err.InvalidValueEmbeddingVectorDimensionality,
+            ),
+        )
+
+    # prompt type: str
+    # response type: str
+    schema = schema.replace(prompt_column_names="prompt_str")
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "schema": schema,
+                "model_type": ModelTypes.GENERATIVE_LLM,
+                "dataframe": dataframe,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    for error in errors:
+        assert isinstance(
+            error,
+            (err.InvalidValueEmbeddingRawDataTooLong,),
+        )
 
 
 def test_llm_model_name_str_length():
@@ -561,6 +781,142 @@ def test_prompt_template_version_str_length():
     assert len(errors) == 0
 
 
+def test_invalid_embedding_raw_data_length():
+    kwargs = get_standard_kwargs()
+    emb_vector = []
+    for i in range(4):
+        emb_vector.append(np.arange(float(6)))
+
+    short_raw_data_string = random_string(MAX_RAW_DATA_CHARACTERS)
+    short_raw_data_token_array = [random_string(7) for _ in range(1000)]
+    long_raw_data_string = random_string(MAX_RAW_DATA_CHARACTERS + 1)
+    long_raw_data_token_array = [random_string(7) for _ in range(11000)]
+
+    errors = Validator.validate_values(
+        **ChainMap(
+            {
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    embedding_feature_column_names={
+                        "good_embedding_string": EmbeddingColumnNames(  # Should not give error
+                            vector_column_name="emb_vector",
+                            data_column_name="short_string",
+                        ),
+                        "good_embedding_token_array": EmbeddingColumnNames(  # Should not give error
+                            vector_column_name="emb_vector",
+                            data_column_name="short_token_array",
+                        ),
+                        "bad_embedding_string": EmbeddingColumnNames(
+                            vector_column_name="emb_vector",
+                            data_column_name="long_string",
+                        ),
+                        "bad_embedding_token_array": EmbeddingColumnNames(
+                            vector_column_name="emb_vector",
+                            data_column_name="long_token_array",
+                        ),
+                        "good_embedding_string_with_none": EmbeddingColumnNames(  # Should not give error
+                            vector_column_name="emb_vector",
+                            data_column_name="short_string_with_none",
+                        ),
+                        "good_embedding_token_array_with_none": EmbeddingColumnNames(  # Should not give error
+                            vector_column_name="emb_vector",
+                            data_column_name="short_token_array_with_none",
+                        ),
+                        "bad_embedding_string_with_none": EmbeddingColumnNames(
+                            vector_column_name="emb_vector",
+                            data_column_name="long_string_with_none",
+                        ),
+                        "bad_embedding_token_array_with_none": EmbeddingColumnNames(
+                            vector_column_name="emb_vector",
+                            data_column_name="long_token_array_with_none",
+                        ),
+                    },
+                ),
+                "dataframe": pd.DataFrame(
+                    {
+                        "emb_vector": emb_vector,
+                        "short_string": [short_raw_data_string for _ in range(4)],
+                        "short_token_array": [short_raw_data_token_array for _ in range(4)],
+                        "long_string": [long_raw_data_string for _ in range(4)],
+                        "long_token_array": [long_raw_data_token_array for _ in range(4)],
+                        "short_string_with_none": [
+                            short_raw_data_string if i != 2 else None for i in range(4)
+                        ],
+                        "short_token_array_with_none": [
+                            short_raw_data_token_array if 1 != 2 else None for i in range(4)
+                        ],
+                        "long_string_with_none": [
+                            long_raw_data_string if i != 2 else None for i in range(4)
+                        ],
+                        "long_token_array_with_none": [
+                            long_raw_data_token_array if i != 2 else None for i in range(4)
+                        ],
+                    }
+                ),
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is err.InvalidValueEmbeddingRawDataTooLong
+    for name in [
+        "short_string",
+        "short_token_array",
+        "short_string_with_none",
+        "short_token_array_with_none",
+    ]:
+        assert name not in errors[0].error_message()
+    for name in [
+        "long_string",
+        "long_token_array",
+        "long_string_with_none",
+        "long_token_array_with_none",
+    ]:
+        assert name in errors[0].error_message()
+
+
+def test_invalid_document_id_missing_value():
+    kwargs = get_corpus_kwargs()
+    errors = Validator.validate_values(
+        **ChainMap(
+            {"dataframe": pd.DataFrame({"document_id": pd.Series(["id1", None])})},
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is err.InvalidValueMissingValue
+
+
+def test_document_id_length():
+    long_ids = pd.Series(["A" * 129] * 4)
+    empty_ids = pd.Series([""] * 4)
+    good_vector = []
+    for i in range(4):
+        good_vector.append(np.arange(float(6)))
+
+    for ids in (long_ids, empty_ids):
+        errors = Validator.validate_values(
+            **ChainMap(
+                {
+                    "model_type": ModelTypes.GENERATIVE_LLM,
+                    "environment": Environments.CORPUS,
+                    "schema": CorpusSchema(
+                        document_id_column_name="document_ids",
+                    ),
+                },
+                {"dataframe": pd.DataFrame({"document_ids": ids})},
+            )  # type: ignore
+        )
+        assert len(errors) == 1
+        assert type(errors[0]) is err.InvalidStringLengthInColumn
+        err_string = (
+            "document_id_column_name column 'document_ids' contains invalid values. "
+            f"Only string values of length between {MIN_DOCUMENT_ID_LEN} and {MAX_DOCUMENT_ID_LEN} "
+            "are accepted."
+        )
+        assert errors[0].error_message() == err_string
+
+
 def test_multiple():
     kwargs = get_standard_kwargs()
     errors = Validator.validate_values(
@@ -584,26 +940,27 @@ def test_multiple():
 
 def test_invalid_embedding_dimensionality():
     kwargs = get_standard_kwargs()
-    good_vector = []
-    for i in range(4):
-        good_vector.append(np.arange(float(6)))
+    good_vector = kwargs["dataframe"]["embedding_vector"]
 
     multidimensional_vector = []
-    for i in range(4):
+    for i in range(3):
         if i <= 1:
             multidimensional_vector.append(np.arange(float(6)))
         else:
             multidimensional_vector.append(np.arange(float(4)))
 
     one_vector = []
-    for i in range(4):
+    for i in range(3):
         one_vector.append(np.arange(float(1)))
 
     null_vector = []
-    null_vector.append(np.arange(float(3)))
     null_vector.append(None)
     null_vector.append(np.NaN)
     null_vector.append([])
+
+    long_vector = []
+    for i in range(3):
+        long_vector.append(np.arange(float(MAX_EMBEDDING_DIMENSIONALITY + 1)))
 
     errors = Validator.validate_values(
         **ChainMap(
@@ -612,16 +969,19 @@ def test_invalid_embedding_dimensionality():
                     prediction_id_column_name="prediction_id",
                     embedding_feature_column_names={
                         "good_vector": EmbeddingColumnNames(
-                            vector_column_name="good_vector",  # Should not give error
+                            vector_column_name="good_vector",  # Should NOT give error
                         ),
                         "multidimensional_vector": EmbeddingColumnNames(
-                            vector_column_name="multidimensional_vector",  # Should not give error
+                            vector_column_name="multidimensional_vector",  # Should NOT give error
+                        ),
+                        "null_vector": EmbeddingColumnNames(
+                            vector_column_name="null_vector",  # Should NOT give error
                         ),
                         "one_vector": EmbeddingColumnNames(
                             vector_column_name="one_vector",  # Should give error
                         ),
-                        "null_vector": EmbeddingColumnNames(
-                            vector_column_name="null_vector",  # Should not give error
+                        "long_vector": EmbeddingColumnNames(
+                            vector_column_name="long_vector",  # Should give error
                         ),
                     },
                 ),
@@ -630,6 +990,7 @@ def test_invalid_embedding_dimensionality():
                         "good_vector": good_vector,
                         "multidimensional_vector": multidimensional_vector,
                         "one_vector": one_vector,
+                        "long_vector": long_vector,
                         "null_vector": null_vector,
                     }
                 ),
@@ -638,7 +999,13 @@ def test_invalid_embedding_dimensionality():
         )  # type: ignore
     )
     assert len(errors) == 1
-    assert type(errors[0]) is err.InvalidValueLowEmbeddingVectorDimensionality
+    assert type(errors[0]) is err.InvalidValueEmbeddingVectorDimensionality
+    err_msg = (
+        "Embedding vectors cannot have length (dimensionality) of 1 or higher than 20000. "
+        "The following columns have dimensionality of 1: one_vector. "
+        "The following columns have dimensionality greater than 20000: long_vector. "
+    )
+    assert err_msg == errors[0].error_message()
 
 
 def test_invalid_value_bounding_boxes_coordinates():
@@ -871,14 +1238,6 @@ def get_standard_kwargs():
             feature_column_names=list("ABCDEFG"),
             tag_column_names=list("ABCDEFG"),
             shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
-            # prompt_template_column_names=PromptTemplateColumnNames(
-            #     template_column_name="prompt_template",
-            #     template_version_column_name="prompt_template_version",
-            # ),
-            # llm_config_column_names=LLMConfigColumnNames(
-            #     model_column_name="llm_model_name",
-            #     params_column_name="llm_params",
-            # ),
         ),
         "dataframe": pd.DataFrame(
             {
@@ -910,6 +1269,12 @@ def get_standard_kwargs():
                 "d": pd.Series([0, float("NaN"), 2]),
                 "e": pd.Series([0, None, 2]),
                 "f": pd.Series([None, float("NaN"), None]),
+                # Vector
+                "embedding_vector": pd.Series([np.arange(float(6)) for _ in range(3)]),
+                "embedding_text": pd.Series(["This is a test embedding text"] * 3),
+                # prompt/response
+                "prompt_str": pd.Series(["This is a test prompt"] * 3),
+                "response_str": pd.Series(["This is a test response"] * 3),
             }
         ),
     }
@@ -969,6 +1334,29 @@ def get_object_detection_kwargs():
             object_detection_actual_column_names=ObjectDetectionColumnNames(
                 bounding_boxes_coordinates_column_name="actual_bounding_boxes_coordinates",
                 categories_column_name="actual_bounding_boxes_categories",
+            ),
+        ),
+    }
+
+
+def get_corpus_kwargs():
+    return {
+        "model_type": ModelTypes.GENERATIVE_LLM,
+        "environment": Environments.CORPUS,
+        "dataframe": pd.DataFrame(
+            {
+                "document_id": pd.Series(["id" + str(x) for x in range(3)]),
+                "document_version": ["Version {x}" + str(x) for x in range(3)],
+                "document_vector": [np.random.randn(15) for x in range(3)],
+                "document_data": ["data_" + str(x) for x in range(3)],
+            }
+        ),
+        "schema": CorpusSchema(
+            document_id_column_name="document_id",
+            document_version_column_name="document_version",
+            document_text_embedding_column_names=EmbeddingColumnNames(
+                vector_column_name="document_vector",
+                data_column_name="document_data",
             ),
         ),
     }

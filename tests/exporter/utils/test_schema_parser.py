@@ -50,6 +50,8 @@ def test_classification_model():
         "timestamp_column_name": "time",
         "prompt_template_column_names": None,
         "llm_config_column_names": None,
+        "llm_run_metadata_column_names": None,
+        "retrieved_document_ids_column_name": None,
     }
 
 
@@ -117,6 +119,8 @@ def test_object_detection():
         "timestamp_column_name": "time",
         "prompt_template_column_names": None,
         "llm_config_column_names": None,
+        "llm_run_metadata_column_names": None,
+        "retrieved_document_ids_column_name": None,
     }
 
 
@@ -171,6 +175,8 @@ def test_embeddings():
         "timestamp_column_name": "time",
         "prompt_template_column_names": None,
         "llm_config_column_names": None,
+        "llm_run_metadata_column_names": None,
+        "retrieved_document_ids_column_name": None,
     }
 
 
@@ -216,6 +222,8 @@ def test_rankings():
         "timestamp_column_name": "time",
         "prompt_template_column_names": None,
         "llm_config_column_names": None,
+        "llm_run_metadata_column_names": None,
+        "retrieved_document_ids_column_name": None,
     }
 
 
@@ -283,6 +291,8 @@ def test_llm():
         },
         "prompt_template_column_names": None,
         "llm_config_column_names": None,
+        "llm_run_metadata_column_names": None,
+        "retrieved_document_ids_column_name": None,
     }
 
 
@@ -325,6 +335,8 @@ def test_regression():
         "timestamp_column_name": "time",
         "prompt_template_column_names": None,
         "llm_config_column_names": None,
+        "llm_run_metadata_column_names": None,
+        "retrieved_document_ids_column_name": None,
     }
 
 

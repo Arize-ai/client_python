@@ -38,3 +38,11 @@ if hasattr(sys, "ps1"):  # for python interactive mode
     handler.setLevel(logging.INFO)
     handler.setFormatter(CustomLogFormatter(fmt))
     logger.addHandler(handler)
+
+
+def get_truncation_warning_message(instance, limit) -> str:
+    return (
+        f"Attention: {instance} exceeding the {limit} character limit will be "
+        "automatically truncated upon ingestion into the Arize platform. Should you require "
+        "a higher limit, please reach out to our support team at support@arize.com"
+    )
