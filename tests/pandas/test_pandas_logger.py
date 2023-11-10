@@ -752,9 +752,27 @@ def test_valid_generative_prompt_response():
     except Exception:
         pytest.fail("Unexpected error")
 
+    # prompt type: EmbeddingColumnNames
+    # response type: EmbeddingColumnNames without data
+    schema = schema.replace(
+        response_column_names=EmbeddingColumnNames(
+            vector_column_name="response_vector",
+        ),
+    )
+    try:
+        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+    except Exception:
+        pytest.fail("Unexpected error")
+
     # prompt type: str
     # response type: EmbeddingColumnNames
-    schema = schema.replace(prompt_column_names="prompt_data")
+    schema = schema.replace(
+        prompt_column_names="prompt_data",
+        response_column_names=EmbeddingColumnNames(
+            vector_column_name="response_vector",
+            data_column_name="response_data",
+        ),
+    )
     try:
         _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
     except Exception:

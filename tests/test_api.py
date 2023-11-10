@@ -1483,7 +1483,7 @@ def test_default_prediction_label_generative_model():
     # This prediction was not passed to the log call, but should be
     # created by default for GENERATIVE models
     sc = pb2.ScoreCategorical()
-    sc.score_value.value = 1
+    sc.category.category = "1"
     p = pb2.Prediction(
         prediction_label=pb2.PredictionLabel(score_categorical=sc),
         model_version=inputs["model_version"],

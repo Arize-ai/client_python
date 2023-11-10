@@ -373,7 +373,7 @@ class Client:
         # Construct the prediction
         p = None
         if model_type == ModelTypes.GENERATIVE_LLM and prediction_label is None:
-            prediction_label = 1
+            prediction_label = "1"
         if prediction_label is not None:
             if model_version is not None and not isinstance(model_version, str):
                 raise InvalidValueType("model_version", model_version, "str")
