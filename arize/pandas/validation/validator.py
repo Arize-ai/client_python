@@ -2134,13 +2134,15 @@ class Validator:
             text_cols_to_check.append(schema.prompt_column_names)
         elif isinstance(schema.prompt_column_names, EmbeddingColumnNames):
             vector_cols_to_check.append(schema.prompt_column_names.vector_column_name)
-            text_cols_to_check.append(schema.prompt_column_names.data_column_name)
+            if schema.prompt_column_names.data_column_name is not None:
+                text_cols_to_check.append(schema.prompt_column_names.data_column_name)
 
         if isinstance(schema.response_column_names, str):
             text_cols_to_check.append(schema.response_column_names)
         elif isinstance(schema.response_column_names, EmbeddingColumnNames):
             vector_cols_to_check.append(schema.response_column_names.vector_column_name)
-            text_cols_to_check.append(schema.response_column_names.data_column_name)
+            if schema.response_column_names.data_column_name is not None:
+                text_cols_to_check.append(schema.response_column_names.data_column_name)
 
         (
             invalid_long_string_data_cols,
