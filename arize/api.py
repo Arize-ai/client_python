@@ -372,8 +372,18 @@ class Client:
 
         # Construct the prediction
         p = None
-        if model_type == ModelTypes.GENERATIVE_LLM and prediction_label is None:
+        # Only set a default prediction label for generative LLM models if there is no explicit prediction
+        # label AND no actual label to ensure that generative LLM model prediction records will have a
+        # prediction label that can be used for metrics in the platform (as users will generally pass in
+        # actuals/user feedback only). We do not want to add the default prediction label in if actual labels
+        # are present so that latent actuals will still work.
+        if (
+            model_type == ModelTypes.GENERATIVE_LLM
+            and prediction_label is None
+            and actual_label is None
+        ):
             prediction_label = "1"
+
         if prediction_label is not None:
             if model_version is not None and not isinstance(model_version, str):
                 raise InvalidValueType("model_version", model_version, "str")

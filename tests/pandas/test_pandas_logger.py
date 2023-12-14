@@ -1,6 +1,7 @@
 import datetime
 import sys
 import uuid
+from typing import Dict, List
 
 import arize.pandas.validation.errors as err
 import numpy as np
@@ -37,6 +38,7 @@ from arize.utils.types import (
     Schema,
 )
 from arize.utils.utils import get_python_version
+from attr import dataclass
 from requests import Response
 
 EMBEDDING_SIZE = 15
@@ -969,39 +971,82 @@ def test_generative_without_prompt_response():
     )
 
 
-def test_generative_without_prediction_label_column_name():
-    data_df = pd.concat(
-        [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
-        axis=1,
-    ).drop(columns=["prediction_label"])
-    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
-    schema = _overwrite_schema_fields(schema, get_embeddings_schema())
-    schema = _overwrite_schema_fields(schema, get_generative_schema())
-    # Check logging without prediction_id
-    schema = schema.replace(prediction_label_column_name=None)
+def test_generative_default_prediction_label():
+    @dataclass
+    class TestConfig:
+        name: str
+        should_have_generated_default_prediction_label: bool
+        drop_columns: List[str]
+        replace_column_names: Dict
+        # generated columns that need to be dropped in order to perform df equality check between
+        # input data and response data
+        drop_generated_columns: List[str]
 
-    try:
-        response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
-        response_df: pd.DataFrame = response.df  # type:ignore
-    except Exception:
-        pytest.fail("Unexpected error")
-    # Check if default_prediction_labels are generated
-    if GENERATED_PREDICTION_LABEL_COL not in response_df.columns:
-        pytest.fail("Unexpected error")
-    # Check all values of default_prediction_label are equal to 1
-    if (response_df[GENERATED_PREDICTION_LABEL_COL] != 1).any():
-        pytest.fail("Unexpected error")
+    tests = [
+        TestConfig(
+            name="no_prediction_label_or_actual_label",
+            should_have_generated_default_prediction_label=True,
+            drop_columns=["prediction_label", "actual_label"],
+            replace_column_names={
+                "prediction_label_column_name": None,
+                "actual_label_column_name": None,
+            },
+            drop_generated_columns=[GENERATED_LLM_PARAMS_JSON_COL, GENERATED_PREDICTION_LABEL_COL],
+        ),
+        # Testing the case that allows us to still support latent actual
+        TestConfig(
+            name="no_prediction_label",
+            should_have_generated_default_prediction_label=False,
+            drop_columns=["prediction_label"],
+            replace_column_names={"prediction_label_column_name": None},
+            drop_generated_columns=[GENERATED_LLM_PARAMS_JSON_COL],
+        ),
+        TestConfig(
+            name="no_actual_label",
+            should_have_generated_default_prediction_label=False,
+            drop_columns=["actual_label"],
+            replace_column_names={"actual_label_column_name": None},
+            drop_generated_columns=[GENERATED_LLM_PARAMS_JSON_COL],
+        ),
+        TestConfig(
+            name="include_prediction_and_actual",
+            should_have_generated_default_prediction_label=False,
+            drop_columns=[],
+            replace_column_names={},
+            drop_generated_columns=[GENERATED_LLM_PARAMS_JSON_COL],
+        ),
+    ]
 
-    response_df = response_df.drop(
-        columns=[
-            GENERATED_PREDICTION_LABEL_COL,
-            GENERATED_LLM_PARAMS_JSON_COL,
-        ]
-    )
-    assert (
-        response_df.sort_index(axis=1).to_json()
-        == roundtrip_df(data_df).sort_index(axis=1).to_json()
-    )
+    for test in tests:
+        data_df = pd.concat(
+            [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
+            axis=1,
+        ).drop(columns=test.drop_columns)
+        schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+        schema = _overwrite_schema_fields(schema, get_embeddings_schema())
+        schema = _overwrite_schema_fields(schema, get_generative_schema())
+        # Check logging without prediction and actual label; validate that a default prediction label
+        # is added.
+        schema = schema.replace(**test.replace_column_names)
+
+        try:
+            response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+            response_df: pd.DataFrame = response.df  # type:ignore
+        except Exception:
+            pytest.fail("Unexpected error")
+        if test.should_have_generated_default_prediction_label:
+            # Check if default_prediction_labels are generated
+            if GENERATED_PREDICTION_LABEL_COL not in response_df.columns:
+                pytest.fail("Unexpected error")
+            # Check all values of default_prediction_label are equal to 1
+            if (response_df[GENERATED_PREDICTION_LABEL_COL] != 1).any():
+                pytest.fail("Unexpected error")
+
+        response_df = response_df.drop(columns=test.drop_generated_columns)
+        assert (
+            response_df.sort_index(axis=1).to_json()
+            == roundtrip_df(data_df).sort_index(axis=1).to_json()
+        ), test.name
 
 
 def test_invalid_generative_llm_prompt_template_and_llm_config_values():

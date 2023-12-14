@@ -155,6 +155,9 @@ class Client:
             `Response` object
         """
 
+        # Send the number of rows in the dataframe as a header
+        # This helps the Arize server to return appropriate feedback, specially for async logging
+        self._headers.update({"number-of-rows": str(len(dataframe))})
         # Deep copy the schema since we might modify it to add certain columns and don't
         # want to cause side effects
         schema = copy.deepcopy(schema)
@@ -408,7 +411,7 @@ class Client:
     def _add_generative_llm_columns(
         self, dataframe: pd.DataFrame, schema: Schema
     ) -> (pd.DataFrame, Schema):
-        if schema.prediction_label_column_name is None:
+        if schema.prediction_label_column_name is None and schema.actual_label_column_name is None:
             dataframe = self._add_default_prediction_label_column(dataframe)
             schema = schema.replace(prediction_label_column_name=GENERATED_PREDICTION_LABEL_COL)
         if (
@@ -478,24 +481,14 @@ class Client:
 
     def _generative_model_warnings(self, df: pd.DataFrame, schema: Schema):
         # Warning for when prediction_label_column_name is not provided
-        if schema.prediction_label_column_name is None:
-            logger.warning(
-                "prediction_label_column_name was not provided, a default prediction label equal "
-                "to 1 will be set for GENERATIVE_LLM models."
-            )
+        if schema.prediction_label_column_name is None and schema.actual_label_column_name is None:
             # Warning for when actual_label is also not provided
-            if schema.actual_label_column_name is None:
-                logger.warning(
-                    "actual_label_column_name was not provided. Some metrics that require actual labels, "
-                    "e.g. correctness or accuracy, may not be computed."
-                )
-            # Warning for when default prediction labels are 0/1 but actual_labels are not
-            elif not df[schema.actual_label_column_name].isin([0, 1]).all():
-                logger.warning(
-                    f"actual labels in the {schema.actual_label_column_name} column do not follow the "
-                    "standard, i.e. 1/0, used for the prediction label (defaulted to 1). Some "
-                    "metrics that require actual labels, e.g. correctness or accuracy, may not "
-                    "be computed accurately. Consider providing a prediction_label_column_name "
-                    "column containing the positive class from the values in the "
-                    f"{schema.actual_label_column_name} column."
-                )
+            logger.warning(
+                "prediction_label_column_name and actual_label_column_name were both not provided, "
+                "so a default prediction label equal to 1 will be set on this GENERATIVE_LLM model data."
+            )
+        if schema.actual_label_column_name is None:
+            logger.warning(
+                "actual_label_column_name was not provided. Some metrics that require actual labels, "
+                "e.g. correctness or accuracy, may not be computed."
+            )

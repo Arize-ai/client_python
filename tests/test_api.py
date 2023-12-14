@@ -1,5 +1,6 @@
 import itertools
 import time
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Union
 
@@ -1456,56 +1457,108 @@ def test_valid_generative_model():
             assert record == expected_record
 
 
-def test_default_prediction_label_generative_model():
-    c = get_stubbed_client()
-    # Test allowed label types
-    input_prompt = inputs["prompt_embedding"]
-    input_response = inputs["response_embedding"]
-    try:
-        record = c.log(
-            model_id=inputs["model_id"],
-            model_version=inputs["model_version"],
-            environment=Environments.PRODUCTION,
-            model_type=ModelTypes.GENERATIVE_LLM,
-            prediction_id=inputs["prediction_id"],
-            actual_label=inputs["label_int"],
-            features=inputs["features"],
-            embedding_features=inputs["embedding_features"],
-            tags=inputs["tags"],
-            prompt=input_prompt,
-            response=input_response,
+def test_generative_if_no_prediction_or_actual_label():
+    @dataclass
+    class TestConfig:
+        name: str
+        prediction_label: str
+        actual_label: str
+        expected_prediction_label: str
+        expected_actual_label: str
+
+    tests = [
+        TestConfig(
+            name="no_prediction_label_or_actual_label",  # include default prediction_label
+            prediction_label=None,
+            actual_label=None,
+            expected_prediction_label="1",
+            expected_actual_label=None,
+        ),
+        # Testing the case that allows us to still support latent actual
+        TestConfig(
+            name="no_prediction_label",
+            prediction_label=None,
+            actual_label="1",
+            expected_prediction_label=None,
+            expected_actual_label="1",
+        ),
+        TestConfig(
+            name="no_actual_label",
+            prediction_label="1",
+            actual_label=None,
+            expected_prediction_label="1",
+            expected_actual_label=None,
+        ),
+        TestConfig(
+            name="include_prediction_and_actual",
+            prediction_label="1",
+            actual_label="1",
+            expected_prediction_label="1",
+            expected_actual_label="1",
+        ),
+    ]
+
+    for test in tests:
+        c = get_stubbed_client()
+        # Test allowed label types
+        input_prompt = inputs["prompt_embedding"]
+        input_response = inputs["response_embedding"]
+        try:
+            record = c.log(
+                model_id=inputs["model_id"],
+                model_version=inputs["model_version"],
+                environment=Environments.PRODUCTION,
+                model_type=ModelTypes.GENERATIVE_LLM,
+                prediction_id=inputs["prediction_id"],
+                features=inputs["features"],
+                embedding_features=inputs["embedding_features"],
+                tags=inputs["tags"],
+                prediction_label=test.prediction_label,
+                actual_label=test.actual_label,
+                prompt=input_prompt,
+                response=input_response,
+            )
+        except Exception:
+            pytest.fail(f"Unexpected error on test={test.name}")
+        #   Get environment in proto format
+        ep = _get_proto_environment_params(Environments.PRODUCTION)
+        p = None
+        if test.expected_prediction_label is not None:
+            # Start constructing expected result by building the prediction
+            # This prediction was not passed to the log call, but should be
+            # created by default for GENERATIVE models
+            sc = pb2.ScoreCategorical()
+            sc.category.category = test.expected_prediction_label
+            p = pb2.Prediction(
+                prediction_label=pb2.PredictionLabel(score_categorical=sc),
+                model_version=inputs["model_version"],
+            )
+            #   Add props to prediction according to this test
+            p.MergeFrom(_attach_features_to_prediction())
+            p.MergeFrom(_attach_embedding_features_to_prediction())
+            p.MergeFrom(
+                _attach_prompt_and_response_to_prediction(
+                    input_prompt=input_prompt, input_response=input_response
+                )
+            )
+            p.MergeFrom(_attach_tags_to_prediction())
+        a = None
+        if test.expected_actual_label is not None:
+            #   Start constructing expected result by building the actual
+            sc = pb2.ScoreCategorical()
+            sc.category.category = test.expected_actual_label
+            a = pb2.Actual(
+                actual_label=pb2.ActualLabel(score_categorical=sc),
+            )
+            #   Add props to prediction according to this test
+            a.MergeFrom(_attach_tags_to_actual())
+
+        #   Build expected record
+        expected_record = _build_expected_record(
+            p=p, a=a, ep=ep, is_generative_llm_record=BoolValue(value=True)
         )
-    except Exception:
-        pytest.fail("Unexpected error")
-    #   Get environment in proto format
-    ep = _get_proto_environment_params(Environments.PRODUCTION)
-    #   Start constructing expected result by building the prediction
-    # This prediction was not passed to the log call, but should be
-    # created by default for GENERATIVE models
-    sc = pb2.ScoreCategorical()
-    sc.category.category = "1"
-    p = pb2.Prediction(
-        prediction_label=pb2.PredictionLabel(score_categorical=sc),
-        model_version=inputs["model_version"],
-    )
-    a = _build_basic_actual("generative_int")
-    #   Add props to prediction according to this test
-    p.MergeFrom(_attach_features_to_prediction())
-    p.MergeFrom(_attach_embedding_features_to_prediction())
-    p.MergeFrom(
-        _attach_prompt_and_response_to_prediction(
-            input_prompt=input_prompt, input_response=input_response
-        )
-    )
-    p.MergeFrom(_attach_tags_to_prediction())
-    #   Add props to actual according to this test
-    a.MergeFrom(_attach_tags_to_actual())
-    #   Build expected record using built prediction
-    expected_record = _build_expected_record(
-        p=p, a=a, ep=ep, is_generative_llm_record=BoolValue(value=True)
-    )
-    #   Check result is as expected
-    assert record == expected_record
+        #   Check result is as expected
+        assert record == expected_record, test.name
 
 
 def test_invalid_prompt_response_input_generative_model():
