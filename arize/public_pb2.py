@@ -16,7 +16,7 @@ from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cpublic.proto\x12\x06public\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\x98\x01\n\nBulkRecord\x12\x1c\n\x10organization_key\x18\x01 \x01(\tB\x02\x18\x01\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rmodel_version\x18\x03 \x01(\t\x12\x1f\n\x07records\x18\x05 \x03(\x0b\x32\x0e.public.Record\x12\x11\n\tspace_key\x18\x06 \x01(\tJ\x04\x08\x04\x10\x05R\ttimestamp\"\xd7\x05\n\x06Record\x12\x1c\n\x10organization_key\x18\x01 \x01(\tB\x02\x18\x01\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rprediction_id\x18\x03 \x01(\t\x12&\n\nprediction\x18\x08 \x01(\x0b\x32\x12.public.Prediction\x12\x1e\n\x06\x61\x63tual\x18\t \x01(\x0b\x32\x0e.public.Actual\x12\x37\n\x13\x66\x65\x61ture_importances\x18\n \x01(\x0b\x32\x1a.public.FeatureImportances\x12:\n\x15prediction_and_actual\x18\x0b \x01(\x0b\x32\x1b.public.PredictionAndActual\x12\x11\n\tspace_key\x18\x0c \x01(\t\x12<\n\x12\x65nvironment_params\x18\r \x01(\x0b\x32 .public.Record.EnvironmentParams\x12<\n\x18is_generative_llm_record\x18\x0e \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x1a\xa1\x02\n\x11\x45nvironmentParams\x12=\n\x08training\x18\x01 \x01(\x0b\x32).public.Record.EnvironmentParams.TrainingH\x00\x12\x41\n\nvalidation\x18\x02 \x01(\x0b\x32+.public.Record.EnvironmentParams.ValidationH\x00\x12\x41\n\nproduction\x18\x03 \x01(\x0b\x32+.public.Record.EnvironmentParams.ProductionH\x00\x1a\n\n\x08Training\x1a\x1e\n\nValidation\x12\x10\n\x08\x62\x61tch_id\x18\x01 \x01(\t\x1a\x0c\n\nProductionB\r\n\x0b\x65nvironmentJ\x04\x08\x04\x10\x05J\x04\x08\x05\x10\x06J\x04\x08\x06\x10\x07J\x04\x08\x07\x10\x08\"\xae\x02\n\x13PreProductionRecord\x12\x45\n\x0ftraining_record\x18\x01 \x01(\x0b\x32*.public.PreProductionRecord.TrainingRecordH\x00\x12I\n\x11validation_record\x18\x02 \x01(\x0b\x32,.public.PreProductionRecord.ValidationRecordH\x00\x1a\x44\n\x10ValidationRecord\x12\x10\n\x08\x62\x61tch_id\x18\x01 \x01(\t\x12\x1e\n\x06record\x18\x02 \x01(\x0b\x32\x0e.public.Record\x1a\x30\n\x0eTrainingRecord\x12\x1e\n\x06record\x18\x01 \x01(\x0b\x32\x0e.public.RecordB\r\n\x0brecord_type\"\x86\x03\n\x10ScoreCategorical\x12\x17\n\x0b\x63\x61tegorical\x18\x01 \x01(\tB\x02\x18\x01\x12\x11\n\x05score\x18\x02 \x01(\x01\x42\x02\x18\x01\x12\x35\n\x08\x63\x61tegory\x18\x03 \x01(\x0b\x32!.public.ScoreCategorical.CategoryH\x00\x12@\n\x0escore_category\x18\x04 \x01(\x0b\x32&.public.ScoreCategorical.ScoreCategoryH\x00\x12:\n\x0bscore_value\x18\x05 \x01(\x0b\x32#.public.ScoreCategorical.ScoreValueH\x00\x1a\x1c\n\x08\x43\x61tegory\x12\x10\n\x08\x63\x61tegory\x18\x01 \x01(\t\x1a\x1b\n\nScoreValue\x12\r\n\x05value\x18\x01 \x01(\x01\x1aN\n\rScoreCategory\x12\x10\n\x08\x63\x61tegory\x18\x01 \x01(\t\x12\r\n\x05score\x18\x02 \x01(\x01\x12\x1c\n\x10numeric_sequence\x18\x03 \x03(\x01\x42\x02\x18\x01\x42\x06\n\x04type\"\xb1\x01\n\x0fObjectDetection\x12;\n\x0e\x62ounding_boxes\x18\x01 \x03(\x0b\x32#.public.ObjectDetection.BoundingBox\x1a\x61\n\x0b\x42oundingBox\x12\x13\n\x0b\x63oordinates\x18\x01 \x03(\x01\x12\x10\n\x08\x63\x61tegory\x18\x02 \x01(\t\x12+\n\x05score\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.DoubleValue\"\x85\x01\n\x11RankingPrediction\x12\x1b\n\x13prediction_group_id\x18\x01 \x01(\t\x12\x0c\n\x04rank\x18\x02 \x01(\x03\x12\x36\n\x10prediction_score\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.DoubleValue\x12\r\n\x05label\x18\x04 \x01(\t\"l\n\rRankingActual\x12$\n\x08\x63\x61tegory\x18\x01 \x01(\x0b\x32\x12.public.MultiValue\x12\x35\n\x0frelevance_score\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.DoubleValue\"\x82\x01\n\x05Label\x12\x10\n\x06\x62inary\x18\x01 \x01(\x08H\x00\x12\x15\n\x0b\x63\x61tegorical\x18\x02 \x01(\tH\x00\x12\x11\n\x07numeric\x18\x03 \x01(\x01H\x00\x12\x35\n\x11score_categorical\x18\x04 \x01(\x0b\x32\x18.public.ScoreCategoricalH\x00\x42\x06\n\x04\x64\x61ta\"\xef\x01\n\x0fPredictionLabel\x12\x10\n\x06\x62inary\x18\x01 \x01(\x08H\x00\x12\x15\n\x0b\x63\x61tegorical\x18\x02 \x01(\tH\x00\x12\x11\n\x07numeric\x18\x03 \x01(\x01H\x00\x12\x35\n\x11score_categorical\x18\x04 \x01(\x0b\x32\x18.public.ScoreCategoricalH\x00\x12,\n\x07ranking\x18\x05 \x01(\x0b\x32\x19.public.RankingPredictionH\x00\x12\x33\n\x10object_detection\x18\x06 \x01(\x0b\x32\x17.public.ObjectDetectionH\x00\x42\x06\n\x04\x64\x61ta\"\xe7\x01\n\x0b\x41\x63tualLabel\x12\x10\n\x06\x62inary\x18\x01 \x01(\x08H\x00\x12\x15\n\x0b\x63\x61tegorical\x18\x02 \x01(\tH\x00\x12\x11\n\x07numeric\x18\x03 \x01(\x01H\x00\x12\x35\n\x11score_categorical\x18\x04 \x01(\x0b\x32\x18.public.ScoreCategoricalH\x00\x12(\n\x07ranking\x18\x05 \x01(\x0b\x32\x15.public.RankingActualH\x00\x12\x33\n\x10object_detection\x18\x06 \x01(\x0b\x32\x17.public.ObjectDetectionH\x00\x42\x06\n\x04\x64\x61ta\"\xd1\x01\n\tLLMFields\x12\x16\n\x0ellm_model_name\x18\x01 \x01(\t\x12\x34\n\nllm_params\x18\x02 \x03(\x0b\x32 .public.LLMFields.LlmParamsEntry\x12\x17\n\x0fprompt_template\x18\x03 \x01(\t\x12\x1c\n\x14prompt_template_name\x18\x04 \x01(\t\x1a?\n\x0eLlmParamsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.public.Value:\x02\x38\x01\"\xca\x03\n\nPrediction\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12 \n\x05label\x18\x03 \x01(\x0b\x32\r.public.LabelB\x02\x18\x01\x12\x32\n\x08\x66\x65\x61tures\x18\x04 \x03(\x0b\x32 .public.Prediction.FeaturesEntry\x12*\n\x04tags\x18\x05 \x03(\x0b\x32\x1c.public.Prediction.TagsEntry\x12\x31\n\x10prediction_label\x18\x06 \x01(\x0b\x32\x17.public.PredictionLabel\x12%\n\nllm_fields\x18\x07 \x01(\x0b\x32\x11.public.LLMFields\x12\x1e\n\x16retrieved_document_ids\x18\x08 \x03(\t\x1a>\n\rFeaturesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.public.Value:\x02\x38\x01\x1a:\n\tTagsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.public.Value:\x02\x38\x01\"\x95\x01\n\x05Value\x12\x10\n\x06string\x18\x01 \x01(\tH\x00\x12\r\n\x03int\x18\x02 \x01(\x03H\x00\x12\x10\n\x06\x64ouble\x18\x03 \x01(\x01H\x00\x12)\n\x0bmulti_value\x18\x04 \x01(\x0b\x32\x12.public.MultiValueH\x00\x12&\n\tembedding\x18\x05 \x01(\x0b\x32\x11.public.EmbeddingH\x00\x42\x06\n\x04\x64\x61ta\"\x1c\n\nMultiValue\x12\x0e\n\x06values\x18\x01 \x03(\t\"\xed\x01\n\tEmbedding\x12\x0e\n\x06vector\x18\x01 \x03(\x01\x12\x32\n\x0clink_to_data\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x08raw_data\x18\x04 \x01(\x0b\x32\x19.public.Embedding.RawData\x1aK\n\x07RawData\x12\x32\n\ntokenArray\x18\x02 \x01(\x0b\x32\x1c.public.Embedding.TokenArrayH\x00\x42\x06\n\x04typeJ\x04\x08\x01\x10\x02\x1a\x1c\n\nTokenArray\x12\x0e\n\x06tokens\x18\x01 \x03(\tJ\x04\x08\x02\x10\x03\"\xe8\x01\n\x06\x41\x63tual\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12 \n\x05label\x18\x02 \x01(\x0b\x32\r.public.LabelB\x02\x18\x01\x12&\n\x04tags\x18\x03 \x03(\x0b\x32\x18.public.Actual.TagsEntry\x12)\n\x0c\x61\x63tual_label\x18\x04 \x01(\x0b\x32\x13.public.ActualLabel\x1a:\n\tTagsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.public.Value:\x02\x38\x01\"\xe6\x01\n\x12\x46\x65\x61tureImportances\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12O\n\x13\x66\x65\x61ture_importances\x18\x03 \x03(\x0b\x32\x32.public.FeatureImportances.FeatureImportancesEntry\x1a\x39\n\x17\x46\x65\x61tureImportancesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\"]\n\x13PredictionAndActual\x12&\n\nprediction\x18\x01 \x01(\x0b\x32\x12.public.Prediction\x12\x1e\n\x06\x61\x63tual\x18\x02 \x01(\x0b\x32\x0e.public.Actual\"\x97\x01\n\nFileHeader\x12\x33\n\x0b\x65nvironment\x18\x01 \x01(\x0e\x32\x1e.public.FileHeader.Environment\"T\n\x0b\x45nvironment\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0c\n\x08TRAINING\x10\x01\x12\x0e\n\nVALIDATION\x10\x02\x12\x0e\n\nPRODUCTION\x10\x03\x12\n\n\x06\x43ORPUS\x10\x04\"\xd2\x30\n\x06Schema\x12+\n\tconstants\x18\x01 \x01(\x0b\x32\x18.public.Schema.Constants\x12<\n\x11\x61rize_conclusions\x18\x02 \x01(\x0b\x32\x1f.public.Schema.ArizeConclusionsH\x00\x12>\n\x12\x61rize_explanations\x18\x03 \x01(\x0b\x32 .public.Schema.ArizeExplanationsH\x00\x12\x32\n\x0c\x61rrow_schema\x18\x04 \x01(\x0b\x32\x1a.public.Schema.ArrowSchemaH\x00\x12\x36\n\x0egeneric_schema\x18\x05 \x01(\x0b\x32\x1c.public.Schema.GenericSchemaH\x00\x12K\n\x19\x61rize_conclusion_pointers\x18\x06 \x01(\x0b\x32&.public.Schema.ArizeConclusionPointersH\x00\x12M\n\x1a\x61rize_explanation_pointers\x18\x07 \x01(\x0b\x32\'.public.Schema.ArizeExplanationPointersH\x00\x1a\xa5\x01\n\tConstants\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12\x10\n\x08\x62\x61tch_id\x18\x03 \x01(\t\x12/\n\x0b\x65nvironment\x18\x04 \x01(\x0e\x32\x1a.public.Schema.Environment\x12,\n\nmodel_type\x18\x05 \x01(\x0e\x32\x18.public.Schema.ModelType\x1a\x12\n\x10\x41rizeConclusions\x1a\x13\n\x11\x41rizeExplanations\x1a\x19\n\x17\x41rizeConclusionPointers\x1a\x1a\n\x18\x41rizeExplanationPointers\x1a\x84\x0b\n\x0b\x41rrowSchema\x12!\n\x19prediction_id_column_name\x18\x01 \x01(\t\x12\x1c\n\x14\x66\x65\x61ture_column_names\x18\x02 \x03(\t\x12\x1d\n\x15timestamp_column_name\x18\x03 \x01(\t\x12$\n\x1cprediction_label_column_name\x18\x04 \x01(\t\x12$\n\x1cprediction_score_column_name\x18\x05 \x01(\t\x12 \n\x18\x61\x63tual_label_column_name\x18\x06 \x01(\t\x12 \n\x18\x61\x63tual_score_column_name\x18\x07 \x01(\t\x12W\n\x18shap_values_column_names\x18\x08 \x03(\x0b\x32\x35.public.Schema.ArrowSchema.ShapValuesColumnNamesEntry\x12\x18\n\x10tag_column_names\x18\t \x03(\t\x12/\n#actual_numeric_sequence_column_name\x18\n \x01(\tB\x02\x18\x01\x12O\n\x1e\x65mbedding_feature_column_names\x18\x0b \x03(\x0b\x32#.public.Schema.EmbeddingColumnNamesB\x02\x18\x01\x12%\n\x1dmodel_environment_column_name\x18\x0c \x01(\t\x12!\n\x19model_version_column_name\x18\r \x01(\t\x12\x1c\n\x14\x62\x61tch_id_column_name\x18\x0e \x01(\t\x12\'\n\x1fprediction_group_id_column_name\x18\x0f \x01(\t\x12\x18\n\x10rank_column_name\x18\x10 \x01(\t\x12j\n\"embedding_feature_column_names_map\x18\x11 \x03(\x0b\x32>.public.Schema.ArrowSchema.EmbeddingFeatureColumnNamesMapEntry\x12\x66\n.prediction_object_detection_label_column_names\x18\x12 \x01(\x0b\x32..public.Schema.ObjectDetectionLabelColumnNames\x12\x62\n*actual_object_detection_label_column_names\x18\x13 \x01(\x0b\x32..public.Schema.ObjectDetectionLabelColumnNames\x12N\n\x1cprompt_template_column_names\x18\x14 \x01(\x0b\x32(.public.Schema.PromptTemplateColumnNames\x12\x44\n\x17llm_config_column_names\x18\x15 \x01(\x0b\x32#.public.Schema.LLMConfigColumnNames\x12\x41\n\x15\x64ocument_column_names\x18\x16 \x01(\x0b\x32\".public.Schema.DocumentColumnNames\x12*\n\"retrieved_document_ids_column_name\x18\x17 \x01(\t\x1a<\n\x1aShapValuesColumnNamesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1aj\n#EmbeddingFeatureColumnNamesMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x32\n\x05value\x18\x02 \x01(\x0b\x32#.public.Schema.EmbeddingColumnNames:\x02\x38\x01\x1a\x89\x01\n\x13\x44ocumentColumnNames\x12\x16\n\x0eid_column_name\x18\x01 \x01(\t\x12=\n\x10text_column_name\x18\x02 \x01(\x0b\x32#.public.Schema.EmbeddingColumnNames\x12\x1b\n\x13version_column_name\x18\x03 \x01(\t\x1a_\n\x19PromptTemplateColumnNames\x12\x1c\n\x14template_column_name\x18\x01 \x01(\t\x12$\n\x1ctemplate_version_column_name\x18\x02 \x01(\t\x1aQ\n\x14LLMConfigColumnNames\x12\x19\n\x11model_column_name\x18\x01 \x01(\t\x12\x1e\n\x16params_map_column_name\x18\x02 \x01(\t\x1a\x93\x01\n\x1fObjectDetectionLabelColumnNames\x12&\n\x1e\x62\x62oxes_coordinates_column_name\x18\x01 \x01(\t\x12%\n\x1d\x62\x62oxes_categories_column_name\x18\x02 \x01(\t\x12!\n\x19\x62\x62oxes_scores_column_name\x18\x03 \x01(\t\x1an\n\x14\x45mbeddingColumnNames\x12\x1a\n\x12vector_column_name\x18\x01 \x01(\t\x12\x18\n\x10\x64\x61ta_column_name\x18\x02 \x01(\t\x12 \n\x18link_to_data_column_name\x18\x03 \x01(\t\x1a\xb6\x19\n\rGenericSchema\x12\x43\n\rprediction_id\x18\x01 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x43\n\x08\x66\x65\x61tures\x18\x02 \x01(\x0b\x32\x31.public.Schema.GenericSchema.GroupFieldDescriptor\x12?\n\ttimestamp\x18\x03 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x46\n\x10prediction_label\x18\x04 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x46\n\x10prediction_score\x18\x05 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x42\n\x0c\x61\x63tual_label\x18\x06 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x42\n\x0c\x61\x63tual_score\x18\x07 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x46\n\x0bshap_values\x18\x08 \x01(\x0b\x32\x31.public.Schema.GenericSchema.GroupFieldDescriptor\x12?\n\x04tags\x18\t \x01(\x0b\x32\x31.public.Schema.GenericSchema.GroupFieldDescriptor\x12G\n\x11model_environment\x18\n \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x43\n\rmodel_version\x18\x0b \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12>\n\x08\x62\x61tch_id\x18\x0c \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12=\n\x07\x65xclude\x18\r \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12Q\n\x17\x61\x63tual_numeric_sequence\x18\x0e \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptorB\x02\x18\x01\x12Q\n\x12\x65mbedding_features\x18\x0f \x01(\x0b\x32\x35.public.Schema.GenericSchema.EmbeddingFieldDescriptor\x12I\n\x13prediction_group_id\x18\x10 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12:\n\x04rank\x18\x11 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12k\n!prediction_object_detection_label\x18\x12 \x01(\x0b\x32@.public.Schema.GenericSchema.ObjectDetectionLabelFieldDescriptor\x12g\n\x1d\x61\x63tual_object_detection_label\x18\x13 \x01(\x0b\x32@.public.Schema.GenericSchema.ObjectDetectionLabelFieldDescriptor\x12\x46\n\x10\x63hange_timestamp\x18\x14 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x43\n\rfeatures_list\x18\x15 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12?\n\ttags_list\x18\x16 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x45\n\x0fprompt_template\x18\x17 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12M\n\x17prompt_template_version\x18\x18 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x44\n\x0ellm_model_name\x18\x19 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12@\n\nllm_params\x18\x1a \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12O\n\rreserved_tags\x18\x1b \x01(\x0b\x32\x38.public.Schema.GenericSchema.ReservedNameFieldDescriptor\x1a%\n\x0f\x46ieldDescriptor\x12\x12\n\nproperties\x18\x01 \x03(\t\x1a\x41\n\x14GroupFieldDescriptor\x12\x12\n\nproperties\x18\x01 \x03(\t\x12\x15\n\rcapture_group\x18\x02 \x01(\t\x1a\xba\x03\n\x18\x45mbeddingFieldDescriptor\x12Y\n\nproperties\x18\x01 \x03(\x0b\x32\x45.public.Schema.GenericSchema.EmbeddingFieldDescriptor.PropertiesEntry\x1a\xc3\x01\n\x14\x45mbeddingPropertyMap\x12u\n\x0eproperties_map\x18\x01 \x03(\x0b\x32].public.Schema.GenericSchema.EmbeddingFieldDescriptor.EmbeddingPropertyMap.PropertiesMapEntry\x1a\x34\n\x12PropertiesMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a}\n\x0fPropertiesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12Y\n\x05value\x18\x02 \x01(\x0b\x32J.public.Schema.GenericSchema.EmbeddingFieldDescriptor.EmbeddingPropertyMap:\x02\x38\x01\x1a\x89\x04\n#ObjectDetectionLabelFieldDescriptor\x12\x64\n\nproperties\x18\x01 \x03(\x0b\x32P.public.Schema.GenericSchema.ObjectDetectionLabelFieldDescriptor.PropertiesEntry\x1a\xe5\x01\n\x1fObjectDetectionLabelPropertyMap\x12\x8b\x01\n\x0eproperties_map\x18\x01 \x03(\x0b\x32s.public.Schema.GenericSchema.ObjectDetectionLabelFieldDescriptor.ObjectDetectionLabelPropertyMap.PropertiesMapEntry\x1a\x34\n\x12PropertiesMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x93\x01\n\x0fPropertiesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12o\n\x05value\x18\x02 \x01(\x0b\x32`.public.Schema.GenericSchema.ObjectDetectionLabelFieldDescriptor.ObjectDetectionLabelPropertyMap:\x02\x38\x01\x1a\xb8\x01\n\x1bReservedNameFieldDescriptor\x12\x63\n\x0eproperties_map\x18\x01 \x03(\x0b\x32K.public.Schema.GenericSchema.ReservedNameFieldDescriptor.PropertiesMapEntry\x1a\x34\n\x12PropertiesMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"`\n\x0b\x45nvironment\x12\x17\n\x13UNKNOWN_ENVIRONMENT\x10\x00\x12\x0c\n\x08TRAINING\x10\x01\x12\x0e\n\nVALIDATION\x10\x02\x12\x0e\n\nPRODUCTION\x10\x03\x12\n\n\x06\x43ORPUS\x10\x04\"\x9a\x01\n\tModelType\x12\x15\n\x11UNKNOWN_MODELTYPE\x10\x00\x12\n\n\x06\x42INARY\x10\x01\x12\x0b\n\x07NUMERIC\x10\x02\x12\x0f\n\x0b\x43\x41TEGORICAL\x10\x03\x12\x15\n\x11SCORE_CATEGORICAL\x10\x04\x12\x0b\n\x07RANKING\x10\x05\x12\x14\n\x10OBJECT_DETECTION\x10\x06\x12\x12\n\x0eGENERATIVE_LLM\x10\x07\x42\x08\n\x06schema\"I\n\x17\x41rrowFileUploadResponse\x12\r\n\x05\x65rror\x18\x01 \x01(\t\x12\x1f\n\x17real_time_ingestion_uri\x18\x02 \x01(\t\":\n\x16UserFileUploadResponse\x12\r\n\x05\x65rror\x18\x01 \x01(\t\x12\x11\n\tfile_uuid\x18\x02 \x01(\tBO\n\x12\x63om.arize.protocolZ9github.com/Arize-ai/arize/go/pkg/receiver/protocol/publicb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cpublic.proto\x12\x06public\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\x98\x01\n\nBulkRecord\x12\x1c\n\x10organization_key\x18\x01 \x01(\tB\x02\x18\x01\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rmodel_version\x18\x03 \x01(\t\x12\x1f\n\x07records\x18\x05 \x03(\x0b\x32\x0e.public.Record\x12\x11\n\tspace_key\x18\x06 \x01(\tJ\x04\x08\x04\x10\x05R\ttimestamp\"\xd7\x05\n\x06Record\x12\x1c\n\x10organization_key\x18\x01 \x01(\tB\x02\x18\x01\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x15\n\rprediction_id\x18\x03 \x01(\t\x12&\n\nprediction\x18\x08 \x01(\x0b\x32\x12.public.Prediction\x12\x1e\n\x06\x61\x63tual\x18\t \x01(\x0b\x32\x0e.public.Actual\x12\x37\n\x13\x66\x65\x61ture_importances\x18\n \x01(\x0b\x32\x1a.public.FeatureImportances\x12:\n\x15prediction_and_actual\x18\x0b \x01(\x0b\x32\x1b.public.PredictionAndActual\x12\x11\n\tspace_key\x18\x0c \x01(\t\x12<\n\x12\x65nvironment_params\x18\r \x01(\x0b\x32 .public.Record.EnvironmentParams\x12<\n\x18is_generative_llm_record\x18\x0e \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x1a\xa1\x02\n\x11\x45nvironmentParams\x12=\n\x08training\x18\x01 \x01(\x0b\x32).public.Record.EnvironmentParams.TrainingH\x00\x12\x41\n\nvalidation\x18\x02 \x01(\x0b\x32+.public.Record.EnvironmentParams.ValidationH\x00\x12\x41\n\nproduction\x18\x03 \x01(\x0b\x32+.public.Record.EnvironmentParams.ProductionH\x00\x1a\n\n\x08Training\x1a\x1e\n\nValidation\x12\x10\n\x08\x62\x61tch_id\x18\x01 \x01(\t\x1a\x0c\n\nProductionB\r\n\x0b\x65nvironmentJ\x04\x08\x04\x10\x05J\x04\x08\x05\x10\x06J\x04\x08\x06\x10\x07J\x04\x08\x07\x10\x08\"\xae\x02\n\x13PreProductionRecord\x12\x45\n\x0ftraining_record\x18\x01 \x01(\x0b\x32*.public.PreProductionRecord.TrainingRecordH\x00\x12I\n\x11validation_record\x18\x02 \x01(\x0b\x32,.public.PreProductionRecord.ValidationRecordH\x00\x1a\x44\n\x10ValidationRecord\x12\x10\n\x08\x62\x61tch_id\x18\x01 \x01(\t\x12\x1e\n\x06record\x18\x02 \x01(\x0b\x32\x0e.public.Record\x1a\x30\n\x0eTrainingRecord\x12\x1e\n\x06record\x18\x01 \x01(\x0b\x32\x0e.public.RecordB\r\n\x0brecord_type\"\x86\x03\n\x10ScoreCategorical\x12\x17\n\x0b\x63\x61tegorical\x18\x01 \x01(\tB\x02\x18\x01\x12\x11\n\x05score\x18\x02 \x01(\x01\x42\x02\x18\x01\x12\x35\n\x08\x63\x61tegory\x18\x03 \x01(\x0b\x32!.public.ScoreCategorical.CategoryH\x00\x12@\n\x0escore_category\x18\x04 \x01(\x0b\x32&.public.ScoreCategorical.ScoreCategoryH\x00\x12:\n\x0bscore_value\x18\x05 \x01(\x0b\x32#.public.ScoreCategorical.ScoreValueH\x00\x1a\x1c\n\x08\x43\x61tegory\x12\x10\n\x08\x63\x61tegory\x18\x01 \x01(\t\x1a\x1b\n\nScoreValue\x12\r\n\x05value\x18\x01 \x01(\x01\x1aN\n\rScoreCategory\x12\x10\n\x08\x63\x61tegory\x18\x01 \x01(\t\x12\r\n\x05score\x18\x02 \x01(\x01\x12\x1c\n\x10numeric_sequence\x18\x03 \x03(\x01\x42\x02\x18\x01\x42\x06\n\x04type\"\xb1\x01\n\x0fObjectDetection\x12;\n\x0e\x62ounding_boxes\x18\x01 \x03(\x0b\x32#.public.ObjectDetection.BoundingBox\x1a\x61\n\x0b\x42oundingBox\x12\x13\n\x0b\x63oordinates\x18\x01 \x03(\x01\x12\x10\n\x08\x63\x61tegory\x18\x02 \x01(\t\x12+\n\x05score\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.DoubleValue\"\x85\x01\n\x11RankingPrediction\x12\x1b\n\x13prediction_group_id\x18\x01 \x01(\t\x12\x0c\n\x04rank\x18\x02 \x01(\x03\x12\x36\n\x10prediction_score\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.DoubleValue\x12\r\n\x05label\x18\x04 \x01(\t\"l\n\rRankingActual\x12$\n\x08\x63\x61tegory\x18\x01 \x01(\x0b\x32\x12.public.MultiValue\x12\x35\n\x0frelevance_score\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.DoubleValue\"\xde\x05\n\x14MultiClassPrediction\x12>\n\x0bmulti_label\x18\x01 \x01(\x0b\x32\'.public.MultiClassPrediction.MultiLabelH\x00\x12@\n\x0csingle_label\x18\x02 \x01(\x0b\x32(.public.MultiClassPrediction.SingleLabelH\x00\x1a\xf9\x02\n\nMultiLabel\x12k\n\x1bprediction_threshold_scores\x18\x01 \x03(\x0b\x32\x46.public.MultiClassPrediction.MultiLabel.PredictionThresholdScoresEntry\x1a\x81\x01\n\x10MultiLabelScores\x12\x36\n\x10prediction_score\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.DoubleValue\x12\x35\n\x0fthreshold_score\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.DoubleValue\x1az\n\x1ePredictionThresholdScoresEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12G\n\x05value\x18\x02 \x01(\x0b\x32\x38.public.MultiClassPrediction.MultiLabel.MultiLabelScores:\x02\x38\x01\x1a\xbf\x01\n\x0bSingleLabel\x12Y\n\x11prediction_scores\x18\x01 \x03(\x0b\x32>.public.MultiClassPrediction.SingleLabel.PredictionScoresEntry\x1aU\n\x15PredictionScoresEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12+\n\x05value\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.DoubleValue:\x02\x38\x01\x42\x06\n\x04type\")\n\x10MultiClassActual\x12\x15\n\ractual_labels\x18\x01 \x03(\t\"\x82\x01\n\x05Label\x12\x10\n\x06\x62inary\x18\x01 \x01(\x08H\x00\x12\x15\n\x0b\x63\x61tegorical\x18\x02 \x01(\tH\x00\x12\x11\n\x07numeric\x18\x03 \x01(\x01H\x00\x12\x35\n\x11score_categorical\x18\x04 \x01(\x0b\x32\x18.public.ScoreCategoricalH\x00\x42\x06\n\x04\x64\x61ta\"\xa4\x02\n\x0fPredictionLabel\x12\x10\n\x06\x62inary\x18\x01 \x01(\x08H\x00\x12\x15\n\x0b\x63\x61tegorical\x18\x02 \x01(\tH\x00\x12\x11\n\x07numeric\x18\x03 \x01(\x01H\x00\x12\x35\n\x11score_categorical\x18\x04 \x01(\x0b\x32\x18.public.ScoreCategoricalH\x00\x12,\n\x07ranking\x18\x05 \x01(\x0b\x32\x19.public.RankingPredictionH\x00\x12\x33\n\x10object_detection\x18\x06 \x01(\x0b\x32\x17.public.ObjectDetectionH\x00\x12\x33\n\x0bmulti_class\x18\x07 \x01(\x0b\x32\x1c.public.MultiClassPredictionH\x00\x42\x06\n\x04\x64\x61ta\"\x98\x02\n\x0b\x41\x63tualLabel\x12\x10\n\x06\x62inary\x18\x01 \x01(\x08H\x00\x12\x15\n\x0b\x63\x61tegorical\x18\x02 \x01(\tH\x00\x12\x11\n\x07numeric\x18\x03 \x01(\x01H\x00\x12\x35\n\x11score_categorical\x18\x04 \x01(\x0b\x32\x18.public.ScoreCategoricalH\x00\x12(\n\x07ranking\x18\x05 \x01(\x0b\x32\x15.public.RankingActualH\x00\x12\x33\n\x10object_detection\x18\x06 \x01(\x0b\x32\x17.public.ObjectDetectionH\x00\x12/\n\x0bmulti_class\x18\x07 \x01(\x0b\x32\x18.public.MultiClassActualH\x00\x42\x06\n\x04\x64\x61ta\"\xd1\x01\n\tLLMFields\x12\x16\n\x0ellm_model_name\x18\x01 \x01(\t\x12\x34\n\nllm_params\x18\x02 \x03(\x0b\x32 .public.LLMFields.LlmParamsEntry\x12\x17\n\x0fprompt_template\x18\x03 \x01(\t\x12\x1c\n\x14prompt_template_name\x18\x04 \x01(\t\x1a?\n\x0eLlmParamsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.public.Value:\x02\x38\x01\"\xca\x03\n\nPrediction\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12 \n\x05label\x18\x03 \x01(\x0b\x32\r.public.LabelB\x02\x18\x01\x12\x32\n\x08\x66\x65\x61tures\x18\x04 \x03(\x0b\x32 .public.Prediction.FeaturesEntry\x12*\n\x04tags\x18\x05 \x03(\x0b\x32\x1c.public.Prediction.TagsEntry\x12\x31\n\x10prediction_label\x18\x06 \x01(\x0b\x32\x17.public.PredictionLabel\x12%\n\nllm_fields\x18\x07 \x01(\x0b\x32\x11.public.LLMFields\x12\x1e\n\x16retrieved_document_ids\x18\x08 \x03(\t\x1a>\n\rFeaturesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.public.Value:\x02\x38\x01\x1a:\n\tTagsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.public.Value:\x02\x38\x01\"\x95\x01\n\x05Value\x12\x10\n\x06string\x18\x01 \x01(\tH\x00\x12\r\n\x03int\x18\x02 \x01(\x03H\x00\x12\x10\n\x06\x64ouble\x18\x03 \x01(\x01H\x00\x12)\n\x0bmulti_value\x18\x04 \x01(\x0b\x32\x12.public.MultiValueH\x00\x12&\n\tembedding\x18\x05 \x01(\x0b\x32\x11.public.EmbeddingH\x00\x42\x06\n\x04\x64\x61ta\"\x1c\n\nMultiValue\x12\x0e\n\x06values\x18\x01 \x03(\t\"\xed\x01\n\tEmbedding\x12\x0e\n\x06vector\x18\x01 \x03(\x01\x12\x32\n\x0clink_to_data\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x08raw_data\x18\x04 \x01(\x0b\x32\x19.public.Embedding.RawData\x1aK\n\x07RawData\x12\x32\n\ntokenArray\x18\x02 \x01(\x0b\x32\x1c.public.Embedding.TokenArrayH\x00\x42\x06\n\x04typeJ\x04\x08\x01\x10\x02\x1a\x1c\n\nTokenArray\x12\x0e\n\x06tokens\x18\x01 \x03(\tJ\x04\x08\x02\x10\x03\"\xe8\x01\n\x06\x41\x63tual\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12 \n\x05label\x18\x02 \x01(\x0b\x32\r.public.LabelB\x02\x18\x01\x12&\n\x04tags\x18\x03 \x03(\x0b\x32\x18.public.Actual.TagsEntry\x12)\n\x0c\x61\x63tual_label\x18\x04 \x01(\x0b\x32\x13.public.ActualLabel\x1a:\n\tTagsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.public.Value:\x02\x38\x01\"\xe6\x01\n\x12\x46\x65\x61tureImportances\x12-\n\ttimestamp\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12O\n\x13\x66\x65\x61ture_importances\x18\x03 \x03(\x0b\x32\x32.public.FeatureImportances.FeatureImportancesEntry\x1a\x39\n\x17\x46\x65\x61tureImportancesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\"]\n\x13PredictionAndActual\x12&\n\nprediction\x18\x01 \x01(\x0b\x32\x12.public.Prediction\x12\x1e\n\x06\x61\x63tual\x18\x02 \x01(\x0b\x32\x0e.public.Actual\"\x97\x01\n\nFileHeader\x12\x33\n\x0b\x65nvironment\x18\x01 \x01(\x0e\x32\x1e.public.FileHeader.Environment\"T\n\x0b\x45nvironment\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0c\n\x08TRAINING\x10\x01\x12\x0e\n\nVALIDATION\x10\x02\x12\x0e\n\nPRODUCTION\x10\x03\x12\n\n\x06\x43ORPUS\x10\x04\"\xe3\x30\n\x06Schema\x12+\n\tconstants\x18\x01 \x01(\x0b\x32\x18.public.Schema.Constants\x12<\n\x11\x61rize_conclusions\x18\x02 \x01(\x0b\x32\x1f.public.Schema.ArizeConclusionsH\x00\x12>\n\x12\x61rize_explanations\x18\x03 \x01(\x0b\x32 .public.Schema.ArizeExplanationsH\x00\x12\x32\n\x0c\x61rrow_schema\x18\x04 \x01(\x0b\x32\x1a.public.Schema.ArrowSchemaH\x00\x12\x36\n\x0egeneric_schema\x18\x05 \x01(\x0b\x32\x1c.public.Schema.GenericSchemaH\x00\x12K\n\x19\x61rize_conclusion_pointers\x18\x06 \x01(\x0b\x32&.public.Schema.ArizeConclusionPointersH\x00\x12M\n\x1a\x61rize_explanation_pointers\x18\x07 \x01(\x0b\x32\'.public.Schema.ArizeExplanationPointersH\x00\x1a\xa5\x01\n\tConstants\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12\x10\n\x08\x62\x61tch_id\x18\x03 \x01(\t\x12/\n\x0b\x65nvironment\x18\x04 \x01(\x0e\x32\x1a.public.Schema.Environment\x12,\n\nmodel_type\x18\x05 \x01(\x0e\x32\x18.public.Schema.ModelType\x1a\x12\n\x10\x41rizeConclusions\x1a\x13\n\x11\x41rizeExplanations\x1a\x19\n\x17\x41rizeConclusionPointers\x1a\x1a\n\x18\x41rizeExplanationPointers\x1a\x84\x0b\n\x0b\x41rrowSchema\x12!\n\x19prediction_id_column_name\x18\x01 \x01(\t\x12\x1c\n\x14\x66\x65\x61ture_column_names\x18\x02 \x03(\t\x12\x1d\n\x15timestamp_column_name\x18\x03 \x01(\t\x12$\n\x1cprediction_label_column_name\x18\x04 \x01(\t\x12$\n\x1cprediction_score_column_name\x18\x05 \x01(\t\x12 \n\x18\x61\x63tual_label_column_name\x18\x06 \x01(\t\x12 \n\x18\x61\x63tual_score_column_name\x18\x07 \x01(\t\x12W\n\x18shap_values_column_names\x18\x08 \x03(\x0b\x32\x35.public.Schema.ArrowSchema.ShapValuesColumnNamesEntry\x12\x18\n\x10tag_column_names\x18\t \x03(\t\x12/\n#actual_numeric_sequence_column_name\x18\n \x01(\tB\x02\x18\x01\x12O\n\x1e\x65mbedding_feature_column_names\x18\x0b \x03(\x0b\x32#.public.Schema.EmbeddingColumnNamesB\x02\x18\x01\x12%\n\x1dmodel_environment_column_name\x18\x0c \x01(\t\x12!\n\x19model_version_column_name\x18\r \x01(\t\x12\x1c\n\x14\x62\x61tch_id_column_name\x18\x0e \x01(\t\x12\'\n\x1fprediction_group_id_column_name\x18\x0f \x01(\t\x12\x18\n\x10rank_column_name\x18\x10 \x01(\t\x12j\n\"embedding_feature_column_names_map\x18\x11 \x03(\x0b\x32>.public.Schema.ArrowSchema.EmbeddingFeatureColumnNamesMapEntry\x12\x66\n.prediction_object_detection_label_column_names\x18\x12 \x01(\x0b\x32..public.Schema.ObjectDetectionLabelColumnNames\x12\x62\n*actual_object_detection_label_column_names\x18\x13 \x01(\x0b\x32..public.Schema.ObjectDetectionLabelColumnNames\x12N\n\x1cprompt_template_column_names\x18\x14 \x01(\x0b\x32(.public.Schema.PromptTemplateColumnNames\x12\x44\n\x17llm_config_column_names\x18\x15 \x01(\x0b\x32#.public.Schema.LLMConfigColumnNames\x12\x41\n\x15\x64ocument_column_names\x18\x16 \x01(\x0b\x32\".public.Schema.DocumentColumnNames\x12*\n\"retrieved_document_ids_column_name\x18\x17 \x01(\t\x1a<\n\x1aShapValuesColumnNamesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1aj\n#EmbeddingFeatureColumnNamesMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x32\n\x05value\x18\x02 \x01(\x0b\x32#.public.Schema.EmbeddingColumnNames:\x02\x38\x01\x1a\x89\x01\n\x13\x44ocumentColumnNames\x12\x16\n\x0eid_column_name\x18\x01 \x01(\t\x12=\n\x10text_column_name\x18\x02 \x01(\x0b\x32#.public.Schema.EmbeddingColumnNames\x12\x1b\n\x13version_column_name\x18\x03 \x01(\t\x1a_\n\x19PromptTemplateColumnNames\x12\x1c\n\x14template_column_name\x18\x01 \x01(\t\x12$\n\x1ctemplate_version_column_name\x18\x02 \x01(\t\x1aQ\n\x14LLMConfigColumnNames\x12\x19\n\x11model_column_name\x18\x01 \x01(\t\x12\x1e\n\x16params_map_column_name\x18\x02 \x01(\t\x1a\x93\x01\n\x1fObjectDetectionLabelColumnNames\x12&\n\x1e\x62\x62oxes_coordinates_column_name\x18\x01 \x01(\t\x12%\n\x1d\x62\x62oxes_categories_column_name\x18\x02 \x01(\t\x12!\n\x19\x62\x62oxes_scores_column_name\x18\x03 \x01(\t\x1an\n\x14\x45mbeddingColumnNames\x12\x1a\n\x12vector_column_name\x18\x01 \x01(\t\x12\x18\n\x10\x64\x61ta_column_name\x18\x02 \x01(\t\x12 \n\x18link_to_data_column_name\x18\x03 \x01(\t\x1a\xb6\x19\n\rGenericSchema\x12\x43\n\rprediction_id\x18\x01 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x43\n\x08\x66\x65\x61tures\x18\x02 \x01(\x0b\x32\x31.public.Schema.GenericSchema.GroupFieldDescriptor\x12?\n\ttimestamp\x18\x03 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x46\n\x10prediction_label\x18\x04 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x46\n\x10prediction_score\x18\x05 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x42\n\x0c\x61\x63tual_label\x18\x06 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x42\n\x0c\x61\x63tual_score\x18\x07 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x46\n\x0bshap_values\x18\x08 \x01(\x0b\x32\x31.public.Schema.GenericSchema.GroupFieldDescriptor\x12?\n\x04tags\x18\t \x01(\x0b\x32\x31.public.Schema.GenericSchema.GroupFieldDescriptor\x12G\n\x11model_environment\x18\n \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x43\n\rmodel_version\x18\x0b \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12>\n\x08\x62\x61tch_id\x18\x0c \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12=\n\x07\x65xclude\x18\r \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12Q\n\x17\x61\x63tual_numeric_sequence\x18\x0e \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptorB\x02\x18\x01\x12Q\n\x12\x65mbedding_features\x18\x0f \x01(\x0b\x32\x35.public.Schema.GenericSchema.EmbeddingFieldDescriptor\x12I\n\x13prediction_group_id\x18\x10 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12:\n\x04rank\x18\x11 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12k\n!prediction_object_detection_label\x18\x12 \x01(\x0b\x32@.public.Schema.GenericSchema.ObjectDetectionLabelFieldDescriptor\x12g\n\x1d\x61\x63tual_object_detection_label\x18\x13 \x01(\x0b\x32@.public.Schema.GenericSchema.ObjectDetectionLabelFieldDescriptor\x12\x46\n\x10\x63hange_timestamp\x18\x14 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x43\n\rfeatures_list\x18\x15 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12?\n\ttags_list\x18\x16 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x45\n\x0fprompt_template\x18\x17 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12M\n\x17prompt_template_version\x18\x18 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12\x44\n\x0ellm_model_name\x18\x19 \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12@\n\nllm_params\x18\x1a \x01(\x0b\x32,.public.Schema.GenericSchema.FieldDescriptor\x12O\n\rreserved_tags\x18\x1b \x01(\x0b\x32\x38.public.Schema.GenericSchema.ReservedNameFieldDescriptor\x1a%\n\x0f\x46ieldDescriptor\x12\x12\n\nproperties\x18\x01 \x03(\t\x1a\x41\n\x14GroupFieldDescriptor\x12\x12\n\nproperties\x18\x01 \x03(\t\x12\x15\n\rcapture_group\x18\x02 \x01(\t\x1a\xba\x03\n\x18\x45mbeddingFieldDescriptor\x12Y\n\nproperties\x18\x01 \x03(\x0b\x32\x45.public.Schema.GenericSchema.EmbeddingFieldDescriptor.PropertiesEntry\x1a\xc3\x01\n\x14\x45mbeddingPropertyMap\x12u\n\x0eproperties_map\x18\x01 \x03(\x0b\x32].public.Schema.GenericSchema.EmbeddingFieldDescriptor.EmbeddingPropertyMap.PropertiesMapEntry\x1a\x34\n\x12PropertiesMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a}\n\x0fPropertiesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12Y\n\x05value\x18\x02 \x01(\x0b\x32J.public.Schema.GenericSchema.EmbeddingFieldDescriptor.EmbeddingPropertyMap:\x02\x38\x01\x1a\x89\x04\n#ObjectDetectionLabelFieldDescriptor\x12\x64\n\nproperties\x18\x01 \x03(\x0b\x32P.public.Schema.GenericSchema.ObjectDetectionLabelFieldDescriptor.PropertiesEntry\x1a\xe5\x01\n\x1fObjectDetectionLabelPropertyMap\x12\x8b\x01\n\x0eproperties_map\x18\x01 \x03(\x0b\x32s.public.Schema.GenericSchema.ObjectDetectionLabelFieldDescriptor.ObjectDetectionLabelPropertyMap.PropertiesMapEntry\x1a\x34\n\x12PropertiesMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x93\x01\n\x0fPropertiesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12o\n\x05value\x18\x02 \x01(\x0b\x32`.public.Schema.GenericSchema.ObjectDetectionLabelFieldDescriptor.ObjectDetectionLabelPropertyMap:\x02\x38\x01\x1a\xb8\x01\n\x1bReservedNameFieldDescriptor\x12\x63\n\x0eproperties_map\x18\x01 \x03(\x0b\x32K.public.Schema.GenericSchema.ReservedNameFieldDescriptor.PropertiesMapEntry\x1a\x34\n\x12PropertiesMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"`\n\x0b\x45nvironment\x12\x17\n\x13UNKNOWN_ENVIRONMENT\x10\x00\x12\x0c\n\x08TRAINING\x10\x01\x12\x0e\n\nVALIDATION\x10\x02\x12\x0e\n\nPRODUCTION\x10\x03\x12\n\n\x06\x43ORPUS\x10\x04\"\xab\x01\n\tModelType\x12\x15\n\x11UNKNOWN_MODELTYPE\x10\x00\x12\n\n\x06\x42INARY\x10\x01\x12\x0b\n\x07NUMERIC\x10\x02\x12\x0f\n\x0b\x43\x41TEGORICAL\x10\x03\x12\x15\n\x11SCORE_CATEGORICAL\x10\x04\x12\x0b\n\x07RANKING\x10\x05\x12\x14\n\x10OBJECT_DETECTION\x10\x06\x12\x12\n\x0eGENERATIVE_LLM\x10\x07\x12\x0f\n\x0bMULTI_CLASS\x10\x08\x42\x08\n\x06schema\"I\n\x17\x41rrowFileUploadResponse\x12\r\n\x05\x65rror\x18\x01 \x01(\t\x12\x1f\n\x17real_time_ingestion_uri\x18\x02 \x01(\t\":\n\x16UserFileUploadResponse\x12\r\n\x05\x65rror\x18\x01 \x01(\t\x12\x11\n\tfile_uuid\x18\x02 \x01(\tBO\n\x12\x63om.arize.protocolZ9github.com/Arize-ai/arize/go/pkg/receiver/protocol/publicb\x06proto3')
 
 
 
@@ -37,6 +37,13 @@ _OBJECTDETECTION = DESCRIPTOR.message_types_by_name['ObjectDetection']
 _OBJECTDETECTION_BOUNDINGBOX = _OBJECTDETECTION.nested_types_by_name['BoundingBox']
 _RANKINGPREDICTION = DESCRIPTOR.message_types_by_name['RankingPrediction']
 _RANKINGACTUAL = DESCRIPTOR.message_types_by_name['RankingActual']
+_MULTICLASSPREDICTION = DESCRIPTOR.message_types_by_name['MultiClassPrediction']
+_MULTICLASSPREDICTION_MULTILABEL = _MULTICLASSPREDICTION.nested_types_by_name['MultiLabel']
+_MULTICLASSPREDICTION_MULTILABEL_MULTILABELSCORES = _MULTICLASSPREDICTION_MULTILABEL.nested_types_by_name['MultiLabelScores']
+_MULTICLASSPREDICTION_MULTILABEL_PREDICTIONTHRESHOLDSCORESENTRY = _MULTICLASSPREDICTION_MULTILABEL.nested_types_by_name['PredictionThresholdScoresEntry']
+_MULTICLASSPREDICTION_SINGLELABEL = _MULTICLASSPREDICTION.nested_types_by_name['SingleLabel']
+_MULTICLASSPREDICTION_SINGLELABEL_PREDICTIONSCORESENTRY = _MULTICLASSPREDICTION_SINGLELABEL.nested_types_by_name['PredictionScoresEntry']
+_MULTICLASSACTUAL = DESCRIPTOR.message_types_by_name['MultiClassActual']
 _LABEL = DESCRIPTOR.message_types_by_name['Label']
 _PREDICTIONLABEL = DESCRIPTOR.message_types_by_name['PredictionLabel']
 _ACTUALLABEL = DESCRIPTOR.message_types_by_name['ActualLabel']
@@ -216,6 +223,60 @@ RankingActual = _reflection.GeneratedProtocolMessageType('RankingActual', (_mess
   # @@protoc_insertion_point(class_scope:public.RankingActual)
   })
 _sym_db.RegisterMessage(RankingActual)
+
+MultiClassPrediction = _reflection.GeneratedProtocolMessageType('MultiClassPrediction', (_message.Message,), {
+
+  'MultiLabel' : _reflection.GeneratedProtocolMessageType('MultiLabel', (_message.Message,), {
+
+    'MultiLabelScores' : _reflection.GeneratedProtocolMessageType('MultiLabelScores', (_message.Message,), {
+      'DESCRIPTOR' : _MULTICLASSPREDICTION_MULTILABEL_MULTILABELSCORES,
+      '__module__' : 'public_pb2'
+      # @@protoc_insertion_point(class_scope:public.MultiClassPrediction.MultiLabel.MultiLabelScores)
+      })
+    ,
+
+    'PredictionThresholdScoresEntry' : _reflection.GeneratedProtocolMessageType('PredictionThresholdScoresEntry', (_message.Message,), {
+      'DESCRIPTOR' : _MULTICLASSPREDICTION_MULTILABEL_PREDICTIONTHRESHOLDSCORESENTRY,
+      '__module__' : 'public_pb2'
+      # @@protoc_insertion_point(class_scope:public.MultiClassPrediction.MultiLabel.PredictionThresholdScoresEntry)
+      })
+    ,
+    'DESCRIPTOR' : _MULTICLASSPREDICTION_MULTILABEL,
+    '__module__' : 'public_pb2'
+    # @@protoc_insertion_point(class_scope:public.MultiClassPrediction.MultiLabel)
+    })
+  ,
+
+  'SingleLabel' : _reflection.GeneratedProtocolMessageType('SingleLabel', (_message.Message,), {
+
+    'PredictionScoresEntry' : _reflection.GeneratedProtocolMessageType('PredictionScoresEntry', (_message.Message,), {
+      'DESCRIPTOR' : _MULTICLASSPREDICTION_SINGLELABEL_PREDICTIONSCORESENTRY,
+      '__module__' : 'public_pb2'
+      # @@protoc_insertion_point(class_scope:public.MultiClassPrediction.SingleLabel.PredictionScoresEntry)
+      })
+    ,
+    'DESCRIPTOR' : _MULTICLASSPREDICTION_SINGLELABEL,
+    '__module__' : 'public_pb2'
+    # @@protoc_insertion_point(class_scope:public.MultiClassPrediction.SingleLabel)
+    })
+  ,
+  'DESCRIPTOR' : _MULTICLASSPREDICTION,
+  '__module__' : 'public_pb2'
+  # @@protoc_insertion_point(class_scope:public.MultiClassPrediction)
+  })
+_sym_db.RegisterMessage(MultiClassPrediction)
+_sym_db.RegisterMessage(MultiClassPrediction.MultiLabel)
+_sym_db.RegisterMessage(MultiClassPrediction.MultiLabel.MultiLabelScores)
+_sym_db.RegisterMessage(MultiClassPrediction.MultiLabel.PredictionThresholdScoresEntry)
+_sym_db.RegisterMessage(MultiClassPrediction.SingleLabel)
+_sym_db.RegisterMessage(MultiClassPrediction.SingleLabel.PredictionScoresEntry)
+
+MultiClassActual = _reflection.GeneratedProtocolMessageType('MultiClassActual', (_message.Message,), {
+  'DESCRIPTOR' : _MULTICLASSACTUAL,
+  '__module__' : 'public_pb2'
+  # @@protoc_insertion_point(class_scope:public.MultiClassActual)
+  })
+_sym_db.RegisterMessage(MultiClassActual)
 
 Label = _reflection.GeneratedProtocolMessageType('Label', (_message.Message,), {
   'DESCRIPTOR' : _LABEL,
@@ -600,6 +661,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _SCORECATEGORICAL.fields_by_name['categorical']._serialized_options = b'\030\001'
   _SCORECATEGORICAL.fields_by_name['score']._options = None
   _SCORECATEGORICAL.fields_by_name['score']._serialized_options = b'\030\001'
+  _MULTICLASSPREDICTION_MULTILABEL_PREDICTIONTHRESHOLDSCORESENTRY._options = None
+  _MULTICLASSPREDICTION_MULTILABEL_PREDICTIONTHRESHOLDSCORESENTRY._serialized_options = b'8\001'
+  _MULTICLASSPREDICTION_SINGLELABEL_PREDICTIONSCORESENTRY._options = None
+  _MULTICLASSPREDICTION_SINGLELABEL_PREDICTIONSCORESENTRY._serialized_options = b'8\001'
   _LLMFIELDS_LLMPARAMSENTRY._options = None
   _LLMFIELDS_LLMPARAMSENTRY._serialized_options = b'8\001'
   _PREDICTION_FEATURESENTRY._options = None
@@ -668,106 +733,120 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _RANKINGPREDICTION._serialized_end=1986
   _RANKINGACTUAL._serialized_start=1988
   _RANKINGACTUAL._serialized_end=2096
-  _LABEL._serialized_start=2099
-  _LABEL._serialized_end=2229
-  _PREDICTIONLABEL._serialized_start=2232
-  _PREDICTIONLABEL._serialized_end=2471
-  _ACTUALLABEL._serialized_start=2474
-  _ACTUALLABEL._serialized_end=2705
-  _LLMFIELDS._serialized_start=2708
-  _LLMFIELDS._serialized_end=2917
-  _LLMFIELDS_LLMPARAMSENTRY._serialized_start=2854
-  _LLMFIELDS_LLMPARAMSENTRY._serialized_end=2917
-  _PREDICTION._serialized_start=2920
-  _PREDICTION._serialized_end=3378
-  _PREDICTION_FEATURESENTRY._serialized_start=3256
-  _PREDICTION_FEATURESENTRY._serialized_end=3318
-  _PREDICTION_TAGSENTRY._serialized_start=3320
-  _PREDICTION_TAGSENTRY._serialized_end=3378
-  _VALUE._serialized_start=3381
-  _VALUE._serialized_end=3530
-  _MULTIVALUE._serialized_start=3532
-  _MULTIVALUE._serialized_end=3560
-  _EMBEDDING._serialized_start=3563
-  _EMBEDDING._serialized_end=3800
-  _EMBEDDING_RAWDATA._serialized_start=3689
-  _EMBEDDING_RAWDATA._serialized_end=3764
-  _EMBEDDING_TOKENARRAY._serialized_start=3766
-  _EMBEDDING_TOKENARRAY._serialized_end=3794
-  _ACTUAL._serialized_start=3803
-  _ACTUAL._serialized_end=4035
-  _ACTUAL_TAGSENTRY._serialized_start=3320
-  _ACTUAL_TAGSENTRY._serialized_end=3378
-  _FEATUREIMPORTANCES._serialized_start=4038
-  _FEATUREIMPORTANCES._serialized_end=4268
-  _FEATUREIMPORTANCES_FEATUREIMPORTANCESENTRY._serialized_start=4211
-  _FEATUREIMPORTANCES_FEATUREIMPORTANCESENTRY._serialized_end=4268
-  _PREDICTIONANDACTUAL._serialized_start=4270
-  _PREDICTIONANDACTUAL._serialized_end=4363
-  _FILEHEADER._serialized_start=4366
-  _FILEHEADER._serialized_end=4517
-  _FILEHEADER_ENVIRONMENT._serialized_start=4433
-  _FILEHEADER_ENVIRONMENT._serialized_end=4517
-  _SCHEMA._serialized_start=4520
-  _SCHEMA._serialized_end=10746
-  _SCHEMA_CONSTANTS._serialized_start=4966
-  _SCHEMA_CONSTANTS._serialized_end=5131
-  _SCHEMA_ARIZECONCLUSIONS._serialized_start=5133
-  _SCHEMA_ARIZECONCLUSIONS._serialized_end=5151
-  _SCHEMA_ARIZEEXPLANATIONS._serialized_start=5153
-  _SCHEMA_ARIZEEXPLANATIONS._serialized_end=5172
-  _SCHEMA_ARIZECONCLUSIONPOINTERS._serialized_start=5174
-  _SCHEMA_ARIZECONCLUSIONPOINTERS._serialized_end=5199
-  _SCHEMA_ARIZEEXPLANATIONPOINTERS._serialized_start=5201
-  _SCHEMA_ARIZEEXPLANATIONPOINTERS._serialized_end=5227
-  _SCHEMA_ARROWSCHEMA._serialized_start=5230
-  _SCHEMA_ARROWSCHEMA._serialized_end=6642
-  _SCHEMA_ARROWSCHEMA_SHAPVALUESCOLUMNNAMESENTRY._serialized_start=6474
-  _SCHEMA_ARROWSCHEMA_SHAPVALUESCOLUMNNAMESENTRY._serialized_end=6534
-  _SCHEMA_ARROWSCHEMA_EMBEDDINGFEATURECOLUMNNAMESMAPENTRY._serialized_start=6536
-  _SCHEMA_ARROWSCHEMA_EMBEDDINGFEATURECOLUMNNAMESMAPENTRY._serialized_end=6642
-  _SCHEMA_DOCUMENTCOLUMNNAMES._serialized_start=6645
-  _SCHEMA_DOCUMENTCOLUMNNAMES._serialized_end=6782
-  _SCHEMA_PROMPTTEMPLATECOLUMNNAMES._serialized_start=6784
-  _SCHEMA_PROMPTTEMPLATECOLUMNNAMES._serialized_end=6879
-  _SCHEMA_LLMCONFIGCOLUMNNAMES._serialized_start=6881
-  _SCHEMA_LLMCONFIGCOLUMNNAMES._serialized_end=6962
-  _SCHEMA_OBJECTDETECTIONLABELCOLUMNNAMES._serialized_start=6965
-  _SCHEMA_OBJECTDETECTIONLABELCOLUMNNAMES._serialized_end=7112
-  _SCHEMA_EMBEDDINGCOLUMNNAMES._serialized_start=7114
-  _SCHEMA_EMBEDDINGCOLUMNNAMES._serialized_end=7224
-  _SCHEMA_GENERICSCHEMA._serialized_start=7227
-  _SCHEMA_GENERICSCHEMA._serialized_end=10481
-  _SCHEMA_GENERICSCHEMA_FIELDDESCRIPTOR._serialized_start=9221
-  _SCHEMA_GENERICSCHEMA_FIELDDESCRIPTOR._serialized_end=9258
-  _SCHEMA_GENERICSCHEMA_GROUPFIELDDESCRIPTOR._serialized_start=9260
-  _SCHEMA_GENERICSCHEMA_GROUPFIELDDESCRIPTOR._serialized_end=9325
-  _SCHEMA_GENERICSCHEMA_EMBEDDINGFIELDDESCRIPTOR._serialized_start=9328
-  _SCHEMA_GENERICSCHEMA_EMBEDDINGFIELDDESCRIPTOR._serialized_end=9770
-  _SCHEMA_GENERICSCHEMA_EMBEDDINGFIELDDESCRIPTOR_EMBEDDINGPROPERTYMAP._serialized_start=9448
-  _SCHEMA_GENERICSCHEMA_EMBEDDINGFIELDDESCRIPTOR_EMBEDDINGPROPERTYMAP._serialized_end=9643
-  _SCHEMA_GENERICSCHEMA_EMBEDDINGFIELDDESCRIPTOR_EMBEDDINGPROPERTYMAP_PROPERTIESMAPENTRY._serialized_start=9591
-  _SCHEMA_GENERICSCHEMA_EMBEDDINGFIELDDESCRIPTOR_EMBEDDINGPROPERTYMAP_PROPERTIESMAPENTRY._serialized_end=9643
-  _SCHEMA_GENERICSCHEMA_EMBEDDINGFIELDDESCRIPTOR_PROPERTIESENTRY._serialized_start=9645
-  _SCHEMA_GENERICSCHEMA_EMBEDDINGFIELDDESCRIPTOR_PROPERTIESENTRY._serialized_end=9770
-  _SCHEMA_GENERICSCHEMA_OBJECTDETECTIONLABELFIELDDESCRIPTOR._serialized_start=9773
-  _SCHEMA_GENERICSCHEMA_OBJECTDETECTIONLABELFIELDDESCRIPTOR._serialized_end=10294
-  _SCHEMA_GENERICSCHEMA_OBJECTDETECTIONLABELFIELDDESCRIPTOR_OBJECTDETECTIONLABELPROPERTYMAP._serialized_start=9915
-  _SCHEMA_GENERICSCHEMA_OBJECTDETECTIONLABELFIELDDESCRIPTOR_OBJECTDETECTIONLABELPROPERTYMAP._serialized_end=10144
-  _SCHEMA_GENERICSCHEMA_OBJECTDETECTIONLABELFIELDDESCRIPTOR_OBJECTDETECTIONLABELPROPERTYMAP_PROPERTIESMAPENTRY._serialized_start=9591
-  _SCHEMA_GENERICSCHEMA_OBJECTDETECTIONLABELFIELDDESCRIPTOR_OBJECTDETECTIONLABELPROPERTYMAP_PROPERTIESMAPENTRY._serialized_end=9643
-  _SCHEMA_GENERICSCHEMA_OBJECTDETECTIONLABELFIELDDESCRIPTOR_PROPERTIESENTRY._serialized_start=10147
-  _SCHEMA_GENERICSCHEMA_OBJECTDETECTIONLABELFIELDDESCRIPTOR_PROPERTIESENTRY._serialized_end=10294
-  _SCHEMA_GENERICSCHEMA_RESERVEDNAMEFIELDDESCRIPTOR._serialized_start=10297
-  _SCHEMA_GENERICSCHEMA_RESERVEDNAMEFIELDDESCRIPTOR._serialized_end=10481
-  _SCHEMA_GENERICSCHEMA_RESERVEDNAMEFIELDDESCRIPTOR_PROPERTIESMAPENTRY._serialized_start=9591
-  _SCHEMA_GENERICSCHEMA_RESERVEDNAMEFIELDDESCRIPTOR_PROPERTIESMAPENTRY._serialized_end=9643
-  _SCHEMA_ENVIRONMENT._serialized_start=10483
-  _SCHEMA_ENVIRONMENT._serialized_end=10579
-  _SCHEMA_MODELTYPE._serialized_start=10582
-  _SCHEMA_MODELTYPE._serialized_end=10736
-  _ARROWFILEUPLOADRESPONSE._serialized_start=10748
-  _ARROWFILEUPLOADRESPONSE._serialized_end=10821
-  _USERFILEUPLOADRESPONSE._serialized_start=10823
-  _USERFILEUPLOADRESPONSE._serialized_end=10881
+  _MULTICLASSPREDICTION._serialized_start=2099
+  _MULTICLASSPREDICTION._serialized_end=2833
+  _MULTICLASSPREDICTION_MULTILABEL._serialized_start=2254
+  _MULTICLASSPREDICTION_MULTILABEL._serialized_end=2631
+  _MULTICLASSPREDICTION_MULTILABEL_MULTILABELSCORES._serialized_start=2378
+  _MULTICLASSPREDICTION_MULTILABEL_MULTILABELSCORES._serialized_end=2507
+  _MULTICLASSPREDICTION_MULTILABEL_PREDICTIONTHRESHOLDSCORESENTRY._serialized_start=2509
+  _MULTICLASSPREDICTION_MULTILABEL_PREDICTIONTHRESHOLDSCORESENTRY._serialized_end=2631
+  _MULTICLASSPREDICTION_SINGLELABEL._serialized_start=2634
+  _MULTICLASSPREDICTION_SINGLELABEL._serialized_end=2825
+  _MULTICLASSPREDICTION_SINGLELABEL_PREDICTIONSCORESENTRY._serialized_start=2740
+  _MULTICLASSPREDICTION_SINGLELABEL_PREDICTIONSCORESENTRY._serialized_end=2825
+  _MULTICLASSACTUAL._serialized_start=2835
+  _MULTICLASSACTUAL._serialized_end=2876
+  _LABEL._serialized_start=2879
+  _LABEL._serialized_end=3009
+  _PREDICTIONLABEL._serialized_start=3012
+  _PREDICTIONLABEL._serialized_end=3304
+  _ACTUALLABEL._serialized_start=3307
+  _ACTUALLABEL._serialized_end=3587
+  _LLMFIELDS._serialized_start=3590
+  _LLMFIELDS._serialized_end=3799
+  _LLMFIELDS_LLMPARAMSENTRY._serialized_start=3736
+  _LLMFIELDS_LLMPARAMSENTRY._serialized_end=3799
+  _PREDICTION._serialized_start=3802
+  _PREDICTION._serialized_end=4260
+  _PREDICTION_FEATURESENTRY._serialized_start=4138
+  _PREDICTION_FEATURESENTRY._serialized_end=4200
+  _PREDICTION_TAGSENTRY._serialized_start=4202
+  _PREDICTION_TAGSENTRY._serialized_end=4260
+  _VALUE._serialized_start=4263
+  _VALUE._serialized_end=4412
+  _MULTIVALUE._serialized_start=4414
+  _MULTIVALUE._serialized_end=4442
+  _EMBEDDING._serialized_start=4445
+  _EMBEDDING._serialized_end=4682
+  _EMBEDDING_RAWDATA._serialized_start=4571
+  _EMBEDDING_RAWDATA._serialized_end=4646
+  _EMBEDDING_TOKENARRAY._serialized_start=4648
+  _EMBEDDING_TOKENARRAY._serialized_end=4676
+  _ACTUAL._serialized_start=4685
+  _ACTUAL._serialized_end=4917
+  _ACTUAL_TAGSENTRY._serialized_start=4202
+  _ACTUAL_TAGSENTRY._serialized_end=4260
+  _FEATUREIMPORTANCES._serialized_start=4920
+  _FEATUREIMPORTANCES._serialized_end=5150
+  _FEATUREIMPORTANCES_FEATUREIMPORTANCESENTRY._serialized_start=5093
+  _FEATUREIMPORTANCES_FEATUREIMPORTANCESENTRY._serialized_end=5150
+  _PREDICTIONANDACTUAL._serialized_start=5152
+  _PREDICTIONANDACTUAL._serialized_end=5245
+  _FILEHEADER._serialized_start=5248
+  _FILEHEADER._serialized_end=5399
+  _FILEHEADER_ENVIRONMENT._serialized_start=5315
+  _FILEHEADER_ENVIRONMENT._serialized_end=5399
+  _SCHEMA._serialized_start=5402
+  _SCHEMA._serialized_end=11645
+  _SCHEMA_CONSTANTS._serialized_start=5848
+  _SCHEMA_CONSTANTS._serialized_end=6013
+  _SCHEMA_ARIZECONCLUSIONS._serialized_start=6015
+  _SCHEMA_ARIZECONCLUSIONS._serialized_end=6033
+  _SCHEMA_ARIZEEXPLANATIONS._serialized_start=6035
+  _SCHEMA_ARIZEEXPLANATIONS._serialized_end=6054
+  _SCHEMA_ARIZECONCLUSIONPOINTERS._serialized_start=6056
+  _SCHEMA_ARIZECONCLUSIONPOINTERS._serialized_end=6081
+  _SCHEMA_ARIZEEXPLANATIONPOINTERS._serialized_start=6083
+  _SCHEMA_ARIZEEXPLANATIONPOINTERS._serialized_end=6109
+  _SCHEMA_ARROWSCHEMA._serialized_start=6112
+  _SCHEMA_ARROWSCHEMA._serialized_end=7524
+  _SCHEMA_ARROWSCHEMA_SHAPVALUESCOLUMNNAMESENTRY._serialized_start=7356
+  _SCHEMA_ARROWSCHEMA_SHAPVALUESCOLUMNNAMESENTRY._serialized_end=7416
+  _SCHEMA_ARROWSCHEMA_EMBEDDINGFEATURECOLUMNNAMESMAPENTRY._serialized_start=7418
+  _SCHEMA_ARROWSCHEMA_EMBEDDINGFEATURECOLUMNNAMESMAPENTRY._serialized_end=7524
+  _SCHEMA_DOCUMENTCOLUMNNAMES._serialized_start=7527
+  _SCHEMA_DOCUMENTCOLUMNNAMES._serialized_end=7664
+  _SCHEMA_PROMPTTEMPLATECOLUMNNAMES._serialized_start=7666
+  _SCHEMA_PROMPTTEMPLATECOLUMNNAMES._serialized_end=7761
+  _SCHEMA_LLMCONFIGCOLUMNNAMES._serialized_start=7763
+  _SCHEMA_LLMCONFIGCOLUMNNAMES._serialized_end=7844
+  _SCHEMA_OBJECTDETECTIONLABELCOLUMNNAMES._serialized_start=7847
+  _SCHEMA_OBJECTDETECTIONLABELCOLUMNNAMES._serialized_end=7994
+  _SCHEMA_EMBEDDINGCOLUMNNAMES._serialized_start=7996
+  _SCHEMA_EMBEDDINGCOLUMNNAMES._serialized_end=8106
+  _SCHEMA_GENERICSCHEMA._serialized_start=8109
+  _SCHEMA_GENERICSCHEMA._serialized_end=11363
+  _SCHEMA_GENERICSCHEMA_FIELDDESCRIPTOR._serialized_start=10103
+  _SCHEMA_GENERICSCHEMA_FIELDDESCRIPTOR._serialized_end=10140
+  _SCHEMA_GENERICSCHEMA_GROUPFIELDDESCRIPTOR._serialized_start=10142
+  _SCHEMA_GENERICSCHEMA_GROUPFIELDDESCRIPTOR._serialized_end=10207
+  _SCHEMA_GENERICSCHEMA_EMBEDDINGFIELDDESCRIPTOR._serialized_start=10210
+  _SCHEMA_GENERICSCHEMA_EMBEDDINGFIELDDESCRIPTOR._serialized_end=10652
+  _SCHEMA_GENERICSCHEMA_EMBEDDINGFIELDDESCRIPTOR_EMBEDDINGPROPERTYMAP._serialized_start=10330
+  _SCHEMA_GENERICSCHEMA_EMBEDDINGFIELDDESCRIPTOR_EMBEDDINGPROPERTYMAP._serialized_end=10525
+  _SCHEMA_GENERICSCHEMA_EMBEDDINGFIELDDESCRIPTOR_EMBEDDINGPROPERTYMAP_PROPERTIESMAPENTRY._serialized_start=10473
+  _SCHEMA_GENERICSCHEMA_EMBEDDINGFIELDDESCRIPTOR_EMBEDDINGPROPERTYMAP_PROPERTIESMAPENTRY._serialized_end=10525
+  _SCHEMA_GENERICSCHEMA_EMBEDDINGFIELDDESCRIPTOR_PROPERTIESENTRY._serialized_start=10527
+  _SCHEMA_GENERICSCHEMA_EMBEDDINGFIELDDESCRIPTOR_PROPERTIESENTRY._serialized_end=10652
+  _SCHEMA_GENERICSCHEMA_OBJECTDETECTIONLABELFIELDDESCRIPTOR._serialized_start=10655
+  _SCHEMA_GENERICSCHEMA_OBJECTDETECTIONLABELFIELDDESCRIPTOR._serialized_end=11176
+  _SCHEMA_GENERICSCHEMA_OBJECTDETECTIONLABELFIELDDESCRIPTOR_OBJECTDETECTIONLABELPROPERTYMAP._serialized_start=10797
+  _SCHEMA_GENERICSCHEMA_OBJECTDETECTIONLABELFIELDDESCRIPTOR_OBJECTDETECTIONLABELPROPERTYMAP._serialized_end=11026
+  _SCHEMA_GENERICSCHEMA_OBJECTDETECTIONLABELFIELDDESCRIPTOR_OBJECTDETECTIONLABELPROPERTYMAP_PROPERTIESMAPENTRY._serialized_start=10473
+  _SCHEMA_GENERICSCHEMA_OBJECTDETECTIONLABELFIELDDESCRIPTOR_OBJECTDETECTIONLABELPROPERTYMAP_PROPERTIESMAPENTRY._serialized_end=10525
+  _SCHEMA_GENERICSCHEMA_OBJECTDETECTIONLABELFIELDDESCRIPTOR_PROPERTIESENTRY._serialized_start=11029
+  _SCHEMA_GENERICSCHEMA_OBJECTDETECTIONLABELFIELDDESCRIPTOR_PROPERTIESENTRY._serialized_end=11176
+  _SCHEMA_GENERICSCHEMA_RESERVEDNAMEFIELDDESCRIPTOR._serialized_start=11179
+  _SCHEMA_GENERICSCHEMA_RESERVEDNAMEFIELDDESCRIPTOR._serialized_end=11363
+  _SCHEMA_GENERICSCHEMA_RESERVEDNAMEFIELDDESCRIPTOR_PROPERTIESMAPENTRY._serialized_start=10473
+  _SCHEMA_GENERICSCHEMA_RESERVEDNAMEFIELDDESCRIPTOR_PROPERTIESMAPENTRY._serialized_end=10525
+  _SCHEMA_ENVIRONMENT._serialized_start=11365
+  _SCHEMA_ENVIRONMENT._serialized_end=11461
+  _SCHEMA_MODELTYPE._serialized_start=11464
+  _SCHEMA_MODELTYPE._serialized_end=11635
+  _ARROWFILEUPLOADRESPONSE._serialized_start=11647
+  _ARROWFILEUPLOADRESPONSE._serialized_end=11720
+  _USERFILEUPLOADRESPONSE._serialized_start=11722
+  _USERFILEUPLOADRESPONSE._serialized_end=11780
 # @@protoc_insertion_point(module_scope)
