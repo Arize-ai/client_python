@@ -220,7 +220,29 @@ def test_type_llm_params():
     )
     assert len(errors) == 0
 
-    dataframe_incorrect = dataframe_correct
+    # LLM params present in schema but not in file
+    # Since validate_required_checks is executed before validate_params
+    # we will validate the type of llm_params only if the column is present in the
+    # schema and the dataframe. If it's in the schema but not in the dataframe,
+    # validate_params (missing_columns) will return the appropriate error.
+    dataframe_incorrect = dataframe_correct.copy()
+    dataframe_incorrect.drop(columns=["llm_params"], inplace=True)
+    errors = Validator.validate_required_checks(
+        **ChainMap(
+            {
+                "dataframe": dataframe_incorrect,
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    prediction_score_column_name="prediction_score",
+                    llm_config_column_names=LLMConfigColumnNames(params_column_name="llm_params"),
+                ),
+            },
+            kwargs,
+        ),  # type: ignore
+    )
+    assert len(errors) == 0
+
+    # LLM params of wrong type
     dataframe_incorrect["llm_params"] = [i for i in range(5)]
     errors = Validator.validate_required_checks(
         **ChainMap(

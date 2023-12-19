@@ -798,6 +798,26 @@ def is_list_of(lst: Sequence[object], tp: T) -> bool:
     return isinstance(lst, list) and all(isinstance(x, tp) for x in lst)
 
 
+def is_dict_of(
+    d: Dict[object, object],
+    key_allowed_types: (T),
+    value_allowed_types: (T) = (),
+    list_allowed_types: (T) = (),
+) -> bool:
+    if list_allowed_types and not isinstance(list_allowed_types, tuple):
+        list_allowed_types = (list_allowed_types,)
+
+    return (
+        isinstance(d, dict)
+        and all(isinstance(k, key_allowed_types) for k in d.keys())
+        and all(
+            isinstance(v, value_allowed_types) or any(is_list_of(v, t) for t in list_allowed_types)
+            for v in d.values()
+            if value_allowed_types or list_allowed_types
+        )
+    )
+
+
 def count_characters_raw_data(data: Union[str, List[str]]) -> int:
     character_count = 0
     if isinstance(data, str):
