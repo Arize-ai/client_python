@@ -45,6 +45,7 @@ from arize.utils.types import (
     PromptTemplateColumnNames,
     Schema,
     count_characters_raw_data,
+    is_dict_of,
 )
 from arize.utils.utils import is_delayed_schema
 
@@ -77,8 +78,7 @@ class Validator:
                     Validator._check_field_type_embedding_features_column_names(schema),
                     Validator._check_field_type_prompt_response(schema),
                     Validator._check_field_type_prompt_templates(schema),
-                    Validator._check_field_type_llm_config(schema),
-                    Validator._check_invalid_type_llm_params(dataframe, schema),
+                    Validator._check_field_type_llm_config(dataframe, schema),
                 )
             )
         return []
@@ -351,31 +351,33 @@ class Validator:
 
     @staticmethod
     def _check_field_type_llm_config(
-        schema: Schema,
-    ) -> List[err.InvalidFieldTypeLlmConfig]:
-        if schema.llm_config_column_names is not None and not isinstance(
-            schema.llm_config_column_names, LLMConfigColumnNames
-        ):
-            return [err.InvalidFieldTypeLlmConfig()]
-        return []
-
-    @staticmethod
-    def _check_invalid_type_llm_params(
         dataframe: pd.DataFrame,
         schema: Schema,
-    ) -> List[err.InvalidTypeColumns]:
-        if schema.llm_config_column_names is not None and isinstance(
-            schema.llm_config_column_names, LLMConfigColumnNames
-        ):  # see _check_field_type_llm_config
-            col = schema.llm_config_column_names.params_column_name
-            if col is not None:
-                if any(type(val) != dict for val in dataframe[col]):
-                    return [
-                        err.InvalidTypeColumns(
-                            wrong_type_columns=[col],
-                            expected_types=["Dict[str, (bool, int, float, string or list[str])]"],
-                        )
-                    ]
+    ) -> List[Union[err.InvalidFieldTypeLlmConfig, err.InvalidTypeColumns]]:
+        if schema.llm_config_column_names is None:
+            return []
+        if not isinstance(schema.llm_config_column_names, LLMConfigColumnNames):
+            return [err.InvalidFieldTypeLlmConfig()]
+        col = schema.llm_config_column_names.params_column_name
+        # We check the types if the columns are in the dataframe.
+        # If the columns are reflected in the schema but not present
+        # in the dataframe, it will be caught by _check_missing_columns
+        if col is not None and col in dataframe.columns:
+            if any(
+                not is_dict_of(
+                    val,
+                    key_allowed_types=str,
+                    value_allowed_types=(bool, int, float, str),
+                    list_allowed_types=str,
+                )
+                for val in dataframe[col]
+            ):
+                return [
+                    err.InvalidTypeColumns(
+                        wrong_type_columns=[col],
+                        expected_types=["Dict[str, (bool, int, float, string or list[str])]"],
+                    )
+                ]
         return []
 
     @staticmethod

@@ -145,7 +145,7 @@ class MissingColumns(ValidationError):
         return "Missing_Columns"
 
     def __init__(self, cols: Iterable) -> None:
-        self.missing_cols = cols
+        self.missing_cols = set(cols)
 
     def error_message(self) -> str:
         return (
