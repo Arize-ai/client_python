@@ -29,6 +29,9 @@ MAX_PROMPT_TEMPLATE_VERSION_LENGTH_TRUNCATION = 50
 # The maximum number of embeddings
 MAX_NUMBER_OF_EMBEDDINGS = 30
 MAX_EMBEDDING_DIMENSIONALITY = 20_000
+# The maximum number of classes for multi class
+MAX_NUMBER_OF_MULTI_CLASS_CLASSES = 100
+MAX_MULTI_CLASS_NAME_LENGTH = 50
 
 # Arize generated columns
 GENERATED_PREDICTION_LABEL_COL = "arize_generated_prediction_label"

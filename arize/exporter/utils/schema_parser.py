@@ -57,6 +57,8 @@ get_ranking_relevance = _get_colname("ranking:relevance")
 get_ranking_label = _get_colname("ranking:label")
 get_rank = _get_colname("ranking:rank")
 
+# TODO: Multi Class columns
+
 
 def get_tags(df_columns: Iterable) -> List[str]:
     return [c for c in df_columns if is_tag(c)]
