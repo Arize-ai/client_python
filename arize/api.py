@@ -44,6 +44,8 @@ from .utils.types import (
     Environments,
     LLMRunMetadata,
     ModelTypes,
+    MultiClassActualLabel,
+    MultiClassPredictionLabel,
     ObjectDetectionLabel,
     RankingActualLabel,
     RankingPredictionLabel,
@@ -66,6 +68,7 @@ PredictionLabelTypes = Union[
     Tuple[str, float],
     ObjectDetectionLabel,
     RankingPredictionLabel,
+    MultiClassPredictionLabel,
 ]
 ActualLabelTypes = Union[
     str,
@@ -75,6 +78,7 @@ ActualLabelTypes = Union[
     Tuple[str, float],
     ObjectDetectionLabel,
     RankingActualLabel,
+    MultiClassActualLabel,
 ]
 
 
@@ -178,13 +182,13 @@ class Client:
                 id on the server side.
             prediction_timestamp (int, optional): Unix timestamp in seconds. If None, prediction
                 uses current timestamp. Defaults to None.
-            prediction_label (bool, int, float, str, Tuple(str, float), ObjectDetectionLabel or
-                RankingPredictionLabel; optional): The predicted value for a given model input. Defaults to
-                None.
-            actual_label (bool, int, float, str, Tuple[str, float], ObjectDetectionLabel or
-                RankingActualLabel; optional): The ground truth value for a given model input. This will be
-                be matched to the prediction with the same prediction_id as the one in this call. Defaults
-                to None.
+            prediction_label (bool, int, float, str, Tuple(str, float), ObjectDetectionLabel,
+                RankingPredictionLabel or MultiClassPredictionLabel; optional):
+                The predicted value for a given model input. Defaults to None.
+            actual_label (bool, int, float, str, Tuple[str, float], ObjectDetectionLabel,
+                RankingActualLabel or MultiClassActualLabel; optional):
+                The ground truth value for a given model input. This will be matched to the
+                prediction with the same prediction_id as the one in this call. Defaults to None.
             features (Dict[str, Union[str, bool, float, int]], optional): Dictionary containing
                 human readable and debuggable model features. Defaults to None.
             embedding_features (Dict[str, Embedding], optional): Dictionary containing model
@@ -548,6 +552,8 @@ def _validate_label(
         ObjectDetectionLabel,
         RankingPredictionLabel,
         RankingActualLabel,
+        MultiClassPredictionLabel,
+        MultiClassActualLabel,
     ],
     embedding_features: Dict[str, Embedding],
 ):
@@ -561,6 +567,8 @@ def _validate_label(
         _validate_ranking_label(label)
     elif model_type == ModelTypes.GENERATIVE_LLM:
         _validate_generative_llm_label(label)
+    elif model_type == ModelTypes.MULTI_CLASS:
+        _validate_multi_class_label(label)
     else:
         raise InvalidValueType("model_type", model_type, "arize.utils.ModelTypes")
 
@@ -645,6 +653,18 @@ def _validate_generative_llm_label(
         )
 
 
+def _validate_multi_class_label(
+    label: Union[MultiClassPredictionLabel, MultiClassActualLabel],
+):
+    if not isinstance(label, (MultiClassPredictionLabel, MultiClassActualLabel)):
+        raise InvalidValueType(
+            f"label {label}",
+            label,
+            f"MultiClassPredictionLabel or MultiClassActualLabel for model type {ModelTypes.MULTI_CLASS}",
+        )
+    label.validate()
+
+
 def _get_label(
     prediction_or_actual: str,
     value: Union[
@@ -656,6 +676,8 @@ def _get_label(
         ObjectDetectionLabel,
         RankingPredictionLabel,
         RankingActualLabel,
+        MultiClassPredictionLabel,
+        MultiClassActualLabel,
     ],
     model_type: ModelTypes,
 ) -> Union[pb2.PredictionLabel, pb2.ActualLabel]:
@@ -668,6 +690,8 @@ def _get_label(
         return _get_object_detection_label(prediction_or_actual, value)
     elif model_type == ModelTypes.RANKING:
         return _get_ranking_label(value)
+    elif model_type == ModelTypes.MULTI_CLASS:
+        return _get_multi_class_label(value)
     raise ValueError(
         f"model_type must be one of: {[mt.prediction_or_actual for mt in ModelTypes]} "
         f"Got "
@@ -799,6 +823,55 @@ def _get_ranking_label(
         if value.relevance_score is not None:
             ra.relevance_score.value = value.relevance_score
         return pb2.ActualLabel(ranking=ra)
+
+
+def _get_multi_class_label(
+    value: Union[MultiClassPredictionLabel, MultiClassActualLabel]
+) -> Union[pb2.PredictionLabel, pb2.ActualLabel]:
+    if not isinstance(value, (MultiClassPredictionLabel, MultiClassActualLabel)):
+        raise InvalidValueType(
+            "multi class label",
+            value,
+            f"MultiClassPredictionLabel or MultiClassActualLabel for model type {ModelTypes.MULTI_CLASS}",
+        )
+    if isinstance(value, MultiClassPredictionLabel):
+        mc_pred = pb2.MultiClassPrediction()
+        # threshold score map is not None in multi-label case
+        if value.threshold_scores is not None:
+            prediction_threshold_scores = {}
+            # Validations checked prediction score map is not None
+            for class_name, p_score in value.prediction_scores.items():
+                # Validations checked threshold map contains all classes so safe to index w class_name
+                multi_label_scores = pb2.MultiClassPrediction.MultiLabel.MultiLabelScores(
+                    prediction_score=DoubleValue(value=p_score),
+                    threshold_score=DoubleValue(value=value.threshold_scores[class_name]),
+                )
+                prediction_threshold_scores[class_name] = multi_label_scores
+            multi_label = pb2.MultiClassPrediction.MultiLabel(
+                prediction_threshold_scores=prediction_threshold_scores
+            )
+            mc_pred = pb2.MultiClassPrediction(multi_label=multi_label)
+        else:
+            prediction_scores_double_values = {}
+            # Validations checked prediction score map is not None
+            for class_name, p_score in value.prediction_scores.items():
+                prediction_scores_double_values[class_name] = DoubleValue(value=p_score)
+            single_label = pb2.MultiClassPrediction.SingleLabel(
+                prediction_scores=prediction_scores_double_values,
+            )
+            mc_pred = pb2.MultiClassPrediction(single_label=single_label)
+        p_label = pb2.PredictionLabel(multi_class=mc_pred)
+        return p_label
+    elif isinstance(value, MultiClassActualLabel):
+        # Validations checked actual score map is not None
+        actual_labels = []  # list of class names with actual score of 1
+        for class_name, score in value.actual_scores.items():
+            if float(score) == 1.0:
+                actual_labels.append(class_name)
+        mc_act = pb2.MultiClassActual(
+            actual_labels=actual_labels,
+        )
+        return pb2.ActualLabel(multi_class=mc_act)
 
 
 def _validate_mapping_key(key_name: str, name: str):

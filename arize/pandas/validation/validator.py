@@ -368,7 +368,7 @@ class Validator:
                     val,
                     key_allowed_types=str,
                     value_allowed_types=(bool, int, float, str),
-                    list_allowed_types=str,
+                    value_list_allowed_types=str,
                 )
                 for val in dataframe[col]
             ):

@@ -42,7 +42,7 @@ def test_is_dict_of():
         is_dict_of(
             {"class1": [1, 2], "class2": [3, 4]},
             key_allowed_types=str,
-            list_allowed_types=int,
+            value_list_allowed_types=int,
         )
         is True
     )
@@ -51,7 +51,7 @@ def test_is_dict_of():
         is_dict_of(
             {"class1": [1, 2], "class2": [3, 4]},
             key_allowed_types=str,
-            list_allowed_types=str,
+            value_list_allowed_types=str,
         )
         is False
     )
@@ -60,7 +60,7 @@ def test_is_dict_of():
         is_dict_of(
             {"class1": [1, 2], "class2": [3, 4]},
             key_allowed_types=str,
-            list_allowed_types=(str, int),
+            value_list_allowed_types=(str, int),
         )
         is True
     )
@@ -68,7 +68,7 @@ def test_is_dict_of():
         is_dict_of(
             {"class1": [1, 2], "class2": ["a", "b"]},
             key_allowed_types=str,
-            list_allowed_types=(str, int),
+            value_list_allowed_types=(str, int),
         )
         is True
     )
@@ -78,7 +78,7 @@ def test_is_dict_of():
             {"class1": 1, "class2": ["a", "b"], "class3": [0.4, 0.7]},
             key_allowed_types=str,
             value_allowed_types=int,
-            list_allowed_types=(str, float),
+            value_list_allowed_types=(str, float),
         )
         is True
     )
@@ -87,7 +87,7 @@ def test_is_dict_of():
             {"class1": 1, "class2": ["a", "b"], "class3": [0.4, 0.7]},
             key_allowed_types=str,
             value_allowed_types=str,
-            list_allowed_types=(str, float),
+            value_list_allowed_types=(str, float),
         )
         is False
     )

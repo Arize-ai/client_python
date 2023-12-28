@@ -32,6 +32,8 @@ from arize.utils.types import (
     Environments,
     LLMRunMetadata,
     ModelTypes,
+    MultiClassActualLabel,
+    MultiClassPredictionLabel,
     ObjectDetectionLabel,
     RankingActualLabel,
     RankingPredictionLabel,
@@ -62,6 +64,9 @@ inputs = {
     "object_detection_bounding_boxes": [[0.1, 0.2, 0.3, 0.4], [0.5, 0.6, 0.7, 0.8]],
     "object_detection_categories": ["dog", "cat"],
     "object_detection_scores": [0.8, 0.4],
+    "multi_class_prediction_scores": {"class1": 0.2, "class2": 0.1, "class3": 0.4},
+    "multi_class_threshold_scores": {"class1": 0.1, "class2": 0.2, "class3": 0.3},
+    "multi_class_actual_scores": {"class1": 0, "class2": 0, "class3": 1},
     "ranking_group_id": "a",
     "ranking_rank": 1,
     "ranking_prediction_score": 1.0,
@@ -224,6 +229,24 @@ def _build_basic_prediction(type: str) -> pb2.Prediction:
             prediction_label=pb2.PredictionLabel(object_detection=od),
             model_version=inputs["model_version"],
         )
+    elif type == "multi_class":
+        prediction_scores = inputs["multi_class_prediction_scores"]
+        threshold_scores = inputs["multi_class_threshold_scores"]
+        prediction_threshold_scores = {}
+        for class_name, prediction_score in prediction_scores.items():
+            multi_label_scores = pb2.MultiClassPrediction.MultiLabel.MultiLabelScores(
+                prediction_score=DoubleValue(value=prediction_score),
+                threshold_score=DoubleValue(value=threshold_scores[class_name]),
+            )
+            prediction_threshold_scores[class_name] = multi_label_scores
+        multi_label = pb2.MultiClassPrediction.MultiLabel(
+            prediction_threshold_scores=prediction_threshold_scores,
+        )
+        mc_pred = pb2.MultiClassPrediction(multi_label=multi_label)
+        return pb2.Prediction(
+            prediction_label=pb2.PredictionLabel(multi_class=mc_pred),
+            model_version=inputs["model_version"],
+        )
     elif type == "ranking":
         rp = pb2.RankingPrediction()
         rp.rank = inputs["ranking_rank"]
@@ -290,6 +313,17 @@ def _build_basic_actual(type: str) -> pb2.Actual:
         od.bounding_boxes.extend(bounding_boxes)
         return pb2.Actual(
             actual_label=pb2.ActualLabel(object_detection=od),
+        )
+    elif type == "multi_class":
+        actual_labels = []
+        for class_name, score in inputs["multi_class_actual_scores"].items():
+            if score == 1:
+                actual_labels.append(class_name)
+        mc = pb2.MultiClassActual(
+            actual_labels=actual_labels,
+        )
+        return pb2.Actual(
+            actual_label=pb2.ActualLabel(multi_class=mc),
         )
     elif type == "ranking":
         ra = pb2.RankingActual()
@@ -734,6 +768,90 @@ def test_build_pred_and_actual_label_ranking():
     #   Start constructing expected result by building the prediction
     p = _build_basic_prediction("ranking")
     a = _build_basic_actual("ranking")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_features_to_prediction())
+    p.MergeFrom(_attach_tags_to_prediction())
+    #   Add props to prediction according to this test
+    a.MergeFrom(_attach_tags_to_actual())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p, a=a, ep=ep)
+    #   Check result is as expected
+    assert record == expected_record
+
+
+def test_build_pred_and_actual_label_multi_class_multi_label():
+    pred_label = MultiClassPredictionLabel(
+        prediction_scores=inputs["multi_class_prediction_scores"],
+        threshold_scores=inputs["multi_class_threshold_scores"],
+    )
+    act_label = MultiClassActualLabel(
+        actual_scores=inputs["multi_class_actual_scores"],
+    )
+    c = get_stubbed_client()
+    record = c.log(
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        environment=Environments.PRODUCTION,
+        model_type=ModelTypes.MULTI_CLASS,
+        prediction_id=inputs["prediction_id"],
+        prediction_label=pred_label,
+        actual_label=act_label,
+        features=inputs["features"],
+        tags=inputs["tags"],
+    )
+
+    #   Get environment in proto format
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("multi_class")
+    a = _build_basic_actual("multi_class")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_features_to_prediction())
+    p.MergeFrom(_attach_tags_to_prediction())
+    #   Add props to prediction according to this test
+    a.MergeFrom(_attach_tags_to_actual())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p, a=a, ep=ep)
+    #   Check result is as expected
+    assert record == expected_record
+
+
+def test_build_pred_and_actual_label_multi_class_single_label():
+    pred_label = MultiClassPredictionLabel(
+        prediction_scores=inputs["multi_class_prediction_scores"],
+    )
+    act_label = MultiClassActualLabel(
+        actual_scores=inputs["multi_class_actual_scores"],
+    )
+    c = get_stubbed_client()
+    record = c.log(
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        environment=Environments.PRODUCTION,
+        model_type=ModelTypes.MULTI_CLASS,
+        prediction_id=inputs["prediction_id"],
+        prediction_label=pred_label,
+        actual_label=act_label,
+        features=inputs["features"],
+        tags=inputs["tags"],
+    )
+
+    #   Get environment in proto format
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
+    #   Start constructing expected result by building the prediction
+    prediction_scores_with_double_value = {}
+    for class_name, score in inputs["multi_class_prediction_scores"].items():
+        prediction_scores_with_double_value[class_name] = DoubleValue(value=score)
+    single_label = pb2.MultiClassPrediction.SingleLabel(
+        prediction_scores=prediction_scores_with_double_value,
+    )
+    p = pb2.Prediction(
+        prediction_label=pb2.PredictionLabel(
+            multi_class=pb2.MultiClassPrediction(single_label=single_label)
+        ),
+        model_version=inputs["model_version"],
+    )
+    a = _build_basic_actual("multi_class")
     #   Add props to prediction according to this test
     p.MergeFrom(_attach_features_to_prediction())
     p.MergeFrom(_attach_tags_to_prediction())

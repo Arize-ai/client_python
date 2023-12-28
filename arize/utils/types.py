@@ -1,3 +1,4 @@
+import math
 from dataclasses import asdict, dataclass, replace
 from enum import Enum, unique
 from typing import Dict, List, NamedTuple, Optional, Sequence, Set, TypeVar, Union
@@ -5,6 +6,8 @@ from typing import Dict, List, NamedTuple, Optional, Sequence, Set, TypeVar, Uni
 import numpy as np
 import pandas as pd
 from arize.utils.constants import (
+    MAX_MULTI_CLASS_NAME_LENGTH,
+    MAX_NUMBER_OF_MULTI_CLASS_CLASSES,
     MAX_PREDICTION_ID_LEN,
     MAX_RAW_DATA_CHARACTERS,
     MAX_RAW_DATA_CHARACTERS_TRUNCATION,
@@ -23,6 +26,7 @@ class ModelTypes(Enum):
     REGRESSION = 5
     OBJECT_DETECTION = 6
     GENERATIVE_LLM = 7
+    MULTI_CLASS = 8
 
     @classmethod
     def list_types(cls):
@@ -418,6 +422,150 @@ class ObjectDetectionLabel(NamedTuple):
                 )
 
 
+class MultiClassPredictionLabel(NamedTuple):
+    prediction_scores: Dict[str, Union[float, int]]
+    threshold_scores: Dict[str, Union[float, int]] = None
+    """
+    Used to log multi class prediction label
+    Arguments:
+    ----------
+    MultiClassPredictionLabel
+        prediction_scores (Dict[str, Union[float, int]]): the prediction scores of the classes.
+        threshold_scores (Optional[Dict[str, Union[float, int]]]): the threshold scores of the classes.
+            Only Multi Label will have threshold scores.
+    """
+
+    def validate(self):
+        # Validate scores
+        self._validate_prediction_scores()
+        self._validate_threshold_scores()
+
+    def _validate_prediction_scores(self):
+        # prediction dictionary validations
+        if not is_dict_of(
+            self.prediction_scores, key_allowed_types=str, value_allowed_types=(int, float)
+        ):
+            raise ValueError(
+                "Multi-Class Prediction Scores must be a dictionary with keys of type str "
+                "and values must be a numeric type (int or float)."
+            )
+        # validate length of prediction scores
+        n_prediction_scores = len(self.prediction_scores)
+        if n_prediction_scores == 0 or n_prediction_scores > MAX_NUMBER_OF_MULTI_CLASS_CLASSES:
+            raise ValueError(
+                f"Multi-Class Prediction Scores dictionary must contain at least 1 class and "
+                f"can contain at most {MAX_NUMBER_OF_MULTI_CLASS_CLASSES} classes. "
+                f"Found {n_prediction_scores} classes."
+            )
+
+        for class_name, score in self.prediction_scores.items():
+            if class_name == "":
+                raise ValueError(
+                    "Found at least one class name as an empty string in the Multi-Class Prediction Scores "
+                    "dictionary. All class names (keys in dictionary) must be non-empty strings."
+                )
+            if len(class_name) > MAX_MULTI_CLASS_NAME_LENGTH:
+                raise ValueError(
+                    f"Found at least one class name with more characters than the limit allowed: "
+                    f"{MAX_MULTI_CLASS_NAME_LENGTH} characters. "
+                    f"The class name '{class_name}' has {len(class_name)} characters."
+                )
+            if score > 1 or score < 0:
+                raise ValueError(
+                    "Found at least one score in the Multi-Class Prediction Scores dictionary that was "
+                    "invalid. All scores (values in dictionary) must be between 0 and 1, inclusive."
+                )
+
+    def _validate_threshold_scores(self):
+        if self.threshold_scores is None or len(self.threshold_scores) == 0:
+            return
+        if not is_dict_of(
+            self.threshold_scores, key_allowed_types=str, value_allowed_types=(int, float)
+        ):
+            raise ValueError(
+                "Multi-Class Threshold Scores must be a dictionary with keys of type str "
+                "and values must be a numeric type (int or float)."
+            )
+
+        # validate there are the same number of thresholds as predictions
+        if len(self.threshold_scores) != len(self.prediction_scores):
+            raise ValueError(
+                "Multi-Class Prediction Scores and Threshold Scores Dictionaries must contain the same number"
+                f" of number of classes. Found Prediction Scores Dictionary contains "
+                f"{len(self.prediction_scores)} classes and Threshold Scores Dictionary contains "
+                f"{len(self.threshold_scores)} classes."
+            )
+
+        # validate prediction scores and threshold scores dictionaries contain same classes
+        prediction_class_set = set(self.prediction_scores.keys())
+        threshold_class_set = set(self.threshold_scores.keys())
+        if prediction_class_set != threshold_class_set:
+            raise ValueError(
+                "Multi-Class Prediction Scores and Threshold Scores Dictionaries must contain the same "
+                f"classes. The following classes of the Prediction Scores Dictionary are not in the "
+                f"Threshold Scores Dictionary: {prediction_class_set.difference(threshold_class_set)} \n"
+                "The following classes of the Threshold Scores Dictionary are not in the Prediction Scores "
+                f"Dictionary: {threshold_class_set.difference(prediction_class_set)}"
+            )
+
+        for class_name, t_score in self.threshold_scores.items():
+            if math.isnan(t_score) or t_score > 1 or t_score < 0:
+                raise ValueError(
+                    "Found at least one score in the Multi-Class Threshold Scores dictionary that was "
+                    "invalid. All scores (values) must be between 0 and 1, inclusive. "
+                    f"Found class '{class_name}' has score {t_score}"
+                )
+
+
+class MultiClassActualLabel(NamedTuple):
+    actual_scores: Dict[str, Union[float, int]]
+    """
+    Used to log multi class actual label
+    Arguments:
+    ----------
+    MultiClassActualLabel
+        actual_scores (Dict[str, Union[float, int]]): the actual scores of the classes.
+        Any class in actual_scores with a score of 1 will be sent to arize
+    """
+
+    def validate(self):
+        # Validate scores
+        self._validate_actual_scores()
+
+    def _validate_actual_scores(self):
+        if not is_dict_of(
+            self.actual_scores, key_allowed_types=str, value_allowed_types=(int, float)
+        ):
+            raise ValueError(
+                "Multi-Class Actual Scores must be a dictionary with keys of type str "
+                "and values must be a numeric type (int or float)."
+            )
+        n_actual_scores = len(self.actual_scores)
+        if n_actual_scores == 0 or n_actual_scores > MAX_NUMBER_OF_MULTI_CLASS_CLASSES:
+            raise ValueError(
+                f"Multi-Class Actual Scores dictionary must contain at least 1 class and "
+                f"can contain at most {MAX_NUMBER_OF_MULTI_CLASS_CLASSES} classes. "
+                f"Found {n_actual_scores} classes."
+            )
+        for class_name, score in self.actual_scores.items():
+            if class_name == "":
+                raise ValueError(
+                    "Found at least one class name as an empty string in the Multi-Class Actual Scores "
+                    "dictionary. All class names (keys) must be non-empty strings."
+                )
+            if len(class_name) > MAX_MULTI_CLASS_NAME_LENGTH:
+                raise ValueError(
+                    f"Found at least one class name with more characters than the limit allowed: "
+                    f"{MAX_MULTI_CLASS_NAME_LENGTH} characters. "
+                    f"The class name '{class_name}' has {len(class_name)} characters."
+                )
+            if score != 1 and score != 0:
+                raise ValueError(
+                    "Found at least one score in the Multi-Class Actual Scores dictionary that was invalid. "
+                    f"All scores (values) must be either 0 or 1. Found class '{class_name}' has score {score}"
+                )
+
+
 class RankingPredictionLabel(NamedTuple):
     group_id: str
     rank: int
@@ -802,18 +950,33 @@ def is_dict_of(
     d: Dict[object, object],
     key_allowed_types: (T),
     value_allowed_types: (T) = (),
-    list_allowed_types: (T) = (),
+    value_list_allowed_types: (T) = (),
 ) -> bool:
-    if list_allowed_types and not isinstance(list_allowed_types, tuple):
-        list_allowed_types = (list_allowed_types,)
+    """
+    Method to check types are valid for dictionary.
+
+    Arguments:
+    ----------
+        d (Dict[object, object]): dictionary itself
+        key_allowed_types (T): all allowed types for keys of dictionary
+        value_allowed_types (T): all allowed types for values of dictionary
+        value_list_allowed_types (T): if value is a list, these are the allowed types for value list
+
+    Returns:
+    --------
+        True if the data types of dictionary match the types specified by the arguments, false otherwise
+    """
+    if value_list_allowed_types and not isinstance(value_list_allowed_types, tuple):
+        value_list_allowed_types = (value_list_allowed_types,)
 
     return (
         isinstance(d, dict)
         and all(isinstance(k, key_allowed_types) for k in d.keys())
         and all(
-            isinstance(v, value_allowed_types) or any(is_list_of(v, t) for t in list_allowed_types)
+            isinstance(v, value_allowed_types)
+            or any(is_list_of(v, t) for t in value_list_allowed_types)
             for v in d.values()
-            if value_allowed_types or list_allowed_types
+            if value_allowed_types or value_list_allowed_types
         )
     )
 
