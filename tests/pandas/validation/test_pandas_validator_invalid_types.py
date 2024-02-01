@@ -764,6 +764,46 @@ def test_invalid_type_retrieved_document_ids():
     assert type(errors[0]) is err.InvalidType
 
 
+def test_invalid_multi_class_score_map():
+    kwargs = get_kwargs()
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.MULTI_CLASS,
+            },
+            kwargs,
+        )  # type:ignore
+    )
+    assert len(errors) == 3  # 1 row of wrong type
+    for error in errors:
+        assert type(error) is err.InvalidType
+
+    # dictionary of None should fail
+    errors = Validator.validate_types(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.MULTI_CLASS,
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame(
+                        {
+                            "multi_class_threshold_scores": pd.Series(
+                                [
+                                    [{}],
+                                    [{}],
+                                    [{}],
+                                ]
+                            )
+                        }
+                    )
+                ),
+            },
+            kwargs,
+        )  # type:ignore
+    )
+    assert len(errors) == 1
+    assert type(errors[0]) is err.InvalidType
+
+
 def get_kwargs():
     return {
         "model_type": ModelTypes.SCORE_CATEGORICAL,
@@ -777,6 +817,7 @@ def get_kwargs():
             feature_column_names=list("ABCDEFGH"),
             tag_column_names=list("ABCDEFG"),
             shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
+            multi_class_threshold_scores_column_name="multi_class_threshold_scores",
             object_detection_prediction_column_names=ObjectDetectionColumnNames(
                 bounding_boxes_coordinates_column_name="pred_wrong_bounding_boxes_coordinates",
                 categories_column_name="pred_wrong_bounding_boxes_categories",
@@ -880,6 +921,11 @@ def get_kwargs():
                     "wrong_template_version": [x for x in range(3)],
                     "wrong_model_name": [x for x in range(3)],
                     "wrong_llm_params": [x for x in range(3)],
+                    "multi_class_threshold_scores": [
+                        [{"class_name": "dog", "score": "wrong type"}],
+                        [{"class_name": "cat", "score": "wrong type"}],
+                        [{"class_name": "fish", "score": "wrong type"}],
+                    ],
                 }
             )
         ),

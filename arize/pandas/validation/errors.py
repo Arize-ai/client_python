@@ -1,15 +1,18 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from arize.utils.constants import (
     MAX_EMBEDDING_DIMENSIONALITY,
     MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
+    MAX_MULTI_CLASS_NAME_LENGTH,
     MAX_NUMBER_OF_EMBEDDINGS,
+    MAX_NUMBER_OF_MULTI_CLASS_CLASSES,
     MAX_PAST_YEARS_FROM_CURRENT_TIME,
     MAX_RAW_DATA_CHARACTERS,
     MAX_TAG_LENGTH,
 )
+from arize.utils.logging import log_a_list
 from arize.utils.types import Environments, Metrics, ModelTypes
 
 
@@ -84,10 +87,10 @@ class InvalidFieldTypePromptResponse(ValidationError):
         self.name = name
 
     def error_message(self) -> str:
-        return f"{self.name} must be of type str or EmbeddingColumnNames"
+        return f"'{self.name}' must be of type str or EmbeddingColumnNames"
 
 
-class InvalidIndex(ValidationError):
+class InvalidDataFrameIndex(ValidationError):
     def __repr__(self) -> str:
         return "Invalid_Index"
 
@@ -365,25 +368,6 @@ class MissingObjectDetectionPredAct(ValidationError):
         )
 
 
-class InvalidPredActColumnNamesForObjectDetectionModelType(ValidationError):
-    def __repr__(self) -> str:
-        return "Invalid_Prediction_or_Actual_Column_Names_for_Object_Detection_Model_Type"
-
-    def __init__(
-        self,
-        wrong_cols: List[str],
-    ) -> None:
-        self.wrong_cols = wrong_cols
-
-    def error_message(self) -> str:
-        return (
-            "Only 'object_detection_prediction_column_names' and "
-            "'object_detection_actual_column_names' are allowed for ModelTypes.OBJECT_DETECTION "
-            "in order to send predictions and actuals. The following column names "
-            f"were declared in the schema and are not allowed: {', '.join(self.wrong_cols)}"
-        )
-
-
 class InvalidPredActObjectDetectionColumnNamesForModelType(ValidationError):
     def __repr__(self) -> str:
         return "Invalid_Object_Detection_Prediction_or_Actual_Column_Names_for_Model_Type"
@@ -399,6 +383,44 @@ class InvalidPredActObjectDetectionColumnNamesForModelType(ValidationError):
             f"Cannot use 'object_detection_prediction_column_names' or "
             f"'object_detection_actual_column_names' for {self.invalid_model_type} model "
             f"type. They are only allowed for ModelTypes.OBJECT_DETECTION models"
+        )
+
+
+class MissingReqPredActColumnNamesForMultiClass(ValidationError):
+    def __repr__(self) -> str:
+        return "Missing_Required_Prediction_or_Actual_Column_Names_for_Multi_Class_Model_Type"
+
+    def error_message(self) -> str:
+        return (
+            "For logging data for a multi class model, schema must specify: "
+            "prediction_scores_column_name and/or actual_score_column_name. "
+            "Optionally, you may include multi_class_threshold_scores_column_name"
+            " (must include prediction_scores_column_name)"
+        )
+
+
+class InvalidPredActColumnNamesForModelType(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Prediction_or_Actual_Column_Names_for_Model_Type"
+
+    def __init__(
+        self,
+        invalid_model_type: ModelTypes,
+        allowed_fields: List[str],
+        wrong_columns: List[str],
+    ) -> None:
+        self.invalid_model_type = invalid_model_type
+        self.allowed_fields = allowed_fields
+        self.wrong_columns = wrong_columns
+
+    def error_message(self) -> str:
+        allowed_col_msg = ""
+        if self.allowed_fields is not None:
+            allowed_col_msg = f" Allowed Schema fields are {log_a_list(self.allowed_fields, 'and')}"
+        return (
+            f"Invalid Schema fields for {self.invalid_model_type} model type. {allowed_col_msg}"
+            "The following columns of your dataframe are sent as an invalid schema field: "
+            f"{log_a_list(self.wrong_columns, 'and')}"
         )
 
 
@@ -693,7 +715,7 @@ class InvalidRankingCategoryValue(ValidationError):
 
     def error_message(self) -> str:
         return (
-            f"ranking relevance labels {self.name} column contains invalid value"
+            f"ranking relevance labels '{self.name}' column contains invalid value"
             f"make sure empty string is not present"
         )
 
@@ -806,6 +828,104 @@ class InvalidBoundingBoxesScores(ValidationError, Exception):
                 "Confidence scores must be between 0 and 1"
             )
         return msg
+
+
+class InvalidNumClassesMultiClassMap(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Num_classes_Multi_Class_Map"
+
+    def __init__(self, dict_col_to_list_of_invalid_num_classes: Dict[str, List[str]]) -> None:
+        self.invalid_col_num_classes = dict_col_to_list_of_invalid_num_classes
+
+    def error_message(self) -> str:
+        err_msg = ""
+        for col, list_invalid_num_classes in self.invalid_col_num_classes.items():
+            num_invalid_num_classes = len(list_invalid_num_classes)
+            set_invalid_num_classes = set(list_invalid_num_classes)  # to de-duplicate
+            err_msg += (
+                f"Multi-Class dictionary for the following column: {col} had {num_invalid_num_classes} rows"
+                f"containing an invalid number of classes. The dictionary must contain at least 1 class"
+                f"and at most {MAX_NUMBER_OF_MULTI_CLASS_CLASSES} classes. Found rows with the following "
+                f"invalid number of classes: {log_a_list(list(set_invalid_num_classes), 'and')}\n"
+            )
+        return err_msg
+
+
+class InvalidMultiClassClassNameLength(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Multi_Class_Class_Name_Length"
+
+    def __init__(self, invalid_col_class_name: Dict[str, set]) -> None:
+        self.invalid_col_class_name = invalid_col_class_name
+
+    def error_message(self) -> str:
+        err_msg = ""
+        for col, class_names in self.invalid_col_class_name.items():
+            if len(class_names) > 10:
+                # limit to 10
+                class_names = list(class_names)[:10]
+            else:
+                class_names = list(class_names)
+            err_msg += (
+                f"Found some invalid class names: {log_a_list(class_names, 'and')} in the {col} column. Class"
+                f" names must have at least one character and less than {MAX_MULTI_CLASS_NAME_LENGTH}.\n"
+            )
+        return err_msg
+
+
+class InvalidMultiClassPredScoreValue(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Multi_Class_Pred_Score_Value"
+
+    def __init__(self, invalid_col_class_scores: Dict[str, set]) -> None:
+        self.invalid_col_class_scores = invalid_col_class_scores
+
+    def error_message(self) -> str:
+        err_msg = ""
+        for col, scores in self.invalid_col_class_scores.items():
+            if len(scores) > 10:
+                # limit to 10
+                scores = list(scores)[:10]
+            else:
+                scores = list(scores)
+            err_msg += (
+                f"Found some invalid scores: {log_a_list(scores, 'and')} in the {col} column that was "
+                "invalid. All scores (values in dictionary) must be between 0 and 1, inclusive. \n"
+            )
+        return err_msg
+
+
+class InvalidMultiClassActScoreValue(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Multi_Class_Act_Score_Value"
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    def error_message(self) -> str:
+        return (
+            f"Found at least one score in the '{self.name}' column that was invalid. "
+            f"All scores (values) must be either 0 or 1."
+        )
+
+
+class InvalidMultiClassThresholdClasses(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Multi_Class_Threshold_Classes"
+
+    def __init__(self, name: str, prediction_class_set: set, threshold_class_set: set) -> None:
+        self.name = name
+        self.prediction_class_set = prediction_class_set
+        self.threshold_class_set = threshold_class_set
+
+    def error_message(self) -> str:
+        return (
+            "Multi-Class Prediction Scores and Threshold Scores Dictionaries must contain the same "
+            f"classes. The following classes of the Prediction Scores Dictionary are not in the Threshold "
+            f"Scores Dictionary: {self.prediction_class_set.difference(self.threshold_class_set)}"
+            "\nThe following classes of the Threshold Scores Dictionary are not in the Prediction Scores "
+            f"Dictionary: {self.threshold_class_set.difference(self.prediction_class_set)}\n"
+        )
 
 
 class InvalidAdditionalHeaders(ValidationError):

@@ -1349,7 +1349,7 @@ def test_valid_prediction_id_embeddings():
             model_type=ModelTypes.BINARY_CLASSIFICATION,
             model_version=inputs["model_version"],
             environment=Environments.PRODUCTION,
-            prediction_id="A" * 129,
+            prediction_id="A" * (MAX_PREDICTION_ID_LEN + 1),
             prediction_label=inputs["label_str"],
             actual_label=inputs["label_str"],
             features=inputs["features"],

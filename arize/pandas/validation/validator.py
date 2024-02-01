@@ -1,4 +1,5 @@
 import datetime
+import math
 from itertools import chain
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -16,7 +17,9 @@ from arize.utils.constants import (
     MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
     MAX_LLM_MODEL_NAME_LENGTH,
     MAX_LLM_MODEL_NAME_LENGTH_TRUNCATION,
+    MAX_MULTI_CLASS_NAME_LENGTH,
     MAX_NUMBER_OF_EMBEDDINGS,
+    MAX_NUMBER_OF_MULTI_CLASS_CLASSES,
     MAX_PAST_YEARS_FROM_CURRENT_TIME,
     MAX_PREDICTION_ID_LEN,
     MAX_PROMPT_TEMPLATE_LENGTH,
@@ -123,6 +126,7 @@ class Validator:
                     Validator._check_existence_pred_act_shap_score_or_label(schema),
                     Validator._check_existence_preprod_pred_act_score_or_label(schema, environment),
                     Validator._check_missing_object_detection_columns(schema, model_type),
+                    Validator._check_missing_multi_class_columns(schema, model_type),
                 )
                 return list(chain(general_checks, num_checks))
             elif model_type in CATEGORICAL_MODEL_TYPES:
@@ -130,26 +134,38 @@ class Validator:
                     Validator._check_existence_pred_act_shap_score_or_label(schema),
                     Validator._check_existence_preprod_pred_act_score_or_label(schema, environment),
                     Validator._check_missing_object_detection_columns(schema, model_type),
+                    Validator._check_missing_multi_class_columns(schema, model_type),
                 )
                 return list(chain(general_checks, sc_checks))
             elif model_type == ModelTypes.GENERATIVE_LLM:
                 gllm_checks = chain(
                     Validator._check_existence_preprod_act(schema, environment),
                     Validator._check_missing_object_detection_columns(schema, model_type),
+                    Validator._check_missing_multi_class_columns(schema, model_type),
                 )
                 return list(chain(general_checks, gllm_checks))
             elif model_type == ModelTypes.RANKING:
                 r_checks = chain(
                     Validator._check_existence_group_id_rank_category_relevance(schema),
                     Validator._check_missing_object_detection_columns(schema, model_type),
+                    Validator._check_missing_multi_class_columns(schema, model_type),
                 )
                 return list(chain(general_checks, r_checks))
             elif model_type == ModelTypes.OBJECT_DETECTION:
                 od_checks = chain(
                     Validator._check_existence_pred_act_od_column_names(schema, environment),
                     Validator._check_missing_non_object_detection_columns(schema, model_type),
+                    Validator._check_missing_multi_class_columns(schema, model_type),
                 )
                 return list(chain(general_checks, od_checks))
+            elif model_type == ModelTypes.MULTI_CLASS:
+                multi_class_checks = chain(
+                    Validator._check_existing_multi_class_columns(schema),
+                    Validator._check_missing_non_multi_class_columns(
+                        schema, ModelTypes.MULTI_CLASS
+                    ),
+                )
+                return list(chain(general_checks, multi_class_checks))
         return list(general_checks)
 
     @staticmethod
@@ -204,6 +220,13 @@ class Validator:
                     Validator._check_type_bounding_boxes_scores(schema, column_types),
                 )
                 return list(chain(general_checks, od_checks))
+            elif model_type == ModelTypes.MULTI_CLASS:
+                multi_class_checks = chain(
+                    Validator._check_type_multi_class_pred_threshold_act_scores(
+                        schema, column_types
+                    ),
+                )
+                return list(chain(general_checks, multi_class_checks))
 
             return list(general_checks)
         return []
@@ -272,6 +295,15 @@ class Validator:
                     Validator._check_value_llm_prompt_template_version(dataframe, schema),
                 )
                 return list(chain(general_checks, gen_llm_checks))
+            if model_type == ModelTypes.MULTI_CLASS:
+                multi_class_checks = chain(
+                    Validator._check_length_multi_class_maps(dataframe, schema),
+                    Validator._check_classes_and_scores_values_in_multi_class_maps(
+                        dataframe, schema
+                    ),
+                    Validator._check_each_multi_class_pred_has_threshold(dataframe, schema),
+                )
+                return list(chain(general_checks, multi_class_checks))
             return list(general_checks)
         return []
 
@@ -381,9 +413,9 @@ class Validator:
         return []
 
     @staticmethod
-    def _check_invalid_index(dataframe: pd.DataFrame) -> List[err.InvalidIndex]:
+    def _check_invalid_index(dataframe: pd.DataFrame) -> List[err.InvalidDataFrameIndex]:
         if (dataframe.index != dataframe.reset_index(drop=True).index).any():
-            return [err.InvalidIndex()]
+            return [err.InvalidDataFrameIndex()]
         return []
 
     # ----------------
@@ -887,7 +919,7 @@ class Validator:
     @staticmethod
     def _check_missing_non_object_detection_columns(
         schema: Schema, model_type: ModelTypes
-    ) -> List[err.InvalidPredActColumnNamesForObjectDetectionModelType]:
+    ) -> List[err.InvalidPredActColumnNamesForModelType]:
         # Checks that object detection models don't have, in the schema, the columns reserved for
         # other model types
         columns_to_check = (
@@ -906,7 +938,73 @@ class Validator:
             if col is not None:
                 wrong_cols.append(col)
         if wrong_cols:
-            return [err.InvalidPredActColumnNamesForObjectDetectionModelType(wrong_cols)]
+            allowed_cols = [
+                "object_detection_prediction_column_names",
+                "object_detection_actual_column_names",
+            ]
+            return [err.InvalidPredActColumnNamesForModelType(model_type, allowed_cols, wrong_cols)]
+        return []
+
+    @staticmethod
+    def _check_missing_multi_class_columns(
+        schema: Schema, model_type: ModelTypes
+    ) -> List[err.InvalidPredActColumnNamesForModelType]:
+        # Checks that models that are not Multi Class models don't have, in the schema, the
+        # multi class dedicated threshold column
+        if (
+            model_type != ModelTypes.MULTI_CLASS
+            and schema.multi_class_threshold_scores_column_name is not None
+        ):
+            return [
+                err.InvalidPredActColumnNamesForModelType(
+                    model_type, None, [schema.multi_class_threshold_scores_column_name]
+                )
+            ]
+        return []
+
+    @staticmethod
+    def _check_existing_multi_class_columns(
+        schema: Schema,
+    ) -> List[err.MissingReqPredActColumnNamesForMultiClass]:
+        # Checks that models that are Multi Class models have, in the schema, the
+        # required prediction score or actual score columns
+        if (
+            schema.prediction_score_column_name is None and schema.actual_score_column_name is None
+        ) or (
+            schema.multi_class_threshold_scores_column_name is not None
+            and schema.prediction_score_column_name is None
+        ):
+            return [err.MissingReqPredActColumnNamesForMultiClass()]
+        return []
+
+    @staticmethod
+    def _check_missing_non_multi_class_columns(
+        schema: Schema, model_type: ModelTypes
+    ) -> List[err.InvalidPredActColumnNamesForModelType]:
+        # Checks that multi class models don't have, in the schema, the columns reserved for
+        # other model types
+        columns_to_check = (
+            schema.prediction_label_column_name,
+            schema.actual_label_column_name,
+            schema.prediction_group_id_column_name,
+            schema.rank_column_name,
+            schema.attributions_column_name,
+            schema.relevance_score_column_name,
+            schema.relevance_labels_column_name,
+            schema.object_detection_prediction_column_names,
+            schema.object_detection_actual_column_names,
+        )
+        wrong_cols = []
+        for col in columns_to_check:
+            if col is not None:
+                wrong_cols.append(col)
+        if wrong_cols:
+            allowed_cols = [
+                "prediction_score_column_name",
+                "multi_class_threshold_scores_column_name",
+                "actual_score_column_name",
+            ]
+            return [err.InvalidPredActColumnNamesForModelType(model_type, allowed_cols, wrong_cols)]
         return []
 
     @staticmethod
@@ -1251,6 +1349,55 @@ class Validator:
                             name, expected_types=["float", "int"], found_data_type=column_types[col]
                         )
                     )
+        return errors
+
+    @staticmethod
+    def _check_type_multi_class_pred_threshold_act_scores(
+        schema: Schema, column_types: Dict[str, Any]
+    ) -> List[err.InvalidType]:
+        """
+        Check type for prediction / threshold / actual scores for multiclass model
+        Expect the scores to be a list of pyarrow structs that contains field "class_name" and field "score
+        Where class_name is a string and score is a number
+        Example: '[{"class_name": "class1", "score": 0.1}, {"class_name": "class2", "score": 0.2}, ...]'
+        """
+        errors = []
+        columns = (
+            ("Prediction scores", schema.prediction_score_column_name),
+            ("Threshold scores", schema.multi_class_threshold_scores_column_name),
+            ("Actual scores", schema.actual_score_column_name),
+        )
+        allowed_class_types = (pa.string(),)
+        allowed_score_types = (
+            pa.float64(),
+            pa.float32(),
+            pa.float16(),
+            pa.int64(),
+            pa.int32(),
+            pa.int16(),
+            pa.int8(),
+        )
+        # python dictionary is recognized as pyarrow struct
+        allowed_class_score_map_datatypes = tuple(
+            pa.list_(pa.struct([("class_name", class_type), ("score", score_type)]))
+            for class_type in allowed_class_types
+            for score_type in allowed_score_types
+        )
+
+        for name, col in columns:
+            if col is None:  # multi_class_threshold_scores_column_name is optional
+                continue
+            if col in column_types and column_types[col] not in allowed_class_score_map_datatypes:
+                errors.append(
+                    err.InvalidType(
+                        name,
+                        expected_types=[
+                            "List[Dict{class_name: str, score: int}]",
+                            "List[Dict{class_name: str, score: float}]",
+                        ],
+                        found_data_type=column_types[col],
+                    )
+                )
         return errors
 
     @staticmethod
@@ -1777,6 +1924,133 @@ class Validator:
             # no empty string in list
             if dataframe[not_null_filter][col].map(lambda x: (min(map(len, x)))).min() == 0:
                 return [err.InvalidRankingCategoryValue(col)]
+        return []
+
+    @staticmethod
+    def _check_length_multi_class_maps(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[err.InvalidNumClassesMultiClassMap]:
+        # each entry in column is a list of dictionaries mapping class names and scores
+        # validate length of list of dictionaries for each column
+        invalid_cols = {}
+        cols = [
+            schema.prediction_score_column_name,
+            schema.multi_class_threshold_scores_column_name,
+            schema.actual_score_column_name,
+        ]
+        for col in cols:
+            if col is None:  # multi_class_threshold_scores_column_name is optional
+                continue
+            invalid_num_classes = []
+            for list_of_dicts_class_names_to_scores in dataframe[col]:
+                if (
+                    list_of_dicts_class_names_to_scores is None
+                    or len(list_of_dicts_class_names_to_scores) == 0
+                ):
+                    invalid_num_classes.append("0")
+                if len(list_of_dicts_class_names_to_scores) > MAX_NUMBER_OF_MULTI_CLASS_CLASSES:
+                    invalid_num_classes.append(str(len(list_of_dicts_class_names_to_scores)))
+            if invalid_num_classes:
+                invalid_cols[col] = invalid_num_classes
+        if invalid_cols:
+            return [err.InvalidNumClassesMultiClassMap(invalid_cols)]
+        return []
+
+    @staticmethod
+    def _check_classes_and_scores_values_in_multi_class_maps(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[
+        Union[
+            err.InvalidMultiClassClassNameLength,
+            err.InvalidMultiClassActScoreValue,
+            err.InvalidMultiClassPredScoreValue,
+        ]
+    ]:
+        """
+        Validate the class names and score values of dictionaries:
+        - class name length
+        - valid actual score
+        - valid prediction / threshold score
+        """
+        cols = [
+            schema.prediction_score_column_name,
+            schema.multi_class_threshold_scores_column_name,
+            schema.actual_score_column_name,
+        ]
+        invalid_class_names = {}
+        invalid_pred_scores = {}
+        lbound, ubound = (0, 1)
+        invalid_actual_scores = False
+        errors = []
+        for col in cols:
+            if col is None:  # multi_class_threshold_scores_column_name is optional
+                continue
+            invalid_class_names_for_col = set()
+            # example list_class_name_and_scores_dicts:
+            # List[Dict{"class_name": "1", "score": 0.1}, Dict{"class_name": "2", "score": 0.2} ...]
+            for list_class_name_and_scores_dicts in dataframe[col]:
+                # json_normalize explodes dictionaries to dataframe where columns are class_name and score
+                class_names_and_scores_df = pd.json_normalize(list_class_name_and_scores_dicts)
+                # get list of class_names and scores by extracting column in df
+                class_names = class_names_and_scores_df["class_name"]
+                scores = class_names_and_scores_df["score"]
+                # validate class name lengths
+                for class_name in class_names:
+                    if len(class_name) == 0 or len(class_name) > MAX_MULTI_CLASS_NAME_LENGTH:
+                        invalid_class_names_for_col.add(class_name)
+                if invalid_class_names_for_col:
+                    invalid_class_names[col] = invalid_class_names_for_col
+                # validate class scores
+                if col == schema.actual_score_column_name:  # actual scores must be 0 or 1
+                    if any(score != lbound and score != ubound for score in scores):
+                        invalid_actual_scores = True
+                else:  # pred / thresh scores must be between 0 and 1
+                    invalid_scores_for_col = set()
+                    score_min_max = scores.agg(["min", "max"])
+                    if score_min_max["min"] < lbound:
+                        invalid_scores_for_col.add(str(score_min_max["min"]))
+                    if score_min_max["max"] > ubound:
+                        invalid_scores_for_col.add(str(score_min_max["max"]))
+                    if any(score is None for score in scores):
+                        invalid_scores_for_col.add("None")
+                    if any(math.isnan(score) for score in scores):
+                        invalid_scores_for_col.add("nan")
+                    if invalid_scores_for_col:
+                        invalid_pred_scores[col] = invalid_scores_for_col
+        if invalid_class_names:
+            errors.append(err.InvalidMultiClassClassNameLength(invalid_class_names))
+        if invalid_pred_scores:
+            errors.append(err.InvalidMultiClassPredScoreValue(invalid_pred_scores))
+        if invalid_actual_scores:
+            errors.append(err.InvalidMultiClassActScoreValue(col))
+        return errors
+
+    @staticmethod
+    def _check_each_multi_class_pred_has_threshold(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[err.InvalidMultiClassThresholdClasses]:
+        """
+        For Multi Class, if threshold scores col is included in schema and dataframe,
+        validate for each prediction score received, the associated threshold score
+        for that class was received
+        """
+        threshold_col = schema.multi_class_threshold_scores_column_name
+        if threshold_col is None:
+            return []
+        for index, class_thresh_score_set in enumerate(dataframe[threshold_col]):
+            threshold_scores = pd.json_normalize(class_thresh_score_set)
+            threshold_classes = threshold_scores["class_name"]
+            thresh_class_set = set(threshold_classes)
+            class_pred_score_set = dataframe[schema.prediction_score_column_name][index]
+            pred_scores = pd.json_normalize(class_pred_score_set)
+            pred_classes = pred_scores["class_name"]
+            pred_class_set = set(pred_classes)
+            if pred_class_set != thresh_class_set:
+                return [
+                    err.InvalidMultiClassThresholdClasses(
+                        threshold_col, pred_class_set, thresh_class_set
+                    )
+                ]
         return []
 
     @staticmethod

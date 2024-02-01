@@ -5,7 +5,7 @@ import json
 import os
 import shutil
 import tempfile
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import pandas.api.types as ptypes
@@ -26,7 +26,7 @@ from ..utils.constants import (
     SPACE_KEY_ENVVAR_NAME,
 )
 from ..utils.errors import AuthError
-from ..utils.logging import logger
+from ..utils.logging import log_a_list, logger
 from ..utils.types import (
     BaseSchema,
     Environments,
@@ -36,10 +36,19 @@ from ..utils.types import (
     Schema,
 )
 from ..utils.utils import get_python_version, is_python_version_below_required_min, reconstruct_url
+from .tracing.constants import DEFAULT_DATETIME_FMT
 from .validation import errors as err
 from .validation.validator import Validator
 
 SURROGATE_EXPLAINER_MIN_PYTHON_VERSION = "3.8.0"
+
+
+INVALID_ARROW_CONVERSION_MSG = (
+    "The dataframe needs to convert to pyarrow but has failed to do so. "
+    "There may be unrecognized data types in the dataframe. "
+    "Another reason may be that a column in the dataframe has a mix of strings and "
+    "numbers, in which case you may want to convert the strings in that column to NaN. "
+)
 
 
 class Client:
@@ -92,6 +101,124 @@ class Client:
             if conflicting_keys:
                 raise err.InvalidAdditionalHeaders(conflicting_keys)
             self._headers.update(additional_headers)
+
+    def log_spans(
+        self,
+        dataframe: pd.DataFrame,
+        model_id: str,
+        model_version: Optional[str] = None,
+        datetime_format: str = DEFAULT_DATETIME_FMT,
+        validate: Optional[bool] = True,
+        path: Optional[str] = None,
+        timeout: Optional[float] = None,
+        verbose: Optional[bool] = False,
+    ) -> requests.Response:
+        # TODO(Kiko): Add docstring
+
+        try:
+            from .tracing import validation as tracing_validation
+            from .tracing.columns import (
+                ROOT_LEVEL_SPAN_KIND_COL,
+                SPAN_KIND_COL,
+                SPAN_OPENINFERENCE_COLUMNS,
+            )
+            from .tracing.utils import convert_timestamps, jsonify_dictionaries
+        except ImportError:
+            msg = (
+                "Could not import necessary dependencies to use tracing module. "
+                "Please install them with 'pip install arize[Tracing]'"
+            )
+            raise ImportError(msg)
+
+        # Send the number of rows in the dataframe as a header
+        # This helps the Arize server to return appropriate feedback, specially for async logging
+        self._headers.update({"number-of-rows": str(len(dataframe))})
+
+        if verbose:
+            logger.info("Performing direct input type validation.")
+        errors = tracing_validation.validate_argument_types(
+            dataframe=dataframe,
+            model_id=model_id,
+            model_version=model_version,
+            dt_fmt=datetime_format,
+        )
+        if errors:
+            for e in errors:
+                logger.error(e)
+            raise err.ValidationFailure(errors)
+
+        if validate:
+            if verbose:
+                logger.info("Performing dataframe form validation.")
+            errors = tracing_validation.validate_dataframe_form(dataframe)
+            if errors:
+                for e in errors:
+                    logger.error(e)
+                raise err.ValidationFailure(errors)
+
+        # We need our own copy since we will manipulate the underlying data and
+        # do not want side effects
+        df = dataframe.copy()
+
+        if verbose:
+            logger.debug("Removing unnecessary columns.")
+        df = self._remove_extraneous_columns(
+            df=df, open_inference_column_list=SPAN_OPENINFERENCE_COLUMNS
+        )
+
+        if model_id is not None:
+            model_id = str(model_id)
+
+        if model_version is not None:
+            model_version = str(model_version)
+
+        if verbose:
+            logger.debug("Converting timestamps.")
+        df = convert_timestamps(df=df, fmt=datetime_format)
+
+        if validate:
+            if verbose:
+                logger.info("Performing values validation.")
+            errors = tracing_validation.validate_values(
+                dataframe=df, model_id=model_id, model_version=model_version
+            )
+            if errors:
+                for e in errors:
+                    logger.error(e)
+                raise err.ValidationFailure(errors)
+
+        if verbose:
+            logger.debug("Converting dictionaries to JSON objects.")
+        df = jsonify_dictionaries(df)
+        if ROOT_LEVEL_SPAN_KIND_COL.name in df.columns and SPAN_KIND_COL.name not in df.columns:
+            if verbose:
+                logger.debug("Moving span kind to atributes")
+            df.rename(columns={ROOT_LEVEL_SPAN_KIND_COL.name: SPAN_KIND_COL.name}, inplace=True)
+
+        try:
+            if verbose:
+                logger.debug("Getting pyarrow schema from pandas dataframe.")
+            pa_schema = pa.Schema.from_pandas(df)
+        except pa.ArrowInvalid:
+            logger.error(INVALID_ARROW_CONVERSION_MSG)
+            raise
+
+        if verbose:
+            logger.debug("Getting pyarrow table from pandas dataframe.")
+        ta = pa.Table.from_pandas(df)
+
+        proto_schema = proto._get_pb_schema_tracing(
+            model_id=model_id,
+            model_version=model_version,
+        )
+        return self._log_arrow(
+            pa_table=ta,
+            pa_schema=pa_schema,
+            proto_schema=proto_schema,
+            path=path,
+            verbose=verbose,
+            timeout=timeout,
+        )
 
     def log(
         self,
@@ -210,8 +337,8 @@ class Client:
                 raise err.ValidationFailure(errors)
 
         if verbose:
-            logger.info("Removing unnecessary columns.")
-        dataframe = self._remove_extraneous_columns(dataframe, schema)
+            logger.debug("Removing unnecessary columns.")
+        dataframe = self._remove_extraneous_columns(df=dataframe, schema=schema)
 
         # always validate pd.Category is not present, if yes, convert to string
         has_cat_col = any([ptypes.is_categorical_dtype(x) for x in dataframe.dtypes])
@@ -267,7 +394,7 @@ class Client:
         # error conditions that we're currently not aware of.
         try:
             if verbose:
-                logger.info("Getting pyarrow schema from pandas dataframe.")
+                logger.debug("Getting pyarrow schema from pandas dataframe.")
             # TODO: Addition of column for GENERATIVE models should occur at the
             # beginning of the log function, so validations are applied to the resulting schema
             if model_type == ModelTypes.GENERATIVE_LLM and environment != Environments.CORPUS:
@@ -275,12 +402,7 @@ class Client:
 
             pa_schema = pa.Schema.from_pandas(dataframe)
         except pa.ArrowInvalid:
-            logger.error(
-                "The dataframe needs to convert to pyarrow but has failed to do so. "
-                "There may be unrecognized data types in the dataframe. "
-                "Another reason may be that a column in the dataframe has a mix of strings and "
-                "numbers, in which case you may want to convert the strings in that column to NaN. "
-            )
+            logger.error(INVALID_ARROW_CONVERSION_MSG)
             raise
 
         if validate:
@@ -310,13 +432,13 @@ class Client:
                 raise err.ValidationFailure(errors)
 
         if verbose:
-            logger.info("Getting pyarrow table from pandas dataframe.")
+            logger.debug("Getting pyarrow table from pandas dataframe.")
         ta = pa.Table.from_pandas(dataframe)
 
         if environment == Environments.CORPUS:
-            s = proto._get_pb_schema_corpus(schema, model_id, model_type, environment)
+            proto_schema = proto._get_pb_schema_corpus(schema, model_id, model_type, environment)
         else:
-            s = proto._get_pb_schema(
+            proto_schema = proto._get_pb_schema(
                 schema, model_id, model_version, model_type, environment, batch_id
             )
 
@@ -328,25 +450,30 @@ class Client:
                 "#what-happens-after-i-send-in-actual-data"
             )
 
-        return self._log_arrow(path, s, pa_schema, ta, timeout, verbose, sync)
+        return self._log_arrow(
+            pa_table=ta,
+            pa_schema=pa_schema,
+            proto_schema=proto_schema,
+            path=path,
+            sync=sync,
+            verbose=verbose,
+            timeout=timeout,
+        )
 
     def _log_arrow(
         self,
-        path: Optional[str],
-        s: pb2.Schema,
-        pa_schema: pa.Schema,
         pa_table: pa.Table,
+        pa_schema: pa.Schema,
+        proto_schema: pb2.Schema,
+        path: Optional[str] = None,
+        sync: bool = False,
+        verbose: bool = False,
         timeout: Optional[float] = None,
-        verbose: Optional[bool] = False,
-        sync: Optional[bool] = False,
     ) -> requests.Response:
         if verbose:
-            logger.info("Serializing schema.")
-        base64_schema = base64.b64encode(s.SerializeToString())
-
-        # limit the potential size of http headers to under 64 kilobytes
-        if len(base64_schema) > 63000:
-            raise ValueError("The schema (after removing unnecessary columns) is too large.")
+            logger.debug("Serializing schema.")
+        base64_schema = base64.b64encode(proto_schema.SerializeToString())
+        pa_schema = self._append_to_pyarrow_metadata(pa_schema, {"arize-schema": base64_schema})
 
         if path is None:
             tmp_dir = tempfile.mkdtemp()
@@ -362,13 +489,13 @@ class Client:
 
         try:
             if verbose:
-                logger.info("Writing table to temporary file: ", tmp_file)
+                logger.debug(f"Writing table to temporary file: {tmp_file}")
             writer = pa.ipc.RecordBatchStreamWriter(tmp_file, pa_schema)
             writer.write_table(pa_table, max_chunksize=65536)
             writer.close()
             if verbose:
                 logger.info("Sending file to Arize")
-            response = self._post_file(tmp_file, base64_schema, sync, timeout)
+            response = self._post_file(tmp_file, sync, timeout)
         finally:
             if path is None:
                 # NOTE: This try-catch should also be updated/removed when
@@ -380,7 +507,9 @@ class Client:
                     pass
 
         try:
-            logger.info(f"Success! Check out your data at {reconstruct_url(response)}")
+            logger.info(
+                f"Success! Check out your data at {reconstruct_url(response,drop_in_data_ingestion=False)}"
+            )
         except Exception:
             pass
 
@@ -389,13 +518,11 @@ class Client:
     def _post_file(
         self,
         path: str,
-        schema: bytes,
-        sync: Optional[bool],
+        sync: bool = False,
         timeout: Optional[float] = None,
     ) -> requests.Response:
+        self._headers.update({"sync": "1" if sync is True else "0"})
         with open(path, "rb") as f:
-            self._headers.update({"schema": schema})
-            self._headers.update({"sync": "1" if sync is True else "0"})
             return requests.post(
                 self._files_uri,
                 timeout=timeout,
@@ -403,7 +530,8 @@ class Client:
                 headers=self._headers,
             )
 
-    def _add_default_prediction_label_column(self, df: pd.DataFrame) -> pd.DataFrame:
+    @staticmethod
+    def _add_default_prediction_label_column(df: pd.DataFrame) -> pd.DataFrame:
         df[GENERATED_PREDICTION_LABEL_COL] = [1] * len(df)
         return df
 
@@ -457,9 +585,8 @@ class Client:
                 schema.tag_column_names.append(LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME)
         return dataframe, schema
 
-    def _add_json_llm_params_column(
-        self, df: pd.DataFrame, llm_params_col_name: str
-    ) -> pd.DataFrame:
+    @staticmethod
+    def _add_json_llm_params_column(df: pd.DataFrame, llm_params_col_name: str) -> pd.DataFrame:
         df[GENERATED_LLM_PARAMS_JSON_COL] = df[llm_params_col_name].apply(
             lambda d: json.dumps(d, indent=4)
         )
@@ -467,19 +594,30 @@ class Client:
 
     # Adds in a new column to the dataframe under the name of reserved_tag_column_name that is a
     # copy of the tag_column_name column
+    @staticmethod
     def _add_reserved_tag_column(
-        self, df: pd.DataFrame, reserved_tag_column_name: str, tag_column_name: str
+        df: pd.DataFrame, reserved_tag_column_name: str, tag_column_name: str
     ) -> pd.DataFrame:
         if reserved_tag_column_name == tag_column_name:
             return df
         df[reserved_tag_column_name] = df[tag_column_name]
         return df
 
-    def _remove_extraneous_columns(self, df: pd.DataFrame, schema: Schema) -> pd.DataFrame:
-        df = df.loc[:, df.columns.intersection(schema.get_used_columns())]
+    @staticmethod
+    def _remove_extraneous_columns(
+        df: pd.DataFrame,
+        schema: Optional[BaseSchema] = None,
+        open_inference_column_list: Optional[List[str]] = None,
+    ) -> pd.DataFrame:
+        if schema is not None:
+            df = df.loc[:, df.columns.intersection(schema.get_used_columns())]
+        if open_inference_column_list is not None:
+            col_names = [col.name for col in open_inference_column_list]
+            df = df.loc[:, df.columns.intersection(set(col_names))]
         return df
 
-    def _generative_model_warnings(self, df: pd.DataFrame, schema: Schema):
+    @staticmethod
+    def _generative_model_warnings(df: pd.DataFrame, schema: Schema):
         # Warning for when prediction_label_column_name is not provided
         if schema.prediction_label_column_name is None and schema.actual_label_column_name is None:
             # Warning for when actual_label is also not provided
@@ -492,3 +630,15 @@ class Client:
                 "actual_label_column_name was not provided. Some metrics that require actual labels, "
                 "e.g. correctness or accuracy, may not be computed."
             )
+
+    @staticmethod
+    def _append_to_pyarrow_metadata(pa_schema: pa.Schema, new_metadata: Dict[str, Any]):
+        metadata = pa_schema.metadata
+        conflicting_keys = metadata.keys() & new_metadata.keys()
+        if conflicting_keys:
+            raise KeyError(
+                "Cannot append metadata to pyarrow schema. "
+                f"There are conflicting keys: {log_a_list(conflicting_keys, join_word='and')}"
+            )
+        metadata.update(new_metadata)
+        return pa_schema.with_metadata(metadata)

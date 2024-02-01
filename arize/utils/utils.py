@@ -152,7 +152,7 @@ def is_timestamp_in_range(now: int, ts: int):
     return min_time <= ts <= max_time
 
 
-def reconstruct_url(response: Any):
+def reconstruct_url(response: Any, drop_in_data_ingestion: bool = True):
     returnedUrl = json.loads(response.content.decode())["realTimeIngestionUri"]
     parts = returnedUrl.split("/")
     encodedOrg = base64.b64encode(f"AccountOrganization:{parts[4]}".encode()).decode()
@@ -161,6 +161,9 @@ def reconstruct_url(response: Any):
         f"https://{parts[2]}/organizations/{encodedOrg}/spaces/"
         f"{encodedSpace}/models/modelName/{parts[-1]}"
     )
+    suffix = "?selectedTab=dataIngestion"
+    if not drop_in_data_ingestion and reconstructed.endswith(suffix):
+        reconstructed = reconstructed.split(suffix)[0]
     return reconstructed
 
 

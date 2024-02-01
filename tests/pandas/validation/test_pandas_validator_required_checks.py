@@ -69,7 +69,7 @@ def test_invalid_index():
         ),
     )
     assert len(errors) == 1
-    assert isinstance(errors[0], err.InvalidIndex)
+    assert isinstance(errors[0], err.InvalidDataFrameIndex)
 
 
 def test_field_type_embedding_features_column_names():
