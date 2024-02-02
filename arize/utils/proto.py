@@ -1,4 +1,6 @@
 # type: ignore[pb2]
+from typing import Optional
+
 from .. import public_pb2 as pb2
 from .types import (
     CATEGORICAL_MODEL_TYPES,
@@ -14,7 +16,7 @@ from .types import (
 def _get_pb_schema(
     schema: Schema,
     model_id: str,
-    model_version: str,
+    model_version: Optional[str],
     model_type: ModelTypes,
     environment: Environments,
     batch_id: str,
@@ -45,6 +47,8 @@ def _get_pb_schema(
         s.constants.model_type = pb2.Schema.ModelType.OBJECT_DETECTION
     elif model_type == ModelTypes.GENERATIVE_LLM:
         s.constants.model_type = pb2.Schema.ModelType.GENERATIVE_LLM
+    elif model_type == ModelTypes.MULTI_CLASS:
+        s.constants.model_type = pb2.Schema.ModelType.MULTI_CLASS
 
     if batch_id is not None:
         s.constants.batch_id = batch_id
@@ -194,6 +198,15 @@ def _get_pb_schema(
             s.arrow_schema.retrieved_document_ids_column_name = (
                 schema.retrieved_document_ids_column_name
             )
+    if model_type == ModelTypes.MULTI_CLASS:
+        if schema.prediction_score_column_name is not None:
+            s.arrow_schema.prediction_score_column_name = schema.prediction_score_column_name
+        if schema.multi_class_threshold_scores_column_name is not None:
+            s.arrow_schema.multi_class_threshold_scores_column_name = (
+                schema.multi_class_threshold_scores_column_name
+            )
+        if schema.actual_score_column_name is not None:
+            s.arrow_schema.actual_score_column_name = schema.actual_score_column_name
     return s
 
 
@@ -231,4 +244,18 @@ def _get_pb_schema_corpus(
             s.arrow_schema.document_column_names.text_column_name.link_to_data_column_name = (
                 schema.document_text_embedding_column_names.link_to_data_column_name
             )
+    return s
+
+
+def _get_pb_schema_tracing(
+    model_id: str,
+    model_version: Optional[str],
+) -> pb2.Schema:
+    s = pb2.Schema()
+    s.constants.model_id = model_id
+    s.constants.environment = pb2.Schema.Environment.TRACING
+    s.constants.model_type = pb2.Schema.ModelType.GENERATIVE_LLM
+    if model_version is not None:
+        s.constants.model_version = model_version
+    s.arize_spans.SetInParent()
     return s

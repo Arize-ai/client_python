@@ -20,6 +20,7 @@ from arize.utils.constants import (
     LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME,
     MAX_EMBEDDING_DIMENSIONALITY,
     MAX_LLM_MODEL_NAME_LENGTH,
+    MAX_NUMBER_OF_MULTI_CLASS_CLASSES,
     MAX_PROMPT_TEMPLATE_LENGTH,
     MAX_PROMPT_TEMPLATE_VERSION_LENGTH,
     MAX_RAW_DATA_CHARACTERS,
@@ -53,7 +54,7 @@ class MockResponse(Response):
 
 
 class NoSendClient(Client):
-    def _post_file(self, path, schema, sync, timeout):
+    def _post_file(self, path, sync, timeout):
         return MockResponse(pa.ipc.open_stream(pa.OSFile(path)).read_pandas(), "Success", 200)
 
 
@@ -292,6 +293,78 @@ def get_corpus_schema() -> Schema:
     )
 
 
+def get_multi_class_df() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "prediction_scores": pd.Series(
+                [
+                    [
+                        {"class_name": "dog", "score": 0.1},
+                        {"class_name": "cat", "score": 0.2},
+                        {"class_name": "fish", "score": 0.3},
+                    ],
+                    [
+                        {"class_name": "dog", "score": 0.1},
+                        {"class_name": "cat", "score": 0.2},
+                        {"class_name": "fish", "score": 0.3},
+                    ],
+                    [
+                        {"class_name": "dog", "score": 0.1},
+                        {"class_name": "cat", "score": 0.2},
+                        {"class_name": "fish", "score": 0.3},
+                    ],
+                ]
+            ),
+            "threshold_scores": pd.Series(
+                [
+                    [
+                        {"class_name": "dog", "score": 0.1},
+                        {"class_name": "cat", "score": 0.2},
+                        {"class_name": "fish", "score": 0.3},
+                    ],
+                    [
+                        {"class_name": "dog", "score": 0.1},
+                        {"class_name": "cat", "score": 0.2},
+                        {"class_name": "fish", "score": 0.3},
+                    ],
+                    [
+                        {"class_name": "dog", "score": 0.1},
+                        {"class_name": "cat", "score": 0.2},
+                        {"class_name": "fish", "score": 0.3},
+                    ],
+                ]
+            ),
+            "actual_scores": pd.Series(
+                [
+                    [
+                        {"class_name": "dog", "score": 0},
+                        {"class_name": "cat", "score": 0},
+                        {"class_name": "fish", "score": 1},
+                    ],
+                    [
+                        {"class_name": "dog", "score": 0},
+                        {"class_name": "cat", "score": 1},
+                        {"class_name": "fish", "score": 0},
+                    ],
+                    [
+                        {"class_name": "dog", "score": 1},
+                        {"class_name": "cat", "score": 0},
+                        {"class_name": "fish", "score": 0},
+                    ],
+                ]
+            ),
+        }
+    )
+
+
+def get_multi_class_schema() -> Schema:
+    return Schema(
+        prediction_score_column_name="prediction_scores",
+        multi_class_threshold_scores_column_name="threshold_scores",
+        actual_score_column_name="actual_scores",
+    )
+
+
 # roundtrip df is the expected df that would be re-constructed from the pyarrow serialization, where
 # 1. the column excluded from schema should have been dropped
 # 2. categorical variables should have been converted to string
@@ -417,6 +490,178 @@ def test_zero_errors_object_detection():
         response_df.sort_index(axis=1).to_json()
         == roundtrip_df(data_df).sort_index(axis=1).to_json()
     )
+
+
+def test_zero_errors_multi_class():
+    # CHECK logging multi class model
+    data_df = pd.concat(
+        [get_base_df(), get_multi_class_df()],
+        axis=1,
+    )
+    schema = _overwrite_schema_fields(get_base_schema(), get_multi_class_schema())
+    try:
+        response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS)
+        response_df: pd.DataFrame = response.df  # type:ignore
+    except Exception:
+        pytest.fail("Unexpected error")
+    # use json here because some row elements are lists and are not readily comparable
+    assert (
+        response_df.sort_index(axis=1).to_json()
+        == roundtrip_df(data_df).sort_index(axis=1).to_json()
+    )
+
+
+def test_invalid_multi_class():
+    # CHECK logging multi class model
+    data_df = pd.concat(
+        [get_base_df(), get_multi_class_df()],
+        axis=1,
+    )
+    data_df["prediction_scores"] = pd.Series(
+        [
+            [
+                {"class_name": "dog", "score": None},  # score can't be None
+                {"class_name": "cat", "score": 0.2},
+                {"class_name": "fish", "score": 0.3},
+            ],
+            [
+                {"class_name": "dog", "score": 0.1},
+                {"class_name": "cat", "score": 0.2},
+                {"class_name": "fish", "score": 0.3},
+            ],
+            [
+                {"class_name": "dog", "score": 0.1},
+                {"class_name": "cat", "score": 0.2},
+                {"class_name": "fish", "score": 0.3},
+            ],
+        ]
+    )
+    schema = _overwrite_schema_fields(get_base_schema(), get_multi_class_schema())
+    with pytest.raises(Exception) as excinfo:
+        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS)
+    assert isinstance(excinfo.value, err.ValidationFailure)
+    for e in excinfo.value.errors:
+        assert isinstance(e, err.InvalidMultiClassPredScoreValue)
+
+    # Check dictionary of wrong type
+    data_df["prediction_scores"] = pd.Series(
+        [
+            [{"class_name": "dog", "score": "wrong type"}],
+            [{"class_name": "cat", "score": "wrong type"}],
+            [{"class_name": "fish", "score": "wrong type"}],
+        ]
+    )
+    with pytest.raises(Exception) as excinfo:
+        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS)
+    assert isinstance(excinfo.value, err.ValidationFailure)
+    for e in excinfo.value.errors:
+        assert isinstance(e, err.InvalidType)
+
+    # Check dictionary length
+    over_max_classes = []
+    for i in range(MAX_NUMBER_OF_MULTI_CLASS_CLASSES + 10):
+        over_max_classes.append({"class_name": f"class_{i}", "score": 0.1})
+    data_df["prediction_scores"] = pd.Series(
+        [
+            over_max_classes,
+            over_max_classes,
+            over_max_classes,
+        ]
+    )
+    data_df["threshold_scores"] = pd.Series(
+        [
+            over_max_classes,
+            over_max_classes,
+            over_max_classes,
+        ]
+    )
+    with pytest.raises(Exception) as excinfo:
+        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS)
+    assert isinstance(excinfo.value, err.ValidationFailure)
+    for e in excinfo.value.errors:
+        assert isinstance(e, err.InvalidNumClassesMultiClassMap)
+    # reset
+    data_df["prediction_scores"] = pd.Series(
+        [
+            [
+                {"class_name": "dog", "score": 0.1},
+                {"class_name": "cat", "score": 0.2},
+                {"class_name": "fish", "score": 0.3},
+            ],
+            [
+                {"class_name": "dog", "score": 0.1},
+                {"class_name": "cat", "score": 0.2},
+                {"class_name": "fish", "score": 0.3},
+            ],
+            [
+                {"class_name": "dog", "score": 0.1},
+                {"class_name": "cat", "score": 0.2},
+                {"class_name": "fish", "score": 0.3},
+            ],
+        ]
+    )
+    data_df["threshold_scores"] = data_df["prediction_scores"]
+    # test invalid actual scores (must be 0 or 1)
+    data_df["actual_scores"] = pd.Series(
+        [
+            [{"class_name": "dog", "score": 0.1}],
+            [{"class_name": "fish", "score": 0.3}],
+            [{"class_name": "dog", "score": 0.1}],
+        ]
+    )
+    with pytest.raises(Exception) as excinfo:
+        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS)
+    assert isinstance(excinfo.value, err.ValidationFailure)
+    for e in excinfo.value.errors:
+        assert isinstance(e, err.InvalidMultiClassActScoreValue)
+
+    # test empty class
+    data_df["actual_scores"] = pd.Series(
+        [
+            [{"class_name": "dog", "score": 0}],
+            [{"class_name": "", "score": 0}],
+            [{"class_name": "dog", "score": 1}],
+        ]
+    )
+    with pytest.raises(Exception) as excinfo:
+        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS)
+    assert isinstance(excinfo.value, err.ValidationFailure)
+    for e in excinfo.value.errors:
+        assert isinstance(e, err.InvalidMultiClassClassNameLength)
+
+    # reset
+    data_df["actual_scores"] = pd.Series(
+        [
+            [
+                {"class_name": "dog", "score": 0},
+                {"class_name": "cat", "score": 0},
+                {"class_name": "fish", "score": 1},
+            ],
+            [
+                {"class_name": "dog", "score": 0},
+                {"class_name": "cat", "score": 1},
+                {"class_name": "fish", "score": 0},
+            ],
+            [
+                {"class_name": "dog", "score": 1},
+                {"class_name": "cat", "score": 0},
+                {"class_name": "fish", "score": 0},
+            ],
+        ]
+    )
+    # threshold missing class
+    data_df["threshold_scores"] = pd.Series(
+        [
+            [{"class_name": "dog", "score": 0.1}, {"class_name": "fish", "score": 0.3}],
+            [{"class_name": "dog", "score": 0.1}, {"class_name": "fish", "score": 0.3}],
+            [{"class_name": "dog", "score": 0.1}, {"class_name": "fish", "score": 0.3}],
+        ]
+    )
+    with pytest.raises(Exception) as excinfo:
+        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS)
+    assert isinstance(excinfo.value, err.ValidationFailure)
+    for e in excinfo.value.errors:
+        assert isinstance(e, err.InvalidMultiClassThresholdClasses)
 
 
 def test_wrong_embedding_types():

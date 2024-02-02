@@ -1,5 +1,6 @@
 import logging
 import sys
+from typing import List
 
 
 class CustomLogFormatter(logging.Formatter):
@@ -46,3 +47,11 @@ def get_truncation_warning_message(instance, limit) -> str:
         "automatically truncated upon ingestion into the Arize platform. Should you require "
         "a higher limit, please reach out to our support team at support@arize.com"
     )
+
+
+def log_a_list(list_of_str: List[str], join_word: str) -> str:
+    if list_of_str is None or len(list_of_str) == 0:
+        return ""
+    if len(list_of_str) == 1:
+        return list_of_str[0]
+    return f"{', '.join(map(str, list_of_str[:-1]))} {join_word} {list_of_str[-1]}"

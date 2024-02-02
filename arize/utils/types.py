@@ -1,3 +1,4 @@
+import json
 import math
 from dataclasses import asdict, dataclass, replace
 from enum import Enum, unique
@@ -78,6 +79,7 @@ class Environments(Enum):
     VALIDATION = 2
     PRODUCTION = 3
     CORPUS = 4
+    TRACING = 5
 
 
 @dataclass
@@ -731,6 +733,7 @@ class Schema(BaseSchema):
     llm_config_column_names: Optional[LLMConfigColumnNames] = None
     llm_run_metadata_column_names: Optional[LLMRunMetadataColumnNames] = None
     retrieved_document_ids_column_name: Optional[List[str]] = None
+    multi_class_threshold_scores_column_name: Optional[str] = None
     f"""
     Used to organize and map column names containing model data within your Pandas dataframe to
     Arize.
@@ -752,11 +755,13 @@ class Schema(BaseSchema):
         prediction_label_column_name (str, optional): Column name for categorical prediction values.
             The content of this column must be convertible to string.
         prediction_score_column_name (str, optional): Column name for numeric prediction values. The
-            content of this column must be int/float.
+            content of this column must be int/float or list of dictionaries mapping class names to
+            int/float scores in the case of MULTI_CLASS model types.
         actual_label_column_name (str, optional): Column name for categorical ground truth values.
             The content of this column must be convertible to string.
         actual_score_column_name (str, optional): Column name for numeric ground truth values. The
-            content of this column must be int/float.
+            content of this column must be int/float or list of dictionaries mapping class names to
+            int/float scores in the case of MULTI_CLASS model types.
         shap_values_column_names (Dict[str, str], optional): Dictionary mapping feature column name
             and corresponding SHAP feature importance column name. e.g.
             {{"feat_A": "feat_A_shap", "feat_B": "feat_B_shap"}}
@@ -792,6 +797,9 @@ class Schema(BaseSchema):
             object containing token counts and latency metrics
         retrieved_document_ids_column_name (str, optional): Column name for retrieved document ids.
             The content of this column must be lists with entries convertible to strings.
+        multi_class_threshold_scores_column_name (str, optional):
+            Column name for dictionary that maps class names to threshold values. The
+            content of this column must be dictionary of str -> int/float.
 
     Methods:
     --------
@@ -892,6 +900,7 @@ class Schema(BaseSchema):
             self.rank_column_name,
             self.prediction_group_id_column_name,
             self.object_detection_prediction_column_names,
+            self.multi_class_threshold_scores_column_name,
         )
         return any(col is not None for col in prediction_cols)
 
@@ -939,7 +948,19 @@ class CorpusSchema(BaseSchema):
         return columns_used_counts
 
 
+def is_json_str(s: str) -> bool:
+    try:
+        json.loads(s)
+    except ValueError:
+        return False
+    return True
+
+
 T = TypeVar("T", bound=type)
+
+
+def is_array_of(arr: Sequence[object], tp: T) -> bool:
+    return isinstance(arr, np.ndarray) and all(isinstance(x, tp) for x in arr)
 
 
 def is_list_of(lst: Sequence[object], tp: T) -> bool:

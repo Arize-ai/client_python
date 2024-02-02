@@ -586,7 +586,67 @@ def test_non_existence_pred_act_column_name():
     )
     assert len(errors) == 1
     for error in errors:
-        assert type(error) == err.InvalidPredActColumnNamesForObjectDetectionModelType
+        assert type(error) == err.InvalidPredActColumnNamesForModelType
+
+
+def test_existence_pred_act_multi_class_column_names():
+    kwargs = get_standard_kwargs()
+    # Test that if Multi Class models do not contain the prediction/actual column names
+    # a missing required columns error is returned
+    # It is equivalent to test_missing_columns but for multi class.
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.MULTI_CLASS,
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                ),
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    for error in errors:
+        assert type(error) == err.MissingReqPredActColumnNamesForMultiClass
+
+
+def test_non_multi_class_model_do_not_contain_multi_class_column_names():
+    kwargs = get_standard_kwargs()
+    # Test that a score categorical (any non-multi-class) model rejects multi clas prediction/actual
+    # column names in the schema
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.SCORE_CATEGORICAL,
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    prediction_label_column_name="prediction_label",
+                    actual_label_column_name="actual_label",
+                    prediction_score_column_name="prediction_score",
+                    actual_score_column_name="actual_score",
+                    multi_class_threshold_scores_column_name="prediction_score",
+                ),
+                "dataframe": pd.DataFrame(
+                    {
+                        "prediction_id": pd.Series(["0"]),
+                        "prediction_label": pd.Series(["fraud"]),
+                        "prediction_score": pd.Series([1]),
+                        "actual_label": pd.Series(["not fraud"]),
+                        "actual_score": pd.Series([0]),
+                        "multi_class_threshold_scores": pd.Series(
+                            [
+                                {"cat": 0.1, "dog": 0.3},
+                            ]
+                        ),
+                    }
+                ),
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    for error in errors:
+        assert type(error) == err.InvalidPredActColumnNamesForModelType
 
 
 def test_duplicate_column_names_in_dataframe():
@@ -834,6 +894,34 @@ def test_missing_document_columns():
     )
     assert len(errors) == 1
     assert isinstance(errors[0], err.MissingColumns)
+
+
+def test_missing_and_incorrect_multi_class_columns():
+    # test valid
+    kwargs = get_standard_kwargs()
+    errors = Validator.validate_params(**kwargs)
+    assert len(errors) == 0
+
+    # missing document id column
+    schema = kwargs["schema"].replace(multi_class_threshold_scores_column_name="nonexistent_column")
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.MULTI_CLASS,
+                "schema": schema,
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 2
+    for error in errors:
+        assert isinstance(
+            error,
+            (
+                err.MissingColumns,
+                err.InvalidPredActColumnNamesForModelType,
+            ),
+        )
 
 
 def test_invalid_number_of_embeddings():

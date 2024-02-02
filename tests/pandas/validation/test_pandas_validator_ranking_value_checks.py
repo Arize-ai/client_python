@@ -7,6 +7,7 @@ import pandas as pd
 import pytest
 from arize.pandas.logger import Schema
 from arize.pandas.validation.validator import Validator
+from arize.utils.constants import MAX_PREDICTION_ID_LEN
 from arize.utils.types import Environments, ModelTypes
 
 kwargs = {
@@ -95,7 +96,7 @@ def test_rank_is_not_null_and_between_1_and_100():
 def test_prediction_group_id_length():
     null_ids = pd.Series([None, None, "A" * 10, "B" * 10])
     empty_ids = pd.Series(["", "", "", ""])
-    long_ids = pd.Series(["A" * 129] * 4)
+    long_ids = pd.Series(["A" * (MAX_PREDICTION_ID_LEN + 1)] * 4)
 
     errors = Validator.validate_values(
         **ChainMap(

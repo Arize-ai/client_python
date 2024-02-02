@@ -13,6 +13,7 @@ from arize.utils.constants import (
     MAX_DOCUMENT_ID_LEN,
     MAX_EMBEDDING_DIMENSIONALITY,
     MAX_LLM_MODEL_NAME_LENGTH,
+    MAX_NUMBER_OF_MULTI_CLASS_CLASSES,
     MAX_PREDICTION_ID_LEN,
     MAX_PROMPT_TEMPLATE_LENGTH,
     MAX_PROMPT_TEMPLATE_VERSION_LENGTH,
@@ -394,7 +395,7 @@ def test_invalid_prediction_id_none():
 
 
 def test_prediction_id_length():
-    long_ids = pd.Series(["A" * 129] * 4)
+    long_ids = pd.Series(["A" * (MAX_PREDICTION_ID_LEN + 1)] * 4)
     empty_ids = pd.Series([""] * 4)
     kwargs = get_standard_kwargs()
     good_vector = kwargs["dataframe"]["embedding_vector"]
@@ -1224,6 +1225,97 @@ def test_invalid_value_bounding_boxes_scores():
             assert error.error_message() == expected_error.error_message()
 
 
+def test_invalid_value_multi_class_score():
+    kwargs = get_multi_class_kwargs()
+    # Success case
+    errors = Validator.validate_values(**kwargs)
+    assert len(errors) == 0
+
+    # over MAX_NUMBER_OF_MULTI_CLASS_CLASSES scores
+    over_max_classes = []
+    for i in range(MAX_NUMBER_OF_MULTI_CLASS_CLASSES + 10):
+        over_max_classes.append({"class_name": f"class_{i}", "score": 0.1})
+    over_max_act_classes = []
+    for i in range(MAX_NUMBER_OF_MULTI_CLASS_CLASSES + 10):
+        over_max_act_classes.append({"class_name": f"class_{i}", "score": 0})
+    kwargs["dataframe"] = pd.DataFrame(
+        {
+            "prediction_score": pd.Series([over_max_classes]),
+            "multi_class_threshold_scores": pd.Series([over_max_classes]),
+            "actual_score": pd.Series([over_max_act_classes]),
+        }
+    )
+    errors = Validator.validate_values(**kwargs)
+    assert len(errors) == 1
+    assert type(errors[0]) is err.InvalidNumClassesMultiClassMap
+
+    # NaN prediction scores, prediction score over 1 and invalid actual score (must be 0 or 1)
+    kwargs = get_multi_class_kwargs()
+    dataframe = kwargs["dataframe"]
+    dataframe["prediction_score"] = pd.Series(
+        [
+            [
+                {"class_name": "dog", "score": float("NaN")},  # invalid NaN
+                {"class_name": "cat", "score": 0.2},
+                {"class_name": "fish", "score": 0.3},
+            ],
+            [
+                {"class_name": "dog", "score": 0.1},
+                {"class_name": "cat", "score": 0.2},
+                {"class_name": "fish", "score": 0.3},
+            ],
+            [
+                {"class_name": "dog", "score": 0.1},
+                {"class_name": "cat", "score": 0.2},
+                {"class_name": "fish", "score": 0.3},
+            ],
+        ]
+    )
+    dataframe["actual_score"] = pd.Series(
+        [
+            [{"class_name": "fish", "score": 0.3}],  # invalid actual score must be 0 or 1
+            [{"class_name": "cat", "score": 1}],
+            [{"class_name": "dog", "score": 1}],
+        ]
+    )
+
+    errors = Validator.validate_values(**kwargs)
+    assert len(errors) == 2
+    assert any(type(e) is err.InvalidMultiClassActScoreValue for e in errors)
+    assert any(type(e) is err.InvalidMultiClassPredScoreValue for e in errors)
+
+    dataframe["prediction_score"] = pd.Series(
+        [
+            [
+                {"class_name": "dog", "score": 0.1},
+                {"class_name": "cat", "score": 0.2},
+                {"class_name": "fish", "score": 0.3},
+            ],
+            [
+                {"class_name": "dog", "score": 0.1},
+                {"class_name": "cat", "score": 1.2},  # invalid score over 1
+                {"class_name": "fish", "score": 0.3},
+            ],
+            [
+                {"class_name": "dog", "score": 0.1},
+                {"class_name": "cat", "score": 0.2},
+                {"class_name": "fish", "score": 0.3},
+            ],
+        ]
+    )
+    # reset actual
+    dataframe["actual_score"] = pd.Series(
+        [
+            [{"class_name": "dog", "score": 0}],
+            [{"class_name": "dog", "score": 0}],
+            [{"class_name": "dog", "score": 1}],
+        ]
+    )
+    errors = Validator.validate_values(**kwargs)
+    assert len(errors) == 1
+    assert type(errors[0]) is err.InvalidMultiClassPredScoreValue
+
+
 def get_standard_kwargs():
     return {
         "model_type": ModelTypes.SCORE_CATEGORICAL,
@@ -1276,6 +1368,81 @@ def get_standard_kwargs():
                 "prompt_str": pd.Series(["This is a test prompt"] * 3),
                 "response_str": pd.Series(["This is a test response"] * 3),
             }
+        ),
+    }
+
+
+def get_multi_class_kwargs():
+    return {
+        "model_type": ModelTypes.MULTI_CLASS,
+        "environment": Environments.PRODUCTION,
+        "dataframe": pd.DataFrame(
+            {
+                "prediction_id": pd.Series([str(uuid.uuid4()) for _ in range(3)]),
+                "prediction_score": pd.Series(
+                    [
+                        [
+                            {"class_name": "dog", "score": 0.1},
+                            {"class_name": "cat", "score": 0.2},
+                            {"class_name": "fish", "score": 0.3},
+                        ],
+                        [
+                            {"class_name": "dog", "score": 0.1},
+                            {"class_name": "cat", "score": 0.2},
+                            {"class_name": "fish", "score": 0.3},
+                        ],
+                        [
+                            {"class_name": "dog", "score": 0.1},
+                            {"class_name": "cat", "score": 0.2},
+                            {"class_name": "fish", "score": 0.3},
+                        ],
+                    ]
+                ),
+                "multi_class_threshold_scores": pd.Series(
+                    [
+                        [
+                            {"class_name": "dog", "score": 0.1},
+                            {"class_name": "cat", "score": 0.2},
+                            {"class_name": "fish", "score": 0.3},
+                        ],
+                        [
+                            {"class_name": "dog", "score": 0.1},
+                            {"class_name": "cat", "score": 0.2},
+                            {"class_name": "fish", "score": 0.3},
+                        ],
+                        [
+                            {"class_name": "dog", "score": 0.1},
+                            {"class_name": "cat", "score": 0.2},
+                            {"class_name": "fish", "score": 0.3},
+                        ],
+                    ]
+                ),
+                "actual_score": pd.Series(
+                    [
+                        [
+                            {"class_name": "dog", "score": 0},
+                            {"class_name": "cat", "score": 1},
+                            {"class_name": "fish", "score": 0},
+                        ],
+                        [
+                            {"class_name": "dog", "score": 0},
+                            {"class_name": "cat", "score": 0},
+                            {"class_name": "fish", "score": 1},
+                        ],
+                        [
+                            {"class_name": "dog", "score": 1},
+                            {"class_name": "cat", "score": 0},
+                            {"class_name": "fish", "score": 0},
+                        ],
+                    ]
+                ),
+            }
+        ),
+        "schema": Schema(
+            prediction_id_column_name="prediction_id",
+            prediction_score_column_name="prediction_score",
+            multi_class_threshold_scores_column_name="multi_class_threshold_scores",
+            actual_score_column_name="actual_score",
         ),
     }
 

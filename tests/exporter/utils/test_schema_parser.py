@@ -52,6 +52,7 @@ def test_classification_model():
         "llm_config_column_names": None,
         "llm_run_metadata_column_names": None,
         "retrieved_document_ids_column_name": None,
+        "multi_class_threshold_scores_column_name": None,
     }
 
 
@@ -121,6 +122,7 @@ def test_object_detection():
         "llm_config_column_names": None,
         "llm_run_metadata_column_names": None,
         "retrieved_document_ids_column_name": None,
+        "multi_class_threshold_scores_column_name": None,
     }
 
 
@@ -177,6 +179,7 @@ def test_embeddings():
         "llm_config_column_names": None,
         "llm_run_metadata_column_names": None,
         "retrieved_document_ids_column_name": None,
+        "multi_class_threshold_scores_column_name": None,
     }
 
 
@@ -224,6 +227,7 @@ def test_rankings():
         "llm_config_column_names": None,
         "llm_run_metadata_column_names": None,
         "retrieved_document_ids_column_name": None,
+        "multi_class_threshold_scores_column_name": None,
     }
 
 
@@ -293,6 +297,7 @@ def test_llm():
         "llm_config_column_names": None,
         "llm_run_metadata_column_names": None,
         "retrieved_document_ids_column_name": None,
+        "multi_class_threshold_scores_column_name": None,
     }
 
 
@@ -337,6 +342,7 @@ def test_regression():
         "llm_config_column_names": None,
         "llm_run_metadata_column_names": None,
         "retrieved_document_ids_column_name": None,
+        "multi_class_threshold_scores_column_name": None,
     }
 
 
