@@ -2159,6 +2159,21 @@ def test_invalid_client_auth_passed_vars():
     assert excinfo.value.__str__() == err.AuthError(inputs["api_key"], None).error_message()
     assert "Missing: ['space_key']" in str(excinfo.value)
 
+    # incorrect type
+    with pytest.raises(err.InvalidTypeAuthKey) as excinfo:
+        _ = Client(api_key=123, space_key="space_key")
+    assert excinfo.value.__str__() == err.InvalidTypeAuthKey("int", "str").error_message()
+    assert "api_key of type int" in str(excinfo.value)
+
+    with pytest.raises(err.InvalidTypeAuthKey) as excinfo:
+        api_key = "api_key"
+        space_key = (
+            "space_key",
+        )  # This comma is intentional to make space_key an accidental tuple
+        _ = Client(api_key=api_key, space_key=space_key)
+    assert excinfo.value.__str__() == err.InvalidTypeAuthKey("str", "tuple").error_message()
+    assert "space_key of type tuple" in str(excinfo.value)
+
     # acceptable input
     try:
         _ = Client(space_key=inputs["space_key"], api_key=inputs["api_key"])

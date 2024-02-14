@@ -35,7 +35,7 @@ from requests_futures.sessions import FuturesSession
 from . import public_pb2 as pb2
 from .__init__ import __version__
 from .bounded_executor import BoundedExecutor
-from .utils.errors import AuthError, InvalidStringLength, InvalidValueType
+from .utils.errors import AuthError, InvalidStringLength, InvalidTypeAuthKey, InvalidValueType
 from .utils.logging import get_truncation_warning_message, logger
 from .utils.types import (
     CATEGORICAL_MODEL_TYPES,
@@ -122,6 +122,8 @@ class Client:
         space_key = space_key or os.getenv(SPACE_KEY_ENVVAR_NAME)
         if api_key is None or space_key is None:
             raise AuthError(api_key, space_key)
+        if not isinstance(api_key, str) or not isinstance(space_key, str):
+            raise InvalidTypeAuthKey(type(api_key).__name__, type(space_key).__name__)
         self._api_key = api_key
         self._space_key = space_key
         self._uri = f"{uri}/log"

@@ -25,7 +25,7 @@ from ..utils.constants import (
     LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME,
     SPACE_KEY_ENVVAR_NAME,
 )
-from ..utils.errors import AuthError
+from ..utils.errors import AuthError, InvalidTypeAuthKey
 from ..utils.logging import log_a_list, logger
 from ..utils.types import (
     BaseSchema,
@@ -82,6 +82,8 @@ class Client:
         space_key = space_key or os.getenv(SPACE_KEY_ENVVAR_NAME)
         if api_key is None or space_key is None:
             raise AuthError(api_key, space_key)
+        if not isinstance(api_key, str) or not isinstance(space_key, str):
+            raise InvalidTypeAuthKey(type(api_key).__name__, type(space_key).__name__)
         self._api_key = api_key
         self._space_key = space_key
         self._files_uri = uri + "/pandas_arrow"
@@ -473,7 +475,15 @@ class Client:
         if verbose:
             logger.debug("Serializing schema.")
         base64_schema = base64.b64encode(proto_schema.SerializeToString())
-        pa_schema = self._append_to_pyarrow_metadata(pa_schema, {"arize-schema": base64_schema})
+        # For backwards compatibility we must ensure on-prem customers with old
+        # deployments don't get their pipelines disrupted. Hence, we send the schema
+        # in the header (as we used to) and only we send it in the body if
+        # it is larger than the header limit
+        # For version 8.x, we will only send the schema as part of the body
+        if len(base64_schema) <= 63000:
+            self._headers.update({"schema": base64_schema})
+        else:
+            pa_schema = self._append_to_pyarrow_metadata(pa_schema, {"arize-schema": base64_schema})
 
         if path is None:
             tmp_dir = tempfile.mkdtemp()
