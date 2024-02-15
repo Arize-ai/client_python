@@ -26,7 +26,7 @@ from arize.utils.constants import (
     MAX_RAW_DATA_CHARACTERS,
     SPACE_KEY_ENVVAR_NAME,
 )
-from arize.utils.errors import AuthError
+from arize.utils.errors import AuthError, InvalidTypeAuthKey
 from arize.utils.types import (
     CorpusSchema,
     EmbeddingColumnNames,
@@ -1365,6 +1365,21 @@ def test_invalid_client_auth_passed_vars():
         _ = Client(api_key="api_key")
     assert excinfo.value.__str__() == AuthError("api_key", None).error_message()
     assert "Missing: ['space_key']" in str(excinfo.value)
+
+    # incorrect type
+    with pytest.raises(InvalidTypeAuthKey) as excinfo:
+        _ = Client(api_key=123, space_key="space_key")
+    assert excinfo.value.__str__() == InvalidTypeAuthKey("int", "str").error_message()
+    assert "api_key of type int" in str(excinfo.value)
+
+    with pytest.raises(InvalidTypeAuthKey) as excinfo:
+        api_key = "api_key"
+        space_key = (
+            "space_key",
+        )  # This comma is intentional to make space_key an accidental tuple
+        _ = Client(api_key=api_key, space_key=space_key)
+    assert excinfo.value.__str__() == InvalidTypeAuthKey("str", "tuple").error_message()
+    assert "space_key of type tuple" in str(excinfo.value)
 
     # acceptable input
     try:

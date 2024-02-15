@@ -30,6 +30,26 @@ class AuthError(Exception):
         )
 
 
+class InvalidTypeAuthKey(Exception):
+    def __init__(self, api_key_type: str, space_key_type: str) -> None:
+        self.api_key_type = api_key_type
+        self.space_key_type = space_key_type
+
+    def __repr__(self) -> str:
+        return "Invalid_Type_Arize_Client_Authentication"
+
+    def __str__(self) -> str:
+        return self.error_message()
+
+    def error_message(self) -> str:
+
+        return (
+            "Arize Client could not obtain credentials because your api_key or space_key was not passed"
+            f" as a string. Got api_key of type {self.api_key_type} and space_key of "
+            f"type {self.space_key_type}"
+        )
+
+
 class InvalidStringLength(Exception):
     def __init__(self, name: str, min_length: int, max_length: int) -> None:
         self.name = name
