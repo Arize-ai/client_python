@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from arize.pandas.generative.llm_evaluation import bleu, google_bleu, meteor, rouge, sacre_bleu
+from arize.pandas.generative.nlp_metrics import bleu, google_bleu, meteor, rouge, sacre_bleu
 
 
 def get_text_df() -> pd.DataFrame:

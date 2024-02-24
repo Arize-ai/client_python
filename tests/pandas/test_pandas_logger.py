@@ -9,6 +9,7 @@ import pandas as pd
 import pyarrow as pa
 import pytest
 from arize import __version__ as arize_version
+from arize.pandas.etl.errors import ColumnCastingError, InvalidTypedColumnsError
 from arize.pandas.logger import Client
 from arize.utils.constants import (
     API_KEY_ENVVAR_NAME,
@@ -37,6 +38,7 @@ from arize.utils.types import (
     ObjectDetectionColumnNames,
     PromptTemplateColumnNames,
     Schema,
+    TypedColumns,
 )
 from arize.utils.utils import get_python_version
 from attr import dataclass
@@ -662,6 +664,114 @@ def test_invalid_multi_class():
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidMultiClassThresholdClasses)
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
+def test_zero_errors_typed_schema():
+    df = get_base_df()
+    s = Schema(
+        feature_column_names=TypedColumns(
+            to_float=["A"],  # ints -> float
+            to_int=["E"],  # ints with None -> int
+            to_str=["C"],  # NaN floats -> NaN strings
+            inferred=["F"],
+        ),
+        tag_column_names=["G", "H"],
+    )
+    schema = _overwrite_schema_fields(get_base_schema(), s)
+    response_df = None
+    try:
+        response = log_dataframe(df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+        response_df: pd.DataFrame = response.df  # type:ignore
+    except Exception:
+        pytest.fail("Unexpected error")
+
+    # column A - column type is now nullable float64, all values are type np.float64
+    assert response_df["A"].dtype == "Float64"
+    assert isinstance(response_df["A"][0], np.float64)
+
+    # column E - column type is now nullable int64, value types are np.int64 or pd.NA
+    assert response_df["E"].dtype == "Int64"
+    assert isinstance(response_df["E"][0], np.int64)
+    assert response_df["E"][1] is pd.NA
+
+    # column C - column type is now nullable string, value types are str or pd.NA
+    assert response_df["C"].dtype == "string"
+    assert response_df["C"][0] is pd.NA
+
+    # column F - column type has not changed
+    assert response_df["F"].dtype == "float64"
+    assert isinstance(response_df["F"][0], np.float64)
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
+def test_typed_schema_validation_empty_class():
+    df = get_base_df()
+    s = Schema(
+        feature_column_names=TypedColumns(
+            to_float=["A"],  # ints -> float
+            to_int=["E"],  # ints with None -> int
+            to_str=["C"],  # NaN floats -> NaN strings
+        ),
+        tag_column_names=TypedColumns(),
+    )
+    schema = _overwrite_schema_fields(get_base_schema(), s)
+    with pytest.raises(InvalidTypedColumnsError) as excinfo:
+        _ = log_dataframe(df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+    assert excinfo.value.field_name == "tag_column_names"
+    assert excinfo.value.reason == "is empty"
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
+def test_typed_schema_validation_empty_fields():
+    df = get_base_df()
+    s = Schema(
+        feature_column_names=TypedColumns(
+            to_int=[],
+            to_str=[],
+        )
+    )
+    schema = _overwrite_schema_fields(get_base_schema(), s)
+    with pytest.raises(InvalidTypedColumnsError) as excinfo:
+        _ = log_dataframe(df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+    assert excinfo.value.field_name == "feature_column_names"
+    assert excinfo.value.reason == "is empty"
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
+def test_typed_schema_validation_duplicates():
+    df = get_base_df()
+    s = Schema(
+        feature_column_names=TypedColumns(
+            to_float=["A"],
+            to_str=["B", "A"],
+        )
+    )
+    schema = _overwrite_schema_fields(get_base_schema(), s)
+    with pytest.raises(InvalidTypedColumnsError) as excinfo:
+        _ = log_dataframe(df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+    assert excinfo.value.field_name == "feature_column_names"
+    assert excinfo.value.reason == "has duplicate column names: A"
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
+def test_typed_schema_casting_error():
+    df = get_base_df()
+    g = pd.DataFrame({"g": pd.Series([0.1, 1.0, 2.0])})
+    df2 = df.join(g)
+    s = Schema(
+        feature_column_names=TypedColumns(
+            to_int=["g"],  # float -> int
+        ),
+        tag_column_names=["G", "H"],
+    )
+    schema = _overwrite_schema_fields(get_base_schema(), s)
+    with pytest.raises(Exception) as excinfo:
+        _ = log_dataframe(df2, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+    assert isinstance(excinfo.value, ColumnCastingError)
+    assert excinfo.value.attempted_casting_columns == ["g"]
+    assert excinfo.value.attempted_casting_type == "Int64"
+    assert excinfo.value.error_msg == "cannot safely cast non-equivalent float64 to int64"
 
 
 def test_wrong_embedding_types():
@@ -1480,6 +1590,14 @@ def _overwrite_schema_fields(schema1: Schema, schema2: Schema) -> Schema:
         schema = schema.replace(llm_config_column_names=schema2.llm_config_column_names)
     if schema2.llm_run_metadata_column_names is not None:
         schema = schema.replace(llm_run_metadata_column_names=schema2.llm_run_metadata_column_names)
+
+    # feature_column_names and tag_column_names need to be treated separately if they are of type TypedColumns
+    if schema2.feature_column_names is not None and isinstance(
+        schema2.feature_column_names, TypedColumns
+    ):
+        schema = schema.replace(feature_column_names=schema2.feature_column_names)
+    if schema2.tag_column_names is not None and isinstance(schema2.tag_column_names, TypedColumns):
+        schema = schema.replace(tag_column_names=schema2.tag_column_names)
 
     return schema
 

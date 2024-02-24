@@ -11,6 +11,7 @@ import pandas as pd
 import pandas.api.types as ptypes
 import pyarrow as pa
 import requests
+from packaging.version import parse as parse_version
 
 from .. import public_pb2 as pb2
 from ..__init__ import __version__
@@ -36,6 +37,7 @@ from ..utils.types import (
     Schema,
 )
 from ..utils.utils import get_python_version, is_python_version_below_required_min, reconstruct_url
+from .etl.casting import ETL_ERROR_MESSAGE, ETL_MINIMUM_PANDAS_VERSION, cast_typed_columns
 from .tracing.constants import DEFAULT_DATETIME_FMT
 from .validation import errors as err
 from .validation.validator import Validator
@@ -249,7 +251,8 @@ class Client:
             dataframe (pd.DataFrame): The dataframe containing model data.
             schema (BaseSchema): A BaseSchema instance that specifies the column names for corresponding
                 data in the dataframe. Can be either a Schema or CorpusSchema (if the environment is
-                Environments.CORPUS) object.
+                Environments.CORPUS) object. To use the casting feature, set Schema feature or tag columns
+                to a TypedColumns object.
             environment (Environments): The environment the data corresponds to (Production,
                 Training, Validation).
             model_id (str): A unique name to identify your model in the Arize platform.
@@ -290,6 +293,24 @@ class Client:
         # Deep copy the schema since we might modify it to add certain columns and don't
         # want to cause side effects
         schema = copy.deepcopy(schema)
+
+        # If typed columns are specified in the schema,
+        # apply casting and return new copies of the dataframe + schema.
+        # All downstream validations are kept the same.
+        # note: we don't do any casting for Corpus schemas.
+        if isinstance(schema, Schema) and schema.has_typed_columns():
+            # The pandas nullable string column type (StringDType) is still considered experimental
+            # and is unavailable before pandas 1.0.0.
+            # Thus we can only offer this functionality with pandas>=1.0.0.
+            # TODO (Hannah): After we remove support for 0.25.3, remove this check.
+            pandas_version = parse_version(pd.__version__)
+            if pandas_version < parse_version(ETL_MINIMUM_PANDAS_VERSION):
+                raise ImportError(ETL_ERROR_MESSAGE)
+            try:
+                dataframe, schema = cast_typed_columns(dataframe, schema)
+            except Exception as e:
+                logger.error(e)
+                raise
 
         # Warning for when prediction_label is not provided and we generate default prediction
         # labels for GENERATIVE_LLM models
