@@ -12,6 +12,7 @@ import pytest
 from arize import __version__ as arize_version
 from arize.api import Client
 from arize.pandas.validation.errors import InvalidAdditionalHeaders, InvalidNumberOfEmbeddings
+from arize.single_log.errors import CastingError
 from arize.utils.constants import (
     API_KEY_ENVVAR_NAME,
     LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME,
@@ -28,6 +29,7 @@ from arize.utils.constants import (
     SPACE_KEY_ENVVAR_NAME,
 )
 from arize.utils.types import (
+    ArizeTypes,
     Embedding,
     Environments,
     LLMRunMetadata,
@@ -37,6 +39,7 @@ from arize.utils.types import (
     ObjectDetectionLabel,
     RankingActualLabel,
     RankingPredictionLabel,
+    TypedValue,
 )
 from arize.utils.utils import convert_dictionary, get_python_version
 from google.protobuf.wrappers_pb2 import BoolValue, DoubleValue, StringValue
@@ -336,7 +339,7 @@ def _build_basic_actual(type: str) -> pb2.Actual:
         return pb2.Actual()
 
 
-def _attach_features_to_prediction() -> pb2.Prediction:
+def _attach_features_to_prediction(replace: dict = None) -> pb2.Prediction:
     features = {
         "feature_str": pb2.Value(string=STR_VAL),
         "feature_double": pb2.Value(double=FLOAT_VAL),
@@ -344,6 +347,8 @@ def _attach_features_to_prediction() -> pb2.Prediction:
         "feature_bool": pb2.Value(string=str(BOOL_VAL)),
         "feature_str_lst": pb2.Value(multi_value=pb2.MultiValue(values=STR_LST_VAL)),
     }
+    if replace:
+        features.update(replace)
     return pb2.Prediction(features=features)
 
 
@@ -500,23 +505,27 @@ def _attach_prompt_and_response_to_prediction(
     return pb2.Prediction(features=embedding_features)
 
 
-def _attach_tags_to_prediction() -> pb2.Prediction:
+def _attach_tags_to_prediction(replace: dict = None) -> pb2.Prediction:
     tags = {
         "tag_str": pb2.Value(string=STR_VAL),
         "tag_double": pb2.Value(double=FLOAT_VAL),
         "tag_int": pb2.Value(int=INT_VAL),
         "tag_bool": pb2.Value(string=str(BOOL_VAL)),
     }
+    if replace:
+        tags.update(replace)
     return pb2.Prediction(tags=tags)
 
 
-def _attach_tags_to_actual() -> pb2.Actual:
+def _attach_tags_to_actual(replace: dict = None) -> pb2.Actual:
     tags = {
         "tag_str": pb2.Value(string=STR_VAL),
         "tag_double": pb2.Value(double=FLOAT_VAL),
         "tag_int": pb2.Value(int=INT_VAL),
         "tag_bool": pb2.Value(string=str(BOOL_VAL)),
     }
+    if replace:
+        tags.update(replace)
     return pb2.Actual(tags=tags)
 
 
@@ -2278,6 +2287,98 @@ def test_invalid_number_of_embeddings():
     expected_record = _build_expected_record(p=p, a=a, ep=ep)
     #   Check result is as expected
     assert record == expected_record
+
+
+def test_casting_success():
+    c = get_stubbed_client()
+    record = c.log(
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        environment=Environments.PRODUCTION,
+        model_type=ModelTypes.SCORE_CATEGORICAL,
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["label_bool"],
+        actual_label=inputs["label_bool"],
+        features={
+            "feature_str": STR_VAL,
+            "feature_double": FLOAT_VAL,
+            "feature_int": TypedValue(value=INT_VAL, type=ArizeTypes.FLOAT),  # cast int to float
+            "feature_bool": BOOL_VAL,
+            "feature_None": None,
+            "feature_str_lst": STR_LST_VAL,
+        },
+        tags={
+            "tag_str": STR_VAL,
+            "tag_double": FLOAT_VAL,
+            "tag_int": INT_VAL,
+            "tag_bool": TypedValue(value=BOOL_VAL, type=ArizeTypes.STR),  # cast bool to string
+            "tag_bool2": TypedValue(value=BOOL_VAL, type=ArizeTypes.INT),  # cast bool to int
+            "tag_None": None,
+        },
+        embedding_features=inputs["embedding_features"],
+    )
+    f = {
+        "feature_int": pb2.Value(double=float(INT_VAL)),
+    }
+    t = {
+        "tag_bool": pb2.Value(string=str(BOOL_VAL)),
+        "tag_bool2": pb2.Value(int=int(BOOL_VAL)),
+    }
+    #   Get environment in proto format
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("score_categorical_bool")
+    a = _build_basic_actual("score_categorical_bool")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_features_to_prediction(replace=f))
+    p.MergeFrom(_attach_embedding_features_to_prediction())
+    p.MergeFrom(_attach_tags_to_prediction(replace=t))
+    #   Add props to prediction according to this test
+    a.MergeFrom(_attach_tags_to_actual(replace=t))
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p, a=a, ep=ep)
+    #   Check result is as expected
+    assert record == expected_record
+
+
+def test_casting_fail():
+    c = get_stubbed_client()
+    with pytest.raises(CastingError) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            model_type=ModelTypes.SCORE_CATEGORICAL,
+            prediction_id=inputs["prediction_id"],
+            prediction_label=inputs["label_bool"],
+            actual_label=inputs["label_bool"],
+            features={
+                "feature_str": STR_VAL,
+                "feature_double": TypedValue(
+                    value=FLOAT_VAL, type=ArizeTypes.INT
+                ),  # cast float to int - should fail
+                "feature_int": INT_VAL,
+                "feature_bool": BOOL_VAL,
+                "feature_None": None,
+                "feature_str_lst": STR_LST_VAL,
+            },
+            tags={
+                "tag_str": STR_VAL,
+                "tag_double": FLOAT_VAL,
+                "tag_int": INT_VAL,
+                "tag_bool": TypedValue(value=BOOL_VAL, type=ArizeTypes.STR),  # cast bool to string
+                "tag_bool2": TypedValue(value=BOOL_VAL, type=ArizeTypes.INT),  # cast bool to int
+                "tag_None": None,
+            },
+            embedding_features=inputs["embedding_features"],
+        )
+    assert excinfo.value.typed_value.value == FLOAT_VAL
+    assert excinfo.value.typed_value.type == ArizeTypes.INT
+    assert excinfo.value.error_message() == (
+        "Failed to cast value 20.2 of type <class 'float'> "
+        "to type ArizeTypes.INT. Error: Cannot convert float with "
+        "non-zero fractional part to int."
+    )
 
 
 if __name__ == "__main__":

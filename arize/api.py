@@ -3,7 +3,7 @@ import concurrent.futures as cf
 import copy
 import os
 import time
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from arize.pandas.validation.errors import InvalidAdditionalHeaders, InvalidNumberOfEmbeddings
 from arize.utils.constants import (
@@ -35,6 +35,7 @@ from requests_futures.sessions import FuturesSession
 from . import public_pb2 as pb2
 from .__init__ import __version__
 from .bounded_executor import BoundedExecutor
+from .single_log.casting import cast_dictionary
 from .utils.errors import AuthError, InvalidStringLength, InvalidTypeAuthKey, InvalidValueType
 from .utils.logging import get_truncation_warning_message, logger
 from .utils.types import (
@@ -49,6 +50,7 @@ from .utils.types import (
     ObjectDetectionLabel,
     RankingActualLabel,
     RankingPredictionLabel,
+    TypedValue,
     _PromptOrResponseText,
     is_list_of,
 )
@@ -153,10 +155,10 @@ class Client:
         prediction_timestamp: Optional[int] = None,
         prediction_label: Optional[PredictionLabelTypes] = None,
         actual_label: Optional[ActualLabelTypes] = None,
-        features: Optional[Dict[str, Union[str, bool, float, int]]] = None,
+        features: Optional[Dict[str, Union[str, bool, float, int, List[str], TypedValue]]] = None,
         embedding_features: Optional[Dict[str, Embedding]] = None,
         shap_values: Optional[Dict[str, float]] = None,
-        tags: Optional[Dict[str, Union[str, bool, float, int]]] = None,
+        tags: Optional[Dict[str, Union[str, bool, float, int, TypedValue]]] = None,
         batch_id: Optional[str] = None,
         prompt: Optional[Union[str, Embedding]] = None,
         response: Optional[Union[str, Embedding]] = None,
@@ -251,6 +253,11 @@ class Client:
         prediction_id = _validate_and_convert_prediction_id(
             prediction_id, environment, prediction_label, actual_label, shap_values
         )
+
+        # Cast feature & tag values
+        features = cast_dictionary(features)
+        tags = cast_dictionary(tags)
+
         # Validate feature types
         if features:
             if not isinstance(features, dict):

@@ -2,6 +2,7 @@ import json
 import math
 from dataclasses import asdict, dataclass, replace
 from enum import Enum, unique
+from itertools import chain
 from typing import Dict, List, NamedTuple, Optional, Sequence, Set, TypeVar, Union
 
 import numpy as np
@@ -709,10 +710,62 @@ class BaseSchema:
 
 
 @dataclass(frozen=True)
+class TypedColumns:
+    """
+    Optional class used for explicit type enforcement of feature and tag columns in the dataframe.
+
+    Usage:
+    ------
+        When initializing a Schema, use TypedColumns in place of a list of string column names.
+        e.g. feature_column_names=TypedColumns(
+                inferred=["feature_1", "feature_2"],
+                to_str=["feature_3"],
+                to_int=["feature_4"]
+            )
+
+    Fields:
+    -------
+        inferred (Optional[List[str]]): List of columns that will not be altered at all.
+            The values in these columns will have their type inferred as Arize validates and ingests the data.
+            There's no difference between passing in all column names as inferred
+            vs. not using TypedColumns at all.
+        to_str (Optional[List[str]]): List of columns that should be cast to pandas StringDType.
+        to_int (Optional[List[str]]): List of columns that should be cast to pandas Int64DType.
+        to_float (Optional[List[str]]): List of columns that should be cast to pandas Float64DType.
+
+    Notes:
+    ------
+        - If a TypedColumns object is included in a Schema, pandas version 1.0.0 or higher is required.
+        - Pandas StringDType is still considered an experimental field.
+        - Columns not present in any field will not be captured in the Schema.
+        - StringDType, Int64DType, and Float64DType are all nullable column types.
+        Null values will be ingested and represented in Arize as empty values.
+    """
+
+    inferred: Optional[List[str]] = None
+    to_str: Optional[List[str]] = None
+    to_int: Optional[List[str]] = None
+    to_float: Optional[List[str]] = None
+
+    def get_all_column_names(self) -> List[str]:
+        return list(chain.from_iterable(filter(None, self.__dict__.values())))
+
+    def has_duplicate_columns(self) -> (bool, Set[str]):
+        # True if there are duplicates within a field's list or across fields.
+        # Return a set of the duplicate column names.
+        cols = self.get_all_column_names()
+        duplicates = set([x for x in cols if cols.count(x) > 1])
+        return len(duplicates) > 0, duplicates
+
+    def is_empty(self) -> bool:
+        return not self.get_all_column_names()
+
+
+@dataclass(frozen=True)
 class Schema(BaseSchema):
     prediction_id_column_name: Optional[str] = None
-    feature_column_names: Optional[List[str]] = None
-    tag_column_names: Optional[List[str]] = None
+    feature_column_names: Optional[Union[List[str], TypedColumns]] = None
+    tag_column_names: Optional[Union[List[str], TypedColumns]] = None
     timestamp_column_name: Optional[str] = None
     prediction_label_column_name: Optional[str] = None
     prediction_score_column_name: Optional[str] = None
@@ -746,10 +799,12 @@ class Schema(BaseSchema):
             Arize will create a random prediction id on the server side. Contents must be a string and
             indicate a unique prediction event. Must contain a minimum of {MIN_PREDICTION_ID_LEN} and a
             maximum of {MAX_PREDICTION_ID_LEN} characters.
-        feature_column_names (List[str], optional): List of column names for features. The content
-            of this column can be int, float, string.
-        tag_column_names (List[str], optional): List of column names for tags. The content of this
-            column can be int, float, string.
+        feature_column_names (Union[List[str], TypedColumns], optional): Column names for features.
+            The content of feature columns can be int, float, string. If TypedColumns is used,
+            the columns will be cast to the provided types prior to logging.
+        tag_column_names (Union[List[str], TypedColumns], optional): Column names for tags. The content of tag
+            columns can be int, float, string. If TypedColumns is used,
+            the columns will be cast to the provided types prior to logging.
         timestamp_column_name (str, optional): Column name for timestamps. The content of this
             column must be int Unix Timestamps in seconds.
         prediction_label_column_name (str, optional): Column name for categorical prediction values.
@@ -918,6 +973,16 @@ class Schema(BaseSchema):
         feature_importance_cols = (self.shap_values_column_names,)
         return any(col is not None for col in feature_importance_cols)
 
+    def has_typed_columns(self) -> bool:
+        return any(self.typed_column_fields())
+
+    def typed_column_fields(self) -> Set[str]:
+        return {
+            field
+            for field in self.__dataclass_fields__
+            if isinstance(getattr(self, field), TypedColumns)
+        }
+
 
 @dataclass(frozen=True)
 class CorpusSchema(BaseSchema):
@@ -946,6 +1011,19 @@ class CorpusSchema(BaseSchema):
                     self.document_text_embedding_column_names.link_to_data_column_name,
                 )
         return columns_used_counts
+
+
+@unique
+class ArizeTypes(Enum):
+    STR = 0
+    FLOAT = 1
+    INT = 2
+
+
+@dataclass(frozen=True)
+class TypedValue:
+    type: ArizeTypes
+    value: Union[str, bool, float, int]
 
 
 def is_json_str(s: str) -> bool:
