@@ -1,11 +1,20 @@
+import re
 from datetime import datetime, timedelta
 from itertools import chain
 from typing import List, Optional, Union
 
 import arize.pandas.tracing.columns as tracing_cols
 import arize.pandas.tracing.constants as tracing_constants
+import numpy as np
 import pandas as pd
 import pyarrow as pa
+from arize.pandas.tracing.columns import (
+    EVAL_COLUMN_PREFIX,
+    EVAL_EXPLANATION_SUFFIX,
+    EVAL_LABEL_SUFFIX,
+    EVAL_NAME_PATTERN,
+    EVAL_SCORE_SUFFIX,
+)
 from arize.pandas.tracing.types import StatusCodes
 from arize.pandas.tracing.validation import errors as tracing_err
 from arize.pandas.validation import errors as err
@@ -19,18 +28,24 @@ from arize.utils.types import is_dict_of, is_json_str
 
 
 def validate_values(
-    dataframe: pd.DataFrame,
+    spans_dataframe: pd.DataFrame,
     model_id: str,
     model_version: Optional[str] = None,
+    evals_dataframe: Optional[pd.DataFrame] = None,
 ) -> List[err.ValidationError]:
-    return list(
-        chain(
-            _check_invalid_model_id(model_id),
-            _check_invalid_model_version(model_version),
-            _check_span_root_field_values(dataframe),
-            _check_span_attributes_values(dataframe),
-        )
+    checks = chain(
+        _check_invalid_model_id(model_id),
+        _check_invalid_model_version(model_version),
+        _check_span_root_field_values(spans_dataframe),
+        _check_span_attributes_values(spans_dataframe),
     )
+    if evals_dataframe is not None:
+        checks = chain(
+            checks,
+            _check_eval_cols(evals_dataframe),
+            _check_eval_columns_null_values(evals_dataframe),
+        )
+    return list(checks)
 
 
 def _check_invalid_model_id(model_id: Optional[str]) -> List[err.InvalidModelId]:
@@ -304,7 +319,10 @@ def _check_string_column_allowed_values(
     allowed_values: List[str],
     is_required: bool,
 ) -> List[
-    Union[tracing_err.InvalidMissingValueInColumn, tracing_err.InvalidStringValueNotAllowedInColumn]
+    Union[
+        tracing_err.InvalidMissingValueInColumn,
+        tracing_err.InvalidStringValueNotAllowedInColumn,
+    ]
 ]:
     if col_name not in df.columns:
         return []
@@ -336,6 +354,24 @@ def _check_string_column_allowed_values(
             )
         )
     return errors
+
+
+# Checks to make sure there are no inf values in the column
+def _check_float_column_valid_numbers(
+    df: pd.DataFrame,
+    col_name: str,
+) -> List[Union[tracing_err.InvalidFloatValueInColumn]]:
+    if col_name not in df.columns:
+        return []
+    # np.isinf will fail on None values, change Nones to np.nan and check on that
+    column_numeric = pd.to_numeric(df[col_name], errors="coerce")
+    invalid_mask = np.isinf(column_numeric)
+    invalid_exists = invalid_mask.any()
+
+    if invalid_exists:
+        error = [tracing_err.InvalidFloatValueInColumn(col_name=col_name)]
+        return error
+    return []
 
 
 def _check_value_columns_start_end_time(
@@ -379,7 +415,10 @@ def _check_value_timestamp(
     col_name: str,
     is_required: bool,
 ) -> List[
-    Union[tracing_err.InvalidMissingValueInColumn, tracing_err.InvalidTimestampValueInColumn]
+    Union[
+        tracing_err.InvalidMissingValueInColumn,
+        tracing_err.InvalidTimestampValueInColumn,
+    ]
 ]:
     # This check expects that timestamps have previously been converted to nanoseconds
     if col_name not in df.columns:
@@ -607,4 +646,77 @@ def _check_documents_column_value(
                 wrong_metadata=wrong_metadata_found,
             )
         ]
+    return []
+
+
+def _check_eval_cols(
+    dataframe: pd.DataFrame,
+) -> List[err.ValidationError]:
+    checks = []
+    for col in dataframe.columns:
+        if col.endswith(EVAL_LABEL_SUFFIX):
+            checks.append(
+                _check_string_column_value_length(
+                    df=dataframe,
+                    col_name=col,
+                    min_len=tracing_constants.EVAL_LABEL_MIN_STR_LENGTH,
+                    max_len=tracing_constants.EVAL_LABEL_MAX_STR_LENGTH,
+                    is_required=False,
+                )
+            )
+        elif col.endswith(EVAL_SCORE_SUFFIX):
+            checks.append(
+                _check_float_column_valid_numbers(
+                    df=dataframe,
+                    col_name=col,
+                )
+            )
+        elif col.endswith(EVAL_EXPLANATION_SUFFIX):
+            checks.append(
+                _check_string_column_value_length(
+                    df=dataframe,
+                    col_name=col,
+                    min_len=0,
+                    max_len=tracing_constants.EVAL_EXPLANATION_MAX_STR_LENGTH,
+                    is_required=False,
+                )
+            )
+    return list(chain(*checks))
+
+
+# Evals are valid if they are entirely null (no label, score, or explanation) since this
+# represents a span without an eval. Evals are also valid if at least one of label or score
+# is not null
+def _check_eval_columns_null_values(
+    dataframe: pd.DataFrame,
+) -> List[err.ValidationError]:
+    invalid_eval_names = []
+    eval_names = set()
+    for col in dataframe.columns:
+        match = re.match(EVAL_NAME_PATTERN, col)
+        if match:
+            eval_names.add(match.group(1))
+
+    for eval_name in eval_names:
+        label_col = f"{EVAL_COLUMN_PREFIX}{eval_name}{EVAL_LABEL_SUFFIX}"
+        score_col = f"{EVAL_COLUMN_PREFIX}{eval_name}{EVAL_SCORE_SUFFIX}"
+        explanation_col = f"{EVAL_COLUMN_PREFIX}{eval_name}{EVAL_EXPLANATION_SUFFIX}"
+        columns_to_check = []
+
+        if label_col in dataframe.columns:
+            columns_to_check.append(label_col)
+        if score_col in dataframe.columns:
+            columns_to_check.append(score_col)
+
+        # If there are explanations, they cannot be orphan ()
+        if explanation_col in dataframe.columns:
+            condition = (
+                dataframe[columns_to_check].isnull().all(axis=1)
+                & ~dataframe[explanation_col].isnull()
+            )
+            if condition.any():
+                invalid_eval_names.append(eval_name)
+
+    if invalid_eval_names:
+        return [tracing_err.InvalidNullEvalLabelAndScore(eval_names=invalid_eval_names)]
     return []

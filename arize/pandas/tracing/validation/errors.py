@@ -30,7 +30,7 @@ class InvalidTypeArgument(ValidationError):
         )
 
 
-class InvalidDateTimeFromatType(ValidationError):
+class InvalidDateTimeFormatType(ValidationError):
     def __repr__(self) -> str:
         return "Invalid_DateTime_Format_Type"
 
@@ -222,12 +222,16 @@ class InvalidLLMMessageValueInColumn(ValidationError):
         return "Invalid_LLM_Message_Value_In_Column"
 
     def __init__(
-        self, col_name: str, wrong_role: bool, wrong_content: bool, wront_tool_calls: bool
+        self,
+        col_name: str,
+        wrong_role: bool,
+        wrong_content: bool,
+        wrong_tool_calls: bool,
     ) -> None:
         self.col_name = col_name
         self.wrong_role = wrong_role
         self.wrong_content = wrong_content
-        self.wront_tool_calls = wront_tool_calls
+        self.wrong_tool_calls = wrong_tool_calls
 
     def error_message(self) -> str:
         msg = f"Found at least one invalid LLM message in column '{self.col_name}'. "
@@ -241,7 +245,7 @@ class InvalidLLMMessageValueInColumn(ValidationError):
                 "Detected invalid contents. Contents must contain a maximum"
                 f"of {tracing_constants.SPAN_LLM_MESSAGE_CONTENT_MAX_STR_LENGTH} characters."
             )
-        if self.wront_tool_calls:
+        if self.wrong_tool_calls:
             msg += (
                 "Detected invalid tool calls. Each tool call must contain a maximum "
                 f"of {tracing_constants.JSON_STRING_MAX_STR_LENGTH} "
@@ -308,6 +312,29 @@ class InvalidDocumentValueInColumn(ValidationError):
         return msg
 
 
-# -----------------------
-# Arrow Types Checks
-# -----------------------
+class InvalidFloatValueInColumn(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Float_Value_In_Column"
+
+    def __init__(self, col_name: str) -> None:
+        self.col_name = col_name
+
+    def error_message(self) -> str:
+        return (
+            f"The column '{self.col_name}' contains invalid float values. "
+            f"Invalid values are +/- infinite values."
+        )
+
+
+class InvalidNullEvalLabelAndScore(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Null_Eval_Label_And_Score"
+
+    def __init__(self, eval_names: List[str]) -> None:
+        self.eval_names = eval_names
+
+    def error_message(self) -> str:
+        return (
+            f"There is at least one row without a label and score for the following evals: "
+            f"{log_a_list(self.eval_names, 'and')}"
+        )

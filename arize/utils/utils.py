@@ -197,3 +197,10 @@ def is_python_version_below_required_min(min_req_version: str) -> None:
     if version < min_version:
         return True
     return False
+
+
+# Resets the dataframe index if it is not a RangeIndex
+def reset_dataframe_index(dataframe: pd.DataFrame) -> None:
+    if not isinstance(dataframe.index, pd.RangeIndex):
+        drop = dataframe.index.name in dataframe.columns
+        dataframe.reset_index(inplace=True, drop=drop)

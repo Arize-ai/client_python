@@ -4,7 +4,6 @@ from typing import Any, Dict, Iterable, List, Optional, Union
 
 import numpy as np
 import pandas as pd
-from arize.pandas.tracing.constants import ASSUMED_MISSING_VALUES
 from arize.utils.logging import logger
 
 from .columns import SPAN_OPENINFERENCE_COLUMNS, SpanColumnDataType
@@ -86,7 +85,7 @@ def jsonify_dictionaries(df: pd.DataFrame) -> pd.DataFrame:
 def _jsonify_list_of_dicts(
     list_of_dicts: Optional[Iterable[Dict[str, Any]]],
 ) -> Optional[List[str]]:
-    if not isinstance(list_of_dicts, Iterable) and list_of_dicts in ASSUMED_MISSING_VALUES:
+    if not isinstance(list_of_dicts, Iterable) and isMissingValue(list_of_dicts):
         return None
     list_of_json = []
     for d in list_of_dicts:
@@ -95,9 +94,25 @@ def _jsonify_list_of_dicts(
 
 
 def _jsonify_dict(d: Optional[Dict[str, Any]]) -> Optional[str]:
-    if d in ASSUMED_MISSING_VALUES:
+    if isMissingValue(d):
         return None
     for k, v in d.items():
         if isinstance(v, np.ndarray):
             d[k] = v.tolist()
     return json.dumps(d, ensure_ascii=False)
+
+
+# Replaces spaces in column names with underscores
+def sanitize_dataframe_column_names(df: pd.DataFrame) -> pd.DataFrame:
+    return df.rename(
+        columns={col: col.replace(" ", "_") for col in df.columns},
+    )
+
+
+# Defines what is considered a missing value
+def isMissingValue(value: Any) -> bool:
+    assumed_missing_values = (
+        np.inf,
+        -np.inf,
+    )
+    return value in assumed_missing_values or pd.isna(value)
