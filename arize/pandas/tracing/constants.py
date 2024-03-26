@@ -1,22 +1,12 @@
-import numpy as np
-
 # The defualt format used to parse datetime objects from strings
 DEFAULT_DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%f+00:00"
-# List of values to be interpret as missing values through our logic
-ASSUMED_MISSING_VALUES = (
-    # pd.NA, -- Does not work when checking booleans
-    None,
-    np.nan,
-    np.inf,
-    -np.inf,
-)
 # Minumum/Maximum number of characters for span/trace/parent ids in spans
 SPAN_ID_MIN_STR_LENGTH = 12
 SPAN_ID_MAX_STR_LENGTH = 128
 # Minumum/Maximum number of characters for span name
 SPAN_NAME_MIN_STR_LENGTH = 0
 SPAN_NAME_MAX_STR_LENGTH = 50
-# Minumum/Maximum number of characters for span name
+# Minumum/Maximum number of characters for span status message
 SPAN_STATUS_MSG_MIN_STR_LENGTH = 0
 SPAN_STATUS_MSG_MAX_STR_LENGTH = 10_000
 # Minumum/Maximum number of characters for span event name
@@ -47,3 +37,7 @@ SPAN_RERANKER_MODEL_NAME_MAX_STR_LENGTH = 100
 SPAN_DOCUMENT_ID_MAX_STR_LENGTH = 100
 SPAN_DOCUMENT_CONTENT_MAX_STR_LENGTH = 10_000
 JSON_STRING_MAX_STR_LENGTH = 10_000
+# Eval related constants
+EVAL_LABEL_MIN_STR_LENGTH = 1  # we do not accept empty strings
+EVAL_LABEL_MAX_STR_LENGTH = 100
+EVAL_EXPLANATION_MAX_STR_LENGTH = 10_000

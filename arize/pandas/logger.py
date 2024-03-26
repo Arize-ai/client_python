@@ -3,9 +3,10 @@ import base64
 import copy
 import json
 import os
+import re
 import shutil
 import tempfile
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 import pandas.api.types as ptypes
@@ -26,7 +27,7 @@ from ..utils.constants import (
     LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME,
     SPACE_KEY_ENVVAR_NAME,
 )
-from ..utils.errors import AuthError, InvalidTypeAuthKey
+from ..utils.errors import AuthError, InvalidCertificateFile, InvalidTypeAuthKey
 from ..utils.logging import log_a_list, logger
 from ..utils.types import (
     BaseSchema,
@@ -36,7 +37,12 @@ from ..utils.types import (
     ModelTypes,
     Schema,
 )
-from ..utils.utils import get_python_version, is_python_version_below_required_min, reconstruct_url
+from ..utils.utils import (
+    get_python_version,
+    is_python_version_below_required_min,
+    reconstruct_url,
+    reset_dataframe_index,
+)
 from .etl.casting import ETL_ERROR_MESSAGE, ETL_MINIMUM_PANDAS_VERSION, cast_typed_columns
 from .tracing.constants import DEFAULT_DATETIME_FMT
 from .validation import errors as err
@@ -65,6 +71,7 @@ class Client:
         space_key: Optional[str] = None,
         uri: Optional[str] = "https://api.arize.com/v1",
         additional_headers: Optional[Dict[str, str]] = None,
+        request_verify: Union[bool, str] = True,
     ) -> None:
         """
         Initializes the Arize Client
@@ -86,6 +93,9 @@ class Client:
             raise AuthError(api_key, space_key)
         if not isinstance(api_key, str) or not isinstance(space_key, str):
             raise InvalidTypeAuthKey(type(api_key).__name__, type(space_key).__name__)
+        if isinstance(request_verify, str) and not os.path.isfile(request_verify):
+            raise InvalidCertificateFile(request_verify)
+        self._request_verify = request_verify
         self._api_key = api_key
         self._space_key = space_key
         self._files_uri = uri + "/pandas_arrow"
@@ -111,6 +121,7 @@ class Client:
         dataframe: pd.DataFrame,
         model_id: str,
         model_version: Optional[str] = None,
+        evals_dataframe: Optional[pd.DataFrame] = None,
         datetime_format: str = DEFAULT_DATETIME_FMT,
         validate: Optional[bool] = True,
         path: Optional[str] = None,
@@ -122,26 +133,45 @@ class Client:
         try:
             from .tracing import validation as tracing_validation
             from .tracing.columns import (
+                EVAL_COLUMN_PATTERN,
                 ROOT_LEVEL_SPAN_KIND_COL,
                 SPAN_KIND_COL,
                 SPAN_OPENINFERENCE_COLUMNS,
+                SPAN_SPAN_ID_COL,
             )
-            from .tracing.utils import convert_timestamps, jsonify_dictionaries
+            from .tracing.utils import (
+                convert_timestamps,
+                jsonify_dictionaries,
+                sanitize_dataframe_column_names,
+            )
         except ImportError:
             msg = (
                 "Could not import necessary dependencies to use tracing module. "
                 "Please install them with 'pip install arize[Tracing]'"
             )
             raise ImportError(msg)
+        # We need our own copy since we will manipulate the underlying data and
+        # do not want side effects
+        spans_df = dataframe.copy()
+        evals_df = None
+        if evals_dataframe is not None:
+            evals_df = evals_dataframe.copy()
 
         # Send the number of rows in the dataframe as a header
         # This helps the Arize server to return appropriate feedback, specially for async logging
-        self._headers.update({"number-of-rows": str(len(dataframe))})
+        self._headers.update({"number-of-rows": str(len(spans_df))})
+
+        # We expect the index to be 0,1,2,3..., len(df)-1. Phoenix, for example, will give us a dataframe
+        # with context_id as the index
+        reset_dataframe_index(dataframe=spans_df)
+        if evals_df is not None:
+            reset_dataframe_index(dataframe=evals_df)
 
         if verbose:
             logger.info("Performing direct input type validation.")
         errors = tracing_validation.validate_argument_types(
-            dataframe=dataframe,
+            spans_dataframe=spans_df,
+            evals_dataframe=evals_df,
             model_id=model_id,
             model_version=model_version,
             dt_fmt=datetime_format,
@@ -154,21 +184,26 @@ class Client:
         if validate:
             if verbose:
                 logger.info("Performing dataframe form validation.")
-            errors = tracing_validation.validate_dataframe_form(dataframe)
+            errors = tracing_validation.validate_dataframe_form(
+                spans_dataframe=spans_df,
+                evals_dataframe=evals_df,
+            )
             if errors:
                 for e in errors:
                     logger.error(e)
                 raise err.ValidationFailure(errors)
 
-        # We need our own copy since we will manipulate the underlying data and
-        # do not want side effects
-        df = dataframe.copy()
-
         if verbose:
             logger.debug("Removing unnecessary columns.")
-        df = self._remove_extraneous_columns(
-            df=df, open_inference_column_list=SPAN_OPENINFERENCE_COLUMNS
+        spans_df = self._remove_extraneous_columns(
+            df=spans_df, column_list=[col.name for col in SPAN_OPENINFERENCE_COLUMNS]
         )
+        if evals_df is not None:
+            evals_df = self._remove_extraneous_columns(
+                df=evals_df,
+                column_list=[SPAN_SPAN_ID_COL.name],
+                regex=EVAL_COLUMN_PATTERN,
+            )
 
         if model_id is not None:
             model_id = str(model_id)
@@ -178,13 +213,16 @@ class Client:
 
         if verbose:
             logger.debug("Converting timestamps.")
-        df = convert_timestamps(df=df, fmt=datetime_format)
+        spans_df = convert_timestamps(df=spans_df, fmt=datetime_format)
 
         if validate:
             if verbose:
                 logger.info("Performing values validation.")
             errors = tracing_validation.validate_values(
-                dataframe=df, model_id=model_id, model_version=model_version
+                spans_dataframe=spans_df,
+                model_id=model_id,
+                model_version=model_version,
+                evals_dataframe=evals_df,
             )
             if errors:
                 for e in errors:
@@ -193,12 +231,29 @@ class Client:
 
         if verbose:
             logger.debug("Converting dictionaries to JSON objects.")
-        df = jsonify_dictionaries(df)
-        if ROOT_LEVEL_SPAN_KIND_COL.name in df.columns and SPAN_KIND_COL.name not in df.columns:
+        spans_df = jsonify_dictionaries(spans_df)
+        if (
+            ROOT_LEVEL_SPAN_KIND_COL.name in spans_df.columns
+            and SPAN_KIND_COL.name not in spans_df.columns
+        ):
             if verbose:
                 logger.debug("Moving span kind to atributes")
-            df.rename(columns={ROOT_LEVEL_SPAN_KIND_COL.name: SPAN_KIND_COL.name}, inplace=True)
+            spans_df.rename(
+                columns={ROOT_LEVEL_SPAN_KIND_COL.name: SPAN_KIND_COL.name},
+                inplace=True,
+            )
 
+        if evals_df is None:
+            df = spans_df
+        else:
+            # If an eval has spaces in their name then replace the spaces with underscores
+            evals_df = sanitize_dataframe_column_names(evals_df)
+            # We have already validated that the dataframes both contain the span_id and ensured that
+            # they contain no other overlapping columns by removing columns that do not fit their
+            # respective conventions.
+            if verbose:
+                logger.debug("Merging evals and spans dataframes")
+            df = pd.merge(spans_df, evals_df, on=SPAN_SPAN_ID_COL.name, how="left")
         try:
             if verbose:
                 logger.debug("Getting pyarrow schema from pandas dataframe.")
@@ -526,7 +581,11 @@ class Client:
             writer.close()
             if verbose:
                 logger.info("Sending file to Arize")
-            response = self._post_file(tmp_file, sync, timeout)
+            response = self._post_file(
+                path=tmp_file,
+                sync=sync,
+                timeout=timeout,
+            )
         finally:
             if path is None:
                 # NOTE: This try-catch should also be updated/removed when
@@ -559,6 +618,7 @@ class Client:
                 timeout=timeout,
                 data=f,
                 headers=self._headers,
+                verify=self._request_verify,
             )
 
     @staticmethod
@@ -634,18 +694,24 @@ class Client:
         df[reserved_tag_column_name] = df[tag_column_name]
         return df
 
+    # Returns the dataframe with only the columns that are in the schema, in the column_list, or
+    # match the regex
     @staticmethod
     def _remove_extraneous_columns(
         df: pd.DataFrame,
         schema: Optional[BaseSchema] = None,
-        open_inference_column_list: Optional[List[str]] = None,
+        column_list: Optional[List[str]] = None,
+        regex: Optional[str] = None,
     ) -> pd.DataFrame:
+        relevant_columns = set()
         if schema is not None:
-            df = df.loc[:, df.columns.intersection(schema.get_used_columns())]
-        if open_inference_column_list is not None:
-            col_names = [col.name for col in open_inference_column_list]
-            df = df.loc[:, df.columns.intersection(set(col_names))]
-        return df
+            relevant_columns.update(schema.get_used_columns())
+        if column_list is not None:
+            relevant_columns.update(column_list)
+        if regex is not None:
+            relevant_columns.update([col for col in df.columns if re.match(regex, col)])
+        final_columns = list(set(df.columns) & relevant_columns)
+        return df[final_columns]
 
     @staticmethod
     def _generative_model_warnings(df: pd.DataFrame, schema: Schema):

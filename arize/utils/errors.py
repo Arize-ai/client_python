@@ -30,6 +30,20 @@ class AuthError(Exception):
         )
 
 
+class InvalidCertificateFile(Exception):
+    def __init__(self, path_to_certificate: str) -> None:
+        self.path_to_certificate = path_to_certificate
+
+    def __repr__(self) -> str:
+        return "Invalid_Certificate_File"
+
+    def __str__(self) -> str:
+        return self.error_message()
+
+    def error_message(self) -> str:
+        return f"Arize Client could not read certificate file: {self.path_to_certificate}"
+
+
 class InvalidTypeAuthKey(Exception):
     def __init__(self, api_key_type: str, space_key_type: str) -> None:
         self.api_key_type = api_key_type

@@ -36,7 +36,13 @@ from . import public_pb2 as pb2
 from .__init__ import __version__
 from .bounded_executor import BoundedExecutor
 from .single_log.casting import cast_dictionary
-from .utils.errors import AuthError, InvalidStringLength, InvalidTypeAuthKey, InvalidValueType
+from .utils.errors import (
+    AuthError,
+    InvalidCertificateFile,
+    InvalidStringLength,
+    InvalidTypeAuthKey,
+    InvalidValueType,
+)
 from .utils.logging import get_truncation_warning_message, logger
 from .utils.types import (
     CATEGORICAL_MODEL_TYPES,
@@ -98,6 +104,7 @@ class Client:
         max_queue_bound: Optional[int] = 5000,
         timeout: Optional[int] = 200,
         additional_headers: Optional[Dict[str, str]] = None,
+        request_verify: Union[bool, str] = True,
     ) -> None:
         """
         Initializes the Arize Client
@@ -126,6 +133,9 @@ class Client:
             raise AuthError(api_key, space_key)
         if not isinstance(api_key, str) or not isinstance(space_key, str):
             raise InvalidTypeAuthKey(type(api_key).__name__, type(space_key).__name__)
+        if isinstance(request_verify, str) and not os.path.isfile(request_verify):
+            raise InvalidCertificateFile(request_verify)
+        self._request_verify = request_verify
         self._api_key = api_key
         self._space_key = space_key
         self._uri = f"{uri}/log"
@@ -542,6 +552,7 @@ class Client:
             headers=self._headers,
             timeout=self._timeout,
             json=MessageToDict(message=record, preserving_proto_field_name=True),
+            verify=self._request_verify,
         )
         if indexes is not None and len(indexes) == 2:
             resp.starting_index = indexes[0]
