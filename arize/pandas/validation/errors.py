@@ -294,18 +294,6 @@ class MissingPredActShap(ValidationError):
         )
 
 
-class MissingPredActShapNumericAndCategorical(ValidationError):
-    def __repr__(self) -> str:
-        return "Missing_Pred_or_Act_or_SHAP_Numeric_and_Categorical"
-
-    def error_message(self) -> str:
-        return (
-            "For a numeric model or a categorical model, the schema must specify at least one "
-            "of the following: prediction label, prediction score, actual label, actual score, "
-            "or SHAP value column names"
-        )
-
-
 class MissingPreprodPredAct(ValidationError):
     def __repr__(self) -> str:
         return "Missing_Preproduction_Pred_and_Act"
