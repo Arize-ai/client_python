@@ -123,7 +123,6 @@ class Validator:
 
             if model_type in NUMERIC_MODEL_TYPES:
                 num_checks = chain(
-                    Validator._check_existence_pred_act_shap_score_or_label(schema),
                     Validator._check_existence_preprod_pred_act_score_or_label(schema, environment),
                     Validator._check_missing_object_detection_columns(schema, model_type),
                     Validator._check_missing_multi_class_columns(schema, model_type),
@@ -131,7 +130,6 @@ class Validator:
                 return list(chain(general_checks, num_checks))
             elif model_type in CATEGORICAL_MODEL_TYPES:
                 sc_checks = chain(
-                    Validator._check_existence_pred_act_shap_score_or_label(schema),
                     Validator._check_existence_preprod_pred_act_score_or_label(schema, environment),
                     Validator._check_missing_object_detection_columns(schema, model_type),
                     Validator._check_missing_multi_class_columns(schema, model_type),
@@ -849,24 +847,6 @@ class Validator:
         if environment in (env for env in Environments):
             return []
         return [err.InvalidEnvironment()]
-
-    @staticmethod
-    def _check_existence_pred_act_shap_score_or_label(
-        schema: Schema,
-    ) -> List[err.MissingPredActShapNumericAndCategorical]:
-        if (
-            (
-                schema.prediction_label_column_name is not None
-                or schema.prediction_score_column_name is not None
-            )
-            or (
-                schema.actual_label_column_name is not None
-                or schema.actual_score_column_name is not None
-            )
-            or schema.shap_values_column_names is not None
-        ):
-            return []
-        return [err.MissingPredActShapNumericAndCategorical()]
 
     @staticmethod
     def _check_existence_preprod_pred_act_score_or_label(

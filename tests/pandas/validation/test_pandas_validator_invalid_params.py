@@ -300,23 +300,6 @@ def test_invalid_model_version_blank_str_val():
     assert type(errors[0]) is err.InvalidModelVersion
 
 
-def test_missing_pred_act_shap():
-    kwargs = get_standard_kwargs()
-    errors = Validator.validate_params(
-        **ChainMap(
-            {
-                "environment": Environments.PRODUCTION,
-                "schema": Schema(
-                    prediction_id_column_name="prediction_id",
-                ),
-            },
-            kwargs,
-        )  # type: ignore
-    )
-    assert len(errors) == 1
-    assert type(errors[0]) is err.MissingPredActShapNumericAndCategorical
-
-
 def test_missing_pred_label_score_categorical():
     kwargs = get_standard_kwargs()
     errors = Validator.validate_params(
@@ -396,9 +379,8 @@ def test_missing_multiple_train():
             kwargs,
         )  # type: ignore
     )
-    assert len(errors) == 2
+    assert len(errors) == 1
     assert any(type(e) is err.MissingPreprodPredActNumericAndCategorical for e in errors)
-    assert any(type(e) is err.MissingPredActShapNumericAndCategorical for e in errors)
 
 
 def test_missing_preprod_pred_act_val():
@@ -434,10 +416,9 @@ def test_missing_multiple_val():
             kwargs,
         )  # type: ignore
     )
-    assert len(errors) == 3
+    assert len(errors) == 2
     assert any(type(e) is err.InvalidBatchId for e in errors)
     assert any(type(e) is err.MissingPreprodPredActNumericAndCategorical for e in errors)
-    assert any(type(e) is err.MissingPredActShapNumericAndCategorical for e in errors)
 
 
 def test_existence_prompt_response_column_names():

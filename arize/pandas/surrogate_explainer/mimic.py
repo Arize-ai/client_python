@@ -114,7 +114,7 @@ class Mimic:
                 pd.DataFrame(
                     {
                         name: LabelEncoder().fit_transform(data)
-                        for name, data in X.select_dtypes(object).iteritems()
+                        for name, data in X.select_dtypes(object).items()
                     },
                     index=X.index,
                 ),
