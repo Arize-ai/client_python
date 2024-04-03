@@ -139,11 +139,7 @@ class Client:
                 SPAN_OPENINFERENCE_COLUMNS,
                 SPAN_SPAN_ID_COL,
             )
-            from .tracing.utils import (
-                convert_timestamps,
-                jsonify_dictionaries,
-                sanitize_dataframe_column_names,
-            )
+            from .tracing.utils import convert_timestamps, jsonify_dictionaries
         except ImportError:
             msg = (
                 "Could not import necessary dependencies to use tracing module. "
@@ -246,8 +242,6 @@ class Client:
         if evals_df is None:
             df = spans_df
         else:
-            # If an eval has spaces in their name then replace the spaces with underscores
-            evals_df = sanitize_dataframe_column_names(evals_df)
             # We have already validated that the dataframes both contain the span_id and ensured that
             # they contain no other overlapping columns by removing columns that do not fit their
             # respective conventions.

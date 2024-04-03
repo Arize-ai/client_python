@@ -102,13 +102,6 @@ def _jsonify_dict(d: Optional[Dict[str, Any]]) -> Optional[str]:
     return json.dumps(d, ensure_ascii=False)
 
 
-# Replaces spaces in column names with underscores
-def sanitize_dataframe_column_names(df: pd.DataFrame) -> pd.DataFrame:
-    return df.rename(
-        columns={col: col.replace(" ", "_") for col in df.columns},
-    )
-
-
 # Defines what is considered a missing value
 def isMissingValue(value: Any) -> bool:
     assumed_missing_values = (
