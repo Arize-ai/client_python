@@ -11,7 +11,7 @@ MAX_DOCUMENT_ID_LEN = 128
 MAX_TAG_LENGTH = 20_000
 MAX_TAG_LENGTH_TRUNCATION = 1_000
 # The maximum number of character for embedding raw data
-MAX_RAW_DATA_CHARACTERS = 50_000
+MAX_RAW_DATA_CHARACTERS = 2_000_000
 MAX_RAW_DATA_CHARACTERS_TRUNCATION = 5_000
 # The maximum number of acceptable years in the past from current time for prediction_timestamps
 MAX_PAST_YEARS_FROM_CURRENT_TIME = 5

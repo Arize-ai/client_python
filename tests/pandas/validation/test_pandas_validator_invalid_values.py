@@ -791,7 +791,7 @@ def test_invalid_embedding_raw_data_length():
     short_raw_data_string = random_string(MAX_RAW_DATA_CHARACTERS)
     short_raw_data_token_array = [random_string(7) for _ in range(1000)]
     long_raw_data_string = random_string(MAX_RAW_DATA_CHARACTERS + 1)
-    long_raw_data_token_array = [random_string(7) for _ in range(11000)]
+    long_raw_data_token_array = [random_string(1_001) for _ in range(2_000)]
 
     errors = Validator.validate_values(
         **ChainMap(
