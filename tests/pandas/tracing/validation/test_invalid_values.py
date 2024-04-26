@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 
 if sys.version_info >= (3, 8):
-    from arize.pandas.tracing.validation import validate_values
+    from arize.pandas.tracing.validation.evals import evals_validation
 
 valid_spans_dataframe = pd.DataFrame(
     {
@@ -37,10 +37,9 @@ def test_valid_labels_and_explanations():
             ],
         }
     )
-    errors = validate_values(
-        spans_dataframe=valid_spans_dataframe,
-        model_id=valid_model_id,
+    errors = evals_validation.validate_values(
         evals_dataframe=evals_dataframe,
+        model_id=valid_model_id,
     )
     assert len(errors) == 0, "Expected no validation errors for valid labels and explanations"
 
@@ -57,10 +56,9 @@ def test_label_not_empty_string():
             ],
         }
     )
-    errors = validate_values(
-        spans_dataframe=valid_spans_dataframe,
-        model_id=valid_model_id,
+    errors = evals_validation.validate_values(
         evals_dataframe=evals_dataframe,
+        model_id=valid_model_id,
     )
     assert len(errors) > 0, "Expected validation errors for empty string labels"
 
@@ -75,10 +73,9 @@ def test_label_exceeds_max_length():
             ],
         }
     )
-    errors = validate_values(
-        spans_dataframe=valid_spans_dataframe,
-        model_id=valid_model_id,
+    errors = evals_validation.validate_values(
         evals_dataframe=evals_dataframe,
+        model_id=valid_model_id,
     )
     assert len(errors) > 0, "Expected validation errors for labels exceeding max length"
 
@@ -95,10 +92,9 @@ def test_explanation_exceeds_max_length():
             ],
         }
     )
-    errors = validate_values(
-        spans_dataframe=valid_spans_dataframe,
-        model_id=valid_model_id,
+    errors = evals_validation.validate_values(
         evals_dataframe=evals_dataframe,
+        model_id=valid_model_id,
     )
     assert len(errors) > 0, "Expected validation errors for explanations exceeding max length"
 
@@ -115,10 +111,9 @@ def test_valid_float_values():
             ],
         }
     )
-    errors = validate_values(
-        spans_dataframe=valid_spans_dataframe,
-        model_id=valid_model_id,
+    errors = evals_validation.validate_values(
         evals_dataframe=evals_dataframe,
+        model_id=valid_model_id,
     )
     assert len(errors) == 0, "Expected no validation errors for valid float values"
 
@@ -135,10 +130,9 @@ def test_infinite_values_present():
             ],
         }
     )
-    errors = validate_values(
-        spans_dataframe=valid_spans_dataframe,
-        model_id=valid_model_id,
+    errors = evals_validation.validate_values(
         evals_dataframe=evals_dataframe,
+        model_id=valid_model_id,
     )
     assert len(errors) > 0, "Expected validation errors for infinite values present"
 
@@ -157,10 +151,9 @@ def test_valid_null_values():
             "eval.eval_4.score": [None, 95, None],
         }
     )
-    errors = validate_values(
-        spans_dataframe=valid_spans_dataframe,
-        model_id=valid_model_id,
+    errors = evals_validation.validate_values(
         evals_dataframe=evals_dataframe,
+        model_id=valid_model_id,
     )
     assert (
         len(errors) == 0
@@ -178,10 +171,9 @@ def test_invalid_null_values():
             "eval.eval_1.explanation": ["explantion 1", "explanation 2"],
         }
     )
-    errors = validate_values(
-        spans_dataframe=valid_spans_dataframe,
-        model_id=valid_model_id,
+    errors = evals_validation.validate_values(
         evals_dataframe=evals_dataframe,
+        model_id=valid_model_id,
     )
     assert (
         len(errors) > 0

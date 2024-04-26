@@ -178,7 +178,7 @@ def generate_mock_eval_data(input_df: pd.DataFrame) -> pd.DataFrame:
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
-def test_zero_errors():
+def test_log_spans_zero_errors():
     try:
         log_spans(
             df=generate_mock_data(10),
@@ -188,12 +188,12 @@ def test_zero_errors():
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
-def test_zero_errors_with_evals():
+def test_log_spans_with_evals_zero_errors():
     df = generate_mock_data(10)
     evals_df = generate_mock_eval_data(df)
     try:
         log_spans(
-            df=generate_mock_data(10),
+            df=df,
             evals_df=evals_df,
         )
     except Exception:
@@ -201,11 +201,32 @@ def test_zero_errors_with_evals():
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
+def test_log_evals_zero_errors():
+    df = generate_mock_data(10)
+    evals_df = generate_mock_eval_data(df)
+    try:
+        log_evals(
+            df=evals_df,
+        )
+    except Exception:
+        pytest.fail("Unexpected error")
+
+
 def log_spans(df: pd.DataFrame, evals_df: Optional[pd.DataFrame] = None) -> Response:
     client = NoSendClient("apikey", "spaceKey")
     response = client.log_spans(
         dataframe=df,
         evals_dataframe=evals_df,
+        model_id="model-id",
+        model_version="1.0",
+    )
+    return response
+
+
+def log_evals(df: pd.DataFrame) -> Response:
+    client = NoSendClient("apikey", "spaceKey")
+    response = client.log_evaluations(
+        dataframe=df,
         model_id="model-id",
         model_version="1.0",
     )

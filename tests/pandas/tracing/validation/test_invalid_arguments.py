@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 
 if sys.version_info >= (3, 8):
-    from arize.pandas.tracing.validation import validate_dataframe_form
+    from arize.pandas.tracing.validation.evals import evals_validation
 
 valid_spans_dataframe = pd.DataFrame(
     {
@@ -36,9 +36,7 @@ def test_valid_eval_column_types():
             ],
         }
     )
-    errors = validate_dataframe_form(
-        spans_dataframe=valid_spans_dataframe, evals_dataframe=evals_dataframe
-    )
+    errors = evals_validation.validate_dataframe_form(evals_dataframe=evals_dataframe)
     assert len(errors) == 0, "Expected no validation errors for all columns"
 
 
@@ -53,9 +51,7 @@ def test_invalid_label_columns_type():
             ],
         }
     )
-    errors = validate_dataframe_form(
-        spans_dataframe=valid_spans_dataframe, evals_dataframe=evals_dataframe
-    )
+    errors = evals_validation.validate_dataframe_form(evals_dataframe=evals_dataframe)
     assert len(errors) > 0, "Expected validation errors for label columns with incorrect type"
 
 
@@ -70,9 +66,7 @@ def test_invalid_score_columns_type():
             ],
         }
     )
-    errors = validate_dataframe_form(
-        spans_dataframe=valid_spans_dataframe, evals_dataframe=evals_dataframe
-    )
+    errors = evals_validation.validate_dataframe_form(evals_dataframe=evals_dataframe)
     assert len(errors) > 0, "Expected validation errors for score columns with incorrect type"
 
 
@@ -87,9 +81,7 @@ def test_invalid_explanation_columns_type():
             ],
         }
     )
-    errors = validate_dataframe_form(
-        spans_dataframe=valid_spans_dataframe, evals_dataframe=evals_dataframe
-    )
+    errors = evals_validation.validate_dataframe_form(evals_dataframe=evals_dataframe)
     assert len(errors) > 0, "Expected validation errors for explanation columns with incorrect type"
 
 

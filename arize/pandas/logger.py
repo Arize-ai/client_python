@@ -57,6 +57,12 @@ INVALID_ARROW_CONVERSION_MSG = (
     "Another reason may be that a column in the dataframe has a mix of strings and "
     "numbers, in which case you may want to convert the strings in that column to NaN. "
 )
+MISSING_TRACING_DEPS_ERROR_MSG = (
+    "Could not import necessary packages for logging LLM spans "
+    "and/or evaluations. It is possible that you are missing the "
+    "tracing extra dependencies. If so, please install them with "
+    "pip install 'arize[Tracing]'"
+)
 
 
 class Client:
@@ -128,10 +134,37 @@ class Client:
         timeout: Optional[float] = None,
         verbose: Optional[bool] = False,
     ) -> requests.Response:
-        # TODO(Kiko): Add docstring
+        f"""
+        Logs a pandas dataframe containing LLM tracing data to Arize via a POST request. Returns a
+        :class:`Response` object from the Requests HTTP library to ensure successful delivery of
+        records.
+
+        Arguments:
+        ----------
+            dataframe (pd.DataFrame): The dataframe containing the LLM traces.
+            model_id (str): A unique name to identify your model in the Arize platform.
+            model_version (str, optional): Used to group a subset of traces a given
+                model_id to compare and track changes. Defaults to None.
+            evals_dataframe (pd.DataFrame, optional): A dataframe containing LLM evaluations data.
+                The evaluations are joined to their corresponding spans via a left outer join, i.e.,
+                using only `context.span_id` from the spans dataframe. Defaults to None.
+            datetime_format (str): format for the timestamp captured in the LLM traces.
+                Defaults to {DEFAULT_DATETIME_FMT}.
+            validate (bool, optional): When set to True, validation is run before sending data.
+                Defaults to True.
+            path (str, optional): Temporary directory/file to store the serialized data in binary
+                before sending to Arize.
+            timeout (float, optional): You can stop waiting for a response after a given number
+                of seconds with the timeout parameter. Defaults to None.
+            verbose: (bool, optional) = When set to true, info messages are printed. Defaults to
+                False.
+
+        Returns:
+        --------
+            `Response` object
+        """
 
         try:
-            from .tracing import validation as tracing_validation
             from .tracing.columns import (
                 EVAL_COLUMN_PATTERN,
                 ROOT_LEVEL_SPAN_KIND_COL,
@@ -140,12 +173,10 @@ class Client:
                 SPAN_SPAN_ID_COL,
             )
             from .tracing.utils import convert_timestamps, jsonify_dictionaries
+            from .tracing.validation.evals import evals_validation
+            from .tracing.validation.spans import spans_validation
         except ImportError:
-            msg = (
-                "Could not import necessary dependencies to use tracing module. "
-                "Please install them with 'pip install arize[Tracing]'"
-            )
-            raise ImportError(msg)
+            raise ImportError(MISSING_TRACING_DEPS_ERROR_MSG)
         # We need our own copy since we will manipulate the underlying data and
         # do not want side effects
         spans_df = dataframe.copy()
@@ -165,13 +196,19 @@ class Client:
 
         if verbose:
             logger.info("Performing direct input type validation.")
-        errors = tracing_validation.validate_argument_types(
+        errors = spans_validation.validate_argument_types(
             spans_dataframe=spans_df,
-            evals_dataframe=evals_df,
             model_id=model_id,
             model_version=model_version,
             dt_fmt=datetime_format,
         )
+        if evals_df is not None:
+            eval_errors = evals_validation.validate_argument_types(
+                evals_dataframe=evals_df,
+                model_id=model_id,
+                model_version=model_version,
+            )
+            errors += eval_errors
         if errors:
             for e in errors:
                 logger.error(e)
@@ -180,10 +217,10 @@ class Client:
         if validate:
             if verbose:
                 logger.info("Performing dataframe form validation.")
-            errors = tracing_validation.validate_dataframe_form(
-                spans_dataframe=spans_df,
-                evals_dataframe=evals_df,
-            )
+            errors = spans_validation.validate_dataframe_form(spans_dataframe=spans_df)
+            if evals_df is not None:
+                eval_errors = evals_validation.validate_dataframe_form(evals_dataframe=evals_df)
+                errors += eval_errors
             if errors:
                 for e in errors:
                     logger.error(e)
@@ -214,12 +251,18 @@ class Client:
         if validate:
             if verbose:
                 logger.info("Performing values validation.")
-            errors = tracing_validation.validate_values(
+            errors = spans_validation.validate_values(
                 spans_dataframe=spans_df,
                 model_id=model_id,
                 model_version=model_version,
-                evals_dataframe=evals_df,
             )
+            if evals_df is not None:
+                eval_errors = evals_validation.validate_values(
+                    evals_dataframe=evals_df,
+                    model_id=model_id,
+                    model_version=model_version,
+                )
+                errors += eval_errors
             if errors:
                 for e in errors:
                     logger.error(e)
@@ -259,6 +302,135 @@ class Client:
         if verbose:
             logger.debug("Getting pyarrow table from pandas dataframe.")
         ta = pa.Table.from_pandas(df)
+
+        proto_schema = proto._get_pb_schema_tracing(
+            model_id=model_id,
+            model_version=model_version,
+        )
+        return self._log_arrow(
+            pa_table=ta,
+            pa_schema=pa_schema,
+            proto_schema=proto_schema,
+            path=path,
+            verbose=verbose,
+            timeout=timeout,
+        )
+
+    def log_evaluations(
+        self,
+        dataframe: pd.DataFrame,
+        model_id: str,
+        model_version: Optional[str] = None,
+        validate: Optional[bool] = True,
+        path: Optional[str] = None,
+        timeout: Optional[float] = None,
+        verbose: Optional[bool] = False,
+    ) -> requests.Response:
+        """
+        Logs a pandas dataframe containing LLM evaluations data to Arize via a POST request. The dataframe
+        must contain a column `context.span_id` such that Arize can assign each evaluation to its
+        respective span.
+        Returns a :class:`Response` object from the Requests HTTP library to ensure successful delivery of
+        records.
+
+        Arguments:
+        ----------
+            dataframe (pd.DataFrame): A dataframe containing LLM evaluations data.
+            model_id (str): A unique name to identify your model in the Arize platform. It should match
+                the model_id of the spans sent previously, to which evaluations will be assigned.
+            model_version (str, optional): Used to group a subset of traces a given
+                model_id to compare and track changes. It should match the model_id of the spans
+                sent previously, to which evaluations will be assigned. Defaults to None.
+            validate (bool, optional): When set to True, validation is run before sending data.
+                Defaults to True.
+            path (str, optional): Temporary directory/file to store the serialized data in binary
+                before sending to Arize.
+            timeout (float, optional): You can stop waiting for a response after a given number
+                of seconds with the timeout parameter. Defaults to None.
+            verbose: (bool, optional) = When set to true, info messages are printed. Defaults to
+                False.
+
+        Returns:
+        --------
+            `Response` object
+        """
+
+        try:
+            from .tracing.columns import EVAL_COLUMN_PATTERN, SPAN_SPAN_ID_COL
+            from .tracing.validation.evals import evals_validation
+        except ImportError:
+            raise ImportError(MISSING_TRACING_DEPS_ERROR_MSG)
+        # We need our own copy since we will manipulate the underlying data and
+        # do not want side effects
+        evals_df = dataframe.copy()
+
+        # Send the number of rows in the dataframe as a header
+        # This helps the Arize server to return appropriate feedback, specially for async logging
+        self._headers.update({"number-of-rows": str(len(evals_df))})
+
+        # We expect the index to be 0,1,2,3..., len(df)-1. Phoenix, for example, will give us a dataframe
+        # with context_id as the index
+        reset_dataframe_index(dataframe=evals_df)
+
+        if verbose:
+            logger.info("Performing direct input type validation.")
+        errors = evals_validation.validate_argument_types(
+            evals_dataframe=evals_df,
+            model_id=model_id,
+            model_version=model_version,
+        )
+        if errors:
+            for e in errors:
+                logger.error(e)
+            raise err.ValidationFailure(errors)
+
+        if validate:
+            if verbose:
+                logger.info("Performing dataframe form validation.")
+            errors = evals_validation.validate_dataframe_form(evals_dataframe=evals_df)
+            if errors:
+                for e in errors:
+                    logger.error(e)
+                raise err.ValidationFailure(errors)
+
+        if verbose:
+            logger.debug("Removing unnecessary columns.")
+        evals_df = self._remove_extraneous_columns(
+            df=evals_df,
+            column_list=[SPAN_SPAN_ID_COL.name],
+            regex=EVAL_COLUMN_PATTERN,
+        )
+
+        if model_id is not None:
+            model_id = str(model_id)
+
+        if model_version is not None:
+            model_version = str(model_version)
+
+        if validate:
+            if verbose:
+                logger.info("Performing values validation.")
+            errors = evals_validation.validate_values(
+                evals_dataframe=evals_df,
+                model_id=model_id,
+                model_version=model_version,
+            )
+            if errors:
+                for e in errors:
+                    logger.error(e)
+                raise err.ValidationFailure(errors)
+
+        try:
+            if verbose:
+                logger.debug("Getting pyarrow schema from pandas dataframe.")
+            pa_schema = pa.Schema.from_pandas(evals_df)
+        except pa.ArrowInvalid:
+            logger.error(INVALID_ARROW_CONVERSION_MSG)
+            raise
+
+        if verbose:
+            logger.debug("Getting pyarrow table from pandas dataframe.")
+        ta = pa.Table.from_pandas(evals_df)
 
         proto_schema = proto._get_pb_schema_tracing(
             model_id=model_id,

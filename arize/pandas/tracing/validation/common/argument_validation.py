@@ -1,29 +1,8 @@
-from itertools import chain
-from typing import Any, List, Optional
+from typing import Any, List
 
 import pandas as pd
-from arize.pandas.tracing.validation import errors as tracing_err
+from arize.pandas.tracing.validation.common import errors as tracing_err
 from arize.pandas.validation import errors as err
-
-
-def validate_argument_types(
-    spans_dataframe: pd.DataFrame,
-    model_id: str,
-    dt_fmt: str,
-    evals_dataframe: Optional[pd.DataFrame] = None,
-    model_version: Optional[str] = None,
-) -> List[err.ValidationError]:
-    checks = chain(
-        _check_field_convertible_to_str(model_id, model_version),
-        _check_dataframe_type(spans_dataframe),
-        _check_datetime_format_type(dt_fmt),
-    )
-    if evals_dataframe is not None:
-        checks = chain(
-            checks,
-            _check_dataframe_type(evals_dataframe),
-        )
-    return list(checks)
 
 
 def _check_field_convertible_to_str(
