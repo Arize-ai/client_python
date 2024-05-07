@@ -41,3 +41,6 @@ JSON_STRING_MAX_STR_LENGTH = 4_000_000
 EVAL_LABEL_MIN_STR_LENGTH = 1  # we do not accept empty strings
 EVAL_LABEL_MAX_STR_LENGTH = 100
 EVAL_EXPLANATION_MAX_STR_LENGTH = 10_000
+# Maximum number of characters for session/user ids in spans
+SESSION_ID_MAX_STR_LENGTH = 128
+USER_ID_MAX_STR_LENGTH = 128

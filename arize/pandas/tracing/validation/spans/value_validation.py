@@ -213,6 +213,20 @@ def _check_span_attributes_values(
                 dataframe,
                 col_name=tracing_cols.SPAN_ATTRIBUTES_RERANKER_OUTPUT_DOCUMENTS_COL.name,
             ),
+            value_validation._check_string_column_value_length(
+                df=dataframe,
+                col_name=tracing_cols.SPAN_ATTRIBUTES_SESSION_ID.name,
+                min_len=0,
+                max_len=tracing_constants.SESSION_ID_MAX_STR_LENGTH,
+                is_required=tracing_cols.SPAN_ATTRIBUTES_SESSION_ID.required,
+            ),
+            value_validation._check_string_column_value_length(
+                df=dataframe,
+                col_name=tracing_cols.SPAN_ATTRIBUTES_USER_ID.name,
+                min_len=0,
+                max_len=tracing_constants.USER_ID_MAX_STR_LENGTH,
+                is_required=tracing_cols.SPAN_ATTRIBUTES_USER_ID.required,
+            ),
         )
     )
 

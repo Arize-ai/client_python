@@ -11,22 +11,22 @@ def test_response_url():
             {
                 "realTimeIngestionUri": (
                     "https://app.dev.arize.com/"
-                    "organizations/5/"
-                    "spaces/5/"
-                    "modelName/"
+                    "organizations/test-hmac-org/"
+                    "spaces/test-hmac-space/"
+                    "models/modelName/"
                     "z-upload-classification-data-with-arize?"
-                    "selectedTab=dataIngestion"
+                    "selectedTab=overview"
                 )
             }
         ).encode()
     )
     expected = (
         "https://app.dev.arize.com/"
-        "organizations/QWNjb3VudE9yZ2FuaXphdGlvbjo1/"
-        "spaces/U3BhY2U6NQ==/models/"
+        "organizations/test-hmac-org/"
+        "spaces/test-hmac-space/models/"
         "modelName/"
         "z-upload-classification-data-with-arize?"
-        "selectedTab=dataIngestion"
+        "selectedTab=overview"
     )
     assert utils.reconstruct_url(input) == expected
 
