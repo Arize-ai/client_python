@@ -27,7 +27,11 @@ def _log_info_dataframe_extra_column_names(
     if irrelevant_columns:
         logger.info(
             "The following columns do not follow the evaluation column naming convention "
-            f"and will be ignored: {log_a_list(list_of_str=irrelevant_columns, join_word='and')}"
+            f"and will be ignored: {log_a_list(list_of_str=irrelevant_columns, join_word='and')}."
+            "Evaluation columns must be named as follows: "
+            "- eval.<your-eval-name>.label"
+            "- eval.<your-eval-name>.score"
+            "- eval.<your-eval-name>.explanation"
         )
     return None
 

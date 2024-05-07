@@ -717,15 +717,7 @@ class Client:
         if verbose:
             logger.debug("Serializing schema.")
         base64_schema = base64.b64encode(proto_schema.SerializeToString())
-        # For backwards compatibility we must ensure on-prem customers with old
-        # deployments don't get their pipelines disrupted. Hence, we send the schema
-        # in the header (as we used to) and only we send it in the body if
-        # it is larger than the header limit
-        # For version 8.x, we will only send the schema as part of the body
-        if len(base64_schema) <= 63000:
-            self._headers.update({"schema": base64_schema})
-        else:
-            pa_schema = self._append_to_pyarrow_metadata(pa_schema, {"arize-schema": base64_schema})
+        pa_schema = self._append_to_pyarrow_metadata(pa_schema, {"arize-schema": base64_schema})
 
         if path is None:
             tmp_dir = tempfile.mkdtemp()
@@ -763,9 +755,9 @@ class Client:
                     pass
 
         try:
-            logger.info(
-                f"Success! Check out your data at {reconstruct_url(response,drop_in_data_ingestion=False)}"
-            )
+            url = reconstruct_url(response, drop_in_data_ingestion=False)
+            if url != "":
+                logger.info(f"Success! Check out your data at {url}")
         except Exception:
             pass
 
