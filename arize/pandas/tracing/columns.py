@@ -223,6 +223,14 @@ SPAN_ATTRIBUTES_RERANKER_TOP_K_COL = SpanColumn(
     name=f"attributes.{oinf.RerankerAttributes.RERANKER_TOP_K}",
     data_type=SpanColumnDataType.NUMERIC,
 )
+SPAN_ATTRIBUTES_SESSION_ID = SpanColumn(
+    name=f"attributes.{oinf.SpanAttributes.SESSION_ID}",
+    data_type=SpanColumnDataType.STRING,
+)
+SPAN_ATTRIBUTES_USER_ID = SpanColumn(
+    name=f"attributes.{oinf.SpanAttributes.USER_ID}",
+    data_type=SpanColumnDataType.STRING,
+)
 
 # TODO(Kiko): Add a test that checks no dupes in following lists
 SPAN_OPENINFERENCE_COLUMNS = [
@@ -266,6 +274,8 @@ SPAN_OPENINFERENCE_COLUMNS = [
     SPAN_ATTRIBUTES_RERANKER_QUERY_COL,
     SPAN_ATTRIBUTES_RERANKER_MODEL_NAME_COL,
     SPAN_ATTRIBUTES_RERANKER_TOP_K_COL,
+    SPAN_ATTRIBUTES_SESSION_ID,
+    SPAN_ATTRIBUTES_USER_ID,
 ]
 
 # List of columns that must be present in the dataframe

@@ -149,6 +149,8 @@ def generate_mock_data(n) -> pd.DataFrame:
             "attributes.reranker_query": [f"Query{i}" for i in range(n)],
             "attributes.reranker_model_name": [f"RerankerModelName{i}" for i in range(n)],
             "attributes.reranker_top_k": np.random.randint(1, 10, n),
+            "attributes.session.id": [f"SessionID{i}" for i in range(n)],
+            "attributes.user.id": [f"UserID{i}" for i in range(n)],
         }
     )
     start_times, end_times = random_timestamps(n)

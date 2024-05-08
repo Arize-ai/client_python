@@ -1,5 +1,4 @@
 # type: ignore[pb2]
-import base64
 import json
 import math
 import sys
@@ -153,18 +152,9 @@ def is_timestamp_in_range(now: int, ts: int):
 
 
 def reconstruct_url(response: Any, drop_in_data_ingestion: bool = True):
-    returnedUrl = json.loads(response.content.decode())["realTimeIngestionUri"]
-    parts = returnedUrl.split("/")
-    encodedOrg = base64.b64encode(f"AccountOrganization:{parts[4]}".encode()).decode()
-    encodedSpace = base64.b64encode(f"Space:{parts[6]}".encode()).decode()
-    reconstructed = (
-        f"https://{parts[2]}/organizations/{encodedOrg}/spaces/"
-        f"{encodedSpace}/models/modelName/{parts[-1]}"
-    )
-    suffix = "?selectedTab=dataIngestion"
-    if not drop_in_data_ingestion and reconstructed.endswith(suffix):
-        reconstructed = reconstructed.split(suffix)[0]
-    return reconstructed
+    if "realTimeIngestionUri" in json.loads(response.content.decode()):
+        return json.loads(response.content.decode())["realTimeIngestionUri"]
+    return ""
 
 
 def get_python_version():
