@@ -1,6 +1,7 @@
 import json
 import math
 from dataclasses import asdict, dataclass, replace
+from datetime import datetime
 from enum import Enum, unique
 from itertools import chain
 from typing import Dict, List, NamedTuple, Optional, Sequence, Set, TypeVar, Union
@@ -10,6 +11,7 @@ import pandas as pd
 from arize.utils.constants import (
     MAX_MULTI_CLASS_NAME_LENGTH,
     MAX_NUMBER_OF_MULTI_CLASS_CLASSES,
+    MAX_NUMBER_OF_SIMILARITY_REFERENCES,
     MAX_PREDICTION_ID_LEN,
     MAX_RAW_DATA_CHARACTERS,
     MAX_RAW_DATA_CHARACTERS_TRUNCATION,
@@ -694,6 +696,47 @@ class DocumentColumnNames:
         )
 
 
+@dataclass
+class SimilarityReference:
+    prediction_id: str
+    reference_column_name: str
+    prediction_timestamp: datetime
+
+    def __post_init__(self):
+        if self.prediction_id == "":
+            raise ValueError("prediction id cannot be empty")
+        if self.reference_column_name == "":
+            raise ValueError("Reference column name cannot be empty")
+        if not self.prediction_timestamp:
+            raise ValueError("prediction_timestamp must be provided")
+        if not isinstance(self.prediction_timestamp, datetime):
+            raise TypeError("prediction_timestamp must be a datetime object")
+
+
+@dataclass
+class SimilaritySearchParams:
+    references: List[SimilarityReference]
+    search_column_name: str
+    threshold: float = 0
+
+    def __post_init__(self):
+        if (
+            not self.references
+            or len(self.references) <= 0
+            or len(self.references) > MAX_NUMBER_OF_SIMILARITY_REFERENCES
+        ):
+            raise ValueError(
+                f"must have at least 1 and no more than {MAX_NUMBER_OF_SIMILARITY_REFERENCES} references"
+            )
+        if self.search_column_name == "":
+            raise ValueError("search column name cannot be empty")
+        if self.threshold > 1 or self.threshold < -1:
+            raise ValueError("threshold cannot be outside of range -1, 1")
+        for reference in self.references:
+            if not isinstance(reference, SimilarityReference):
+                raise TypeError("all references must be instances of SimilarityReference")
+
+
 @dataclass(frozen=True)
 class BaseSchema:
     def replace(self, **changes):
@@ -1030,6 +1073,8 @@ def is_json_str(s: str) -> bool:
     try:
         json.loads(s)
     except ValueError:
+        return False
+    except TypeError:
         return False
     return True
 
