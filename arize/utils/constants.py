@@ -32,6 +32,8 @@ MAX_EMBEDDING_DIMENSIONALITY = 20_000
 # The maximum number of classes for multi class
 MAX_NUMBER_OF_MULTI_CLASS_CLASSES = 300
 MAX_MULTI_CLASS_NAME_LENGTH = 50
+# The maximum number of references in embedding similarity search params
+MAX_NUMBER_OF_SIMILARITY_REFERENCES = 10
 
 # Arize generated columns
 GENERATED_PREDICTION_LABEL_COL = "arize_generated_prediction_label"

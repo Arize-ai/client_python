@@ -5,7 +5,7 @@ from typing import Optional, Tuple
 
 import pandas as pd
 import pyarrow.parquet as pq
-from arize.utils.types import Environments
+from arize.utils.types import Environments, SimilaritySearchParams
 from google.protobuf.timestamp_pb2 import Timestamp
 from pyarrow import flight
 from tqdm import tqdm
@@ -77,6 +77,7 @@ class ArizeExportClient:
         model_version: Optional[str] = None,
         batch_id: Optional[str] = None,
         where: Optional[str] = None,
+        similarity_search_params: Optional[SimilaritySearchParams] = None,
     ) -> pd.DataFrame:
         """
         Exports data of a specific model in the Arize platform to a pandas dataframe for a defined
@@ -94,17 +95,22 @@ class ArizeExportClient:
                 is inclusive. Time interval has hourly granularity.
             end_time (datetime): The end time for the data to export for the model, end time is not
                 inclusive. Time interval has hourly granularity.
-            include_actuals (bool): An optional input to indicate whether to include actuals
+            include_actuals (bool, optional): An input to indicate whether to include actuals
                 / ground truth in the data to export. `include_actuals` only applies to the Production
                 environment and defaults to 'False'.
-            model_version (str, optional): An optional input to indicate the version of the model to
+            model_version (str, optional): An input to indicate the version of the model to
                 export. Model versions for all model environments can be found in the Datasets tab on
                 the model page in the Arize UI. Defaults to None.
-            batch_id (str, optional): An optional input to indicate the batch name of the model to export.
+            batch_id (str, optional): An input to indicate the batch name of the model to export.
                 Batches only apply to the Validation environment, and can be found in the Datasets tab on
                 the model page in the Arize UI. Defaults to None.
-            where (str, optional): An optional input to provide sql like where statement to filter a
+            where (str, optional): An input to provide sql like where statement to filter a
                 subset of records from the model, e.g. "age > 50 And state='CA'". Defaults to None.
+            similarity_search_params (SimilaritySearchParams, optional): Parameters for embedding similarity
+                search using cosine similarity. It includes 'references', a list of reference embeddings for
+                comparison; 'search_column_name', specifying the column that contains the embeddings to search
+                within; and 'threshold', which sets the cosine similarity threshold required for embeddings to
+                be considered similar.
 
         Returns:
         --------
@@ -120,6 +126,7 @@ class ArizeExportClient:
             model_version=model_version,
             batch_id=batch_id,
             where=where,
+            similarity_search_params=similarity_search_params,
         )
         if stream_reader is None:
             return pd.DataFrame()
@@ -152,6 +159,7 @@ class ArizeExportClient:
         model_version: Optional[str] = None,
         batch_id: Optional[str] = None,
         where: Optional[str] = None,
+        similarity_search_params: Optional[SimilaritySearchParams] = None,
     ) -> None:
         """
         Exports data of a specific model in the Arize platform to a parquet file for a defined time
@@ -171,17 +179,22 @@ class ArizeExportClient:
                 is inclusive. Time interval has hourly granularity.
             end_time (datetime): The end time for the data to export for the model, end time is not
                 inclusive. Time interval has hourly granularity.
-            include_actuals (bool): An optional input to indicate whether to include actuals
+            include_actuals (bool, optional): An input to indicate whether to include actuals
                 / ground truth in the data to export. `include_actuals` only applies to the Production
                 environment and defaults to 'False'.
-            model_version (str, optional): An optional input to indicate the version of the model to
+            model_version (str, optional): An input to indicate the version of the model to
                 export. Model versions for all model environments can be found in the Datasets tab on
                 the model page in the Arize UI. Defaults to None.
-            batch_id (str, optional): An optional input to indicate the batch name of the model to export.
+            batch_id (str, optional): An input to indicate the batch name of the model to export.
                 Batches only apply to the Validation environment, and can be found in the Datasets tab on
                 the model page in the Arize UI. Defaults to None.
-            where (str, optional): An optional input to provide sql like where statement to filter a
+            where (str, optional): An input to provide sql like where statement to filter a
                 subset of records from the model, e.g. "age > 50 And state='CA'". Defaults to None.
+            similarity_search_params (SimilaritySearchParams, optional): Parameters for embedding similarity
+                search using cosine similarity. It includes 'references', a list of reference embeddings for
+                comparison; 'search_column_name', specifying the column that contains the embeddings to search
+                within; and 'threshold', which sets the cosine similarity threshold required for embeddings to
+                be considered similar.
 
         Returns:
         --------
@@ -198,6 +211,7 @@ class ArizeExportClient:
             model_version=model_version,
             batch_id=batch_id,
             where=where,
+            similarity_search_params=similarity_search_params,
         )
         if stream_reader is None:
             return None
@@ -224,6 +238,7 @@ class ArizeExportClient:
         model_version: Optional[str] = None,
         batch_id: Optional[str] = None,
         where: Optional[str] = None,
+        similarity_search_params: Optional[SimilaritySearchParams] = None,
     ) -> Tuple[flight.FlightStreamReader, int]:
         Validator.validate_input_type(space_id, "space_id", str)
         Validator.validate_input_type(model_id, "model_id", str)
@@ -247,6 +262,9 @@ class ArizeExportClient:
             start_time=Timestamp(seconds=int(start_time.timestamp())),
             end_time=Timestamp(seconds=int(end_time.timestamp())),
             filter_expression=where,
+            similarity_search_params=self._to_similarity_proto_params(similarity_search_params)
+            if similarity_search_params
+            else None,
         )
 
         flight_client = self.session.connect()
@@ -263,3 +281,17 @@ class ArizeExportClient:
             colour="#008000",
             unit=" row",
         )
+
+    def _to_similarity_proto_params(
+        self, similarity_params: SimilaritySearchParams
+    ) -> exp_pb2.SimilaritySearchParams:
+        proto_params = exp_pb2.SimilaritySearchParams()
+        proto_params.search_column_name = similarity_params.search_column_name
+        proto_params.threshold = similarity_params.threshold
+        for ref in similarity_params.references:
+            new_ref = proto_params.references.add()
+            new_ref.prediction_id = ref.prediction_id
+            new_ref.reference_column_name = ref.reference_column_name
+            new_ref.prediction_timestamp.FromDatetime(ref.prediction_timestamp)
+
+        return proto_params

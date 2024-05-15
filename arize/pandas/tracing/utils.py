@@ -94,11 +94,16 @@ def _jsonify_list_of_dicts(
 
 
 def _jsonify_dict(d: Optional[Dict[str, Any]]) -> Optional[str]:
+    if d is None:
+        return
+    d = d.copy()  # avoid side effects
     if isMissingValue(d):
         return None
     for k, v in d.items():
         if isinstance(v, np.ndarray):
             d[k] = v.tolist()
+        if isinstance(v, dict):
+            d[k] = _jsonify_dict(v)
     return json.dumps(d, ensure_ascii=False)
 
 
