@@ -1781,9 +1781,9 @@ class Validator:
     def _check_id_field_str_length(
         dataframe: pd.DataFrame, schema_name: str, id_col_name: Optional[str]
     ) -> List[err.ValidationError]:
-        f"""
-        Require prediction_id to be a string of length between {MIN_PREDICTION_ID_LEN}
-        and {MAX_PREDICTION_ID_LEN}
+        """
+        Require prediction_id to be a string of length between MIN_PREDICTION_ID_LEN
+        and MAX_PREDICTION_ID_LEN
         """
         # We check whether the column name can be None is allowed in `Validator.validate_params`
         if id_col_name is None:
@@ -1816,9 +1816,9 @@ class Validator:
     def _check_document_id_field_str_length(
         dataframe: pd.DataFrame, schema_name: str, id_col_name: Optional[str]
     ) -> List[err.ValidationError]:
-        f"""
-        Require document id to be a string of length between {MIN_DOCUMENT_ID_LEN}
-        and {MAX_DOCUMENT_ID_LEN}
+        """
+        Require document id to be a string of length between MIN_DOCUMENT_ID_LEN
+        and MAX_DOCUMENT_ID_LEN
         """
         # We check whether the column name can be None is allowed in `Validator.validate_params`
         if id_col_name is None:
@@ -2624,11 +2624,16 @@ def _check_value_raw_data_length_helper(
     invalid_long_string_data_cols = []
     truncated_long_string_data_cols = []
     for col in cols_to_check:
-        max_data_len = (
-            dataframe[col]
-            .apply(lambda data: 0 if data is None else count_characters_raw_data(data))
-            .max()
-        )
+        try:
+            max_data_len = (
+                dataframe[col]
+                .apply(lambda data: 0 if data is None else count_characters_raw_data(data))
+                .max()
+            )
+        except TypeError as exc:
+            e = TypeError(f"Cannot validate the column '{col}'. " + str(exc))
+            logger.error(e)
+            raise e
         if max_data_len > MAX_RAW_DATA_CHARACTERS:
             invalid_long_string_data_cols.append(col)
         elif max_data_len > MAX_RAW_DATA_CHARACTERS_TRUNCATION:

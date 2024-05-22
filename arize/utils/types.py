@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass, replace
 from datetime import datetime
 from enum import Enum, unique
 from itertools import chain
-from typing import Dict, List, NamedTuple, Optional, Sequence, Set, TypeVar, Union
+from typing import Dict, Iterable, List, NamedTuple, Optional, Sequence, Set, Tuple, TypeVar, Union
 
 import numpy as np
 import pandas as pd
@@ -12,10 +12,8 @@ from arize.utils.constants import (
     MAX_MULTI_CLASS_NAME_LENGTH,
     MAX_NUMBER_OF_MULTI_CLASS_CLASSES,
     MAX_NUMBER_OF_SIMILARITY_REFERENCES,
-    MAX_PREDICTION_ID_LEN,
     MAX_RAW_DATA_CHARACTERS,
     MAX_RAW_DATA_CHARACTERS_TRUNCATION,
-    MIN_PREDICTION_ID_LEN,
 )
 from arize.utils.errors import InvalidValueType
 from arize.utils.logging import get_truncation_warning_message, logger
@@ -100,7 +98,13 @@ class EmbeddingColumnNames:
             )
 
     def __iter__(self):
-        return iter((self.vector_column_name, self.data_column_name, self.link_to_data_column_name))
+        return iter(
+            (
+                self.vector_column_name,
+                self.data_column_name,
+                self.link_to_data_column_name,
+            )
+        )
 
 
 class Embedding(NamedTuple):
@@ -315,9 +319,6 @@ class LLMRunMetadata(NamedTuple):
 
 
 class ObjectDetectionColumnNames(NamedTuple):
-    bounding_boxes_coordinates_column_name: str
-    categories_column_name: str
-    scores_column_name: Optional[str] = None
     """
     Used to log object detection prediction and actual values that are assigned to the prediction or
     actual schema parameter.
@@ -334,6 +335,10 @@ class ObjectDetectionColumnNames(NamedTuple):
             class is contained within the bounding box. This argument is only applicable for prediction
             values. The contents of this column must be List[float].
     """
+
+    bounding_boxes_coordinates_column_name: str
+    categories_column_name: str
+    scores_column_name: Optional[str] = None
 
 
 class ObjectDetectionLabel(NamedTuple):
@@ -428,8 +433,6 @@ class ObjectDetectionLabel(NamedTuple):
 
 
 class MultiClassPredictionLabel(NamedTuple):
-    prediction_scores: Dict[str, Union[float, int]]
-    threshold_scores: Dict[str, Union[float, int]] = None
     """
     Used to log multi class prediction label
     Arguments:
@@ -440,6 +443,9 @@ class MultiClassPredictionLabel(NamedTuple):
             Only Multi Label will have threshold scores.
     """
 
+    prediction_scores: Dict[str, Union[float, int]]
+    threshold_scores: Dict[str, Union[float, int]] = None
+
     def validate(self):
         # Validate scores
         self._validate_prediction_scores()
@@ -448,7 +454,9 @@ class MultiClassPredictionLabel(NamedTuple):
     def _validate_prediction_scores(self):
         # prediction dictionary validations
         if not is_dict_of(
-            self.prediction_scores, key_allowed_types=str, value_allowed_types=(int, float)
+            self.prediction_scores,
+            key_allowed_types=str,
+            value_allowed_types=(int, float),
         ):
             raise ValueError(
                 "Multi-Class Prediction Scores must be a dictionary with keys of type str "
@@ -485,7 +493,9 @@ class MultiClassPredictionLabel(NamedTuple):
         if self.threshold_scores is None or len(self.threshold_scores) == 0:
             return
         if not is_dict_of(
-            self.threshold_scores, key_allowed_types=str, value_allowed_types=(int, float)
+            self.threshold_scores,
+            key_allowed_types=str,
+            value_allowed_types=(int, float),
         ):
             raise ValueError(
                 "Multi-Class Threshold Scores must be a dictionary with keys of type str "
@@ -523,7 +533,6 @@ class MultiClassPredictionLabel(NamedTuple):
 
 
 class MultiClassActualLabel(NamedTuple):
-    actual_scores: Dict[str, Union[float, int]]
     """
     Used to log multi class actual label
     Arguments:
@@ -532,6 +541,8 @@ class MultiClassActualLabel(NamedTuple):
         actual_scores (Dict[str, Union[float, int]]): the actual scores of the classes.
         Any class in actual_scores with a score of 1 will be sent to arize
     """
+
+    actual_scores: Dict[str, Union[float, int]]
 
     def validate(self):
         # Validate scores
@@ -700,16 +711,14 @@ class DocumentColumnNames:
 class SimilarityReference:
     prediction_id: str
     reference_column_name: str
-    prediction_timestamp: datetime
+    prediction_timestamp: Optional[datetime] = None
 
     def __post_init__(self):
         if self.prediction_id == "":
             raise ValueError("prediction id cannot be empty")
         if self.reference_column_name == "":
             raise ValueError("Reference column name cannot be empty")
-        if not self.prediction_timestamp:
-            raise ValueError("prediction_timestamp must be provided")
-        if not isinstance(self.prediction_timestamp, datetime):
+        if self.prediction_timestamp and not isinstance(self.prediction_timestamp, datetime):
             raise TypeError("prediction_timestamp must be a datetime object")
 
 
@@ -793,7 +802,7 @@ class TypedColumns:
     def get_all_column_names(self) -> List[str]:
         return list(chain.from_iterable(filter(None, self.__dict__.values())))
 
-    def has_duplicate_columns(self) -> (bool, Set[str]):
+    def has_duplicate_columns(self) -> Tuple[bool, Set[str]]:
         # True if there are duplicates within a field's list or across fields.
         # Return a set of the duplicate column names.
         cols = self.get_all_column_names()
@@ -806,31 +815,7 @@ class TypedColumns:
 
 @dataclass(frozen=True)
 class Schema(BaseSchema):
-    prediction_id_column_name: Optional[str] = None
-    feature_column_names: Optional[Union[List[str], TypedColumns]] = None
-    tag_column_names: Optional[Union[List[str], TypedColumns]] = None
-    timestamp_column_name: Optional[str] = None
-    prediction_label_column_name: Optional[str] = None
-    prediction_score_column_name: Optional[str] = None
-    actual_label_column_name: Optional[str] = None
-    actual_score_column_name: Optional[str] = None
-    shap_values_column_names: Optional[Dict[str, str]] = None
-    embedding_feature_column_names: Optional[Dict[str, EmbeddingColumnNames]] = None  # type:ignore
-    prediction_group_id_column_name: Optional[str] = None
-    rank_column_name: Optional[str] = None
-    attributions_column_name: Optional[str] = None
-    relevance_score_column_name: Optional[str] = None
-    relevance_labels_column_name: Optional[str] = None
-    object_detection_prediction_column_names: Optional[ObjectDetectionColumnNames] = None
-    object_detection_actual_column_names: Optional[ObjectDetectionColumnNames] = None
-    prompt_column_names: Optional[Union[str, EmbeddingColumnNames]] = None
-    response_column_names: Optional[Union[str, EmbeddingColumnNames]] = None
-    prompt_template_column_names: Optional[PromptTemplateColumnNames] = None
-    llm_config_column_names: Optional[LLMConfigColumnNames] = None
-    llm_run_metadata_column_names: Optional[LLMRunMetadataColumnNames] = None
-    retrieved_document_ids_column_name: Optional[List[str]] = None
-    multi_class_threshold_scores_column_name: Optional[str] = None
-    f"""
+    """
     Used to organize and map column names containing model data within your Pandas dataframe to
     Arize.
 
@@ -839,9 +824,8 @@ class Schema(BaseSchema):
         prediction_id_column_name (str, optional): Column name for the predictions unique identifier.
             Unique IDs are used to match a prediction to delayed actuals or feature importances in Arize.
             If prediction ids are not provided, it will default to an empty string "" and, when possible,
-            Arize will create a random prediction id on the server side. Contents must be a string and
-            indicate a unique prediction event. Must contain a minimum of {MIN_PREDICTION_ID_LEN} and a
-            maximum of {MAX_PREDICTION_ID_LEN} characters.
+            Arize will create a random prediction id on the server side. Prediction id must be a string column
+            with each row indicating a unique prediction event.
         feature_column_names (Union[List[str], TypedColumns], optional): Column names for features.
             The content of feature columns can be int, float, string. If TypedColumns is used,
             the columns will be cast to the provided types prior to logging.
@@ -909,6 +893,31 @@ class Schema(BaseSchema):
         get_used_columns():
             Returns a set with the unique collection of columns to be used from the dataframe.
     """
+
+    prediction_id_column_name: Optional[str] = None
+    feature_column_names: Optional[Union[List[str], TypedColumns]] = None
+    tag_column_names: Optional[Union[List[str], TypedColumns]] = None
+    timestamp_column_name: Optional[str] = None
+    prediction_label_column_name: Optional[str] = None
+    prediction_score_column_name: Optional[str] = None
+    actual_label_column_name: Optional[str] = None
+    actual_score_column_name: Optional[str] = None
+    shap_values_column_names: Optional[Dict[str, str]] = None
+    embedding_feature_column_names: Optional[Dict[str, EmbeddingColumnNames]] = None  # type:ignore
+    prediction_group_id_column_name: Optional[str] = None
+    rank_column_name: Optional[str] = None
+    attributions_column_name: Optional[str] = None
+    relevance_score_column_name: Optional[str] = None
+    relevance_labels_column_name: Optional[str] = None
+    object_detection_prediction_column_names: Optional[ObjectDetectionColumnNames] = None
+    object_detection_actual_column_names: Optional[ObjectDetectionColumnNames] = None
+    prompt_column_names: Optional[Union[str, EmbeddingColumnNames]] = None
+    response_column_names: Optional[Union[str, EmbeddingColumnNames]] = None
+    prompt_template_column_names: Optional[PromptTemplateColumnNames] = None
+    llm_config_column_names: Optional[LLMConfigColumnNames] = None
+    llm_run_metadata_column_names: Optional[LLMRunMetadataColumnNames] = None
+    retrieved_document_ids_column_name: Optional[List[str]] = None
+    multi_class_threshold_scores_column_name: Optional[str] = None
 
     def get_used_columns_counts(self) -> Dict[str, int]:
         columns_used_counts = {}
@@ -1042,11 +1051,13 @@ class CorpusSchema(BaseSchema):
             add_to_column_count_dictionary(columns_used_counts, self.document_version_column_name)
         if self.document_text_embedding_column_names is not None:
             add_to_column_count_dictionary(
-                columns_used_counts, self.document_text_embedding_column_names.vector_column_name
+                columns_used_counts,
+                self.document_text_embedding_column_names.vector_column_name,
             )
             if self.document_text_embedding_column_names.data_column_name is not None:
                 add_to_column_count_dictionary(
-                    columns_used_counts, self.document_text_embedding_column_names.data_column_name
+                    columns_used_counts,
+                    self.document_text_embedding_column_names.data_column_name,
                 )
             if self.document_text_embedding_column_names.link_to_data_column_name is not None:
                 add_to_column_count_dictionary(
@@ -1090,11 +1101,15 @@ def is_list_of(lst: Sequence[object], tp: T) -> bool:
     return isinstance(lst, list) and all(isinstance(x, tp) for x in lst)
 
 
+def is_iterable_of(lst: Sequence[object], tp: T) -> bool:
+    return isinstance(lst, Iterable) and all(isinstance(x, tp) for x in lst)
+
+
 def is_dict_of(
     d: Dict[object, object],
-    key_allowed_types: (T),
-    value_allowed_types: (T) = (),
-    value_list_allowed_types: (T) = (),
+    key_allowed_types: T,
+    value_allowed_types: T = (),
+    value_list_allowed_types: T = (),
 ) -> bool:
     """
     Method to check types are valid for dictionary.
@@ -1128,9 +1143,15 @@ def is_dict_of(
 def count_characters_raw_data(data: Union[str, List[str]]) -> int:
     character_count = 0
     if isinstance(data, str):
-        return len(data)
-    for string in data:
-        character_count += len(string)
+        character_count = len(data)
+    elif is_iterable_of(data, str):
+        for string in data:
+            character_count += len(string)
+    else:
+        raise TypeError(
+            f"Cannot count characters for raw data. Expecting strings or "
+            f"list of strings but another type was found: {type(data)}."
+        )
     return character_count
 
 

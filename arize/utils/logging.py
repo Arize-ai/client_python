@@ -1,6 +1,6 @@
 import logging
 import sys
-from typing import List
+from typing import Any, List
 
 
 class CustomLogFormatter(logging.Formatter):
@@ -49,7 +49,7 @@ def get_truncation_warning_message(instance, limit) -> str:
     )
 
 
-def log_a_list(list_of_str: List[str], join_word: str) -> str:
+def log_a_list(list_of_str: List[Any], join_word: str) -> str:
     if list_of_str is None or len(list_of_str) == 0:
         return ""
     if len(list_of_str) == 1:

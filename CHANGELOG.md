@@ -1,5 +1,16 @@
 # Changelog
 
+## [7.18.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.18.0...arize-python-sdk/v7.18.1) (2024-05-22)
+
+
+### 🐛 Bug Fixes
+
+* Correctly insert default prediction id column using `df.insert()` ([f938d29](https://github.com/Arize-ai/arize/commit/f938d294581d5a2ff07459fdf77708f1358f9b2d))
+* Improve error message for type errors for raw data character count ([#31272](https://github.com/Arize-ai/arize/issues/31272)) ([f938d29](https://github.com/Arize-ai/arize/commit/f938d294581d5a2ff07459fdf77708f1358f9b2d))
+* Include SHAP value invalid rows if full of nulls in error message ([#31264](https://github.com/Arize-ai/arize/issues/31264)) ([24f079f](https://github.com/Arize-ai/arize/commit/24f079f3613447e43f08efe11238d7068052dcca))
+* Remove f-strings from docstrings and place them above arguments ([#31117](https://github.com/Arize-ai/arize/issues/31117)) ([5c812d6](https://github.com/Arize-ai/arize/commit/5c812d67df6599ac4478135ceb0a60ad23832e52))
+* Update similarity timestamp validation ([#31125](https://github.com/Arize-ai/arize/issues/31125)) ([1c32c37](https://github.com/Arize-ai/arize/commit/1c32c37456ff960ba1073a042c300751f80d816a))
+
 ## [7.18.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.17.1...arize-python-sdk/v7.18.0) (2024-05-15)
 
 
