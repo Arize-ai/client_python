@@ -26,6 +26,21 @@ from .session import Session
 
 @dataclass
 class ArizeExportClient:
+    """
+    Arize's Export Client.
+
+    Arguments:
+    ----------
+        api_key (str, optional): Arize provided personal API key associated with your user profile,
+            located on the API Explorer page. API key is required to initiate a new client, it can
+            be passed in explicitly, or set up as an environment variable or in profile file.
+        arize_profile (str, optional): profile name for ArizeExportClient credentials and endpoint.
+        arize_config_path (str, optional): path to the config file that stores ArizeExportClient
+            credentials and endpoint. Defaults to '~/.arize'.
+        host (str, optional): URI endpoint host to send your export request to Arize AI.
+        port (int, optional): URI endpoint port to send your export request to Arize AI.
+    """
+
     api_key: Optional[str] = None
     arize_profile: str = ARIZE_PROFILE or DEFAULT_PROFILE_NAME
     arize_config_path: Optional[str] = DEFAULT_CONFIG_PATH
@@ -36,22 +51,8 @@ class ArizeExportClient:
     def __post_init__(
         self,
     ) -> None:
-        f"""
+        """
         Initializes the Arize Export Client.
-
-        Arguments:
-        ----------
-            api_key (str, optional): Arize provided personal API key associated with your user profile,
-                located on the API Explorer page. API key is required to initiate a new client, it can
-                be passed in explicitly, or set up as an environment variable or in profile file.
-            arize_profile (str, optional): profile name for ArizeExportClient credentials and endpoint.
-                Defaults to '{DEFAULT_PROFILE_NAME}'.
-            arize_config_path (str, optional): path to the config file that stores ArizeExportClient
-                credentials and endpoint. Defaults to '~/.arize'.
-            host (str, optional): URI endpoint host to send your export request to Arize AI. Defaults to
-                "{DEFAULT_ARIZE_FLIGHT_HOST}".
-            port (int, optional): URI endpoint port to send your export request to Arize AI. Defaults to
-                {DEFAULT_ARIZE_FLIGHT_PORT}.
         """
         self.__session = Session(
             self.api_key,
@@ -262,9 +263,11 @@ class ArizeExportClient:
             start_time=Timestamp(seconds=int(start_time.timestamp())),
             end_time=Timestamp(seconds=int(end_time.timestamp())),
             filter_expression=where,
-            similarity_search_params=self._to_similarity_proto_params(similarity_search_params)
-            if similarity_search_params
-            else None,
+            similarity_search_params=(
+                self._to_similarity_proto_params(similarity_search_params)
+                if similarity_search_params
+                else None
+            ),
         )
 
         flight_client = self.session.connect()
@@ -292,6 +295,7 @@ class ArizeExportClient:
             new_ref = proto_params.references.add()
             new_ref.prediction_id = ref.prediction_id
             new_ref.reference_column_name = ref.reference_column_name
-            new_ref.prediction_timestamp.FromDatetime(ref.prediction_timestamp)
+            if ref.prediction_timestamp:
+                new_ref.prediction_timestamp.FromDatetime(ref.prediction_timestamp)
 
         return proto_params

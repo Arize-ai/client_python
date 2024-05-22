@@ -940,8 +940,12 @@ class InvalidRecord(ValidationError):
 
     def error_message(self) -> str:
         return (
-            f"columns {', '.join(self.columns)} have all null values in the following rows: "
-            f"{', '.join(str(x) for x in self.indexes)}. This violates one of the following requirements: \n"
-            "Prediction or actual columns cannot all be null for training models.\n"
-            "Prediction and actual columns cannot all be null for production models.\n"
+            f"Invalid column set full of null values in one or more rows.\n"
+            f"\nProblematic Column Set:\n{log_a_list(self.columns, 'and')}\n"
+            f"\nProblematic Rows:\n{log_a_list(self.indexes, join_word='and')}\n"
+            "\nThis violates one of the following requirements:\n"
+            " - If training environment: Prediction or actual columns cannot be all null.\n"
+            " - If production environment: Prediction and actual columns cannot be all null.\n"
+            " - If you are sending SHAP values, make sure not all your SHAP values are null "
+            "in any given row.\n"
         )

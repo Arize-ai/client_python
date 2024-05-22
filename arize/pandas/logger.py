@@ -134,7 +134,7 @@ class Client:
         timeout: Optional[float] = None,
         verbose: Optional[bool] = False,
     ) -> requests.Response:
-        f"""
+        """
         Logs a pandas dataframe containing LLM tracing data to Arize via a POST request. Returns a
         :class:`Response` object from the Requests HTTP library to ensure successful delivery of
         records.
@@ -149,7 +149,7 @@ class Client:
                 The evaluations are joined to their corresponding spans via a left outer join, i.e.,
                 using only `context.span_id` from the spans dataframe. Defaults to None.
             datetime_format (str): format for the timestamp captured in the LLM traces.
-                Defaults to {DEFAULT_DATETIME_FMT}.
+                Defaults to "%Y-%m-%dT%H:%M:%S.%f+00:00".
             validate (bool, optional): When set to True, validation is run before sending data.
                 Defaults to True.
             path (str, optional): Temporary directory/file to store the serialized data in binary
@@ -781,7 +781,7 @@ class Client:
 
     @staticmethod
     def _add_default_prediction_label_column(df: pd.DataFrame) -> pd.DataFrame:
-        df[GENERATED_PREDICTION_LABEL_COL] = [1] * len(df)
+        df.insert(loc=0, column=GENERATED_PREDICTION_LABEL_COL, value=1, allow_duplicates=False)
         return df
 
     # Add in all the relevant columns for generative LLMs and modify the schema accordingly
