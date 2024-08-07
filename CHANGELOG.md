@@ -1,5 +1,14 @@
 # Changelog
 
+## [7.19.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.18.1...arize-python-sdk/v7.19.0) (2024-08-07)
+
+
+### 🎁 New Features
+
+* Add client to provide public APIs to perform CRUD operations on datasets ([#32096](https://github.com/Arize-ai/arize/issues/32096)) ([512070b](https://github.com/Arize-ai/arize/commit/512070bebad36f11c9e04cb2ab834be125382a6a))
+* Allow dataset client to create experiments on datasets ([512070b](https://github.com/Arize-ai/arize/commit/512070bebad36f11c9e04cb2ab834be125382a6a))
+
+
 ## [7.18.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.18.0...arize-python-sdk/v7.18.1) (2024-05-22)
 
 
