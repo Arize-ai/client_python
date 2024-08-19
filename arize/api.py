@@ -26,6 +26,7 @@ from arize.utils.constants import (
     MAX_TAG_LENGTH_TRUNCATION,
     MIN_PREDICTION_ID_LEN,
     RESERVED_TAG_COLS,
+    SPACE_ID_ENVVAR_NAME,
     SPACE_KEY_ENVVAR_NAME,
 )
 from google.protobuf.json_format import MessageToDict
@@ -98,6 +99,7 @@ class Client:
     def __init__(
         self,
         api_key: Optional[str] = None,
+        space_id: Optional[str] = None,
         space_key: Optional[str] = None,
         uri: Optional[str] = "https://api.arize.com/v1",
         max_workers: Optional[int] = 8,
@@ -113,8 +115,10 @@ class Client:
         ----------
             api_key (str): Arize provided API key associated with your account. Located on the
                 data upload page.
-            space_key (str): Arize provided identifier to connect records to spaces. Located on
-                the data upload page.
+            space_id (str): Arize provided identifier to connect records to spaces. Located on
+                the space settings.
+            space_key (str): [Deprecated] Arize provided identifier to connect records to spaces.
+                Located on the space settings.
             uri (str, optional): URI to send your records to Arize AI. Defaults to
                 "https://api.arize.com/v1".
             max_workers (int, optional): maximum number of concurrent requests to Arize. Defaults
@@ -128,16 +132,27 @@ class Client:
         """
 
         api_key = api_key or os.getenv(API_KEY_ENVVAR_NAME)
+        space_id = space_id or os.getenv(SPACE_ID_ENVVAR_NAME)
         space_key = space_key or os.getenv(SPACE_KEY_ENVVAR_NAME)
-        if api_key is None or space_key is None:
-            raise AuthError(api_key, space_key)
-        if not isinstance(api_key, str) or not isinstance(space_key, str):
-            raise InvalidTypeAuthKey(type(api_key).__name__, type(space_key).__name__)
+
+        if space_key is not None:
+            logger.warning(
+                "The space_key parameter is deprecated and will be removed in a future release. "
+                "Please use the space_id parameter instead."
+            )
+        # api_key and one of space_id or space_key must be provided
+        both_space_id_and_key_missing = space_id is None and space_key is None
+        if api_key is None or both_space_id_and_key_missing:
+            raise AuthError(api_key=api_key, space_key=space_key, space_id=space_id)
+        # Check if the provided keys are of the correct type
+        if any(not isinstance(key, str) for key in [api_key, space_key, space_id] if key):
+            raise InvalidTypeAuthKey(api_key=api_key, space_key=space_key, space_id=space_id)
         if isinstance(request_verify, str) and not os.path.isfile(request_verify):
             raise InvalidCertificateFile(request_verify)
         self._request_verify = request_verify
         self._api_key = api_key
         self._space_key = space_key
+        self._space_id = space_id
         self._uri = f"{uri}/log"
         self._timeout = timeout
         self._session = FuturesSession(executor=BoundedExecutor(max_queue_bound, max_workers))
@@ -145,6 +160,7 @@ class Client:
         self._headers = {
             "authorization": api_key,
             "Grpc-Metadata-space": space_key,
+            "Grpc-Metadata-space_id": space_id,
             "Grpc-Metadata-sdk-language": "python",
             "Grpc-Metadata-language-version": get_python_version(),
             "Grpc-Metadata-sdk-version": __version__,
@@ -480,26 +496,30 @@ class Client:
                 p.timestamp.MergeFrom(get_timestamp(prediction_timestamp))
 
         # Validate and construct the optional actual
+        is_latent_tags = prediction_label is None and tags is not None
         a = None
-        if actual_label is not None:
-            _validate_label(
-                prediction_or_actual="actual",
-                model_type=model_type,
-                label=convert_element(actual_label),
-                embedding_features=embedding_features,
-            )
-            a = pb2.Actual(
-                actual_label=_get_label(
+        if actual_label or is_latent_tags:
+            a = pb2.Actual()
+            if actual_label is not None:
+                _validate_label(
                     prediction_or_actual="actual",
-                    value=actual_label,
                     model_type=model_type,
+                    label=convert_element(actual_label),
+                    embedding_features=embedding_features,
                 )
-            )
+                a.MergeFrom(
+                    pb2.Actual(
+                        actual_label=_get_label(
+                            prediction_or_actual="actual",
+                            value=actual_label,
+                            model_type=model_type,
+                        )
+                    )
+                )
             # Added to support delayed tags on actuals.
             if tags is not None:
                 converted_tags = convert_dictionary(tags)
-                tgs = pb2.Actual(tags=converted_tags)
-                a.MergeFrom(tgs)
+                a.MergeFrom(pb2.Actual(tags=converted_tags))
 
         # Validate and construct the optional feature importances
         fi = None
@@ -513,7 +533,7 @@ class Client:
 
         if p is None and a is None and fi is None:
             raise ValueError(
-                "must provide at least one of prediction_label, actual_label, or shap_values"
+                "must provide at least one of prediction_label, actual_label, tags, or shap_values"
             )
 
         env_params = None

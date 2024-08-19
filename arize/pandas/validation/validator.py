@@ -2608,7 +2608,7 @@ def _check_value_vector_dimensionality_helper(
     invalid_high_dimensionality_vector_cols = []
     for col in cols_to_check:
         vector_dims = dataframe[col].apply(
-            lambda vec: 0 if vec is None or vec is np.NaN else len(vec)
+            lambda vec: 0 if vec is None or vec is np.nan else len(vec)
         )
         if (vector_dims == 1).any():
             invalid_low_dimensionality_vector_cols.append(col)

@@ -45,8 +45,8 @@ def test_run_experiment():
         evaluators=[MyEval()],
         experiment_name="test_experiment",
     )
-    # output df should have 2 rows x 6 cols
-    assert exp_df.shape == (2, 6)
+    # output df should have 2 rows x 8 cols
+    assert exp_df.shape == (2, 8)
     # expected col names
     assert exp_df.columns.tolist() == [
         "id",
@@ -55,6 +55,17 @@ def test_run_experiment():
         "eval.MyEval.score",
         "eval.MyEval.label",
         "eval.MyEval.explanation",
+        "eval.MyEval.metadata.output",
+        "eval.MyEval.metadata.input",
     ]
     ## no empty cells
     assert exp_df.isnull().sum().sum() == 0
+    # check metadata
+    assert exp_df["eval.MyEval.metadata.input"].tolist() == [
+        "What is the capital of France?",
+        "What is the capital of Germany?",
+    ]
+    assert exp_df["eval.MyEval.metadata.output"].tolist() == [
+        "Answer to What is the capital of France?",
+        "Answer to What is the capital of Germany?",
+    ]

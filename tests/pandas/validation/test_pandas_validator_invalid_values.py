@@ -956,7 +956,7 @@ def test_invalid_embedding_dimensionality():
 
     null_vector = []
     null_vector.append(None)
-    null_vector.append(np.NaN)
+    null_vector.append(np.nan)
     null_vector.append([])
 
     long_vector = []
