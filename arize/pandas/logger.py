@@ -25,6 +25,7 @@ from ..utils.constants import (
     LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME,
     LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME,
     LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME,
+    SPACE_ID_ENVVAR_NAME,
     SPACE_KEY_ENVVAR_NAME,
 )
 from ..utils.errors import AuthError, InvalidCertificateFile, InvalidTypeAuthKey
@@ -74,6 +75,7 @@ class Client:
     def __init__(
         self,
         api_key: Optional[str] = None,
+        space_id: Optional[str] = None,
         space_key: Optional[str] = None,
         uri: Optional[str] = "https://api.arize.com/v1",
         additional_headers: Optional[Dict[str, str]] = None,
@@ -85,29 +87,43 @@ class Client:
         Arguments:
         ----------
             api_key (str): Arize provided API key associated with your account. Located on the
-                data upload page.
-            space_key (str): Arize provided identifier to connect records to spaces. Located on
-                the data upload page.
+                space settings page.
+            space_id (str): Arize provided space identifier to connect records to spaces. Located on
+                the space settings page.
+            space_key (str): [Deprecated] Arize provided identifier to connect records to spaces.
+                Located on the space settings.
             uri (str, optional): URI endpoint to send your records to Arize AI. Defaults to
                 "https://api.arize.com/v1".
             additional_headers (Dict[str, str], optional): Dictionary of additional headers to
                 append to request
         """
         api_key = api_key or os.getenv(API_KEY_ENVVAR_NAME)
+        space_id = space_id or os.getenv(SPACE_ID_ENVVAR_NAME)
         space_key = space_key or os.getenv(SPACE_KEY_ENVVAR_NAME)
-        if api_key is None or space_key is None:
-            raise AuthError(api_key, space_key)
-        if not isinstance(api_key, str) or not isinstance(space_key, str):
-            raise InvalidTypeAuthKey(type(api_key).__name__, type(space_key).__name__)
+        if space_key is not None:
+            logger.warning(
+                "The space_key parameter is deprecated and will be removed in a future release. "
+                "Please use the space_id parameter instead."
+            )
+
+        # api_key and one of space_id or space_key must be provided
+        both_space_id_and_key_missing = space_id is None and space_key is None
+        if api_key is None or both_space_id_and_key_missing:
+            raise AuthError(api_key=api_key, space_key=space_key, space_id=space_id)
+        # Check if the provided keys are of the correct type
+        if any(not isinstance(key, str) for key in [api_key, space_key, space_id] if key):
+            raise InvalidTypeAuthKey(api_key=api_key, space_key=space_key, space_id=space_id)
         if isinstance(request_verify, str) and not os.path.isfile(request_verify):
             raise InvalidCertificateFile(request_verify)
         self._request_verify = request_verify
         self._api_key = api_key
         self._space_key = space_key
+        self._space_id = space_id
         self._files_uri = uri + "/pandas_arrow"
         self._headers = {
             "authorization": self._api_key,
             "space": self._space_key,
+            "space_id": self._space_id,
             "sdk-language": "python",
             "language-version": get_python_version(),
             "sdk-version": __version__,

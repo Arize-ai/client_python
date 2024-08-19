@@ -57,6 +57,7 @@ RESERVED_TAG_COLS = [
 # Authentication via environment variables
 SPACE_KEY_ENVVAR_NAME = "ARIZE_SPACE_KEY"
 API_KEY_ENVVAR_NAME = "ARIZE_API_KEY"
+SPACE_ID_ENVVAR_NAME = "ARIZE_SPACE_ID"
 
 path = Path(__file__).with_name("model_mapping.json")
 with path.open("r") as f:

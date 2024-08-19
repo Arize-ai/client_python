@@ -87,8 +87,33 @@ def run_experiment(
             output_df[f"eval.{evaluator_name}.explanation"] = [
                 eval_run.result.explanation for eval_run in eval_runs
             ]
+            _add_metadata_to_output_df(output_df, eval_runs, evaluator_name)
             print(f"✅ Evaluator {evaluator_name} completed.")
         print("✅ All evaluators completed.")
+    return output_df
+
+
+def _add_metadata_to_output_df(
+    output_df: pd.DataFrame, eval_runs: List[ExperimentEvaluationRun], evaluator_name: str
+):
+    for eval_run in eval_runs:
+        if eval_run.result is None:
+            continue
+        metadata = eval_run.result.metadata
+        for key, value in metadata.items():
+            column_name = f"eval.{evaluator_name}.metadata.{key}"
+            if column_name not in output_df.columns:
+                output_df[column_name] = None
+            # If the value is not a primitive type, try to convert it to a string
+            if value is not None and not isinstance(value, (int, float, str, bool)):
+                try:
+                    value = str(value)
+                except Exception:
+                    raise ValueError(
+                        f"Metadata value for key '{key}' in evaluator '{evaluator_name}' is not a primitive"
+                        "type and cannot be converted to a string."
+                    )
+            output_df.loc[eval_runs.index(eval_run), column_name] = value
     return output_df
 
 

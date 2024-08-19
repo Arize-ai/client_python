@@ -25,6 +25,7 @@ from arize.utils.constants import (
     MAX_PROMPT_TEMPLATE_LENGTH,
     MAX_PROMPT_TEMPLATE_VERSION_LENGTH,
     MAX_RAW_DATA_CHARACTERS,
+    SPACE_ID_ENVVAR_NAME,
     SPACE_KEY_ENVVAR_NAME,
 )
 from arize.utils.errors import AuthError, InvalidTypeAuthKey
@@ -1451,6 +1452,7 @@ def test_instantiating_client_additional_header():
     expected = {
         "authorization": "api_key",
         "space": "space_key",
+        "space_id": None,
         "sdk-language": "python",
         "language-version": get_python_version(),
         "sdk-version": arize_version,
@@ -1463,24 +1465,36 @@ def test_instantiating_client_additional_header():
 def test_invalid_client_auth_passed_vars():
     with pytest.raises(AuthError) as excinfo:
         _ = Client()
-    assert excinfo.value.__str__() == AuthError(None, None).error_message()
-    assert "Missing: ['api_key', 'space_key']" in str(excinfo.value)
+    # if all missing - prompt for api_key and space_id
+    assert (
+        excinfo.value.__str__()
+        == AuthError(
+            None,
+            None,
+            None,
+        ).error_message()
+    )
+    assert "Missing: ['api_key', 'space_id']" in str(excinfo.value)
 
     with pytest.raises(AuthError) as excinfo:
         _ = Client(space_key="space_key")
-    assert excinfo.value.__str__() == AuthError(None, "space_key").error_message()
+    assert excinfo.value.__str__() == AuthError(None, "space_key", None).error_message()
     assert "Missing: ['api_key']" in str(excinfo.value)
 
+    # if both space_key and space_id are missing, promt only for space_id
     with pytest.raises(AuthError) as excinfo:
         _ = Client(api_key="api_key")
-    assert excinfo.value.__str__() == AuthError("api_key", None).error_message()
-    assert "Missing: ['space_key']" in str(excinfo.value)
+    assert excinfo.value.__str__() == AuthError("api_key", None, None).error_message()
+    assert "Missing: ['space_id']" in str(excinfo.value)
 
     # incorrect type
     with pytest.raises(InvalidTypeAuthKey) as excinfo:
         _ = Client(api_key=123, space_key="space_key")
-    assert excinfo.value.__str__() == InvalidTypeAuthKey("int", "str").error_message()
-    assert "api_key of type int" in str(excinfo.value)
+    assert (
+        excinfo.value.__str__()
+        == InvalidTypeAuthKey(api_key=123, space_key="space_key").error_message()
+    )
+    assert "api_key as int" in str(excinfo.value)
 
     with pytest.raises(InvalidTypeAuthKey) as excinfo:
         api_key = "api_key"
@@ -1488,8 +1502,21 @@ def test_invalid_client_auth_passed_vars():
             "space_key",
         )  # This comma is intentional to make space_key an accidental tuple
         _ = Client(api_key=api_key, space_key=space_key)
-    assert excinfo.value.__str__() == InvalidTypeAuthKey("str", "tuple").error_message()
-    assert "space_key of type tuple" in str(excinfo.value)
+    assert (
+        excinfo.value.__str__()
+        == InvalidTypeAuthKey(api_key=api_key, space_key=space_key).error_message()
+    )
+    assert "space_key as tuple" in str(excinfo.value)
+
+    with pytest.raises(InvalidTypeAuthKey) as excinfo:
+        api_key = "api_key"
+        space_id = 123
+        _ = Client(api_key=api_key, space_id=space_id)
+    assert (
+        excinfo.value.__str__()
+        == InvalidTypeAuthKey(api_key=api_key, space_id=space_id).error_message()
+    )
+    assert "space_id as int" in str(excinfo.value)
 
     # acceptable input
     try:
@@ -1501,14 +1528,14 @@ def test_invalid_client_auth_passed_vars():
 def test_invalid_client_auth_environment_vars(monkeypatch):
     with pytest.raises(AuthError) as excinfo:
         _ = Client()
-    assert excinfo.value.__str__() == AuthError(None, None).error_message()
-    assert "Missing: ['api_key', 'space_key']" in str(excinfo.value)
+    assert excinfo.value.__str__() == AuthError(None, None, None).error_message()
+    assert "Missing: ['api_key', 'space_id']" in str(excinfo.value)
 
     monkeypatch.setenv(SPACE_KEY_ENVVAR_NAME, "space_key")
     with pytest.raises(AuthError) as excinfo:
         c = Client()
         assert c._space_key == "space_key"
-    assert excinfo.value.__str__() == AuthError(None, "space_key").error_message()
+    assert excinfo.value.__str__() == AuthError(None, "space_key", None).error_message()
     assert "Missing: ['api_key']" in str(excinfo.value)
 
     monkeypatch.delenv(SPACE_KEY_ENVVAR_NAME)
@@ -1516,8 +1543,8 @@ def test_invalid_client_auth_environment_vars(monkeypatch):
     with pytest.raises(AuthError) as excinfo:
         c = Client()
         assert c._api_key == "api_key"
-    assert excinfo.value.__str__() == AuthError("api_key", None).error_message()
-    assert "Missing: ['space_key']" in str(excinfo.value)
+    assert excinfo.value.__str__() == AuthError("api_key", None, None).error_message()
+    assert "Missing: ['space_id']" in str(excinfo.value)
 
     # acceptable input
     monkeypatch.setenv(SPACE_KEY_ENVVAR_NAME, "space_key")
@@ -1527,6 +1554,18 @@ def test_invalid_client_auth_environment_vars(monkeypatch):
         pytest.fail("Unexpected error!")
     assert c._space_key == "space_key"
     assert c._api_key == "api_key"
+    assert c._space_id is None
+
+    # acceptable input 2 - space_id
+    monkeypatch.delenv(SPACE_KEY_ENVVAR_NAME)
+    monkeypatch.setenv(SPACE_ID_ENVVAR_NAME, "space_id")
+    try:
+        c = Client()
+    except Exception:
+        pytest.fail("Unexpected error!")
+    assert c._space_id == "space_id"
+    assert c._api_key == "api_key"
+    assert c._space_key is None
 
 
 def _overwrite_schema_fields(schema1: Schema, schema2: Schema) -> Schema:

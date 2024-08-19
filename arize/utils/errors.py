@@ -1,12 +1,18 @@
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
-from .constants import API_KEY_ENVVAR_NAME, SPACE_KEY_ENVVAR_NAME
+from .constants import API_KEY_ENVVAR_NAME, SPACE_ID_ENVVAR_NAME
 
 
 class AuthError(Exception):
-    def __init__(self, api_key: Optional[str], space_key: Optional[str]) -> None:
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        space_key: Optional[str] = None,
+        space_id: Optional[str] = None,
+    ) -> None:
         self.missing_api_key = api_key is None
         self.missing_space_key = space_key is None
+        self.missing_space_id = space_id is None
 
     def __repr__(self) -> str:
         return "Invalid_Arize_Client_Authentication"
@@ -16,16 +22,18 @@ class AuthError(Exception):
 
     def error_message(self) -> str:
         missing_list = ["api_key"] if self.missing_api_key else []
-        if self.missing_space_key:
-            missing_list.append("space_key")
+        # prompt the user to set space_id only because space_key is getting deprecated
+        if self.missing_space_key and self.missing_space_id:
+            missing_list.append("space_id")
 
         return (
-            "Arize Client could not obtain credentials. You can pass your api_key and space_key "
-            "directly to the Arize Client, or you can set environment variables which will be read if the "
+            "Arize Client could not obtain credentials."
+            "You must pass your api_key and space_id directly to the Arize Client, "
+            "or you can set environment variables which will be read if the "
             "keys are not directly passed. "
             "To set the environment variables use the following variable names: \n"
             f" - {API_KEY_ENVVAR_NAME} for the api key\n"
-            f" - {SPACE_KEY_ENVVAR_NAME} for the space key\n"
+            f" - {SPACE_ID_ENVVAR_NAME} for the space ID\n"
             f"Missing: {missing_list}"
         )
 
@@ -45,9 +53,15 @@ class InvalidCertificateFile(Exception):
 
 
 class InvalidTypeAuthKey(Exception):
-    def __init__(self, api_key_type: str, space_key_type: str) -> None:
-        self.api_key_type = api_key_type
-        self.space_key_type = space_key_type
+    def __init__(
+        self,
+        api_key: Optional[Any] = None,
+        space_key: Optional[Any] = None,
+        space_id: Optional[Any] = None,
+    ) -> None:
+        self.api_key = api_key
+        self.space_key = space_key
+        self.space_id = space_id
 
     def __repr__(self) -> str:
         return "Invalid_Type_Arize_Client_Authentication"
@@ -56,10 +70,21 @@ class InvalidTypeAuthKey(Exception):
         return self.error_message()
 
     def error_message(self) -> str:
+        bad_keys_types = {}
+        for name, key in [
+            ("api_key", self.api_key),
+            ("space_key", self.space_key),
+            ("space_id", self.space_id),
+        ]:
+            if key is not None and not isinstance(key, str):
+                bad_keys_types[name] = type(key)
+
         return (
-            "Arize Client could not obtain credentials because your api_key or space_key was not passed"
-            f" as a string. Got api_key of type {self.api_key_type} and space_key of "
-            f"type {self.space_key_type}"
+            "Arize Client could not obtain credentials because "
+            f"{', '.join(bad_keys_types)} must be string type. "
+            "Got: "
+            f"{', '.join([f'{key} as {key_type.__name__}' for key, key_type in bad_keys_types.items()])} "
+            "instead."
         )
 
 

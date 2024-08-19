@@ -26,6 +26,7 @@ from arize.utils.constants import (
     MAX_TAG_LENGTH,
     MIN_PREDICTION_ID_LEN,
     RESERVED_TAG_COLS,
+    SPACE_ID_ENVVAR_NAME,
     SPACE_KEY_ENVVAR_NAME,
 )
 from arize.utils.types import (
@@ -53,6 +54,7 @@ STR_LST_VAL = ["apple", "banana", "orange"]
 file_to_open = Path(__file__).parent / "fixtures/mpg.csv"
 
 inputs = {
+    "space_id": "hmac_encoded_space_id",
     "model_id": "model_v0",
     "model_version": "v1.2.3.4",
     "batch_id": "batch_id",
@@ -264,7 +266,7 @@ def _build_basic_prediction(type: str) -> pb2.Prediction:
         return pb2.Prediction()
 
 
-def _build_basic_actual(type: str) -> pb2.Actual:
+def _build_basic_actual(type: str = "") -> pb2.Actual:
     if type == "numeric_int":
         return pb2.Actual(
             actual_label=pb2.ActualLabel(numeric=inputs["label_int"]),
@@ -1201,6 +1203,76 @@ def test_build_prediction_no_tags():
     assert record == expected_record
 
 
+def test_build_actual_only_tags_with_prediction_label():
+    # This tests that tags are included in the prediction, no actual created
+    c = get_stubbed_client()
+    record = c.log(
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        environment=Environments.PRODUCTION,
+        model_type=ModelTypes.NUMERIC,
+        prediction_id=inputs["prediction_id"],
+        prediction_label=inputs["label_float"],
+        features=inputs["features"],
+        embedding_features=inputs["embedding_features"],
+        tags=inputs["tags"],
+    )
+
+    #   Get environment in proto format
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("numeric_float")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_features_to_prediction())
+    p.MergeFrom(_attach_embedding_features_to_prediction())
+    p.MergeFrom(_attach_tags_to_prediction())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p, ep=ep)
+    #   Check result is as expected
+    assert record == expected_record
+
+
+def test_build_actual_only_tags_with_no_prediction_label():
+    # This tests that a label-less actual is created, for latent tags
+    c = get_stubbed_client()
+    record = c.log(
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        environment=Environments.PRODUCTION,
+        model_type=ModelTypes.NUMERIC,
+        prediction_id=inputs["prediction_id"],
+        tags=inputs["tags"],
+    )
+
+    #   Get environment in proto format
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
+    #   Start constructing expected result by building the actual
+    a = _build_basic_actual()  # label-less
+    #   Add props to prediction according to this test
+    a.MergeFrom(_attach_tags_to_actual())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(a=a, ep=ep)
+    #   Check result is as expected
+    assert record == expected_record
+
+
+def test_reject_not_enough_data():
+    c = get_stubbed_client()
+    # Test that one of prediction, actual, or feature importance is sent
+    with pytest.raises(ValueError) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            model_type=ModelTypes.NUMERIC,
+            prediction_id=inputs["prediction_id"],
+        )
+    assert (
+        "must provide at least one of prediction_label, actual_label, tags, or shap_values"
+        in str(excinfo.value)
+    )
+
+
 def test_build_prediction_no_tags_no_features():
     c = get_stubbed_client()
     record = c.log(
@@ -1350,7 +1422,6 @@ def test_object_detection_wrong_coordinates_format():
 
 def test_valid_prediction_id_embeddings():
     c = get_stubbed_client()
-
     # test case - too long prediction_id
     with pytest.raises(ValueError) as excinfo:
         _ = c.log(
@@ -1690,7 +1761,6 @@ def test_generative_if_no_prediction_or_actual_label():
 
 def test_invalid_prompt_response_input_generative_model():
     c = get_stubbed_client()
-
     # Test that GENERATIVE_LLM models cannot contain embedding named prompt or response
     with pytest.raises(KeyError) as excinfo:
         _ = c.log(
@@ -2083,7 +2153,6 @@ def test_valid_llm_run_metadata():
 
 def test_reserved_tags():
     c = get_stubbed_client()
-
     wrong_tags = [reserved_tag_col for reserved_tag_col in RESERVED_TAG_COLS]
     for wrong_tag in wrong_tags:
         # test case - too long tag value
@@ -2144,6 +2213,7 @@ def test_instantiating_client_additional_header():
     expected = {
         "authorization": inputs["api_key"],
         "Grpc-Metadata-space": inputs["space_key"],
+        "Grpc-Metadata-space_id": None,
         "Grpc-Metadata-sdk-language": "python",
         "Grpc-Metadata-language-version": get_python_version(),
         "Grpc-Metadata-sdk-version": arize_version,
@@ -2155,24 +2225,27 @@ def test_instantiating_client_additional_header():
 def test_invalid_client_auth_passed_vars():
     with pytest.raises(err.AuthError) as excinfo:
         _ = Client()
-    assert excinfo.value.__str__() == err.AuthError(None, None).error_message()
-    assert "Missing: ['api_key', 'space_key']" in str(excinfo.value)
+    assert excinfo.value.__str__() == err.AuthError().error_message()
+    assert "Missing: ['api_key', 'space_id']" in str(excinfo.value)
 
     with pytest.raises(err.AuthError) as excinfo:
         _ = Client(space_key=inputs["space_key"])
-    assert excinfo.value.__str__() == err.AuthError(None, inputs["space_key"]).error_message()
+    assert excinfo.value.__str__() == err.AuthError(space_key=inputs["space_key"]).error_message()
     assert "Missing: ['api_key']" in str(excinfo.value)
 
     with pytest.raises(err.AuthError) as excinfo:
         _ = Client(api_key=inputs["api_key"])
-    assert excinfo.value.__str__() == err.AuthError(inputs["api_key"], None).error_message()
-    assert "Missing: ['space_key']" in str(excinfo.value)
+    assert excinfo.value.__str__() == err.AuthError(api_key=inputs["api_key"]).error_message()
+    assert "Missing: ['space_id']" in str(excinfo.value)
 
     # incorrect type
     with pytest.raises(err.InvalidTypeAuthKey) as excinfo:
         _ = Client(api_key=123, space_key="space_key")
-    assert excinfo.value.__str__() == err.InvalidTypeAuthKey("int", "str").error_message()
-    assert "api_key of type int" in str(excinfo.value)
+    assert (
+        excinfo.value.__str__()
+        == err.InvalidTypeAuthKey(api_key=123, space_key="space_key").error_message()
+    )
+    assert "api_key as int" in str(excinfo.value)
 
     with pytest.raises(err.InvalidTypeAuthKey) as excinfo:
         api_key = "api_key"
@@ -2180,8 +2253,11 @@ def test_invalid_client_auth_passed_vars():
             "space_key",
         )  # This comma is intentional to make space_key an accidental tuple
         _ = Client(api_key=api_key, space_key=space_key)
-    assert excinfo.value.__str__() == err.InvalidTypeAuthKey("str", "tuple").error_message()
-    assert "space_key of type tuple" in str(excinfo.value)
+    assert (
+        excinfo.value.__str__()
+        == err.InvalidTypeAuthKey(api_key=api_key, space_key=space_key).error_message()
+    )
+    assert "space_key as tuple" in str(excinfo.value)
 
     # acceptable input
     try:
@@ -2189,18 +2265,23 @@ def test_invalid_client_auth_passed_vars():
     except Exception:
         pytest.fail("Unexpected error!")
 
+    try:
+        _ = Client(space_id=inputs["space_id"], api_key=inputs["api_key"])
+    except Exception:
+        pytest.fail("Unexpected error!")
+
 
 def test_invalid_client_auth_environment_vars(monkeypatch):
     with pytest.raises(err.AuthError) as excinfo:
         _ = Client()
-    assert excinfo.value.__str__() == err.AuthError(None, None).error_message()
-    assert "Missing: ['api_key', 'space_key']" in str(excinfo.value)
+    assert excinfo.value.__str__() == err.AuthError().error_message()
+    assert "Missing: ['api_key', 'space_id']" in str(excinfo.value)
 
     monkeypatch.setenv(SPACE_KEY_ENVVAR_NAME, inputs["space_key"])
     with pytest.raises(err.AuthError) as excinfo:
         c = Client()
         assert c._space_key == inputs["space_key"]
-    assert excinfo.value.__str__() == err.AuthError(None, inputs["space_key"]).error_message()
+    assert excinfo.value.__str__() == err.AuthError(space_key=inputs["space_key"]).error_message()
     assert "Missing: ['api_key']" in str(excinfo.value)
 
     monkeypatch.delenv(SPACE_KEY_ENVVAR_NAME)
@@ -2208,8 +2289,8 @@ def test_invalid_client_auth_environment_vars(monkeypatch):
     with pytest.raises(err.AuthError) as excinfo:
         c = Client()
         assert c._api_key == inputs["api_key"]
-    assert excinfo.value.__str__() == err.AuthError(inputs["api_key"], None).error_message()
-    assert "Missing: ['space_key']" in str(excinfo.value)
+    assert excinfo.value.__str__() == err.AuthError(api_key=inputs["api_key"]).error_message()
+    assert "Missing: ['space_id']" in str(excinfo.value)
 
     # acceptable input
     monkeypatch.setenv(SPACE_KEY_ENVVAR_NAME, inputs["space_key"])
@@ -2219,6 +2300,17 @@ def test_invalid_client_auth_environment_vars(monkeypatch):
         pytest.fail("Unexpected error!")
     assert c._space_key == inputs["space_key"]
     assert c._api_key == inputs["api_key"]
+    assert c._space_id is None
+
+    monkeypatch.delenv(SPACE_KEY_ENVVAR_NAME)
+    monkeypatch.setenv(SPACE_ID_ENVVAR_NAME, inputs["space_id"])
+    try:
+        c = Client()
+    except Exception:
+        pytest.fail("Unexpected error!")
+    assert c._space_key is None
+    assert c._api_key == inputs["api_key"]
+    assert c._space_id == inputs["space_id"]
 
 
 def test_invalid_number_of_embeddings():
