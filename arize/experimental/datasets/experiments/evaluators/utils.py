@@ -3,11 +3,13 @@ import inspect
 from itertools import chain, islice, repeat
 from typing import TYPE_CHECKING, Any, Callable, Optional
 
-from arize.experimental.datasets.experiments.types import EvaluationResult, JSONSerializable
-from arize.experimental.datasets.utils.experiment_utils import get_func_name
+from tqdm.auto import tqdm
+
+from ...experiments.types import EvaluationResult, JSONSerializable
+from ...utils.experiment_utils import get_func_name
 
 if TYPE_CHECKING:
-    from arize.experimental.datasets.experiments.evaluators.base import Evaluator
+    from ..evaluators.base import Evaluator
 
 
 def unwrap_json(obj: JSONSerializable) -> JSONSerializable:
@@ -93,7 +95,7 @@ def _wrap_coroutine_evaluation_function(
     sig: inspect.Signature,
     convert_to_score: Callable[[Any], EvaluationResult],
 ) -> Callable[[Callable[..., Any]], "Evaluator"]:
-    from phoenix.experiments.evaluators.base import Evaluator
+    from ..evaluators.base import Evaluator
 
     def wrapper(func: Callable[..., Any]) -> "Evaluator":
         class AsyncEvaluator(Evaluator):
@@ -119,7 +121,7 @@ def _wrap_sync_evaluation_function(
     sig: inspect.Signature,
     convert_to_score: Callable[[Any], EvaluationResult],
 ) -> Callable[[Callable[..., Any]], "Evaluator"]:
-    from phoenix.experiments.evaluators.base import Evaluator
+    from ..evaluators.base import Evaluator
 
     def wrapper(func: Callable[..., Any]) -> "Evaluator":
         class SyncEvaluator(Evaluator):
@@ -170,3 +172,8 @@ def _default_eval_scorer(result: Any) -> EvaluationResult:
     if result is None:
         return EvaluationResult(score=0)
     raise ValueError(f"Unsupported evaluation result type: {type(result)}")
+
+
+def printif(condition: bool, *args: Any, **kwargs: Any) -> None:
+    if condition:
+        tqdm.write(*args, **kwargs)

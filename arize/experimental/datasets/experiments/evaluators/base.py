@@ -4,8 +4,12 @@ from abc import ABC
 from types import MappingProxyType
 from typing import Any, Awaitable, Callable, Mapping, Optional, Sequence, Union
 
-from arize.experimental.datasets.experiments.types import (
+from typing_extensions import TypeAlias
+
+from ...experiments.types import (
+    AnnotatorKind,
     EvaluationResult,
+    EvaluatorKind,
     EvaluatorName,
     EvaluatorOutput,
     ExampleInput,
@@ -14,24 +18,31 @@ from arize.experimental.datasets.experiments.types import (
     JSONSerializable,
     TaskOutput,
 )
-from typing_extensions import TypeAlias
 
 
 class Evaluator(ABC):
     """
     A helper super class to guide the implementation of an `Evaluator` object.
-    Subclasses must implement either the `evaluate` method.
+    Subclasses must implement either the `evaluate` or `async_evaluate` method.
+    Implementing both methods is recommended, but not required.
 
     This Class is intended to be subclassed, and should not be instantiated directly.
     """
 
+    _kind: AnnotatorKind
     _name: EvaluatorName
 
-    @property
+    @functools.cached_property
     def name(self) -> EvaluatorName:
         if hasattr(self, "_name"):
             return self._name
         return self.__class__.__name__
+
+    @functools.cached_property
+    def kind(self) -> EvaluatorKind:
+        if hasattr(self, "_kind"):
+            return self._kind
+        return AnnotatorKind.CODE.value
 
     def __new__(cls, *args: Any, **kwargs: Any) -> "Evaluator":
         if cls is Evaluator:
@@ -46,10 +57,32 @@ class Evaluator(ABC):
         dataset_row: Optional[Mapping[str, JSONSerializable]] = None,
         metadata: ExampleMetadata = MappingProxyType({}),
         input: ExampleInput = MappingProxyType({}),
+        **kwargs: Any,
     ) -> EvaluationResult:
         # For subclassing, one should implement either this sync method or the
         # async version. Implementing both is recommended but not required.
         raise NotImplementedError
+
+    async def async_evaluate(
+        self,
+        *,
+        output: Optional[TaskOutput] = None,
+        expected: Optional[ExampleOutput] = None,
+        dataset_row: Optional[Mapping[str, JSONSerializable]] = None,
+        metadata: ExampleMetadata = MappingProxyType({}),
+        input: ExampleInput = MappingProxyType({}),
+        **kwargs: Any,
+    ) -> EvaluationResult:
+        # For subclassing, one should implement either this async method or the
+        # sync version. Implementing both is recommended but not required.
+        return self.evaluate(
+            output=output,
+            expected=expected,
+            metadata=metadata,
+            dataset_row=dataset_row,
+            input=input,
+            **kwargs,
+        )
 
     def __init_subclass__(cls, is_abstract: bool = False, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
@@ -57,13 +90,27 @@ class Evaluator(ABC):
             return
         evaluate_fn_signature = inspect.signature(Evaluator.evaluate)
         for super_cls in inspect.getmro(cls):
-            evaluate = super_cls.__dict__.get(Evaluator.evaluate.__name__)
-            if evaluate:
+            if super_cls in (LLMEvaluator, Evaluator):
+                break
+            if evaluate := super_cls.__dict__.get(Evaluator.evaluate.__name__):
+                if isinstance(evaluate, classmethod):
+                    evaluate = evaluate.__func__
                 assert callable(evaluate), "`evaluate()` method should be callable"
                 # need to remove the first param, i.e. `self`
                 _validate_sig(functools.partial(evaluate, None), "evaluate")
                 return
-        raise ValueError(f"Evaluator must implement" f"`def evaluate{evaluate_fn_signature}`")
+            if async_evaluate := super_cls.__dict__.get(Evaluator.async_evaluate.__name__):
+                if isinstance(async_evaluate, classmethod):
+                    async_evaluate = async_evaluate.__func__
+                assert callable(async_evaluate), "`async_evaluate()` method should be callable"
+                # need to remove the first param, i.e. `self`
+                _validate_sig(functools.partial(async_evaluate, None), "async_evaluate")
+                return
+        raise ValueError(
+            f"Evaluator must implement either "
+            f"`def evaluate{evaluate_fn_signature}` or "
+            f"`async def async_evaluate{evaluate_fn_signature}`"
+        )
 
 
 def _validate_sig(fn: Callable[..., Any], fn_name: str) -> None:
@@ -106,6 +153,36 @@ def validate_evaluator_signature(sig: inspect.Signature) -> None:
                     f"any of: {', '.join(valid_named_params)}."
                 )
             )
+
+
+class CodeEvaluator(Evaluator, ABC, is_abstract=True):
+    """
+    A convenience super class for defining code evaluators.
+
+    This class is intended to be subclassed, and should not be instantiated directly.
+    """
+
+    _kind = AnnotatorKind.CODE
+
+    def __new__(cls, *args: Any, **kwargs: Any) -> "CodeEvaluator":
+        if cls is CodeEvaluator:
+            raise TypeError(f"{cls.__name__} is an abstract class and should not be instantiated.")
+        return object.__new__(cls)
+
+
+class LLMEvaluator(Evaluator, ABC, is_abstract=True):
+    """
+    A convenience super class for defining LLM evaluators.
+
+    This class is intended to be subclassed, and should not be instantiated directly.
+    """
+
+    _kind = AnnotatorKind.LLM
+
+    def __new__(cls, *args: Any, **kwargs: Any) -> "LLMEvaluator":
+        if cls is LLMEvaluator:
+            raise TypeError(f"{cls.__name__} is an abstract class and should not be instantiated.")
+        return object.__new__(cls)
 
 
 ExperimentEvaluator: TypeAlias = Union[

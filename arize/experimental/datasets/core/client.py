@@ -1,12 +1,21 @@
+import hashlib
 import json
 import time
 import uuid
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, Optional, Tuple
 
+import opentelemetry.sdk.trace as trace_sdk
 import pandas as pd
 import pyarrow as pa
 from google.protobuf import json_format, message
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
+    OTLPSpanExporter as GrpcSpanExporter,
+)
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.trace import Tracer
 from pyarrow import flight
 
 from .. import requests_pb2 as request_pb
@@ -17,8 +26,10 @@ from ..utils.constants import (
     DEFAULT_ARIZE_FLIGHT_HOST,
     DEFAULT_ARIZE_FLIGHT_PORT,
     DEFAULT_TRANSPORT_SCHEME,
-    FLIGHT_ACTION_KEY,
     OPEN_INFERENCE_JSON_STR_TYPES,
+    ArizeFlightHost,
+    ArizeTracerEndpoint,
+    FlightActionKey,
 )
 from ..validation.validator import Validator
 from .session import Session
@@ -30,22 +41,20 @@ class ArizeDatasetsClient:
     ArizeDatasetsClient is a client for interacting with the Arize Datasets API.
 
     Args:
-        developer_key (str, optional): Arize provided developer key associated with your user profile,
-            located on the API Explorer page. API key is required to initiate a new client, it can
-            be passed in explicitly, or set up as an environment variable or in profile file.
+        developer_key (str, required): Arize provided developer key associated with your user profile,
+            located on the space settings page.
+        api_key (str, required): Arize provided API key associated with your user profile,
+            located on the space settings page.
         host (str, optional): URI endpoint host to send your export request to Arize AI. Defaults to
             "{DEFAULT_ARIZE_FLIGHT_HOST}".
         port (int, optional): URI endpoint port to send your export request to Arize AI. Defaults to
             {DEFAULT_ARIZE_FLIGHT_PORT}.
         scheme (str, optional): Transport scheme to use for the connection. Defaults to
             "{DEFAULT_TRANSPORT_SCHEME}".
-
-    Attributes:
-        session (Session): The session object used for making API requests.
-
     """
 
-    developer_key: Optional[str]
+    developer_key: str
+    api_key: str
     host: str = DEFAULT_ARIZE_FLIGHT_HOST
     port: int = DEFAULT_ARIZE_FLIGHT_PORT
     scheme: str = DEFAULT_TRANSPORT_SCHEME
@@ -70,41 +79,154 @@ class ArizeDatasetsClient:
         space_id: str,
         experiment_name: str,
         task: ExperimentTask,
+        dataset_df: Optional[pd.DataFrame] = None,
         dataset_id: Optional[str] = None,
         dataset_name: Optional[str] = None,
         evaluators: Optional[Evaluators] = None,
     ) -> Optional[str]:
+        """
+        Run an experiment on a dataset and upload the results.
 
-        if not (dataset_id or dataset_name):
-            raise ValueError("Either dataset_id or dataset_name must be provided")
+        This function initializes an experiment, retrieves or uses a provided dataset,
+        runs the experiment with specified tasks and evaluators, and uploads the results.
 
-        dataset = self.get_dataset(
-            space_id=space_id, dataset_id=dataset_id, dataset_name=dataset_name
+        Args:
+            space_id (str): The ID of the space where the experiment will be run.
+            experiment_name (str): The name of the experiment.
+            task (ExperimentTask): The task to be performed in the experiment.
+            dataset_df (Optional[pd.DataFrame], optional): The dataset as a pandas DataFrame.
+                If not provided, the dataset will be downloaded using dataset_id or dataset_name.
+                Defaults to None.
+            dataset_id (Optional[str], optional): The ID of the dataset to use.
+                Required if dataset_df and dataset_name are not provided. Defaults to None.
+            dataset_name (Optional[str], optional): The name of the dataset to use.
+                Used if dataset_df and dataset_id are not provided. Defaults to None.
+            evaluators (Optional[Evaluators], optional): The evaluators to use in the experiment.
+                Defaults to None.
+
+        Returns:
+            Optional[str]: The ID of the uploaded experiment, or None if the upload failed.
+
+        Raises:
+            ValueError: If api_key is not set, or if the dataset is empty.
+            RuntimeError: If experiment initialization, dataset download, or result upload fails.
+        """
+
+        if dataset_id is None and dataset_name is None:
+            raise ValueError("must provide dataset_id or dataset_name")
+
+        dataset_identifier = dataset_id or dataset_name
+        # this is the trace model in the platform storing the traces for the experiment
+        trace_model_id = f"{experiment_name}_{get_hex_hash(dataset_identifier)}"
+        # set up initial experiment and trace model
+        try:
+            init_result = self._init_experiment(
+                space_id=space_id,
+                dataset_id=dataset_id,
+                trace_model_name=trace_model_id,
+                dataset_name=dataset_name,
+                experiment_name=experiment_name,
+            )
+            if init_result is None:
+                raise RuntimeError(f"Failed to initialize experiment {experiment_name}")
+            _, dataset_id = init_result
+        except BaseException as exc:
+            raise RuntimeError(f"Failed to initialize experiment {experiment_name}") from exc
+
+        # download dataset if not provided
+        if dataset_df is None:
+            try:
+                dataset_df = self.get_dataset(space_id=space_id, dataset_id=dataset_id)
+            except BaseException as exc:
+                raise RuntimeError(
+                    f"Failed to download dataset {dataset_id} to run experiment"
+                ) from exc
+
+        if dataset_df is None or dataset_df.empty:
+            raise ValueError(f"Dataset {dataset_id} is empty")
+
+        # run experiment and evals
+        tracer, resource = get_tracer_resource(
+            model_id=trace_model_id,
+            space_id=space_id,
+            api_key=self.api_key,
+            flight_host=self.host,
         )
-        if dataset is None or dataset.empty:
-            raise RuntimeError("Dataset is empty or does not exist")
 
         exp_df = run_experiment(
-            dataset=dataset,
+            dataset=dataset_df,
             task=task,
             evaluators=evaluators,
             experiment_name=experiment_name,
+            tracer=tracer,
+            resource=resource,
         )
-        exp_df = self._convert_default_columns_to_json_str(exp_df)
-        pa_schema = pa.Schema.from_pandas(exp_df)
-        new_schema = pa.schema([field for field in pa_schema])
-        tbl = pa.Table.from_pandas(exp_df, schema=new_schema)
+        exp_df = _convert_default_columns_to_json_str(exp_df)
+
+        # upload experiment data
+        try:
+            experiment_id = self._post_experiment_data(
+                experiment_name=experiment_name,
+                experiment_df=exp_df,
+                space_id=space_id,
+                dataset_id=dataset_id,
+            )
+        except BaseException as exc:
+            raise RuntimeError(f"Failed to upload experiment data for {experiment_name}") from exc
+        else:
+            return experiment_id
+
+    def _init_experiment(
+        self,
+        experiment_name: str,
+        space_id: str,
+        trace_model_name: str,
+        dataset_id: Optional[str] = None,
+        dataset_name: Optional[str] = None,
+    ) -> Optional[Tuple[str, str]]:
+        request = request_pb.DoActionRequest(
+            create_experiment_db_entry=request_pb.CreateExperimentDBEntryRequest(
+                space_id=space_id,
+                dataset_id=dataset_id,
+                dataset_name=dataset_name,
+                experiment_name=experiment_name,
+                trace_model_name=trace_model_name,
+            )
+        )
+        action = _action_for_request(FlightActionKey.CREATE_EXPERIMENT_DB_ENTRY, request)
+        flight_client = self.session.connect()
+        try:
+            response = flight_client.do_action(action, self.session.call_options)
+            res = next(response, None)
+        except BaseException as exc:
+            raise RuntimeError(f"Failed to create experiment {experiment_name}") from exc
+        else:
+            if res is None:
+                return None
+            resp_pb = request_pb.CreateExperimentDBEntryResponse()
+            resp_pb.ParseFromString(res.body.to_pybytes())
+            return resp_pb.experiment_id, resp_pb.dataset_id
+        finally:
+            flight_client.close()
+
+    def _post_experiment_data(
+        self,
+        experiment_name: str,
+        experiment_df: pd.DataFrame,
+        space_id: str,
+        dataset_id: str,
+    ) -> Optional[str]:
+        tbl = pa.Table.from_pandas(experiment_df)
         request = request_pb.DoPutRequest(
-            create_experiment=request_pb.CreateExperimentRequest(
+            post_experiment_data=request_pb.PostExperimentDataRequest(
                 space_id=space_id,
                 dataset_id=dataset_id,
                 experiment_name=experiment_name,
             )
         )
-
-        descriptor = self._descriptor_for_request(request)
+        descriptor = _descriptor_for_request(request)
+        flight_client = self.session.connect()
         try:
-            flight_client = self.session.connect()
             writer, metadata_reader = flight_client.do_put(
                 descriptor, tbl.schema, self.session.call_options
             )
@@ -113,15 +235,14 @@ class ArizeDatasetsClient:
                 writer.done_writing()
                 response = metadata_reader.read()
                 if response is not None:
-                    res = request_pb.CreateExperimentResponse()
+                    res = request_pb.PostExperimentDataResponse()
                     res.ParseFromString(response.to_pybytes())
                     if res:
                         return str(res.experiment_id)
         except BaseException as exc:
             raise RuntimeError(
-                "Failed to upload experiment run result to Arize for "
-                f"dataset_id={dataset_id}, dataset_name={dataset_name}, "
-                f"experiment_name={experiment_name}"
+                f"Failed to upload experiment run result to Arize for dataset_id={dataset_id},"
+                f" experiment_name={experiment_name}"
             ) from exc
         finally:
             flight_client.close()
@@ -142,14 +263,15 @@ class ArizeDatasetsClient:
             dataset_name (str): The name of the dataset.
             dataset_type (DatasetType): The type of the dataset.
             data (pd.DataFrame): The data to be included in the dataset.
-
+            convert_dict_to_json (bool, optional): Convert dictionary columns to JSON strings
+                for default JSON str columns per Open Inference. Defaults to True.
         Returns:
             str: The ID of the created dataset, or None if the creation failed.
         """
-        ## Validate and convert to arrow table
+
         df = self._set_default_columns_for_dataset(data)
         if convert_dict_to_json:
-            df = self._convert_default_columns_to_json_str(df)
+            df = _convert_default_columns_to_json_str(df)
         validation_errors = Validator.validate(df)
         if validation_errors:
             raise RuntimeError([e.error_message() for e in validation_errors])
@@ -165,9 +287,9 @@ class ArizeDatasetsClient:
                 dataset_type=dataset_type,
             )
         )
-        descriptor = self._descriptor_for_request(request)
+        descriptor = _descriptor_for_request(request)
+        flight_client = self.session.connect()
         try:
-            flight_client = self.session.connect()
             writer, metadata_reader = flight_client.do_put(
                 descriptor, tbl.schema, self.session.call_options
             )
@@ -213,7 +335,7 @@ class ArizeDatasetsClient:
                 dataset_id=dataset_id,
             )
         )
-        descriptor = self._descriptor_for_request(request)
+        descriptor = _descriptor_for_request(request)
         flight_client = self.session.connect()
         try:
             writer, metadata_reader = flight_client.do_put(
@@ -246,10 +368,11 @@ class ArizeDatasetsClient:
         Args:
             space_id (str): The ID of the space where the dataset is located.
             dataset_id (str): Dataset id. Required if dataset_name is not provided.
-            dataset_name (str): Dataset name. Reqired if dataset_id is not provided.
+            dataset_name (str): Dataset name. Required if dataset_id is not provided.
             dataset_version (str, optional): version name of the dataset
-            Defaults to "" and gets the latest version by based on creation time
-
+                Defaults to "" and gets the latest version by based on creation time
+            convert_json_str_to_dict (bool, optional): Convert JSON strings to Python dictionaries.
+                For default JSON str columns per Open Inference. Defaults to True.
         Returns:
             pd.DataFrame: The data of the dataset.
         """
@@ -268,9 +391,9 @@ class ArizeDatasetsClient:
             )
         )
 
-        ticket = self._ticket_for_request(request)
+        ticket = _ticket_for_request(request)
+        flight_client = self.session.connect()
         try:
-            flight_client = self.session.connect()
             reader = flight_client.do_get(ticket, self.session.call_options)
             df = reader.read_all().to_pandas()
         except BaseException as exc:
@@ -279,7 +402,62 @@ class ArizeDatasetsClient:
             ) from exc
         else:
             if convert_json_str_to_dict is True:
-                df = self._convert_json_str_to_dict(df)
+                df = _convert_json_str_to_dict(df)
+            return df
+        finally:
+            flight_client.close()
+
+    def get_experiment(
+        self,
+        space_id: str,
+        experiment_name: Optional[str] = None,
+        dataset_name: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+    ) -> Optional[pd.DataFrame]:
+        """
+        Retrieve experiment data from Arize.
+
+        Args:
+            space_id (str): The ID of the space where the experiment is located.
+            experiment_name (Optional[str]): The name of the experiment.
+                Required if experiment_id is not provided.
+            dataset_name (Optional[str]): The name of the dataset associated with the experiment.
+                Required if experiment_id is not provided.
+            experiment_id (Optional[str]): The ID of the experiment.
+                Required if experiment_name and dataset_name are not provided.
+
+        Returns:
+            Optional[pd.DataFrame]: A pandas DataFrame containing the experiment data,
+                or None if the retrieval fails.
+
+        Raises:
+            ValueError: If neither experiment_id nor both experiment_name and dataset_name are provided.
+            RuntimeError: If the experiment retrieval fails.
+
+        Note:
+            You must provide either the experiment_id or both the experiment_name and dataset_name.
+        """
+        experiment_id_invalid = experiment_id is None
+        experiment_name_invalid = experiment_name is None or dataset_name is None
+        if experiment_id_invalid and experiment_name_invalid:
+            raise ValueError("must provide experiment_id or both experiment_name and dataset_name")
+
+        request = request_pb.DoGetRequest(
+            get_experiment=request_pb.GetExperimentRequest(
+                space_id=space_id,
+                experiment_name=experiment_name,
+                dataset_name=dataset_name,
+                experiment_id=experiment_id,
+            )
+        )
+        ticket = _ticket_for_request(request)
+        flight_client = self.session.connect()
+        try:
+            reader = flight_client.do_get(ticket, self.session.call_options)
+            df = reader.read_all().to_pandas()
+        except BaseException as exc:
+            raise RuntimeError(f"Failed to get experiment {experiment_name}") from exc
+        else:
             return df
         finally:
             flight_client.close()
@@ -300,12 +478,11 @@ class ArizeDatasetsClient:
                 space_id=space_id, dataset_id=dataset_id
             )
         )
-        action = self._action_for_request(FLIGHT_ACTION_KEY.GET_DATASET_VERSION, request)
+        action = _action_for_request(FlightActionKey.GET_DATASET_VERSION, request)
+        flight_client = self.session.connect()
         try:
-            flight_client = self.session.connect()
             response = flight_client.do_action(action, self.session.call_options)
             res = next(response, None)
-            # Close the client here to drain the response stream
         except BaseException as exc:
             raise RuntimeError(f"Failed to get versions info for dataset id={dataset_id}") from exc
         else:
@@ -339,7 +516,7 @@ class ArizeDatasetsClient:
         request = request_pb.DoActionRequest(
             list_datasets=request_pb.ListDatasetsRequest(space_id=space_id)
         )
-        action = self._action_for_request(FLIGHT_ACTION_KEY.LIST_DATASETS, request)
+        action = _action_for_request(FlightActionKey.LIST_DATASETS, request)
         flight_client = self.session.connect()
         try:
             response = flight_client.do_action(action, self.session.call_options)
@@ -380,9 +557,9 @@ class ArizeDatasetsClient:
         request = request_pb.DoActionRequest(
             delete_dataset=request_pb.DeleteDatasetRequest(space_id=space_id, dataset_id=dataset_id)
         )
-        action = self._action_for_request(FLIGHT_ACTION_KEY.DELETE_DATASET, request)
+        action = _action_for_request(FlightActionKey.DELETE_DATASET, request)
+        flight_client = self.session.connect()
         try:
-            flight_client = self.session.connect()
             response = flight_client.do_action(action, self.session.call_options)
             res = next(response, None)
         except BaseException as exc:
@@ -395,18 +572,6 @@ class ArizeDatasetsClient:
             return resp_pb.success
         finally:
             flight_client.close()
-
-    def _descriptor_for_request(self, request: message) -> flight.FlightDescriptor:
-        data = json_format.MessageToJson(request).encode("utf-8")
-        return flight.FlightDescriptor.for_command(data)
-
-    def _ticket_for_request(self, request: message) -> flight.Ticket:
-        data = json_format.MessageToJson(request).encode("utf-8")
-        return flight.Ticket(data)
-
-    def _action_for_request(self, action_key: FLIGHT_ACTION_KEY, request: message) -> flight.Action:
-        req_bytes = json_format.MessageToJson(request).encode("utf-8")
-        return flight.Action(action_key.value, req_bytes)
 
     @staticmethod
     def _set_default_columns_for_dataset(df: pd.DataFrame) -> pd.DataFrame:
@@ -431,27 +596,25 @@ class ArizeDatasetsClient:
 
         return df
 
-    @staticmethod
-    def _convert_default_columns_to_json_str(df: pd.DataFrame) -> pd.DataFrame:
-        for col in df.columns:
-            if _should_convert(col):
-                try:
-                    df[col] = df[col].apply(lambda x: json.dumps(x))
-                    print(f"converted {col} to JSON string for data import")
-                except Exception:
-                    continue
-        return df
 
-    @staticmethod
-    def _convert_json_str_to_dict(df: pd.DataFrame) -> pd.DataFrame:
-        for col in df.columns:
-            if _should_convert(col):
-                try:
-                    df[col] = df[col].apply(lambda x: json.loads(x))
-                    print(f"converted {col} to dict for data export")
-                except Exception:
-                    continue
-        return df
+def _convert_default_columns_to_json_str(df: pd.DataFrame) -> pd.DataFrame:
+    for col in df.columns:
+        if _should_convert(col):
+            try:
+                df[col] = df[col].apply(lambda x: json.dumps(x) if isinstance(x, dict) else x)
+            except Exception:
+                continue
+    return df
+
+
+def _convert_json_str_to_dict(df: pd.DataFrame) -> pd.DataFrame:
+    for col in df.columns:
+        if _should_convert(col):
+            try:
+                df[col] = df[col].apply(lambda x: json.loads(x) if isinstance(x, str) else x)
+            except Exception:
+                continue
+    return df
 
 
 def _should_convert(col_name: str) -> bool:
@@ -460,4 +623,74 @@ def _should_convert(col_name: str) -> bool:
     """
     is_eval_metadata = col_name.startswith("eval.") and col_name.endswith(".metadata")
     is_json_str = col_name in OPEN_INFERENCE_JSON_STR_TYPES
-    return is_eval_metadata or is_json_str
+    is_task_result = col_name == "result"
+    return is_eval_metadata or is_json_str or is_task_result
+
+
+def _descriptor_for_request(request: message) -> flight.FlightDescriptor:
+    data = json_format.MessageToJson(request).encode("utf-8")
+    return flight.FlightDescriptor.for_command(data)
+
+
+def _ticket_for_request(request: message) -> flight.Ticket:
+    data = json_format.MessageToJson(request).encode("utf-8")
+    return flight.Ticket(data)
+
+
+def _action_for_request(action_key: FlightActionKey, request: message) -> flight.Action:
+    req_bytes = json_format.MessageToJson(request).encode("utf-8")
+    return flight.Action(action_key.value, req_bytes)
+
+
+def get_tracer_resource(
+    model_id: str,
+    space_id: str,
+    api_key: str,
+    flight_host: str,
+) -> Tuple[Tracer, Resource]:
+    resource = Resource({"model_id": model_id} if model_id else {})
+    tracer_provider = trace_sdk.TracerProvider(resource=resource)
+
+    headers = f"space_id={space_id},api_key={api_key}"
+    insecure = False
+
+    # Set the endpoint based on the flight host
+    if flight_host == ArizeFlightHost.DEFAULT.value:
+        end_point = ArizeTracerEndpoint.DEFAULT.value
+    elif flight_host == ArizeFlightHost.LOCAL.value:
+        end_point = ArizeTracerEndpoint.LOCAL.value
+        insecure = True
+    else:
+        raise ValueError("Invalid flight host")
+
+    span_processor = (
+        SimpleSpanProcessor(
+            GrpcSpanExporter(endpoint=end_point, insecure=insecure, headers=headers)
+        )
+        if model_id
+        else _NoOpProcessor()
+    )
+    tracer_provider.add_span_processor(span_processor)
+
+    current_tracer_provider = trace.get_tracer_provider()
+    # Check if the TracerProvider is already set (it's usually set if it's not the default)
+    # this is to supress the warning message about overwriting the TracerProvider
+    # run experiment function is designed to take the resource context and send the traces to the right model
+    if type(current_tracer_provider).__name__ == "TracerProvider":
+        pass
+    else:
+        trace.set_tracer_provider(tracer_provider)
+
+    return tracer_provider.get_tracer(__name__), resource
+
+
+class _NoOpProcessor(trace_sdk.SpanProcessor):
+    def force_flush(self, *_: Any) -> bool:
+        return True
+
+
+def get_hex_hash(input_string):
+    input_bytes = input_string.encode("utf-8")
+    sha256_hash = hashlib.sha256()
+    sha256_hash.update(input_bytes)
+    return sha256_hash.hexdigest()

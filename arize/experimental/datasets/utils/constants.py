@@ -34,10 +34,21 @@ DEFAULT_RETRY_MAX_WAIT_TIME = 10.0
 DEFAULT_TRANSPORT_SCHEME = "grpc+tls"
 
 
-class FLIGHT_ACTION_KEY(Enum):
+class FlightActionKey(Enum):
     GET_DATASET_VERSION = "get_dataset_version"
     LIST_DATASETS = "list_datasets"
     DELETE_DATASET = "delete_dataset"
+    CREATE_EXPERIMENT_DB_ENTRY = "create_experiment_db_entry"
+
+
+class ArizeFlightHost(Enum):
+    DEFAULT = DEFAULT_ARIZE_FLIGHT_HOST
+    LOCAL = "localhost"
+
+
+class ArizeTracerEndpoint(Enum):
+    DEFAULT = "https://otlp.arize.com/v1"
+    LOCAL = "http://localhost:4317"
 
 
 OPEN_INFERENCE_JSON_STR_TYPES = frozenset(
