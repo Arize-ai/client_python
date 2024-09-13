@@ -6,7 +6,10 @@ if sys.version_info < (3, 8):
     pytest.skip("Requires Python 3.8 or higher", allow_module_level=True)
 
 import pandas as pd
-from arize.experimental.datasets import ArizeDatasetsClient
+from arize.experimental.datasets.core.client import (
+    ArizeDatasetsClient,
+    _convert_default_columns_to_json_str,
+)
 from arize.experimental.datasets.validation.errors import (
     IDColumnUniqueConstraintError,
     RequiredColumnsError,
@@ -22,7 +25,7 @@ def test_happy_path():
     )
 
     df_new = ArizeDatasetsClient._set_default_columns_for_dataset(df)
-    differences = set(df_new.columns) ^ set(["id", "created_at", "updated_at", "user_data"])
+    differences = set(df_new.columns) ^ {"id", "created_at", "updated_at", "user_data"}
     assert not differences
 
     validation_errors = Validator.validate(df)
@@ -64,11 +67,11 @@ def test_dict_to_json_conversion() -> None:
             "not_converted_dict_col": [{"key": "value"}, {"key": "value"}, {"key": "value"}],
         }
     )
-    ## before conversion, the column with the evaluator name is a dict
+    # before conversion, the column with the evaluator name is a dict
     assert type(df["eval.MyEvaluator.metadata"][0]) is dict
     assert type(df["not_converted_dict_col"][0]) is dict
 
-    ## Check that only the column with the evaluator name is converted to JSON
-    converted_df = ArizeDatasetsClient._convert_default_columns_to_json_str(df)
+    # Check that only the column with the evaluator name is converted to JSON
+    converted_df = _convert_default_columns_to_json_str(df)
     assert type(converted_df["eval.MyEvaluator.metadata"][0]) is str
     assert type(converted_df["not_converted_dict_col"][0]) is dict

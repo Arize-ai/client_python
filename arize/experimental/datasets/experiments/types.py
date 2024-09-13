@@ -4,11 +4,18 @@ import textwrap
 from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime
+from enum import Enum
 from random import getrandbits
 from typing import Any, Awaitable, Callable, Dict, List, Mapping, Optional, Tuple, TypeVar, Union
 
 from typing_extensions import TypeAlias
 from wrapt import ObjectProxy
+
+
+class AnnotatorKind(Enum):
+    CODE = "CODE"
+    LLM = "LLM"
+
 
 JSONSerializable: TypeAlias = Optional[Union[Dict[str, Any], List[Any], str, int, float, bool]]
 Score: TypeAlias = Optional[Union[bool, int, float]]
@@ -246,6 +253,7 @@ class ExperimentEvaluationRun:
     start_time: datetime
     end_time: datetime
     name: str
+    annotator_kind: str
     error: Optional[str] = None
     result: Optional[EvaluationResult] = None
     id: str = field(default_factory=_exp_id)
@@ -258,6 +266,7 @@ class ExperimentEvaluationRun:
             start_time=obj["start_time"],
             end_time=obj["end_time"],
             name=obj["name"],
+            annotator_kind=obj["annotator_kind"],
             error=obj.get("error"),
             result=EvaluationResult.from_dict(obj.get("result")),
             id=obj["id"],

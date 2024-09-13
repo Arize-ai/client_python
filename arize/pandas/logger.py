@@ -751,7 +751,7 @@ class Client:
             if verbose:
                 logger.debug(f"Writing table to temporary file: {tmp_file}")
             writer = pa.ipc.RecordBatchStreamWriter(tmp_file, pa_schema)
-            writer.write_table(pa_table, max_chunksize=65536)
+            writer.write_table(pa_table, max_chunksize=16384)
             writer.close()
             if verbose:
                 logger.info("Sending file to Arize")

@@ -1,5 +1,18 @@
 # Changelog
 
+## [7.21.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.20.1...arize-python-sdk/v7.21.0) (2024-09-13)
+
+
+### 🎁 New Features
+
+* async run task and evaluator functions ([23f5a21](https://github.com/Arize-ai/arize/commit/23f5a2147eb5c76c9620e592972b3fbadfa11057))
+* get experiment data back as a dataframe. ([23f5a21](https://github.com/Arize-ai/arize/commit/23f5a2147eb5c76c9620e592972b3fbadfa11057))
+* run experiment with default traces ([#34566](https://github.com/Arize-ai/arize/issues/34566)) ([23f5a21](https://github.com/Arize-ai/arize/commit/23f5a2147eb5c76c9620e592972b3fbadfa11057))
+
+### ❔ Miscellaneous Chores
+
+* change max_chunksize to 2**14 ([#34653](https://github.com/Arize-ai/arize/issues/34653)) ([4cf7c86](https://github.com/Arize-ai/arize/commit/4cf7c862726f1f1c1367b712a9ba3b652c6522e9))
+
 ## [7.20.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.20.0...arize-python-sdk/v7.20.1) (2024-08-19)
 
 

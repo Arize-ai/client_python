@@ -5,11 +5,14 @@ import pytest
 if sys.version_info < (3, 8):
     pytest.skip("Requires Python 3.8 or higher", allow_module_level=True)
 
-from typing import Any
+from typing import Any, Tuple
 
+import opentelemetry.sdk.trace as trace_sdk
 import pandas as pd
 from arize.experimental.datasets.experiments.evaluators.base import EvaluationResult, Evaluator
 from arize.experimental.datasets.experiments.functions import run_experiment
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.trace import Tracer
 
 
 # Define a simple evaluator
@@ -39,22 +42,30 @@ def test_run_experiment():
         question = example.dataset_row["question"]
         return f"Answer to {question}"
 
+    tracer, resource = get_no_op_processor()
+
     exp_df = run_experiment(
         dataset=dataset,
         task=task,
         evaluators=[MyEval()],
         experiment_name="test_experiment",
+        tracer=tracer,
+        resource=resource,
     )
-    # output df should have 2 rows x 8 cols
-    assert exp_df.shape == (2, 8)
+    # output df should have 2 rows x 12 cols
+    assert exp_df.shape == (2, 12)
     # expected col names
     assert exp_df.columns.tolist() == [
         "id",
         "example_id",
         "result",
+        "result.trace.id",
+        "result.trace.timestamp",
         "eval.MyEval.score",
         "eval.MyEval.label",
         "eval.MyEval.explanation",
+        "eval.MyEval.trace.id",
+        "eval.MyEval.trace.timestamp",
         "eval.MyEval.metadata.output",
         "eval.MyEval.metadata.input",
     ]
@@ -69,3 +80,19 @@ def test_run_experiment():
         "Answer to What is the capital of France?",
         "Answer to What is the capital of Germany?",
     ]
+    # trace.timestamp should be int (milliseconds timestmap)
+    assert exp_df["result.trace.timestamp"].dtype == int
+    assert exp_df["eval.MyEval.trace.timestamp"].dtype == int
+
+
+class _NoOpProcessor(trace_sdk.SpanProcessor):
+    def force_flush(self, *_: Any) -> bool:
+        return True
+
+
+def get_no_op_processor() -> Tuple[Tracer, Resource]:
+    tracer_provider = trace_sdk.TracerProvider()
+    span_processor = _NoOpProcessor()
+    tracer_provider.add_span_processor(span_processor)
+    resource = Resource.create({})
+    return tracer_provider.get_tracer(__name__), resource
