@@ -16,7 +16,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0erequests.proto\x12\x06public\x1a\x1fgoogle/protobuf/timestamp.proto\"\x83\x01\n\x0c\x44oGetRequest\x12\x30\n\x0bget_dataset\x18\x01 \x01(\x0b\x32\x19.public.GetDatasetRequestH\x00\x12\x36\n\x0eget_experiment\x18\x02 \x01(\x0b\x32\x1c.public.GetExperimentRequestH\x00\x42\t\n\x07request\"\x82\x01\n\x11GetDatasetRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x17\n\x0f\x64\x61taset_version\x18\x03 \x01(\t\x12\x14\n\ndataset_id\x18\x02 \x01(\tH\x00\x12\x16\n\x0c\x64\x61taset_name\x18\x04 \x01(\tH\x00\x42\x14\n\x12\x64\x61taset_identifier\"n\n\x14GetExperimentRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x15\n\rexperiment_id\x18\x02 \x01(\t\x12\x17\n\x0f\x65xperiment_name\x18\x03 \x01(\t\x12\x14\n\x0c\x64\x61taset_name\x18\x04 \x01(\t\"\x8a\x02\n\x0c\x44oPutRequest\x12\x36\n\x0e\x63reate_dataset\x18\x01 \x01(\x0b\x32\x1c.public.CreateDatasetRequestH\x00\x12\x36\n\x0eupdate_dataset\x18\x02 \x01(\x0b\x32\x1c.public.UpdateDatasetRequestH\x00\x12<\n\x11\x63reate_experiment\x18\x03 \x01(\x0b\x32\x1f.public.CreateExperimentRequestH\x00\x12\x41\n\x14post_experiment_data\x18\x04 \x01(\x0b\x32!.public.PostExperimentDataRequestH\x00\x42\t\n\x07request\"i\n\x14\x43reateDatasetRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x14\n\x0c\x64\x61taset_name\x18\x02 \x01(\t\x12)\n\x0c\x64\x61taset_type\x18\x03 \x01(\x0e\x32\x13.public.DatasetType\"+\n\x15\x43reateDatasetResponse\x12\x12\n\ndataset_id\x18\x01 \x01(\t\"X\n\x17\x43reateExperimentRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x12\n\ndataset_id\x18\x02 \x01(\t\x12\x17\n\x0f\x65xperiment_name\x18\x03 \x01(\t\"1\n\x18\x43reateExperimentResponse\x12\x15\n\rexperiment_id\x18\x01 \x01(\t\"Z\n\x19PostExperimentDataRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x12\n\ndataset_id\x18\x02 \x01(\t\x12\x17\n\x0f\x65xperiment_name\x18\x03 \x01(\t\"G\n\x1aPostExperimentDataResponse\x12\x15\n\rexperiment_id\x18\x01 \x01(\t\x12\x12\n\ndataset_id\x18\x02 \x01(\t\"<\n\x14UpdateDatasetRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x12\n\ndataset_id\x18\x02 \x01(\t\"+\n\x15UpdateDatasetResponse\x12\x12\n\ndataset_id\x18\x01 \x01(\t\"\x9b\x02\n\x0f\x44oActionRequest\x12\x34\n\rlist_datasets\x18\x01 \x01(\x0b\x32\x1b.public.ListDatasetsRequestH\x00\x12\x36\n\x0e\x64\x65lete_dataset\x18\x02 \x01(\x0b\x32\x1c.public.DeleteDatasetRequestH\x00\x12\x41\n\x14get_dataset_versions\x18\x03 \x01(\x0b\x32!.public.GetDatasetVersionsRequestH\x00\x12L\n\x1a\x63reate_experiment_db_entry\x18\x04 \x01(\x0b\x32&.public.CreateExperimentDBEntryRequestH\x00\x42\t\n\x07request\"\xa9\x01\n\x1e\x43reateExperimentDBEntryRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x14\n\ndataset_id\x18\x02 \x01(\tH\x00\x12\x16\n\x0c\x64\x61taset_name\x18\x03 \x01(\tH\x00\x12\x17\n\x0f\x65xperiment_name\x18\x04 \x01(\t\x12\x18\n\x10trace_model_name\x18\x05 \x01(\tB\x14\n\x12\x64\x61taset_identifier\"L\n\x1f\x43reateExperimentDBEntryResponse\x12\x15\n\rexperiment_id\x18\x01 \x01(\t\x12\x12\n\ndataset_id\x18\x02 \x01(\t\"\'\n\x13ListDatasetsRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\"=\n\x14ListDatasetsResponse\x12%\n\x08\x64\x61tasets\x18\x01 \x03(\x0b\x32\x13.public.DatasetInfo\"<\n\x14\x44\x65leteDatasetRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x12\n\ndataset_id\x18\x02 \x01(\t\"(\n\x15\x44\x65leteDatasetResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"A\n\x19GetDatasetVersionsRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x12\n\ndataset_id\x18\x02 \x01(\t\"\xc2\x01\n\x0b\x44\x61tasetInfo\x12\x12\n\ndataset_id\x18\x01 \x01(\t\x12\x14\n\x0c\x64\x61taset_name\x18\x02 \x01(\t\x12)\n\x0c\x64\x61taset_type\x18\x03 \x01(\x0e\x32\x13.public.DatasetType\x12.\n\ncreated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\nupdated_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x8a\x01\n\x12\x44\x61tasetVersionInfo\x12\x14\n\x0cversion_name\x18\x01 \x01(\t\x12.\n\ncreated_at\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\nupdated_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"J\n\x1aGetDatasetVersionsResponse\x12,\n\x08versions\x18\x02 \x03(\x0b\x32\x1a.public.DatasetVersionInfo*:\n\x0b\x44\x61tasetType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0e\n\nGENERATIVE\x10\x01\x12\x0e\n\nINFERENCES\x10\x02\x42?Z=github.com/Arize-ai/arize/go/pkg/flightserver/protocol/publicb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0erequests.proto\x12\x06public\x1a\x1fgoogle/protobuf/timestamp.proto\"\x83\x01\n\x0c\x44oGetRequest\x12\x30\n\x0bget_dataset\x18\x01 \x01(\x0b\x32\x19.public.GetDatasetRequestH\x00\x12\x36\n\x0eget_experiment\x18\x02 \x01(\x0b\x32\x1c.public.GetExperimentRequestH\x00\x42\t\n\x07request\"\x82\x01\n\x11GetDatasetRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x17\n\x0f\x64\x61taset_version\x18\x03 \x01(\t\x12\x14\n\ndataset_id\x18\x02 \x01(\tH\x00\x12\x16\n\x0c\x64\x61taset_name\x18\x04 \x01(\tH\x00\x42\x14\n\x12\x64\x61taset_identifier\"n\n\x14GetExperimentRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x15\n\rexperiment_id\x18\x02 \x01(\t\x12\x17\n\x0f\x65xperiment_name\x18\x03 \x01(\t\x12\x14\n\x0c\x64\x61taset_name\x18\x04 \x01(\t\"\xd7\x02\n\x0c\x44oPutRequest\x12\x36\n\x0e\x63reate_dataset\x18\x01 \x01(\x0b\x32\x1c.public.CreateDatasetRequestH\x00\x12\x36\n\x0eupdate_dataset\x18\x02 \x01(\x0b\x32\x1c.public.UpdateDatasetRequestH\x00\x12<\n\x11\x63reate_experiment\x18\x03 \x01(\x0b\x32\x1f.public.CreateExperimentRequestH\x00\x12\x41\n\x14post_experiment_data\x18\x04 \x01(\x0b\x32!.public.PostExperimentDataRequestH\x00\x12K\n\x1dwrite_span_evaluation_request\x18\x05 \x01(\x0b\x32\".public.WriteSpanEvaluationRequestH\x00\x42\t\n\x07request\"i\n\x14\x43reateDatasetRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x14\n\x0c\x64\x61taset_name\x18\x02 \x01(\t\x12)\n\x0c\x64\x61taset_type\x18\x03 \x01(\x0e\x32\x13.public.DatasetType\"+\n\x15\x43reateDatasetResponse\x12\x12\n\ndataset_id\x18\x01 \x01(\t\"X\n\x17\x43reateExperimentRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x12\n\ndataset_id\x18\x02 \x01(\t\x12\x17\n\x0f\x65xperiment_name\x18\x03 \x01(\t\"1\n\x18\x43reateExperimentResponse\x12\x15\n\rexperiment_id\x18\x01 \x01(\t\"Z\n\x19PostExperimentDataRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x12\n\ndataset_id\x18\x02 \x01(\t\x12\x17\n\x0f\x65xperiment_name\x18\x03 \x01(\t\"G\n\x1aPostExperimentDataResponse\x12\x15\n\rexperiment_id\x18\x01 \x01(\t\x12\x12\n\ndataset_id\x18\x02 \x01(\t\"<\n\x14UpdateDatasetRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x12\n\ndataset_id\x18\x02 \x01(\t\"+\n\x15UpdateDatasetResponse\x12\x12\n\ndataset_id\x18\x01 \x01(\t\"`\n\x1aWriteSpanEvaluationRequest\x12\x19\n\x11\x65xternal_model_id\x18\x01 \x01(\t\x12\x15\n\rmodel_version\x18\x02 \x01(\t\x12\x10\n\x08space_id\x18\x03 \x01(\t\"\x1d\n\x1bWriteSpanEvaluationResponse\"\x9b\x02\n\x0f\x44oActionRequest\x12\x34\n\rlist_datasets\x18\x01 \x01(\x0b\x32\x1b.public.ListDatasetsRequestH\x00\x12\x36\n\x0e\x64\x65lete_dataset\x18\x02 \x01(\x0b\x32\x1c.public.DeleteDatasetRequestH\x00\x12\x41\n\x14get_dataset_versions\x18\x03 \x01(\x0b\x32!.public.GetDatasetVersionsRequestH\x00\x12L\n\x1a\x63reate_experiment_db_entry\x18\x04 \x01(\x0b\x32&.public.CreateExperimentDBEntryRequestH\x00\x42\t\n\x07request\"\xa9\x01\n\x1e\x43reateExperimentDBEntryRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x14\n\ndataset_id\x18\x02 \x01(\tH\x00\x12\x16\n\x0c\x64\x61taset_name\x18\x03 \x01(\tH\x00\x12\x17\n\x0f\x65xperiment_name\x18\x04 \x01(\t\x12\x18\n\x10trace_model_name\x18\x05 \x01(\tB\x14\n\x12\x64\x61taset_identifier\"L\n\x1f\x43reateExperimentDBEntryResponse\x12\x15\n\rexperiment_id\x18\x01 \x01(\t\x12\x12\n\ndataset_id\x18\x02 \x01(\t\"\'\n\x13ListDatasetsRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\"=\n\x14ListDatasetsResponse\x12%\n\x08\x64\x61tasets\x18\x01 \x03(\x0b\x32\x13.public.DatasetInfo\"<\n\x14\x44\x65leteDatasetRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x12\n\ndataset_id\x18\x02 \x01(\t\"(\n\x15\x44\x65leteDatasetResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"A\n\x19GetDatasetVersionsRequest\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x12\n\ndataset_id\x18\x02 \x01(\t\"\xc2\x01\n\x0b\x44\x61tasetInfo\x12\x12\n\ndataset_id\x18\x01 \x01(\t\x12\x14\n\x0c\x64\x61taset_name\x18\x02 \x01(\t\x12)\n\x0c\x64\x61taset_type\x18\x03 \x01(\x0e\x32\x13.public.DatasetType\x12.\n\ncreated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\nupdated_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x8a\x01\n\x12\x44\x61tasetVersionInfo\x12\x14\n\x0cversion_name\x18\x01 \x01(\t\x12.\n\ncreated_at\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\nupdated_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"J\n\x1aGetDatasetVersionsResponse\x12,\n\x08versions\x18\x02 \x03(\x0b\x32\x1a.public.DatasetVersionInfo*:\n\x0b\x44\x61tasetType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0e\n\nGENERATIVE\x10\x01\x12\x0e\n\nINFERENCES\x10\x02\x42?Z=github.com/Arize-ai/arize/go/pkg/flightserver/protocol/publicb\x06proto3')
 
 _DATASETTYPE = DESCRIPTOR.enum_types_by_name['DatasetType']
 DatasetType = enum_type_wrapper.EnumTypeWrapper(_DATASETTYPE)
@@ -37,6 +37,8 @@ _POSTEXPERIMENTDATAREQUEST = DESCRIPTOR.message_types_by_name['PostExperimentDat
 _POSTEXPERIMENTDATARESPONSE = DESCRIPTOR.message_types_by_name['PostExperimentDataResponse']
 _UPDATEDATASETREQUEST = DESCRIPTOR.message_types_by_name['UpdateDatasetRequest']
 _UPDATEDATASETRESPONSE = DESCRIPTOR.message_types_by_name['UpdateDatasetResponse']
+_WRITESPANEVALUATIONREQUEST = DESCRIPTOR.message_types_by_name['WriteSpanEvaluationRequest']
+_WRITESPANEVALUATIONRESPONSE = DESCRIPTOR.message_types_by_name['WriteSpanEvaluationResponse']
 _DOACTIONREQUEST = DESCRIPTOR.message_types_by_name['DoActionRequest']
 _CREATEEXPERIMENTDBENTRYREQUEST = DESCRIPTOR.message_types_by_name['CreateExperimentDBEntryRequest']
 _CREATEEXPERIMENTDBENTRYRESPONSE = DESCRIPTOR.message_types_by_name['CreateExperimentDBEntryResponse']
@@ -132,6 +134,20 @@ UpdateDatasetResponse = _reflection.GeneratedProtocolMessageType('UpdateDatasetR
   })
 _sym_db.RegisterMessage(UpdateDatasetResponse)
 
+WriteSpanEvaluationRequest = _reflection.GeneratedProtocolMessageType('WriteSpanEvaluationRequest', (_message.Message,), {
+  'DESCRIPTOR' : _WRITESPANEVALUATIONREQUEST,
+  '__module__' : 'requests_pb2'
+  # @@protoc_insertion_point(class_scope:public.WriteSpanEvaluationRequest)
+  })
+_sym_db.RegisterMessage(WriteSpanEvaluationRequest)
+
+WriteSpanEvaluationResponse = _reflection.GeneratedProtocolMessageType('WriteSpanEvaluationResponse', (_message.Message,), {
+  'DESCRIPTOR' : _WRITESPANEVALUATIONRESPONSE,
+  '__module__' : 'requests_pb2'
+  # @@protoc_insertion_point(class_scope:public.WriteSpanEvaluationResponse)
+  })
+_sym_db.RegisterMessage(WriteSpanEvaluationResponse)
+
 DoActionRequest = _reflection.GeneratedProtocolMessageType('DoActionRequest', (_message.Message,), {
   'DESCRIPTOR' : _DOACTIONREQUEST,
   '__module__' : 'requests_pb2'
@@ -213,8 +229,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z=github.com/Arize-ai/arize/go/pkg/flightserver/protocol/public'
-  _DATASETTYPE._serialized_start=2497
-  _DATASETTYPE._serialized_end=2555
+  _DATASETTYPE._serialized_start=2703
+  _DATASETTYPE._serialized_end=2761
   _DOGETREQUEST._serialized_start=60
   _DOGETREQUEST._serialized_end=191
   _GETDATASETREQUEST._serialized_start=194
@@ -222,43 +238,47 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _GETEXPERIMENTREQUEST._serialized_start=326
   _GETEXPERIMENTREQUEST._serialized_end=436
   _DOPUTREQUEST._serialized_start=439
-  _DOPUTREQUEST._serialized_end=705
-  _CREATEDATASETREQUEST._serialized_start=707
-  _CREATEDATASETREQUEST._serialized_end=812
-  _CREATEDATASETRESPONSE._serialized_start=814
-  _CREATEDATASETRESPONSE._serialized_end=857
-  _CREATEEXPERIMENTREQUEST._serialized_start=859
-  _CREATEEXPERIMENTREQUEST._serialized_end=947
-  _CREATEEXPERIMENTRESPONSE._serialized_start=949
-  _CREATEEXPERIMENTRESPONSE._serialized_end=998
-  _POSTEXPERIMENTDATAREQUEST._serialized_start=1000
-  _POSTEXPERIMENTDATAREQUEST._serialized_end=1090
-  _POSTEXPERIMENTDATARESPONSE._serialized_start=1092
-  _POSTEXPERIMENTDATARESPONSE._serialized_end=1163
-  _UPDATEDATASETREQUEST._serialized_start=1165
-  _UPDATEDATASETREQUEST._serialized_end=1225
-  _UPDATEDATASETRESPONSE._serialized_start=1227
-  _UPDATEDATASETRESPONSE._serialized_end=1270
-  _DOACTIONREQUEST._serialized_start=1273
-  _DOACTIONREQUEST._serialized_end=1556
-  _CREATEEXPERIMENTDBENTRYREQUEST._serialized_start=1559
-  _CREATEEXPERIMENTDBENTRYREQUEST._serialized_end=1728
-  _CREATEEXPERIMENTDBENTRYRESPONSE._serialized_start=1730
-  _CREATEEXPERIMENTDBENTRYRESPONSE._serialized_end=1806
-  _LISTDATASETSREQUEST._serialized_start=1808
-  _LISTDATASETSREQUEST._serialized_end=1847
-  _LISTDATASETSRESPONSE._serialized_start=1849
-  _LISTDATASETSRESPONSE._serialized_end=1910
-  _DELETEDATASETREQUEST._serialized_start=1912
-  _DELETEDATASETREQUEST._serialized_end=1972
-  _DELETEDATASETRESPONSE._serialized_start=1974
-  _DELETEDATASETRESPONSE._serialized_end=2014
-  _GETDATASETVERSIONSREQUEST._serialized_start=2016
-  _GETDATASETVERSIONSREQUEST._serialized_end=2081
-  _DATASETINFO._serialized_start=2084
-  _DATASETINFO._serialized_end=2278
-  _DATASETVERSIONINFO._serialized_start=2281
-  _DATASETVERSIONINFO._serialized_end=2419
-  _GETDATASETVERSIONSRESPONSE._serialized_start=2421
-  _GETDATASETVERSIONSRESPONSE._serialized_end=2495
+  _DOPUTREQUEST._serialized_end=782
+  _CREATEDATASETREQUEST._serialized_start=784
+  _CREATEDATASETREQUEST._serialized_end=889
+  _CREATEDATASETRESPONSE._serialized_start=891
+  _CREATEDATASETRESPONSE._serialized_end=934
+  _CREATEEXPERIMENTREQUEST._serialized_start=936
+  _CREATEEXPERIMENTREQUEST._serialized_end=1024
+  _CREATEEXPERIMENTRESPONSE._serialized_start=1026
+  _CREATEEXPERIMENTRESPONSE._serialized_end=1075
+  _POSTEXPERIMENTDATAREQUEST._serialized_start=1077
+  _POSTEXPERIMENTDATAREQUEST._serialized_end=1167
+  _POSTEXPERIMENTDATARESPONSE._serialized_start=1169
+  _POSTEXPERIMENTDATARESPONSE._serialized_end=1240
+  _UPDATEDATASETREQUEST._serialized_start=1242
+  _UPDATEDATASETREQUEST._serialized_end=1302
+  _UPDATEDATASETRESPONSE._serialized_start=1304
+  _UPDATEDATASETRESPONSE._serialized_end=1347
+  _WRITESPANEVALUATIONREQUEST._serialized_start=1349
+  _WRITESPANEVALUATIONREQUEST._serialized_end=1445
+  _WRITESPANEVALUATIONRESPONSE._serialized_start=1447
+  _WRITESPANEVALUATIONRESPONSE._serialized_end=1476
+  _DOACTIONREQUEST._serialized_start=1479
+  _DOACTIONREQUEST._serialized_end=1762
+  _CREATEEXPERIMENTDBENTRYREQUEST._serialized_start=1765
+  _CREATEEXPERIMENTDBENTRYREQUEST._serialized_end=1934
+  _CREATEEXPERIMENTDBENTRYRESPONSE._serialized_start=1936
+  _CREATEEXPERIMENTDBENTRYRESPONSE._serialized_end=2012
+  _LISTDATASETSREQUEST._serialized_start=2014
+  _LISTDATASETSREQUEST._serialized_end=2053
+  _LISTDATASETSRESPONSE._serialized_start=2055
+  _LISTDATASETSRESPONSE._serialized_end=2116
+  _DELETEDATASETREQUEST._serialized_start=2118
+  _DELETEDATASETREQUEST._serialized_end=2178
+  _DELETEDATASETRESPONSE._serialized_start=2180
+  _DELETEDATASETRESPONSE._serialized_end=2220
+  _GETDATASETVERSIONSREQUEST._serialized_start=2222
+  _GETDATASETVERSIONSREQUEST._serialized_end=2287
+  _DATASETINFO._serialized_start=2290
+  _DATASETINFO._serialized_end=2484
+  _DATASETVERSIONINFO._serialized_start=2487
+  _DATASETVERSIONINFO._serialized_end=2625
+  _GETDATASETVERSIONSRESPONSE._serialized_start=2627
+  _GETDATASETVERSIONSRESPONSE._serialized_end=2701
 # @@protoc_insertion_point(module_scope)
