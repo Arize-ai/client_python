@@ -1,7 +1,113 @@
+[project]
+name = "arize"
+description = "A helper library to interact with Arize AI APIs"
+readme = "README.md"
+requires-python = ">=3.6"
+license = { text = "BSD" }
+keywords = [
+    "Arize",
+    "Observability",
+    "Monitoring",
+    "Explainability",
+    "Tracing",
+    "LLM",
+    "Evaluations",
+]
+authors = [
+  { name = "Arize AI", email = "support@arize.com" },
+]
+maintainers = [
+  { name = "Arize AI", email = "support@arize.com" },
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Logging",
+    "Topic :: System :: Monitoring",
+]
+dependencies = [
+    "requests_futures==1.0.0",
+    "googleapis_common_protos~=1.51",
+    "protobuf>=3.12,<5",
+    "pandas>=0.25.3,<3",
+    "pyarrow>=0.15.0",
+    "tqdm>=4.60.0,<5",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://arize.com"
+Documentation = "https://docs.arize.com/arize"
+Issues = "https://github.com/Arize-ai/client_python/issues"
+Source = "https://github.com/Arize-ai/client_python"
+Changelog = "https://github.com/Arize-ai/client_python/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+MimicExplainer = [
+    "interpret-community[mimic]>=0.22.0,<1",
+]
+AutoEmbeddings = [
+    "transformers>=4.25, <5",
+    "tokenizers>=0.13, <1",
+    "datasets>=2.8, <3, !=2.14.*",
+    "torch>=1.13, <3",
+    "Pillow>=8.4.0, <11",
+]
+NLP_Metrics = [
+    "nltk>=3.0.0, <4",
+    "sacrebleu>=2.3.1, <3",
+    "rouge-score>=0.1.2, <1",
+    "evaluate>=0.3, <1",
+    "datasets!=2.14.*",
+]
+LLM_Evaluation = [
+    # To be removed in version 8 in favor of NLP_Metrics
+    "nltk>=3.0.0, <4",
+    "sacrebleu>=2.3.1, <3",
+    "rouge-score>=0.1.2, <1",
+    "evaluate>=0.3, <1",
+    "datasets!=2.14.*",
+]
+Tracing = [
+    "opentelemetry-semantic-conventions>=0.43b0, <1",
+    "openinference-semantic-conventions>=0.1.6, <1",
+    "deprecated", #opentelemetry-semantic-conventions requires it
+]
+Datasets = [
+    "typing-extensions>=4, <5",
+    "wrapt>=1.12.1, <2",
+    "opentelemetry-semantic-conventions>=0.43b0, <1",
+    "openinference-semantic-conventions>=0.1.6, <1",
+    "opentelemetry-sdk>=1.25.0, <2",
+    "opentelemetry-exporter-otlp>=1.25.0, <2",
+    "deprecated", #opentelemetry-semantic-conventions requires it
+]
+
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "arize/version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["arize"]
+
+[tool.hatch.build]
+only-packages = true
 
 [tool.black]
 include = '\.pyi?$'
 exclude = '(_pb2\.py$|docs/source/.*\.py)'
+

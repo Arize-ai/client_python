@@ -1,5 +1,18 @@
 # Changelog
 
+## [7.22.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.21.0...arize-python-sdk/v7.22.0) (2024-09-26)
+
+
+### 🎁 New Features
+
+* **experiments:** configurable concurrency value for task and evaluator runs ([7bfe7ab](https://github.com/Arize-ai/arize/commit/7bfe7abaa673a7567cc20239ebfc7a437d064fd3))
+* **experiments:** configurable otlp endpoint for default experiments traces ([7bfe7ab](https://github.com/Arize-ai/arize/commit/7bfe7abaa673a7567cc20239ebfc7a437d064fd3))
+* **experiments:** datasets client experiment dry-run mode ([#35678](https://github.com/Arize-ai/arize/issues/35678)) ([7bfe7ab](https://github.com/Arize-ai/arize/commit/7bfe7abaa673a7567cc20239ebfc7a437d064fd3))
+
+### ❔ Miscellaneous Chores
+
+* Move from setup.cfg to pyproject.toml ([#35423](https://github.com/Arize-ai/arize/issues/35423)) ([ff10ea3](https://github.com/Arize-ai/arize/commit/ff10ea3103025d712e693fac808a0645876220ec))
+
 ## [7.21.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.20.1...arize-python-sdk/v7.21.0) (2024-09-13)
 
 

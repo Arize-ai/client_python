@@ -9,8 +9,8 @@ from typing import Any, Tuple
 
 import opentelemetry.sdk.trace as trace_sdk
 import pandas as pd
+from arize.experimental.datasets import ArizeDatasetsClient
 from arize.experimental.datasets.experiments.evaluators.base import EvaluationResult, Evaluator
-from arize.experimental.datasets.experiments.functions import run_experiment
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.trace import Tracer
 
@@ -26,6 +26,11 @@ class MyEval(Evaluator):
         )
 
 
+def task(example):
+    question = example.dataset_row["question"]
+    return f"Answer to {question}"
+
+
 dataset = pd.DataFrame(
     {
         "id": ["example_id_1", "example_id_2"],
@@ -38,20 +43,17 @@ dataset = pd.DataFrame(
 
 
 def test_run_experiment():
-    def task(example):
-        question = example.dataset_row["question"]
-        return f"Answer to {question}"
-
-    tracer, resource = get_no_op_processor()
-
-    exp_df = run_experiment(
-        dataset=dataset,
+    c = ArizeDatasetsClient(developer_key="dummy_key", api_key="dummy_key")
+    exp_id, exp_df = c.run_experiment(
+        space_id="dummy_space_id",
+        experiment_name="test_experiment",
+        dataset_id="dummy_dataset_id",
+        dataset_df=dataset,
         task=task,
         evaluators=[MyEval()],
-        experiment_name="test_experiment",
-        tracer=tracer,
-        resource=resource,
+        dry_run=True,
     )
+    assert exp_id == ""
     # output df should have 2 rows x 12 cols
     assert exp_df.shape == (2, 12)
     # expected col names

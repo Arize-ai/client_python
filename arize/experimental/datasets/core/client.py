@@ -3,7 +3,7 @@ import json
 import time
 import uuid
 from dataclasses import dataclass
-from typing import Any, Optional, Tuple
+from typing import Optional, Tuple, Union
 
 import opentelemetry.sdk.trace as trace_sdk
 import pandas as pd
@@ -14,7 +14,7 @@ from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
     OTLPSpanExporter as GrpcSpanExporter,
 )
 from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.sdk.trace.export import ConsoleSpanExporter, SimpleSpanProcessor
 from opentelemetry.trace import Tracer
 from pyarrow import flight
 
@@ -25,10 +25,9 @@ from ..experiments.types import ExperimentTask
 from ..utils.constants import (
     DEFAULT_ARIZE_FLIGHT_HOST,
     DEFAULT_ARIZE_FLIGHT_PORT,
+    DEFAULT_ARIZE_OTLP_ENDPOINT,
     DEFAULT_TRANSPORT_SCHEME,
     OPEN_INFERENCE_JSON_STR_TYPES,
-    ArizeFlightHost,
-    ArizeTracerEndpoint,
     FlightActionKey,
 )
 from ..validation.validator import Validator
@@ -51,6 +50,8 @@ class ArizeDatasetsClient:
             {DEFAULT_ARIZE_FLIGHT_PORT}.
         scheme (str, optional): Transport scheme to use for the connection. Defaults to
             "{DEFAULT_TRANSPORT_SCHEME}".
+        otlp_endpoint (str, optional): OTLP endpoint to send experiment traces to Arize. Defaults to
+            "{DEFAULT_ARIZE_OTLP_ENDPOINT}".
     """
 
     developer_key: str
@@ -58,6 +59,7 @@ class ArizeDatasetsClient:
     host: str = DEFAULT_ARIZE_FLIGHT_HOST
     port: int = DEFAULT_ARIZE_FLIGHT_PORT
     scheme: str = DEFAULT_TRANSPORT_SCHEME
+    otlp_endpoint: str = DEFAULT_ARIZE_OTLP_ENDPOINT
 
     def __post_init__(self) -> None:
         """
@@ -83,7 +85,10 @@ class ArizeDatasetsClient:
         dataset_id: Optional[str] = None,
         dataset_name: Optional[str] = None,
         evaluators: Optional[Evaluators] = None,
-    ) -> Optional[str]:
+        dry_run: bool = False,
+        concurrency: int = 3,
+        set_global_tracer_provider: bool = False,
+    ) -> Union[Tuple[str, pd.DataFrame], None]:
         """
         Run an experiment on a dataset and upload the results.
 
@@ -103,78 +108,98 @@ class ArizeDatasetsClient:
                 Used if dataset_df and dataset_id are not provided. Defaults to None.
             evaluators (Optional[Evaluators], optional): The evaluators to use in the experiment.
                 Defaults to None.
+            dry_run (bool): If True, the experiment result will not be uploaded to Arize.
+                Defaults to False.
+            concurrency (int): The number of concurrent tasks to run. Defaults to 3.
+            set_global_tracer_provider (bool): If True, sets the global tracer provider for the experiment.
+                Defaults to False.
 
         Returns:
-            Optional[str]: The ID of the uploaded experiment, or None if the upload failed.
+            Tuple[str, pd.DataFrame]:
+                A tuple of experiment ID and experiment result DataFrame.
+                If dry_run is True, the experiment ID will be an empty string.
 
         Raises:
-            ValueError: If api_key is not set, or if the dataset is empty.
+            ValueError: If dataset_id and dataset_name are both not provided, or if the dataset is empty.
             RuntimeError: If experiment initialization, dataset download, or result upload fails.
         """
 
         if dataset_id is None and dataset_name is None:
             raise ValueError("must provide dataset_id or dataset_name")
-
         dataset_identifier = dataset_id or dataset_name
         # this is the trace model in the platform storing the traces for the experiment
-        trace_model_id = f"{experiment_name}_{get_hex_hash(dataset_identifier)}"
+        trace_model_id = f"{experiment_name}_{_get_hex_hash(dataset_identifier)}"
+
         # set up initial experiment and trace model
-        try:
-            init_result = self._init_experiment(
-                space_id=space_id,
-                dataset_id=dataset_id,
-                trace_model_name=trace_model_id,
-                dataset_name=dataset_name,
-                experiment_name=experiment_name,
-            )
-            if init_result is None:
-                raise RuntimeError(f"Failed to initialize experiment {experiment_name}")
-            _, dataset_id = init_result
-        except BaseException as exc:
-            raise RuntimeError(f"Failed to initialize experiment {experiment_name}") from exc
+        if not dry_run:
+            try:
+                init_result = self._init_experiment(
+                    space_id=space_id,
+                    dataset_id=dataset_id,
+                    trace_model_name=trace_model_id,
+                    dataset_name=dataset_name,
+                    experiment_name=experiment_name,
+                )
+                if init_result is None:
+                    raise RuntimeError(f"Failed to initialize experiment {experiment_name}")
+                _, dataset_id = init_result
+            except BaseException as exc:
+                raise RuntimeError(f"Failed to initialize experiment {experiment_name}") from exc
 
         # download dataset if not provided
         if dataset_df is None:
             try:
-                dataset_df = self.get_dataset(space_id=space_id, dataset_id=dataset_id)
+                # one of dataset_id or dataset_name is required
+                if dataset_id:
+                    dataset_df = self.get_dataset(space_id=space_id, dataset_id=dataset_id)
+                else:
+                    dataset_df = self.get_dataset(space_id=space_id, dataset_name=dataset_name)
             except BaseException as exc:
                 raise RuntimeError(
                     f"Failed to download dataset {dataset_id} to run experiment"
                 ) from exc
-
         if dataset_df is None or dataset_df.empty:
             raise ValueError(f"Dataset {dataset_id} is empty")
 
-        # run experiment and evals
-        tracer, resource = get_tracer_resource(
+        input_df = dataset_df.copy()
+        if dry_run:
+            # only dry_run experiment on a subset (first 10 rows) of the dataset
+            input_df = input_df.head(10)
+
+        # trace model and resource for the experiment
+        tracer, resource = _get_tracer_resource(
             model_id=trace_model_id,
             space_id=space_id,
             api_key=self.api_key,
-            flight_host=self.host,
+            endpoint=self.otlp_endpoint,
+            dry_run=dry_run,
+            insecure=(self.host == "localhost"),
+            set_global_tracer_provider=set_global_tracer_provider,
         )
 
-        exp_df = run_experiment(
-            dataset=dataset_df,
+        output_df = run_experiment(
+            dataset=input_df,
             task=task,
             evaluators=evaluators,
             experiment_name=experiment_name,
             tracer=tracer,
             resource=resource,
+            concurrency=concurrency,
         )
-        exp_df = _convert_default_columns_to_json_str(exp_df)
-
-        # upload experiment data
+        output_df = _convert_default_columns_to_json_str(output_df)
+        if dry_run:
+            return "", output_df
         try:
             experiment_id = self._post_experiment_data(
                 experiment_name=experiment_name,
-                experiment_df=exp_df,
+                experiment_df=output_df,
                 space_id=space_id,
                 dataset_id=dataset_id,
             )
         except BaseException as exc:
             raise RuntimeError(f"Failed to upload experiment data for {experiment_name}") from exc
         else:
-            return experiment_id
+            return experiment_id, output_df
 
     def _init_experiment(
         self,
@@ -642,54 +667,32 @@ def _action_for_request(action_key: FlightActionKey, request: message) -> flight
     return flight.Action(action_key.value, req_bytes)
 
 
-def get_tracer_resource(
+def _get_tracer_resource(
     model_id: str,
     space_id: str,
     api_key: str,
-    flight_host: str,
+    endpoint: str,
+    dry_run: bool = False,
+    insecure: bool = False,
+    set_global_tracer_provider: bool = False,
 ) -> Tuple[Tracer, Resource]:
-    resource = Resource({"model_id": model_id} if model_id else {})
+    resource = Resource({"model_id": model_id})
     tracer_provider = trace_sdk.TracerProvider(resource=resource)
-
     headers = f"space_id={space_id},api_key={api_key}"
-    insecure = False
-
-    # Set the endpoint based on the flight host
-    if flight_host == ArizeFlightHost.DEFAULT.value:
-        end_point = ArizeTracerEndpoint.DEFAULT.value
-    elif flight_host == ArizeFlightHost.LOCAL.value:
-        end_point = ArizeTracerEndpoint.LOCAL.value
-        insecure = True
-    else:
-        raise ValueError("Invalid flight host")
-
-    span_processor = (
-        SimpleSpanProcessor(
-            GrpcSpanExporter(endpoint=end_point, insecure=insecure, headers=headers)
-        )
-        if model_id
-        else _NoOpProcessor()
+    span_processor = SimpleSpanProcessor(
+        ConsoleSpanExporter()
+        if dry_run
+        else GrpcSpanExporter(endpoint=endpoint, insecure=insecure, headers=headers)
     )
     tracer_provider.add_span_processor(span_processor)
 
-    current_tracer_provider = trace.get_tracer_provider()
-    # Check if the TracerProvider is already set (it's usually set if it's not the default)
-    # this is to supress the warning message about overwriting the TracerProvider
-    # run experiment function is designed to take the resource context and send the traces to the right model
-    if type(current_tracer_provider).__name__ == "TracerProvider":
-        pass
-    else:
+    if set_global_tracer_provider:
         trace.set_tracer_provider(tracer_provider)
 
     return tracer_provider.get_tracer(__name__), resource
 
 
-class _NoOpProcessor(trace_sdk.SpanProcessor):
-    def force_flush(self, *_: Any) -> bool:
-        return True
-
-
-def get_hex_hash(input_string):
+def _get_hex_hash(input_string):
     input_bytes = input_string.encode("utf-8")
     sha256_hash = hashlib.sha256()
     sha256_hash.update(input_bytes)

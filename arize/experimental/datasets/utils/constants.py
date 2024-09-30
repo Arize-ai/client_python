@@ -12,12 +12,10 @@ GENERATIVE = request_pb.GENERATIVE
 # Default API endpoint when not provided through env variable nor profile
 DEFAULT_ARIZE_FLIGHT_HOST = "flight.arize.com"
 DEFAULT_ARIZE_FLIGHT_PORT = 443
+DEFAULT_ARIZE_OTLP_ENDPOINT = "https://otlp.arize.com/v1"
 
 # Name of the current package.
 DEFAULT_PACKAGE_NAME = "arize_python_datasets_client"
-
-# Default config keys for the Arize config file. Created via the CLI.
-DEFAULT_ARIZE_API_KEY_CONFIG_KEY = "api_key"
 
 # Default headers to trace and help identify requests. For debugging.
 DEFAULT_ARIZE_SESSION_ID = "x-arize-session-id"  # Generally the session name.
@@ -39,16 +37,6 @@ class FlightActionKey(Enum):
     LIST_DATASETS = "list_datasets"
     DELETE_DATASET = "delete_dataset"
     CREATE_EXPERIMENT_DB_ENTRY = "create_experiment_db_entry"
-
-
-class ArizeFlightHost(Enum):
-    DEFAULT = DEFAULT_ARIZE_FLIGHT_HOST
-    LOCAL = "localhost"
-
-
-class ArizeTracerEndpoint(Enum):
-    DEFAULT = "https://otlp.arize.com/v1"
-    LOCAL = "http://localhost:4317"
 
 
 OPEN_INFERENCE_JSON_STR_TYPES = frozenset(
