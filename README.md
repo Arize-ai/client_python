@@ -11,8 +11,9 @@
 
 A helper library to interact with Arize AI APIs.
 
-Arize is an end-to-end ML observability and model monitoring platform. The platform is designed to help ML engineers and data science practitioners surface and fix issues with ML models in production faster with:
+Arize is an end-to-end ML & LLM observability and monitoring platform. The platform is designed to help AI & ML engineers and data science practitioners surface and fix issues with ML models in production faster with:
 
+- LLM tracing
 - Automated ML monitoring and model monitoring
 - Workflows to troubleshoot model performance
 - Real-time visualizations for model performance monitoring, data quality monitoring, and drift monitoring

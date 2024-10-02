@@ -1,5 +1,26 @@
 # Changelog
 
+## [7.22.3](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.22.2...arize-python-sdk/v7.22.3) (2024-10-02)
+
+
+### 📚 Documentation
+
+* update readme ([#36212](https://github.com/Arize-ai/arize/issues/36212)) ([37d35e9](https://github.com/Arize-ai/arize/commit/37d35e9bb33d66182c97992b54fe0860eb9ece39))
+
+## [7.22.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.22.1...arize-python-sdk/v7.22.2) (2024-10-02)
+
+
+### 📚 Documentation
+
+* minot update README.md ([#36207](https://github.com/Arize-ai/arize/issues/36207)) ([9ae117a](https://github.com/Arize-ai/arize/commit/9ae117a0327dc4e589266dbae9c69cdf2024b81d))
+
+## [7.22.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.22.0...arize-python-sdk/v7.22.1) (2024-10-02)
+
+
+### 📚 Documentation
+
+* Update README.md ([#36173](https://github.com/Arize-ai/arize/issues/36173)) ([f8c73f6](https://github.com/Arize-ai/arize/commit/f8c73f6ae7df0bf2a6bc67e8d673ab8d5ba5b2a0))
+
 ## [7.22.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.21.0...arize-python-sdk/v7.22.0) (2024-09-26)
 
 
