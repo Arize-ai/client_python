@@ -9,7 +9,7 @@
 
 ## Overview
 
-A helper library to interact with Arize AI APIs.
+A helper package to interact with Arize AI APIs.
 
 Arize is an end-to-end ML & LLM observability and monitoring platform. The platform is designed to help AI & ML engineers and data science practitioners surface and fix issues with ML models in production faster with:
 
