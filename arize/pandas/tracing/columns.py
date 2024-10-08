@@ -120,6 +120,7 @@ SPAN_ATTRIBUTES_EMBEDDING_MODEL_NAME_COL = SpanColumn(
     name=f"attributes.{oinf.SpanAttributes.EMBEDDING_MODEL_NAME}",
     data_type=SpanColumnDataType.STRING,
 )
+
 SPAN_ATTRIBUTES_EMBEDDING_EMBEDDINGS_COL = SpanColumn(
     name=f"attributes.{oinf.SpanAttributes.EMBEDDING_EMBEDDINGS}",
     data_type=SpanColumnDataType.LIST_DICT,
@@ -181,15 +182,15 @@ SPAN_ATTRIBUTES_MESSAGE_TOOL_CALLS_FUNCTION_ARGUMENTS_KEY = (
 )
 # Attributes Tool columns
 SPAN_ATTRIBUTES_TOOL_NAME_COL = SpanColumn(
-    name=f"{oinf.SpanAttributes.TOOL_NAME}",
+    name=f"attributes.{oinf.SpanAttributes.TOOL_NAME}",
     data_type=SpanColumnDataType.STRING,
 )
 SPAN_ATTRIBUTES_TOOL_DESCRIPTION_COL = SpanColumn(
-    name=f"{oinf.SpanAttributes.TOOL_DESCRIPTION}",
+    name=f"attributes.{oinf.SpanAttributes.TOOL_DESCRIPTION}",
     data_type=SpanColumnDataType.STRING,
 )
 SPAN_ATTRIBUTES_TOOL_PARAMETERS_COL = SpanColumn(
-    name=f"{oinf.SpanAttributes.TOOL_PARAMETERS}",
+    name=f"attributes.{oinf.SpanAttributes.TOOL_PARAMETERS}",
     data_type=SpanColumnDataType.JSON,
 )
 # Attributes Retrieval columns
@@ -231,6 +232,10 @@ SPAN_ATTRIBUTES_USER_ID = SpanColumn(
     name=f"attributes.{oinf.SpanAttributes.USER_ID}",
     data_type=SpanColumnDataType.STRING,
 )
+SPAN_ATTRIBUTES_METADATA = SpanColumn(
+    name=f"attributes.{oinf.SpanAttributes.METADATA}",
+    data_type=SpanColumnDataType.DICT,
+)
 
 # TODO(Kiko): Add a test that checks no dupes in following lists
 SPAN_OPENINFERENCE_COLUMNS = [
@@ -253,7 +258,6 @@ SPAN_OPENINFERENCE_COLUMNS = [
     SPAN_ATTRIBUTES_INPUT_MIME_TYPE_COL,
     SPAN_ATTRIBUTES_OUTPUT_VALUE_COL,
     SPAN_ATTRIBUTES_OUTPUT_MIME_TYPE_COL,
-    SPAN_ATTRIBUTES_EMBEDDING_MODEL_NAME_COL,
     SPAN_ATTRIBUTES_EMBEDDING_EMBEDDINGS_COL,
     SPAN_ATTRIBUTES_LLM_INVOCATION_PARAMETERS_COL,
     SPAN_ATTRIBUTES_LLM_INPUT_MESSAGES_COL,
@@ -276,6 +280,7 @@ SPAN_OPENINFERENCE_COLUMNS = [
     SPAN_ATTRIBUTES_RERANKER_TOP_K_COL,
     SPAN_ATTRIBUTES_SESSION_ID,
     SPAN_ATTRIBUTES_USER_ID,
+    SPAN_ATTRIBUTES_METADATA,
 ]
 
 # List of columns that must be present in the dataframe

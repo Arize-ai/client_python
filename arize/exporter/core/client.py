@@ -1,4 +1,5 @@
 # type: ignore[pb2]
+import importlib.util
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional, Tuple
@@ -19,6 +20,7 @@ from ..utils.constants import (
     DEFAULT_PROFILE_NAME,
     DEFAULT_TRANSPORT_SCHEME,
 )
+from ..utils.tracing import OtelTracingDataTransformer
 from ..utils.validation import Validator
 from .query import Query
 from .session import Session
@@ -145,6 +147,26 @@ class ArizeExportClient:
         df = pd.concat(list_of_df)
         null_columns = df.columns[df.isnull().all()]
         df.drop(null_columns, axis=1, inplace=True)
+
+        if environment == Environments.TRACING:
+            try:
+                oic_spec = importlib.util.find_spec("openinference.semconv")
+            except Exception as e:
+                raise ImportError(
+                    "An error occurred while trying to find the "
+                    "'openinference-semantic-conventions' package, which is a required dependency. "
+                    + str(e)
+                ) from e
+            if oic_spec is None:
+                raise ImportError(
+                    "Required 'openinference-semantic-conventions' dependency is missing"
+                )
+
+            # by default, transform the exported tracing data so that it's
+            # easier to work with in Python
+            transformer = OtelTracingDataTransformer()
+            df = transformer.transform(df)
+
         df.sort_values(by=["time"], inplace=True)
         return df.reset_index(drop=True)
 

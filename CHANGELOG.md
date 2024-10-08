@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.22.5](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.22.4...arize-python-sdk/v7.22.5) (2024-10-08)
+
+
+### 🐛 Bug Fixes
+
+* Improve export of arize tracing data to improve ergonomics of working with data after export ([#33762](https://github.com/Arize-ai/arize/issues/33762)) ([121678d](https://github.com/Arize-ai/arize/commit/121678db9eebca7d775b9665e60998ff2aaec4a6))
+
 ## [7.22.4](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.22.3...arize-python-sdk/v7.22.4) (2024-10-02)
 
 

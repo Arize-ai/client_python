@@ -55,7 +55,7 @@ def _check_dataframe_column_content_type(
                     break
         elif col.data_type == SpanColumnDataType.DICT:
             if not all(
-                (True if isMissingValue(row) else is_dict_of(row, key_allowed_types=str))
+                (isMissingValue(row) or is_dict_of(row, key_allowed_types=str))
                 for row in df[col.name]
             ):
                 wrong_dicts_cols.append(col.name)
@@ -66,23 +66,19 @@ def _check_dataframe_column_content_type(
             if not is_bool_dtype(df[col.name]):
                 wrong_bools_cols.append(col.name)
         elif col.data_type == SpanColumnDataType.TIMESTAMP:
-            # Accept strings and datetime objects
+            # Accept strings and datetime objects, and int64
             if not all(
-                (True if isMissingValue(row) else isinstance(row, (str, datetime, pd.Timestamp)))
+                (isMissingValue(row) or isinstance(row, (str, datetime, pd.Timestamp, int)))
                 for row in df[col.name]
             ):
                 wrong_timestamp_cols.append(col.name)
         elif col.data_type == SpanColumnDataType.JSON:
             # We check the correctness of the JSON strings when we check the values
             # of the data in the dataframe
-            if not all(
-                (True if isMissingValue(row) else isinstance(row, str)) for row in df[col.name]
-            ):
+            if not all((isMissingValue(row) or isinstance(row, str)) for row in df[col.name]):
                 wrong_JSON_cols.append(col.name)
         elif col.data_type == SpanColumnDataType.STRING:
-            if not all(
-                (True if isMissingValue(row) else isinstance(row, str)) for row in df[col.name]
-            ):
+            if not all((isMissingValue(row) or isinstance(row, str)) for row in df[col.name]):
                 wrong_string_cols.append(col.name)
 
     errors = []
@@ -118,7 +114,7 @@ def _check_dataframe_column_content_type(
         errors.append(
             tracing_err.InvalidDataFrameColumnContentTypes(
                 invalid_type_cols=wrong_timestamp_cols,
-                expected_type="datetime objects or formatted strings",
+                expected_type="datetime objects or formatted strings or integers (nanoseconds)",
             ),
         )
     if wrong_JSON_cols:
