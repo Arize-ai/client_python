@@ -88,6 +88,7 @@ class ArizeDatasetsClient:
         dry_run: bool = False,
         concurrency: int = 3,
         set_global_tracer_provider: bool = False,
+        exit_on_error: bool = False,
     ) -> Union[Tuple[str, pd.DataFrame], None]:
         """
         Run an experiment on a dataset and upload the results.
@@ -113,6 +114,7 @@ class ArizeDatasetsClient:
             concurrency (int): The number of concurrent tasks to run. Defaults to 3.
             set_global_tracer_provider (bool): If True, sets the global tracer provider for the experiment.
                 Defaults to False.
+            exit_on_error (bool): If True, the experiment will stop running on first occurrence of an error.
 
         Returns:
             Tuple[str, pd.DataFrame]:
@@ -185,6 +187,7 @@ class ArizeDatasetsClient:
             tracer=tracer,
             resource=resource,
             concurrency=concurrency,
+            exit_on_error=exit_on_error,
         )
         output_df = _convert_default_columns_to_json_str(output_df)
         if dry_run:
@@ -241,6 +244,8 @@ class ArizeDatasetsClient:
         space_id: str,
         dataset_id: str,
     ) -> Optional[str]:
+        if experiment_df.empty:
+            raise ValueError("experiment result DataFrame cannot be empty")
         tbl = pa.Table.from_pandas(experiment_df)
         request = request_pb.DoPutRequest(
             post_experiment_data=request_pb.PostExperimentDataRequest(

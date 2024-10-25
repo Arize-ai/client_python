@@ -3,11 +3,26 @@ import json
 import textwrap
 from copy import deepcopy
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
+from importlib.metadata import version
 from random import getrandbits
-from typing import Any, Awaitable, Callable, Dict, List, Mapping, Optional, Tuple, TypeVar, Union
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+    cast,
+)
 
+import pandas as pd
 from typing_extensions import TypeAlias
 from wrapt import ObjectProxy
 
@@ -276,3 +291,88 @@ class ExperimentEvaluationRun:
     def __post_init__(self) -> None:
         if bool(self.result) == bool(self.error):
             raise ValueError("Must specify either result or error")
+
+
+_LOCAL_TIMEZONE = datetime.now(timezone.utc).astimezone().tzinfo
+
+
+def local_now() -> datetime:
+    return datetime.now(timezone.utc).astimezone(tz=_LOCAL_TIMEZONE)
+
+
+@dataclass(frozen=True)
+class _HasStats:
+    _title: str = field(repr=False, default="")
+    _timestamp: datetime = field(repr=False, default_factory=local_now)
+    stats: pd.DataFrame = field(repr=False, default_factory=pd.DataFrame)
+
+    @property
+    def title(self) -> str:
+        return f"{self._title} ({self._timestamp:%x %I:%M %p %z})"
+
+    def __str__(self) -> str:
+        try:
+            assert int(version("pandas").split(".")[0]) >= 1
+            # `tabulate` is used by pandas >= 1.0 in DataFrame.to_markdown()
+            import tabulate  # noqa: F401
+        except (AssertionError, ImportError):
+            text = self.stats.__str__()
+        else:
+            text = self.stats.to_markdown(index=False)
+        return f"{self.title}\n{'-' * len(self.title)}\n" + text
+
+
+@dataclass(frozen=True)
+class _TaskSummary(_HasStats):
+    """
+    Summary statistics of experiment task executions.
+
+    **Users should not instantiate this object directly.**
+    """
+
+    _title: str = "Tasks Summary"
+
+    @classmethod
+    def from_task_runs(
+        cls,
+        n_examples: int,
+        task_runs: Iterable[Optional[ExperimentRun]],
+    ) -> "_TaskSummary":
+        df = pd.DataFrame.from_records(
+            [
+                {
+                    "example_id": run.dataset_example_id,
+                    "error": run.error,
+                }
+                for run in task_runs
+                if run is not None
+            ]
+        )
+        n_runs = len(df)
+        n_errors = 0 if df.empty else df.loc[:, "error"].astype(bool).sum()
+        record = {
+            "n_examples": n_examples,
+            "n_runs": n_runs,
+            "n_errors": n_errors,
+            **(dict(top_error=_top_string(df.loc[:, "error"])) if n_errors else {}),
+        }
+        stats = pd.DataFrame.from_records([record])
+        summary: _TaskSummary = object.__new__(cls)
+        summary.__init__(stats=stats)  # type: ignore[misc]
+        return summary
+
+    @classmethod
+    def __new__(cls, *args: Any, **kwargs: Any) -> Any:
+        # Direct instantiation by users is discouraged.
+        raise NotImplementedError
+
+    @classmethod
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        # Direct sub-classing by users is discouraged.
+        raise NotImplementedError
+
+
+def _top_string(s: "pd.Series[Any]", length: int = 100) -> Optional[str]:
+    if (cnt := s.dropna().str.slice(0, length).value_counts()).empty:
+        return None
+    return cast(str, cnt.sort_values(ascending=False).index[0])

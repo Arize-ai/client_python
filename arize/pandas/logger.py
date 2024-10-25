@@ -141,7 +141,7 @@ class Client:
     def log_spans(
         self,
         dataframe: pd.DataFrame,
-        model_id: str,
+        model_id: Optional[str] = None,
         model_version: Optional[str] = None,
         evals_dataframe: Optional[pd.DataFrame] = None,
         datetime_format: str = DEFAULT_DATETIME_FMT,
@@ -149,6 +149,7 @@ class Client:
         path: Optional[str] = None,
         timeout: Optional[float] = None,
         verbose: Optional[bool] = False,
+        project_name: Optional[str] = None,
     ) -> requests.Response:
         """
         Logs a pandas dataframe containing LLM tracing data to Arize via a POST request. Returns a
@@ -159,6 +160,7 @@ class Client:
         ----------
             dataframe (pd.DataFrame): The dataframe containing the LLM traces.
             model_id (str): A unique name to identify your model in the Arize platform.
+                (Deprecated: Use `project_name` instead.)
             model_version (str, optional): Used to group a subset of traces a given
                 model_id to compare and track changes. Defaults to None.
             evals_dataframe (pd.DataFrame, optional): A dataframe containing LLM evaluations data.
@@ -174,6 +176,8 @@ class Client:
                 of seconds with the timeout parameter. Defaults to None.
             verbose: (bool, optional) = When set to true, info messages are printed. Defaults to
                 False.
+            project_name (str, optional): A unique name to identify your project in the Arize platform.
+                Either model_id or project_name must be provided.
 
         Returns:
         --------
@@ -188,11 +192,20 @@ class Client:
                 SPAN_OPENINFERENCE_COLUMNS,
                 SPAN_SPAN_ID_COL,
             )
-            from .tracing.utils import convert_timestamps, jsonify_dictionaries
+            from .tracing.utils import (
+                convert_timestamps,
+                extract_project_name_from_params,
+                jsonify_dictionaries,
+            )
             from .tracing.validation.evals import evals_validation
             from .tracing.validation.spans import spans_validation
         except ImportError:
             raise ImportError(MISSING_TRACING_DEPS_ERROR_MSG)
+
+        project_name = extract_project_name_from_params(
+            model_id=model_id, project_name=project_name
+        )
+
         # We need our own copy since we will manipulate the underlying data and
         # do not want side effects
         spans_df = dataframe.copy()
@@ -212,16 +225,17 @@ class Client:
 
         if verbose:
             logger.info("Performing direct input type validation.")
+
         errors = spans_validation.validate_argument_types(
             spans_dataframe=spans_df,
-            model_id=model_id,
+            project_name=project_name,
             model_version=model_version,
             dt_fmt=datetime_format,
         )
         if evals_df is not None:
             eval_errors = evals_validation.validate_argument_types(
                 evals_dataframe=evals_df,
-                model_id=model_id,
+                project_name=project_name,
                 model_version=model_version,
             )
             errors += eval_errors
@@ -254,8 +268,8 @@ class Client:
                 regex=EVAL_COLUMN_PATTERN,
             )
 
-        if model_id is not None:
-            model_id = str(model_id)
+        if project_name is not None:
+            project_name = str(project_name)
 
         if model_version is not None:
             model_version = str(model_version)
@@ -269,13 +283,13 @@ class Client:
                 logger.info("Performing values validation.")
             errors = spans_validation.validate_values(
                 spans_dataframe=spans_df,
-                model_id=model_id,
+                project_name=project_name,
                 model_version=model_version,
             )
             if evals_df is not None:
                 eval_errors = evals_validation.validate_values(
                     evals_dataframe=evals_df,
-                    model_id=model_id,
+                    project_name=project_name,
                     model_version=model_version,
                 )
                 errors += eval_errors
@@ -320,7 +334,7 @@ class Client:
         ta = pa.Table.from_pandas(df)
 
         proto_schema = proto._get_pb_schema_tracing(
-            model_id=model_id,
+            model_id=project_name,
             model_version=model_version,
         )
         return self._log_arrow(
@@ -335,12 +349,13 @@ class Client:
     def log_evaluations(
         self,
         dataframe: pd.DataFrame,
-        model_id: str,
+        model_id: Optional[str] = None,
         model_version: Optional[str] = None,
         validate: Optional[bool] = True,
         path: Optional[str] = None,
         timeout: Optional[float] = None,
         verbose: Optional[bool] = False,
+        project_name: Optional[str] = None,
     ) -> requests.Response:
         """
         Logs a pandas dataframe containing LLM evaluations data to Arize via a POST request. The dataframe
@@ -352,8 +367,8 @@ class Client:
         Arguments:
         ----------
             dataframe (pd.DataFrame): A dataframe containing LLM evaluations data.
-            model_id (str): A unique name to identify your model in the Arize platform. It should match
-                the model_id of the spans sent previously, to which evaluations will be assigned.
+            model_id (str): A unique name to identify your model in the Arize platform.
+                (Deprecated: Use `project_name` instead.)
             model_version (str, optional): Used to group a subset of traces a given
                 model_id to compare and track changes. It should match the model_id of the spans
                 sent previously, to which evaluations will be assigned. Defaults to None.
@@ -365,6 +380,8 @@ class Client:
                 of seconds with the timeout parameter. Defaults to None.
             verbose: (bool, optional) = When set to true, info messages are printed. Defaults to
                 False.
+            project_name (str, optional): A unique name to identify your project in the Arize platform.
+                Either model_id or project_name must be provided.
 
         Returns:
         --------
@@ -373,9 +390,13 @@ class Client:
 
         try:
             from .tracing.columns import EVAL_COLUMN_PATTERN, SPAN_SPAN_ID_COL
+            from .tracing.utils import extract_project_name_from_params
             from .tracing.validation.evals import evals_validation
         except ImportError:
             raise ImportError(MISSING_TRACING_DEPS_ERROR_MSG)
+
+        project_name = extract_project_name_from_params(project_name, model_id)
+
         # We need our own copy since we will manipulate the underlying data and
         # do not want side effects
         evals_df = dataframe.copy()
@@ -385,14 +406,15 @@ class Client:
         self._headers.update({"number-of-rows": str(len(evals_df))})
 
         # We expect the index to be 0,1,2,3..., len(df)-1. Phoenix, for example, will give us a dataframe
-        # with context_id as the index
-        reset_dataframe_index(dataframe=evals_df)
+        # with context_id as the index; the old index is not meaningful in our copy of the original dataframe
+        # so we can drop it.
+        evals_df.reset_index(inplace=True, drop=True)
 
         if verbose:
             logger.info("Performing direct input type validation.")
         errors = evals_validation.validate_argument_types(
             evals_dataframe=evals_df,
-            model_id=model_id,
+            project_name=project_name,
             model_version=model_version,
         )
         if errors:
@@ -417,8 +439,8 @@ class Client:
             regex=EVAL_COLUMN_PATTERN,
         )
 
-        if model_id is not None:
-            model_id = str(model_id)
+        if project_name is not None:
+            project_name = str(project_name)
 
         if model_version is not None:
             model_version = str(model_version)
@@ -428,7 +450,7 @@ class Client:
                 logger.info("Performing values validation.")
             errors = evals_validation.validate_values(
                 evals_dataframe=evals_df,
-                model_id=model_id,
+                project_name=project_name,
                 model_version=model_version,
             )
             if errors:
@@ -449,7 +471,7 @@ class Client:
         ta = pa.Table.from_pandas(evals_df)
 
         proto_schema = proto._get_pb_schema_tracing(
-            model_id=model_id,
+            model_id=project_name,
             model_version=model_version,
         )
         return self._log_arrow(

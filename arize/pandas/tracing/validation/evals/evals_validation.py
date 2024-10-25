@@ -13,11 +13,11 @@ from arize.pandas.validation import errors as err
 
 def validate_argument_types(
     evals_dataframe: pd.DataFrame,
-    model_id: str,
+    project_name: str,
     model_version: Optional[str] = None,
 ) -> List[err.ValidationError]:
     checks = chain(
-        common_arg_validation._check_field_convertible_to_str(model_id, model_version),
+        common_arg_validation._check_field_convertible_to_str(project_name, model_version),
         common_arg_validation._check_dataframe_type(evals_dataframe),
     )
     return list(checks)
@@ -42,12 +42,12 @@ def validate_dataframe_form(
 
 def validate_values(
     evals_dataframe: pd.DataFrame,
-    model_id: str,
+    project_name: str,
     model_version: Optional[str] = None,
 ) -> List[err.ValidationError]:
     checks = chain(
         # Common
-        common_value_validation._check_invalid_model_id(model_id),
+        common_value_validation._check_invalid_project_name(project_name),
         common_value_validation._check_invalid_model_version(model_version),
         # Eval specific
         value_validation._check_eval_cols(evals_dataframe),

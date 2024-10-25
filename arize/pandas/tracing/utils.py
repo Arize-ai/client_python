@@ -96,9 +96,9 @@ def _jsonify_list_of_dicts(
 def _jsonify_dict(d: Optional[Dict[str, Any]]) -> Optional[str]:
     if d is None:
         return
-    d = d.copy()  # avoid side effects
     if isMissingValue(d):
         return None
+    d = d.copy()  # avoid side effects
     for k, v in d.items():
         if isinstance(v, np.ndarray):
             d[k] = v.tolist()
@@ -114,3 +114,15 @@ def isMissingValue(value: Any) -> bool:
         -np.inf,
     )
     return value in assumed_missing_values or pd.isna(value)
+
+
+def extract_project_name_from_params(
+    model_id: Optional[str] = None, project_name: Optional[str] = None
+):
+    project_name_param = model_id
+
+    # Prefer project_name over model_id
+    if project_name and project_name.strip():
+        project_name_param = project_name
+
+    return project_name_param

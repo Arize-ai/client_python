@@ -190,6 +190,22 @@ def test_log_spans_zero_errors():
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
+def test_log_spans_with_model_id_zero_errors():
+    df = generate_mock_data(10)
+    evals_df = generate_mock_eval_data(df)
+    try:
+        client = NoSendClient("apikey", "spaceKey")
+        client.log_spans(
+            dataframe=df,
+            evals_dataframe=evals_df,
+            project_name="project-name",
+            model_version="1.0",
+        )
+    except Exception:
+        pytest.fail("Unexpected error")
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
 def test_log_spans_with_evals_zero_errors():
     df = generate_mock_data(10)
     evals_df = generate_mock_eval_data(df)
@@ -219,7 +235,7 @@ def log_spans(df: pd.DataFrame, evals_df: Optional[pd.DataFrame] = None) -> Resp
     response = client.log_spans(
         dataframe=df,
         evals_dataframe=evals_df,
-        model_id="model-id",
+        project_name="project-name",
         model_version="1.0",
     )
     return response
@@ -229,7 +245,7 @@ def log_evals(df: pd.DataFrame) -> Response:
     client = NoSendClient("apikey", "spaceKey")
     response = client.log_evaluations(
         dataframe=df,
-        model_id="model-id",
+        project_name="project-name",
         model_version="1.0",
     )
     return response

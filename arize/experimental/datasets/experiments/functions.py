@@ -35,6 +35,7 @@ from opentelemetry.sdk.trace import Span
 from opentelemetry.trace import Status, StatusCode, Tracer
 from typing_extensions import TypeAlias
 
+from ....utils.logging import logger
 from ...datasets.experiments.evaluators.executors import get_executor_on_sync_context
 from ...datasets.experiments.evaluators.rate_limiters import RateLimiter
 from ..utils.experiment_utils import jsonify
@@ -48,6 +49,7 @@ from .types import (
     ExperimentEvaluationRun,
     ExperimentRun,
     ExperimentTask,
+    _TaskSummary,
 )
 
 RateLimitErrors: TypeAlias = Union[Type[BaseException], Sequence[Type[BaseException]]]
@@ -63,6 +65,7 @@ def run_experiment(
     resource: Optional[Resource] = None,
     rate_limit_errors: Optional[RateLimitErrors] = None,
     concurrency: int = 3,
+    exit_on_error: bool = False,
 ) -> pd.DataFrame:
     task_signature = inspect.signature(task)
     _validate_task_signature(task_signature)
@@ -75,7 +78,7 @@ def run_experiment(
     root_span_name = f"Task: {get_func_name(task)}"
     root_span_kind = CHAIN
 
-    print("🧪 Experiment started.")
+    logger.info("🧪 Experiment started.")
 
     def sync_run_experiment(example: Example) -> ExperimentRun:
         output = None
@@ -100,46 +103,48 @@ def run_experiment(
                 else:
                     output = _output
             except BaseException as exc:
+                if exit_on_error:
+                    raise exc
                 span.record_exception(exc)
                 status = Status(StatusCode.ERROR, f"{type(exc).__name__}: {exc}")
                 error = exc
                 _print_experiment_error(exc, example_id=example.id, kind="task")
+
+            output = jsonify(output)
+            if example.input:
+                span.set_attribute(INPUT_VALUE, example.input)
             else:
-                output = jsonify(output)
-                if example.input:
-                    span.set_attribute(INPUT_VALUE, example.input)
-                else:
-                    span.set_attribute(
-                        INPUT_VALUE,
-                        json.dumps(obj=jsonify(example.dataset_row), ensure_ascii=False),
-                    )
-                    span.set_attribute(INPUT_MIME_TYPE, JSON.value)
-                if output is not None:
-                    if isinstance(output, str):
-                        span.set_attribute(OUTPUT_VALUE, output)
-                    else:
-                        span.set_attribute(OUTPUT_VALUE, json.dumps(output, ensure_ascii=False))
-                        span.set_attribute(OUTPUT_MIME_TYPE, JSON.value)
-                span.set_attribute(SpanAttributes.OPENINFERENCE_SPAN_KIND, root_span_kind)
-                span.set_status(status)
-
-                assert isinstance(
-                    output, (dict, list, str, int, float, bool, type(None))
-                ), "Output must be JSON serializable"
-
-                exp_run = ExperimentRun(
-                    experiment_id=experiment_name,
-                    repetition_number=1,
-                    start_time=_decode_unix_nano(cast(int, span.start_time)),
-                    end_time=_decode_unix_nano(cast(int, span.end_time))
-                    if span.end_time
-                    else datetime.now(),
-                    dataset_example_id=example.id,
-                    output=output,
-                    error=repr(error) if error else None,
-                    trace_id=_str_trace_id(span.get_span_context().trace_id),
+                span.set_attribute(
+                    INPUT_VALUE,
+                    json.dumps(obj=jsonify(example.dataset_row), ensure_ascii=False),
                 )
-                return exp_run
+            span.set_attribute(INPUT_MIME_TYPE, JSON.value)
+            if output is not None:
+                if isinstance(output, str):
+                    span.set_attribute(OUTPUT_VALUE, output)
+                else:
+                    span.set_attribute(OUTPUT_VALUE, json.dumps(output, ensure_ascii=False))
+                    span.set_attribute(OUTPUT_MIME_TYPE, JSON.value)
+            span.set_attribute(SpanAttributes.OPENINFERENCE_SPAN_KIND, root_span_kind)
+            span.set_status(status)
+
+        assert isinstance(
+            output, (dict, list, str, int, float, bool, type(None))
+        ), "Output must be JSON serializable"
+
+        exp_run = ExperimentRun(
+            experiment_id=experiment_name,
+            repetition_number=1,
+            start_time=_decode_unix_nano(cast(int, span.start_time)),
+            end_time=(
+                _decode_unix_nano(cast(int, span.end_time)) if span.end_time else datetime.now()
+            ),
+            dataset_example_id=example.id,
+            output=output,
+            error=repr(error) if error else None,
+            trace_id=_str_trace_id(span.get_span_context().trace_id),
+        )
+        return exp_run
 
     async def async_run_experiment(example: Example) -> ExperimentRun:
         output = None
@@ -159,46 +164,47 @@ def run_experiment(
                 else:
                     output = _output
             except BaseException as exc:
+                if exit_on_error:
+                    raise exc
                 span.record_exception(exc)
                 status = Status(StatusCode.ERROR, f"{type(exc).__name__}: {exc}")
                 error = exc
                 _print_experiment_error(exc, example_id=example.id, kind="task")
+            output = jsonify(output)
+            if example.input:
+                span.set_attribute(INPUT_VALUE, example.input)
             else:
-                output = jsonify(output)
-                if example.input:
-                    span.set_attribute(INPUT_VALUE, example.input)
-                else:
-                    span.set_attribute(
-                        INPUT_VALUE,
-                        json.dumps(obj=jsonify(example.dataset_row), ensure_ascii=False),
-                    )
-                    span.set_attribute(INPUT_MIME_TYPE, JSON.value)
-                if output is not None:
-                    if isinstance(output, str):
-                        span.set_attribute(OUTPUT_VALUE, output)
-                    else:
-                        span.set_attribute(OUTPUT_VALUE, json.dumps(output, ensure_ascii=False))
-                        span.set_attribute(OUTPUT_MIME_TYPE, JSON.value)
-                span.set_attribute(SpanAttributes.OPENINFERENCE_SPAN_KIND, root_span_kind)
-                span.set_status(status)
-
-                assert isinstance(
-                    output, (dict, list, str, int, float, bool, type(None))
-                ), "Output must be JSON serializable"
-
-                exp_run = ExperimentRun(
-                    experiment_id=experiment_name,
-                    repetition_number=1,
-                    start_time=_decode_unix_nano(cast(int, span.start_time)),
-                    end_time=_decode_unix_nano(cast(int, span.end_time))
-                    if span.end_time
-                    else datetime.now(),
-                    dataset_example_id=example.id,
-                    output=output,
-                    error=repr(error) if error else None,
-                    trace_id=_str_trace_id(span.get_span_context().trace_id),
+                span.set_attribute(
+                    INPUT_VALUE,
+                    json.dumps(obj=jsonify(example.dataset_row), ensure_ascii=False),
                 )
-                return exp_run
+            span.set_attribute(INPUT_MIME_TYPE, JSON.value)
+            if output is not None:
+                if isinstance(output, str):
+                    span.set_attribute(OUTPUT_VALUE, output)
+                else:
+                    span.set_attribute(OUTPUT_VALUE, json.dumps(output, ensure_ascii=False))
+                    span.set_attribute(OUTPUT_MIME_TYPE, JSON.value)
+            span.set_attribute(SpanAttributes.OPENINFERENCE_SPAN_KIND, root_span_kind)
+            span.set_status(status)
+
+        assert isinstance(
+            output, (dict, list, str, int, float, bool, type(None))
+        ), "Output must be JSON serializable"
+
+        exp_run = ExperimentRun(
+            experiment_id=experiment_name,
+            repetition_number=1,
+            start_time=_decode_unix_nano(cast(int, span.start_time)),
+            end_time=(
+                _decode_unix_nano(cast(int, span.end_time)) if span.end_time else datetime.now()
+            ),
+            dataset_example_id=example.id,
+            output=output,
+            error=repr(error) if error else None,
+            trace_id=_str_trace_id(span.get_span_context().trace_id),
+        )
+        return exp_run
 
     _errors: Tuple[Type[BaseException], ...]
     if not isinstance(rate_limit_errors, Sequence):
@@ -217,60 +223,70 @@ def run_experiment(
         sync_fn=rate_limited_sync_run_experiment,
         async_fn=rate_limited_async_run_experiment,
         max_retries=0,
-        exit_on_error=True,
+        exit_on_error=exit_on_error,
         fallback_return_value=None,
         tqdm_bar_format=get_tqdm_progress_bar_formatter("running tasks"),
         concurrency=concurrency,
     )
-    exp_runs, _execution_details = executor.run(examples)
 
-    output_df = pd.DataFrame()
-    output_df["id"] = [run.id for run in exp_runs]
-    output_df["example_id"] = [run.dataset_example_id for run in exp_runs]
-    output_df["result"] = [run.output for run in exp_runs]
-    output_df["result.trace.id"] = [run.trace_id for run in exp_runs]
-    output_df["result.trace.timestamp"] = [
-        int(run.start_time.timestamp() * 1e3) for run in exp_runs
-    ]
-    output_df.sort_values(by="id", inplace=True)
-    print("✅ Task runs completed.")
+    runs, _execution_details = executor.run(examples)
+    task_summary = _TaskSummary.from_task_runs(len(dataset), runs)
+
+    if exit_on_error and (None in runs):
+        # When exit_on_error is True, the result of a failed task execution is None
+        # If any task execution failed, raise an error to exit early
+        raise RuntimeError("An error occurred during execution of tasks.")
+
+    out_df = pd.DataFrame()
+    out_df["id"] = [run.id for run in runs]
+    out_df["example_id"] = [run.dataset_example_id for run in runs]
+    out_df["result"] = [run.output for run in runs]
+    out_df["result.trace.id"] = [run.trace_id for run in runs]
+    out_df["result.trace.timestamp"] = [int(run.start_time.timestamp() * 1e3) for run in runs]
+    out_df.set_index("id", inplace=True, drop=False)
+    logger.info(f"✅ Task runs completed.\n{task_summary}")
 
     if evaluators_by_name:
         eval_results = evaluate_experiment(
             examples=examples,
-            experiment_results=exp_runs,
+            experiment_results=runs,
             evaluators=evaluators,
             rate_limit_errors=rate_limit_errors,
             concurrency=concurrency,
             tracer=tracer,
             resource=resource,
+            exit_on_error=exit_on_error,
         )
+
+        if exit_on_error and (None in eval_results):
+            raise RuntimeError("An error occurred during execution of evaluators.")
 
         # group evaluation results by name
         eval_results_by_name = {}
         for r in eval_results:
+            if r is None:
+                continue
             if r.name not in eval_results_by_name:
                 eval_results_by_name[r.name] = []
             eval_results_by_name[r.name].append(r)
 
-        # sort each list of evaluation results by experiment_id
-        for name, results in eval_results_by_name.items():
-            eval_results_by_name[name] = sorted(results, key=lambda x: x.experiment_run_id)
-
-        # sort the output_df by id
         for eval_name, eval_res in eval_results_by_name.items():
-            output_df[f"eval.{eval_name}.score"] = [eval_run.result.score for eval_run in eval_res]
-            output_df[f"eval.{eval_name}.label"] = [eval_run.result.label for eval_run in eval_res]
-            output_df[f"eval.{eval_name}.explanation"] = [
-                eval_run.result.explanation for eval_run in eval_res
-            ]
-            output_df[f"eval.{eval_name}.trace.id"] = [eval_run.trace_id for eval_run in eval_res]
-            output_df[f"eval.{eval_name}.trace.timestamp"] = [
-                int(eval_run.start_time.timestamp() * 1e3) for eval_run in eval_res
-            ]
-            output_df = _add_metadata_to_output_df(output_df, eval_res, eval_name)
-        print("✅ All evaluators completed.")
-    return output_df
+            eval_data = {
+                "score": lambda x: get_result_attr(x, "score", None),
+                "label": lambda x: get_result_attr(x, "label", None),
+                "explanation": lambda x: get_result_attr(x, "explanation", None),
+                "trace.id": lambda x: x.trace_id,
+                "trace.timestamp": lambda x: int(x.start_time.timestamp() * 1e3),
+            }
+
+            for attr, getter in eval_data.items():
+                out_df[f"eval.{eval_name}.{attr}"] = out_df.index.map(
+                    {r.experiment_run_id: getter(r) for r in eval_res}
+                )
+            out_df = _add_metadata_to_output_df(out_df, eval_res, eval_name)
+        logger.info("✅ All evaluators completed.")
+    out_df.reset_index(drop=True, inplace=True)
+    return out_df
 
 
 def evaluate_experiment(
@@ -282,6 +298,7 @@ def evaluate_experiment(
     concurrency: int = 3,
     tracer: Optional[Tracer] = None,
     resource: Optional[Resource] = None,
+    exit_on_error: bool = False,
 ):
     evaluators_by_name = _evaluators_by_name(evaluators)
     if not evaluators_by_name:
@@ -319,8 +336,11 @@ def evaluate_experiment(
                     metadata=example.metadata,
                     dataset_row=example.dataset_row,
                     example=example,
+                    input=example.input,
                 )
             except BaseException as exc:
+                if exit_on_error:
+                    raise exc
                 span.record_exception(exc)
                 status = Status(StatusCode.ERROR, f"{type(exc).__name__}: {exc}")
                 error = exc
@@ -337,9 +357,9 @@ def evaluate_experiment(
         eval_run = ExperimentEvaluationRun(
             experiment_run_id=experiment_run.id,
             start_time=_decode_unix_nano(cast(int, span.start_time)),
-            end_time=_decode_unix_nano(cast(int, span.end_time))
-            if span.end_time
-            else datetime.now(),
+            end_time=(
+                _decode_unix_nano(cast(int, span.end_time)) if span.end_time else datetime.now()
+            ),
             name=evaluator.name,
             annotator_kind=evaluator.kind,
             error=repr(error) if error else None,
@@ -369,6 +389,8 @@ def evaluate_experiment(
                     example=example,
                 )
             except BaseException as exc:
+                if exit_on_error:
+                    raise exc
                 span.record_exception(exc)
                 status = Status(StatusCode.ERROR, f"{type(exc).__name__}: {exc}")
                 error = exc
@@ -384,9 +406,9 @@ def evaluate_experiment(
         eval_run = ExperimentEvaluationRun(
             experiment_run_id=experiment_run.id,
             start_time=_decode_unix_nano(cast(int, span.start_time)),
-            end_time=_decode_unix_nano(cast(int, span.end_time))
-            if span.end_time
-            else datetime.now(),
+            end_time=(
+                _decode_unix_nano(cast(int, span.end_time)) if span.end_time else datetime.now()
+            ),
             name=evaluator.name,
             annotator_kind=evaluator.kind,
             error=repr(error) if error else None,
@@ -413,7 +435,7 @@ def evaluate_experiment(
         rate_limited_sync_evaluate_run,
         rate_limited_async_evaluate_run,
         max_retries=0,
-        exit_on_error=True,
+        exit_on_error=exit_on_error,
         fallback_return_value=None,
         tqdm_bar_format=get_tqdm_progress_bar_formatter("running experiment evaluations"),
         concurrency=concurrency,
@@ -442,7 +464,7 @@ def _add_metadata_to_output_df(
                         f"Metadata value for key '{key}' in evaluator '{evaluator_name}' is not a primitive"
                         "type and cannot be converted to a string."
                     )
-            output_df.loc[eval_runs.index(eval_run), column_name] = value
+            output_df.loc[eval_run.experiment_run_id, column_name] = value
     return output_df
 
 
@@ -575,9 +597,9 @@ def sync_evaluate_run(
         eval_run = ExperimentEvaluationRun(
             experiment_run_id=experiment_run.id,
             start_time=_decode_unix_nano(cast(int, span.start_time)),
-            end_time=_decode_unix_nano(cast(int, span.end_time))
-            if span.end_time
-            else datetime.now(),
+            end_time=(
+                _decode_unix_nano(cast(int, span.end_time)) if span.end_time else datetime.now()
+            ),
             name=evaluator.name,
             error=repr(error) if error else None,
             result=result,
@@ -648,3 +670,7 @@ OPENINFERENCE_SPAN_KIND = SpanAttributes.OPENINFERENCE_SPAN_KIND
 CHAIN = OpenInferenceSpanKindValues.CHAIN.value
 EVALUATOR = OpenInferenceSpanKindValues.EVALUATOR.value
 JSON = OpenInferenceMimeTypeValues.JSON
+
+
+def get_result_attr(r, attr, default=None):
+    return getattr(r.result, attr, default) if r.result else default

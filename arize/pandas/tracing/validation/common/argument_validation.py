@@ -6,15 +6,15 @@ from arize.pandas.validation import errors as err
 
 
 def _check_field_convertible_to_str(
-    model_id: str,
+    project_name: str,
     model_version: str,
 ) -> List[err.InvalidFieldTypeConversion]:
     wrong_fields = []
-    if model_id is not None and not isinstance(model_id, str):
+    if project_name is not None and not isinstance(project_name, str):
         try:
-            str(model_id)
+            str(project_name)
         except Exception:
-            wrong_fields.append("model_id")
+            wrong_fields.append("project_name")
     if model_version is not None and not isinstance(model_version, str):
         try:
             str(model_version)

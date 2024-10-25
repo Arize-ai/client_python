@@ -1,5 +1,31 @@
 # Changelog
 
+## [7.23.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.22.6...arize-python-sdk/v7.23.0) (2024-10-24)
+
+
+### 🎁 New Features
+
+* Adds project_name support to the Tracing SDK, alongside, to replace model_id, which will be deprecated for Tracing  ([#36962](https://github.com/Arize-ai/arize/issues/36962)) ([be3c129](https://github.com/Arize-ai/arize/commit/be3c12900cfc81c8bb983bb139635bc38b5b35f3))
+* **experiments:** add exit_on_error flag to run_experiment API ([#36595](https://github.com/Arize-ai/arize/issues/36595)) ([fc860cd](https://github.com/Arize-ai/arize/commit/fc860cd1a92f3205f709824ffcbf4aba69a8eb9f))
+* **experiments:** improve task summary formatting ([fc860cd](https://github.com/Arize-ai/arize/commit/fc860cd1a92f3205f709824ffcbf4aba69a8eb9f))
+
+
+### 🐛 Bug Fixes
+
+* Move NaN check to before copy which fails on NaN values ([#36503](https://github.com/Arize-ai/arize/issues/36503)) ([1f568bd](https://github.com/Arize-ai/arize/commit/1f568bd09b7ce387e0b38ba84a12ed32a026e5e8))
+
+
+### 💫 Code Refactoring
+
+* **experiments:** replace print with python logging ([fc860cd](https://github.com/Arize-ai/arize/commit/fc860cd1a92f3205f709824ffcbf4aba69a8eb9f))
+
+## [7.22.6](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.22.5...arize-python-sdk/v7.22.6) (2024-10-09)
+
+
+### 🐛 Bug Fixes
+
+* **experiment:** evaluation result out of order ([#36459](https://github.com/Arize-ai/arize/issues/36459)) ([be484f8](https://github.com/Arize-ai/arize/commit/be484f824082cdf87741dab2dffa4755857b973a))
+
 ## [7.22.5](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.22.4...arize-python-sdk/v7.22.5) (2024-10-08)
 
 

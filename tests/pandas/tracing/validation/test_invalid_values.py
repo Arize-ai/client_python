@@ -23,7 +23,7 @@ valid_spans_dataframe = pd.DataFrame(
         ],
     }
 )
-valid_model_id = "model_id"
+valid_project_name = "project-name"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -39,7 +39,7 @@ def test_valid_labels_and_explanations():
     )
     errors = evals_validation.validate_values(
         evals_dataframe=evals_dataframe,
-        model_id=valid_model_id,
+        project_name=valid_project_name,
     )
     assert len(errors) == 0, "Expected no validation errors for valid labels and explanations"
 
@@ -58,7 +58,7 @@ def test_label_not_empty_string():
     )
     errors = evals_validation.validate_values(
         evals_dataframe=evals_dataframe,
-        model_id=valid_model_id,
+        project_name=valid_project_name,
     )
     assert len(errors) > 0, "Expected validation errors for empty string labels"
 
@@ -75,7 +75,7 @@ def test_label_exceeds_max_length():
     )
     errors = evals_validation.validate_values(
         evals_dataframe=evals_dataframe,
-        model_id=valid_model_id,
+        project_name=valid_project_name,
     )
     assert len(errors) > 0, "Expected validation errors for labels exceeding max length"
 
@@ -94,7 +94,7 @@ def test_explanation_exceeds_max_length():
     )
     errors = evals_validation.validate_values(
         evals_dataframe=evals_dataframe,
-        model_id=valid_model_id,
+        project_name=valid_project_name,
     )
     assert len(errors) > 0, "Expected validation errors for explanations exceeding max length"
 
@@ -113,7 +113,7 @@ def test_valid_float_values():
     )
     errors = evals_validation.validate_values(
         evals_dataframe=evals_dataframe,
-        model_id=valid_model_id,
+        project_name=valid_project_name,
     )
     assert len(errors) == 0, "Expected no validation errors for valid float values"
 
@@ -132,7 +132,7 @@ def test_infinite_values_present():
     )
     errors = evals_validation.validate_values(
         evals_dataframe=evals_dataframe,
-        model_id=valid_model_id,
+        project_name=valid_project_name,
     )
     assert len(errors) > 0, "Expected validation errors for infinite values present"
 
@@ -153,7 +153,7 @@ def test_valid_null_values():
     )
     errors = evals_validation.validate_values(
         evals_dataframe=evals_dataframe,
-        model_id=valid_model_id,
+        project_name=valid_project_name,
     )
     assert (
         len(errors) == 0
@@ -173,7 +173,7 @@ def test_invalid_null_values():
     )
     errors = evals_validation.validate_values(
         evals_dataframe=evals_dataframe,
-        model_id=valid_model_id,
+        project_name=valid_project_name,
     )
     assert (
         len(errors) > 0

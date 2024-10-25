@@ -283,6 +283,18 @@ class InvalidModelId(ValidationError):
         return "Model ID must be a nonempty string."
 
 
+class InvalidProjectName(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Project_Name"
+
+    def error_message(self) -> str:
+        return (
+            "Project Name must be a nonempty string. "
+            "If Model ID was used instead of Project Name, "
+            "it must be a nonempty string."
+        )
+
+
 class MissingPredActShap(ValidationError):
     def __repr__(self) -> str:
         return "Missing_Pred_or_Act_or_SHAP"

@@ -15,10 +15,10 @@ from arize.utils.logging import logger
 from arize.utils.types import is_json_str
 
 
-def _check_invalid_model_id(model_id: Optional[str]) -> List[err.InvalidModelId]:
+def _check_invalid_project_name(project_name: Optional[str]) -> List[err.InvalidProjectName]:
     # assume it's been coerced to string beforehand
-    if (not isinstance(model_id, str)) or len(model_id.strip()) == 0:
-        return [err.InvalidModelId()]
+    if (not isinstance(project_name, str)) or len(project_name.strip()) == 0:
+        return [err.InvalidProjectName()]
     return []
 
 

@@ -217,9 +217,11 @@ def convert_schema_field_types(
     feature_column_names_list = (
         schema.feature_column_names
         if is_list_of(schema.feature_column_names, str)
-        else schema.feature_column_names.get_all_column_names()
-        if schema.feature_column_names
-        else []
+        else (
+            schema.feature_column_names.get_all_column_names()
+            if schema.feature_column_names
+            else []
+        )
     )
 
     tag_column_names_list = (
