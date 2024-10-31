@@ -76,8 +76,10 @@ class Example:
                     "output",
                     _make_read_only(self.dataset_row["attributes.output.value"]),
                 )
-            if "metadata" in self.dataset_row.keys():
-                object.__setattr__(self, "metadata", _make_read_only(self.dataset_row["metadata"]))
+            if "attributes.metadata" in self.dataset_row.keys():
+                object.__setattr__(
+                    self, "metadata", _make_read_only(self.dataset_row["attributes.metadata"])
+                )
             if "id" in self.dataset_row.keys():
                 object.__setattr__(self, "id", self.dataset_row["id"])
             if "updated_at" in self.dataset_row.keys():
@@ -90,10 +92,10 @@ class Example:
     @classmethod
     def from_dict(cls, obj: Mapping[str, Any]) -> "Example":
         return cls(
+            id=obj["id"],
             input=obj["input"],
             output=obj["output"],
             metadata=obj.get("metadata") or {},
-            id=obj["id"],
             updated_at=obj["updated_at"],
         )
 

@@ -52,11 +52,12 @@ class Evaluator(ABC):
     def evaluate(
         self,
         *,
-        output: Optional[TaskOutput] = None,
-        expected: Optional[ExampleOutput] = None,
         dataset_row: Optional[Mapping[str, JSONSerializable]] = None,
-        metadata: ExampleMetadata = MappingProxyType({}),
         input: ExampleInput = MappingProxyType({}),
+        output: Optional[TaskOutput] = None,
+        experiment_output: Optional[TaskOutput] = None,
+        dataset_output: ExampleOutput = MappingProxyType({}),
+        metadata: ExampleMetadata = MappingProxyType({}),
         **kwargs: Any,
     ) -> EvaluationResult:
         # For subclassing, one should implement either this sync method or the
@@ -66,21 +67,23 @@ class Evaluator(ABC):
     async def async_evaluate(
         self,
         *,
-        output: Optional[TaskOutput] = None,
-        expected: Optional[ExampleOutput] = None,
         dataset_row: Optional[Mapping[str, JSONSerializable]] = None,
-        metadata: ExampleMetadata = MappingProxyType({}),
         input: ExampleInput = MappingProxyType({}),
+        output: Optional[TaskOutput] = None,
+        experiment_output: Optional[TaskOutput] = None,
+        dataset_output: ExampleOutput = MappingProxyType({}),
+        metadata: ExampleMetadata = MappingProxyType({}),
         **kwargs: Any,
     ) -> EvaluationResult:
         # For subclassing, one should implement either this async method or the
         # sync version. Implementing both is recommended but not required.
         return self.evaluate(
-            output=output,
-            expected=expected,
-            metadata=metadata,
             dataset_row=dataset_row,
             input=input,
+            output=output,
+            experiment_output=experiment_output,
+            dataset_output=dataset_output,
+            metadata=metadata,
             **kwargs,
         )
 
@@ -128,13 +131,12 @@ def validate_evaluator_signature(sig: inspect.Signature) -> None:
     # If it does not, raise an error to exit early before running evaluations
     params = sig.parameters
     valid_named_params = {
+        "dataset_row",
         "input",
         "output",
-        "expected",
-        "reference",
+        "experiment_output",
+        "dataset_output",
         "metadata",
-        "dataset_row",
-        "example",
     }
     if len(params) == 0:
         raise ValueError("Evaluation function must have at least one parameter.")

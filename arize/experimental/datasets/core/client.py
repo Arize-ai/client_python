@@ -339,18 +339,34 @@ class ArizeDatasetsClient:
         finally:
             flight_client.close()
 
-    def update_dataset(self, space_id: str, dataset_id: str, data: pd.DataFrame) -> Optional[str]:
+    def update_dataset(
+        self,
+        space_id: str,
+        data: pd.DataFrame,
+        dataset_id: str = "",
+        dataset_name: str = "",
+    ) -> str:
         """
         Update an existing dataset by creating a new version.
 
         Args:
             space_id (str): The ID of the space where the dataset is located.
-            dataset_id (str): The ID of the dataset to update.
             data (pd.DataFrame): The updated data to be included in the dataset.
+            dataset_id (str, optional): The ID of the dataset to update.
+                Required if dataset_name is not provided.
+            dataset_name (str, optional): The name of the dataset to update.
+                Required if dataset_id is not provided.
 
         Returns:
-            str: The ID of the updated dataset, or None if the update failed.
+            str: The ID of the updated dataset.
+
+        Raises:
+            ValueError: If neither dataset_id nor dataset_name is provided.
+            RuntimeError: If validation of the data fails or the update operation fails.
         """
+        if dataset_id == "" and dataset_name == "":
+            raise ValueError("one of dataset_id or dataset_name is required")
+
         df = self._set_default_columns_for_dataset(data)
         validation_errors = Validator.validate(df)
         if validation_errors:
@@ -362,7 +378,8 @@ class ArizeDatasetsClient:
         request = request_pb.DoPutRequest(
             update_dataset=request_pb.UpdateDatasetRequest(
                 space_id=space_id,
-                dataset_id=dataset_id,
+                dataset_id=dataset_id if dataset_id else None,
+                dataset_name=dataset_name if dataset_name else None,
             )
         )
         descriptor = _descriptor_for_request(request)
@@ -492,20 +509,38 @@ class ArizeDatasetsClient:
         finally:
             flight_client.close()
 
-    def get_dataset_versions(self, space_id: str, dataset_id: str) -> Optional[pd.DataFrame]:
+    def get_dataset_versions(
+        self,
+        space_id: str,
+        dataset_id: str = "",
+        dataset_name: str = "",
+    ) -> pd.DataFrame:
+
         """
-        Get the versions of a dataset.
+        Get versions information of a dataset.
 
         Args:
             space_id (str): The ID of the space where the dataset is located.
-            dataset_id (str): The ID of the dataset to get versions info for.
+            dataset_id (str, optional): The dataset ID to get versions info for.
+                Required if dataset_name is not provided.
+            dataset_name (str, optional): The name of the dataset to get versions info for.
+                Required if dataset_id is not provided.
 
         Returns:
-            List[Dict[str, Any]]: A list of dictionaries representing the versions of the dataset.
+            pd.DataFrame: A DataFrame containing dataset versions info of the dataset
+
+        Raises:
+            ValueError: If neither dataset_id nor dataset_name is provided.
+            RuntimeError: If the request to get dataset versions fails.
         """
+
+        if dataset_id == "" and dataset_name == "":
+            raise ValueError("one of dataset_id or dataset_name is required")
         request = request_pb.DoActionRequest(
             get_dataset_versions=request_pb.GetDatasetVersionsRequest(
-                space_id=space_id, dataset_id=dataset_id
+                space_id=space_id,
+                dataset_id=dataset_id if dataset_id else None,
+                dataset_name=dataset_name if dataset_name else None,
             )
         )
         action = _action_for_request(FlightActionKey.GET_DATASET_VERSION, request)
@@ -533,7 +568,7 @@ class ArizeDatasetsClient:
         finally:
             flight_client.close()
 
-    def list_datasets(self, space_id: str) -> Optional[pd.DataFrame]:
+    def list_datasets(self, space_id: str) -> pd.DataFrame:
         """
         List all datasets in a space.
 
@@ -541,7 +576,7 @@ class ArizeDatasetsClient:
             space_id (str): The ID of the space to list datasets for.
 
         Returns:
-            List[Dict[str, Any]]: A list of dictionaries representing the datasets in the space.
+            pd.DataFrame: A table summary of the datasets in the space.
         """
         request = request_pb.DoActionRequest(
             list_datasets=request_pb.ListDatasetsRequest(space_id=space_id)
@@ -573,19 +608,37 @@ class ArizeDatasetsClient:
         finally:
             flight_client.close()
 
-    def delete_dataset(self, space_id: str, dataset_id: str) -> Optional[bool]:
+    def delete_dataset(
+        self,
+        space_id: str,
+        dataset_id: str = "",
+        dataset_name: str = "",
+    ) -> bool:
         """
         Delete a dataset.
 
         Args:
             space_id (str): The ID of the space where the dataset is located.
-            dataset_id (str): The ID of the dataset to delete.
+            dataset_id (str, optional): The ID of the dataset to delete.
+                Required if dataset_name is not provided.
+            dataset_name (str, optional): The name of the dataset to delete.
+                Required if dataset_id is not provided.
 
         Returns:
             bool: True if the dataset was successfully deleted, False otherwise.
+
+        Raises:
+            ValueError: If neither dataset_id nor dataset_name is provided.
+            RuntimeError: If the request to delete the dataset fails.
         """
+        if dataset_id == "" and dataset_name == "":
+            raise ValueError("one of dataset_id or dataset_name is required")
         request = request_pb.DoActionRequest(
-            delete_dataset=request_pb.DeleteDatasetRequest(space_id=space_id, dataset_id=dataset_id)
+            delete_dataset=request_pb.DeleteDatasetRequest(
+                space_id=space_id,
+                dataset_id=dataset_id if dataset_id else None,
+                dataset_name=dataset_name if dataset_name else None,
+            )
         )
         action = _action_for_request(FlightActionKey.DELETE_DATASET, request)
         flight_client = self.session.connect()

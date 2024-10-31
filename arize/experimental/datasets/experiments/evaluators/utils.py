@@ -1,6 +1,5 @@
 import functools
 import inspect
-from itertools import chain, islice, repeat
 from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from tqdm.auto import tqdm
@@ -28,7 +27,14 @@ def validate_evaluator_signature(sig: inspect.Signature) -> None:
     # Check that the wrapped function has a valid signature for use as an evaluator
     # If it does not, raise an error to exit early before running evaluations
     params = sig.parameters
-    valid_named_params = {"input", "output", "expected", "reference", "metadata"}
+    valid_named_params = {
+        "input",
+        "output",
+        "experiment_output",
+        "dataset_output",
+        "metadata",
+        "dataset_row",
+    }
     if len(params) == 0:
         raise ValueError("Evaluation function must have at least one parameter.")
     if len(params) > 1:
@@ -52,10 +58,10 @@ def _bind_evaluator_signature(sig: inspect.Signature, **kwargs: Any) -> inspect.
     parameter_mapping = {
         "input": kwargs.get("input"),
         "output": kwargs.get("output"),
-        "expected": kwargs.get("expected"),
-        "reference": kwargs.get("reference"),  # `reference` is an alias for `expected`
+        "experiment_output": kwargs.get("experiment_output"),
+        "dataset_output": kwargs.get("dataset_output"),
         "metadata": kwargs.get("metadata"),
-        "example": kwargs.get("example"),
+        "dataset_row": kwargs.get("dataset_row"),
     }
     params = sig.parameters
     if len(params) == 1:
@@ -63,7 +69,7 @@ def _bind_evaluator_signature(sig: inspect.Signature, **kwargs: Any) -> inspect.
         if parameter_name in parameter_mapping:
             return sig.bind(parameter_mapping[parameter_name])
         else:
-            return sig.bind(parameter_mapping["output"])
+            return sig.bind(parameter_mapping["experiment_output"])
     return sig.bind_partial(
         **{name: parameter_mapping[name] for name in set(parameter_mapping).intersection(params)}
     )
@@ -84,6 +90,9 @@ def create_evaluator(
 
         wrapped_signature = inspect.signature(func)
         validate_evaluator_signature(wrapped_signature)
+
+        if inspect.iscoroutinefunction(func):
+            return _wrap_coroutine_evaluation_function(name, wrapped_signature, scorer)(func)
 
         return _wrap_sync_evaluation_function(name, wrapped_signature, scorer)(func)
 
@@ -151,26 +160,10 @@ def _default_eval_scorer(result: Any) -> EvaluationResult:
         return EvaluationResult(score=float(result))
     if isinstance(result, str):
         return EvaluationResult(label=result)
-    if isinstance(result, (tuple, list)) and 0 < len(result) <= 3:
-        # Possible interpretations are:
-        # - 3-tuple: (Score, Label, Explanation)
-        # - 2-tuple: (Score, Explanation) or (Label, Explanation)
-        # - 1-tuple: (Score, ) or (Label, )
-        # Note that (Score, Label) conflicts with (Score, Explanation) and we
-        # pick the latter because it's probably more prevalent. To get
-        # (Score, Label), use a 3-tuple instead, i.e. (Score, Label, None).
-        a, b, c = islice(chain(result, repeat(None)), 3)
-        score, label, explanation = None, a, b
-        if hasattr(a, "__float__"):
-            try:
-                score = float(a)
-            except ValueError:
-                pass
-            else:
-                label, explanation = (None, b) if len(result) < 3 else (b, c)
-        return EvaluationResult(score=score, label=label, explanation=explanation)
-    if result is None:
-        return EvaluationResult(score=0)
+    if isinstance(result, (tuple, list)) and len(result) == 2:
+        # If the result is a 2-tuple, the first item will be recorded as the score
+        # and the second item will recorded as the explanation.
+        return EvaluationResult(score=float(result[0]), explanation=str(result[1]))
     raise ValueError(f"Unsupported evaluation result type: {type(result)}")
 
 

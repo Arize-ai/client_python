@@ -1,5 +1,18 @@
 # Changelog
 
+## [7.24.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.23.0...arize-python-sdk/v7.24.0) (2024-10-30)
+
+
+### 🎁 New Features
+
+* **datasets:** support using dataset_name in addition to dataset_id to update/delete/get_versions on a dataset ([#37298](https://github.com/Arize-ai/arize/issues/37298)) ([345a18b](https://github.com/Arize-ai/arize/commit/345a18b42552e5d83c020dd39b639f9b418a7d22))
+* **experiment:** support callable functions as experiment evaluators ([#37085](https://github.com/Arize-ai/arize/issues/37085)) ([bee9278](https://github.com/Arize-ai/arize/commit/bee92786d9b5079ea51f8e1335f23a5d5b471ee1)), closes [#35779](https://github.com/Arize-ai/arize/issues/35779)
+
+
+### 🐛 Bug Fixes
+
+* **experiment:** update parameter mapping in task and evaluate functions ([bee9278](https://github.com/Arize-ai/arize/commit/bee92786d9b5079ea51f8e1335f23a5d5b471ee1))
+
 ## [7.23.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.22.6...arize-python-sdk/v7.23.0) (2024-10-24)
 
 

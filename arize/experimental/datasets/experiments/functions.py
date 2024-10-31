@@ -332,11 +332,12 @@ def evaluate_experiment(
             stack.enter_context(capture_spans(resource))
             try:
                 result = evaluator.evaluate(
-                    output=deepcopy(experiment_run.output),
-                    metadata=example.metadata,
                     dataset_row=example.dataset_row,
-                    example=example,
                     input=example.input,
+                    output=deepcopy(experiment_run.output),
+                    experiment_output=deepcopy(experiment_run.output),
+                    dataset_output=example.output,
+                    metadata=example.metadata,
                 )
             except BaseException as exc:
                 if exit_on_error:
@@ -383,10 +384,12 @@ def evaluate_experiment(
             stack.enter_context(capture_spans(resource))
             try:
                 result = await evaluator.async_evaluate(
-                    output=deepcopy(experiment_run.output),
-                    metadata=example.metadata,
                     dataset_row=example.dataset_row,
-                    example=example,
+                    input=example.input,
+                    output=deepcopy(experiment_run.output),
+                    experiment_output=deepcopy(experiment_run.output),
+                    dataset_output=example.output,
+                    metadata=example.metadata,
                 )
             except BaseException as exc:
                 if exit_on_error:
@@ -484,7 +487,7 @@ def _validate_task_signature(sig: inspect.Signature) -> None:
     # Check that the function signature has a valid signature for use as a task
     # If it does not, raise an error to exit early before running an experiment
     params = sig.parameters
-    valid_named_params = {"input", "expected", "reference", "metadata", "example", "dataset_row"}
+    valid_named_params = {"input", "output", "metadata", "dataset_row"}
     if len(params) == 0:
         raise ValueError("Task function must have at least one parameter.")
     if len(params) > 1:
@@ -507,10 +510,8 @@ def _validate_task_signature(sig: inspect.Signature) -> None:
 def _bind_task_signature(sig: inspect.Signature, example: Example) -> inspect.BoundArguments:
     parameter_mapping = {
         "input": example.input,
-        "expected": example.output,
-        "reference": example.output,  # Alias for "expected"
+        "output": example.output,
         "metadata": example.metadata,
-        "example": example,
         "dataset_row": example.dataset_row,
     }
     params = sig.parameters
@@ -519,7 +520,7 @@ def _bind_task_signature(sig: inspect.Signature, example: Example) -> inspect.Bo
         if parameter_name in parameter_mapping:
             return sig.bind(parameter_mapping[parameter_name])
         else:
-            return sig.bind(parameter_mapping["input"])
+            return sig.bind(parameter_mapping["dataset_row"])
     return sig.bind_partial(
         **{name: parameter_mapping[name] for name in set(parameter_mapping).intersection(params)}
     )
@@ -553,59 +554,6 @@ def _evaluators_by_name(obj: Optional[Evaluators]) -> Mapping[EvaluatorName, Eva
             raise ValueError(f"Two evaluators have the same name: {name}")
         evaluators_by_name[name] = evaluator
     return evaluators_by_name
-
-
-def sync_evaluate_run(
-    obj: Tuple[Example, ExperimentRun, Evaluator],
-    *,
-    tracer: Optional[Tracer] = None,
-    resource: Optional[Resource] = None,
-) -> ExperimentEvaluationRun:
-    # validate evaluator is not async
-    if inspect.iscoroutinefunction(obj[2].evaluate):
-        raise ValueError("Evaluator function cannot be asynchronous.")
-    example, experiment_run, evaluator = obj
-    result: Optional[EvaluationResult] = None
-    error: Optional[BaseException] = None
-    status = Status(StatusCode.OK)
-    root_span_kind = EVALUATOR
-    root_span_name = f"Evaluation: {evaluator.name}"
-    with ExitStack() as stack:
-        span: Span = stack.enter_context(
-            tracer.start_as_current_span(name=root_span_name, context=Context())
-        )
-        stack.enter_context(capture_spans(resource))
-        try:
-            result = evaluator.evaluate(
-                input=example.input,
-                output=deepcopy(experiment_run.output),
-                expected=example.output,
-                reference=example.output,
-                metadata=example.metadata,
-                dataset_row=example.dataset_row,
-                example=example,
-            )
-        except BaseException as exc:
-            span.record_exception(exc)
-            status = Status(StatusCode.ERROR, f"{type(exc).__name__}: {exc}")
-            raise
-        else:
-            if result:
-                span.set_attributes(dict(flatten(jsonify(result), recurse_on_sequence=True)))
-            span.set_attribute(OPENINFERENCE_SPAN_KIND, root_span_kind)
-            span.set_status(status)
-        eval_run = ExperimentEvaluationRun(
-            experiment_run_id=experiment_run.id,
-            start_time=_decode_unix_nano(cast(int, span.start_time)),
-            end_time=(
-                _decode_unix_nano(cast(int, span.end_time)) if span.end_time else datetime.now()
-            ),
-            name=evaluator.name,
-            error=repr(error) if error else None,
-            result=result,
-            trace_id=_str_trace_id(span.get_span_context().trace_id),
-        )
-        return eval_run
 
 
 def get_func_name(fn: Callable[..., Any]) -> str:

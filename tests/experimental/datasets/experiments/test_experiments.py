@@ -15,7 +15,7 @@ from arize.experimental.datasets.experiments.evaluators.base import EvaluationRe
 
 # Define a simple evaluator
 class DummyEval(Evaluator):
-    def evaluate(self, *, output, dataset_row, **_) -> EvaluationResult:
+    def evaluate(self, output, dataset_row, **_) -> EvaluationResult:
         return EvaluationResult(
             explanation="eval explanation",
             score=1,
@@ -27,7 +27,7 @@ class DummyEval(Evaluator):
             },
         )
 
-    async def async_evaluate(self, *, output, dataset_row, **_) -> EvaluationResult:
+    async def async_evaluate(self, output, dataset_row, **_) -> EvaluationResult:
         return EvaluationResult(
             explanation="eval explanation",
             score=1,
@@ -66,8 +66,8 @@ class DummyEval2(Evaluator):
         )
 
 
-def dummy_task(dataset_row):
-    question = dataset_row["question"]
+def dummy_task(x):
+    question = x["question"]
     return f"Answer to {question}"
 
 
@@ -227,7 +227,7 @@ def test_evaluator_exception_handling():
 def test_evaluator_exception_handling_exit_on_error():
     c = ArizeDatasetsClient(developer_key="dummy_key", api_key="dummy")
     with pytest.raises(RuntimeError):
-        exp_id, exp_df = c.run_experiment(
+        _, _ = c.run_experiment(
             space_id="dummy_space_id",
             experiment_name="test_experiment",
             dataset_id="dummy_dataset_id",
@@ -237,3 +237,74 @@ def test_evaluator_exception_handling_exit_on_error():
             dry_run=True,
             exit_on_error=True,
         )
+
+
+def test_functional_evaluation():
+    df = pd.DataFrame(
+        {
+            "id": ["id_1", "id_2"],
+            "question": ["I have a question", "I have another question"],
+            "attributes.input.value": ["input_value", "input_value2"],
+            "attributes.output.value": ["output_value", "output_value2"],
+            "attributes.metadata": [{"meta_key": "meta_value"}, {"meta_key2": "meta_value2"}],
+        }
+    )
+
+    def task_fn(x):
+        question = x["question"]
+        return f"Answer to {question}"
+
+    async def eval_fn(input, output, experiment_output, dataset_output, metadata, dataset_row):
+        md = {
+            "input": input,
+            "output": output,
+            "experiment_output": experiment_output,
+            "dataset_output": dataset_output,
+            "metadata": metadata,
+            "dataset_row": dataset_row,
+        }
+        return EvaluationResult(
+            explanation="eval explanation",
+            score=1,
+            label=dataset_row["id"],
+            metadata=md,
+        )
+
+    c = ArizeDatasetsClient(developer_key="dummy_key", api_key="dummy")
+    exp_id, exp_df = c.run_experiment(
+        space_id="dummy_space_id",
+        experiment_name="test_experiment",
+        dataset_id="dummy_dataset_id",
+        dataset_df=df,
+        task=task_fn,
+        evaluators=[eval_fn],
+        dry_run=True,
+        exit_on_error=False,
+    )
+    assert exp_id == ""
+    assert exp_df.shape == (2, 16)
+    assert set(exp_df.columns) == {
+        "id",
+        "example_id",
+        "result",
+        "result.trace.id",
+        "result.trace.timestamp",
+        "eval.eval_fn.score",
+        "eval.eval_fn.label",
+        "eval.eval_fn.explanation",
+        "eval.eval_fn.trace.id",
+        "eval.eval_fn.trace.timestamp",
+        "eval.eval_fn.metadata.input",
+        "eval.eval_fn.metadata.output",
+        "eval.eval_fn.metadata.experiment_output",
+        "eval.eval_fn.metadata.dataset_output",
+        "eval.eval_fn.metadata.metadata",
+        "eval.eval_fn.metadata.dataset_row",
+    }
+    for _, row in exp_df.iterrows():
+        assert (
+            row["eval.eval_fn.metadata.dataset_output"]
+            != row["eval.eval_fn.metadata.experiment_output"]
+        )
+        assert row["eval.eval_fn.metadata.experiment_output"] == row["eval.eval_fn.metadata.output"]
+    assert exp_df.isnull().sum().sum() == 0
