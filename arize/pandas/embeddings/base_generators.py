@@ -32,13 +32,7 @@ class BaseEmbeddingGenerator(ABC):
     def __init__(self, use_case: Enum, model_name: str, batch_size: int = 100, **kwargs):
         self.__use_case = self._parse_use_case(use_case=use_case)
         self.__model_name = model_name
-        self.__device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        if self.device == torch.device("cpu"):
-            logger.warning(
-                "No available GPU has been detected. The use of GPU acceleration is "
-                "strongly recommended. You can check for GPU availability by running "
-                "`torch.cuda.is_available()`"
-            )
+        self.__device = self.select_device()
         self.__batch_size = batch_size
         logger.info(f"Downloading pre-trained model '{self.model_name}'")
         try:
@@ -47,6 +41,20 @@ class BaseEmbeddingGenerator(ABC):
             raise err.HuggingFaceRepositoryNotFound(model_name)
         except Exception as e:
             raise e
+
+    def select_device(self) -> torch.device:
+        if torch.cuda.is_available():
+            device = torch.device("cuda")
+        elif torch.backends.mps.is_available():
+            device = torch.device("mps")
+        else:
+            device = torch.device("cpu")
+            logger.warning(
+                "No available GPU has been detected. The use of GPU acceleration is "
+                "strongly recommended. You can check for GPU availability by running "
+                "`torch.cuda.is_available()` or `torch.backends.mps.is_available()`."
+            )
+        return device
 
     @property
     def use_case(self) -> str:
@@ -85,9 +93,7 @@ class BaseEmbeddingGenerator(ABC):
         uc_task = use_case.name
         return f"{uc_area}.{uc_task}"
 
-    def _get_embedding_vector(
-        self, batch: Dict[str, torch.Tensor], method
-    ) -> Dict[str, torch.Tensor]:
+    def _get_embedding_vector(self, batch: Dict[str, torch.Tensor], method) -> Dict[str, torch.Tensor]:
         with torch.no_grad():
             outputs = self.model(**batch)
         # (batch_size, seq_length/or/num_tokens, hidden_size)
@@ -126,16 +132,12 @@ class NLPEmbeddingGenerator(BaseEmbeddingGenerator):
         )
 
     def __init__(self, use_case: Enum, model_name: str, tokenizer_max_length: int = 512, **kwargs):
-        super(NLPEmbeddingGenerator, self).__init__(
-            use_case=use_case, model_name=model_name, **kwargs
-        )
+        super(NLPEmbeddingGenerator, self).__init__(use_case=use_case, model_name=model_name, **kwargs)
         self.__tokenizer_max_length = tokenizer_max_length
         # We don't check for the tokenizer's existence since it is coupled with the corresponding model
         # We check the model's existence in `BaseEmbeddingGenerator`
         logger.info(f"Downloading tokenizer for '{self.model_name}'")
-        self.__tokenizer = AutoTokenizer.from_pretrained(
-            self.model_name, model_max_length=self.tokenizer_max_length
-        )
+        self.__tokenizer = AutoTokenizer.from_pretrained(self.model_name, model_max_length=self.tokenizer_max_length)
 
     @property
     def tokenizer(self):
@@ -168,9 +170,7 @@ class CVEmbeddingGenerator(BaseEmbeddingGenerator):
         )
 
     def __init__(self, use_case: Enum, model_name: str, **kwargs):
-        super(CVEmbeddingGenerator, self).__init__(
-            use_case=use_case, model_name=model_name, **kwargs
-        )
+        super(CVEmbeddingGenerator, self).__init__(use_case=use_case, model_name=model_name, **kwargs)
         logger.info("Downloading image processor")
         # We don't check for the image processor's existence since it is coupled with the corresponding model
         # We check the model's existence in `BaseEmbeddingGenerator`
