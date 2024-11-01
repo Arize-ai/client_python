@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.25.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.24.3...arize-python-sdk/v7.25.0) (2024-11-01)
+
+
+### 🎁 New Features
+
+* Add mps as available device for embedding generator ([#37471](https://github.com/Arize-ai/arize/issues/37471)) ([a93d686](https://github.com/Arize-ai/arize/commit/a93d686196841b941d89dc9612e5d9eab998bd7e))
+
 ## [7.24.3](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.24.2...arize-python-sdk/v7.24.3) (2024-11-01)
 
 

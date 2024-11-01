@@ -35,15 +35,7 @@ class BaseEmbeddingGenerator(ABC):
     ):
         self.__use_case = self._parse_use_case(use_case=use_case)
         self.__model_name = model_name
-        self.__device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu"
-        )
-        if self.device == torch.device("cpu"):
-            logger.warning(
-                "No available GPU has been detected. The use of GPU acceleration is "
-                "strongly recommended. You can check for GPU availability by running "
-                "`torch.cuda.is_available()`"
-            )
+        self.__device = self.select_device()
         self.__batch_size = batch_size
         logger.info(f"Downloading pre-trained model '{self.model_name}'")
         try:
@@ -54,6 +46,19 @@ class BaseEmbeddingGenerator(ABC):
             raise err.HuggingFaceRepositoryNotFound(model_name) from e
         except Exception as e:
             raise e
+
+    def select_device(self) -> torch.device:
+        if torch.cuda.is_available():
+            return torch.device("cuda")
+        elif torch.backends.mps.is_available():
+            return torch.device("mps")
+        else:
+            logger.warning(
+                "No available GPU has been detected. The use of GPU acceleration is "
+                "strongly recommended. You can check for GPU availability by running "
+                "`torch.cuda.is_available()` or `torch.backends.mps.is_available()`."
+            )
+            return torch.device("cpu")
 
     @property
     def use_case(self) -> str:
