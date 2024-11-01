@@ -3,4 +3,5 @@ sphinx==7.3.7
 pydata-sphinx-theme
 linkify-it-py
 sphinx_design
--e "..[Datasets]"
+
+-e ".[Datasets]"
