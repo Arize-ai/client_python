@@ -1,11 +1,12 @@
 import datetime
 from collections import ChainMap
 
-import arize.pandas.validation.errors as err
 import numpy as np
 import pandas as pd
 import pyarrow as pa
 import pytest
+
+import arize.pandas.validation.errors as err
 from arize.pandas.validation.validator import Validator
 from arize.utils.types import (
     CorpusSchema,
@@ -30,7 +31,9 @@ def test_accept_all_nones_features_tags():
     errors = Validator.validate_types(
         **ChainMap(
             {
-                "pyarrow_schema": pa.Schema.from_pandas(pd.DataFrame({"A": pd.Series([None])})),
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"A": pd.Series([None])})
+                ),
             },
             kwargs,
         )
@@ -153,7 +156,13 @@ def test_valid_timestamp_datetime():
         **ChainMap(
             {
                 "pyarrow_schema": pa.Schema.from_pandas(
-                    pd.DataFrame({"prediction_timestamp": pd.Series([datetime.datetime.now()])})
+                    pd.DataFrame(
+                        {
+                            "prediction_timestamp": pd.Series(
+                                [datetime.datetime.now()]
+                            )
+                        }
+                    )
                 )
             },
             kwargs,
@@ -169,7 +178,11 @@ def test_valid_timestamp_date():
             {
                 "pyarrow_schema": pa.Schema.from_pandas(
                     pd.DataFrame(
-                        {"prediction_timestamp": pd.Series([datetime.datetime.now().date()])}
+                        {
+                            "prediction_timestamp": pd.Series(
+                                [datetime.datetime.now().date()]
+                            )
+                        }
                     )
                 )
             },
@@ -186,7 +199,11 @@ def test_valid_timestamp_float():
             {
                 "pyarrow_schema": pa.Schema.from_pandas(
                     pd.DataFrame(
-                        {"prediction_timestamp": pd.Series([datetime.datetime.now().timestamp()])}
+                        {
+                            "prediction_timestamp": pd.Series(
+                                [datetime.datetime.now().timestamp()]
+                            )
+                        }
                     )
                 )
             },
@@ -221,7 +238,11 @@ def test_invalid_type_dimensions():
     kwargs = get_kwargs()
     errors = Validator.validate_types(
         **ChainMap(
-            {"pyarrow_schema": pa.Schema.from_pandas(pd.DataFrame({"A": pd.Series([list()])}))},
+            {
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"A": pd.Series([list()])})
+                )
+            },
             kwargs,
         )
     )
@@ -239,7 +260,11 @@ def test_invalid_type_shap_values():
     for value in invalid_shap_values:
         errors = Validator.validate_types(
             **ChainMap(
-                {"pyarrow_schema": pa.Schema.from_pandas(pd.DataFrame({"a": value}))},
+                {
+                    "pyarrow_schema": pa.Schema.from_pandas(
+                        pd.DataFrame({"a": value})
+                    )
+                },
                 kwargs,
             )
         )
@@ -284,7 +309,7 @@ def test_valid_label_int():
         **ChainMap(
             {
                 "pyarrow_schema": pa.Schema.from_pandas(
-                    pd.DataFrame({"prediction_label": pd.Series([int(1)])})
+                    pd.DataFrame({"prediction_label": pd.Series([1])})
                 ),
             },
             kwargs,
@@ -343,7 +368,9 @@ def test_valid_feature_int():
     errors = Validator.validate_types(
         **ChainMap(
             {
-                "pyarrow_schema": pa.Schema.from_pandas(pd.DataFrame({"A": pd.Series([int(1)])})),
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"A": pd.Series([1])})
+                ),
             },
             kwargs,
         )
@@ -356,7 +383,9 @@ def test_valid_tag_int():
     errors = Validator.validate_types(
         **ChainMap(
             {
-                "pyarrow_schema": pa.Schema.from_pandas(pd.DataFrame({"A": pd.Series([int(1)])})),
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"A": pd.Series([1])})
+                ),
             },
             kwargs,
         )
@@ -369,7 +398,9 @@ def test_valid_feature_str():
     errors = Validator.validate_types(
         **ChainMap(
             {
-                "pyarrow_schema": pa.Schema.from_pandas(pd.DataFrame({"A": pd.Series(["0"])})),
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"A": pd.Series(["0"])})
+                ),
             },
             kwargs,
         )
@@ -382,7 +413,9 @@ def test_valid_tag_str():
     errors = Validator.validate_types(
         **ChainMap(
             {
-                "pyarrow_schema": pa.Schema.from_pandas(pd.DataFrame({"A": pd.Series(["0"])})),
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"A": pd.Series(["0"])})
+                ),
             },
             kwargs,
         )
@@ -395,7 +428,9 @@ def test_valid_feature_float():
     errors = Validator.validate_types(
         **ChainMap(
             {
-                "pyarrow_schema": pa.Schema.from_pandas(pd.DataFrame({"A": pd.Series([3.14])})),
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"A": pd.Series([3.14])})
+                ),
             },
             kwargs,
         )
@@ -408,7 +443,9 @@ def test_valid_tag_float():
     errors = Validator.validate_types(
         **ChainMap(
             {
-                "pyarrow_schema": pa.Schema.from_pandas(pd.DataFrame({"A": pd.Series([3.14])})),
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"A": pd.Series([3.14])})
+                ),
             },
             kwargs,
         )
@@ -421,7 +458,9 @@ def test_valid_feature_bool():
     errors = Validator.validate_types(
         **ChainMap(
             {
-                "pyarrow_schema": pa.Schema.from_pandas(pd.DataFrame({"A": pd.Series([True])})),
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"A": pd.Series([True])})
+                ),
             },
             kwargs,
         )
@@ -462,7 +501,13 @@ def test_invalid_feature_list_of_int():
         **ChainMap(
             {
                 "pyarrow_schema": pa.Schema.from_pandas(
-                    pd.DataFrame({"H": pd.Series([[1, 2], [3, 4], [5, 6], [7, 8], [9, 0]])})
+                    pd.DataFrame(
+                        {
+                            "H": pd.Series(
+                                [[1, 2], [3, 4], [5, 6], [7, 8], [9, 0]]
+                            )
+                        }
+                    )
                 ),
             },
             kwargs,
@@ -503,7 +548,9 @@ def test_valid_ag_bool():
     errors = Validator.validate_types(
         **ChainMap(
             {
-                "pyarrow_schema": pa.Schema.from_pandas(pd.DataFrame({"A": pd.Series([True])})),
+                "pyarrow_schema": pa.Schema.from_pandas(
+                    pd.DataFrame({"A": pd.Series([True])})
+                ),
             },
             kwargs,
         )
@@ -535,7 +582,9 @@ def test_multiple():
                 "pyarrow_schema": pa.Schema.from_pandas(
                     pd.DataFrame(
                         {
-                            "prediction_id": pd.Series([datetime.datetime.now()]),
+                            "prediction_id": pd.Series(
+                                [datetime.datetime.now()]
+                            ),
                             "prediction_timestamp": pd.Series(["now"]),
                             "A": pd.Series([list()]),
                             "a": pd.Series([list()]),
@@ -592,7 +641,7 @@ def test_invalid_type_bounding_boxes():
     assert len(errors) == len(expected_errors)
     for error, expected_error in zip(errors, expected_errors):
         assert error.error_message() == expected_error.error_message()
-        assert type(error) == type(expected_error)
+        assert type(error) is type(expected_error)
 
 
 def test_invalid_type_generative():
@@ -685,7 +734,7 @@ def test_invalid_type_generative():
     assert len(errors) == len(expected_errors)
     for error, expected_error in zip(errors, expected_errors):
         assert error.error_message() == expected_error.error_message()
-        assert type(error) == type(expected_error)
+        assert type(error) is type(expected_error)
 
 
 def test_invalid_type_corpus():
@@ -705,7 +754,9 @@ def test_invalid_type_corpus():
                     pd.DataFrame(
                         {
                             "document_id": pd.Series([1.1 for x in range(3)]),
-                            "document_version": pd.Series([1.1 for x in range(3)]),
+                            "document_version": pd.Series(
+                                [1.1 for x in range(3)]
+                            ),
                             "document_vector": ["abc" for x in range(3)],
                             "document_data": [x for x in range(3)],
                         }
@@ -745,7 +796,7 @@ def test_invalid_type_corpus():
     assert len(errors) == len(expected_errors)
     for error, expected_error in zip(errors, expected_errors):
         assert error.error_message() == expected_error.error_message()
-        assert type(error) == type(expected_error)
+        assert type(error) is type(expected_error)
 
 
 def test_invalid_type_retrieved_document_ids():
@@ -754,7 +805,9 @@ def test_invalid_type_retrieved_document_ids():
         **ChainMap(
             {
                 "pyarrow_schema": pa.Schema.from_pandas(
-                    pd.DataFrame({"retrieved_document_ids": pd.Series(["a", "b"])})
+                    pd.DataFrame(
+                        {"retrieved_document_ids": pd.Series(["a", "b"])}
+                    )
                 )
             },
             kwargs,
@@ -857,9 +910,13 @@ def get_kwargs():
                             datetime.datetime.now(),
                         ]
                     ),
-                    "prediction_label": pd.Series(["fraud", "not fraud", "fraud"]),
+                    "prediction_label": pd.Series(
+                        ["fraud", "not fraud", "fraud"]
+                    ),
                     "prediction_score": pd.Series([0.2, 0.3, 0.4]),
-                    "actual_label": pd.Series(["not fraud", "fraud", "not fraud"]),
+                    "actual_label": pd.Series(
+                        ["not fraud", "fraud", "not fraud"]
+                    ),
                     "actual_score": pd.Series([0, 1, 0]),
                     #####
                     "A": pd.Series([0, 1, 2]),
@@ -878,7 +935,9 @@ def get_kwargs():
                     "e": pd.Series([0, None, 2]),
                     "f": pd.Series([None, float("NaN"), None]),
                     #####
-                    "retrieved_document_ids": pd.Series([["id1", "id2"], ["id3", "id4"], ["id5"]]),
+                    "retrieved_document_ids": pd.Series(
+                        [["id1", "id2"], ["id3", "id4"], ["id5"]]
+                    ),
                     ##### Wrong type bounding boxes
                     "pred_wrong_bounding_boxes_coordinates": pd.Series(
                         [
@@ -911,7 +970,9 @@ def get_kwargs():
                         ]
                     ),
                     # Wrong type
-                    "wrong_prompt_vector": np.random.randn(3, 3).astype(str).tolist(),
+                    "wrong_prompt_vector": np.random.randn(3, 3)
+                    .astype(str)
+                    .tolist(),
                     "wrong_response_vector": np.random.choice(
                         a=[True, False], size=(3, 3)
                     ).tolist(),
@@ -939,7 +1000,9 @@ def get_corpus_kwargs():
             pd.DataFrame(
                 {
                     "document_id": pd.Series(["id" + str(x) for x in range(3)]),
-                    "document_version": ["Version {x}" + str(x) for x in range(3)],
+                    "document_version": [
+                        "Version {x}" + str(x) for x in range(3)
+                    ],
                     "document_vector": [np.random.randn(15) for x in range(3)],
                     "document_data": ["data_" + str(x) for x in range(3)],
                 }

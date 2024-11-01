@@ -1,9 +1,10 @@
 from collections import ChainMap
 from datetime import datetime, timedelta
 
-import arize.pandas.validation.errors as err
 import pandas as pd
 import pytest
+
+import arize.pandas.validation.errors as err
 from arize.pandas.logger import Schema
 from arize.pandas.validation.validator import Validator
 from arize.utils.types import Environments, ModelTypes
@@ -16,8 +17,12 @@ def test_valid_record_ranking_prod():
             {
                 "dataframe": pd.DataFrame(
                     {
-                        "prediction_label": pd.Series(["click", "favor", "click", None]),
-                        "prediction_score": pd.Series([0.2, 0.3, float("NaN"), 0.5]),
+                        "prediction_label": pd.Series(
+                            ["click", "favor", "click", None]
+                        ),
+                        "prediction_score": pd.Series(
+                            [0.2, 0.3, float("NaN"), 0.5]
+                        ),
                         "ranking_category": pd.Series(
                             [["click", "purchase"], None, ["favor"], ["click"]]
                         ),
@@ -38,8 +43,12 @@ def test_valid_record_ranking_pred_only_prod():
             {
                 "dataframe": pd.DataFrame(
                     {
-                        "prediction_label": pd.Series(["click", "favor", "click", None]),
-                        "prediction_score": pd.Series([0.2, 0.3, float("NaN"), 0.5]),
+                        "prediction_label": pd.Series(
+                            ["click", "favor", "click", None]
+                        ),
+                        "prediction_score": pd.Series(
+                            [0.2, 0.3, float("NaN"), 0.5]
+                        ),
                     }
                 )
             },
@@ -76,8 +85,12 @@ def test_invalid_record_ranking_prod():
             {
                 "dataframe": pd.DataFrame(
                     {
-                        "prediction_label": pd.Series(["click", "favor", "click", None]),
-                        "prediction_score": pd.Series([0.2, 0.3, 0.5, float("NaN")]),
+                        "prediction_label": pd.Series(
+                            ["click", "favor", "click", None]
+                        ),
+                        "prediction_score": pd.Series(
+                            [0.2, 0.3, 0.5, float("NaN")]
+                        ),
                         "ranking_category": pd.Series(
                             [["click", "purchase"], ["favor"], ["click"], None]
                         ),
@@ -106,8 +119,12 @@ def test_invalid_record_ranking_pred_only_prod():
             {
                 "dataframe": pd.DataFrame(
                     {
-                        "prediction_label": pd.Series(["click", "favor", "click", None]),
-                        "prediction_score": pd.Series([0.2, 0.3, 0.5, float("NaN")]),
+                        "prediction_label": pd.Series(
+                            ["click", "favor", "click", None]
+                        ),
+                        "prediction_score": pd.Series(
+                            [0.2, 0.3, 0.5, float("NaN")]
+                        ),
                     }
                 ),
             },
@@ -151,8 +168,12 @@ def test_valid_record_ranking_training():
                 "environment": Environments.TRAINING,
                 "dataframe": pd.DataFrame(
                     {
-                        "prediction_label": pd.Series(["click", "favor", "click", None]),
-                        "prediction_score": pd.Series([0.2, 0.3, float("NaN"), 0.5]),
+                        "prediction_label": pd.Series(
+                            ["click", "favor", "click", None]
+                        ),
+                        "prediction_score": pd.Series(
+                            [0.2, 0.3, float("NaN"), 0.5]
+                        ),
                         "ranking_category": pd.Series(
                             [["click", "purchase"], None, ["favor"], ["click"]]
                         ),
@@ -174,8 +195,12 @@ def test_valid_record_ranking_pred_only_training():
                 "environment": Environments.TRAINING,
                 "dataframe": pd.DataFrame(
                     {
-                        "prediction_label": pd.Series(["click", "favor", "click", None]),
-                        "prediction_score": pd.Series([0.2, 0.3, float("NaN"), 0.5]),
+                        "prediction_label": pd.Series(
+                            ["click", "favor", "click", None]
+                        ),
+                        "prediction_score": pd.Series(
+                            [0.2, 0.3, float("NaN"), 0.5]
+                        ),
                     }
                 ),
             },
@@ -214,8 +239,12 @@ def test_invalid_record_ranking_training():
                 "environment": Environments.TRAINING,
                 "dataframe": pd.DataFrame(
                     {
-                        "prediction_label": pd.Series(["click", "favor", "click", None]),
-                        "prediction_score": pd.Series([0.2, 0.3, 0.5, float("NaN")]),
+                        "prediction_label": pd.Series(
+                            ["click", "favor", "click", None]
+                        ),
+                        "prediction_score": pd.Series(
+                            [0.2, 0.3, 0.5, float("NaN")]
+                        ),
                         "ranking_category": pd.Series(
                             [["click", "purchase"], ["favor"], ["click"], None]
                         ),
@@ -243,8 +272,12 @@ def test_invalid_record_ranking_pred_only_training():
                 "environment": Environments.TRAINING,
                 "dataframe": pd.DataFrame(
                     {
-                        "prediction_label": pd.Series(["click", "favor", "click", None]),
-                        "prediction_score": pd.Series([0.2, 0.3, 0.5, float("NaN")]),
+                        "prediction_label": pd.Series(
+                            ["click", "favor", "click", None]
+                        ),
+                        "prediction_score": pd.Series(
+                            [0.2, 0.3, 0.5, float("NaN")]
+                        ),
                     }
                 ),
             },

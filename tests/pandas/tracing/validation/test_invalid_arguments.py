@@ -36,7 +36,9 @@ def test_valid_eval_column_types():
             ],
         }
     )
-    errors = evals_validation.validate_dataframe_form(evals_dataframe=evals_dataframe)
+    errors = evals_validation.validate_dataframe_form(
+        evals_dataframe=evals_dataframe
+    )
     assert len(errors) == 0, "Expected no validation errors for all columns"
 
 
@@ -51,8 +53,12 @@ def test_invalid_label_columns_type():
             ],
         }
     )
-    errors = evals_validation.validate_dataframe_form(evals_dataframe=evals_dataframe)
-    assert len(errors) > 0, "Expected validation errors for label columns with incorrect type"
+    errors = evals_validation.validate_dataframe_form(
+        evals_dataframe=evals_dataframe
+    )
+    assert (
+        len(errors) > 0
+    ), "Expected validation errors for label columns with incorrect type"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -66,8 +72,12 @@ def test_invalid_score_columns_type():
             ],
         }
     )
-    errors = evals_validation.validate_dataframe_form(evals_dataframe=evals_dataframe)
-    assert len(errors) > 0, "Expected validation errors for score columns with incorrect type"
+    errors = evals_validation.validate_dataframe_form(
+        evals_dataframe=evals_dataframe
+    )
+    assert (
+        len(errors) > 0
+    ), "Expected validation errors for score columns with incorrect type"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -81,8 +91,12 @@ def test_invalid_explanation_columns_type():
             ],
         }
     )
-    errors = evals_validation.validate_dataframe_form(evals_dataframe=evals_dataframe)
-    assert len(errors) > 0, "Expected validation errors for explanation columns with incorrect type"
+    errors = evals_validation.validate_dataframe_form(
+        evals_dataframe=evals_dataframe
+    )
+    assert (
+        len(errors) > 0
+    ), "Expected validation errors for explanation columns with incorrect type"
 
 
 if __name__ == "__main__":

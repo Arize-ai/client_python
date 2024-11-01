@@ -1,9 +1,10 @@
 from collections import ChainMap
 
-import arize.pandas.validation.errors as err
 import numpy as np
 import pandas as pd
 import pytest
+
+import arize.pandas.validation.errors as err
 from arize.pandas.validation.validator import Validator
 from arize.utils.constants import MAX_NUMBER_OF_EMBEDDINGS
 from arize.utils.types import (
@@ -106,7 +107,9 @@ def get_corpus_kwargs():
             {
                 "document_id": pd.Series(["id" + str(x) for x in range(3)]),
                 "document_version": ["Version {x}" + str(x) for x in range(3)],
-                "document_vector": [np.random.randn(EMBEDDING_SIZE) for x in range(3)],
+                "document_vector": [
+                    np.random.randn(EMBEDDING_SIZE) for x in range(3)
+                ],
                 "document_data": ["data_" + str(x) for x in range(3)],
             }
         ),
@@ -151,7 +154,9 @@ def test_invalid_environment():
 def test_multiple():
     kwargs = get_standard_kwargs()
     errors = Validator.validate_params(
-        **ChainMap({"model_id": " ", "model_type": -1, "environment": -1}, kwargs)  # type: ignore
+        **ChainMap(
+            {"model_id": " ", "model_type": -1, "environment": -1}, kwargs
+        )  # type: ignore
     )
     assert len(errors) == 3
     assert any(type(e) is err.InvalidModelId for e in errors)
@@ -380,7 +385,10 @@ def test_missing_multiple_train():
         )  # type: ignore
     )
     assert len(errors) == 1
-    assert any(type(e) is err.MissingPreprodPredActNumericAndCategorical for e in errors)
+    assert any(
+        type(e) is err.MissingPreprodPredActNumericAndCategorical
+        for e in errors
+    )
 
 
 def test_missing_preprod_pred_act_val():
@@ -418,7 +426,10 @@ def test_missing_multiple_val():
     )
     assert len(errors) == 2
     assert any(type(e) is err.InvalidBatchId for e in errors)
-    assert any(type(e) is err.MissingPreprodPredActNumericAndCategorical for e in errors)
+    assert any(
+        type(e) is err.MissingPreprodPredActNumericAndCategorical
+        for e in errors
+    )
 
 
 def test_existence_prompt_response_column_names():
@@ -453,7 +464,7 @@ def test_existence_pred_act_od_column_names():
     )
     assert len(errors) == 1
     for error in errors:
-        assert type(error) == err.MissingObjectDetectionPredAct
+        assert type(error) is err.MissingObjectDetectionPredAct
 
 
 def test_non_existence_pred_act_od_column_names():
@@ -489,7 +500,10 @@ def test_non_existence_pred_act_od_column_names():
                         "actual_score": pd.Series([0]),
                         "bounding_boxes_coordinates": pd.Series(
                             [
-                                [[0.31, 0.32, 0.33, 0.34], [0.31, 0.32, 0.33, 0.34]],
+                                [
+                                    [0.31, 0.32, 0.33, 0.34],
+                                    [0.31, 0.32, 0.33, 0.34],
+                                ],
                             ]
                         ),
                         "bounding_boxes_categories": pd.Series(
@@ -510,7 +524,10 @@ def test_non_existence_pred_act_od_column_names():
     )
     assert len(errors) == 1
     for error in errors:
-        assert type(error) == err.InvalidPredActObjectDetectionColumnNamesForModelType
+        assert (
+            type(error)
+            is err.InvalidPredActObjectDetectionColumnNamesForModelType
+        )
 
 
 def test_non_existence_pred_act_column_name():
@@ -546,7 +563,10 @@ def test_non_existence_pred_act_column_name():
                         "actual_score": pd.Series([0]),
                         "bounding_boxes_coordinates": pd.Series(
                             [
-                                [[0.31, 0.32, 0.33, 0.34], [0.31, 0.32, 0.33, 0.34]],
+                                [
+                                    [0.31, 0.32, 0.33, 0.34],
+                                    [0.31, 0.32, 0.33, 0.34],
+                                ],
                             ]
                         ),
                         "bounding_boxes_categories": pd.Series(
@@ -567,7 +587,7 @@ def test_non_existence_pred_act_column_name():
     )
     assert len(errors) == 1
     for error in errors:
-        assert type(error) == err.InvalidPredActColumnNamesForModelType
+        assert type(error) is err.InvalidPredActColumnNamesForModelType
 
 
 def test_existence_pred_act_multi_class_column_names():
@@ -588,7 +608,7 @@ def test_existence_pred_act_multi_class_column_names():
     )
     assert len(errors) == 1
     for error in errors:
-        assert type(error) == err.MissingReqPredActColumnNamesForMultiClass
+        assert type(error) is err.MissingReqPredActColumnNamesForMultiClass
 
 
 def test_non_multi_class_model_do_not_contain_multi_class_column_names():
@@ -627,14 +647,18 @@ def test_non_multi_class_model_do_not_contain_multi_class_column_names():
     )
     assert len(errors) == 1
     for error in errors:
-        assert type(error) == err.InvalidPredActColumnNamesForModelType
+        assert type(error) is err.InvalidPredActColumnNamesForModelType
 
 
 def test_duplicate_column_names_in_dataframe():
     kwargs = get_standard_kwargs()
     # We add a duplicate "prediction_score" column
     df_with_duplicate_column = pd.concat(
-        [kwargs["dataframe"], pd.DataFrame({"prediction_score": pd.Series([1])})], axis=1
+        [
+            kwargs["dataframe"],
+            pd.DataFrame({"prediction_score": pd.Series([1])}),
+        ],
+        axis=1,
     )
 
     errors = Validator.validate_params(
@@ -673,7 +697,9 @@ def test_duplicate_column_names_in_dataframe():
     df_with_duplicate_embedding_feature_column = pd.concat(
         [
             kwargs["dataframe"],
-            pd.DataFrame({"image_vector": np.random.randn(1, EMBEDDING_SIZE).tolist()}),
+            pd.DataFrame(
+                {"image_vector": np.random.randn(1, EMBEDDING_SIZE).tolist()}
+            ),
         ],
         axis=1,
     )
@@ -805,11 +831,17 @@ def test_missing_prompt_templates_and_llm_config_columns():
     assert isinstance(errors[0], err.MissingColumns)
 
     dataframe = kwargs["dataframe"]
-    dataframe["prompt_templates"] = ["This is the template with version {{version}}"]
+    dataframe["prompt_templates"] = [
+        "This is the template with version {{version}}"
+    ]
     dataframe["prompt_template_version"] = ["Template A"]
     dataframe["llm_model_name"] = ["gpt-3.5turbo"]
     dataframe["llm_params"] = [
-        {"temperature": 1 / 4, "presence_penalty": 1 / 3, "stop": [".", "?", "!"]}
+        {
+            "temperature": 1 / 4,
+            "presence_penalty": 1 / 3,
+            "stop": [".", "?", "!"],
+        }
     ]
     errors = Validator.validate_params(
         **ChainMap(
@@ -831,7 +863,9 @@ def test_missing_document_columns():
 
     # missing document id column
     kwargs = get_corpus_kwargs()
-    schema = kwargs["schema"].replace(document_id_column_name="nonexistent_column")
+    schema = kwargs["schema"].replace(
+        document_id_column_name="nonexistent_column"
+    )
     errors = Validator.validate_params(
         **ChainMap(
             {
@@ -845,7 +879,9 @@ def test_missing_document_columns():
 
     # missing document version column
     kwargs = get_corpus_kwargs()
-    schema = kwargs["schema"].replace(document_version_column_name="nonexistent_column")
+    schema = kwargs["schema"].replace(
+        document_version_column_name="nonexistent_column"
+    )
     errors = Validator.validate_params(
         **ChainMap(
             {
@@ -884,7 +920,9 @@ def test_missing_and_incorrect_multi_class_columns():
     assert len(errors) == 0
 
     # missing document id column
-    schema = kwargs["schema"].replace(multi_class_threshold_scores_column_name="nonexistent_column")
+    schema = kwargs["schema"].replace(
+        multi_class_threshold_scores_column_name="nonexistent_column"
+    )
     errors = Validator.validate_params(
         **ChainMap(
             {

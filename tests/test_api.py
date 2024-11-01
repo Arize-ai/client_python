@@ -4,14 +4,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Union
 
-import arize.public_pb2 as pb2
-import arize.utils.errors as err
 import numpy as np
 import pandas as pd
 import pytest
-from arize import __version__ as arize_version
+from google.protobuf.wrappers_pb2 import BoolValue, DoubleValue, StringValue
+
+import arize.public_pb2 as pb2
+import arize.utils.errors as err
 from arize.api import Client
-from arize.pandas.validation.errors import InvalidAdditionalHeaders, InvalidNumberOfEmbeddings
 from arize.single_log.errors import CastingError
 from arize.utils.constants import (
     API_KEY_ENVVAR_NAME,
@@ -29,6 +29,10 @@ from arize.utils.constants import (
     SPACE_ID_ENVVAR_NAME,
     SPACE_KEY_ENVVAR_NAME,
 )
+from arize.utils.errors import (
+    InvalidAdditionalHeaders,
+    InvalidNumberOfEmbeddings,
+)
 from arize.utils.types import (
     ArizeTypes,
     Embedding,
@@ -43,13 +47,13 @@ from arize.utils.types import (
     TypedValue,
 )
 from arize.utils.utils import convert_dictionary, get_python_version
-from google.protobuf.wrappers_pb2 import BoolValue, DoubleValue, StringValue
+from arize.version import __version__ as arize_version
 
 BOOL_VAL = True
 STR_VAL = "arize"
 INT_VAL = 5
 FLOAT_VAL = 20.20
-NP_FLOAT = float(1.2)
+NP_FLOAT = 1.2
 STR_LST_VAL = ["apple", "banana", "orange"]
 file_to_open = Path(__file__).parent / "fixtures/mpg.csv"
 
@@ -66,11 +70,22 @@ inputs = {
     "label_int": INT_VAL,
     "label_float": FLOAT_VAL,
     "label_tuple": (STR_VAL, FLOAT_VAL),
-    "object_detection_bounding_boxes": [[0.1, 0.2, 0.3, 0.4], [0.5, 0.6, 0.7, 0.8]],
+    "object_detection_bounding_boxes": [
+        [0.1, 0.2, 0.3, 0.4],
+        [0.5, 0.6, 0.7, 0.8],
+    ],
     "object_detection_categories": ["dog", "cat"],
     "object_detection_scores": [0.8, 0.4],
-    "multi_class_prediction_scores": {"class1": 0.2, "class2": 0.1, "class3": 0.4},
-    "multi_class_threshold_scores": {"class1": 0.1, "class2": 0.2, "class3": 0.3},
+    "multi_class_prediction_scores": {
+        "class1": 0.2,
+        "class2": 0.1,
+        "class3": 0.4,
+    },
+    "multi_class_threshold_scores": {
+        "class1": 0.1,
+        "class2": 0.2,
+        "class3": 0.3,
+    },
     "multi_class_actual_scores": {"class1": 0, "class2": 0, "class3": 1},
     "ranking_group_id": "a",
     "ranking_rank": 1,
@@ -139,7 +154,7 @@ def _build_expected_record(
     p: pb2.PredictionLabel = None,
     a: pb2.ActualLabel = None,
     fi: pb2.FeatureImportances = None,
-    is_generative_llm_record: BoolValue = BoolValue(value=False),
+    is_generative_llm_record: BoolValue = BoolValue(value=False),  # noqa: B008
 ) -> pb2.Record:
     return pb2.Record(
         space_key=inputs["space_key"],
@@ -158,10 +173,14 @@ def _get_proto_environment_params(
 ) -> pb2.Record.EnvironmentParams:
     env_params = None
     if env == Environments.TRAINING:
-        env_params = pb2.Record.EnvironmentParams(training=pb2.Record.EnvironmentParams.Training())
+        env_params = pb2.Record.EnvironmentParams(
+            training=pb2.Record.EnvironmentParams.Training()
+        )
     elif env == Environments.VALIDATION:
         env_params = pb2.Record.EnvironmentParams(
-            validation=pb2.Record.EnvironmentParams.Validation(batch_id=inputs["batch_id"])
+            validation=pb2.Record.EnvironmentParams.Validation(
+                batch_id=inputs["batch_id"]
+            )
         )
     elif env == Environments.PRODUCTION:
         env_params = pb2.Record.EnvironmentParams(
@@ -226,7 +245,9 @@ def _build_basic_prediction(type: str) -> pb2.Prediction:
             score = inputs["object_detection_scores"][i]
             bounding_boxes.append(
                 pb2.ObjectDetection.BoundingBox(
-                    coordinates=coordinates, category=category, score=DoubleValue(value=score)
+                    coordinates=coordinates,
+                    category=category,
+                    score=DoubleValue(value=score),
                 )
             )
         od.bounding_boxes.extend(bounding_boxes)
@@ -239,9 +260,13 @@ def _build_basic_prediction(type: str) -> pb2.Prediction:
         threshold_scores = inputs["multi_class_threshold_scores"]
         prediction_threshold_scores = {}
         for class_name, prediction_score in prediction_scores.items():
-            multi_label_scores = pb2.MultiClassPrediction.MultiLabel.MultiLabelScores(
-                prediction_score=DoubleValue(value=prediction_score),
-                threshold_score=DoubleValue(value=threshold_scores[class_name]),
+            multi_label_scores = (
+                pb2.MultiClassPrediction.MultiLabel.MultiLabelScores(
+                    prediction_score=DoubleValue(value=prediction_score),
+                    threshold_score=DoubleValue(
+                        value=threshold_scores[class_name]
+                    ),
+                )
             )
             prediction_threshold_scores[class_name] = multi_label_scores
         multi_label = pb2.MultiClassPrediction.MultiLabel(
@@ -313,7 +338,9 @@ def _build_basic_actual(type: str = "") -> pb2.Actual:
             coordinates = inputs["object_detection_bounding_boxes"][i]
             category = inputs["object_detection_categories"][i]
             bounding_boxes.append(
-                pb2.ObjectDetection.BoundingBox(coordinates=coordinates, category=category)
+                pb2.ObjectDetection.BoundingBox(
+                    coordinates=coordinates, category=category
+                )
             )
         od.bounding_boxes.extend(bounding_boxes)
         return pb2.Actual(
@@ -347,7 +374,9 @@ def _attach_features_to_prediction(replace: dict = None) -> pb2.Prediction:
         "feature_double": pb2.Value(double=FLOAT_VAL),
         "feature_int": pb2.Value(int=INT_VAL),
         "feature_bool": pb2.Value(string=str(BOOL_VAL)),
-        "feature_str_lst": pb2.Value(multi_value=pb2.MultiValue(values=STR_LST_VAL)),
+        "feature_str_lst": pb2.Value(
+            multi_value=pb2.MultiValue(values=STR_LST_VAL)
+        ),
     }
     if replace:
         features.update(replace)
@@ -355,7 +384,10 @@ def _attach_features_to_prediction(replace: dict = None) -> pb2.Prediction:
 
 
 def _attach_llm_field_to_prediction(
-    prompt_template=None, prompt_template_version=None, llm_model_name=None, llm_params=None
+    prompt_template=None,
+    prompt_template_version=None,
+    llm_model_name=None,
+    llm_params=None,
 ) -> pb2.Prediction:
     llm_fields = pb2.LLMFields(
         prompt_template=prompt_template or "",
@@ -395,7 +427,9 @@ def _attach_image_embedding_feature_to_prediction() -> pb2.Prediction:
         "image_embedding": pb2.Value(
             embedding=pb2.Embedding(
                 vector=input_embeddings["image_embedding"].vector,
-                link_to_data=StringValue(value=input_embeddings["image_embedding"].link_to_data),
+                link_to_data=StringValue(
+                    value=input_embeddings["image_embedding"].link_to_data
+                ),
             )
         ),
     }
@@ -408,7 +442,9 @@ def _attach_embedding_features_to_prediction() -> pb2.Prediction:
         "image_embedding": pb2.Value(
             embedding=pb2.Embedding(
                 vector=input_embeddings["image_embedding"].vector,
-                link_to_data=StringValue(value=input_embeddings["image_embedding"].link_to_data),
+                link_to_data=StringValue(
+                    value=input_embeddings["image_embedding"].link_to_data
+                ),
             )
         ),
         "nlp_embedding_sentence": pb2.Value(
@@ -422,7 +458,9 @@ def _attach_embedding_features_to_prediction() -> pb2.Prediction:
                     )
                 ),
                 link_to_data=StringValue(
-                    value=input_embeddings["nlp_embedding_sentence"].link_to_data
+                    value=input_embeddings[
+                        "nlp_embedding_sentence"
+                    ].link_to_data
                 ),
             )
         ),
@@ -444,7 +482,8 @@ def _attach_embedding_features_to_prediction() -> pb2.Prediction:
 
 
 def _attach_prompt_and_response_to_prediction(
-    input_prompt: Optional[Union[str, Embedding]], input_response: Optional[Union[str, Embedding]]
+    input_prompt: Optional[Union[str, Embedding]],
+    input_response: Optional[Union[str, Embedding]],
 ) -> pb2.Prediction:
     embedding_features = {}
     if input_prompt is not None:
@@ -454,7 +493,9 @@ def _attach_prompt_and_response_to_prediction(
                     vector=input_prompt.vector,
                     raw_data=pb2.Embedding.RawData(
                         tokenArray=pb2.Embedding.TokenArray(
-                            tokens=[input_prompt.data],  # List of a single string
+                            tokens=[
+                                input_prompt.data
+                            ],  # List of a single string
                         )
                     ),
                     link_to_data=StringValue(value=input_prompt.link_to_data),
@@ -482,7 +523,9 @@ def _attach_prompt_and_response_to_prediction(
                     vector=input_response.vector,
                     raw_data=pb2.Embedding.RawData(
                         tokenArray=pb2.Embedding.TokenArray(
-                            tokens=[input_response.data],  # List of a single string
+                            tokens=[
+                                input_response.data
+                            ],  # List of a single string
                         )
                     ),
                     link_to_data=StringValue(value=input_response.link_to_data),
@@ -852,7 +895,9 @@ def test_build_pred_and_actual_label_multi_class_single_label():
     #   Start constructing expected result by building the prediction
     prediction_scores_with_double_value = {}
     for class_name, score in inputs["multi_class_prediction_scores"].items():
-        prediction_scores_with_double_value[class_name] = DoubleValue(value=score)
+        prediction_scores_with_double_value[class_name] = DoubleValue(
+            value=score
+        )
     single_label = pb2.MultiClassPrediction.SingleLabel(
         prediction_scores=prediction_scores_with_double_value,
     )
@@ -876,7 +921,9 @@ def test_build_pred_and_actual_label_multi_class_single_label():
 
 def test_build_wrong_timestamp():
     c = get_stubbed_client()
-    wrong_min_time = int(time.time()) - (MAX_PAST_YEARS_FROM_CURRENT_TIME * 365 * 24 * 60 * 60 + 1)
+    wrong_min_time = int(time.time()) - (
+        MAX_PAST_YEARS_FROM_CURRENT_TIME * 365 * 24 * 60 * 60 + 1
+    )
     wrong_max_time = int(time.time()) + (
         MAX_FUTURE_YEARS_FROM_CURRENT_TIME * 365 * 24 * 60 * 60 + 1
     )
@@ -893,7 +940,9 @@ def test_build_wrong_timestamp():
             features=inputs["features"],
             tags=inputs["tags"],
         )
-    assert f"prediction_timestamp: {wrong_min_time} is out of range." in str(excinfo.value)
+    assert f"prediction_timestamp: {wrong_min_time} is out of range." in str(
+        excinfo.value
+    )
 
     with pytest.raises(ValueError) as excinfo:
         _ = c.log(
@@ -907,7 +956,9 @@ def test_build_wrong_timestamp():
             features=inputs["features"],
             tags=inputs["tags"],
         )
-    assert f"prediction_timestamp: {wrong_max_time} is out of range." in str(excinfo.value)
+    assert f"prediction_timestamp: {wrong_max_time} is out of range." in str(
+        excinfo.value
+    )
 
 
 def test_ranking_label_missing_group_id_rank():
@@ -917,7 +968,9 @@ def test_ranking_label_missing_group_id_rank():
             score=inputs["ranking_prediction_score"],
             label=inputs["ranking_label"],
         )
-    assert "missing 1 required positional argument: 'rank'" in str(excinfo.value)
+    assert "missing 1 required positional argument: 'rank'" in str(
+        excinfo.value
+    )
 
     with pytest.raises(TypeError) as excinfo:
         _ = RankingPredictionLabel(
@@ -925,7 +978,9 @@ def test_ranking_label_missing_group_id_rank():
             score=inputs["ranking_prediction_score"],
             label=inputs["ranking_label"],
         )
-    assert "missing 1 required positional argument: 'group_id'" in str(excinfo.value)
+    assert "missing 1 required positional argument: 'group_id'" in str(
+        excinfo.value
+    )
 
 
 def test_build_wrong_ranking_rank():
@@ -953,7 +1008,9 @@ def test_build_wrong_ranking_rank():
             features=inputs["features"],
             tags=inputs["tags"],
         )
-    assert "Rank must be between 1 and 100, inclusive. Found 101" in str(excinfo.value)
+    assert "Rank must be between 1 and 100, inclusive. Found 101" in str(
+        excinfo.value
+    )
 
 
 def test_ranking_group_id():
@@ -1002,7 +1059,10 @@ def test_ranking_group_id():
             features=inputs["features"],
             tags=inputs["tags"],
         )
-    assert "Prediction Group ID must have length between 1 and 36. Found 42" in str(excinfo.value)
+    assert (
+        "Prediction Group ID must have length between 1 and 36. Found 42"
+        in str(excinfo.value)
+    )
 
 
 def test_build_wrong_ranking_relevance_labels():
@@ -1014,7 +1074,8 @@ def test_build_wrong_ranking_relevance_labels():
         label=inputs["ranking_label"],
     )
     act_label = RankingActualLabel(
-        relevance_labels=["click", ""], relevance_score=inputs["ranking_relevance_score"]
+        relevance_labels=["click", ""],
+        relevance_score=inputs["ranking_relevance_score"],
     )
 
     with pytest.raises(ValueError) as excinfo:
@@ -1029,7 +1090,9 @@ def test_build_wrong_ranking_relevance_labels():
             features=inputs["features"],
             tags=inputs["tags"],
         )
-    assert "Relevance Labels must be not contain empty strings" in str(excinfo.value)
+    assert "Relevance Labels must be not contain empty strings" in str(
+        excinfo.value
+    )
 
 
 def test_build_wrong_ranking_relevance_scores():
@@ -1041,7 +1104,8 @@ def test_build_wrong_ranking_relevance_scores():
         label=inputs["ranking_label"],
     )
     act_label = RankingActualLabel(
-        relevance_labels=inputs["ranking_relevance_labels"], relevance_score="click"
+        relevance_labels=inputs["ranking_relevance_labels"],
+        relevance_score="click",
     )
 
     with pytest.raises(TypeError) as excinfo:
@@ -1308,7 +1372,9 @@ def test_missing_model_type():
             embedding_features=inputs["embedding_features"],
             tags=inputs["tags"],
         )
-    assert "log() missing 1 required positional argument: 'model_type'" in str(excinfo.value)
+    assert "log() missing 1 required positional argument: 'model_type'" in str(
+        excinfo.value
+    )
 
 
 def test_model_version_optional():
@@ -1346,7 +1412,9 @@ def test_missing_environment():
             embedding_features=inputs["embedding_features"],
             tags=inputs["tags"],
         )
-    assert "log() missing 1 required positional argument: 'environment'" in str(excinfo.value)
+    assert "log() missing 1 required positional argument: 'environment'" in str(
+        excinfo.value
+    )
 
 
 def test_object_detection_item_count_match():
@@ -1354,7 +1422,8 @@ def test_object_detection_item_count_match():
     extra = [0.11, 0.12, 0.13, 0.14]
 
     pred_label = ObjectDetectionLabel(
-        bounding_boxes_coordinates=inputs["object_detection_bounding_boxes"] + [extra],
+        bounding_boxes_coordinates=inputs["object_detection_bounding_boxes"]
+        + [extra],
         categories=inputs["object_detection_categories"],
         scores=inputs["object_detection_scores"],
     )
@@ -1372,7 +1441,8 @@ def test_object_detection_item_count_match():
         )
     assert (
         "Object Detection Labels must contain the same number of bounding boxes and "
-        "categories. Found 3 bounding boxes and 2 categories." in str(excinfo.value)
+        "categories. Found 3 bounding boxes and 2 categories."
+        in str(excinfo.value)
     )
 
 
@@ -1396,10 +1466,16 @@ def test_object_detection_wrong_coordinates_format():
             embedding_features=inputs["object_detection_embedding_feature"],
             tags=inputs["tags"],
         )
-    assert "Each bounding box's coordinates must be a collection of 4 floats." in str(excinfo.value)
+    assert (
+        "Each bounding box's coordinates must be a collection of 4 floats."
+        in str(excinfo.value)
+    )
 
     pred_label = ObjectDetectionLabel(
-        bounding_boxes_coordinates=[[-0.1, 0.2, 0.3, 0.4], [1.5, 0.6, 0.7, 0.8]],
+        bounding_boxes_coordinates=[
+            [-0.1, 0.2, 0.3, 0.4],
+            [1.5, 0.6, 0.7, 0.8],
+        ],
         categories=inputs["object_detection_categories"],
         scores=inputs["object_detection_scores"],
     )
@@ -1415,8 +1491,9 @@ def test_object_detection_wrong_coordinates_format():
             embedding_features=inputs["object_detection_embedding_feature"],
             tags=inputs["tags"],
         )
-    assert "Bounding box's coordinates cannot be negative. Found [-0.1, 0.2, 0.3, 0.4]" in str(
-        excinfo.value
+    assert (
+        "Bounding box's coordinates cannot be negative. Found [-0.1, 0.2, 0.3, 0.4]"
+        in str(excinfo.value)
     )
 
 
@@ -1476,7 +1553,7 @@ def test_prediction_id():
                 + f"prediction_id={case['prediction_id']}, environment={case['environment']}, "
                 + f"prediction_label={case['prediction_label']}."
             )
-            assert False, msg
+            raise AssertionError(msg) from None
 
     short_prediction_id = "x" * (MIN_PREDICTION_ID_LEN - 1)
     long_prediction_id = "x" * (MAX_PREDICTION_ID_LEN + 1)
@@ -1547,7 +1624,9 @@ def test_object_detection_wrong_categories():
             embedding_features=inputs["object_detection_embedding_feature"],
             tags=inputs["tags"],
         )
-    assert "Object Detection Label categories must be a list of strings" in str(excinfo.value)
+    assert "Object Detection Label categories must be a list of strings" in str(
+        excinfo.value
+    )
 
 
 def test_object_detection_wrong_scores():
@@ -1570,7 +1649,10 @@ def test_object_detection_wrong_scores():
             embedding_features=inputs["object_detection_embedding_feature"],
             tags=inputs["tags"],
         )
-    assert "Bounding box confidence scores must be between 0 and 1, inclusive" in str(excinfo.value)
+    assert (
+        "Bounding box confidence scores must be between 0 and 1, inclusive"
+        in str(excinfo.value)
+    )
 
     pred_label = ObjectDetectionLabel(
         bounding_boxes_coordinates=inputs["object_detection_bounding_boxes"],
@@ -1589,7 +1671,10 @@ def test_object_detection_wrong_scores():
             embedding_features=inputs["object_detection_embedding_feature"],
             tags=inputs["tags"],
         )
-    assert "Bounding box confidence scores must be between 0 and 1, inclusive" in str(excinfo.value)
+    assert (
+        "Bounding box confidence scores must be between 0 and 1, inclusive"
+        in str(excinfo.value)
+    )
 
 
 def test_valid_generative_model():
@@ -1606,14 +1691,10 @@ def test_valid_generative_model():
         ]:
             prediction_label = inputs[f"label_{label_type}"]
             actual_label = prediction_label
-            if prompt_opt is None:
-                input_prompt = None
-            else:
-                input_prompt = inputs[prompt_opt]
-            if response_opt is None:
-                input_response = None
-            else:
-                input_response = inputs[response_opt]
+            input_prompt = None if prompt_opt is None else inputs[prompt_opt]
+            input_response = (
+                None if response_opt is None else inputs[response_opt]
+            )
             try:
                 record = c.log(
                     model_id=inputs["model_id"],
@@ -1926,13 +2007,24 @@ def test_invalid_generative_prompt_template_and_llm_config_types():
 def test_valid_generative_prompt_template_and_llm_config():
     c = get_stubbed_client()
     llm_model_names = [None, "gpt-4"]
-    prompt_templates = [None, "This is a test template with context {{context}}"]
+    prompt_templates = [
+        None,
+        "This is a test template with context {{context}}",
+    ]
     prompt_template_versions = [None, "Template A"]
-    llm_params_list = [None, {"temperature": 0.9, "presence_pnlty": 0.34, "stop": [".", "?", "!"]}]
+    llm_params_list = [
+        None,
+        {"temperature": 0.9, "presence_pnlty": 0.34, "stop": [".", "?", "!"]},
+    ]
     # Test allowed label types
     combinations = list(
         itertools.product(
-            *[llm_model_names, prompt_templates, prompt_template_versions, llm_params_list]
+            *[
+                llm_model_names,
+                prompt_templates,
+                prompt_template_versions,
+                llm_params_list,
+            ]
         )
     )
     label_type = "int"
@@ -1941,7 +2033,9 @@ def test_valid_generative_prompt_template_and_llm_config():
     input_prompt = inputs["prompt_embedding"]
     input_response = inputs["response_embedding"]
     for comb in combinations:
-        llm_model_name, prompt_template, prompt_template_version, llm_params = comb
+        llm_model_name, prompt_template, prompt_template_version, llm_params = (
+            comb
+        )
         record = c.log(
             model_id=inputs["model_id"],
             model_version=inputs["model_version"],
@@ -1974,7 +2068,12 @@ def test_valid_generative_prompt_template_and_llm_config():
             )
         )
         p.MergeFrom(_attach_tags_to_prediction())
-        if llm_model_name or prompt_template or prompt_template_version or llm_params:
+        if (
+            llm_model_name
+            or prompt_template
+            or prompt_template_version
+            or llm_params
+        ):
             p.MergeFrom(
                 _attach_llm_field_to_prediction(
                     prompt_template=prompt_template,
@@ -2085,7 +2184,11 @@ def test_valid_llm_run_metadata():
     llm_model_name = "gpt-4"
     prompt_template = "This is a test template with context {{context}}"
     prompt_template_version = "Template A"
-    llm_params = {"temperature": 0.9, "presence_pnlty": 0.34, "stop": [".", "?", "!"]}
+    llm_params = {
+        "temperature": 0.9,
+        "presence_pnlty": 0.34,
+        "stop": [".", "?", "!"],
+    }
     llm_run_metadata = LLMRunMetadata(
         total_token_count=300,
         prompt_token_count=200,
@@ -2168,9 +2271,11 @@ def test_reserved_tags():
                 features=inputs["features"],
                 tags={wrong_tag: 100},
             )
-        assert "The following tag names are not allowed as they are reserved" in str(
-            excinfo
-        ) and wrong_tag in str(excinfo)
+        assert (
+            "The following tag names are not allowed as they are reserved"
+            in str(excinfo)
+            and wrong_tag in str(excinfo)
+        )
 
 
 def test_invalid_tags():
@@ -2230,12 +2335,18 @@ def test_invalid_client_auth_passed_vars():
 
     with pytest.raises(err.AuthError) as excinfo:
         _ = Client(space_key=inputs["space_key"])
-    assert excinfo.value.__str__() == err.AuthError(space_key=inputs["space_key"]).error_message()
+    assert (
+        excinfo.value.__str__()
+        == err.AuthError(space_key=inputs["space_key"]).error_message()
+    )
     assert "Missing: ['api_key']" in str(excinfo.value)
 
     with pytest.raises(err.AuthError) as excinfo:
         _ = Client(api_key=inputs["api_key"])
-    assert excinfo.value.__str__() == err.AuthError(api_key=inputs["api_key"]).error_message()
+    assert (
+        excinfo.value.__str__()
+        == err.AuthError(api_key=inputs["api_key"]).error_message()
+    )
     assert "Missing: ['space_id']" in str(excinfo.value)
 
     # incorrect type
@@ -2243,7 +2354,9 @@ def test_invalid_client_auth_passed_vars():
         _ = Client(api_key=123, space_key="space_key")
     assert (
         excinfo.value.__str__()
-        == err.InvalidTypeAuthKey(api_key=123, space_key="space_key").error_message()
+        == err.InvalidTypeAuthKey(
+            api_key=123, space_key="space_key"
+        ).error_message()
     )
     assert "api_key as int" in str(excinfo.value)
 
@@ -2255,7 +2368,9 @@ def test_invalid_client_auth_passed_vars():
         _ = Client(api_key=api_key, space_key=space_key)
     assert (
         excinfo.value.__str__()
-        == err.InvalidTypeAuthKey(api_key=api_key, space_key=space_key).error_message()
+        == err.InvalidTypeAuthKey(
+            api_key=api_key, space_key=space_key
+        ).error_message()
     )
     assert "space_key as tuple" in str(excinfo.value)
 
@@ -2281,7 +2396,10 @@ def test_invalid_client_auth_environment_vars(monkeypatch):
     with pytest.raises(err.AuthError) as excinfo:
         c = Client()
         assert c._space_key == inputs["space_key"]
-    assert excinfo.value.__str__() == err.AuthError(space_key=inputs["space_key"]).error_message()
+    assert (
+        excinfo.value.__str__()
+        == err.AuthError(space_key=inputs["space_key"]).error_message()
+    )
     assert "Missing: ['api_key']" in str(excinfo.value)
 
     monkeypatch.delenv(SPACE_KEY_ENVVAR_NAME)
@@ -2289,7 +2407,10 @@ def test_invalid_client_auth_environment_vars(monkeypatch):
     with pytest.raises(err.AuthError) as excinfo:
         c = Client()
         assert c._api_key == inputs["api_key"]
-    assert excinfo.value.__str__() == err.AuthError(api_key=inputs["api_key"]).error_message()
+    assert (
+        excinfo.value.__str__()
+        == err.AuthError(api_key=inputs["api_key"]).error_message()
+    )
     assert "Missing: ['space_id']" in str(excinfo.value)
 
     # acceptable input
@@ -2318,7 +2439,10 @@ def test_invalid_number_of_embeddings():
     # Test failure
     N = MAX_NUMBER_OF_EMBEDDINGS + 1
     embedding_features = {
-        f"embedding_feat_{i:02d}": inputs["embedding_features"]["image_embedding"] for i in range(N)
+        f"embedding_feat_{i:02d}": inputs["embedding_features"][
+            "image_embedding"
+        ]
+        for i in range(N)
     }
     with pytest.raises(InvalidNumberOfEmbeddings) as excinfo:
         _ = c.log(
@@ -2342,7 +2466,10 @@ def test_invalid_number_of_embeddings():
     # Test success
     N = MAX_NUMBER_OF_EMBEDDINGS
     embedding_features = {
-        f"embedding_feat_{i:02d}": inputs["embedding_features"]["image_embedding"] for i in range(N)
+        f"embedding_feat_{i:02d}": inputs["embedding_features"][
+            "image_embedding"
+        ]
+        for i in range(N)
     }
     record = c.log(
         model_id=inputs["model_id"],
@@ -2394,7 +2521,9 @@ def test_casting_success():
         features={
             "feature_str": STR_VAL,
             "feature_double": FLOAT_VAL,
-            "feature_int": TypedValue(value=INT_VAL, type=ArizeTypes.FLOAT),  # cast int to float
+            "feature_int": TypedValue(
+                value=INT_VAL, type=ArizeTypes.FLOAT
+            ),  # cast int to float
             "feature_bool": BOOL_VAL,
             "feature_None": None,
             "feature_str_lst": STR_LST_VAL,
@@ -2403,8 +2532,12 @@ def test_casting_success():
             "tag_str": STR_VAL,
             "tag_double": FLOAT_VAL,
             "tag_int": INT_VAL,
-            "tag_bool": TypedValue(value=BOOL_VAL, type=ArizeTypes.STR),  # cast bool to string
-            "tag_bool2": TypedValue(value=BOOL_VAL, type=ArizeTypes.INT),  # cast bool to int
+            "tag_bool": TypedValue(
+                value=BOOL_VAL, type=ArizeTypes.STR
+            ),  # cast bool to string
+            "tag_bool2": TypedValue(
+                value=BOOL_VAL, type=ArizeTypes.INT
+            ),  # cast bool to int
             "tag_None": None,
         },
         embedding_features=inputs["embedding_features"],
@@ -2458,8 +2591,12 @@ def test_casting_fail():
                 "tag_str": STR_VAL,
                 "tag_double": FLOAT_VAL,
                 "tag_int": INT_VAL,
-                "tag_bool": TypedValue(value=BOOL_VAL, type=ArizeTypes.STR),  # cast bool to string
-                "tag_bool2": TypedValue(value=BOOL_VAL, type=ArizeTypes.INT),  # cast bool to int
+                "tag_bool": TypedValue(
+                    value=BOOL_VAL, type=ArizeTypes.STR
+                ),  # cast bool to string
+                "tag_bool2": TypedValue(
+                    value=BOOL_VAL, type=ArizeTypes.INT
+                ),  # cast bool to int
                 "tag_None": None,
             },
             embedding_features=inputs["embedding_features"],

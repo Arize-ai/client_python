@@ -1,5 +1,27 @@
 # Changelog
 
+## [7.24.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.24.0...arize-python-sdk/v7.24.1) (2024-11-01)
+
+
+### 📚 Documentation
+
+* Add api_reference directory ([#37423](https://github.com/Arize-ai/arize/issues/37423)) ([c0d338f](https://github.com/Arize-ai/arize/commit/c0d338fea876a03f5ee7bac087341cb69276f1f3))
+
+
+### 🎨 Styles
+
+* Use ruff as linter/formatter ([#37414](https://github.com/Arize-ai/arize/issues/37414)) ([95c9a35](https://github.com/Arize-ai/arize/commit/95c9a35a83654ac8847461bf2cbbb063e0abdcd8))
+
+
+### ❔ Miscellaneous Chores
+
+* Add `.readthedocs.yaml` ([#37455](https://github.com/Arize-ai/arize/issues/37455)) ([13a7ad4](https://github.com/Arize-ai/arize/commit/13a7ad436d810b88de6f0c6a8edc923841e97113))
+
+
+### 💫 Code Refactoring
+
+* Move arize files into src directory ([#37421](https://github.com/Arize-ai/arize/issues/37421)) ([86d9610](https://github.com/Arize-ai/arize/commit/86d96101ae097b08abaee04e1c97a8ee0c31593f))
+
 ## [7.24.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.23.0...arize-python-sdk/v7.24.0) (2024-10-30)
 
 

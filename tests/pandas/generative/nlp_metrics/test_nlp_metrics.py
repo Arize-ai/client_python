@@ -1,6 +1,13 @@
 import pandas as pd
 import pytest
-from arize.pandas.generative.nlp_metrics import bleu, google_bleu, meteor, rouge, sacre_bleu
+
+from arize.pandas.generative.nlp_metrics import (
+    bleu,
+    google_bleu,
+    meteor,
+    rouge,
+    sacre_bleu,
+)
 
 
 def get_text_df() -> pd.DataFrame:
@@ -41,9 +48,11 @@ def test_bleu_score() -> None:
     results = get_results_df()
 
     try:
-        bleu_scores = bleu(response_col=texts["response"], references_col=texts["references"])
-    except Exception:
-        assert False, "There should be no error"
+        bleu_scores = bleu(
+            response_col=texts["response"], references_col=texts["references"]
+        )
+    except Exception as e:
+        raise AssertionError("Unexpected Error") from e
 
     assert (bleu_scores == results["bleu"]).all(), "BLEU scores should match"  # type:ignore
 
@@ -56,8 +65,8 @@ def test_sacrebleu_score() -> None:
         sacrebleu_scores = sacre_bleu(
             response_col=texts["response"], references_col=texts["references"]
         )
-    except Exception:
-        assert False, "There should be no error"
+    except Exception as e:
+        raise AssertionError("Unexpected Error") from e
 
     assert (
         sacrebleu_scores == results["sacrebleu"]
@@ -72,8 +81,8 @@ def test_google_bleu_score() -> None:
         gbleu_scores = google_bleu(
             response_col=texts["response"], references_col=texts["references"]
         )
-    except Exception:
-        assert False, "There should be no error"
+    except Exception as e:
+        raise AssertionError("Unexpected Error") from e
 
     assert (
         gbleu_scores == results["google_bleu"]
@@ -85,15 +94,19 @@ def test_rouge_score() -> None:
     results = get_results_df()
 
     try:
-        rouge_scores = rouge(response_col=texts["response"], references_col=texts["references"])
-    except Exception:
-        assert False, "There should be no error"
+        rouge_scores = rouge(
+            response_col=texts["response"], references_col=texts["references"]
+        )
+    except Exception as e:
+        raise AssertionError("Unexpected Error") from e
 
     # Check that only default rouge scores are returned, and they match
     assert isinstance(rouge_scores, dict)
     assert len(rouge_scores.keys()) == 1
     assert list(rouge_scores.keys())[0] == "rougeL"  # type:ignore
-    assert (rouge_scores["rougeL"] == results["rougeL"]).all(), "ROUGE scores should match"  # type: ignore
+    assert (
+        rouge_scores["rougeL"] == results["rougeL"]
+    ).all(), "ROUGE scores should match"  # type: ignore
 
     rouge_types = [
         "rouge1",
@@ -107,8 +120,8 @@ def test_rouge_score() -> None:
             references_col=texts["references"],
             rouge_types=rouge_types,
         )
-    except Exception:
-        assert False, "There should be no error"
+    except Exception as e:
+        raise AssertionError("Unexpected Error") from e
 
     # Check that all rouge scores are returned, and they match
     assert isinstance(rouge_scores, dict)
@@ -124,11 +137,15 @@ def test_meteor_score() -> None:
     results = get_results_df()
 
     try:
-        meteor_scores = meteor(response_col=texts["response"], references_col=texts["references"])
-    except Exception:
-        assert False, "There should be no error"
+        meteor_scores = meteor(
+            response_col=texts["response"], references_col=texts["references"]
+        )
+    except Exception as e:
+        raise AssertionError("Unexpected Error") from e
 
-    assert (meteor_scores == results["meteor"]).all(), "METEOR scores should match"  # type:ignore
+    assert (
+        meteor_scores == results["meteor"]
+    ).all(), "METEOR scores should match"  # type:ignore
 
 
 if __name__ == "__main__":

@@ -40,7 +40,9 @@ def test_eval_score_pattern():
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
 def test_eval_explanation_pattern():
     assert re.match(EVAL_EXPLANATION_PATTERN, "eval.name.explanation")
-    assert re.match(EVAL_EXPLANATION_PATTERN, "eval.name with spaces.explanation")
+    assert re.match(
+        EVAL_EXPLANATION_PATTERN, "eval.name with spaces.explanation"
+    )
     assert not re.match(EVAL_EXPLANATION_PATTERN, "eval_name.label")
 
 
@@ -53,7 +55,9 @@ def test_eval_name_capture():
     for test_str, expected_name in matches:
         match = re.match(EVAL_NAME_PATTERN, test_str)
         assert match is not None, f"Failed to match '{test_str}'"
-        assert match.group(1) == expected_name, f"Incorrect name captured for '{test_str}'"
+        assert (
+            match.group(1) == expected_name
+        ), f"Incorrect name captured for '{test_str}'"
 
     non_matches = [
         "evalname.",  # Missing dot
@@ -61,7 +65,9 @@ def test_eval_name_capture():
         "eval.name",  # Missing suffix
     ]
     for test_str in non_matches:
-        assert re.match(EVAL_NAME_PATTERN, test_str) is None, f"Incorrectly matched '{test_str}'"
+        assert (
+            re.match(EVAL_NAME_PATTERN, test_str) is None
+        ), f"Incorrectly matched '{test_str}'"
 
 
 if __name__ == "__main__":

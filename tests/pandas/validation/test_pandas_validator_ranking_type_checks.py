@@ -1,10 +1,11 @@
 from collections import ChainMap
 from datetime import datetime, timedelta
 
-import arize.pandas.validation.errors as err
 import pandas as pd
 import pyarrow as pa
 import pytest
+
+import arize.pandas.validation.errors as err
 from arize.pandas.logger import Schema
 from arize.pandas.validation.validator import Validator
 from arize.utils.types import ModelTypes
@@ -27,7 +28,12 @@ kwargs = {
                 "item_type": pd.Series(["toy", "game", "game", "pens"]),
                 "ranking_rank": pd.Series([1, 2, 1, 2]),
                 "ranking_category": pd.Series(
-                    [["click", "purchase"], ["click", "favor"], ["favor"], ["click"]]
+                    [
+                        ["click", "purchase"],
+                        ["click", "favor"],
+                        ["favor"],
+                        ["click"],
+                    ]
                 ),
                 "ranking_relevance": pd.Series([1.0, 2.0, 2.5, 0.1]),
             }
@@ -153,7 +159,9 @@ def test_ranking_columns_type_valid_all_null_scores():
                 "pyarrow_schema": pa.Schema.from_pandas(
                     pd.DataFrame(
                         {
-                            "ranking_relevance": pd.Series([None, None, None, None]),
+                            "ranking_relevance": pd.Series(
+                                [None, None, None, None]
+                            ),
                         }
                     )
                 ),
@@ -171,7 +179,9 @@ def test_ranking_columns_type_valid_all_null_ranking_category():
                 "pyarrow_schema": pa.Schema.from_pandas(
                     pd.DataFrame(
                         {
-                            "ranking_category": pd.Series([None, None, None, None]),
+                            "ranking_category": pd.Series(
+                                [None, None, None, None]
+                            ),
                         }
                     )
                 ),

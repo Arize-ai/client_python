@@ -9,8 +9,12 @@ import random
 import string
 
 import pandas as pd
+
 from arize.experimental.datasets import ArizeDatasetsClient
-from arize.experimental.datasets.experiments.evaluators.base import EvaluationResult, Evaluator
+from arize.experimental.datasets.experiments.evaluators.base import (
+    EvaluationResult,
+    Evaluator,
+)
 
 
 # Define a simple evaluator
@@ -27,7 +31,9 @@ class DummyEval(Evaluator):
             },
         )
 
-    async def async_evaluate(self, output, dataset_row, **_) -> EvaluationResult:
+    async def async_evaluate(
+        self, output, dataset_row, **_
+    ) -> EvaluationResult:
         return EvaluationResult(
             explanation="eval explanation",
             score=1,
@@ -53,7 +59,9 @@ class DummyEval2(Evaluator):
             },
         )
 
-    async def async_evaluate(self, *, output, dataset_row, **_) -> EvaluationResult:
+    async def async_evaluate(
+        self, *, output, dataset_row, **_
+    ) -> EvaluationResult:
         return EvaluationResult(
             explanation="eval explanation",
             score=1,
@@ -75,7 +83,8 @@ dataset = pd.DataFrame(
     {
         "id": [f"id_{i}" for i in range(10)],
         "question": [
-            "".join(random.choices(string.ascii_letters + string.digits, k=10)) for _ in range(10)
+            "".join(random.choices(string.ascii_letters + string.digits, k=10))
+            for _ in range(10)
         ],
     }
 )
@@ -154,7 +163,9 @@ class ExceptionEval(Evaluator):
     def evaluate(self, *, output, dataset_row, **_) -> EvaluationResult:
         if dataset_row["id"] == "id_5":
             raise ValueError("eval_exception")
-        return EvaluationResult(explanation="eval explanation", score=1, label=dataset_row["id"])
+        return EvaluationResult(
+            explanation="eval explanation", score=1, label=dataset_row["id"]
+        )
 
 
 def test_task_exception_handling():
@@ -246,7 +257,10 @@ def test_functional_evaluation():
             "question": ["I have a question", "I have another question"],
             "attributes.input.value": ["input_value", "input_value2"],
             "attributes.output.value": ["output_value", "output_value2"],
-            "attributes.metadata": [{"meta_key": "meta_value"}, {"meta_key2": "meta_value2"}],
+            "attributes.metadata": [
+                {"meta_key": "meta_value"},
+                {"meta_key2": "meta_value2"},
+            ],
         }
     )
 
@@ -254,7 +268,9 @@ def test_functional_evaluation():
         question = x["question"]
         return f"Answer to {question}"
 
-    async def eval_fn(input, output, experiment_output, dataset_output, metadata, dataset_row):
+    async def eval_fn(
+        input, output, experiment_output, dataset_output, metadata, dataset_row
+    ):
         md = {
             "input": input,
             "output": output,
@@ -306,5 +322,8 @@ def test_functional_evaluation():
             row["eval.eval_fn.metadata.dataset_output"]
             != row["eval.eval_fn.metadata.experiment_output"]
         )
-        assert row["eval.eval_fn.metadata.experiment_output"] == row["eval.eval_fn.metadata.output"]
+        assert (
+            row["eval.eval_fn.metadata.experiment_output"]
+            == row["eval.eval_fn.metadata.output"]
+        )
     assert exp_df.isnull().sum().sum() == 0

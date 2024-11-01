@@ -7,6 +7,7 @@ from collections import ChainMap
 import numpy as np
 import pandas as pd
 import pytest
+
 from arize.pandas.validation import errors as err
 from arize.pandas.validation.validator import Validator
 from arize.utils.constants import (
@@ -53,7 +54,10 @@ def test_invalid_ts_missing_value():
                     {
                         "prediction_timestamp": pd.Series(
                             [
-                                (datetime.datetime.now() - datetime.timedelta(days=365)).date(),
+                                (
+                                    datetime.datetime.now()
+                                    - datetime.timedelta(days=365)
+                                ).date(),
                                 float("NaN"),
                             ]
                         )
@@ -92,7 +96,8 @@ def test_invalid_ts_date32_min():
                         "prediction_timestamp": pd.Series(
                             [
                                 (
-                                    datetime.datetime.now() - datetime.timedelta(days=365 * 5 + 1)
+                                    datetime.datetime.now()
+                                    - datetime.timedelta(days=365 * 5 + 1)
                                 ).date()
                             ]
                         )
@@ -142,7 +147,8 @@ def test_invalid_ts_float64_min():
                         "prediction_timestamp": pd.Series(
                             [
                                 (
-                                    datetime.datetime.now() - datetime.timedelta(days=365 * 5 + 1)
+                                    datetime.datetime.now()
+                                    - datetime.timedelta(days=365 * 5 + 1)
                                 ).timestamp()
                             ]
                         )
@@ -247,7 +253,12 @@ def test_invalid_ts_datetime_min():
                 "dataframe": pd.DataFrame(
                     {
                         "prediction_timestamp": pd.Series(
-                            [(datetime.datetime.now() - datetime.timedelta(days=365 * 5 + 1))]
+                            [
+                                (
+                                    datetime.datetime.now()
+                                    - datetime.timedelta(days=365 * 5 + 1)
+                                )
+                            ]
                         )
                     }
                 )
@@ -360,7 +371,11 @@ def test_valid_prediction_label_inf_value():
     kwargs = get_standard_kwargs()
     errors = Validator.validate_values(
         **ChainMap(
-            {"dataframe": pd.DataFrame({"prediction_label": pd.Series([0, float("-inf"), 1])})},
+            {
+                "dataframe": pd.DataFrame(
+                    {"prediction_label": pd.Series([0, float("-inf"), 1])}
+                )
+            },
             kwargs,
         )  # type: ignore
     )
@@ -371,7 +386,11 @@ def test_valid_actual_label_inf_value():
     kwargs = get_standard_kwargs()
     errors = Validator.validate_values(
         **ChainMap(
-            {"dataframe": pd.DataFrame({"actual_label": pd.Series([0, float("-inf"), 1])})},
+            {
+                "dataframe": pd.DataFrame(
+                    {"actual_label": pd.Series([0, float("-inf"), 1])}
+                )
+            },
             kwargs,
         )  # type: ignore
     )
@@ -384,7 +403,11 @@ def test_invalid_prediction_id_none():
         **ChainMap(
             {
                 "dataframe": pd.DataFrame(
-                    {"prediction_id": pd.Series([str(uuid.uuid4()), None, str(uuid.uuid4())])}
+                    {
+                        "prediction_id": pd.Series(
+                            [str(uuid.uuid4()), None, str(uuid.uuid4())]
+                        )
+                    }
                 )
             },
             kwargs,
@@ -413,7 +436,11 @@ def test_prediction_id_length():
                         },
                     ),
                 },
-                {"dataframe": pd.DataFrame({"prediction_id": ids, "good_vector": good_vector})},
+                {
+                    "dataframe": pd.DataFrame(
+                        {"prediction_id": ids, "good_vector": good_vector}
+                    )
+                },
                 kwargs,
             )  # type: ignore
         )
@@ -461,7 +488,8 @@ def test_valid_value_prompt_response():
         shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
         embedding_feature_column_names={
             "good_embedding": EmbeddingColumnNames(
-                vector_column_name="embedding_vector", data_column_name="embedding_text"
+                vector_column_name="embedding_vector",
+                data_column_name="embedding_text",
             ),
         },
         prompt_column_names=EmbeddingColumnNames(
@@ -547,7 +575,8 @@ def test_invalid_value_prompt_response():
         shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
         embedding_feature_column_names={
             "good_embedding": EmbeddingColumnNames(
-                vector_column_name="embedding_vector", data_column_name="embedding_text"
+                vector_column_name="embedding_vector",
+                data_column_name="embedding_text",
             ),
         },
         prompt_column_names=EmbeddingColumnNames(
@@ -563,8 +592,12 @@ def test_invalid_value_prompt_response():
     dataframe["prompt_response_vector"] = pd.Series(
         [np.arange(float(MAX_EMBEDDING_DIMENSIONALITY + 1)) for _ in range(3)]
     )
-    dataframe["prompt_str"] = pd.Series(["x" * (MAX_RAW_DATA_CHARACTERS + 1)] * 3)
-    dataframe["response_str"] = pd.Series(["x" * (MAX_RAW_DATA_CHARACTERS + 1)] * 3)
+    dataframe["prompt_str"] = pd.Series(
+        ["x" * (MAX_RAW_DATA_CHARACTERS + 1)] * 3
+    )
+    dataframe["response_str"] = pd.Series(
+        ["x" * (MAX_RAW_DATA_CHARACTERS + 1)] * 3
+    )
     # prompt type: EmbeddingColumnNames
     # response type: EmbeddingColumnNames
     errors = Validator.validate_values(
@@ -661,7 +694,9 @@ def test_invalid_value_prompt_response():
 
 
 def test_llm_model_name_str_length():
-    long_llm_model_names = pd.Series(["a" * (MAX_LLM_MODEL_NAME_LENGTH + 1)] * 3)
+    long_llm_model_names = pd.Series(
+        ["a" * (MAX_LLM_MODEL_NAME_LENGTH + 1)] * 3
+    )
     kwargs = get_standard_kwargs()
     schema = kwargs["schema"].replace(
         llm_config_column_names=LLMConfigColumnNames(
@@ -672,7 +707,9 @@ def test_llm_model_name_str_length():
         **ChainMap(
             {
                 "model_type": ModelTypes.GENERATIVE_LLM,
-                "dataframe": pd.DataFrame({"llm_model_name": long_llm_model_names}),
+                "dataframe": pd.DataFrame(
+                    {"llm_model_name": long_llm_model_names}
+                ),
                 "schema": schema,
             },
             kwargs,
@@ -691,7 +728,9 @@ def test_llm_model_name_str_length():
         **ChainMap(
             {
                 "model_type": ModelTypes.GENERATIVE_LLM,
-                "dataframe": pd.DataFrame({"llm_model_name": correct_llm_model_name}),
+                "dataframe": pd.DataFrame(
+                    {"llm_model_name": correct_llm_model_name}
+                ),
                 "schema": schema,
             },
             kwargs,
@@ -701,7 +740,9 @@ def test_llm_model_name_str_length():
 
 
 def test_prompt_template_str_length():
-    long_prompt_template = pd.Series(["a" * (MAX_PROMPT_TEMPLATE_LENGTH + 1)] * 3)
+    long_prompt_template = pd.Series(
+        ["a" * (MAX_PROMPT_TEMPLATE_LENGTH + 1)] * 3
+    )
     kwargs = get_standard_kwargs()
     schema = kwargs["schema"].replace(
         prompt_template_column_names=PromptTemplateColumnNames(
@@ -712,7 +753,9 @@ def test_prompt_template_str_length():
         **ChainMap(
             {
                 "model_type": ModelTypes.GENERATIVE_LLM,
-                "dataframe": pd.DataFrame({"prompt_template": long_prompt_template}),
+                "dataframe": pd.DataFrame(
+                    {"prompt_template": long_prompt_template}
+                ),
                 "schema": schema,
             },
             kwargs,
@@ -727,12 +770,16 @@ def test_prompt_template_str_length():
     )
     assert errors[0].error_message() == err_string
 
-    correct_prompt_template = pd.Series(["a" * (MAX_PROMPT_TEMPLATE_LENGTH)] * 3)
+    correct_prompt_template = pd.Series(
+        ["a" * (MAX_PROMPT_TEMPLATE_LENGTH)] * 3
+    )
     errors = Validator.validate_values(
         **ChainMap(
             {
                 "model_type": ModelTypes.GENERATIVE_LLM,
-                "dataframe": pd.DataFrame({"prompt_template": correct_prompt_template}),
+                "dataframe": pd.DataFrame(
+                    {"prompt_template": correct_prompt_template}
+                ),
                 "schema": schema,
             },
             kwargs,
@@ -742,7 +789,9 @@ def test_prompt_template_str_length():
 
 
 def test_prompt_template_version_str_length():
-    long_template_version = pd.Series(["a" * (MAX_PROMPT_TEMPLATE_VERSION_LENGTH + 1)] * 3)
+    long_template_version = pd.Series(
+        ["a" * (MAX_PROMPT_TEMPLATE_VERSION_LENGTH + 1)] * 3
+    )
     kwargs = get_standard_kwargs()
     schema = kwargs["schema"].replace(
         prompt_template_column_names=PromptTemplateColumnNames(
@@ -753,7 +802,9 @@ def test_prompt_template_version_str_length():
         **ChainMap(
             {
                 "model_type": ModelTypes.GENERATIVE_LLM,
-                "dataframe": pd.DataFrame({"prompt_template_version": long_template_version}),
+                "dataframe": pd.DataFrame(
+                    {"prompt_template_version": long_template_version}
+                ),
                 "schema": schema,
             },
             kwargs,
@@ -768,12 +819,16 @@ def test_prompt_template_version_str_length():
     )
     assert errors[0].error_message() == err_string
 
-    correct_template_version = pd.Series(["a" * (MAX_PROMPT_TEMPLATE_VERSION_LENGTH)] * 3)
+    correct_template_version = pd.Series(
+        ["a" * (MAX_PROMPT_TEMPLATE_VERSION_LENGTH)] * 3
+    )
     errors = Validator.validate_values(
         **ChainMap(
             {
                 "model_type": ModelTypes.GENERATIVE_LLM,
-                "dataframe": pd.DataFrame({"prompt_template_version": correct_template_version}),
+                "dataframe": pd.DataFrame(
+                    {"prompt_template_version": correct_template_version}
+                ),
                 "schema": schema,
             },
             kwargs,
@@ -785,7 +840,7 @@ def test_prompt_template_version_str_length():
 def test_invalid_embedding_raw_data_length():
     kwargs = get_standard_kwargs()
     emb_vector = []
-    for i in range(4):
+    for _ in range(4):
         emb_vector.append(np.arange(float(6)))
 
     short_raw_data_string = random_string(MAX_RAW_DATA_CHARACTERS)
@@ -836,21 +891,31 @@ def test_invalid_embedding_raw_data_length():
                 "dataframe": pd.DataFrame(
                     {
                         "emb_vector": emb_vector,
-                        "short_string": [short_raw_data_string for _ in range(4)],
-                        "short_token_array": [short_raw_data_token_array for _ in range(4)],
+                        "short_string": [
+                            short_raw_data_string for _ in range(4)
+                        ],
+                        "short_token_array": [
+                            short_raw_data_token_array for _ in range(4)
+                        ],
                         "long_string": [long_raw_data_string for _ in range(4)],
-                        "long_token_array": [long_raw_data_token_array for _ in range(4)],
+                        "long_token_array": [
+                            long_raw_data_token_array for _ in range(4)
+                        ],
                         "short_string_with_none": [
-                            short_raw_data_string if i != 2 else None for i in range(4)
+                            short_raw_data_string if i != 2 else None
+                            for i in range(4)
                         ],
                         "short_token_array_with_none": [
-                            short_raw_data_token_array if 1 != 2 else None for i in range(4)
+                            short_raw_data_token_array if 1 != 2 else None
+                            for i in range(4)
                         ],
                         "long_string_with_none": [
-                            long_raw_data_string if i != 2 else None for i in range(4)
+                            long_raw_data_string if i != 2 else None
+                            for i in range(4)
                         ],
                         "long_token_array_with_none": [
-                            long_raw_data_token_array if i != 2 else None for i in range(4)
+                            long_raw_data_token_array if i != 2 else None
+                            for i in range(4)
                         ],
                     }
                 ),
@@ -880,7 +945,11 @@ def test_invalid_document_id_missing_value():
     kwargs = get_corpus_kwargs()
     errors = Validator.validate_values(
         **ChainMap(
-            {"dataframe": pd.DataFrame({"document_id": pd.Series(["id1", None])})},
+            {
+                "dataframe": pd.DataFrame(
+                    {"document_id": pd.Series(["id1", None])}
+                )
+            },
             kwargs,
         )  # type: ignore
     )
@@ -892,7 +961,7 @@ def test_document_id_length():
     long_ids = pd.Series(["A" * 129] * 4)
     empty_ids = pd.Series([""] * 4)
     good_vector = []
-    for i in range(4):
+    for _ in range(4):
         good_vector.append(np.arange(float(6)))
 
     for ids in (long_ids, empty_ids):
@@ -926,7 +995,13 @@ def test_multiple():
                 "dataframe": pd.DataFrame(
                     {
                         "prediction_timestamp": pd.Series(
-                            [(datetime.datetime.now() - datetime.timedelta(days=365)).date()] * 3
+                            [
+                                (
+                                    datetime.datetime.now()
+                                    - datetime.timedelta(days=365)
+                                ).date()
+                            ]
+                            * 3
                         ),
                         "prediction_label": pd.Series(["foo", None, "baz"]),
                         "actual_label": pd.Series([0, 1, float("NaN")]),
@@ -951,7 +1026,7 @@ def test_invalid_embedding_dimensionality():
             multidimensional_vector.append(np.arange(float(4)))
 
     one_vector = []
-    for i in range(3):
+    for _ in range(3):
         one_vector.append(np.arange(float(1)))
 
     null_vector = []
@@ -960,7 +1035,7 @@ def test_invalid_embedding_dimensionality():
     null_vector.append([])
 
     long_vector = []
-    for i in range(3):
+    for _ in range(3):
         long_vector.append(np.arange(float(MAX_EMBEDDING_DIMENSIONALITY + 1)))
 
     errors = Validator.validate_values(
@@ -1036,9 +1111,11 @@ def test_invalid_value_bounding_boxes_coordinates():
         )
         if i == 0:
             assert len(errors) == 1
-            expected_error = err.InvalidBoundingBoxesCoordinates(reason="none_boxes")
+            expected_error = err.InvalidBoundingBoxesCoordinates(
+                reason="none_boxes"
+            )
             error = errors[0]
-            assert type(error) == type(expected_error)
+            assert type(error) is type(expected_error)
             assert error.error_message() == expected_error.error_message()
         else:
             assert len(errors) == 0
@@ -1066,18 +1143,29 @@ def test_invalid_value_bounding_boxes_coordinates():
             assert len(errors) == 0
         else:
             assert len(errors) == 1
-            expected_error = err.InvalidBoundingBoxesCoordinates(reason="none_or_empty_box")
+            expected_error = err.InvalidBoundingBoxesCoordinates(
+                reason="none_or_empty_box"
+            )
             error = errors[0]
-            assert type(error) == type(expected_error)
+            assert type(error) is type(expected_error)
             assert error.error_message() == expected_error.error_message()
 
     # Box with wrong format
     dataframe = kwargs["dataframe"]
     dataframe["prediction_bounding_boxes_coordinates"] = pd.Series(
         [
-            [[0.11, 0.12, 0.13, 0.14, 0.15], [0.11, 0.12, 0.13, 0.14]],  # 5 coordinate values
-            [[-0.21, 0.22, 0.23, 0.24], [0.21, 0.22, 0.23, 0.24]],  # coordinate value < 0
-            [[0.31, 0.32, 0.33, 0.34], [1.31, 0.32, 0.33, 0.34]],  # coordinate value > 1
+            [
+                [0.11, 0.12, 0.13, 0.14, 0.15],
+                [0.11, 0.12, 0.13, 0.14],
+            ],  # 5 coordinate values
+            [
+                [-0.21, 0.22, 0.23, 0.24],
+                [0.21, 0.22, 0.23, 0.24],
+            ],  # coordinate value < 0
+            [
+                [0.31, 0.32, 0.33, 0.34],
+                [1.31, 0.32, 0.33, 0.34],
+            ],  # coordinate value > 1
         ]
     )
     for i in range(len(dataframe)):  # Go row by row checking errors
@@ -1095,7 +1183,7 @@ def test_invalid_value_bounding_boxes_coordinates():
             reason="boxes_coordinates_wrong_format"
         )
         error = errors[0]
-        assert type(error) == type(expected_error)
+        assert type(error) is type(expected_error)
         assert error.error_message() == expected_error.error_message()
 
 
@@ -1126,9 +1214,11 @@ def test_invalid_value_bounding_boxes_categories():
         )
         if i == 0:
             assert len(errors) == 1
-            expected_error = err.InvalidBoundingBoxesCategories(reason="none_category_list")
+            expected_error = err.InvalidBoundingBoxesCategories(
+                reason="none_category_list"
+            )
             error = errors[0]
-            assert type(error) == type(expected_error)
+            assert type(error) is type(expected_error)
             assert error.error_message() == expected_error.error_message()
         else:
             assert len(errors) == 0
@@ -1154,9 +1244,11 @@ def test_invalid_value_bounding_boxes_categories():
         )
         if i == 0:
             assert len(errors) == 1
-            expected_error = err.InvalidBoundingBoxesCategories(reason="none_category")
+            expected_error = err.InvalidBoundingBoxesCategories(
+                reason="none_category"
+            )
             error = errors[0]
-            assert type(error) == type(expected_error)
+            assert type(error) is type(expected_error)
             assert error.error_message() == expected_error.error_message()
         else:
             assert len(errors) == 0
@@ -1189,9 +1281,11 @@ def test_invalid_value_bounding_boxes_scores():
         )
         if i == 0:
             assert len(errors) == 1
-            expected_error = err.InvalidBoundingBoxesScores(reason="none_score_list")
+            expected_error = err.InvalidBoundingBoxesScores(
+                reason="none_score_list"
+            )
             error = errors[0]
-            assert type(error) == type(expected_error)
+            assert type(error) is type(expected_error)
             assert error.error_message() == expected_error.error_message()
         else:
             assert len(errors) == 0
@@ -1219,9 +1313,11 @@ def test_invalid_value_bounding_boxes_scores():
             assert len(errors) == 0
         else:
             assert len(errors) == 1
-            expected_error = err.InvalidBoundingBoxesScores(reason="scores_out_of_bounds")
+            expected_error = err.InvalidBoundingBoxesScores(
+                reason="scores_out_of_bounds"
+            )
             error = errors[0]
-            assert type(error) == type(expected_error)
+            assert type(error) is type(expected_error)
             assert error.error_message() == expected_error.error_message()
 
 
@@ -1273,7 +1369,9 @@ def test_invalid_value_multi_class_score():
     )
     dataframe["actual_score"] = pd.Series(
         [
-            [{"class_name": "fish", "score": 0.3}],  # invalid actual score must be 0 or 1
+            [
+                {"class_name": "fish", "score": 0.3}
+            ],  # invalid actual score must be 0 or 1
             [{"class_name": "cat", "score": 1}],
             [{"class_name": "dog", "score": 1}],
         ]
@@ -1333,7 +1431,9 @@ def get_standard_kwargs():
         ),
         "dataframe": pd.DataFrame(
             {
-                "prediction_id": pd.Series([str(uuid.uuid4()) for _ in range(3)]),
+                "prediction_id": pd.Series(
+                    [str(uuid.uuid4()) for _ in range(3)]
+                ),
                 "prediction_timestamp": pd.Series(
                     [
                         datetime.datetime.now(),
@@ -1362,8 +1462,12 @@ def get_standard_kwargs():
                 "e": pd.Series([0, None, 2]),
                 "f": pd.Series([None, float("NaN"), None]),
                 # Vector
-                "embedding_vector": pd.Series([np.arange(float(6)) for _ in range(3)]),
-                "embedding_text": pd.Series(["This is a test embedding text"] * 3),
+                "embedding_vector": pd.Series(
+                    [np.arange(float(6)) for _ in range(3)]
+                ),
+                "embedding_text": pd.Series(
+                    ["This is a test embedding text"] * 3
+                ),
                 # prompt/response
                 "prompt_str": pd.Series(["This is a test prompt"] * 3),
                 "response_str": pd.Series(["This is a test response"] * 3),
@@ -1378,7 +1482,9 @@ def get_multi_class_kwargs():
         "environment": Environments.PRODUCTION,
         "dataframe": pd.DataFrame(
             {
-                "prediction_id": pd.Series([str(uuid.uuid4()) for _ in range(3)]),
+                "prediction_id": pd.Series(
+                    [str(uuid.uuid4()) for _ in range(3)]
+                ),
                 "prediction_score": pd.Series(
                     [
                         [
@@ -1453,7 +1559,9 @@ def get_object_detection_kwargs():
         "environment": Environments.PRODUCTION,
         "dataframe": pd.DataFrame(
             {
-                "prediction_id": pd.Series([str(uuid.uuid4()) for _ in range(3)]),
+                "prediction_id": pd.Series(
+                    [str(uuid.uuid4()) for _ in range(3)]
+                ),
                 "prediction_bounding_boxes_coordinates": pd.Series(
                     [
                         [[0.11, 0.12, 0.13, 0.14], [0.11, 0.12, 0.13, 0.14]],

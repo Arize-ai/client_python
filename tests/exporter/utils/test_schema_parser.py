@@ -2,6 +2,7 @@ import sys
 
 import pandas as pd
 import pytest
+
 from arize.exporter.utils.schema_parser import get_arize_schema
 from arize.pandas.logger import Schema
 from arize.utils.types import ObjectDetectionColumnNames
@@ -142,7 +143,6 @@ def test_embeddings():
     schema = get_arize_schema(embedding_df)
 
     assert isinstance(schema, Schema)
-    schema.object_detection_actual_column_names
 
     assert schema.asdict() == {
         "actual_label_column_name": None,
@@ -201,7 +201,6 @@ def test_rankings():
     schema = get_arize_schema(embedding_df)
 
     assert isinstance(schema, Schema)
-    schema.object_detection_actual_column_names
 
     assert schema.asdict() == {
         "actual_label_column_name": None,
@@ -252,7 +251,6 @@ def test_llm():
     schema = get_arize_schema(embedding_df)
 
     assert isinstance(schema, Schema)
-    schema.object_detection_actual_column_names
 
     assert schema.asdict() == {
         "actual_label_column_name": None,

@@ -1,9 +1,10 @@
 import sys
 
-import arize.pandas.tracing.constants as tracing_constants
 import numpy as np
 import pandas as pd
 import pytest
+
+import arize.pandas.tracing.constants as tracing_constants
 
 if sys.version_info >= (3, 8):
     from arize.pandas.tracing.validation.evals import evals_validation
@@ -41,7 +42,9 @@ def test_valid_labels_and_explanations():
         evals_dataframe=evals_dataframe,
         project_name=valid_project_name,
     )
-    assert len(errors) == 0, "Expected no validation errors for valid labels and explanations"
+    assert (
+        len(errors) == 0
+    ), "Expected no validation errors for valid labels and explanations"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -67,7 +70,9 @@ def test_label_not_empty_string():
 def test_label_exceeds_max_length():
     evals_dataframe = pd.DataFrame(
         {
-            "eval.eval_1.label": ["r" * (tracing_constants.EVAL_EXPLANATION_MAX_STR_LENGTH + 1)],
+            "eval.eval_1.label": [
+                "r" * (tracing_constants.EVAL_EXPLANATION_MAX_STR_LENGTH + 1)
+            ],
             "eval.eval_1.explanation": [
                 "explanation",
             ],
@@ -77,7 +82,9 @@ def test_label_exceeds_max_length():
         evals_dataframe=evals_dataframe,
         project_name=valid_project_name,
     )
-    assert len(errors) > 0, "Expected validation errors for labels exceeding max length"
+    assert (
+        len(errors) > 0
+    ), "Expected validation errors for labels exceeding max length"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -96,7 +103,9 @@ def test_explanation_exceeds_max_length():
         evals_dataframe=evals_dataframe,
         project_name=valid_project_name,
     )
-    assert len(errors) > 0, "Expected validation errors for explanations exceeding max length"
+    assert (
+        len(errors) > 0
+    ), "Expected validation errors for explanations exceeding max length"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -115,7 +124,9 @@ def test_valid_float_values():
         evals_dataframe=evals_dataframe,
         project_name=valid_project_name,
     )
-    assert len(errors) == 0, "Expected no validation errors for valid float values"
+    assert (
+        len(errors) == 0
+    ), "Expected no validation errors for valid float values"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -134,7 +145,9 @@ def test_infinite_values_present():
         evals_dataframe=evals_dataframe,
         project_name=valid_project_name,
     )
-    assert len(errors) > 0, "Expected validation errors for infinite values present"
+    assert (
+        len(errors) > 0
+    ), "Expected validation errors for infinite values present"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")

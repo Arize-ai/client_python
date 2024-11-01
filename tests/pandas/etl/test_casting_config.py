@@ -5,6 +5,7 @@ from typing import Optional, Set
 import numpy as np
 import pandas as pd
 import pytest
+
 from arize.pandas.etl.casting import (
     ColumnCastingError,
     InvalidTypedColumnsError,
@@ -44,7 +45,7 @@ class CastingTestCase:
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
 def test_duplicates_error():
-    df = pd.DataFrame({"A": pd.Series([int(1), int(2)])})
+    df = pd.DataFrame({"A": pd.Series([1, 2])})
     features = TypedColumns(
         to_int=["A"],
         inferred=["B", "A"],
@@ -63,7 +64,7 @@ def test_duplicates_error():
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
 def test_empty_error():
-    df = pd.DataFrame({"A": pd.Series([int(1), int(2)])})
+    df = pd.DataFrame({"A": pd.Series([1, 2])})
     features = TypedColumns()
     tags = TypedColumns()
     schema = get_schema(features, tags)
@@ -86,7 +87,7 @@ def test_empty_error():
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
 def test_cast_string_to_float_error():
-    df = pd.DataFrame({"A": pd.Series([int(1), str("hello")])})
+    df = pd.DataFrame({"A": pd.Series([1, "hello"])})
     features = TypedColumns(
         to_float=["A"],
     )
@@ -94,7 +95,9 @@ def test_cast_string_to_float_error():
     schema = get_schema(features, tags)
     with pytest.raises(ColumnCastingError) as excinfo:
         _, _ = cast_typed_columns(df, schema)
-    assert excinfo.value.error_msg == "could not convert string to float: 'hello'"
+    assert (
+        excinfo.value.error_msg == "could not convert string to float: 'hello'"
+    )
     assert excinfo.value.attempted_casting_columns == ["A"]
     assert excinfo.value.attempted_casting_type == "Float64"
 
@@ -103,9 +106,9 @@ def test_cast_string_to_float_error():
 def test_cast_numeric_string_to_int_error():
     df = pd.DataFrame(
         {
-            "A": pd.Series([int(1), str("2.5")]),
-            "B": pd.Series([int(1), str("2.5")]),
-            "C": pd.Series([int(1), str("2.5")]),
+            "A": pd.Series([1, "2.5"]),
+            "B": pd.Series([1, "2.5"]),
+            "C": pd.Series([1, "2.5"]),
         }
     )
     features = ["A"]
@@ -115,18 +118,22 @@ def test_cast_numeric_string_to_int_error():
     schema = get_schema(features, tags)
     with pytest.raises(ColumnCastingError) as excinfo:
         _, _ = cast_typed_columns(df, schema)
-    assert excinfo.value.error_msg == "invalid literal for int() with base 10: '2.5'"
+    assert (
+        excinfo.value.error_msg
+        == "invalid literal for int() with base 10: '2.5'"
+    )
     assert excinfo.value.attempted_casting_columns == ["A", "B", "C"]
     assert excinfo.value.attempted_casting_type == "Int64"
     assert (
-        excinfo.value.error_message() == "Failed to cast to type Int64 for columns: A, B and C. "
+        excinfo.value.error_message()
+        == "Failed to cast to type Int64 for columns: A, B and C. "
         "Error: invalid literal for int() with base 10: '2.5'"
     )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
 def test_cast_empty_string_to_numeric_error():
-    df = pd.DataFrame({"A": pd.Series([int(1), str("")])})
+    df = pd.DataFrame({"A": pd.Series([1, ""])})
     features = TypedColumns(
         to_int=["A"],
     )
@@ -136,14 +143,16 @@ def test_cast_empty_string_to_numeric_error():
     schema = get_schema(features, tags)
     with pytest.raises(ColumnCastingError) as excinfo:
         _, _ = cast_typed_columns(df, schema)
-    assert excinfo.value.error_msg == "invalid literal for int() with base 10: ''"
+    assert (
+        excinfo.value.error_msg == "invalid literal for int() with base 10: ''"
+    )
     assert excinfo.value.attempted_casting_columns == ["A"]
     assert excinfo.value.attempted_casting_type == "Int64"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
 def test_cast_float_to_int_error():
-    df = pd.DataFrame({"A": pd.Series([int(1), float(2.5)])})
+    df = pd.DataFrame({"A": pd.Series([1, 2.5])})
     features = ["A"]
     tags = TypedColumns(
         to_int=["A"],
@@ -151,7 +160,10 @@ def test_cast_float_to_int_error():
     schema = get_schema(features, tags)
     with pytest.raises(ColumnCastingError) as excinfo:
         _, _ = cast_typed_columns(df, schema)
-    assert excinfo.value.error_msg == "cannot safely cast non-equivalent float64 to int64"
+    assert (
+        excinfo.value.error_msg
+        == "cannot safely cast non-equivalent float64 to int64"
+    )
     assert excinfo.value.attempted_casting_columns == ["A"]
     assert excinfo.value.attempted_casting_type == "Int64"
 
@@ -271,22 +283,24 @@ def table_test(case: CastingTestCase):
 
     # null value handling
     nulls = dataframe.isna()
-    for k in case.expected["column_types"].keys():
+    for k in case.expected["column_types"]:
         assert not nulls[k][0]
         assert nulls[k][1]
 
     # function output
     assert isinstance(schema.feature_column_names, list)
-    assert set(schema.feature_column_names) == set(case.features.get_all_column_names())
+    assert set(schema.feature_column_names) == set(
+        case.features.get_all_column_names()
+    )
 
 
 def get_df() -> pd.DataFrame:
     return pd.DataFrame(
         {
-            "A": pd.Series([int(1), np.nan]),
-            "B": pd.Series([float(1.0), float("nan")]),
-            "C": pd.Series([str("1"), np.nan]),
-            "D": pd.Series([str("2"), np.nan]),
+            "A": pd.Series([1, np.nan]),
+            "B": pd.Series([1.0, float("nan")]),
+            "C": pd.Series(["1", np.nan]),
+            "D": pd.Series(["2", np.nan]),
         },
     )
 

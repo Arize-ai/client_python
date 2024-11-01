@@ -1,31 +1,29 @@
-import base64
 from itertools import cycle
 from typing import Any, Tuple
 
 import numpy as np
 import pandas as pd
-import pyarrow as pa
 import pytest
-from arize import public_pb2 as pb2
+from sklearn.datasets import load_breast_cancer, load_diabetes
+from sklearn.svm import SVC, SVR
+
 from arize.pandas.logger import Client, Schema
 from arize.pandas.surrogate_explainer.mimic import Mimic
 from arize.utils.types import Environments, ModelTypes
-from sklearn.datasets import load_breast_cancer, load_diabetes
-from sklearn.svm import SVC, SVR
 
 Mimic._testing = True
 
 
 class NoSendClient(Client):
     def __init__(self):
-        super().__init__("", "")
+        super().__init__(space_id="test-id", api_key="test-api-key")
 
-    def _post_file(self, path, schema, *_) -> Tuple[pd.DataFrame, Any]:
-        s = pb2.Schema()
-        s.ParseFromString(base64.b64decode(schema))
+    def _log_arrow(
+        self, pa_table, proto_schema, **_
+    ) -> Tuple[pd.DataFrame, Any]:
         return (
-            pa.ipc.open_stream(pa.OSFile(path)).read_pandas(),
-            s.arrow_schema,
+            pa_table.to_pandas(),
+            proto_schema.arrow_schema,
         )
 
 
@@ -39,7 +37,10 @@ def _class_df(multiple: int = 1) -> Tuple[pd.DataFrame, Any]:
 
     df = pd.DataFrame(data, columns=features)
     df["_score"] = pd.Series(
-        map(lambda v: v[1], SVC(probability=True).fit(df, target).predict_proba(df))
+        map(
+            lambda v: v[1],
+            SVC(probability=True).fit(df, target).predict_proba(df),
+        )
     )
     df["_label"] = df["_score"].apply(lambda s: target_names[int(s > 0.5)])
 
@@ -104,8 +105,8 @@ def test_classifier_with_flag_has_shap():
             schema=schema,
             surrogate_explainability=True,
         )
-    except Exception:
-        assert False
+    except Exception as e:
+        raise AssertionError("Unexpected Error") from e
 
     # must add new columns
     assert pa_df.shape[1] == df.shape[1] + len(features)
@@ -127,8 +128,12 @@ def test_classifier_with_flag_has_shap():
     assert pa_df[pa_schema.shap_values_column_names.values()].count().sum() > 0
 
     # test the sampling method
-    samp_size = min(len(df), min(100_000, max(1_000, 20_000_000 // len(features))))
-    _missing = pa_df[pa_schema.shap_values_column_names.values()].isna().sum().sum()
+    samp_size = min(
+        len(df), min(100_000, max(1_000, 20_000_000 // len(features)))
+    )
+    _missing = (
+        pa_df[pa_schema.shap_values_column_names.values()].isna().sum().sum()
+    )
     assert 0 < _missing < len(df) * len(features)
     assert _missing == (len(df) - samp_size) * len(features)
 
@@ -153,8 +158,8 @@ def test_regressor_with_flag_has_shap():
             schema=schema,
             surrogate_explainability=True,
         )
-    except Exception:
-        assert False
+    except Exception as e:
+        raise AssertionError("Unexpected Error") from e
 
     # must add new columns
     assert pa_df.shape[1] == df.shape[1] + len(features)
@@ -196,8 +201,8 @@ def test_classifier_no_flag_no_shap():
             environment=Environments.PRODUCTION,
             schema=schema,
         )
-    except Exception:
-        assert False
+    except Exception as e:
+        raise AssertionError("Unexpected Error") from e
 
     # original dataframe must not change
     assert df.equals(orig_df)
@@ -228,8 +233,8 @@ def test_regressor_no_flag_no_shap():
             environment=Environments.PRODUCTION,
             schema=schema,
         )
-    except Exception:
-        assert False
+    except Exception as e:
+        raise AssertionError("Unexpected Error") from e
 
     # original dataframe must not change
     assert df.equals(orig_df)

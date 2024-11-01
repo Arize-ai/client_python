@@ -2,12 +2,19 @@ from collections import ChainMap
 
 import pandas as pd
 import pytest
+
 from arize.pandas.validation.errors import (
     InvalidModelTypeAndMetricsCombination,
     MissingRequiredColumnsMetricsValidation,
 )
 from arize.pandas.validation.validator import Validator
-from arize.utils.types import Environments, Metrics, ModelTypes, ObjectDetectionColumnNames, Schema
+from arize.utils.types import (
+    Environments,
+    Metrics,
+    ModelTypes,
+    ObjectDetectionColumnNames,
+    Schema,
+)
 
 
 def test__check_model_type_metrics_no_metrics_selected():
@@ -78,7 +85,10 @@ def test__check_model_type_metrics_bin_classif_with_classification_auc_logloss_m
         **ChainMap(
             {
                 "model_type": ModelTypes.BINARY_CLASSIFICATION,
-                "metric_families": [Metrics.CLASSIFICATION, Metrics.AUC_LOG_LOSS],
+                "metric_families": [
+                    Metrics.CLASSIFICATION,
+                    Metrics.AUC_LOG_LOSS,
+                ],
             },
             classification_with_score,
             kwargs,
@@ -90,7 +100,10 @@ def test__check_model_type_metrics_bin_classif_with_classification_auc_logloss_m
         **ChainMap(
             {
                 "model_type": ModelTypes.BINARY_CLASSIFICATION,
-                "metric_families": [Metrics.CLASSIFICATION, Metrics.AUC_LOG_LOSS],
+                "metric_families": [
+                    Metrics.CLASSIFICATION,
+                    Metrics.AUC_LOG_LOSS,
+                ],
             },
             classification_no_score,
             kwargs,
@@ -328,7 +341,10 @@ ranking_score = {
 
 kwargs = {
     "dataframe": pd.DataFrame(
-        {"prediction_id": pd.Series(["0"]), "prediction_label": pd.Series(["3"])}
+        {
+            "prediction_id": pd.Series(["0"]),
+            "prediction_label": pd.Series(["3"]),
+        }
     ),
     "model_id": "fraud",
     "model_version": "v1.0",

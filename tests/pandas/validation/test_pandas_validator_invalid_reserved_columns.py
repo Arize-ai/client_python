@@ -2,6 +2,7 @@ from collections import ChainMap
 
 import pandas as pd
 import pytest
+
 from arize.pandas.logger import Schema
 from arize.pandas.validation.errors import ReservedColumns
 from arize.pandas.validation.validator import Validator
@@ -107,7 +108,9 @@ def test_invalid_reserved_columns_in_wrong_schema_fields():
                 "schema": Schema(
                     prediction_id_column_name=LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME,
                     prediction_label_column_name=LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME,
-                    feature_column_names=[LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME],
+                    feature_column_names=[
+                        LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME
+                    ],
                     tag_column_names=[
                         LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME,
                     ],

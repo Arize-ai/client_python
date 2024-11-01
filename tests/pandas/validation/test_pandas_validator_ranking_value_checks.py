@@ -2,9 +2,10 @@ import uuid
 from collections import ChainMap
 from datetime import datetime, timedelta
 
-import arize.pandas.validation.errors as err
 import pandas as pd
 import pytest
+
+import arize.pandas.validation.errors as err
 from arize.pandas.logger import Schema
 from arize.pandas.validation.validator import Validator
 from arize.utils.constants import MAX_PREDICTION_ID_LEN
@@ -24,11 +25,18 @@ kwargs = {
                 ]
             ),
             "prediction_id": pd.Series([str(uuid.uuid4()) for _ in range(4)]),
-            "prediction_group_id": pd.Series(["X" * 10, "X" * 10, "Y" * 10, "Y" * 10]),
+            "prediction_group_id": pd.Series(
+                ["X" * 10, "X" * 10, "Y" * 10, "Y" * 10]
+            ),
             "item_type": pd.Series(["toy", "game", "game", "pens"]),
             "ranking_rank": pd.Series([1, 2, 1, 2]),
             "ranking_category": pd.Series(
-                [["click", "purchase"], ["click", "favor"], ["favor"], ["click"]]
+                [
+                    ["click", "purchase"],
+                    ["click", "favor"],
+                    ["favor"],
+                    ["click"],
+                ]
             ),
             "ranking_relevance": pd.Series([1, 0, 2, 0]),
         }
@@ -73,7 +81,12 @@ def test_rank_is_not_null_and_between_1_and_100():
                     {
                         "ranking_rank": ranks_with_none,
                         "ranking_category": pd.Series(
-                            [["click", "purchase"], ["click", "favor"], ["favor"], ["click"]]
+                            [
+                                ["click", "purchase"],
+                                ["click", "favor"],
+                                ["favor"],
+                                ["click"],
+                            ]
                         ),
                         "ranking_relevance": pd.Series([1, 0, 2, 0]),
                     }
@@ -87,7 +100,9 @@ def test_rank_is_not_null_and_between_1_and_100():
 
     for ranks in (ranks_out_of_upper_bound, ranks_out_of_lower_bound):
         errors = Validator.validate_values(
-            **ChainMap({"dataframe": pd.DataFrame({"ranking_rank": ranks})}, kwargs)
+            **ChainMap(
+                {"dataframe": pd.DataFrame({"ranking_rank": ranks})}, kwargs
+            )
         )
         assert len(errors) == 1
         assert type(errors[0]) is err.InvalidRankValue
@@ -105,7 +120,12 @@ def test_prediction_group_id_length():
                     {
                         "prediction_group_id": null_ids,
                         "ranking_category": pd.Series(
-                            [["click", "purchase"], ["click", "favor"], ["favor"], ["click"]]
+                            [
+                                ["click", "purchase"],
+                                ["click", "favor"],
+                                ["favor"],
+                                ["click"],
+                            ]
                         ),
                         "ranking_relevance": pd.Series([1, 0, 2, 0]),
                     }
@@ -119,7 +139,10 @@ def test_prediction_group_id_length():
 
     for ids in (empty_ids, long_ids):
         errors = Validator.validate_values(
-            **ChainMap({"dataframe": pd.DataFrame({"prediction_group_id": ids})}, kwargs)
+            **ChainMap(
+                {"dataframe": pd.DataFrame({"prediction_group_id": ids})},
+                kwargs,
+            )
         )
         assert len(errors) == 1
         assert type(errors[0]) is err.InvalidStringLengthInColumn

@@ -3,12 +3,14 @@ import sys
 import uuid
 from typing import Dict, List
 
-import arize.pandas.validation.errors as err
 import numpy as np
 import pandas as pd
 import pyarrow as pa
 import pytest
-from arize import __version__ as arize_version
+from attr import dataclass
+from requests import Response
+
+import arize.pandas.validation.errors as err
 from arize.pandas.etl.errors import ColumnCastingError, InvalidTypedColumnsError
 from arize.pandas.logger import Client
 from arize.utils.constants import (
@@ -42,8 +44,7 @@ from arize.utils.types import (
     TypedColumns,
 )
 from arize.utils.utils import get_python_version
-from attr import dataclass
-from requests import Response
+from arize.version import __version__ as arize_version
 
 EMBEDDING_SIZE = 15
 
@@ -58,7 +59,9 @@ class MockResponse(Response):
 
 class NoSendClient(Client):
     def _post_file(self, path, sync, timeout):
-        return MockResponse(pa.ipc.open_stream(pa.OSFile(path)).read_pandas(), "Success", 200)
+        return MockResponse(
+            pa.ipc.open_stream(pa.OSFile(path)).read_pandas(), "Success", 200
+        )
 
 
 def get_base_df() -> pd.DataFrame:
@@ -81,7 +84,9 @@ def get_base_df() -> pd.DataFrame:
             "F": pd.Series([None, float("NaN"), None]),
             "G": pd.Series(["foo", "bar", "baz"]),
             "H": pd.Series([True, False, True]),
-            "I": pd.Categorical(["a", "b", "c"], ordered=True, categories=["c", "b", "a"]),
+            "I": pd.Categorical(
+                ["a", "b", "c"], ordered=True, categories=["c", "b", "a"]
+            ),
             #####
             "a": pd.Series([0, 1, 2]),
             "b": pd.Series([0.0, 1.0, 2.0]),
@@ -140,9 +145,13 @@ def get_embeddings_df() -> pd.DataFrame:
         {
             "image_vector": np.random.randn(3, EMBEDDING_SIZE).tolist(),
             "image_link": ["link_" + str(x) for x in range(3)],
-            "sentence_vector": [np.random.randn(EMBEDDING_SIZE) for x in range(3)],
+            "sentence_vector": [
+                np.random.randn(EMBEDDING_SIZE) for x in range(3)
+            ],
             "sentence_data": ["data_" + str(x) for x in range(3)],
-            "token_array_vector": [np.random.randn(EMBEDDING_SIZE) for x in range(3)],
+            "token_array_vector": [
+                np.random.randn(EMBEDDING_SIZE) for x in range(3)
+            ],
             "token_array_data": [["Token", "array", str(x)] for x in range(3)],
         }
     )
@@ -227,8 +236,13 @@ def get_generative_df() -> pd.DataFrame:
             "prompt_data": ["data_" + str(x) for x in range(3)],
             "response_data": ["data_" + str(x) for x in range(3)],
             "llm_model_name": ["gpt-" + str(x) for x in range(3)],
-            "prompt_template": ["This is the template with version {{version}}" for _ in range(3)],
-            "prompt_template_version": ["Template {x}" + str(x) for x in range(3)],
+            "prompt_template": [
+                "This is the template with version {{version}}"
+                for _ in range(3)
+            ],
+            "prompt_template_version": [
+                "Template {x}" + str(x) for x in range(3)
+            ],
             "llm_params": [
                 {
                     "presence_penalty": x / 3,
@@ -241,7 +255,9 @@ def get_generative_df() -> pd.DataFrame:
             "prompt_token_count": [x * 20 for x in range(3)],
             "response_token_count": [x * 10 for x in range(3)],
             "response_latency_ms": [x * 1000 for x in range(3)],
-            "retrieved_document_ids": [[str(x * 3 + i) for i in range(3)] for x in range(3)],
+            "retrieved_document_ids": [
+                [str(x * 3 + i) for i in range(3)] for x in range(3)
+            ],
         }
     )
 
@@ -279,7 +295,9 @@ def get_corpus_df() -> pd.DataFrame:
         {
             "document_id": pd.Series([str(uuid.uuid4()) for _ in range(3)]),
             "document_version": ["Version {x}" + str(x) for x in range(3)],
-            "document_vector": [np.random.randn(EMBEDDING_SIZE) for x in range(3)],
+            "document_vector": [
+                np.random.randn(EMBEDDING_SIZE) for x in range(3)
+            ],
             "document_data": ["data_" + str(x) for x in range(3)],
         }
     )
@@ -373,11 +391,16 @@ def get_multi_class_schema() -> Schema:
 # 2. categorical variables should have been converted to string
 def roundtrip_df(df: pd.DataFrame) -> pd.DataFrame:
     df = df.drop("excluded_from_schema", axis=1, errors="ignore")
-    return df.astype({k: "str" for k, v in df.dtypes.items() if v.name == "category"})
+    return df.astype(
+        {k: "str" for k, v in df.dtypes.items() if v.name == "category"}
+    )
 
 
 def log_dataframe(
-    df: pd.DataFrame, schema: Schema, model_type: ModelTypes, environment=Environments.PRODUCTION
+    df: pd.DataFrame,
+    schema: Schema,
+    model_type: ModelTypes,
+    environment=Environments.PRODUCTION,
 ):
     client = NoSendClient("apikey", "spaceKey")
 
@@ -394,11 +417,17 @@ def log_dataframe(
 
 def test_zero_errors():
     # CHECK score categorical model with embeddings
-    data_df = pd.concat([get_base_df(), get_score_categorical_df(), get_embeddings_df()], axis=1)
-    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    data_df = pd.concat(
+        [get_base_df(), get_score_categorical_df(), get_embeddings_df()], axis=1
+    )
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_score_categorical_schema()
+    )
     schema = _overwrite_schema_fields(schema, get_embeddings_schema())
     try:
-        response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+        response = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL
+        )
         response_df: pd.DataFrame = response.df  # type:ignore
     except Exception:
         pytest.fail("Unexpected error")
@@ -411,7 +440,9 @@ def test_zero_errors():
     # CHECK logging without prediction_id
     schema = schema.replace(prediction_id_column_name=None)
     try:
-        response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+        response = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL
+        )
         response_df: pd.DataFrame = response.df  # type:ignore
     except Exception:
         pytest.fail("Unexpected error")
@@ -424,14 +455,23 @@ def test_zero_errors():
 
     # CHECK logging generative model
     data_df = pd.concat(
-        [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
+        [
+            get_base_df(),
+            get_score_categorical_df(),
+            get_embeddings_df(),
+            get_generative_df(),
+        ],
         axis=1,
     )
-    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_score_categorical_schema()
+    )
     schema = _overwrite_schema_fields(schema, get_embeddings_schema())
     schema = _overwrite_schema_fields(schema, get_generative_schema())
     try:
-        response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        response = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
         response_df: pd.DataFrame = response.df  # type:ignore
     except Exception:
         pytest.fail("Unexpected error")
@@ -469,8 +509,8 @@ def test_zero_errors():
             environment=Environments.CORPUS,
         )
         response_df: pd.DataFrame = response.df  # type:ignore
-    except Exception:
-        assert False
+    except Exception as e:
+        raise AssertionError("Unexpected error") from e
     # use json here because some row elements are lists and are not readily comparable
     assert (
         response_df.sort_index(axis=1).to_json()
@@ -482,9 +522,13 @@ def test_zero_errors():
 def test_zero_errors_object_detection():
     # CHECK logging object detection model
     data_df = pd.concat([get_base_df(), get_object_detection_df()], axis=1)
-    schema = _overwrite_schema_fields(get_base_schema(), get_object_detection_schema())
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_object_detection_schema()
+    )
     try:
-        response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.OBJECT_DETECTION)
+        response = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.OBJECT_DETECTION
+        )
         response_df: pd.DataFrame = response.df  # type:ignore
     except Exception:
         pytest.fail("Unexpected error")
@@ -501,9 +545,13 @@ def test_zero_errors_multi_class():
         [get_base_df(), get_multi_class_df()],
         axis=1,
     )
-    schema = _overwrite_schema_fields(get_base_schema(), get_multi_class_schema())
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_multi_class_schema()
+    )
     try:
-        response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS)
+        response = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS
+        )
         response_df: pd.DataFrame = response.df  # type:ignore
     except Exception:
         pytest.fail("Unexpected error")
@@ -539,9 +587,13 @@ def test_invalid_multi_class():
             ],
         ]
     )
-    schema = _overwrite_schema_fields(get_base_schema(), get_multi_class_schema())
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_multi_class_schema()
+    )
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidMultiClassPredScoreValue)
@@ -555,7 +607,9 @@ def test_invalid_multi_class():
         ]
     )
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidType)
@@ -579,7 +633,9 @@ def test_invalid_multi_class():
         ]
     )
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidNumClassesMultiClassMap)
@@ -613,7 +669,9 @@ def test_invalid_multi_class():
         ]
     )
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidMultiClassActScoreValue)
@@ -627,7 +685,9 @@ def test_invalid_multi_class():
         ]
     )
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidMultiClassClassNameLength)
@@ -655,13 +715,24 @@ def test_invalid_multi_class():
     # threshold missing class
     data_df["threshold_scores"] = pd.Series(
         [
-            [{"class_name": "dog", "score": 0.1}, {"class_name": "fish", "score": 0.3}],
-            [{"class_name": "dog", "score": 0.1}, {"class_name": "fish", "score": 0.3}],
-            [{"class_name": "dog", "score": 0.1}, {"class_name": "fish", "score": 0.3}],
+            [
+                {"class_name": "dog", "score": 0.1},
+                {"class_name": "fish", "score": 0.3},
+            ],
+            [
+                {"class_name": "dog", "score": 0.1},
+                {"class_name": "fish", "score": 0.3},
+            ],
+            [
+                {"class_name": "dog", "score": 0.1},
+                {"class_name": "fish", "score": 0.3},
+            ],
         ]
     )
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.MULTI_CLASS
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidMultiClassThresholdClasses)
@@ -682,7 +753,9 @@ def test_zero_errors_typed_schema():
     schema = _overwrite_schema_fields(get_base_schema(), s)
     response_df = None
     try:
-        response = log_dataframe(df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+        response = log_dataframe(
+            df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL
+        )
         response_df: pd.DataFrame = response.df  # type:ignore
     except Exception:
         pytest.fail("Unexpected error")
@@ -718,7 +791,9 @@ def test_typed_schema_validation_empty_class():
     )
     schema = _overwrite_schema_fields(get_base_schema(), s)
     with pytest.raises(InvalidTypedColumnsError) as excinfo:
-        _ = log_dataframe(df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+        _ = log_dataframe(
+            df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL
+        )
     assert excinfo.value.field_name == "tag_column_names"
     assert excinfo.value.reason == "is empty"
 
@@ -734,7 +809,9 @@ def test_typed_schema_validation_empty_fields():
     )
     schema = _overwrite_schema_fields(get_base_schema(), s)
     with pytest.raises(InvalidTypedColumnsError) as excinfo:
-        _ = log_dataframe(df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+        _ = log_dataframe(
+            df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL
+        )
     assert excinfo.value.field_name == "feature_column_names"
     assert excinfo.value.reason == "is empty"
 
@@ -750,7 +827,9 @@ def test_typed_schema_validation_duplicates():
     )
     schema = _overwrite_schema_fields(get_base_schema(), s)
     with pytest.raises(InvalidTypedColumnsError) as excinfo:
-        _ = log_dataframe(df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+        _ = log_dataframe(
+            df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL
+        )
     assert excinfo.value.field_name == "feature_column_names"
     assert excinfo.value.reason == "has duplicate column names: A"
 
@@ -768,21 +847,34 @@ def test_typed_schema_casting_error():
     )
     schema = _overwrite_schema_fields(get_base_schema(), s)
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(df2, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+        _ = log_dataframe(
+            df2, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL
+        )
     assert isinstance(excinfo.value, ColumnCastingError)
     assert excinfo.value.attempted_casting_columns == ["g"]
     assert excinfo.value.attempted_casting_type == "Int64"
-    assert excinfo.value.error_msg == "cannot safely cast non-equivalent float64 to int64"
+    assert (
+        excinfo.value.error_msg
+        == "cannot safely cast non-equivalent float64 to int64"
+    )
 
 
 def test_wrong_embedding_types():
-    data_df = pd.concat([get_base_df(), get_score_categorical_df(), get_embeddings_df()], axis=1)
-    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    data_df = pd.concat(
+        [get_base_df(), get_score_categorical_df(), get_embeddings_df()], axis=1
+    )
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_score_categorical_schema()
+    )
     schema = _overwrite_schema_fields(schema, get_embeddings_schema())
     # Check embedding_vector of strings are not allowed
-    data_df["image_vector"] = np.random.randn(3, EMBEDDING_SIZE).astype(str).tolist()
+    data_df["image_vector"] = (
+        np.random.randn(3, EMBEDDING_SIZE).astype(str).tolist()
+    )
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidTypeFeatures)
@@ -794,7 +886,9 @@ def test_wrong_embedding_types():
         a=[True, False], size=(3, EMBEDDING_SIZE)
     ).tolist()
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidTypeFeatures)
@@ -804,7 +898,9 @@ def test_wrong_embedding_types():
     # Check embedding_data of float are not allowed
     data_df["sentence_data"] = [x for x in range(3)]
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidTypeFeatures)
@@ -814,7 +910,9 @@ def test_wrong_embedding_types():
     # Check embedding_link_to_data of list of strings are not allowed
     data_df["image_link"] = [["link_"] + [str(x)] for x in range(3)]
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidTypeFeatures)
@@ -824,7 +922,9 @@ def test_wrong_embedding_types():
     # Check embedding_link_to_data of float are not allowed
     data_df["image_link"] = [x for x in range(3)]
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidTypeFeatures)
@@ -833,7 +933,9 @@ def test_wrong_embedding_types():
 
     # Check all resets were successful
     try:
-        response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+        response = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL
+        )
         response_df: pd.DataFrame = response.df  # type:ignore
     except Exception:
         pytest.fail("Unexpected error")
@@ -846,7 +948,7 @@ def test_wrong_embedding_types():
 
 def test_wrong_embedding_values():
     good_vector = []
-    for i in range(3):
+    for _ in range(3):
         good_vector.append(np.arange(float(6)))
 
     multidimensional_vector = []
@@ -857,15 +959,15 @@ def test_wrong_embedding_values():
             multidimensional_vector.append(np.arange(float(4)))
 
     empty_vector = []
-    for i in range(3):
+    for _ in range(3):
         empty_vector.append(np.arange(float(0)))
 
     one_vector = []
-    for i in range(3):
+    for _ in range(3):
         one_vector.append(np.arange(float(1)))
 
     long_vector = []
-    for i in range(3):
+    for _ in range(3):
         long_vector.append(np.arange(float(MAX_EMBEDDING_DIMENSIONALITY + 1)))
 
     data_df = pd.concat([get_base_df(), get_score_categorical_df()], axis=1)
@@ -875,7 +977,9 @@ def test_wrong_embedding_values():
     data_df["one_vector"] = one_vector
     data_df["long_vector"] = long_vector
 
-    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_score_categorical_schema()
+    )
     schema = _overwrite_schema_fields(
         schema,
         Schema(
@@ -900,7 +1004,9 @@ def test_wrong_embedding_values():
     )
 
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.SCORE_CATEGORICAL
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidValueEmbeddingVectorDimensionality)
@@ -910,17 +1016,28 @@ def test_wrong_embedding_values():
 
 def test_wrong_prompt_response_types():
     data_df = pd.concat(
-        [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
+        [
+            get_base_df(),
+            get_score_categorical_df(),
+            get_embeddings_df(),
+            get_generative_df(),
+        ],
         axis=1,
     )
-    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_score_categorical_schema()
+    )
     schema = _overwrite_schema_fields(schema, get_embeddings_schema())
     schema = _overwrite_schema_fields(schema, get_generative_schema())
 
     # Check prompt_vector of strings are not allowed
-    data_df["prompt_vector"] = np.random.randn(3, EMBEDDING_SIZE).astype(str).tolist()
+    data_df["prompt_vector"] = (
+        np.random.randn(3, EMBEDDING_SIZE).astype(str).tolist()
+    )
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidTypeColumns)
@@ -932,7 +1049,9 @@ def test_wrong_prompt_response_types():
         a=[True, False], size=(3, EMBEDDING_SIZE)
     ).tolist()
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidTypeColumns)
@@ -942,7 +1061,9 @@ def test_wrong_prompt_response_types():
     # Check response_data of float are not allowed
     data_df["response_data"] = [x for x in range(3)]
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidTypeColumns)
@@ -951,7 +1072,9 @@ def test_wrong_prompt_response_types():
 
     # Check all resets were successful
     try:
-        response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        response = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
         response_df: pd.DataFrame = response.df  # type:ignore
     except Exception:
         pytest.fail("Unexpected error")
@@ -966,17 +1089,26 @@ def test_wrong_prompt_response_types():
 
 def test_wrong_prompt_template_and_llm_config_types():
     data_df = pd.concat(
-        [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
+        [
+            get_base_df(),
+            get_score_categorical_df(),
+            get_embeddings_df(),
+            get_generative_df(),
+        ],
         axis=1,
     )
-    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_score_categorical_schema()
+    )
     schema = _overwrite_schema_fields(schema, get_embeddings_schema())
     schema = _overwrite_schema_fields(schema, get_generative_schema())
 
     # Check llm_model_name of floats is not allowed
     data_df["llm_model_name"] = np.random.randn(3).tolist()
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidTypeColumns)
@@ -986,27 +1118,37 @@ def test_wrong_prompt_template_and_llm_config_types():
     # Check prompt_template of floats is not allowed
     data_df["prompt_template"] = np.random.randn(3).tolist()
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidTypeColumns)
     # Reset
-    data_df["prompt_template"] = ["This is the template with version {{version}}" for _ in range(3)]
+    data_df["prompt_template"] = [
+        "This is the template with version {{version}}" for _ in range(3)
+    ]
 
     # Check prompt_template_version of floats is not allowed
     data_df["prompt_template_version"] = np.random.randn(3).tolist()
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidTypeColumns)
     # Reset
-    data_df["prompt_template_version"] = ["Template {x}" + str(x) for x in range(3)]
+    data_df["prompt_template_version"] = [
+        "Template {x}" + str(x) for x in range(3)
+    ]
 
     # Check llm_params of strings is not allowed
     data_df["llm_params"] = np.random.randn(3).astype(str).tolist()
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidTypeColumns)
@@ -1014,17 +1156,26 @@ def test_wrong_prompt_template_and_llm_config_types():
 
 def test_wrong_llm_run_metadata_types():
     data_df = pd.concat(
-        [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
+        [
+            get_base_df(),
+            get_score_categorical_df(),
+            get_embeddings_df(),
+            get_generative_df(),
+        ],
         axis=1,
     )
-    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_score_categorical_schema()
+    )
     schema = _overwrite_schema_fields(schema, get_embeddings_schema())
     schema = _overwrite_schema_fields(schema, get_generative_schema())
 
     # Check total_token_count of strings is not allowed
     data_df["total_token_count"] = [str(x) for x in range(3)]
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidTypeColumns)
@@ -1034,7 +1185,9 @@ def test_wrong_llm_run_metadata_types():
     # Check prompt_token_count of strings is not allowed
     data_df["prompt_token_count"] = [str(x) for x in range(3)]
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidTypeColumns)
@@ -1044,7 +1197,9 @@ def test_wrong_llm_run_metadata_types():
     # Check response_token_count of strings is not allowed
     data_df["response_token_count"] = [str(x) for x in range(3)]
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidTypeColumns)
@@ -1054,7 +1209,9 @@ def test_wrong_llm_run_metadata_types():
     # Check response_latency_ms of strings is not allowed
     data_df["response_latency_ms"] = [str(x) for x in range(3)]
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.InvalidTypeColumns)
@@ -1062,10 +1219,17 @@ def test_wrong_llm_run_metadata_types():
 
 def test_reserved_columns_llm_run_metadata():
     data_df = pd.concat(
-        [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
+        [
+            get_base_df(),
+            get_score_categorical_df(),
+            get_embeddings_df(),
+            get_generative_df(),
+        ],
         axis=1,
     )
-    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_score_categorical_schema()
+    )
     schema = _overwrite_schema_fields(schema, get_embeddings_schema())
     schema = _overwrite_schema_fields(schema, get_generative_schema())
 
@@ -1082,13 +1246,23 @@ def test_reserved_columns_llm_run_metadata():
             ],
         ),
     )
-    data_df[LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME] = [str(x) for x in range(3)]
-    data_df[LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME] = [str(x) for x in range(3)]
-    data_df[LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME] = [str(x) for x in range(3)]
-    data_df[LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME] = [str(x) for x in range(3)]
+    data_df[LLM_RUN_METADATA_TOTAL_TOKEN_COUNT_TAG_NAME] = [
+        str(x) for x in range(3)
+    ]
+    data_df[LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME] = [
+        str(x) for x in range(3)
+    ]
+    data_df[LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME] = [
+        str(x) for x in range(3)
+    ]
+    data_df[LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME] = [
+        str(x) for x in range(3)
+    ]
 
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     for e in excinfo.value.errors:
         assert isinstance(e, err.ReservedColumns)
@@ -1097,16 +1271,25 @@ def test_reserved_columns_llm_run_metadata():
 
 def test_valid_generative_prompt_response():
     data_df = pd.concat(
-        [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
+        [
+            get_base_df(),
+            get_score_categorical_df(),
+            get_embeddings_df(),
+            get_generative_df(),
+        ],
         axis=1,
     )
-    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_score_categorical_schema()
+    )
     schema = _overwrite_schema_fields(schema, get_embeddings_schema())
     schema = _overwrite_schema_fields(schema, get_generative_schema())
     # prompt type: EmbeddingColumnNames
     # response type: EmbeddingColumnNames
     try:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     except Exception:
         pytest.fail("Unexpected error")
 
@@ -1118,7 +1301,9 @@ def test_valid_generative_prompt_response():
         ),
     )
     try:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     except Exception:
         pytest.fail("Unexpected error")
 
@@ -1132,7 +1317,9 @@ def test_valid_generative_prompt_response():
         ),
     )
     try:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     except Exception:
         pytest.fail("Unexpected error")
 
@@ -1146,7 +1333,9 @@ def test_valid_generative_prompt_response():
         response_column_names="response_data",
     )
     try:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     except Exception:
         pytest.fail("Unexpected error")
 
@@ -1154,17 +1343,26 @@ def test_valid_generative_prompt_response():
     # response type: str
     schema = schema.replace(prompt_column_names="prompt_data")
     try:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     except Exception:
         pytest.fail("Unexpected error")
 
 
 def test_invalid_generative_prompt_response_types():
     data_df = pd.concat(
-        [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
+        [
+            get_base_df(),
+            get_score_categorical_df(),
+            get_embeddings_df(),
+            get_generative_df(),
+        ],
         axis=1,
     )
-    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_score_categorical_schema()
+    )
     schema = _overwrite_schema_fields(schema, get_embeddings_schema())
     schema = _overwrite_schema_fields(schema, get_generative_schema())
     # prompt type: EmbeddingColumnNames (containing wrong types)
@@ -1180,7 +1378,9 @@ def test_invalid_generative_prompt_response_types():
         ),
     )
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     assert len(excinfo.value.errors) == 2
     for e in excinfo.value.errors:
@@ -1189,7 +1389,9 @@ def test_invalid_generative_prompt_response_types():
     # response type: EmbeddingColumnNames (containing wrong types)
     schema = schema.replace(prompt_column_names="prompt_vector")
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     assert len(excinfo.value.errors) == 3
     for e in excinfo.value.errors:
@@ -1205,7 +1407,9 @@ def test_invalid_generative_prompt_response_types():
         response_column_names="response_vector",
     )
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     assert len(excinfo.value.errors) == 3
     for e in excinfo.value.errors:
@@ -1215,7 +1419,9 @@ def test_invalid_generative_prompt_response_types():
     # response type: str (containing wrong types)
     schema = schema.replace(prompt_column_names="prompt_vector")
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     assert len(excinfo.value.errors) == 1
     for e in excinfo.value.errors:
@@ -1224,20 +1430,37 @@ def test_invalid_generative_prompt_response_types():
 
 def test_invalid_generative_prompt_response_values():
     data_df = pd.concat(
-        [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
+        [
+            get_base_df(),
+            get_score_categorical_df(),
+            get_embeddings_df(),
+            get_generative_df(),
+        ],
         axis=1,
     )
-    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_score_categorical_schema()
+    )
     schema = _overwrite_schema_fields(schema, get_embeddings_schema())
     schema = _overwrite_schema_fields(schema, get_generative_schema())
-    data_df["prompt_vector"] = np.random.randn(3, MAX_EMBEDDING_DIMENSIONALITY + 1).tolist()
-    data_df["response_vector"] = np.random.randn(3, MAX_EMBEDDING_DIMENSIONALITY + 1).tolist()
-    data_df["prompt_data"] = ["x" * (MAX_RAW_DATA_CHARACTERS + 1) for _ in range(3)]
-    data_df["response_data"] = ["x" * (MAX_RAW_DATA_CHARACTERS + 1) for _ in range(3)]
+    data_df["prompt_vector"] = np.random.randn(
+        3, MAX_EMBEDDING_DIMENSIONALITY + 1
+    ).tolist()
+    data_df["response_vector"] = np.random.randn(
+        3, MAX_EMBEDDING_DIMENSIONALITY + 1
+    ).tolist()
+    data_df["prompt_data"] = [
+        "x" * (MAX_RAW_DATA_CHARACTERS + 1) for _ in range(3)
+    ]
+    data_df["response_data"] = [
+        "x" * (MAX_RAW_DATA_CHARACTERS + 1) for _ in range(3)
+    ]
     # prompt type: EmbeddingColumnNames (containing wrong values)
     # response type: EmbeddingColumnNames (containing wrong values)
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     assert len(excinfo.value.errors) == 2
     for e in excinfo.value.errors:
@@ -1252,7 +1475,9 @@ def test_invalid_generative_prompt_response_values():
     # response type: EmbeddingColumnNames (containing wrong values)
     schema = schema.replace(prompt_column_names="prompt_data")
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     assert len(excinfo.value.errors) == 2
     for e in excinfo.value.errors:
@@ -1274,7 +1499,9 @@ def test_invalid_generative_prompt_response_values():
         response_column_names="response_data",
     )
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     assert len(excinfo.value.errors) == 2
     for e in excinfo.value.errors:
@@ -1290,7 +1517,9 @@ def test_invalid_generative_prompt_response_values():
     # response type: str (containing wrong values)
     schema = schema.replace(prompt_column_names="prompt_data")
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     assert len(excinfo.value.errors) == 1
     for e in excinfo.value.errors:
@@ -1299,17 +1528,26 @@ def test_invalid_generative_prompt_response_values():
 
 def test_generative_without_prompt_response():
     data_df = pd.concat(
-        [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
+        [
+            get_base_df(),
+            get_score_categorical_df(),
+            get_embeddings_df(),
+            get_generative_df(),
+        ],
         axis=1,
     )
-    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_score_categorical_schema()
+    )
     schema = _overwrite_schema_fields(schema, get_embeddings_schema())
     schema = _overwrite_schema_fields(schema, get_generative_schema())
     schema = schema.replace(prompt_column_names=None)
     schema = schema.replace(response_column_names=None)
 
     try:
-        response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        response = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
         response_df: pd.DataFrame = response.df  # type:ignore
     except Exception:
         pytest.fail("Unexpected error")
@@ -1319,7 +1557,12 @@ def test_generative_without_prompt_response():
         ]
     )
     data_df = data_df.drop(
-        columns=["prompt_vector", "prompt_data", "response_vector", "response_data"]
+        columns=[
+            "prompt_vector",
+            "prompt_data",
+            "response_vector",
+            "response_data",
+        ]
     )
     assert (
         response_df.sort_index(axis=1).to_json()
@@ -1347,7 +1590,10 @@ def test_generative_default_prediction_label():
                 "prediction_label_column_name": None,
                 "actual_label_column_name": None,
             },
-            drop_generated_columns=[GENERATED_LLM_PARAMS_JSON_COL, GENERATED_PREDICTION_LABEL_COL],
+            drop_generated_columns=[
+                GENERATED_LLM_PARAMS_JSON_COL,
+                GENERATED_PREDICTION_LABEL_COL,
+            ],
         ),
         # Testing the case that allows us to still support latent actual
         TestConfig(
@@ -1375,10 +1621,17 @@ def test_generative_default_prediction_label():
 
     for test in tests:
         data_df = pd.concat(
-            [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
+            [
+                get_base_df(),
+                get_score_categorical_df(),
+                get_embeddings_df(),
+                get_generative_df(),
+            ],
             axis=1,
         ).drop(columns=test.drop_columns)
-        schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+        schema = _overwrite_schema_fields(
+            get_base_schema(), get_score_categorical_schema()
+        )
         schema = _overwrite_schema_fields(schema, get_embeddings_schema())
         schema = _overwrite_schema_fields(schema, get_generative_schema())
         # Check logging without prediction and actual label; validate that a default prediction label
@@ -1386,7 +1639,9 @@ def test_generative_default_prediction_label():
         schema = schema.replace(**test.replace_column_names)
 
         try:
-            response = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+            response = log_dataframe(
+                data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+            )
             response_df: pd.DataFrame = response.df  # type:ignore
         except Exception:
             pytest.fail("Unexpected error")
@@ -1407,21 +1662,34 @@ def test_generative_default_prediction_label():
 
 def test_invalid_generative_llm_prompt_template_and_llm_config_values():
     data_df = pd.concat(
-        [get_base_df(), get_score_categorical_df(), get_embeddings_df(), get_generative_df()],
+        [
+            get_base_df(),
+            get_score_categorical_df(),
+            get_embeddings_df(),
+            get_generative_df(),
+        ],
         axis=1,
     )
-    schema = _overwrite_schema_fields(get_base_schema(), get_score_categorical_schema())
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_score_categorical_schema()
+    )
     schema = _overwrite_schema_fields(schema, get_embeddings_schema())
     schema = _overwrite_schema_fields(schema, get_generative_schema())
 
     # Check fields with too many characters is not allowed
-    data_df["llm_model_name"] = pd.Series(["a" * (MAX_LLM_MODEL_NAME_LENGTH + 1)] * 3)
-    data_df["prompt_template"] = pd.Series(["a" * (MAX_PROMPT_TEMPLATE_LENGTH + 1)] * 3)
+    data_df["llm_model_name"] = pd.Series(
+        ["a" * (MAX_LLM_MODEL_NAME_LENGTH + 1)] * 3
+    )
+    data_df["prompt_template"] = pd.Series(
+        ["a" * (MAX_PROMPT_TEMPLATE_LENGTH + 1)] * 3
+    )
     data_df["prompt_template_version"] = pd.Series(
         ["a" * (MAX_PROMPT_TEMPLATE_VERSION_LENGTH + 1)] * 3
     )
     with pytest.raises(Exception) as excinfo:
-        _ = log_dataframe(data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM)
+        _ = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.GENERATIVE_LLM
+        )
     assert isinstance(excinfo.value, err.ValidationFailure)
     assert len(excinfo.value.errors) == 3
     for e in excinfo.value.errors:
@@ -1429,7 +1697,11 @@ def test_invalid_generative_llm_prompt_template_and_llm_config_values():
 
 
 def get_stubbed_client(additional_headers=None):
-    c = Client(space_key="space_key", api_key="api_key", additional_headers=additional_headers)
+    c = Client(
+        space_key="space_key",
+        api_key="api_key",
+        additional_headers=additional_headers,
+    )
 
     def _post_file(path, schema):
         return 200
@@ -1478,13 +1750,19 @@ def test_invalid_client_auth_passed_vars():
 
     with pytest.raises(AuthError) as excinfo:
         _ = Client(space_key="space_key")
-    assert excinfo.value.__str__() == AuthError(None, "space_key", None).error_message()
+    assert (
+        excinfo.value.__str__()
+        == AuthError(None, "space_key", None).error_message()
+    )
     assert "Missing: ['api_key']" in str(excinfo.value)
 
     # if both space_key and space_id are missing, promt only for space_id
     with pytest.raises(AuthError) as excinfo:
         _ = Client(api_key="api_key")
-    assert excinfo.value.__str__() == AuthError("api_key", None, None).error_message()
+    assert (
+        excinfo.value.__str__()
+        == AuthError("api_key", None, None).error_message()
+    )
     assert "Missing: ['space_id']" in str(excinfo.value)
 
     # incorrect type
@@ -1492,7 +1770,9 @@ def test_invalid_client_auth_passed_vars():
         _ = Client(api_key=123, space_key="space_key")
     assert (
         excinfo.value.__str__()
-        == InvalidTypeAuthKey(api_key=123, space_key="space_key").error_message()
+        == InvalidTypeAuthKey(
+            api_key=123, space_key="space_key"
+        ).error_message()
     )
     assert "api_key as int" in str(excinfo.value)
 
@@ -1504,7 +1784,9 @@ def test_invalid_client_auth_passed_vars():
         _ = Client(api_key=api_key, space_key=space_key)
     assert (
         excinfo.value.__str__()
-        == InvalidTypeAuthKey(api_key=api_key, space_key=space_key).error_message()
+        == InvalidTypeAuthKey(
+            api_key=api_key, space_key=space_key
+        ).error_message()
     )
     assert "space_key as tuple" in str(excinfo.value)
 
@@ -1514,7 +1796,9 @@ def test_invalid_client_auth_passed_vars():
         _ = Client(api_key=api_key, space_id=space_id)
     assert (
         excinfo.value.__str__()
-        == InvalidTypeAuthKey(api_key=api_key, space_id=space_id).error_message()
+        == InvalidTypeAuthKey(
+            api_key=api_key, space_id=space_id
+        ).error_message()
     )
     assert "space_id as int" in str(excinfo.value)
 
@@ -1528,14 +1812,19 @@ def test_invalid_client_auth_passed_vars():
 def test_invalid_client_auth_environment_vars(monkeypatch):
     with pytest.raises(AuthError) as excinfo:
         _ = Client()
-    assert excinfo.value.__str__() == AuthError(None, None, None).error_message()
+    assert (
+        excinfo.value.__str__() == AuthError(None, None, None).error_message()
+    )
     assert "Missing: ['api_key', 'space_id']" in str(excinfo.value)
 
     monkeypatch.setenv(SPACE_KEY_ENVVAR_NAME, "space_key")
     with pytest.raises(AuthError) as excinfo:
         c = Client()
         assert c._space_key == "space_key"
-    assert excinfo.value.__str__() == AuthError(None, "space_key", None).error_message()
+    assert (
+        excinfo.value.__str__()
+        == AuthError(None, "space_key", None).error_message()
+    )
     assert "Missing: ['api_key']" in str(excinfo.value)
 
     monkeypatch.delenv(SPACE_KEY_ENVVAR_NAME)
@@ -1543,7 +1832,10 @@ def test_invalid_client_auth_environment_vars(monkeypatch):
     with pytest.raises(AuthError) as excinfo:
         c = Client()
         assert c._api_key == "api_key"
-    assert excinfo.value.__str__() == AuthError("api_key", None, None).error_message()
+    assert (
+        excinfo.value.__str__()
+        == AuthError("api_key", None, None).error_message()
+    )
     assert "Missing: ['space_id']" in str(excinfo.value)
 
     # acceptable input
@@ -1591,7 +1883,9 @@ def _overwrite_schema_fields(schema1: Schema, schema2: Schema) -> Schema:
         "llm_run_metadata_column_names",
     )
     changes = {
-        k: v for k, v in schema2.asdict().items() if v is not None and k not in schema_dict_fields
+        k: v
+        for k, v in schema2.asdict().items()
+        if v is not None and k not in schema_dict_fields
     }
     schema = schema1.replace(**changes)
 
@@ -1603,13 +1897,17 @@ def _overwrite_schema_fields(schema1: Schema, schema2: Schema) -> Schema:
         for k, v in schema2.embedding_feature_column_names.items():
             emb_feat_col_names[k] = v
         # replace embedding column names in schema
-        schema = schema.replace(embedding_feature_column_names=emb_feat_col_names)
+        schema = schema.replace(
+            embedding_feature_column_names=emb_feat_col_names
+        )
 
     # Prompt and response need to be treated separately
     if schema2.prompt_column_names is not None:
         schema = schema.replace(prompt_column_names=schema2.prompt_column_names)
     if schema2.response_column_names is not None:
-        schema = schema.replace(response_column_names=schema2.response_column_names)
+        schema = schema.replace(
+            response_column_names=schema2.response_column_names
+        )
 
     # Shap values column names need to be treated separately for being in a dictionary
     if schema2.shap_values_column_names is not None:
@@ -1624,18 +1922,28 @@ def _overwrite_schema_fields(schema1: Schema, schema2: Schema) -> Schema:
     # prompt_template_column_names, llm_config_column_names, and llm_run_metadata_column_names
     # need to be treated separately
     if schema2.prompt_template_column_names is not None:
-        schema = schema.replace(prompt_template_column_names=schema2.prompt_template_column_names)
+        schema = schema.replace(
+            prompt_template_column_names=schema2.prompt_template_column_names
+        )
     if schema2.llm_config_column_names is not None:
-        schema = schema.replace(llm_config_column_names=schema2.llm_config_column_names)
+        schema = schema.replace(
+            llm_config_column_names=schema2.llm_config_column_names
+        )
     if schema2.llm_run_metadata_column_names is not None:
-        schema = schema.replace(llm_run_metadata_column_names=schema2.llm_run_metadata_column_names)
+        schema = schema.replace(
+            llm_run_metadata_column_names=schema2.llm_run_metadata_column_names
+        )
 
     # feature_column_names and tag_column_names need to be treated separately if they are of type TypedColumns
     if schema2.feature_column_names is not None and isinstance(
         schema2.feature_column_names, TypedColumns
     ):
-        schema = schema.replace(feature_column_names=schema2.feature_column_names)
-    if schema2.tag_column_names is not None and isinstance(schema2.tag_column_names, TypedColumns):
+        schema = schema.replace(
+            feature_column_names=schema2.feature_column_names
+        )
+    if schema2.tag_column_names is not None and isinstance(
+        schema2.tag_column_names, TypedColumns
+    ):
         schema = schema.replace(tag_column_names=schema2.tag_column_names)
 
     return schema

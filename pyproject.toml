@@ -54,6 +54,10 @@ Source = "https://github.com/Arize-ai/client_python"
 Changelog = "https://github.com/Arize-ai/client_python/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
+dev = [
+    "pytest==8.3.3",
+    "ruff==0.6.9",
+]
 MimicExplainer = [
     "interpret-community[mimic]>=0.22.0,<1",
 ]
@@ -99,15 +103,76 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
-path = "arize/version.py"
-
-[tool.hatch.build.targets.wheel]
-packages = ["arize"]
+path = "src/arize/version.py"
 
 [tool.hatch.build]
 only-packages = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/arize"]
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+      "src/arize/examples",
+      "tests",
+      "docs",
+]
+
 
 [tool.black]
 include = '\.pyi?$'
 exclude = '(_pb2\.py$|docs/source/.*\.py)'
 
+[tool.ruff]
+target-version = "py37"
+line-length = 80
+exclude = [
+    "api_reference",
+    "dist/",
+    "__pycache__",
+    "*_pb2.py*",
+    "*_pb2_grpc.py*",
+    "*.pyi",
+    "docs/",
+]
+[tool.ruff.format]
+docstring-code-format = true
+line-ending = "native"
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle Error
+    "E",
+    # pycodestyle Warning
+    "W",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    # TODO: Enable pydocstyle when ready for API docs
+    # # pydocstyle
+    # "D",
+]
+ignore= [
+    "D203", # Do not use a blank line to separate the docstring from the class definition,
+    "D212", # The summary line should be located on the second physical line of the docstring
+]
+
+[tool.ruff.lint.isort]
+force-wrap-aliases = true
+
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 110
+max-line-length = 110
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.pyupgrade]
+keep-runtime-typing = true

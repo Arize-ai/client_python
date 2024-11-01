@@ -2,6 +2,7 @@ import json
 from collections import namedtuple
 
 import pytest
+
 from arize.utils import utils
 
 

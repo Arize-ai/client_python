@@ -1,9 +1,10 @@
 import datetime
 from collections import ChainMap
 
-import arize.pandas.validation.errors as err
 import pandas as pd
 import pytest
+
+import arize.pandas.validation.errors as err
 from arize.pandas.logger import Schema
 from arize.pandas.validation.validator import Validator
 from arize.utils.types import Environments, ModelTypes
@@ -17,7 +18,9 @@ def test_valid_record_score_categorical_prod():
                 "environment": Environments.PRODUCTION,
                 "dataframe": pd.DataFrame(
                     {
-                        "prediction_label": pd.Series(["fraud", "not fraud", None]),
+                        "prediction_label": pd.Series(
+                            ["fraud", "not fraud", None]
+                        ),
                         "prediction_score": pd.Series([0.2, 0.3, float("NaN")]),
                         "actual_label": pd.Series(["not fraud", "fraud", None]),
                         "actual_score": pd.Series([0, float("NaN"), 1]),
@@ -38,7 +41,9 @@ def test_invalid_record_score_categorical_prod():
                 "environment": Environments.PRODUCTION,
                 "dataframe": pd.DataFrame(
                     {
-                        "prediction_label": pd.Series(["fraud", "not fraud", None]),
+                        "prediction_label": pd.Series(
+                            ["fraud", "not fraud", None]
+                        ),
                         "prediction_score": pd.Series([0.2, 0.3, float("NaN")]),
                         "actual_label": pd.Series(["not fraud", "fraud", None]),
                         "actual_score": pd.Series([0, 1, float("NaN")]),
@@ -67,7 +72,9 @@ def test_invalid_record_score_categorical_pred_only_prod():
                 "environment": Environments.PRODUCTION,
                 "dataframe": pd.DataFrame(
                     {
-                        "prediction_label": pd.Series(["fraud", "not fraud", None]),
+                        "prediction_label": pd.Series(
+                            ["fraud", "not fraud", None]
+                        ),
                         "prediction_score": pd.Series([0.2, 0.3, float("NaN")]),
                     }
                 ),
@@ -258,7 +265,9 @@ def test_valid_record_score_categorical_training():
                 "environment": Environments.TRAINING,
                 "dataframe": pd.DataFrame(
                     {
-                        "prediction_label": pd.Series(["fraud", "not fraud", None]),
+                        "prediction_label": pd.Series(
+                            ["fraud", "not fraud", None]
+                        ),
                         "prediction_score": pd.Series([0.2, float("NaN"), 0.3]),
                         "actual_label": pd.Series(["not fraud", "fraud", None]),
                         "actual_score": pd.Series([0, float("NaN"), 1]),
@@ -279,7 +288,9 @@ def test_invalid_record_score_categorical_training():
                 "environment": Environments.TRAINING,
                 "dataframe": pd.DataFrame(
                     {
-                        "prediction_label": pd.Series(["fraud", "not fraud", None]),
+                        "prediction_label": pd.Series(
+                            ["fraud", "not fraud", None]
+                        ),
                         "prediction_score": pd.Series([0.2, 0.3, float("NaN")]),
                         "actual_label": pd.Series(["not fraud", "fraud", None]),
                         "actual_score": pd.Series([0, 1, float("NaN")]),
@@ -306,7 +317,9 @@ def test_invalid_record_score_categorical_pred_only_training():
                 "environment": Environments.TRAINING,
                 "dataframe": pd.DataFrame(
                     {
-                        "prediction_label": pd.Series(["fraud", "not fraud", None]),
+                        "prediction_label": pd.Series(
+                            ["fraud", "not fraud", None]
+                        ),
                         "prediction_score": pd.Series([0.2, 0.3, float("NaN")]),
                     }
                 ),

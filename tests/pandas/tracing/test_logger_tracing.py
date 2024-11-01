@@ -8,8 +8,9 @@ import numpy as np
 import pandas as pd
 import pyarrow as pa
 import pytest
-from arize.pandas.logger import Client
 from requests import Response
+
+from arize.pandas.logger import Client
 
 
 class MockResponse(Response):
@@ -22,19 +23,23 @@ class MockResponse(Response):
 
 class NoSendClient(Client):
     def _post_file(self, path, sync, timeout):
-        return MockResponse(pa.ipc.open_stream(pa.OSFile(path)).read_pandas(), "Success", 200)
+        return MockResponse(
+            pa.ipc.open_stream(pa.OSFile(path)).read_pandas(), "Success", 200
+        )
 
 
 def generate_mock_data(n) -> pd.DataFrame:
     # Helper functions for generating mock data
     def random_timestamps(n):
         start_times = [
-            datetime.datetime.now() - datetime.timedelta(days=random.randint(0, 365))
+            datetime.datetime.now()
+            - datetime.timedelta(days=random.randint(0, 365))
             for _ in range(n)
         ]
 
         end_times = [
-            start + datetime.timedelta(seconds=random.randint(1, 60)) for start in start_times
+            start + datetime.timedelta(seconds=random.randint(1, 60))
+            for start in start_times
         ]
         return start_times, end_times
 
@@ -75,7 +80,10 @@ def generate_mock_data(n) -> pd.DataFrame:
                     list_length=random.randint(1, 3),
                 )
             ),
-            "span_kind": [random.choice(["INTERNAL", "CLIENT", "SERVER"]) for _ in range(n)],
+            "span_kind": [
+                random.choice(["INTERNAL", "CLIENT", "SERVER"])
+                for _ in range(n)
+            ],
             # Attributes
             "attributes.exception_type": [
                 None if i % 3 == 0 else f"ExceptionType{i}" for i in range(n)
@@ -91,7 +99,9 @@ def generate_mock_data(n) -> pd.DataFrame:
             "attributes.input_mime_type": [f"MIMEType{i}" for i in range(n)],
             "attributes.output_value": [f"OutputValue{i}" for i in range(n)],
             "attributes.output_mime_type": [f"MIMEType{i}" for i in range(n)],
-            "attributes.embedding_model_name": [f"ModelName{i}" for i in range(n)],
+            "attributes.embedding_model_name": [
+                f"ModelName{i}" for i in range(n)
+            ],
             "attributes.embedding_embeddings": mock_list_dicts(
                 n, ["embedding_vector", "embedding_text"]
             ),
@@ -106,15 +116,27 @@ def generate_mock_data(n) -> pd.DataFrame:
                 ["name", "role", "content", "tool_calls"],
                 list_length=random.randint(1, 3),
             ),
-            "attributes.llm_invocation_parameters": mock_dict(n, ["param1", "param2"]),
-            "attributes.llm_prompt_template_template": [f"Template{i}" for i in range(n)],
-            "attributes.llm_prompt_template_variables": mock_dict(n, ["var1", "var2"]),
-            "attributes.llm_prompt_template_version": [f"Version{i}" for i in range(n)],
+            "attributes.llm_invocation_parameters": mock_dict(
+                n, ["param1", "param2"]
+            ),
+            "attributes.llm_prompt_template_template": [
+                f"Template{i}" for i in range(n)
+            ],
+            "attributes.llm_prompt_template_variables": mock_dict(
+                n, ["var1", "var2"]
+            ),
+            "attributes.llm_prompt_template_version": [
+                f"Version{i}" for i in range(n)
+            ],
             "attributes.llm_prompt_token_count": np.random.randint(1, 1000, n),
-            "attributes.llm_completion_token_count": np.random.randint(1, 1000, n),
+            "attributes.llm_completion_token_count": np.random.randint(
+                1, 1000, n
+            ),
             "attributes.llm_total_token_count": np.random.randint(1, 2000, n),
             "attributes.tool_name": [f"ToolName{i}" for i in range(n)],
-            "attributes.tool_description": [f"ToolDescription{i}" for i in range(n)],
+            "attributes.tool_description": [
+                f"ToolDescription{i}" for i in range(n)
+            ],
             "attributes.tool_parameters": mock_dict(n, ["param1", "param2"]),
             "attributes.retrieval_documents": mock_list_dicts(
                 n,
@@ -147,7 +169,9 @@ def generate_mock_data(n) -> pd.DataFrame:
                 list_length=random.randint(1, 3),
             ),
             "attributes.reranker_query": [f"Query{i}" for i in range(n)],
-            "attributes.reranker_model_name": [f"RerankerModelName{i}" for i in range(n)],
+            "attributes.reranker_model_name": [
+                f"RerankerModelName{i}" for i in range(n)
+            ],
             "attributes.reranker_top_k": np.random.randint(1, 10, n),
             "attributes.session.id": [f"SessionID{i}" for i in range(n)],
             "attributes.user.id": [f"UserID{i}" for i in range(n)],
@@ -230,7 +254,9 @@ def test_log_evals_zero_errors():
         pytest.fail("Unexpected error")
 
 
-def log_spans(df: pd.DataFrame, evals_df: Optional[pd.DataFrame] = None) -> Response:
+def log_spans(
+    df: pd.DataFrame, evals_df: Optional[pd.DataFrame] = None
+) -> Response:
     client = NoSendClient("apikey", "spaceKey")
     response = client.log_spans(
         dataframe=df,

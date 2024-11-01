@@ -1,12 +1,16 @@
 import pytest
-from arize.utils.constants import MAX_MULTI_CLASS_NAME_LENGTH, MAX_NUMBER_OF_MULTI_CLASS_CLASSES
+
+from arize.utils.constants import (
+    MAX_MULTI_CLASS_NAME_LENGTH,
+    MAX_NUMBER_OF_MULTI_CLASS_CLASSES,
+)
 from arize.utils.types import MultiClassActualLabel, MultiClassPredictionLabel
 
 overMaxClasses = {"class": 0.2}
 for i in range(MAX_NUMBER_OF_MULTI_CLASS_CLASSES):
     overMaxClasses[f"class_{i}"] = 0.2
 overMaxClassLen = "a"
-for i in range(MAX_MULTI_CLASS_NAME_LENGTH):
+for _ in range(MAX_MULTI_CLASS_NAME_LENGTH):
     overMaxClassLen += "a"
 
 input_labels = {
@@ -79,7 +83,7 @@ input_labels = {
 
 
 def test_correct_multi_class_label():
-    keys = [key for key in input_labels.keys() if "correct:" in key]
+    keys = [key for key in input_labels if "correct:" in key]
     assert len(keys) > 0, "Test configuration error: keys must not be empty"
 
     for key in keys:
@@ -87,21 +91,23 @@ def test_correct_multi_class_label():
         try:
             multi_class_label.validate()
         except Exception as err:
-            assert False, (
+            raise AssertionError(
                 f"Correct mutli class prediction label should give no errors. Failing key = {key:s}. "
                 f"Error = {err}"
-            )
+            ) from None
 
 
 def test_invalid_scores():
-    keys = [key for key in input_labels.keys() if "invalid:" in key]
+    keys = [key for key in input_labels if "invalid:" in key]
     assert len(keys) > 0, "Test configuration error: keys must not be empty"
 
     for key in keys:
         multi_class_label = input_labels[key]
         with pytest.raises(ValueError) as e:
             multi_class_label.validate()
-            assert isinstance(e, ValueError), "Invalid values should raise value errors"
+            assert isinstance(
+                e, ValueError
+            ), "Invalid values should raise value errors"
 
 
 if __name__ == "__main__":

@@ -1,9 +1,10 @@
 from collections import ChainMap
 from datetime import datetime, timedelta
 
-import arize.pandas.validation.errors as err
 import pandas as pd
 import pytest
+
+import arize.pandas.validation.errors as err
 from arize.pandas.logger import Schema
 from arize.pandas.validation.validator import Validator
 from arize.utils.types import Environments, ModelTypes
@@ -27,7 +28,12 @@ kwargs = {
             "item_type": pd.Series(["toy", "game", "game", "pens"]),
             "ranking_rank": pd.Series([1, 2, 1, 2]),
             "ranking_category": pd.Series(
-                [["click", "purchase"], ["click", "favor"], ["favor"], ["click"]]
+                [
+                    ["click", "purchase"],
+                    ["click", "favor"],
+                    ["favor"],
+                    ["click"],
+                ]
             ),
             "ranking_relevance": pd.Series([1, 0, 2, 0]),
         }

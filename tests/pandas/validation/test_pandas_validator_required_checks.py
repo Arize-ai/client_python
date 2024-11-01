@@ -1,8 +1,9 @@
 from collections import ChainMap
 
-import arize.pandas.validation.errors as err
 import pandas as pd
 import pytest
+
+import arize.pandas.validation.errors as err
 from arize.pandas.validation.validator import Validator
 from arize.utils.types import (
     CorpusSchema,
@@ -74,7 +75,9 @@ def test_invalid_index():
 
 def test_field_type_embedding_features_column_names():
     kwargs = get_standard_kwargs()
-    embedding_feature_column_correct = kwargs["schema"].embedding_feature_column_names
+    embedding_feature_column_correct = kwargs[
+        "schema"
+    ].embedding_feature_column_names
     embedding_feature_column_incorrect = [
         EmbeddingColumnNames(
             vector_column_name="image_vector",
@@ -203,7 +206,12 @@ def test_type_llm_params():
     kwargs = get_standard_kwargs()
     dataframe_correct = kwargs["dataframe"]
     dataframe_correct["llm_params"] = [
-        {"temperature": i / 4, "presence_penalty": i / 3, "stop": [".", "?", "!"]} for i in range(5)
+        {
+            "temperature": i / 4,
+            "presence_penalty": i / 3,
+            "stop": [".", "?", "!"],
+        }
+        for i in range(5)
     ]
     errors = Validator.validate_required_checks(
         **ChainMap(
@@ -212,7 +220,9 @@ def test_type_llm_params():
                 "schema": Schema(
                     prediction_id_column_name="prediction_id",
                     prediction_score_column_name="prediction_score",
-                    llm_config_column_names=LLMConfigColumnNames(params_column_name="llm_params"),
+                    llm_config_column_names=LLMConfigColumnNames(
+                        params_column_name="llm_params"
+                    ),
                 ),
             },
             kwargs,
@@ -234,7 +244,9 @@ def test_type_llm_params():
                 "schema": Schema(
                     prediction_id_column_name="prediction_id",
                     prediction_score_column_name="prediction_score",
-                    llm_config_column_names=LLMConfigColumnNames(params_column_name="llm_params"),
+                    llm_config_column_names=LLMConfigColumnNames(
+                        params_column_name="llm_params"
+                    ),
                 ),
             },
             kwargs,
@@ -251,7 +263,9 @@ def test_type_llm_params():
                 "schema": Schema(
                     prediction_id_column_name="prediction_id",
                     prediction_score_column_name="prediction_score",
-                    llm_config_column_names=LLMConfigColumnNames(params_column_name="llm_params"),
+                    llm_config_column_names=LLMConfigColumnNames(
+                        params_column_name="llm_params"
+                    ),
                 ),
             },
             kwargs,

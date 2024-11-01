@@ -4,6 +4,7 @@ import string
 import numpy as np
 import pandas as pd
 import pytest
+
 from arize.utils.constants import MAX_RAW_DATA_CHARACTERS
 from arize.utils.types import Embedding
 
@@ -83,7 +84,7 @@ input_embeddings = {
 
 
 def test_correct_embeddings():
-    keys = [key for key in input_embeddings.keys() if "correct:" in key]
+    keys = [key for key in input_embeddings if "correct:" in key]
     assert len(keys) > 0, "Test configuration error: keys must not be empty"
 
     for key in keys:
@@ -91,14 +92,14 @@ def test_correct_embeddings():
         try:
             embedding.validate(key)
         except Exception as err:
-            assert False, (
+            raise AssertionError(
                 f"Correct embeddings should give no errors. Failing key = {key:s}. "
                 f"Error = {err}"
-            )
+            ) from None
 
 
 def test_wrong_value_fields():
-    keys = [key for key in input_embeddings.keys() if "wrong_value:" in key]
+    keys = [key for key in input_embeddings if "wrong_value:" in key]
     assert len(keys) > 0, "Test configuration error: keys must not be empty"
 
     for key in keys:
@@ -106,11 +107,13 @@ def test_wrong_value_fields():
         try:
             embedding.validate(key)
         except Exception as err:
-            assert isinstance(err, ValueError), "Wrong field values should raise value errors"
+            assert isinstance(
+                err, ValueError
+            ), "Wrong field values should raise value errors"
 
 
 def test_wrong_type_fields():
-    keys = [key for key in input_embeddings.keys() if "wrong_type:" in key]
+    keys = [key for key in input_embeddings if "wrong_type:" in key]
     assert len(keys) > 0, "Test configuration error: keys must not be empty"
 
     for key in keys:
@@ -118,7 +121,9 @@ def test_wrong_type_fields():
         try:
             embedding.validate(key)
         except Exception as err:
-            assert isinstance(err, TypeError), "Wrong field types should raise type errors"
+            assert isinstance(
+                err, TypeError
+            ), "Wrong field types should raise type errors"
 
 
 if __name__ == "__main__":

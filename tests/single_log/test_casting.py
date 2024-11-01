@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import List, Union
 
 import pytest
+
 from arize.single_log.casting import cast_value
 from arize.single_log.errors import CastingError
 from arize.utils.types import ArizeTypes, TypedValue
@@ -77,10 +78,12 @@ def test_float_to_int_error():
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
 def test_cast_to_float_no_error():
     tc1 = SingleLogTestCase(
-        typed_value=TypedValue(value=1, type=ArizeTypes.FLOAT), expected_value=1.0
+        typed_value=TypedValue(value=1, type=ArizeTypes.FLOAT),
+        expected_value=1.0,
     )
     tc2 = SingleLogTestCase(
-        typed_value=TypedValue(value="7.7", type=ArizeTypes.FLOAT), expected_value=7.7
+        typed_value=TypedValue(value="7.7", type=ArizeTypes.FLOAT),
+        expected_value=7.7,
     )
     tc3 = SingleLogTestCase(
         typed_value=TypedValue(value="NaN", type=ArizeTypes.FLOAT),
@@ -107,10 +110,12 @@ def test_cast_to_int_no_error():
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
 def test_cast_to_string_no_error():
     tc1 = SingleLogTestCase(
-        typed_value=TypedValue(value=1.0, type=ArizeTypes.STR), expected_value="1.0"
+        typed_value=TypedValue(value=1.0, type=ArizeTypes.STR),
+        expected_value="1.0",
     )
     tc2 = SingleLogTestCase(
-        typed_value=TypedValue(value=float("NaN"), type=ArizeTypes.STR), expected_value=None
+        typed_value=TypedValue(value=float("NaN"), type=ArizeTypes.STR),
+        expected_value=None,
     )
     tc3 = SingleLogTestCase(
         typed_value=TypedValue(value=None, type=ArizeTypes.STR),

@@ -1,5 +1,6 @@
-import arize.pandas.validation.errors as err
 import pytest
+
+import arize.pandas.validation.errors as err
 from arize.utils.types import Environments, ModelTypes
 
 # ----------------
@@ -38,7 +39,9 @@ def test_Invalid_type():
 
 def test_invalid_type_features():
     err_msg = str(
-        err.InvalidTypeFeatures(["genotype", "phenotype"], ["Triceratops", "Archaeopteryx"])
+        err.InvalidTypeFeatures(
+            ["genotype", "phenotype"], ["Triceratops", "Archaeopteryx"]
+        )
     )
     assert "genotype" in err_msg
     assert "phenotype" in err_msg
@@ -47,7 +50,11 @@ def test_invalid_type_features():
 
 
 def test_invalid_type_tags():
-    err_msg = str(err.InvalidTypeTags(["genotype", "phenotype"], ["Triceratops", "Archaeopteryx"]))
+    err_msg = str(
+        err.InvalidTypeTags(
+            ["genotype", "phenotype"], ["Triceratops", "Archaeopteryx"]
+        )
+    )
     assert "genotype" in err_msg
     assert "phenotype" in err_msg
     assert "Triceratops" in err_msg
@@ -56,7 +63,9 @@ def test_invalid_type_tags():
 
 def test_invalid_type_shap_values():
     err_msg = str(
-        err.InvalidTypeShapValues(["genotype", "phenotype"], ["Triceratops", "Archaeopteryx"])
+        err.InvalidTypeShapValues(
+            ["genotype", "phenotype"], ["Triceratops", "Archaeopteryx"]
+        )
     )
     assert "genotype" in err_msg
     assert "phenotype" in err_msg

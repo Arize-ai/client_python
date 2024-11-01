@@ -2,6 +2,7 @@ from collections import ChainMap
 
 import pandas as pd
 import pytest
+
 from arize.pandas.logger import Schema
 from arize.pandas.validation.errors import MissingColumns
 from arize.pandas.validation.validator import Validator
@@ -12,7 +13,9 @@ def test_missing_prediction_id():
     errors = Validator.validate_params(
         **ChainMap(
             {
-                "dataframe": pd.DataFrame({"prediction_label": pd.Series(["fraud"])}),
+                "dataframe": pd.DataFrame(
+                    {"prediction_label": pd.Series(["fraud"])}
+                ),
                 "schema": Schema(
                     prediction_id_column_name="prediction_id",
                     prediction_label_column_name="prediction_label",

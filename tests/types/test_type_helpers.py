@@ -1,4 +1,5 @@
 import pytest
+
 from arize.utils.types import is_dict_of, is_list_of
 
 

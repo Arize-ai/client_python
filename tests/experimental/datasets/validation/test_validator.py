@@ -6,6 +6,7 @@ if sys.version_info < (3, 8):
     pytest.skip("Requires Python 3.8 or higher", allow_module_level=True)
 
 import pandas as pd
+
 from arize.experimental.datasets.core.client import (
     ArizeDatasetsClient,
     _convert_default_columns_to_json_str,
@@ -25,7 +26,12 @@ def test_happy_path():
     )
 
     df_new = ArizeDatasetsClient._set_default_columns_for_dataset(df)
-    differences = set(df_new.columns) ^ {"id", "created_at", "updated_at", "user_data"}
+    differences = set(df_new.columns) ^ {
+        "id",
+        "created_at",
+        "updated_at",
+        "user_data",
+    }
     assert not differences
 
     validation_errors = Validator.validate(df)
@@ -58,13 +64,23 @@ def test_non_unique_id_column():
     assert validation_errors[0] is IDColumnUniqueConstraintError
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8 or higher")
+@pytest.mark.skipif(
+    sys.version_info < (3, 8), reason="Requires Python 3.8 or higher"
+)
 def test_dict_to_json_conversion() -> None:
     df = pd.DataFrame(
         {
             "id": [1, 2, 3],
-            "eval.MyEvaluator.metadata": [{"key": "value"}, {"key": "value"}, {"key": "value"}],
-            "not_converted_dict_col": [{"key": "value"}, {"key": "value"}, {"key": "value"}],
+            "eval.MyEvaluator.metadata": [
+                {"key": "value"},
+                {"key": "value"},
+                {"key": "value"},
+            ],
+            "not_converted_dict_col": [
+                {"key": "value"},
+                {"key": "value"},
+                {"key": "value"},
+            ],
         }
     )
     # before conversion, the column with the evaluator name is a dict

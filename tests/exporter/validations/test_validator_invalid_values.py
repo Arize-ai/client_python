@@ -7,7 +7,9 @@ from arize.exporter.utils.validation import Validator
 class MyTestCase(unittest.TestCase):
     def test_valid_data_type(self):
         try:
-            Validator.validate_input_value(valid_data_type.upper(), "data_type", data_types)
+            Validator.validate_input_value(
+                valid_data_type.upper(), "data_type", data_types
+            )
         except TypeError:
             self.fail("validate_input_type raised TypeError unexpectedly")
 
@@ -17,7 +19,9 @@ class MyTestCase(unittest.TestCase):
             f"data_type is {invalid_data_type.upper()}, but must be one of PREDICTIONS, "
             f"CONCLUSIONS, EXPLANATIONS, PREPRODUCTION",
         ):
-            Validator.validate_input_value(invalid_data_type.upper(), "data_type", data_types)
+            Validator.validate_input_value(
+                invalid_data_type.upper(), "data_type", data_types
+            )
 
     def test_invalid_start_end_time(self):
         with self.assertRaisesRegex(
