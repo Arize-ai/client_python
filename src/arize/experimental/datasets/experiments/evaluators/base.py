@@ -62,6 +62,21 @@ class Evaluator(ABC):
         metadata: ExampleMetadata = MappingProxyType({}),
         **kwargs: Any,
     ) -> EvaluationResult:
+        """
+        Evaluate the given inputs and produce an evaluation result.
+        This method should be implemented by subclasses to perform the actual
+        evaluation logic. It is recommended to implement both this synchronous
+        method and the asynchronous `async_evaluate` method, but it is not required.
+        Args:
+            output (Optional[TaskOutput]): The output produced by the task.
+            expected (Optional[ExampleOutput]): The expected output for comparison.
+            dataset_row (Optional[Mapping[str, JSONSerializable]]): A row from the dataset.
+            metadata (ExampleMetadata): Metadata associated with the example.
+            input (ExampleInput): The input provided for evaluation.
+            **kwargs (Any): Additional keyword arguments.
+        Raises:
+            NotImplementedError: If the method is not implemented by the subclass.
+        """
         # For subclassing, one should implement either this sync method or the
         # async version. Implementing both is recommended but not required.
         raise NotImplementedError
@@ -77,6 +92,23 @@ class Evaluator(ABC):
         metadata: ExampleMetadata = MappingProxyType({}),
         **kwargs: Any,
     ) -> EvaluationResult:
+        """
+        Asynchronously evaluate the given inputs and produce an evaluation result.
+        This method should be implemented by subclasses to perform the actual
+        evaluation logic. It is recommended to implement both this asynchronous
+        method and the synchronous `evaluate` method, but it is not required.
+        Args:
+            output (Optional[TaskOutput]): The output produced by the task.
+            expected (Optional[ExampleOutput]): The expected output for comparison.
+            dataset_row (Optional[Mapping[str, JSONSerializable]]): A row from the dataset.
+            metadata (ExampleMetadata): Metadata associated with the example.
+            input (ExampleInput): The input provided for evaluation.
+            **kwargs (Any): Additional keyword arguments.
+        Returns:
+            EvaluationResult: The result of the evaluation.
+        Raises:
+            NotImplementedError: If the method is not implemented by the subclass.
+        """
         # For subclassing, one should implement either this async method or the
         # sync version. Implementing both is recommended but not required.
         return self.evaluate(
@@ -173,8 +205,9 @@ def validate_evaluator_signature(sig: inspect.Signature) -> None:
 
 class CodeEvaluator(Evaluator, ABC, is_abstract=True):
     """
-    A convenience super class for defining code evaluators.
-
+    A convenience super class for defining code evaluators. There are functionally
+    no differences between this class and the `Evaluator` class, except that this
+    class has a default `_kind` attribute for AnnotatorKind.CODE.
     This class is intended to be subclassed, and should not be instantiated directly.
     """
 
@@ -190,8 +223,9 @@ class CodeEvaluator(Evaluator, ABC, is_abstract=True):
 
 class LLMEvaluator(Evaluator, ABC, is_abstract=True):
     """
-    A convenience super class for defining LLM evaluators.
-
+    A convenience super class for defining LLM evaluators. There are functionally
+    no differences between this class and the `Evaluator` class, except that this
+    class has a default `_kind` attribute for AnnotatorKind.LLM.
     This class is intended to be subclassed, and should not be instantiated directly.
     """
 

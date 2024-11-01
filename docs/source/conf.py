@@ -131,7 +131,7 @@ language = "en"
 
 # -- Versioning --------------------------------------------------------------
 
-json_url = "https://arize.readthedocs.io/en/latest/_static/switcher.json"
+json_url = "https://arize-client-python.readthedocs.io/en/latest/_static/switcher.json"
 
 # Based off the pydata theme config file:
 # https://github.com/pydata/pydata-sphinx-theme/blob/main/docs/conf.py
@@ -180,6 +180,10 @@ html_theme_options = {
     ],
     "navbar_align": "content",
     "navbar_start": ["navbar-logo"],
+        "switcher": {
+        "json_url": json_url,
+        "version_match": version_match,
+    },
     "secondary_sidebar_items": [],
     "footer_start": [],
     "footer_end": ["copyright"],

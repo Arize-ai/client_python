@@ -56,6 +56,17 @@ TraceId: TypeAlias = str
 
 @dataclass(frozen=True)
 class Example:
+    """
+    Represents an example in an experiment dataset.
+    Args:
+        id: The unique identifier for the example.
+        updated_at: The timestamp when the example was last updated.
+        input: The input data for the example.
+        output: The output data for the example.
+        metadata: Additional metadata for the example.
+        dataset_row: The original dataset row containing the example data.
+    """
+
     id: ExampleId = field(default_factory=str)
     updated_at: datetime = field(default_factory=datetime.now)
     input: Mapping[str, JSONSerializable] = field(default_factory=dict)
@@ -135,6 +146,15 @@ class Example:
 
 @dataclass(frozen=True)
 class EvaluationResult:
+    """
+    Represents the result of an evaluation.
+    Args:
+        score: The score of the evaluation.
+        label: The label of the evaluation.
+        explanation: The explanation of the evaluation.
+        metadata: Additional metadata for the evaluation.
+    """
+
     score: Optional[float] = None
     label: Optional[str] = None
     explanation: Optional[str] = None
@@ -247,6 +267,20 @@ def _exp_id() -> str:
 
 @dataclass(frozen=True)
 class ExperimentRun:
+    """
+    Represents a single run of an experiment.
+    Args:
+        start_time: The start time of the experiment run.
+        end_time: The end time of the experiment run.
+        experiment_id: The unique identifier for the experiment.
+        dataset_example_id: The unique identifier for the dataset example.
+        repetition_number: The repetition number of the experiment run.
+        output: The output of the experiment run.
+        error: The error message if the experiment run failed.
+        id: The unique identifier for the experiment run.
+        trace_id: The trace identifier for the experiment run.
+    """
+
     start_time: datetime
     end_time: datetime
     experiment_id: ExperimentId
@@ -280,6 +314,20 @@ class ExperimentRun:
 
 @dataclass(frozen=True)
 class ExperimentEvaluationRun:
+    """
+    Represents a single evaluation run of an experiment.
+    Args:
+        experiment_run_id: The unique identifier for the experiment run.
+        start_time: The start time of the evaluation run.
+        end_time: The end time of the evaluation run.
+        name: The name of the evaluation run.
+        annotator_kind: The kind of annotator used in the evaluation run.
+        error: The error message if the evaluation run failed.
+        result (Optional[EvaluationResult]): The result of the evaluation run.
+        id (str): The unique identifier for the evaluation run.
+        trace_id (Optional[TraceId]): The trace identifier for the evaluation run.
+    """
+
     experiment_run_id: ExperimentRunId
     start_time: datetime
     end_time: datetime

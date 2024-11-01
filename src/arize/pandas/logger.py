@@ -89,8 +89,7 @@ class Client:
         """
         Initializes the Arize Client
 
-        Arguments:
-        ---------
+        Args:
             api_key (str): Arize provided API key associated with your account. Located on the
                 space settings page.
             space_id (str): Arize provided space identifier to connect records to spaces. Located on
@@ -172,8 +171,7 @@ class Client:
         :class:`Response` object from the Requests HTTP library to ensure successful delivery of
         records.
 
-        Arguments:
-        ---------
+        Args:
             dataframe (pd.DataFrame): The dataframe containing the LLM traces.
             model_id (str): A unique name to identify your model in the Arize platform.
                 (Deprecated: Use `project_name` instead.)
@@ -196,7 +194,6 @@ class Client:
                 Either model_id or project_name must be provided.
 
         Returns:
-        -------
             `Response` object
 
         """
@@ -387,8 +384,7 @@ class Client:
         Returns a :class:`Response` object from the Requests HTTP library to ensure successful delivery of
         records.
 
-        Arguments:
-        ---------
+        Args:
             dataframe (pd.DataFrame): A dataframe containing LLM evaluations data.
             model_id (str): A unique name to identify your model in the Arize platform.
                 (Deprecated: Use `project_name` instead.)
@@ -407,7 +403,6 @@ class Client:
                 Either model_id or project_name must be provided.
 
         Returns:
-        -------
             `Response` object
 
         """
@@ -530,8 +525,7 @@ class Client:
         :class:`Response` object from the Requests HTTP library to ensure successful delivery of
         records.
 
-        Arguments:
-        ---------
+        Args:
             dataframe (pd.DataFrame): The dataframe containing model data.
             schema (BaseSchema): A BaseSchema instance that specifies the column names for corresponding
                 data in the dataframe. Can be either a Schema or CorpusSchema (if the environment is
@@ -567,7 +561,6 @@ class Client:
                 False.
 
         Returns:
-        -------
             `Response` object
 
         """

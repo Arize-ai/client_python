@@ -32,8 +32,7 @@ class ArizeExportClient:
     """
     Arize's Export Client.
 
-    Arguments:
-    ---------
+    Args:
         api_key (str, optional): Arize provided personal API key associated with your user profile,
             located on the API Explorer page. API key is required to initiate a new client, it can
             be passed in explicitly, or set up as an environment variable or in profile file.
@@ -88,8 +87,7 @@ class ArizeExportClient:
         Exports data of a specific model in the Arize platform to a pandas dataframe for a defined
         time interval and model environment, optionally by model version and/or batch id.
 
-        Arguments:
-        ---------
+        Args:
             space_id (str): The id for the space where to export models from, can be retrieved from
                 the url of the Space Overview page in the Arize UI.
             model_id (str): The name of the model to export, can be found in the Model Overview
@@ -118,7 +116,6 @@ class ArizeExportClient:
                 be considered similar.
 
         Returns:
-        -------
             A pandas dataframe
 
         """
@@ -191,8 +188,7 @@ class ArizeExportClient:
         Exports data of a specific model in the Arize platform to a parquet file for a defined time
         interval and model environment, optionally by model version and/or batch id.
 
-        Arguments:
-        ---------
+        Args:
             path (str): path to the file to store exported data. File must be in parquet format and
                 has a '.parquet' extension.
             space_id (str): The id for the space where to export models from, can be retrieved from
@@ -223,7 +219,6 @@ class ArizeExportClient:
                 be considered similar.
 
         Returns:
-        -------
             None
 
         """

@@ -1,5 +1,13 @@
 # Changelog
 
+## [7.25.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.25.1...arize-python-sdk/v7.25.2) (2024-11-01)
+
+
+### 📚 Documentation
+
+* Add switcher to conf.py in api docs ([4f1ae8c](https://github.com/Arize-ai/arize/commit/4f1ae8c655249a63907fd1a76af8b9e1e063f753))
+* Improve docstring format for API docs ([#37475](https://github.com/Arize-ai/arize/issues/37475)) ([4f1ae8c](https://github.com/Arize-ai/arize/commit/4f1ae8c655249a63907fd1a76af8b9e1e063f753))
+
 ## [7.25.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.25.0...arize-python-sdk/v7.25.1) (2024-11-01)
 
 

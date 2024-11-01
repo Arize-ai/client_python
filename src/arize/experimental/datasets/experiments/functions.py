@@ -71,6 +71,21 @@ def run_experiment(
     concurrency: int = 3,
     exit_on_error: bool = False,
 ) -> pd.DataFrame:
+    """
+    Run an experiment on a dataset.
+    Args:
+        dataset (pd.DataFrame): The dataset to run the experiment on.
+        task (ExperimentTask): The task to be executed on the dataset.
+        evaluators (Optional[Evaluators]): Optional evaluators to assess the task.
+        experiment_name (Optional[str]): Optional name for the experiment.
+        tracer (Optional[Tracer]): Optional tracer for tracing the experiment.
+        resource (Optional[Resource]): Optional resource for the experiment.
+        rate_limit_errors (Optional[RateLimitErrors]): Optional rate limit errors.
+        concurrency (int): The number of concurrent tasks to run. Default is 3.
+        exit_on_error (bool): Whether to exit on error. Default is False.
+    Returns:
+        pd.DataFrame: The results of the experiment.
+    """
     task_signature = inspect.signature(task)
     _validate_task_signature(task_signature)
 
@@ -340,6 +355,20 @@ def evaluate_experiment(
     resource: Optional[Resource] = None,
     exit_on_error: bool = False,
 ):
+    """
+    Evaluate the results of an experiment using the provided evaluators.
+    Args:
+        examples (Sequence[Example]): The examples to evaluate.
+        experiment_results (Sequence[ExperimentRun]): The results of the experiment.
+        evaluators (Evaluators): The evaluators to use for assessment.
+        rate_limit_errors (Optional[RateLimitErrors]): Optional rate limit errors.
+        concurrency (int): The number of concurrent tasks to run. Default is 3.
+        tracer (Optional[Tracer]): Optional tracer for tracing the evaluation.
+        resource (Optional[Resource]): Optional resource for the evaluation.
+        exit_on_error (bool): Whether to exit on error. Default is False.
+    Returns:
+        List[ExperimentEvaluationRun]: The evaluation results.
+    """
     evaluators_by_name = _evaluators_by_name(evaluators)
     if not evaluators_by_name:
         raise ValueError("Must specify at least one Evaluator")
