@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.25.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.25.0...arize-python-sdk/v7.25.1) (2024-11-01)
+
+
+### 📚 Documentation
+
+* Add versions to switcher.json ([#37473](https://github.com/Arize-ai/arize/issues/37473)) ([2cd78f0](https://github.com/Arize-ai/arize/commit/2cd78f07aca545494ca026ecaae980d901056de4))
+
 ## [7.25.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.24.3...arize-python-sdk/v7.25.0) (2024-11-01)
 
 
