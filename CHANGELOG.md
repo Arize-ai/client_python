@@ -1,5 +1,13 @@
 # Changelog
 
+## [7.24.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.24.1...arize-python-sdk/v7.24.2) (2024-11-01)
+
+
+### ❔ Miscellaneous Chores
+
+* Exclude api_reference directory from build ([#37457](https://github.com/Arize-ai/arize/issues/37457)) ([3e595c3](https://github.com/Arize-ai/arize/commit/3e595c37701e4c7384435657d5f3081fa9d8477e))
+* Move api docs to docs/ directory ([#37460](https://github.com/Arize-ai/arize/issues/37460)) ([d7d0c21](https://github.com/Arize-ai/arize/commit/d7d0c21603776fc5899356198535af8013d1d91f))
+
 ## [7.24.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.24.0...arize-python-sdk/v7.24.1) (2024-11-01)
 
 

@@ -113,9 +113,9 @@ packages = ["src/arize"]
 
 [tool.hatch.build.targets.sdist]
 exclude = [
-      "src/arize/examples",
-      "tests",
-      "docs",
+    "src/arize/examples",
+    "tests",
+    "docs",
 ]
 
 
@@ -127,7 +127,6 @@ exclude = '(_pb2\.py$|docs/source/.*\.py)'
 target-version = "py37"
 line-length = 80
 exclude = [
-    "api_reference",
     "dist/",
     "__pycache__",
     "*_pb2.py*",
