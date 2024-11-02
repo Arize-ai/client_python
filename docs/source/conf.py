@@ -179,8 +179,8 @@ html_theme_options = {
         {"name": "Docs", "url": "https://docs.arize.com/arize"},
     ],
     "navbar_align": "content",
-    "navbar_start": ["navbar-logo"],
-        "switcher": {
+    "navbar_start": ["navbar-logo", "version-switcher"],
+    "switcher": {
         "json_url": json_url,
         "version_match": version_match,
     },

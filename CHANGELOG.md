@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.25.3](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.25.2...arize-python-sdk/v7.25.3) (2024-11-02)
+
+
+### 📚 Documentation
+
+* Add version switcher dropdown to api docs ([#37478](https://github.com/Arize-ai/arize/issues/37478)) ([c07917c](https://github.com/Arize-ai/arize/commit/c07917c11539375cbf9c187b11515d88f855803b))
+
 ## [7.25.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.25.1...arize-python-sdk/v7.25.2) (2024-11-01)
 
 
