@@ -1,5 +1,26 @@
 # Changelog
 
+## [7.25.6](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.25.5...arize-python-sdk/v7.25.6) (2024-11-12)
+
+
+### 🐛 Bug Fixes
+
+* limit dataset identifier hash to 8 characters ([#37817](https://github.com/Arize-ai/arize/issues/37817)) ([e16f0f6](https://github.com/Arize-ai/arize/commit/e16f0f60fbcbd0412b09c888e25d278cd660ddce))
+
+## [7.25.5](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.25.4...arize-python-sdk/v7.25.5) (2024-11-05)
+
+
+### 📚 Documentation
+
+* new api-reference on homepage and new ml methods ([#37587](https://github.com/Arize-ai/arize/issues/37587)) ([0687cbb](https://github.com/Arize-ai/arize/commit/0687cbbbd634620ddc0405ca259f96540b7d6ccc))
+
+## [7.25.4](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.25.3...arize-python-sdk/v7.25.4) (2024-11-02)
+
+
+### 🔀 Continuous Integration
+
+* Add workflow to ensure switcher versions for read the docs in release PRs ([#37483](https://github.com/Arize-ai/arize/issues/37483)) ([f9d41fe](https://github.com/Arize-ai/arize/commit/f9d41fe27e2d9a65780eb1fb038f251a5f86defa))
+
 ## [7.25.3](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.25.2...arize-python-sdk/v7.25.3) (2024-11-02)
 
 

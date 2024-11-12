@@ -7,7 +7,7 @@ myst:
 html_theme.sidebar_secondary.remove: true
 ---
 
-# Arize LLM Python SDK Reference
+# Arize Python SDK Reference
 
 <br/>
 <div id="external-links">
@@ -26,7 +26,7 @@ html_theme.sidebar_secondary.remove: true
 </div>
 <br/>
 
-Below you can find the classes, functions, and parameters for tracing and evaluating your LLM application with Arize using python. To get a complete guide on how to use Arize, including tutorials, quickstarts, and concept explanations, read our [docs](https://docs.arize.com/arize).
+Below you can find the classes, functions, and parameters for tracing and evaluating your application using the Arize Python SDK. To get a complete guide on how to use Arize, including tutorials, quickstarts, and concept explanations, read our [docs](https://docs.arize.com/arize). This primarily covers LLM SDK methods, and we're documenting the rest of the methods for the full SDK spanning ML and CV use cases soon!
 
 ```{seealso}
 Check out our [Slack community](https://arize-ai.slack.com/join/shared_invite/zt-1px8dcmlf-fmThhDFD_V_48oU7ALan4Q#/shared-invite/email) and [GitHub repository](https://github.com/arize-ai/client_python)!
@@ -40,5 +40,6 @@ Check out our [Slack community](https://arize-ai.slack.com/join/shared_invite/zt
 api/datasets
 api/experiments
 api/exporter
-api/logger
+api/batch_logger
+api/stream_logger
 ```

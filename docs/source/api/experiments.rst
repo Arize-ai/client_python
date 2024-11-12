@@ -3,15 +3,6 @@ experiments
 ===========
 Run experiments to test different models, prompts, parameters for your LLM apps. `Read our quickstart guide for more information <https://docs.arize.com/arize/llm-experiments-and-testing/quickstart>`_.
 
-functions
-^^^^^^^^^
-These are used to run experiments and evaluations. To import functions, use the following:
-``from arize.experimental.datasets.experiments.functions import ...``
-
-.. automodule:: arize.experimental.datasets.experiments.functions
-   :members: evaluate_experiment, run_experiment
-   :exclude-members: get_func_name, get_result_attr, sync_evaluate_run, get_tqdm_progress_bar_formatter
-
 evaluators
 ^^^^^^^^^^
 These are used to create evaluators as a class. `See our docs for more information <https://docs.arize.com/arize/llm-experiments-and-testing/how-to-experiments/create-an-experiment-evaluator>`_. 

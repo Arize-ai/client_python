@@ -217,8 +217,7 @@ class Client:
         """
         Logs a record to Arize via a POST request.
 
-        Arguments:
-        ---------
+        Args:
             model_id (str): A unique name to identify your model in the Arize platform.
             model_type (ModelTypes): Declare your model type. Can check the supported model types
                 running `ModelTypes.list_types()`
@@ -235,8 +234,11 @@ class Client:
             prediction_label (bool, int, float, str, Tuple(str, float), ObjectDetectionLabel,
                 RankingPredictionLabel or MultiClassPredictionLabel; optional):
                 The predicted value for a given model input. Defaults to None.
-            actual_label (bool, int, float, str, Tuple[str, float], ObjectDetectionLabel,
-                RankingActualLabel or MultiClassActualLabel; optional):
+            actual_label (
+                bool, int, float, str, Tuple[str, float],
+                ObjectDetectionLabel, RankingActualLabel, MultiClassActualLabel,
+                optional
+            ):
                 The ground truth value for a given model input. This will be matched to the
                 prediction with the same prediction_id as the one in this call. Defaults to None.
             features (Dict[str, Union[str, bool, float, int]], optional): Dictionary containing
@@ -261,22 +263,9 @@ class Client:
                 {{context}}, answer the following question {{user_question}}.
             prompt_template_version (str, optional): version of the template used.
             llm_model_name (str, optional): name of the llm used. Example: 'gpt-4'.
-            llm_params (str, optional): hyperparameters passed to the large language model. Example:
-                {
-                   "temperature": 0.9,
-                   "presence_penalty": 0.34,
-                   "stop": [".", "?", "!"],
-                }
-            llm_run_metadata (LLMRunMetadata, optional): run metadata for llm calls. Example:
-                LLMRunMetadata(
-                   total_token_count=400,
-                   prompt_token_count=300,
-                   response_token_count=100,
-                   response_latency_ms=2000,
-                )
-
+            llm_params (str, optional): hyperparameters passed to the large language model.
+            llm_run_metadata (LLMRunMetadata, optional): run metadata for llm calls.
         Returns:
-        -------
             `concurrent.futures.Future` object
 
         """

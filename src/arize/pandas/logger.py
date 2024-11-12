@@ -521,8 +521,13 @@ class Client:
         verbose: Optional[bool] = False,
     ) -> requests.Response:
         """
-        Logs a pandas dataframe containing inferences to Arize via a POST request. Returns a
-        :class:`Response` object from the Requests HTTP library to ensure successful delivery of
+        Logs a pandas dataframe containing inferences to Arize via a POST request. Use this to upload
+        inferences from your model (ML, CV, NLP, etc.) to Arize.
+
+        If you are looking to upload LLM traces or LLM evaluations, use :func:`log_spans` or
+        :func:`log_evaluations`, respectively.
+
+        Returns a :class:`Response` object from the Requests HTTP library to ensure successful delivery of
         records.
 
         Args:
