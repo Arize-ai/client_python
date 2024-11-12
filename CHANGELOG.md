@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.25.7](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.25.6...arize-python-sdk/v7.25.7) (2024-11-12)
+
+
+### ❔ Miscellaneous Chores
+
+* relax `googleapis-common-protos` and `protobuf`  dependencies ([#37823](https://github.com/Arize-ai/arize/issues/37823)) ([d3eb327](https://github.com/Arize-ai/arize/commit/d3eb32715061d83f7e0277b2ba514041641657b2))
+
 ## [7.25.6](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.25.5...arize-python-sdk/v7.25.6) (2024-11-12)
 
 
