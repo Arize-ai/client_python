@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.26.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.25.7...arize-python-sdk/v7.26.0) (2024-11-18)
+
+
+### 🎁 New Features
+
+* **datasets:** default experiment traces for the same dataset are sent to Arize in 1 traces model/project ([#38010](https://github.com/Arize-ai/arize/issues/38010)) ([c3face4](https://github.com/Arize-ai/arize/commit/c3face43982bbf177aa2e98ae63aec2ad7b920a3))
+
 ## [7.25.7](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.25.6...arize-python-sdk/v7.25.7) (2024-11-12)
 
 

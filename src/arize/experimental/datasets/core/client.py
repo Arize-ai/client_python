@@ -130,11 +130,6 @@ class ArizeDatasetsClient:
         """
         if dataset_id is None and dataset_name is None:
             raise ValueError("must provide dataset_id or dataset_name")
-        dataset_identifier = dataset_id or dataset_name
-        # this is the trace model in the platform storing the traces for the experiment
-        trace_model_id = (
-            f"{experiment_name}_{_get_hex_hash(dataset_identifier)}"
-        )
 
         # set up initial experiment and trace model
         if not dry_run:
@@ -142,7 +137,6 @@ class ArizeDatasetsClient:
                 init_result = self._init_experiment(
                     space_id=space_id,
                     dataset_id=dataset_id,
-                    trace_model_name=trace_model_id,
                     dataset_name=dataset_name,
                     experiment_name=experiment_name,
                 )
@@ -150,11 +144,13 @@ class ArizeDatasetsClient:
                     raise RuntimeError(
                         f"Failed to initialize experiment {experiment_name}"
                     )
-                _, dataset_id = init_result
+                _, dataset_id, trace_model_name = init_result
             except BaseException as exc:
                 raise RuntimeError(
                     f"Failed to initialize experiment {experiment_name}"
                 ) from exc
+        else:
+            trace_model_name = "traces_for_dry_run"
 
         # download dataset if not provided
         if dataset_df is None:
@@ -182,7 +178,7 @@ class ArizeDatasetsClient:
 
         # trace model and resource for the experiment
         tracer, resource = _get_tracer_resource(
-            model_id=trace_model_id,
+            model_id=trace_model_name,
             space_id=space_id,
             api_key=self.api_key,
             endpoint=self.otlp_endpoint,
@@ -192,12 +188,12 @@ class ArizeDatasetsClient:
         )
 
         output_df = run_experiment(
+            experiment_name=experiment_name,
             dataset=input_df,
             task=task,
-            evaluators=evaluators,
-            experiment_name=experiment_name,
             tracer=tracer,
             resource=resource,
+            evaluators=evaluators,
             concurrency=concurrency,
             exit_on_error=exit_on_error,
         )
@@ -222,17 +218,15 @@ class ArizeDatasetsClient:
         self,
         experiment_name: str,
         space_id: str,
-        trace_model_name: str,
         dataset_id: Optional[str] = None,
         dataset_name: Optional[str] = None,
-    ) -> Optional[Tuple[str, str]]:
+    ) -> Optional[Tuple[str, str, str]]:
         request = request_pb.DoActionRequest(
             create_experiment_db_entry=request_pb.CreateExperimentDBEntryRequest(
                 space_id=space_id,
                 dataset_id=dataset_id,
                 dataset_name=dataset_name,
                 experiment_name=experiment_name,
-                trace_model_name=trace_model_name,
             )
         )
         action = _action_for_request(
@@ -253,7 +247,11 @@ class ArizeDatasetsClient:
                 return None
             resp_pb = request_pb.CreateExperimentDBEntryResponse()
             resp_pb.ParseFromString(res.body.to_pybytes())
-            return resp_pb.experiment_id, resp_pb.dataset_id
+            return (
+                resp_pb.experiment_id,
+                resp_pb.dataset_id,
+                resp_pb.trace_model_name,
+            )
         finally:
             flight_client.close()
 

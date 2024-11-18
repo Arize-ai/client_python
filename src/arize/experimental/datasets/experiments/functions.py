@@ -60,27 +60,26 @@ RateLimitErrors: TypeAlias = Union[
 
 
 def run_experiment(
+    experiment_name: str,
     dataset: pd.DataFrame,
     task: ExperimentTask,
-    evaluators: Optional[Evaluators] = None,
-    *,
-    experiment_name: Optional[str] = None,
-    tracer: Optional[Tracer] = None,
-    resource: Optional[Resource] = None,
+    tracer: Tracer,
+    resource: Resource,
     rate_limit_errors: Optional[RateLimitErrors] = None,
+    evaluators: Optional[Evaluators] = None,
     concurrency: int = 3,
     exit_on_error: bool = False,
 ) -> pd.DataFrame:
     """
     Run an experiment on a dataset.
     Args:
+        experiment_name (str): The name for the experiment.
         dataset (pd.DataFrame): The dataset to run the experiment on.
         task (ExperimentTask): The task to be executed on the dataset.
-        evaluators (Optional[Evaluators]): Optional evaluators to assess the task.
-        experiment_name (Optional[str]): Optional name for the experiment.
-        tracer (Optional[Tracer]): Optional tracer for tracing the experiment.
-        resource (Optional[Resource]): Optional resource for the experiment.
+        tracer (Tracer): Tracer for tracing the experiment.
+        resource (Resource): The resource for tracing the experiment.
         rate_limit_errors (Optional[RateLimitErrors]): Optional rate limit errors.
+        evaluators (Optional[Evaluators]): Optional evaluators to assess the task.
         concurrency (int): The number of concurrent tasks to run. Default is 3.
         exit_on_error (bool): Whether to exit on error. Default is False.
     Returns:
@@ -99,6 +98,8 @@ def run_experiment(
 
     logger.info("🧪 Experiment started.")
 
+    md = {"experiment_name": experiment_name}
+
     def sync_run_experiment(example: Example) -> ExperimentRun:
         output = None
         error: Optional[BaseException] = None
@@ -110,6 +111,7 @@ def run_experiment(
                 )
             )
             stack.enter_context(capture_spans(resource))  # type: ignore
+            span.set_attribute(METADATA, json.dumps(md, ensure_ascii=False))
             try:
                 bound_task_args = _bind_task_signature(task_signature, example)
                 _output = task(*bound_task_args.args, **bound_task_args.kwargs)
@@ -188,7 +190,7 @@ def run_experiment(
                 )
             )
             stack.enter_context(capture_spans(resource))
-
+            span.set_attribute(METADATA, json.dumps(md, ensure_ascii=False))
             try:
                 bound_task_args = _bind_task_signature(task_signature, example)
                 _output = task(*bound_task_args.args, **bound_task_args.kwargs)
@@ -297,6 +299,7 @@ def run_experiment(
 
     if evaluators_by_name:
         eval_results = evaluate_experiment(
+            experiment_name=experiment_name,
             examples=examples,
             experiment_results=runs,
             evaluators=evaluators,
@@ -345,6 +348,7 @@ def run_experiment(
 
 
 def evaluate_experiment(
+    experiment_name: str,
     examples: Sequence[Example],
     experiment_results: Sequence[ExperimentRun],
     evaluators: Evaluators,
@@ -358,6 +362,7 @@ def evaluate_experiment(
     """
     Evaluate the results of an experiment using the provided evaluators.
     Args:
+        experiment_name (str): The name of the experiment.
         examples (Sequence[Example]): The examples to evaluate.
         experiment_results (Sequence[ExperimentRun]): The results of the experiment.
         evaluators (Evaluators): The evaluators to use for assessment.
@@ -389,6 +394,7 @@ def evaluate_experiment(
     ]
 
     root_span_kind = EVALUATOR
+    md = {"experiment_name": experiment_name}
 
     def sync_eval_run(
         obj: Tuple[Example, ExperimentRun, Evaluator],
@@ -405,6 +411,7 @@ def evaluate_experiment(
                 )
             )
             stack.enter_context(capture_spans(resource))
+            span.set_attribute(METADATA, json.dumps(md, ensure_ascii=False))
             try:
                 result = evaluator.evaluate(
                     dataset_row=example.dataset_row,
@@ -465,6 +472,7 @@ def evaluate_experiment(
                 )
             )
             stack.enter_context(capture_spans(resource))
+            span.set_attribute(METADATA, json.dumps(md, ensure_ascii=False))
             try:
                 result = await evaluator.async_evaluate(
                     dataset_row=example.dataset_row,
@@ -730,6 +738,7 @@ OUTPUT_VALUE = SpanAttributes.OUTPUT_VALUE
 INPUT_MIME_TYPE = SpanAttributes.INPUT_MIME_TYPE
 OUTPUT_MIME_TYPE = SpanAttributes.OUTPUT_MIME_TYPE
 OPENINFERENCE_SPAN_KIND = SpanAttributes.OPENINFERENCE_SPAN_KIND
+METADATA = SpanAttributes.METADATA
 
 CHAIN = OpenInferenceSpanKindValues.CHAIN.value
 EVALUATOR = OpenInferenceSpanKindValues.EVALUATOR.value
