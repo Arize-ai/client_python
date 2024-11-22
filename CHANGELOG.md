@@ -1,5 +1,17 @@
 # Changelog
 
+## [7.27.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.26.0...arize-python-sdk/v7.27.0) (2024-11-22)
+
+
+### 🎁 New Features
+
+* new `log_evaluations_sync` method to public Flight server ([#37834](https://github.com/Arize-ai/arize/issues/37834)) ([86a21ab](https://github.com/Arize-ai/arize/commit/86a21ab405aba90f0568fb29d918902536bf98a4))
+* return number of records updated to Flight clients ([#38428](https://github.com/Arize-ai/arize/issues/38428)) ([b92ee44](https://github.com/Arize-ai/arize/commit/b92ee4451c64c0f1ad26dd8c6de5df0a4d2facd0))
+
+### 💫 Code Refactoring
+
+* Dynamic client key verification on method call ([86a21ab](https://github.com/Arize-ai/arize/commit/86a21ab405aba90f0568fb29d918902536bf98a4))
+
 ## [7.26.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.25.7...arize-python-sdk/v7.26.0) (2024-11-18)
 
 

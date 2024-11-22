@@ -14,7 +14,6 @@ import arize.pandas.validation.errors as err
 from arize.pandas.etl.errors import ColumnCastingError, InvalidTypedColumnsError
 from arize.pandas.logger import Client
 from arize.utils.constants import (
-    API_KEY_ENVVAR_NAME,
     GENERATED_LLM_PARAMS_JSON_COL,
     GENERATED_PREDICTION_LABEL_COL,
     LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME,
@@ -27,10 +26,8 @@ from arize.utils.constants import (
     MAX_PROMPT_TEMPLATE_LENGTH,
     MAX_PROMPT_TEMPLATE_VERSION_LENGTH,
     MAX_RAW_DATA_CHARACTERS,
-    SPACE_ID_ENVVAR_NAME,
-    SPACE_KEY_ENVVAR_NAME,
 )
-from arize.utils.errors import AuthError, InvalidTypeAuthKey
+from arize.utils.errors import AuthError
 from arize.utils.types import (
     CorpusSchema,
     EmbeddingColumnNames,
@@ -1734,73 +1731,82 @@ def test_instantiating_client_additional_header():
     assert c._headers == expected
 
 
-def test_invalid_client_auth_passed_vars():
+def test_invalid_client_auth_log_method_passed_vars():
     with pytest.raises(AuthError) as excinfo:
-        _ = Client()
+        c = Client()
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log(
+            dataframe="dummy",
+            schema="dummy",
+            environment="dummy",
+            model_id="dummy",
+            model_type="dummy",
+        )
     # if all missing - prompt for api_key and space_id
     assert (
         excinfo.value.__str__()
         == AuthError(
-            None,
-            None,
-            None,
+            missing_api_key=True,
+            missing_space_id=True,
+            method_name="log",
         ).error_message()
     )
-    assert "Missing: ['api_key', 'space_id']" in str(excinfo.value)
 
     with pytest.raises(AuthError) as excinfo:
-        _ = Client(space_key="space_key")
+        c = Client(space_id="space_id")
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log(
+            dataframe="dummy",
+            schema="dummy",
+            environment="dummy",
+            model_id="dummy",
+            model_type="dummy",
+        )
+    # if all missing - prompt for api_key and space_id
     assert (
         excinfo.value.__str__()
-        == AuthError(None, "space_key", None).error_message()
+        == AuthError(
+            missing_api_key=True,
+            method_name="log",
+        ).error_message()
     )
-    assert "Missing: ['api_key']" in str(excinfo.value)
+    with pytest.raises(AuthError) as excinfo:
+        c = Client(space_key="space_key")
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log(
+            dataframe="dummy",
+            schema="dummy",
+            environment="dummy",
+            model_id="dummy",
+            model_type="dummy",
+        )
+    # if all missing - prompt for api_key and space_id
+    assert (
+        excinfo.value.__str__()
+        == AuthError(
+            missing_api_key=True,
+            method_name="log",
+        ).error_message()
+    )
 
     # if both space_key and space_id are missing, promt only for space_id
     with pytest.raises(AuthError) as excinfo:
-        _ = Client(api_key="api_key")
+        c = Client(api_key="api_key")
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log(
+            dataframe="dummy",
+            schema="dummy",
+            environment="dummy",
+            model_id="dummy",
+            model_type="dummy",
+        )
     assert (
         excinfo.value.__str__()
-        == AuthError("api_key", None, None).error_message()
-    )
-    assert "Missing: ['space_id']" in str(excinfo.value)
-
-    # incorrect type
-    with pytest.raises(InvalidTypeAuthKey) as excinfo:
-        _ = Client(api_key=123, space_key="space_key")
-    assert (
-        excinfo.value.__str__()
-        == InvalidTypeAuthKey(
-            api_key=123, space_key="space_key"
+        == AuthError(
+            missing_space_id=True,
+            method_name="log",
         ).error_message()
     )
-    assert "api_key as int" in str(excinfo.value)
-
-    with pytest.raises(InvalidTypeAuthKey) as excinfo:
-        api_key = "api_key"
-        space_key = (
-            "space_key",
-        )  # This comma is intentional to make space_key an accidental tuple
-        _ = Client(api_key=api_key, space_key=space_key)
-    assert (
-        excinfo.value.__str__()
-        == InvalidTypeAuthKey(
-            api_key=api_key, space_key=space_key
-        ).error_message()
-    )
-    assert "space_key as tuple" in str(excinfo.value)
-
-    with pytest.raises(InvalidTypeAuthKey) as excinfo:
-        api_key = "api_key"
-        space_id = 123
-        _ = Client(api_key=api_key, space_id=space_id)
-    assert (
-        excinfo.value.__str__()
-        == InvalidTypeAuthKey(
-            api_key=api_key, space_id=space_id
-        ).error_message()
-    )
-    assert "space_id as int" in str(excinfo.value)
 
     # acceptable input
     try:
@@ -1809,55 +1815,215 @@ def test_invalid_client_auth_passed_vars():
         pytest.fail("Unexpected error!")
 
 
-def test_invalid_client_auth_environment_vars(monkeypatch):
-    with pytest.raises(AuthError) as excinfo:
-        _ = Client()
-    assert (
-        excinfo.value.__str__() == AuthError(None, None, None).error_message()
-    )
-    assert "Missing: ['api_key', 'space_id']" in str(excinfo.value)
-
-    monkeypatch.setenv(SPACE_KEY_ENVVAR_NAME, "space_key")
+def test_invalid_client_auth_log_spans_method_passed_vars():
     with pytest.raises(AuthError) as excinfo:
         c = Client()
-        assert c._space_key == "space_key"
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log_spans(
+            dataframe="dummy",
+        )
+    # if all missing - prompt for api_key and space_id
     assert (
         excinfo.value.__str__()
-        == AuthError(None, "space_key", None).error_message()
+        == AuthError(
+            missing_api_key=True,
+            missing_space_id=True,
+            method_name="log_spans",
+        ).error_message()
     )
-    assert "Missing: ['api_key']" in str(excinfo.value)
 
-    monkeypatch.delenv(SPACE_KEY_ENVVAR_NAME)
-    monkeypatch.setenv(API_KEY_ENVVAR_NAME, "api_key")
     with pytest.raises(AuthError) as excinfo:
-        c = Client()
-        assert c._api_key == "api_key"
+        c = Client(space_id="space_id")
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log_spans(
+            dataframe="dummy",
+        )
+    # if all missing - prompt for api_key and space_id
     assert (
         excinfo.value.__str__()
-        == AuthError("api_key", None, None).error_message()
+        == AuthError(
+            missing_api_key=True,
+            method_name="log_spans",
+        ).error_message()
     )
-    assert "Missing: ['space_id']" in str(excinfo.value)
+    with pytest.raises(AuthError) as excinfo:
+        c = Client(space_key="space_key")
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log_spans(
+            dataframe="dummy",
+        )
+    # if all missing - prompt for api_key and space_id
+    assert (
+        excinfo.value.__str__()
+        == AuthError(
+            missing_api_key=True,
+            method_name="log_spans",
+        ).error_message()
+    )
+
+    # if both space_key and space_id are missing, promt only for space_id
+    with pytest.raises(AuthError) as excinfo:
+        c = Client(api_key="api_key")
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log_spans(
+            dataframe="dummy",
+        )
+    assert (
+        excinfo.value.__str__()
+        == AuthError(
+            missing_space_id=True,
+            method_name="log_spans",
+        ).error_message()
+    )
 
     # acceptable input
-    monkeypatch.setenv(SPACE_KEY_ENVVAR_NAME, "space_key")
     try:
-        c = Client()
+        _ = Client(space_key="space_key", api_key="api_key")
     except Exception:
         pytest.fail("Unexpected error!")
-    assert c._space_key == "space_key"
-    assert c._api_key == "api_key"
-    assert c._space_id is None
 
-    # acceptable input 2 - space_id
-    monkeypatch.delenv(SPACE_KEY_ENVVAR_NAME)
-    monkeypatch.setenv(SPACE_ID_ENVVAR_NAME, "space_id")
-    try:
+
+def test_invalid_client_auth_log_evaluations_method_passed_vars():
+    with pytest.raises(AuthError) as excinfo:
         c = Client()
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log_evaluations(
+            dataframe="dummy",
+        )
+    # if all missing - prompt for api_key and space_id
+    assert (
+        excinfo.value.__str__()
+        == AuthError(
+            missing_api_key=True,
+            missing_space_id=True,
+            method_name="log_evaluations",
+        ).error_message()
+    )
+
+    with pytest.raises(AuthError) as excinfo:
+        c = Client(space_id="space_id")
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log_evaluations(
+            dataframe="dummy",
+        )
+    # if all missing - prompt for api_key and space_id
+    assert (
+        excinfo.value.__str__()
+        == AuthError(
+            missing_api_key=True,
+            method_name="log_evaluations",
+        ).error_message()
+    )
+    with pytest.raises(AuthError) as excinfo:
+        c = Client(space_key="space_key")
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log_evaluations(
+            dataframe="dummy",
+        )
+    # if all missing - prompt for api_key and space_id
+    assert (
+        excinfo.value.__str__()
+        == AuthError(
+            missing_api_key=True,
+            method_name="log_evaluations",
+        ).error_message()
+    )
+
+    # if both space_key and space_id are missing, promt only for space_id
+    with pytest.raises(AuthError) as excinfo:
+        c = Client(api_key="api_key")
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log_evaluations(
+            dataframe="dummy",
+        )
+    assert (
+        excinfo.value.__str__()
+        == AuthError(
+            missing_space_id=True,
+            method_name="log_evaluations",
+        ).error_message()
+    )
+
+    # acceptable input
+    try:
+        _ = Client(space_key="space_key", api_key="api_key")
     except Exception:
         pytest.fail("Unexpected error!")
-    assert c._space_id == "space_id"
-    assert c._api_key == "api_key"
-    assert c._space_key is None
+
+
+def test_invalid_client_auth_log_evaluations_sync_method_passed_vars():
+    with pytest.raises(AuthError) as excinfo:
+        c = Client()
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log_evaluations_sync(
+            dataframe="dummy",
+        )
+    # if all missing - prompt for api_key and space_id
+    assert (
+        excinfo.value.__str__()
+        == AuthError(
+            missing_space_id=True,
+            missing_developer_key=True,
+            method_name="log_evaluations_sync",
+        ).error_message()
+    )
+
+    with pytest.raises(AuthError) as excinfo:
+        c = Client(space_id="space_id")
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log_evaluations_sync(
+            dataframe="dummy",
+        )
+    # if all missing - prompt for api_key and space_id
+    assert (
+        excinfo.value.__str__()
+        == AuthError(
+            missing_developer_key=True,
+            method_name="log_evaluations_sync",
+        ).error_message()
+    )
+    with pytest.raises(AuthError) as excinfo:
+        c = Client(space_key="space_key")
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log_evaluations_sync(
+            dataframe="dummy",
+        )
+    # if all missing - prompt for api_key and space_id
+    assert (
+        excinfo.value.__str__()
+        == AuthError(
+            missing_space_id=True,
+            missing_developer_key=True,
+            method_name="log_evaluations_sync",
+        ).error_message()
+    )
+
+    # if both space_key and space_id are missing, promt only for space_id
+    with pytest.raises(AuthError) as excinfo:
+        c = Client(api_key="api_key")
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log_evaluations_sync(
+            dataframe="dummy",
+        )
+    assert (
+        excinfo.value.__str__()
+        == AuthError(
+            missing_space_id=True,
+            missing_developer_key=True,
+            method_name="log_evaluations_sync",
+        ).error_message()
+    )
+
+    # acceptable input
+    try:
+        _ = Client(
+            space_id="space_id",
+            developer_key="developer_key",
+            host="host",
+            port=1234,  # not a real port
+        )
+    except Exception:
+        pytest.fail("Unexpected error!")
 
 
 def _overwrite_schema_fields(schema1: Schema, schema2: Schema) -> Schema:

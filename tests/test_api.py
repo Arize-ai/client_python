@@ -14,7 +14,6 @@ import arize.utils.errors as err
 from arize.api import Client
 from arize.single_log.errors import CastingError
 from arize.utils.constants import (
-    API_KEY_ENVVAR_NAME,
     LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME,
     LLM_RUN_METADATA_RESPONSE_LATENCY_MS_TAG_NAME,
     LLM_RUN_METADATA_RESPONSE_TOKEN_COUNT_TAG_NAME,
@@ -26,10 +25,9 @@ from arize.utils.constants import (
     MAX_TAG_LENGTH,
     MIN_PREDICTION_ID_LEN,
     RESERVED_TAG_COLS,
-    SPACE_ID_ENVVAR_NAME,
-    SPACE_KEY_ENVVAR_NAME,
 )
 from arize.utils.errors import (
+    AuthError,
     InvalidAdditionalHeaders,
     InvalidNumberOfEmbeddings,
 )
@@ -2327,111 +2325,80 @@ def test_instantiating_client_additional_header():
     assert c._headers == expected
 
 
-def test_invalid_client_auth_passed_vars():
-    with pytest.raises(err.AuthError) as excinfo:
-        _ = Client()
-    assert excinfo.value.__str__() == err.AuthError().error_message()
-    assert "Missing: ['api_key', 'space_id']" in str(excinfo.value)
-
-    with pytest.raises(err.AuthError) as excinfo:
-        _ = Client(space_key=inputs["space_key"])
+def test_invalid_client_auth_log_method_passed_vars():
+    with pytest.raises(AuthError) as excinfo:
+        c = Client()
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log(
+            environment="dummy",
+            model_id="dummy",
+            model_type="dummy",
+        )
+    # if all missing - prompt for api_key and space_id
     assert (
         excinfo.value.__str__()
-        == err.AuthError(space_key=inputs["space_key"]).error_message()
-    )
-    assert "Missing: ['api_key']" in str(excinfo.value)
-
-    with pytest.raises(err.AuthError) as excinfo:
-        _ = Client(api_key=inputs["api_key"])
-    assert (
-        excinfo.value.__str__()
-        == err.AuthError(api_key=inputs["api_key"]).error_message()
-    )
-    assert "Missing: ['space_id']" in str(excinfo.value)
-
-    # incorrect type
-    with pytest.raises(err.InvalidTypeAuthKey) as excinfo:
-        _ = Client(api_key=123, space_key="space_key")
-    assert (
-        excinfo.value.__str__()
-        == err.InvalidTypeAuthKey(
-            api_key=123, space_key="space_key"
+        == AuthError(
+            missing_api_key=True,
+            missing_space_id=True,
+            method_name="log",
         ).error_message()
     )
-    assert "api_key as int" in str(excinfo.value)
 
-    with pytest.raises(err.InvalidTypeAuthKey) as excinfo:
-        api_key = "api_key"
-        space_key = (
-            "space_key",
-        )  # This comma is intentional to make space_key an accidental tuple
-        _ = Client(api_key=api_key, space_key=space_key)
+    with pytest.raises(AuthError) as excinfo:
+        c = Client(space_id="space_id")
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log(
+            environment="dummy",
+            model_id="dummy",
+            model_type="dummy",
+        )
+    # if all missing - prompt for api_key and space_id
     assert (
         excinfo.value.__str__()
-        == err.InvalidTypeAuthKey(
-            api_key=api_key, space_key=space_key
+        == AuthError(
+            missing_api_key=True,
+            method_name="log",
         ).error_message()
     )
-    assert "space_key as tuple" in str(excinfo.value)
+    with pytest.raises(AuthError) as excinfo:
+        c = Client(space_key="space_key")
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log(
+            environment="dummy",
+            model_id="dummy",
+            model_type="dummy",
+        )
+    # if all missing - prompt for api_key and space_id
+    assert (
+        excinfo.value.__str__()
+        == AuthError(
+            missing_api_key=True,
+            method_name="log",
+        ).error_message()
+    )
+
+    # if both space_key and space_id are missing, promt only for space_id
+    with pytest.raises(AuthError) as excinfo:
+        c = Client(api_key="api_key")
+        # The first action is to validate the keys, the inputs don't matter
+        _ = c.log(
+            environment="dummy",
+            model_id="dummy",
+            model_type="dummy",
+        )
+    assert (
+        excinfo.value.__str__()
+        == AuthError(
+            missing_space_id=True,
+            method_name="log",
+        ).error_message()
+    )
 
     # acceptable input
     try:
-        _ = Client(space_key=inputs["space_key"], api_key=inputs["api_key"])
+        _ = Client(space_key="space_key", api_key="api_key")
     except Exception:
         pytest.fail("Unexpected error!")
-
-    try:
-        _ = Client(space_id=inputs["space_id"], api_key=inputs["api_key"])
-    except Exception:
-        pytest.fail("Unexpected error!")
-
-
-def test_invalid_client_auth_environment_vars(monkeypatch):
-    with pytest.raises(err.AuthError) as excinfo:
-        _ = Client()
-    assert excinfo.value.__str__() == err.AuthError().error_message()
-    assert "Missing: ['api_key', 'space_id']" in str(excinfo.value)
-
-    monkeypatch.setenv(SPACE_KEY_ENVVAR_NAME, inputs["space_key"])
-    with pytest.raises(err.AuthError) as excinfo:
-        c = Client()
-        assert c._space_key == inputs["space_key"]
-    assert (
-        excinfo.value.__str__()
-        == err.AuthError(space_key=inputs["space_key"]).error_message()
-    )
-    assert "Missing: ['api_key']" in str(excinfo.value)
-
-    monkeypatch.delenv(SPACE_KEY_ENVVAR_NAME)
-    monkeypatch.setenv(API_KEY_ENVVAR_NAME, inputs["api_key"])
-    with pytest.raises(err.AuthError) as excinfo:
-        c = Client()
-        assert c._api_key == inputs["api_key"]
-    assert (
-        excinfo.value.__str__()
-        == err.AuthError(api_key=inputs["api_key"]).error_message()
-    )
-    assert "Missing: ['space_id']" in str(excinfo.value)
-
-    # acceptable input
-    monkeypatch.setenv(SPACE_KEY_ENVVAR_NAME, inputs["space_key"])
-    try:
-        c = Client()
-    except Exception:
-        pytest.fail("Unexpected error!")
-    assert c._space_key == inputs["space_key"]
-    assert c._api_key == inputs["api_key"]
-    assert c._space_id is None
-
-    monkeypatch.delenv(SPACE_KEY_ENVVAR_NAME)
-    monkeypatch.setenv(SPACE_ID_ENVVAR_NAME, inputs["space_id"])
-    try:
-        c = Client()
-    except Exception:
-        pytest.fail("Unexpected error!")
-    assert c._space_key is None
-    assert c._api_key == inputs["api_key"]
-    assert c._space_id == inputs["space_id"]
 
 
 def test_invalid_number_of_embeddings():

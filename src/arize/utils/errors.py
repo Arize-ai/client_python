@@ -1,7 +1,10 @@
 from typing import Any, Iterable, Optional, Union
 
+from arize.utils.logging import log_a_list
+
 from .constants import (
     API_KEY_ENVVAR_NAME,
+    DEVELOPER_KEY_ENVVAR_NAME,
     MAX_NUMBER_OF_EMBEDDINGS,
     SPACE_ID_ENVVAR_NAME,
 )
@@ -10,13 +13,15 @@ from .constants import (
 class AuthError(Exception):
     def __init__(
         self,
-        api_key: Optional[str] = None,
-        space_key: Optional[str] = None,
-        space_id: Optional[str] = None,
+        method_name: str,
+        missing_space_id: bool = False,
+        missing_api_key: bool = False,
+        missing_developer_key: bool = False,
     ) -> None:
-        self.missing_api_key = api_key is None
-        self.missing_space_key = space_key is None
-        self.missing_space_id = space_id is None
+        self.missing_space_id = missing_space_id
+        self.missing_api_key = missing_api_key
+        self.missing_developer_key = missing_developer_key
+        self.method_name = method_name
 
     def __repr__(self) -> str:
         return "Invalid_Arize_Client_Authentication"
@@ -25,21 +30,28 @@ class AuthError(Exception):
         return self.error_message()
 
     def error_message(self) -> str:
-        missing_list = ["api_key"] if self.missing_api_key else []
-        # prompt the user to set space_id only because space_key is getting deprecated
-        if self.missing_space_key and self.missing_space_id:
-            missing_list.append("space_id")
-
-        return (
-            "Arize Client could not obtain credentials."
-            "You must pass your api_key and space_id directly to the Arize Client, "
+        msg = (
+            "Arize Client does not have the necessary credentials for the "
+            f"execution of the {self.method_name} method. "
+            "You must pass them directly to the Arize Client, "
             "or you can set environment variables which will be read if the "
             "keys are not directly passed. "
             "To set the environment variables use the following variable names: \n"
-            f" - {API_KEY_ENVVAR_NAME} for the api key\n"
-            f" - {SPACE_ID_ENVVAR_NAME} for the space ID\n"
-            f"Missing: {missing_list}"
         )
+        missing_list = []
+        if self.missing_space_id:
+            missing_list.append("space_id")
+            msg += f" - {SPACE_ID_ENVVAR_NAME} for the space ID\n"
+        if self.missing_api_key:
+            missing_list.append("api_key")
+            msg += f" - {API_KEY_ENVVAR_NAME} for the api key\n"
+        if self.missing_developer_key:
+            missing_list.append("developer_key")
+            msg += f" - {DEVELOPER_KEY_ENVVAR_NAME} for the developer key\n"
+        print(missing_list)
+
+        msg += f"Missing: {log_a_list(missing_list, 'and')}"
+        return msg
 
 
 class InvalidCertificateFile(Exception):

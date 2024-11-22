@@ -6,20 +6,32 @@ import os
 import re
 import shutil
 import tempfile
+import uuid
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 import pandas.api.types as ptypes
 import pyarrow as pa
 import requests
+from google.protobuf import json_format
 from packaging.version import parse as parse_version
+from pyarrow import flight
 
+from arize.pandas.proto.requests_pb2 import (
+    DoPutRequest,
+    WriteSpanEvaluationRequest,
+    WriteSpanEvaluationResponse,
+)
 from arize.version import __version__
 
 from .. import public_pb2 as pb2
 from ..utils import proto
 from ..utils.constants import (
     API_KEY_ENVVAR_NAME,
+    DEFAULT_ARIZE_FLIGHT_HOST,
+    DEFAULT_ARIZE_FLIGHT_PORT,
+    DEVELOPER_KEY_ENVVAR_NAME,
     GENERATED_LLM_PARAMS_JSON_COL,
     GENERATED_PREDICTION_LABEL_COL,
     LLM_RUN_METADATA_PROMPT_TOKEN_COUNT_TAG_NAME,
@@ -29,7 +41,7 @@ from ..utils.constants import (
     SPACE_ID_ENVVAR_NAME,
     SPACE_KEY_ENVVAR_NAME,
 )
-from ..utils.errors import AuthError, InvalidCertificateFile, InvalidTypeAuthKey
+from ..utils.errors import AuthError, InvalidCertificateFile
 from ..utils.logging import log_a_list, logger
 from ..utils.types import (
     BaseSchema,
@@ -55,7 +67,6 @@ from .validation import errors as err
 from .validation.validator import Validator
 
 SURROGATE_EXPLAINER_MIN_PYTHON_VERSION = "3.8.0"
-
 
 INVALID_ARROW_CONVERSION_MSG = (
     "The dataframe needs to convert to pyarrow but has failed to do so. "
@@ -85,6 +96,9 @@ class Client:
         uri: Optional[str] = "https://api.arize.com/v1",
         additional_headers: Optional[Dict[str, str]] = None,
         request_verify: Union[bool, str] = True,
+        developer_key: Optional[str] = None,
+        host: Optional[str] = None,
+        port: Optional[int] = None,
     ) -> None:
         """
         Initializes the Arize Client
@@ -100,40 +114,28 @@ class Client:
                 "https://api.arize.com/v1".
             additional_headers (Dict[str, str], optional): Dictionary of additional headers to
                 append to request
-
+            developer_key (str, optional): Arize provided developer key associated with your account.
+                Required for sending evaluations to Arize in a blocking fashion.
+            host (str, optional): Arize Flight server host. Defaults to DEFAULT_ARIZE_FLIGHT_HOST.
+            port (int, optional): Arize Flight server port. Defaults to DEFAULT_ARIZE_FLIGHT_PORT.
         """
-        api_key = api_key or os.getenv(API_KEY_ENVVAR_NAME)
-        space_id = space_id or os.getenv(SPACE_ID_ENVVAR_NAME)
-        space_key = space_key or os.getenv(SPACE_KEY_ENVVAR_NAME)
-        if space_key is not None:
+        self._api_key = api_key or os.getenv(API_KEY_ENVVAR_NAME)
+        self._space_id = space_id or os.getenv(SPACE_ID_ENVVAR_NAME)
+        self._space_key = space_key or os.getenv(SPACE_KEY_ENVVAR_NAME)
+        self._developer_key = developer_key or os.getenv(
+            DEVELOPER_KEY_ENVVAR_NAME
+        )
+        if self._space_key is not None:
             logger.warning(
                 "The space_key parameter is deprecated and will be removed in a future release. "
                 "Please use the space_id parameter instead."
             )
 
-        # api_key and one of space_id or space_key must be provided
-        both_space_id_and_key_missing = space_id is None and space_key is None
-        if api_key is None or both_space_id_and_key_missing:
-            raise AuthError(
-                api_key=api_key, space_key=space_key, space_id=space_id
-            )
-        # Check if the provided keys are of the correct type
-        if any(
-            not isinstance(key, str)
-            for key in [api_key, space_key, space_id]
-            if key
-        ):
-            raise InvalidTypeAuthKey(
-                api_key=api_key, space_key=space_key, space_id=space_id
-            )
         if isinstance(request_verify, str) and not os.path.isfile(
             request_verify
         ):
             raise InvalidCertificateFile(request_verify)
         self._request_verify = request_verify
-        self._api_key = api_key
-        self._space_key = space_key
-        self._space_id = space_id
         self._files_uri = uri + "/pandas_arrow"
         self._headers = {
             "authorization": self._api_key,
@@ -152,6 +154,18 @@ class Client:
             if conflicting_keys:
                 raise err.InvalidAdditionalHeaders(conflicting_keys)
             self._headers.update(additional_headers)
+
+        # required for sending events to Flight server
+        self._host = host
+        self._port = port
+        if self._developer_key is not None:
+            self._flight_session = FlightSession(
+                host=self._host if self._host else DEFAULT_ARIZE_FLIGHT_HOST,
+                port=self._port if self._port else DEFAULT_ARIZE_FLIGHT_PORT,
+                developer_key=self._developer_key,
+                space_id=self._space_id,
+                scheme="grpc+tls",
+            )
 
     def log_spans(
         self,
@@ -197,6 +211,14 @@ class Client:
             `Response` object
 
         """
+        # This method requires the API key and either space ID or space key to be set
+        # api_key and one of space_id or space_key must be provided
+        if not self._api_key or not (self._space_id or self._space_key):
+            raise AuthError(
+                missing_space_id=not (self._space_id or self._space_key),
+                missing_api_key=not self._api_key,
+                method_name="log_spans",
+            )
         try:
             from .tracing.columns import (
                 EVAL_COLUMN_PATTERN,
@@ -406,6 +428,14 @@ class Client:
             `Response` object
 
         """
+        # This method requires the API key and either space ID or space key to be set
+        # api_key and one of space_id or space_key must be provided
+        if not self._api_key or not (self._space_id or self._space_key):
+            raise AuthError(
+                missing_space_id=not (self._space_id or self._space_key),
+                missing_api_key=not self._api_key,
+                method_name="log_evaluations",
+            )
         try:
             from .tracing.columns import EVAL_COLUMN_PATTERN, SPAN_SPAN_ID_COL
             from .tracing.utils import extract_project_name_from_params
@@ -503,6 +533,142 @@ class Client:
             timeout=timeout,
         )
 
+    def log_evaluations_sync(
+        self,
+        dataframe: pd.DataFrame,
+        model_id: Optional[str] = None,
+        model_version: Optional[str] = None,
+        validate: Optional[bool] = True,
+        timeout: Optional[float] = None,
+        verbose: Optional[bool] = False,
+        project_name: Optional[str] = None,
+    ) -> WriteSpanEvaluationResponse:
+        """
+        Logs a pandas dataframe containing LLM evaluations data to Arize via a Flight gRPC request.
+        The dataframe must contain a column `context.span_id`
+        such that Arize can assign each evaluation to its respective span.
+
+        Args:
+            dataframe (pd.DataFrame): A dataframe containing LLM evaluations data.
+            model_id (str): A unique name to identify your model in the Arize platform.
+                (Deprecated: Use `project_name` instead.)
+            model_version (str, optional): Used to group a subset of traces a given
+                model_id to compare and track changes. It should match the model_id of the spans
+                sent previously, to which evaluations will be assigned. Defaults to None.
+            validate (bool, optional): When set to True, validation is run before sending data.
+                Defaults to True.
+            path (str, optional): Temporary directory/file to store the serialized data in binary
+                before sending to Arize.
+            timeout (float, optional): You can stop waiting for a response after a given number
+                of seconds with the timeout parameter. Defaults to None.
+            verbose: (bool, optional) = When set to true, info messages are printed. Defaults to
+                False.
+            project_name (str, optional): A unique name to identify your project in the Arize platform.
+                Either model_id or project_name must be provided.
+        """
+        # This method requires the space ID and developer key to be set
+        if not self._space_id or not self._developer_key:
+            raise AuthError(
+                missing_space_id=not self._space_id,
+                missing_developer_key=not self._developer_key,
+                method_name="log_evaluations_sync",
+            )
+        try:
+            from .tracing.columns import EVAL_COLUMN_PATTERN, SPAN_SPAN_ID_COL
+            from .tracing.utils import extract_project_name_from_params
+            from .tracing.validation.evals import evals_validation
+        except ImportError:
+            raise ImportError(MISSING_TRACING_DEPS_ERROR_MSG) from None
+
+        project_name = extract_project_name_from_params(project_name, model_id)
+
+        # We need our own copy since we will manipulate the underlying data and
+        # do not want side effects
+        evals_df = dataframe.copy()
+
+        # Send the number of rows in the dataframe as a header
+        # This helps the Arize server to return appropriate feedback, specially for async logging
+        self._headers.update({"number-of-rows": str(len(evals_df))})
+
+        # We expect the index to be 0,1,2,3..., len(df)-1. Phoenix, for example, will give us a dataframe
+        # with context_id as the index; the old index is not meaningful in our copy of the original dataframe
+        # so we can drop it.
+        evals_df.reset_index(inplace=True, drop=True)
+
+        if verbose:
+            logger.info("Performing direct input type validation.")
+        errors = evals_validation.validate_argument_types(
+            evals_dataframe=evals_df,
+            project_name=project_name,
+            model_version=model_version,
+        )
+        if errors:
+            for e in errors:
+                logger.error(e)
+            raise err.ValidationFailure(errors)
+
+        if validate:
+            if verbose:
+                logger.info("Performing dataframe form validation.")
+            errors = evals_validation.validate_dataframe_form(
+                evals_dataframe=evals_df
+            )
+            if errors:
+                for e in errors:
+                    logger.error(e)
+                raise err.ValidationFailure(errors)
+
+        if verbose:
+            logger.debug("Removing unnecessary columns.")
+        evals_df = self._remove_extraneous_columns(
+            df=evals_df,
+            column_list=[SPAN_SPAN_ID_COL.name],
+            regex=EVAL_COLUMN_PATTERN,
+        )
+
+        if project_name is not None:
+            project_name = str(project_name)
+
+        if model_version is not None:
+            model_version = str(model_version)
+
+        if validate:
+            if verbose:
+                logger.info("Performing values validation.")
+            errors = evals_validation.validate_values(
+                evals_dataframe=evals_df,
+                project_name=project_name,
+                model_version=model_version,
+            )
+            if errors:
+                for e in errors:
+                    logger.error(e)
+                raise err.ValidationFailure(errors)
+
+        try:
+            if verbose:
+                logger.debug("Getting pyarrow schema from pandas dataframe.")
+            pa_schema = pa.Schema.from_pandas(evals_df)
+        except pa.ArrowInvalid:
+            logger.error(INVALID_ARROW_CONVERSION_MSG)
+            raise
+
+        if verbose:
+            logger.debug("Getting pyarrow table from pandas dataframe.")
+        ta = pa.Table.from_pandas(evals_df)
+        proto_schema = proto._get_pb_schema_tracing(
+            model_id=project_name,
+            model_version=model_version,
+        )
+        return self._log_arrow_flight(
+            pa_table=ta,
+            pa_schema=pa_schema,
+            proto_schema=proto_schema,
+            verbose=verbose,
+            model_id=model_id,
+            model_version=model_version,
+        )
+
     def log(
         self,
         dataframe: pd.DataFrame,
@@ -569,6 +735,15 @@ class Client:
             `Response` object
 
         """
+        # This method requires the API key and either space ID or space key to be set
+        # api_key and one of space_id or space_key must be provided
+        if not self._api_key or not (self._space_id or self._space_key):
+            raise AuthError(
+                missing_space_id=not (self._space_id or self._space_key),
+                missing_api_key=not self._api_key,
+                method_name="log",
+            )
+
         # Send the number of rows in the dataframe as a header
         # This helps the Arize server to return appropriate feedback, specially for async logging
         self._headers.update({"number-of-rows": str(len(dataframe))})
@@ -781,6 +956,59 @@ class Client:
             verbose=verbose,
             timeout=timeout,
         )
+
+    def _log_arrow_flight(
+        self,
+        pa_table: pa.Table,
+        pa_schema: pa.Schema,
+        proto_schema: pb2.Schema,
+        verbose: bool = False,
+        model_id: Optional[str] = None,
+        model_version: Optional[str] = None,
+    ) -> WriteSpanEvaluationResponse:
+        if verbose:
+            logger.debug("Serializing schema.")
+
+        base64_schema = base64.b64encode(proto_schema.SerializeToString())
+        pa_schema = self._append_to_pyarrow_metadata(
+            pa_schema, {"arize-schema": base64_schema}
+        )
+
+        do_put_request = DoPutRequest(
+            write_span_evaluation_request=WriteSpanEvaluationRequest(
+                space_id=self._space_id,
+                external_model_id=model_id,
+                model_version=model_version,
+            )
+        )
+        encoded_command: bytes = json_format.MessageToJson(
+            do_put_request
+        ).encode("utf-8")
+        descriptor = flight.FlightDescriptor.for_command(encoded_command)
+        flight_client = self._flight_session.connect()
+        res = None
+        try:
+            flight_writer, flight_metadata_reader = flight_client.do_put(
+                descriptor, pa_schema, options=self._flight_session.call_options
+            )
+            with flight_writer:
+                # write table as stream to flight server
+                flight_writer.write_table(pa_table)
+                # indicate that client has flushed all contents to stream
+                flight_writer.done_writing()
+                # read response from flight server
+                flight_response = flight_metadata_reader.read()
+                if flight_response is not None:
+                    res = WriteSpanEvaluationResponse()
+                    res.ParseFromString(flight_response.to_pybytes())
+                    logger.info(
+                        f"Successfully logged evaluation data to Arize for model '{model_id}' "
+                    )
+        except Exception:
+            logger.exception("Error logging evaluation data to Arize")
+        finally:
+            flight_client.close()
+        return res
 
     def _log_arrow(
         self,
@@ -1017,3 +1245,61 @@ class Client:
             )
         metadata.update(new_metadata)
         return pa_schema.with_metadata(metadata)
+
+
+@dataclass
+class FlightSession:
+    developer_key: str
+    space_id: str
+    host: str
+    port: int
+    scheme: str
+    session_name: str = field(init=False)
+    call_options: flight.FlightCallOptions = field(init=False)
+
+    def __post_init__(self):
+        self.session_name = f"python-sdk-{uuid.uuid4()}"
+        if self.developer_key is None:
+            logger.error(InvalidSessionError.error_message())
+            raise InvalidSessionError
+
+        if self.space_id is None:
+            logger.error(InvalidSessionError.error_message())
+            raise InvalidSessionError
+        self._headers = [
+            (b"origin", b"arize-logging-client"),
+            (b"auth-token-bin", f"{self.developer_key}".encode()),
+            (b"space-id", f"{self.space_id}".encode()),
+            (b"sdk-language", b"python"),
+            (b"language-version", get_python_version().encode("utf-8")),
+            (b"sdk-version", __version__.encode("utf-8")),
+        ]
+
+    def connect(self) -> flight.FlightClient:
+        """
+        Connects to public ingestion endpoint
+        """
+        try:
+            # disable TLS verification for local development
+            disable_cert = self.host.lower() == "localhost"
+            self.call_options = flight.FlightCallOptions(headers=self._headers)
+            return flight.FlightClient(
+                location=f"{self.scheme}://{self.host}:{self.port}",
+                disable_server_verification=disable_cert,
+            )
+        except Exception as e:
+            logger.error(
+                f"There was an error trying to connect to the Arize ingestion endpoint, {e}"
+            )
+            raise
+
+
+class InvalidSessionError(ValueError):
+    @staticmethod
+    def error_message() -> str:
+        return (
+            "Developer key isn't provided or is invalid. "
+            "Please pass in the correct developer key from the UI when "
+            "initiating a new Arize python client. Alternatively, you can set up credentials "
+            "through a profile or an environment variable"
+        )

@@ -8,9 +8,11 @@ import numpy as np
 import pandas as pd
 import pyarrow as pa
 import pytest
+from pyarrow import flight
 from requests import Response
 
 from arize.pandas.logger import Client
+from arize.pandas.proto.requests_pb2 import WriteSpanEvaluationResponse
 
 
 class MockResponse(Response):
@@ -26,6 +28,58 @@ class NoSendClient(Client):
         return MockResponse(
             pa.ipc.open_stream(pa.OSFile(path)).read_pandas(), "Success", 200
         )
+
+
+class MockFlightClient:
+    def __init__(self):
+        self.do_put_called = False
+        self.written_table = None
+        self.done_writing_called = False
+
+    def do_put(self, descriptor, schema, options):
+        self.do_put_called = True
+        flight_writer = MockFlightWriter(self)
+        flight_metadata_reader = MockFlightMetadataReader()
+        return flight_writer, flight_metadata_reader
+
+    def close(self):
+        pass
+
+
+class MockFlightWriter:
+    def __init__(self, client):
+        self.client = client
+
+    def write_table(self, table):
+        self.client.written_table = table
+
+    def done_writing(self):
+        self.client.done_writing_called = True
+
+    def close(self):
+        pass
+
+    # Implementing the context manager methods for use with the `with` statement
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+
+class MockFlightMetadataReader:
+    def read(self):
+        class MockResponse:
+            def to_pybytes(self):
+                response_proto = WriteSpanEvaluationResponse()
+                return response_proto.SerializeToString()
+
+        return MockResponse()
+
+
+@pytest.fixture
+def mock_flight_client():
+    return MockFlightClient()
 
 
 def generate_mock_data(n) -> pd.DataFrame:
@@ -252,6 +306,47 @@ def test_log_evals_zero_errors():
         )
     except Exception:
         pytest.fail("Unexpected error")
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
+def test_log_evals_sync_zero_errors(mock_flight_client):
+    df = generate_mock_data(10)
+    evals_df = generate_mock_eval_data(df)
+    try:
+        log_evals_sync(
+            df=evals_df,
+            mock_flight_client=mock_flight_client,
+        )
+        # Assertions
+        assert (
+            mock_flight_client.do_put_called
+        ), "do_put should be called on the FlightClient"
+        assert (
+            mock_flight_client.written_table is not None
+        ), "write_table should be called with the correct table"
+        assert (
+            mock_flight_client.done_writing_called
+        ), "done_writing should be called on the FlightWriter"
+    except Exception:
+        pytest.fail("Unexpected error")
+
+
+def log_evals_sync(df: pd.DataFrame, mock_flight_client) -> Response:
+    client = NoSendClient(
+        api_key="apikey",
+        developer_key="developerKey",
+        space_id="spaceId",
+    )
+    client._flight_session.connect = lambda: mock_flight_client
+    # mock headers
+    client._flight_session.call_options = flight.FlightCallOptions(headers={})
+    response = client.log_evaluations_sync(
+        dataframe=df,
+        project_name="project-name",
+        model_id="my-model",
+        model_version="1.0",
+    )
+    return response
 
 
 def log_spans(

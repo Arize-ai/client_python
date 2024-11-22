@@ -45,7 +45,6 @@ from .utils.errors import (
     AuthError,
     InvalidCertificateFile,
     InvalidStringLength,
-    InvalidTypeAuthKey,
     InvalidValueType,
 )
 from .utils.logging import get_truncation_warning_message, logger
@@ -135,38 +134,20 @@ class Client:
                 append to request
 
         """
-        api_key = api_key or os.getenv(API_KEY_ENVVAR_NAME)
-        space_id = space_id or os.getenv(SPACE_ID_ENVVAR_NAME)
-        space_key = space_key or os.getenv(SPACE_KEY_ENVVAR_NAME)
-
-        if space_key is not None:
+        self._api_key = api_key or os.getenv(API_KEY_ENVVAR_NAME)
+        self._space_id = space_id or os.getenv(SPACE_ID_ENVVAR_NAME)
+        self._space_key = space_key or os.getenv(SPACE_KEY_ENVVAR_NAME)
+        if self._space_key is not None:
             logger.warning(
                 "The space_key parameter is deprecated and will be removed in a future release. "
                 "Please use the space_id parameter instead."
             )
-        # api_key and one of space_id or space_key must be provided
-        both_space_id_and_key_missing = space_id is None and space_key is None
-        if api_key is None or both_space_id_and_key_missing:
-            raise AuthError(
-                api_key=api_key, space_key=space_key, space_id=space_id
-            )
-        # Check if the provided keys are of the correct type
-        if any(
-            not isinstance(key, str)
-            for key in [api_key, space_key, space_id]
-            if key
-        ):
-            raise InvalidTypeAuthKey(
-                api_key=api_key, space_key=space_key, space_id=space_id
-            )
+
         if isinstance(request_verify, str) and not os.path.isfile(
             request_verify
         ):
             raise InvalidCertificateFile(request_verify)
         self._request_verify = request_verify
-        self._api_key = api_key
-        self._space_key = space_key
-        self._space_id = space_id
         self._uri = f"{uri}/log"
         self._timeout = timeout
         self._session = FuturesSession(
@@ -269,6 +250,14 @@ class Client:
             `concurrent.futures.Future` object
 
         """
+        # This method requires the API key and either space ID or space key to be set
+        # api_key and one of space_id or space_key must be provided
+        if not self._api_key or not (self._space_id or self._space_key):
+            raise AuthError(
+                missing_space_id=not (self._space_id or self._space_key),
+                missing_api_key=not self._api_key,
+                method_name="log",
+            )
         # Validate model_id
         if not isinstance(model_id, str):
             raise InvalidValueType("model_id", model_id, "str")
