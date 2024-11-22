@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.27.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.27.1...arize-python-sdk/v7.27.2) (2024-11-22)
+
+
+### 📚 Documentation
+
+* Update switcher.json for readthedocs ([#38449](https://github.com/Arize-ai/arize/issues/38449)) ([b1bb67f](https://github.com/Arize-ai/arize/commit/b1bb67fee4b2b05cf9f4a1b349abe807047e8a63))
+
 ## [7.27.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.27.0...arize-python-sdk/v7.27.1) (2024-11-22)
 
 
