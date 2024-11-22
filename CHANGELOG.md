@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.27.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.27.0...arize-python-sdk/v7.27.1) (2024-11-22)
+
+
+### 🐛 Bug Fixes
+
+* allow protobuf v5 for readthedocs doc build ([#38445](https://github.com/Arize-ai/arize/issues/38445)) ([9ef6570](https://github.com/Arize-ai/arize/commit/9ef6570f9fdd8d8466e05d9dd0e6a567946ffbf3))
+
 ## [7.27.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.26.0...arize-python-sdk/v7.27.0) (2024-11-22)
 
 
