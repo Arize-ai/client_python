@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.28.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.27.2...arize-python-sdk/v7.28.0) (2024-11-25)
+
+
+### 🎁 New Features
+
+* Increase max character length for multiclass class name to 100 ([#38458](https://github.com/Arize-ai/arize/issues/38458)) ([e4fa486](https://github.com/Arize-ai/arize/commit/e4fa48606a35d11f579fee699d28c35a71312973))
+
 ## [7.27.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.27.1...arize-python-sdk/v7.27.2) (2024-11-22)
 
 

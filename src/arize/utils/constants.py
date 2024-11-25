@@ -31,7 +31,7 @@ MAX_NUMBER_OF_EMBEDDINGS = 30
 MAX_EMBEDDING_DIMENSIONALITY = 20_000
 # The maximum number of classes for multi class
 MAX_NUMBER_OF_MULTI_CLASS_CLASSES = 300
-MAX_MULTI_CLASS_NAME_LENGTH = 50
+MAX_MULTI_CLASS_NAME_LENGTH = 100
 # The maximum number of references in embedding similarity search params
 MAX_NUMBER_OF_SIMILARITY_REFERENCES = 10
 
