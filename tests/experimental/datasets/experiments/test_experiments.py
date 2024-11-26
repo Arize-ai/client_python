@@ -1,3 +1,4 @@
+import json
 import sys
 
 import pytest
@@ -10,10 +11,15 @@ import string
 
 import pandas as pd
 
+import arize.experimental.datasets.experiments.functions as helper
 from arize.experimental.datasets import ArizeDatasetsClient
 from arize.experimental.datasets.experiments.evaluators.base import (
     EvaluationResult,
     Evaluator,
+)
+from arize.experimental.datasets.experiments.types import (
+    EvaluationResultColumnNames,
+    ExperimentTaskResultColumnNames,
 )
 
 
@@ -327,3 +333,62 @@ def test_functional_evaluation():
             == row["eval.eval_fn.metadata.output"]
         )
     assert exp_df.isnull().sum().sum() == 0
+
+
+def test_converting_exp_df():
+    input_df = pd.DataFrame(
+        {
+            "my_id": ["ex1", "ex2"],
+            "output": [{"output_1": 1}, {"output_1": 2}],
+            "unused_col": ["t1", "t2"],
+            "unsed_col_2": [1234567890, 1234567891],
+            "quality.quality_score": [0.9, 0.8],
+            "quality.quality_label": ["good", "fair"],
+            "quality.quality_explanation": ["exp_1", "exp_2"],
+            "quality.meta.version": ["v1", "v2"],
+            "quality.meta.model": ["gpt4", "gpt3.5"],
+            "quality.meta.dict": [{"key": "val"}, {"key": "val"}],
+        }
+    )
+
+    output_df = helper.transform_to_experiment_format(
+        input_df,
+        task_columns=ExperimentTaskResultColumnNames(
+            example_id="my_id",
+            result="output",
+        ),
+        evaluator_columns={
+            "QualityEvaluator": EvaluationResultColumnNames(
+                score="quality.quality_score",
+                label="quality.quality_label",
+                explanation="quality.quality_explanation",
+                metadata={
+                    "version": "quality.meta.version",
+                    "model": "quality.meta.model",
+                    "dict": "quality.meta.dict",
+                },
+            )
+        },
+    )
+    expected_columns = {
+        "id",
+        "example_id",
+        "result",
+        "eval.QualityEvaluator.score",
+        "eval.QualityEvaluator.label",
+        "eval.QualityEvaluator.explanation",
+        "eval.QualityEvaluator.metadata.version",
+        "eval.QualityEvaluator.metadata.model",
+        "eval.QualityEvaluator.metadata.dict",
+    }
+
+    assert output_df.shape == (2, 9)
+    assert set(output_df.columns.tolist()) == expected_columns
+    # task result (if in dictionary) is converted to json str
+    assert type(output_df["result"][0]) is str
+    for idx, val in enumerate(output_df["result"]):
+        dict_val = json.loads(val)
+        assert dict_val == input_df["output"][idx]
+
+    # metadata subfield, if a dict is converted to json str
+    assert type(output_df["eval.QualityEvaluator.metadata.dict"][0]) is str

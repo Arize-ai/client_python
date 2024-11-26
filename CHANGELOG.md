@@ -1,5 +1,17 @@
 # Changelog
 
+## [7.29.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.28.0...arize-python-sdk/v7.29.0) (2024-11-26)
+
+
+### 🎁 New Features
+
+* **datasets:** log experiment dataframe ([#38573](https://github.com/Arize-ai/arize/issues/38573)) ([9e5ef3c](https://github.com/Arize-ai/arize/commit/9e5ef3c224bcf024225100cf8656845793daa6c1))
+
+
+### 📚 Documentation
+
+* new two column layout ([#38505](https://github.com/Arize-ai/arize/issues/38505)) ([0a73937](https://github.com/Arize-ai/arize/commit/0a73937a638a524f3cdb819d9b25e8091977a9df))
+
 ## [7.28.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.27.2...arize-python-sdk/v7.28.0) (2024-11-25)
 
 

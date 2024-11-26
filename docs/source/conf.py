@@ -180,6 +180,7 @@ html_theme_options = {
     ],
     "navbar_align": "content",
     "navbar_start": ["navbar-logo", "version-switcher"],
+    "navbar_center": ["navbar-mid"],
     "switcher": {
         "json_url": json_url,
         "version_match": version_match,
@@ -187,7 +188,7 @@ html_theme_options = {
     "secondary_sidebar_items": [],
     "footer_start": [],
     "footer_end": ["copyright"],
-    "navigation_depth": 3,
+    "navigation_depth": 4,
     "collapse_navigation": True,
 }
 

@@ -444,3 +444,67 @@ def _top_string(s: "pd.Series[Any]", length: int = 100) -> Optional[str]:
     if (cnt := s.dropna().str.slice(0, length).value_counts()).empty:
         return None
     return cast(str, cnt.sort_values(ascending=False).index[0])
+
+
+@dataclass
+class ExperimentTaskResultColumnNames:
+    """Column names for mapping experiment task results in a DataFrame.
+
+    Args:
+        example_id: Name of column containing example IDs.
+            The ID values must match the id of the dataset rows.
+        result: Name of column containing task results
+    """
+
+    example_id: str
+    result: str
+
+
+@dataclass
+class EvaluationResultColumnNames:
+    """Column names for mapping evaluation results in a DataFrame.
+
+    Args:
+        score: Optional name of column containing evaluation scores
+        label: Optional name of column containing evaluation labels
+        explanation: Optional name of column containing evaluation explanations
+        metadata: Optional mapping of metadata keys to column names. If a column name
+            is None or empty string, the metadata key will be used as the column name.
+
+    Examples:
+        >>> # Basic usage with score and label columns
+        >>> EvaluationResultColumnNames(
+        ...     score="quality.score", label="quality.label"
+        ... )
+
+        >>> # Using metadata with same key and column name
+        >>> EvaluationResultColumnNames(
+        ...     score="quality.score",
+        ...     metadata={"version": None},  # Will look for column named "version"
+        ... )
+
+        >>> # Using metadata with different key and column name
+        >>> EvaluationResultColumnNames(
+        ...     score="quality.score",
+        ...     metadata={
+        ...         # Will look for "column_in_my_df.version" column and ingest as
+        ...         # "eval.{EvaluatorName}.meatadata.model_version"
+        ...         "model_version": "column_in_my_df.version",
+        ...         # Will look for "column_in_my_df.ts" column and ingest as
+        ...         # "eval.{EvaluatorName}.metadata.timestamp"
+        ...         "timestamp": "column_in_my_df.ts",
+        ...     },
+        ... )
+
+    Raises:
+        ValueError: If neither score nor label column names are specified
+    """
+
+    score: Optional[str] = None
+    label: Optional[str] = None
+    explanation: Optional[str] = None
+    metadata: Optional[Dict[str, Optional[str]]] = None
+
+    def __post_init__(self) -> None:
+        if self.score is None and self.label is None:
+            raise ValueError("Must specify score or label column name, or both")

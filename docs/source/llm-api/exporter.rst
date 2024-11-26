@@ -6,8 +6,6 @@ To use in your code, import the following:
 
 ``from arize.exporter import ArizeExportClient``
 
-client
-^^^^^^
 .. automodule:: arize.exporter
    :members:
    :exclude-members: api_key, arize_config_path, arize_profile, get_progress_bar, host, port, scheme, session, __init__, get_arize_schema

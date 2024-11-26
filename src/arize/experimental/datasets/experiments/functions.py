@@ -46,11 +46,13 @@ from .evaluators.utils import create_evaluator
 from .tracing import capture_spans, flatten
 from .types import (
     EvaluationResult,
+    EvaluationResultColumnNames,
     EvaluatorName,
     Example,
     ExperimentEvaluationRun,
     ExperimentRun,
     ExperimentTask,
+    ExperimentTaskResultColumnNames,
     _TaskSummary,
 )
 
@@ -747,3 +749,91 @@ JSON = OpenInferenceMimeTypeValues.JSON
 
 def get_result_attr(r, attr, default=None):
     return getattr(r.result, attr, default) if r.result else default
+
+
+def transform_to_experiment_format(
+    df: pd.DataFrame,
+    task_columns: ExperimentTaskResultColumnNames,
+    evaluator_columns: Optional[Dict[str, EvaluationResultColumnNames]] = None,
+) -> pd.DataFrame:
+    """
+    Transform a DataFrame to match the format returned by run_experiment().
+
+    Args:
+        df: Input DataFrame containing experiment results
+        task_columns: Column mapping for task results
+        evaluator_columns: Dictionary mapping evaluator names (str)
+            to their column mappings (EvaluationResultColumnNames)
+
+    Returns:
+        DataFrame in the format matching run_experiment() output
+    """
+    # Validate required columns
+    required_cols = {task_columns.example_id, task_columns.result}
+    missing_cols = required_cols - set(df.columns)
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
+
+    # Initialize output DataFrame with required columns
+    out_df = pd.DataFrame()
+    out_df["id"] = range(len(df))  # Generate sequential IDs
+    out_df["example_id"] = df[task_columns.example_id]
+    out_df["result"] = df[task_columns.result].apply(
+        lambda x: json.dumps(x) if isinstance(x, dict) else x
+    )
+
+    # Process evaluator results
+    if evaluator_columns:
+        for evaluator_name, column_names in evaluator_columns.items():
+            _add_evaluator_columns(df, out_df, evaluator_name, column_names)
+
+    # Set index but keep id column
+    out_df.set_index("id", inplace=True, drop=False)
+    out_df.reset_index(drop=True, inplace=True)
+    return out_df
+
+
+def _add_evaluator_columns(
+    input_df: pd.DataFrame,
+    output_df: pd.DataFrame,
+    evaluator_name: str,
+    column_names: EvaluationResultColumnNames,
+) -> None:
+    """Helper function to add evaluator columns to output DataFrame"""
+    # Add score if specified
+    if column_names.score and column_names.score in input_df.columns:
+        output_df[f"eval.{evaluator_name}.score"] = input_df[column_names.score]
+
+    # Add label if specified
+    if column_names.label and column_names.label in input_df.columns:
+        output_df[f"eval.{evaluator_name}.label"] = input_df[column_names.label]
+
+    # Add explanation if specified
+    if (
+        column_names.explanation
+        and column_names.explanation in input_df.columns
+    ):
+        output_df[f"eval.{evaluator_name}.explanation"] = input_df[
+            column_names.explanation
+        ]
+
+    # Add metadata columns if specified
+    if column_names.metadata:
+        for metadata_key, column_name in column_names.metadata.items():
+            # If column_name not specified, use metadata_key as the column name
+            md_col_name = column_name if column_name else metadata_key
+
+            if md_col_name not in input_df.columns:
+                raise ValueError(
+                    f"metadata column {md_col_name} not found in input DataFrame columns: "
+                    f"{input_df.columns}"
+                )
+
+            output_col = f"eval.{evaluator_name}.metadata.{metadata_key}"
+
+            output_vals = input_df[md_col_name].apply(
+                lambda x: str(x)
+                if x is not None and not isinstance(x, (int, float, str, bool))
+                else x
+            )
+            output_df[output_col] = output_vals

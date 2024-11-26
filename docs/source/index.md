@@ -32,14 +32,28 @@ Below you can find the classes, functions, and parameters for tracing and evalua
 Check out our [Slack community](https://arize-ai.slack.com/join/shared_invite/zt-1px8dcmlf-fmThhDFD_V_48oU7ALan4Q#/shared-invite/email) and [GitHub repository](https://github.com/arize-ai/client_python)!
 ```
 
-## API Definition
-
+::::{grid} 2
+:::{grid-item}
 ```{toctree}
 :maxdepth: 1
-
-api/datasets
-api/experiments
-api/exporter
-api/batch_logger
-api/stream_logger
+:caption: LLM API
+llm-api/datasets
+llm-api/experiments
+llm-api/exporter
+llm-api/logger
 ```
+:::
+:::{grid-item}
+```{toctree}
+:maxdepth: 1
+:caption: ML API
+ml-api
+ml-api/exporter
+ml-api/logger
+```
+:::
+::::
+
+
+
+

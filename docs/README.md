@@ -21,3 +21,10 @@ make clean html
 - index.md: Main entrypoint for the API reference. This file must be in the `source` directory. For documentation to show up on the API reference, there must be a path (does not have to be direct) defined in index.md to the target documentation file.
 - requirements.txt: This file is necessary for management of dependencies on the readthedocs platform and its build process.
 - make files: Not required but useful in generating static HTML pages locally.
+
+## Useful references
+https://pydata-sphinx-theme.readthedocs.io/
+https://sphinx-design.readthedocs.io/en/latest/
+https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
+https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
+https://docs.readthedocs.io/en/stable/automation-rules.html

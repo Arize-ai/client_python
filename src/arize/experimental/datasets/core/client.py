@@ -1,9 +1,8 @@
-import hashlib
 import json
 import time
 import uuid
 from dataclasses import dataclass
-from typing import Optional, Tuple, Union
+from typing import Dict, Optional, Tuple, Union
 
 import opentelemetry.sdk.trace as trace_sdk
 import pandas as pd
@@ -24,8 +23,15 @@ from pyarrow import flight
 from arize.pandas.proto import requests_pb2 as pb2
 
 from ..experiments.evaluators.base import Evaluators
-from ..experiments.functions import run_experiment
-from ..experiments.types import ExperimentTask
+from ..experiments.functions import (
+    run_experiment,
+    transform_to_experiment_format,
+)
+from ..experiments.types import (
+    EvaluationResultColumnNames,
+    ExperimentTask,
+    ExperimentTaskResultColumnNames,
+)
 from ..utils.constants import (
     DEFAULT_ARIZE_FLIGHT_HOST,
     DEFAULT_ARIZE_FLIGHT_PORT,
@@ -295,6 +301,104 @@ class ArizeDatasetsClient:
             ) from exc
         finally:
             flight_client.close()
+
+    def log_experiment(
+        self,
+        space_id: str,
+        experiment_name: str,
+        experiment_df: pd.DataFrame,
+        task_columns: ExperimentTaskResultColumnNames,
+        evaluator_columns: Optional[
+            Dict[str, EvaluationResultColumnNames]
+        ] = None,
+        dataset_id: str = "",
+        dataset_name: str = "",
+    ) -> Optional[str]:
+        """
+        Log an experiment to Arize.
+
+        Args:
+            space_id (str): The ID of the space where the experiment will be logged.
+            experiment_name (str): The name of the experiment.
+            experiment_df (pd.DataFrame): The data to be logged.
+            task_columns (ExperimentTaskResultColumnNames): The column names for task results.
+            evaluator_columns (Optional[Dict[str, EvaluationResultColumnNames]]):
+                The column names for evaluator results.
+            dataset_id (str, optional): The ID of the dataset associated with the experiment.
+                Required if dataset_name is not provided. Defaults to "".
+            dataset_name (str, optional): The name of the dataset associated with the experiment.
+                Required if dataset_id is not provided. Defaults to "".
+
+        Examples:
+            >>> # Example DataFrame:
+            >>> df = pd.DataFrame({
+            ...     "example_id": ["1", "2"],
+            ...     "result": ["success", "failure"],
+            ...     "accuracy": [0.95, 0.85],
+            ...     "ground_truth": ["A", "B"],
+            ...     "explanation_text": ["Good match", "Poor match"],
+            ...     "confidence": [0.9, 0.7],
+            ...     "model_version": ["v1", "v2"],
+            ...     "custom_metric": [0.8, 0.6],
+            ...})
+            ...
+            >>> # Define column mappings for task
+            >>> task_cols = ExperimentTaskResultColumnNames(
+            ...    example_id="example_id", result="result"
+            ...)
+            >>> # Define column mappings for evaluator
+            >>> evaluator_cols = EvaluationResultColumnNames(
+            ...     score="accuracy",
+            ...     label="ground_truth",
+            ...     explanation="explanation_text",
+            ...     metadata={
+            ...         "confidence": None,  # Will use "confidence" column
+            ...         "version": "model_version",  # Will use "model_version" column
+            ...         "custom_metric": None,  # Will use "custom_metric" column
+            ...     },
+            ... )
+            >>> # Use with ArizeDatasetsClient.log_experiment()
+            >>> ArizeDatasetsClient.log_experiment(
+            ...     space_id="my_space_id",
+            ...     experiment_name="my_experiment",
+            ...     experiment_df=df,
+            ...     task_columns=task_cols,
+            ...     evaluator_columns={"my_evaluator": evaluator_cols},
+            ...     dataset_name="my_dataset_name",
+            ... )
+
+        Returns:
+            Optional[str]: The ID of the logged experiment, or None if the logging failed.
+        """
+        if dataset_id == "" and dataset_name == "":
+            raise ValueError("one of dataset_id or dataset_name is required")
+        if experiment_df.empty:
+            raise ValueError("experiment_df cannot be empty")
+
+        init_result = self._init_experiment(
+            space_id=space_id,
+            dataset_id=dataset_id,
+            dataset_name=dataset_name,
+            experiment_name=experiment_name,
+        )
+        if init_result is None:
+            raise RuntimeError(
+                f"Failed to initialize experiment {experiment_name}"
+            )
+        _, dataset_id, _ = init_result
+
+        # transform experiment data to experiment format
+        experiment_df = transform_to_experiment_format(
+            experiment_df, task_columns, evaluator_columns
+        )
+
+        # log experiment data using post_experiment_data
+        return self._post_experiment_data(
+            experiment_name=experiment_name,
+            experiment_df=experiment_df,
+            space_id=space_id,
+            dataset_id=dataset_id,
+        )
 
     def create_dataset(
         self,
@@ -802,10 +906,3 @@ def _get_tracer_resource(
         trace.set_tracer_provider(tracer_provider)
 
     return tracer_provider.get_tracer(__name__), resource
-
-
-def _get_hex_hash(input_string):
-    input_bytes = input_string.encode("utf-8")
-    sha256_hash = hashlib.sha256()
-    sha256_hash.update(input_bytes)
-    return sha256_hash.hexdigest()[:8]
