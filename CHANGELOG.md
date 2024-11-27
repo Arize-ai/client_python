@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.29.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.29.0...arize-python-sdk/v7.29.1) (2024-11-27)
+
+
+### 📚 Documentation
+
+* fix missing classes in api-reference ([#38624](https://github.com/Arize-ai/arize/issues/38624)) ([61019a1](https://github.com/Arize-ai/arize/commit/61019a1212e66e8ae7fefd1939af18aa0ee3cbbe))
+
 ## [7.29.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.28.0...arize-python-sdk/v7.29.0) (2024-11-26)
 
 

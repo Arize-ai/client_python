@@ -84,8 +84,7 @@ MISSING_TRACING_DEPS_ERROR_MSG = (
 
 class Client:
     """
-    Arize API Client to log predictions and actuals to the Arize platform from
-    pandas.DataFrames
+    Arize API Client
     """
 
     def __init__(
