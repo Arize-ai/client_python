@@ -10,7 +10,7 @@ from arize.pandas.tracing.validation.common import errors as tracing_err
 from arize.pandas.tracing.validation.common import value_validation
 from arize.pandas.validation import errors as err
 from arize.utils.constants import MAX_EMBEDDING_DIMENSIONALITY
-from arize.utils.types import is_dict_of
+from arize.utils.types import is_dict_of, is_json_str
 
 
 def _check_span_root_field_values(
@@ -377,12 +377,7 @@ def _check_LLM_IO_messages_column_value(
                     if function_args and (
                         len(function_args)
                         > tracing_constants.JSON_STRING_MAX_STR_LENGTH
-                        or not is_dict_of(
-                            d=function_args,
-                            key_allowed_types=str,
-                            value_allowed_types=(bool, str, int, float),
-                            value_list_allowed_types=(bool, str, int, float),
-                        )
+                        or not is_json_str(function_args)
                     ):
                         wrong_tool_calls_found = True
                         break
@@ -439,14 +434,11 @@ def _check_documents_column_value(
             if (
                 metadata
                 and not wrong_metadata_found
-                and (
-                    len(metadata) > tracing_constants.JSON_STRING_MAX_STR_LENGTH
-                    or not is_dict_of(
-                        d=metadata,
-                        key_allowed_types=str,
-                        value_allowed_types=(bool, str, int, float),
-                        value_list_allowed_types=(bool, str, int, float),
-                    )
+                and not is_dict_of(
+                    d=metadata,
+                    key_allowed_types=str,
+                    value_allowed_types=(bool, str, int, float),
+                    value_list_allowed_types=(bool, str, int, float),
                 )
             ):
                 wrong_metadata_found = True

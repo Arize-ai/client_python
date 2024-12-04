@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.29.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.29.1...arize-python-sdk/v7.29.2) (2024-12-03)
+
+
+### 🐛 Bug Fixes
+
+* Fix tool calls function arguments validation for output_messages when logging spans as a dataframe ([#38628](https://github.com/Arize-ai/arize/issues/38628)) ([661322d](https://github.com/Arize-ai/arize/commit/661322d801b02f33e9ae65d50549d105768dc485))
+
 ## [7.29.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.29.0...arize-python-sdk/v7.29.1) (2024-11-27)
 
 
