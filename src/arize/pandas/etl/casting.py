@@ -183,7 +183,9 @@ def cast_columns(
     return dataframe
 
 
-def cast_df(df: pd.DataFrame, cols: List[str], type_str: str) -> pd.DataFrame:
+def cast_df(
+    df: pd.DataFrame, cols: List[str], target_type_str: str
+) -> pd.DataFrame:
     """
     Arguments:
     ---------
@@ -191,7 +193,7 @@ def cast_df(df: pd.DataFrame, cols: List[str], type_str: str) -> pd.DataFrame:
             A deepcopy of the user's dataframe.
         cols: List[str]
             The list of column names to cast.
-        type_str: str
+        target_type_str: str
             The target type to cast to.
 
     Returns:
@@ -205,12 +207,13 @@ def cast_df(df: pd.DataFrame, cols: List[str], type_str: str) -> pd.DataFrame:
             If casting fails. Common exceptions raised by astype() are TypeError and ValueError.
 
     """
-    if type_str == "string":
+    casted_df = df.astype({col: target_type_str for col in cols})
+    if target_type_str == "string":
         # when NaN floats are cast to string, they become "nan". Replace with actual NaN values.
-        return df.astype({col: type_str for col in cols}).replace("nan", np.nan)
+        casted_df[cols] = casted_df[cols].replace("nan", np.nan)
 
     # todo (Hannah): in the future do we want to have "NaN"s in string columns convert to np.nan?
-    return df.astype({col: type_str for col in cols})
+    return casted_df
 
 
 def convert_schema_field_types(

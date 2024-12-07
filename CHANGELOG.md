@@ -1,5 +1,13 @@
 # Changelog
 
+## [7.29.3](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.29.2...arize-python-sdk/v7.29.3) (2024-12-07)
+
+
+### 🐛 Bug Fixes
+
+* Add obj parameter to isinstance in _datetime_to_ns ([#38824](https://github.com/Arize-ai/arize/issues/38824)) ([d5bf94f](https://github.com/Arize-ai/arize/commit/d5bf94f5ee262c1d166f2e05eae74fc678148f23))
+* update string type handling for surrogate explainability ([#38895](https://github.com/Arize-ai/arize/issues/38895)) ([3499fa2](https://github.com/Arize-ai/arize/commit/3499fa26d5403a9ea038433366aac7bf3bd4c6a1))
+
 ## [7.29.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.29.1...arize-python-sdk/v7.29.2) (2024-12-03)
 
 

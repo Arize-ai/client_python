@@ -123,11 +123,13 @@ class Mimic:
         # fitted on a much larger dataset since it takes a lot less time.
         X = pd.concat(
             [
-                X.select_dtypes(exclude=object),
+                X.select_dtypes(exclude=[object, "string"]),
                 pd.DataFrame(
                     {
                         name: LabelEncoder().fit_transform(data)
-                        for name, data in X.select_dtypes(object).items()
+                        for name, data in X.select_dtypes(
+                            include=[object, "string"]
+                        ).items()
                     },
                     index=X.index,
                 ),

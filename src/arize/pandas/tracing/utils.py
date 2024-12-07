@@ -41,7 +41,7 @@ def _datetime_to_ns(dt: Union[str, datetime], fmt: str) -> int:
             )
             raise e
         return ts
-    elif isinstance(dt, pd.Timestamp) or isinstance(pd.DatetimeIndex):
+    elif isinstance(dt, (pd.Timestamp, pd.DatetimeIndex)):
         try:
             ts = int(datetime.timestamp(dt.to_pydatetime()) * 1e9)
         except Exception as e:
