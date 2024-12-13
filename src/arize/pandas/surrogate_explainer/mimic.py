@@ -117,6 +117,11 @@ class Mimic:
             X = X[_mask]
             y = y[_mask]
 
+        # Replace all pd.NA values with np.nan values
+        for col in X.columns:
+            if X[col].isna().any():
+                X[col] = X[col].astype(object).where(~X[col].isna(), np.nan)
+
         # Apply integer encoding to non-numeric columns.
         # Currently training and explaining detasets are the same, but
         # this can be changed in the future. The student model can be

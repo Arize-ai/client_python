@@ -260,6 +260,57 @@ def test_cast_to_categorical_no_error():
     table_test(test_case)
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
+def test_nan_casting_no_error():
+    df = pd.DataFrame(
+        {
+            "A": pd.Series([2.5, "nan"]),
+            "B": pd.Series([1, "NaN"]),
+            "C": pd.Series(["test", None]),
+            "D": pd.Series(["2.5", float("nan")]),
+            "E": pd.Series([2.5, "nan"]),
+            "F": pd.Series(["1", "NaN"]),
+            "G": pd.Series([1, None]),
+        }
+    )
+    test_case = CastingTestCase(
+        name="nan_casting_no_error",
+        df=df,
+        features=TypedColumns(
+            to_str=["A", "B", "C"],
+            to_float=["D", "E"],
+            to_int=["F", "G"],
+            inferred=["H"],
+        ),
+        tags=TypedColumns(
+            to_str=["A"],
+        ),
+        expected={
+            "column_types": {
+                # for each column key, value represents the new column type
+                "A": "string",
+                "B": "string",
+                "C": "string",
+                "D": "Float64",
+                "E": "Float64",
+                "F": "Int64",
+                "G": "Int64",
+            },
+            "value_types": {
+                # for each column key, tuple represents the new value types at index 0 and index 1
+                "A": (str, pd.NA),
+                "B": (str, pd.NA),
+                "C": (str, pd.NA),
+                "D": (np.float64, pd.NA),
+                "E": (np.float64, pd.NA),
+                "F": (np.int64, pd.NA),
+                "G": (np.int64, pd.NA),
+            },
+        },
+    )
+    table_test(test_case)
+
+
 def table_test(case: CastingTestCase):
     schema = get_schema(case.features, case.tags)
     try:

@@ -207,13 +207,11 @@ def cast_df(
             If casting fails. Common exceptions raised by astype() are TypeError and ValueError.
 
     """
-    casted_df = df.astype({col: target_type_str for col in cols})
-    if target_type_str == "string":
-        # when NaN floats are cast to string, they become "nan". Replace with actual NaN values.
-        casted_df[cols] = casted_df[cols].replace("nan", np.nan)
+    nan_mapping = {"nan": np.nan, "NaN": np.nan}
+    df = df.replace(nan_mapping)
 
-    # todo (Hannah): in the future do we want to have "NaN"s in string columns convert to np.nan?
-    return casted_df
+    # None or NaN-based values (including np.nan) are automatically converted to pandas pd.NA type
+    return df.astype({col: target_type_str for col in cols})
 
 
 def convert_schema_field_types(

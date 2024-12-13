@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.29.4](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.29.3...arize-python-sdk/v7.29.4) (2024-12-13)
+
+
+### 🐛 Bug Fixes
+
+* handle pd.NA type for surrogate explainability ([#39135](https://github.com/Arize-ai/arize/issues/39135)) ([547dc57](https://github.com/Arize-ai/arize/commit/547dc57d85d6a46b6529619bf4868ba8ec9395b3))
+
 ## [7.29.3](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.29.2...arize-python-sdk/v7.29.3) (2024-12-07)
 
 
