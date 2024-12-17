@@ -85,7 +85,7 @@ LLM_Evaluation = [
 ]
 Tracing = [
     "opentelemetry-semantic-conventions>=0.43b0, <1",
-    "openinference-semantic-conventions>=0.1.6, <1",
+    "openinference-semantic-conventions>=0.1.12, <1",
     "deprecated", #opentelemetry-semantic-conventions requires it
 ]
 Datasets = [

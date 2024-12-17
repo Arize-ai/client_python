@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.30.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.29.4...arize-python-sdk/v7.30.0) (2024-12-17)
+
+
+### 🎁 New Features
+
+* Add support for Open Inference llm.tools attribute ([#39077](https://github.com/Arize-ai/arize/issues/39077)) ([8737e6d](https://github.com/Arize-ai/arize/commit/8737e6d125fe9db07f81dc0479e85a1cc30caa0f))
+
 ## [7.29.4](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.29.3...arize-python-sdk/v7.29.4) (2024-12-13)
 
 
