@@ -1,5 +1,17 @@
 # Changelog
 
+## [7.31.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.30.0...arize-python-sdk/v7.31.0) (2025-01-07)
+
+
+### 🎁 New Features
+
+* dataset schema fileimporter ([#39728](https://github.com/Arize-ai/arize/issues/39728)) ([a68c71e](https://github.com/Arize-ai/arize/commit/a68c71e4c94ca69e050cc14a9eb73caa0355b8fc))
+
+
+### 🐛 Bug Fixes
+
+* Use the correct type for open inference attributes.llm.tools column  ([#39742](https://github.com/Arize-ai/arize/issues/39742)) ([9345362](https://github.com/Arize-ai/arize/commit/9345362b8ecf8e1832e7dcfce4b01b9d9a84fb75))
+
 ## [7.30.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.29.4...arize-python-sdk/v7.30.0) (2024-12-17)
 
 

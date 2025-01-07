@@ -248,9 +248,9 @@ SPAN_ATTRIBUTES_METADATA = SpanColumn(
     name=f"attributes.{oinf.SpanAttributes.METADATA}",
     data_type=SpanColumnDataType.DICT,
 )
-SPAN_ATTRIBUTES_LLM_TOOLS = SpanColumn(
+SPAN_ATTRIBUTES_LLM_TOOLS_COL = SpanColumn(
     name=f"attributes.{oinf.SpanAttributes.LLM_TOOLS}",
-    data_type=SpanColumnDataType.JSON,
+    data_type=SpanColumnDataType.LIST_DICT,
 )
 
 # TODO(Kiko): Add a test that checks no dupes in following lists
@@ -297,7 +297,7 @@ SPAN_OPENINFERENCE_COLUMNS = [
     SPAN_ATTRIBUTES_SESSION_ID,
     SPAN_ATTRIBUTES_USER_ID,
     SPAN_ATTRIBUTES_METADATA,
-    SPAN_ATTRIBUTES_LLM_TOOLS,
+    SPAN_ATTRIBUTES_LLM_TOOLS_COL,
 ]
 
 # List of columns that must be present in the dataframe
