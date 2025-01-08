@@ -1,11 +1,18 @@
 # Changelog
 
+## [7.31.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.31.0...arize-python-sdk/v7.31.1) (2025-01-08)
+
+
+### 🐛 Bug Fixes
+
+* strip scheme from host in exporter client argument ([#39916](https://github.com/Arize-ai/arize/issues/39916)) ([c439b1d](https://github.com/Arize-ai/arize/commit/c439b1d2c978685c4ed64da370ec1927087af2f2))
+
 ## [7.31.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.30.0...arize-python-sdk/v7.31.0) (2025-01-07)
 
 
 ### 🎁 New Features
 
-* dataset schema fileimporter ([#39728](https://github.com/Arize-ai/arize/issues/39728)) ([a68c71e](https://github.com/Arize-ai/arize/commit/a68c71e4c94ca69e050cc14a9eb73caa0355b8fc))
+* Add `DatasetSchema` proto object ([#39728](https://github.com/Arize-ai/arize/issues/39728)) ([a68c71e](https://github.com/Arize-ai/arize/commit/a68c71e4c94ca69e050cc14a9eb73caa0355b8fc))
 
 
 ### 🐛 Bug Fixes

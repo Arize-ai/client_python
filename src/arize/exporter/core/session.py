@@ -40,6 +40,14 @@ class Session:
             logger.error(InvalidSessionError.error_message())
             raise InvalidSessionError
 
+        if self.host.startswith(("http://", "https://")):
+            scheme, host = self.host.split("://")
+            logger.warning(
+                f"The host '{self.host}' starts with '{scheme}' and it will be stripped, "
+                "remove it or consider using the `scheme` parameter instead."
+            )
+            self.host = host
+
         logger.debug(
             f"Created session with Arize API Token '{self.api_key}' at '{self.host}':'{self.port}'"
         )
