@@ -82,6 +82,7 @@ class ArizeExportClient:
         batch_id: Optional[str] = None,
         where: Optional[str] = None,
         similarity_search_params: Optional[SimilaritySearchParams] = None,
+        columns: Optional[list] = None,
     ) -> pd.DataFrame:
         """
         Exports data of a specific model in the Arize platform to a pandas dataframe for a defined
@@ -114,6 +115,8 @@ class ArizeExportClient:
                 comparison; 'search_column_name', specifying the column that contains the embeddings to search
                 within; and 'threshold', which sets the cosine similarity threshold required for embeddings to
                 be considered similar.
+            columns (list, optional): Specifies the columns to include from the model data during export. If
+                not provided, all columns will be exported.
 
         Returns:
             A pandas dataframe
@@ -130,6 +133,7 @@ class ArizeExportClient:
             batch_id=batch_id,
             where=where,
             similarity_search_params=similarity_search_params,
+            columns=columns,
         )
         if stream_reader is None:
             return pd.DataFrame()
@@ -183,6 +187,7 @@ class ArizeExportClient:
         batch_id: Optional[str] = None,
         where: Optional[str] = None,
         similarity_search_params: Optional[SimilaritySearchParams] = None,
+        columns: Optional[list] = None,
     ) -> None:
         """
         Exports data of a specific model in the Arize platform to a parquet file for a defined time
@@ -217,6 +222,9 @@ class ArizeExportClient:
                 comparison; 'search_column_name', specifying the column that contains the embeddings to search
                 within; and 'threshold', which sets the cosine similarity threshold required for embeddings to
                 be considered similar.
+            columns (list, optional): Specifies the columns to include from the model data during export. If
+                not provided, all columns will be exported.
+
 
         Returns:
             None
@@ -234,6 +242,7 @@ class ArizeExportClient:
             batch_id=batch_id,
             where=where,
             similarity_search_params=similarity_search_params,
+            columns=columns,
         )
         if stream_reader is None:
             return None
@@ -261,6 +270,7 @@ class ArizeExportClient:
         batch_id: Optional[str] = None,
         where: Optional[str] = None,
         similarity_search_params: Optional[SimilaritySearchParams] = None,
+        columns: Optional[list] = None,
     ) -> Tuple[flight.FlightStreamReader, int]:
         Validator.validate_input_type(space_id, "space_id", str)
         Validator.validate_input_type(model_id, "model_id", str)
@@ -272,6 +282,7 @@ class ArizeExportClient:
         Validator.validate_input_type(batch_id, "batch_id", str)
         Validator.validate_start_end_time(start_time, end_time)
         Validator.validate_input_type(where, "where", str)
+        Validator.validate_input_type(columns, "columns", list)
 
         # Create query descriptor
         query_descriptor = exp_pb2.RecordQueryDescriptor(
@@ -289,6 +300,7 @@ class ArizeExportClient:
                 if similarity_search_params
                 else None
             ),
+            projected_columns=columns if columns else [],
         )
 
         flight_client = self.session.connect()

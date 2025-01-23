@@ -1,5 +1,17 @@
 # Changelog
 
+## [7.32.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.31.1...arize-python-sdk/v7.32.0) (2025-01-23)
+
+
+### 🎁 New Features
+
+* support filtering columns on export ([#40618](https://github.com/Arize-ai/arize/pull/40618)) ([ce452b3](https://github.com/Arize-ai/arize/commit/ce452b3b1c89f88056654f0d5314503e50dd9230))
+
+
+### 🐛 Bug Fixes
+
+* boolean type column in dataframe not showing up in Arize platform after ingested as a dataset ([#40700](https://github.com/Arize-ai/arize/issues/40700)) ([f3b9784](https://github.com/Arize-ai/arize/commit/f3b9784e11e88e674e36f16378806601c495b43b)), closes [#40609](https://github.com/Arize-ai/arize/issues/40609)
+
 ## [7.31.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.31.0...arize-python-sdk/v7.31.1) (2025-01-08)
 
 

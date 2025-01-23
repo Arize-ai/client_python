@@ -205,6 +205,7 @@ class ArizeDatasetsClient:
             exit_on_error=exit_on_error,
         )
         output_df = _convert_default_columns_to_json_str(output_df)
+        output_df = _convert_boolean_columns_to_str(output_df)
         if dry_run:
             return "", output_df
         try:
@@ -425,6 +426,7 @@ class ArizeDatasetsClient:
         df = self._set_default_columns_for_dataset(data)
         if convert_dict_to_json:
             df = _convert_default_columns_to_json_str(df)
+        df = _convert_boolean_columns_to_str(df)
         validation_errors = Validator.validate(df)
         if validation_errors:
             raise RuntimeError([e.error_message() for e in validation_errors])
@@ -491,6 +493,8 @@ class ArizeDatasetsClient:
             raise ValueError("one of dataset_id or dataset_name is required")
 
         df = self._set_default_columns_for_dataset(data)
+        df = _convert_default_columns_to_json_str(df)
+        df = _convert_boolean_columns_to_str(df)
         validation_errors = Validator.validate(df)
         if validation_errors:
             raise RuntimeError([e.error_message() for e in validation_errors])
@@ -830,7 +834,7 @@ class ArizeDatasetsClient:
 
 def _convert_default_columns_to_json_str(df: pd.DataFrame) -> pd.DataFrame:
     for col in df.columns:
-        if _should_convert(col):
+        if _should_convert_json(col):
             try:
                 df[col] = df[col].apply(
                     lambda x: json.dumps(x) if isinstance(x, dict) else x
@@ -840,9 +844,16 @@ def _convert_default_columns_to_json_str(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def _convert_boolean_columns_to_str(df: pd.DataFrame) -> pd.DataFrame:
+    for col in df.columns:
+        if df[col].dtype == "bool":
+            df[col] = df[col].astype("string")
+    return df
+
+
 def _convert_json_str_to_dict(df: pd.DataFrame) -> pd.DataFrame:
     for col in df.columns:
-        if _should_convert(col):
+        if _should_convert_json(col):
             try:
                 df[col] = df[col].apply(
                     lambda x: json.loads(x) if isinstance(x, str) else x
@@ -852,7 +863,7 @@ def _convert_json_str_to_dict(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def _should_convert(col_name: str) -> bool:
+def _should_convert_json(col_name: str) -> bool:
     """
     Check if a column should be converted to/from a JSON string/PythonDictionary.
     """
