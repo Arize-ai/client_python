@@ -1,6 +1,6 @@
-datasets
-========
-Use datasets to curate spans from your LLM applications for testing. Read our `quickstart guide <https://docs.arize.com/arize/datasets/quickstart-datasets>`_. 
+datasets & experiments
+======================
+Use datasets to curate spans from your LLM applications for testing. Run experiments to test different models, prompts, parameters for your LLM apps. `Read our quickstart guide for more information <https://docs.arize.com/arize/llm-datasets-and-experiments/quickstart>`_.
 
 To use in your code, import the following:
 

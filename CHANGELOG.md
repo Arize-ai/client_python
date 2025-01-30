@@ -1,5 +1,17 @@
 # Changelog
 
+## [7.33.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.32.0...arize-python-sdk/v7.33.0) (2025-01-30)
+
+
+### 🎁 New Features
+
+* **(experimental)**: synthetic data generator for whylabs integration ([#41002](https://github.com/Arize-ai/arize/issues/41002)) ([e03c084](https://github.com/Arize-ai/arize/commit/e03c084439f708492002ba357c23080acbc4716e))
+
+
+### 📚 Documentation
+
+* rename datasets to datasets and experiments ([#41034](https://github.com/Arize-ai/arize/issues/41034)) ([ed4c6e7](https://github.com/Arize-ai/arize/commit/ed4c6e739813f08b6b8b1ba2004aa805ca2f8cd0))
+
 ## [7.32.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.31.1...arize-python-sdk/v7.32.0) (2025-01-23)
 
 

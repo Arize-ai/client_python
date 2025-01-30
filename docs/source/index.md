@@ -38,9 +38,10 @@ Check out our [Slack community](https://arize-ai.slack.com/join/shared_invite/zt
 :maxdepth: 1
 :caption: LLM API
 llm-api/datasets
-llm-api/experiments
+llm-api/evaluators
 llm-api/exporter
 llm-api/logger
+llm-api/types
 ```
 :::
 :::{grid-item}
