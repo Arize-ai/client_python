@@ -2,7 +2,6 @@ import ast
 
 import numpy as np
 import pandas as pd
-import whylogs as why
 
 from arize.utils.logging import logger
 
@@ -30,55 +29,42 @@ class SyntheticDataGenerator:
             SyntheticDataGenerator,
         )
 
-        # Create original DataFrame
-        df = pd.DataFrame(...)
+        # Existing the WhyLogs integration
+        results = why.log(original_df)
 
-        # Generate synthetic data
-        synthetic_df = SyntheticDataGenerator.generate(df)
+        # Generate a WhyLogs profile and convert it into a dataframe for Arize integration
+        profile = results.profile()
+        profile_view = profile.view()
+        profile_df = profile_view.to_pandas()
+
+        # Generate synthetic data from the profile view
+        synthetic_df = SyntheticDataGenerator.generate_synthetic_data_from_profile(
+            profile_df,
+            num_rows=len(original_df),
+            kll_profile_view=profile_view,  # pass in your full profile view
+            n_kll_quantiles=500,  # how many quantiles to sample
+        )
         ```
     """
 
     @staticmethod
-    def generate(df: pd.DataFrame):
-        """Generate synthetic data based on a pandas DataFrame using WhyLogs profiling.
-
-        Requires a WhyLogs API key to be set in the environment variable WHYLABS_API_KEY
-        and Org ID to be set in the environment variable WHYLABS_DEFAULT_ORG_ID.
-
-        Args:
-            df (pd.DataFrame): Input DataFrame to generate synthetic data from.
-
-        Returns:
-            pd.DataFrame: A synthetic DataFrame with the same structure and statistical properties
-                         as the input DataFrame.
+    def generate_synthetic_data_from_profile(
+        profile_df, num_rows, kll_profile_view=None, n_kll_quantiles=200
+    ):
         """
-        results = why.log(df)
-        results.writer("whylabs").write()
+        Generate synthetic data based on the profile DataFrame. For numeric columns,
+        we will try to sample from a WhyLogs KLL sketch if provided (kll_profile_view),
+        else fallback to the existing zero-dominant/quantile-based logic.
 
-        # Generate a WhyLogs profile and convert it into a pandas DataFrame for analysis
-        profile_df = results.profile().view().to_pandas()
-        logger.info(f"\nWhyLogs Profile:\n {profile_df}\n")
-
-        return SyntheticDataGenerator._generate_synthetic_data_from_profile(
-            profile_df, num_rows=len(df)
-        )
-
-    @staticmethod
-    def _generate_synthetic_data_from_profile(profile_df, num_rows):
-        """Generate synthetic data based on a WhyLogs profile DataFrame.
-
-        Args:
-            profile_df (pd.DataFrame): WhyLogs profile DataFrame containing statistical information.
-            num_rows (int): Number of synthetic rows to generate.
-
-        Returns:
-            pd.DataFrame: Synthetic DataFrame with generated data matching the profile's properties.
+        :param profile_df: Pandas DataFrame from profile_view.to_pandas()
+        :param num_rows: how many rows to generate
+        :param kll_profile_view: (Optional) a whylogs.DatasetProfileView object with KLL data
+        :param n_kll_quantiles: how many quantiles to sample if using KLL
         """
         synthetic_df = {}
 
         for column_name, row in profile_df.iterrows():
             logger.info(f"Processing column: {column_name}")
-
             # Determine column type
             column_type = None
             if row.get("types/integral", 0) > 0:
@@ -102,7 +88,12 @@ class SyntheticDataGenerator:
 
             if column_type in ["integral", "fractional"]:
                 data = SyntheticDataGenerator._generate_numeric_distribution(
-                    row, num_rows, column_type
+                    row,
+                    num_rows,
+                    column_type,
+                    column_name=column_name,
+                    kll_profile_view=kll_profile_view,
+                    n_kll_quantiles=n_kll_quantiles,
                 )
 
             elif column_type == "string":
@@ -110,7 +101,6 @@ class SyntheticDataGenerator:
                 items = SyntheticDataGenerator._parse_frequent_items(
                     frequent_items
                 )
-
                 if items:
                     values, weights = zip(*items)
                     weights = np.array(weights, dtype=float)
@@ -129,6 +119,7 @@ class SyntheticDataGenerator:
                     [True, False], size=num_rows, p=[true_prob, 1 - true_prob]
                 )
 
+            # Fallback
             else:
                 data = np.array([f"{column_name}_{i}" for i in range(num_rows)])
 
@@ -138,25 +129,17 @@ class SyntheticDataGenerator:
                 data = np.where(mask, None, data)
 
             synthetic_df[column_name] = data
-
         logger.info("Done!")
         return pd.DataFrame(synthetic_df)
 
+    ########################################
+    # HELPER FOR FREQUENT-ITEM STRINGS
+    ########################################
     @staticmethod
     def _parse_frequent_items(frequent_items_str):
-        """Parse the frequent items string from WhyLogs profile into value-frequency pairs.
-
-        Args:
-            frequent_items_str (Union[str, list]): String representation of frequent items or list
-                of frequent item objects from WhyLogs profile.
-
-        Returns:
-            list[tuple]: List of tuples containing (value, frequency) pairs. Returns empty list
-                if parsing fails or input is invalid.
-        """
+        """Parse the frequent items string into a list of tuples (value, est)."""
         if not frequent_items_str or frequent_items_str == "[]":
             return []
-
         try:
             if isinstance(frequent_items_str, str):
                 try:
@@ -173,18 +156,122 @@ class SyntheticDataGenerator:
             logger.error(f"Invalid format in frequent items: {e}")
             return []
 
+    ########################################
+    # KLL SAMPLING
+    ########################################
     @staticmethod
-    def _generate_numeric_distribution(row, num_rows, column_type):
-        """Generate synthetic numeric data with special handling for zero-dominant distributions.
-
-        Args:
-            row (pd.Series): Row from WhyLogs profile containing distribution statistics.
-            num_rows (int): Number of synthetic values to generate.
-            column_type (str): Type of numeric data ('integral' or 'fractional').
-
-        Returns:
-            np.ndarray: Array of synthetic numeric values matching the distribution properties.
+    def _sample_from_kll(kll_sketch, num_rows, n_kll_quantiles=200):
         """
+        Given a KLL sketch, sample a continuous distribution of 'num_rows' points
+        by drawing random probabilities in [0,1] and inverting them through the
+        KLL-based quantiles.
+
+        :param kll_sketch: The KLL object from WhyLogs (dist_metric.kll.value).
+        :param num_rows: Number of points to generate.
+        :param n_kll_quantiles: Resolution of the KLL sampling. Higher = smoother.
+        """
+        # 1) Build an array of probabilities
+        probs = np.linspace(0, 1, n_kll_quantiles)
+        # 2) Get the approximate quantiles from KLL at those probabilities
+        quantile_values = kll_sketch.get_quantiles(probs.tolist())
+        # 3) Generate uniform random numbers in [0,1] for each row
+        random_probs = np.random.rand(num_rows)
+        # 4) Interpolate those random probabilities into actual numeric values
+        sampled_values = np.interp(random_probs, probs, quantile_values)
+        return sampled_values
+
+    ########################################
+    # REGULAR NON-ZERO-DOMINANT GENERATION
+    ########################################
+    @staticmethod
+    def _generate_regular_distribution(row, num_rows):
+        """Generate regular (non-zero-dominant) numeric distribution."""
+        min_val = float(row.get("distribution/min", 0))
+        max_val = float(row.get("distribution/max", 100))
+        mean = float(row.get("distribution/mean", (min_val + max_val) / 2))
+        stddev = float(row.get("distribution/stddev", (max_val - min_val) / 6))
+
+        quantile_points = [0.01, 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95, 0.99]
+        quantile_keys = [
+            "distribution/q_01",
+            "distribution/q_05",
+            "distribution/q_10",
+            "distribution/q_25",
+            "distribution/median",
+            "distribution/q_75",
+            "distribution/q_90",
+            "distribution/q_95",
+            "distribution/q_99",
+        ]
+
+        quantiles = []
+        values = []
+        for prob, key in zip(quantile_points, quantile_keys):
+            val = row.get(key)
+            if val is not None and not pd.isna(val):
+                quantiles.append(prob)
+                values.append(float(val))
+
+        if not values:
+            # Fallback to normal distribution
+            data = np.random.normal(mean, stddev, num_rows)
+            return np.clip(data, min_val, max_val)
+
+        # Interpolate random values from these quantiles
+        random_probs = np.random.uniform(0, 1, num_rows)
+        data = np.interp(random_probs, quantiles, values)
+        return data
+
+    ########################################
+    # ZERO-DOMINANT OR REGULAR DISTRIBUTION
+    ########################################
+    @staticmethod
+    def _generate_numeric_distribution(
+        row,
+        num_rows,
+        column_type,
+        column_name=None,
+        kll_profile_view=None,
+        n_kll_quantiles=200,
+    ):
+        """
+        Enhanced numeric distribution generator with special handling for zero-dominant
+        distributions. If a KLL sketch is provided (kll_profile_view), we instead sample
+        directly from that sketch for a continuous distribution.
+
+        :param row: A single row from the profile_df describing numeric stats.
+        :param num_rows: How many data points to generate.
+        :param column_type: 'integral' or 'fractional'
+        :param column_name: Name of the current column (used to look up KLL in the profile).
+        :param kll_profile_view: (Optional) A WhyLogs DatasetProfileView to get KLL sketches from.
+        :param n_kll_quantiles: Number of quantiles used if we sample from the KLL.
+        :return: A NumPy array of generated numeric data.
+        """
+
+        # -----------------------------------------------------------
+        # 1) If we have a WhyLogs KLL for this column, sample from it
+        # -----------------------------------------------------------
+        if kll_profile_view is not None and column_name is not None:
+            col_view = kll_profile_view.get_column(column_name)
+            if col_view is not None:
+                dist_metric = col_view._metrics.get("distribution")
+                if (
+                    dist_metric is not None
+                    and getattr(dist_metric.kll, "value", None) is not None
+                ):
+                    kll_sketch = dist_metric.kll.value
+                    data = SyntheticDataGenerator._sample_from_kll(
+                        kll_sketch, num_rows, n_kll_quantiles=n_kll_quantiles
+                    )
+
+                    # If integral, just round
+                    if column_type == "integral":
+                        data = np.round(data).astype(int)
+                    return data
+        # -----------------------------------------------------------
+        # 2) Otherwise, fallback to the “zero-dominant” or “regular” code
+        # -----------------------------------------------------------
+
         min_val = float(row.get("distribution/min", 0))
         max_val = float(row.get("distribution/max", 100))
         median = float(row.get("distribution/median", (min_val + max_val) / 2))
@@ -240,7 +327,6 @@ class SyntheticDataGenerator:
             # Generate zero-dominated distribution
             n_zeros = int(num_rows * zero_proportion)
             n_nonzeros = num_rows - n_zeros
-
             # Initialize array with zeros
             data = np.zeros(num_rows)
 
@@ -248,7 +334,6 @@ class SyntheticDataGenerator:
                 # Generate non-zero values only for the remaining portion
                 non_zero_values = []
                 non_zero_weights = []
-
                 # Collect non-zero quantiles and their probabilities
                 quantile_pairs = [
                     (0.01, q01),
@@ -262,7 +347,6 @@ class SyntheticDataGenerator:
                     (0.99, q99),
                     (1.00, max_val),
                 ]
-
                 prev_prob = zero_proportion
                 for prob, value in quantile_pairs:
                     if value is not None and float(value) > 0:
@@ -281,78 +365,26 @@ class SyntheticDataGenerator:
                         non_zero_values, size=n_nonzeros, p=non_zero_weights
                     )
 
-                    # Add some noise to prevent exact duplicates
+                    # Add noise if fractional to prevent exact duplicates
                     if column_type == "fractional":
                         noise = np.random.normal(0, max_val / 1000, n_nonzeros)
                         selected_values = np.clip(
                             selected_values + noise, 0, max_val
                         )
 
-                    # Place non-zero values randomly
+                    # Place non-zeros values randomly
                     non_zero_indices = np.random.choice(
                         num_rows, size=n_nonzeros, replace=False
                     )
                     data[non_zero_indices] = selected_values
         else:
-            # Use original distribution generation for non-zero-dominant cases
+            # Fallback: generate a "regular" distribution
             data = SyntheticDataGenerator._generate_regular_distribution(
-                row, num_rows, column_type
+                row, num_rows
             )
 
-        # Handle integral types
+        # If integral, round
         if column_type == "integral":
             data = np.round(data).astype(int)
-
-        return data
-
-    @staticmethod
-    def _generate_regular_distribution(row, num_rows, column_type):
-        """Generate synthetic numeric data for non-zero-dominant distributions.
-
-        Args:
-            row (pd.Series): Row from WhyLogs profile containing distribution statistics.
-            num_rows (int): Number of synthetic values to generate.
-            column_type (str): Type of numeric data ('integral' or 'fractional').
-
-        Returns:
-            np.ndarray: Array of synthetic numeric values following the specified distribution.
-        """
-        min_val = float(row.get("distribution/min", 0))
-        max_val = float(row.get("distribution/max", 100))
-        mean = float(row.get("distribution/mean", (min_val + max_val) / 2))
-        stddev = float(row.get("distribution/stddev", (max_val - min_val) / 6))
-
-        # Collect quantiles
-        quantile_points = [0.01, 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95, 0.99]
-        quantile_keys = [
-            "distribution/q_01",
-            "distribution/q_05",
-            "distribution/q_10",
-            "distribution/q_25",
-            "distribution/median",
-            "distribution/q_75",
-            "distribution/q_90",
-            "distribution/q_95",
-            "distribution/q_99",
-        ]
-
-        quantiles = []
-        values = []
-
-        # Add available quantiles
-        for prob, key in zip(quantile_points, quantile_keys):
-            val = row.get(key)
-            if val is not None and not pd.isna(val):
-                quantiles.append(prob)
-                values.append(float(val))
-
-        if not values:
-            # Fallback to normal distribution if no quantiles available
-            data = np.random.normal(mean, stddev, num_rows)
-            return np.clip(data, min_val, max_val)
-
-        # Generate distribution based on quantiles
-        random_probs = np.random.uniform(0, 1, num_rows)
-        data = np.interp(random_probs, quantiles, values)
 
         return data

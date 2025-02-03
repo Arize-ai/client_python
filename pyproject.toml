@@ -97,9 +97,6 @@ Datasets = [
     "opentelemetry-exporter-otlp>=1.25.0, <2",
     "deprecated", #opentelemetry-semantic-conventions requires it
 ]
-Whylabs = [
-    "whylogs>=1.6.4, <2",
-]
 
 [build-system]
 requires = ["hatchling"]

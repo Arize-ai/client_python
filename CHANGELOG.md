@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.33.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.33.0...arize-python-sdk/v7.33.1) (2025-02-03)
+
+
+### 🐛 Bug Fixes 
+
+* **(experimental, whylabs)** Remove implementation of Synth Data Generation from profiles ([#41123](https://github.com/Arize-ai/arize/issues/41123)) ([ea083e1](https://github.com/Arize-ai/arize/commit/ea083e11fa653d9a64bb28ebd7d9c203cb2ed606))
+
 ## [7.33.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.32.0...arize-python-sdk/v7.33.0) (2025-01-30)
 
 
