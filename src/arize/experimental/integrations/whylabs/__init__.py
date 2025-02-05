@@ -1,5 +1,5 @@
 from arize.experimental.integrations.whylabs.generator import (
-    SyntheticDataGenerator,
+    WhylabsProfileAdapter,
 )
 
-__all__ = ["SyntheticDataGenerator"]
+__all__ = ["WhylabsProfileAdapter"]

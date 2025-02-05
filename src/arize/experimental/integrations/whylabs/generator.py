@@ -6,7 +6,7 @@ import pandas as pd
 from arize.utils.logging import logger
 
 
-class SyntheticDataGenerator:
+class WhylabsProfileAdapter:
     """A utility class for generating synthetic data based on WhyLogs profiles.
 
     This class serves to provide integration support for WhyLabs users to Arize by generating
@@ -38,7 +38,7 @@ class SyntheticDataGenerator:
         profile_df = profile_view.to_pandas()
 
         # Generate synthetic data from the profile view
-        synthetic_df = SyntheticDataGenerator.generate_synthetic_data_from_profile(
+        synthetic_df = WhylabsProfileAdapter.generate(
             profile_df,
             num_rows=len(original_df),
             kll_profile_view=profile_view,  # pass in your full profile view
@@ -48,7 +48,7 @@ class SyntheticDataGenerator:
     """
 
     @staticmethod
-    def generate_synthetic_data_from_profile(
+    def generate(
         profile_df, num_rows, kll_profile_view=None, n_kll_quantiles=200
     ):
         """
@@ -87,7 +87,7 @@ class SyntheticDataGenerator:
             )
 
             if column_type in ["integral", "fractional"]:
-                data = SyntheticDataGenerator._generate_numeric_distribution(
+                data = WhylabsProfileAdapter._generate_numeric_distribution(
                     row,
                     num_rows,
                     column_type,
@@ -98,7 +98,7 @@ class SyntheticDataGenerator:
 
             elif column_type == "string":
                 frequent_items = row.get("frequent_items/frequent_strings", [])
-                items = SyntheticDataGenerator._parse_frequent_items(
+                items = WhylabsProfileAdapter._parse_frequent_items(
                     frequent_items
                 )
                 if items:
@@ -260,7 +260,7 @@ class SyntheticDataGenerator:
                     and getattr(dist_metric.kll, "value", None) is not None
                 ):
                     kll_sketch = dist_metric.kll.value
-                    data = SyntheticDataGenerator._sample_from_kll(
+                    data = WhylabsProfileAdapter._sample_from_kll(
                         kll_sketch, num_rows, n_kll_quantiles=n_kll_quantiles
                     )
 
@@ -379,7 +379,7 @@ class SyntheticDataGenerator:
                     data[non_zero_indices] = selected_values
         else:
             # Fallback: generate a "regular" distribution
-            data = SyntheticDataGenerator._generate_regular_distribution(
+            data = WhylabsProfileAdapter._generate_regular_distribution(
                 row, num_rows
             )
 

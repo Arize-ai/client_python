@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.33.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.33.1...arize-python-sdk/v7.33.2) (2025-02-05)
+
+
+### 🐛 Bug Fixes
+
+* **experimental, whylabs:** Rename adapter class ([#41259](https://github.com/Arize-ai/arize/issues/41259)) ([8fbf179](https://github.com/Arize-ai/arize/commit/8fbf179e670d3d386d6a7b96b08074b32071181c))
+
 ## [7.33.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.33.0...arize-python-sdk/v7.33.1) (2025-02-03)
 
 
