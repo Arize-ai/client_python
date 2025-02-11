@@ -3,26 +3,23 @@ from datetime import datetime, timedelta
 
 import whylogs as why
 
-from arize.experimental.integrations.whylabs import WhylabsProfileAdapter
+from arize.experimental.integrations.whylabs import (
+    IntegrationClient,
+    WhylabsProfileAdapter,
+)
 from arize.exporter import ArizeExportClient
 from arize.pandas.logger import Client
 from arize.utils.types import Environments, Metrics, ModelTypes, Schema
 
-# Configuration
-CONFIG = {
-    "arize": {
-        "space_id": "SPACE_ID_PLACEHOLDER",
-        "api_key": "API_KEY_PLACEHOLDER",
-        "developer_key": "DEVELOPER_KEY_PLACEHOLDER",
-        "model_id": "MODEL_ID_PLACEHOLDER",
-        "synthetic_model_id": "SYNTHETIC_MODEL_ID_PLACEHOLDER",
-    },
-    "whylabs": {
-        "api_key": "WHYLABS_API_KEY_PLACEHOLDER",
-        "org_id": "ORG_ID_PLACEHOLDER",
-        "dataset_id": "DATASET_ID_PLACEHOLDER",
-    },
-}
+os.environ["ARIZE_SPACE_ID"] = "REPLACE_ME"
+os.environ["ARIZE_API_KEY"] = "REPLACE_ME"
+os.environ["ARIZE_DEVELOPER_KEY"] = "REPLACE_ME"
+os.environ["ARIZE_MODEL_ID"] = "REPLACE_ME"
+os.environ["ARIZE_DEMO_MODEL_ID"] = "REPLACE_ME"
+
+os.environ["WHYLABS_API_KEY"] = "REPLACE_ME"
+os.environ["WHYLABS_DEFAULT_ORG_ID"] = "REPLACE_ME"
+os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "REPLACE_ME"
 
 FEATURE_COLUMNS = [
     "annual_income",
@@ -51,13 +48,6 @@ FEATURE_COLUMNS = [
 ]
 
 
-def setup_environment():
-    os.environ["WHYLABS_API_KEY"] = CONFIG["whylabs"]["api_key"]
-    os.environ["WHYLABS_DEFAULT_ORG_ID"] = CONFIG["whylabs"]["org_id"]
-    os.environ["WHYLABS_DEFAULT_DATASET_ID"] = CONFIG["whylabs"]["dataset_id"]
-    os.environ["WHYLOGS_NO_ANALYTICS"] = "True"
-
-
 def get_time_range(days=10):
     current_date = datetime.now() + timedelta(days=1)
     start_time = (current_date - timedelta(days=days)).replace(
@@ -69,31 +59,32 @@ def get_time_range(days=10):
     return start_time, end_time
 
 
-def main():
-    try:
-        setup_environment()
+def generate_profile(start_time, end_time):
+    export_client = ArizeExportClient(api_key=os.environ["ARIZE_DEVELOPER_KEY"])
+    original_df = export_client.export_model_to_df(
+        space_id=os.environ["ARIZE_SPACE_ID"],
+        model_id=os.environ["ARIZE_DEMO_MODEL_ID"],
+        environment=Environments.PRODUCTION,
+        start_time=start_time,
+        end_time=end_time,
+    )
 
-        export_client = ArizeExportClient(
-            api_key=CONFIG["arize"]["developer_key"]
-        )
+    results = why.log(original_df)
+    profile = results.profile()
+    return profile
+
+
+def test_profile_adapter():
+    try:
         arize_client = Client(
-            space_id=CONFIG["arize"]["space_id"],
-            api_key=CONFIG["arize"]["api_key"],
+            space_id=os.environ["ARIZE_SPACE_ID"],
+            api_key=os.environ["ARIZE_API_KEY"],
         )
 
         start_time, end_time = get_time_range()
-        original_df = export_client.export_model_to_df(
-            space_id=CONFIG["arize"]["space_id"],
-            model_id=CONFIG["arize"]["model_id"],
-            environment=Environments.PRODUCTION,
-            start_time=start_time,
-            end_time=end_time,
-        )
 
-        results = why.log(original_df)
-        profile = results.profile()
-        profile_view = profile.view()
-        profile_df = profile_view.to_pandas()
+        profile = generate_profile(start_time, end_time)
+        profile_df = profile.view().to_pandas()
 
         generator = WhylabsProfileAdapter()
         synthetic_df = generator.generate(profile_df, num_rows=len(profile_df))
@@ -111,7 +102,7 @@ def main():
         response = arize_client.log(
             dataframe=synthetic_df,
             schema=schema,
-            model_id=CONFIG["arize"]["synthetic_model_id"],
+            model_id=os.environ["ARIZE_MODEL_ID"],
             model_version="1.0.0",
             model_type=ModelTypes.BINARY_CLASSIFICATION,
             metrics_validation=[Metrics.CLASSIFICATION],
@@ -125,5 +116,43 @@ def main():
         raise
 
 
+def test_client():
+    client = IntegrationClient(
+        api_key=os.environ["ARIZE_API_KEY"],
+        space_id=os.environ["ARIZE_SPACE_ID"],
+        developer_key=os.environ["ARIZE_DEVELOPER_KEY"],
+    )
+
+    start_time, end_time = get_time_range()
+    profile = generate_profile(start_time, end_time)
+    schema = Schema(
+        feature_column_names=FEATURE_COLUMNS,
+        tag_column_names=["age__tag"],
+        prediction_label_column_name="categoricalPredictionLabel",
+        prediction_score_column_name="scorePredictionLabel",
+        actual_label_column_name="categoricalActualLabel",
+        actual_score_column_name="scoreActualLabel",
+    )
+    environment = Environments.PRODUCTION
+    model_id = os.environ["ARIZE_MODEL_ID"]
+    model_type = ModelTypes.BINARY_CLASSIFICATION
+
+    response = client.log_profile(
+        profile,
+        schema,
+        environment,
+        model_id,
+        model_type,
+    )
+    print("Logging Arize response:", response)
+
+    response = client.log_dataset_profile(
+        profile,
+        model_id,
+    )
+    print("Logging Arize response:", response)
+
+
 if __name__ == "__main__":
-    main()
+    test_profile_adapter()
+    test_client()

@@ -1,5 +1,17 @@
 # Changelog
 
+## [7.34.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.33.2...arize-python-sdk/v7.34.0) (2025-02-11)
+
+
+### 🎁 New Features
+
+* **experimental, whylabs:** integration client implementing log_profile, log_dataset ([#41287](https://github.com/Arize-ai/arize/issues/41287)) ([7ba655f](https://github.com/Arize-ai/arize/commit/7ba655f4c09b3c2d724ce4734e4d7f2f7edced04))
+
+
+### 🧪 Tests
+
+* **casting:** fix test_casting_config assertion checks ([#41481](https://github.com/Arize-ai/arize/issues/41481)) ([841cb72](https://github.com/Arize-ai/arize/commit/841cb7203c616d9f665ae8ccf8968867c2910b1b))
+
 ## [7.33.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.33.1...arize-python-sdk/v7.33.2) (2025-02-05)
 
 

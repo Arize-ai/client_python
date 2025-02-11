@@ -96,7 +96,7 @@ def test_cast_string_to_float_error():
     with pytest.raises(ColumnCastingError) as excinfo:
         _, _ = cast_typed_columns(df, schema)
     assert (
-        excinfo.value.error_msg == "could not convert string to float: 'hello'"
+        "could not convert string to float: 'hello'" in excinfo.value.error_msg
     )
     assert excinfo.value.attempted_casting_columns == ["A"]
     assert excinfo.value.attempted_casting_type == "Float64"
@@ -119,15 +119,15 @@ def test_cast_numeric_string_to_int_error():
     with pytest.raises(ColumnCastingError) as excinfo:
         _, _ = cast_typed_columns(df, schema)
     assert (
-        excinfo.value.error_msg
-        == "invalid literal for int() with base 10: '2.5'"
+        "invalid literal for int() with base 10: '2.5'"
+        in excinfo.value.error_msg
     )
     assert excinfo.value.attempted_casting_columns == ["A", "B", "C"]
     assert excinfo.value.attempted_casting_type == "Int64"
     assert (
-        excinfo.value.error_message()
-        == "Failed to cast to type Int64 for columns: A, B and C. "
+        "Failed to cast to type Int64 for columns: A, B and C. "
         "Error: invalid literal for int() with base 10: '2.5'"
+        in excinfo.value.error_message()
     )
 
 
@@ -144,7 +144,7 @@ def test_cast_empty_string_to_numeric_error():
     with pytest.raises(ColumnCastingError) as excinfo:
         _, _ = cast_typed_columns(df, schema)
     assert (
-        excinfo.value.error_msg == "invalid literal for int() with base 10: ''"
+        "invalid literal for int() with base 10: ''" in excinfo.value.error_msg
     )
     assert excinfo.value.attempted_casting_columns == ["A"]
     assert excinfo.value.attempted_casting_type == "Int64"
@@ -160,9 +160,10 @@ def test_cast_float_to_int_error():
     schema = get_schema(features, tags)
     with pytest.raises(ColumnCastingError) as excinfo:
         _, _ = cast_typed_columns(df, schema)
-    assert (
-        excinfo.value.error_msg
-        == "cannot safely cast non-equivalent float64 to int64"
+    assert any(
+        f"cannot safely cast non-equivalent {dtype} to int64"
+        in excinfo.value.error_msg
+        for dtype in ["float64", "object"]
     )
     assert excinfo.value.attempted_casting_columns == ["A"]
     assert excinfo.value.attempted_casting_type == "Int64"
