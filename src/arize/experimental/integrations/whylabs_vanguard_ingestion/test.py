@@ -5,7 +5,7 @@ import pandas as pd
 import whylogs as why
 from whylogs.core import DatasetProfile
 
-from arize.experimental.integrations.whylabs import (
+from arize.experimental.integrations.whylabs_vanguard_ingestion import (
     IntegrationClient,
     WhylabsProfileAdapter,
 )
@@ -111,11 +111,40 @@ def test_profile_adapter():
             validate=True,
             environment=Environments.PRODUCTION,
         )
-        print("Logging Arize response:", response)
+        print("\n[PASSED] Logging Arize response:", response)
 
     except Exception as e:
-        print(f"Error occurred: {str(e)}")
+        print(f"\n[FAILED] Error occurred: {str(e)}")
         raise
+
+
+def test_model_exists():
+    client = IntegrationClient(
+        api_key=os.environ["ARIZE_API_KEY"],
+        space_id=os.environ["ARIZE_SPACE_ID"],
+        developer_key=os.environ["ARIZE_DEVELOPER_KEY"],
+    )
+
+    model_name = "test-1"  # REPLACE ME
+
+    assert client.model_exists(
+        os.environ["ARIZE_SPACE_ID"], model_name
+    ), "Model does not exist"
+    print("\n[PASSED]")
+
+
+def test_model_does_not_exist():
+    client = IntegrationClient(
+        api_key=os.environ["ARIZE_API_KEY"],
+        space_id=os.environ["ARIZE_SPACE_ID"],
+        developer_key=os.environ["ARIZE_DEVELOPER_KEY"],
+    )
+
+    model_name = "fake-model"
+    assert not client.model_exists(
+        os.environ["ARIZE_SPACE_ID"], model_name
+    ), "Model should not exist"
+    print("\n[PASSED]")
 
 
 def test_client():
@@ -124,6 +153,12 @@ def test_client():
         space_id=os.environ["ARIZE_SPACE_ID"],
         developer_key=os.environ["ARIZE_DEVELOPER_KEY"],
     )
+
+    model_name = "test-1"  # REPLACE ME
+
+    assert client.model_exists(
+        os.environ["ARIZE_SPACE_ID"], model_name
+    ), "Model does not exist"
 
     start_time, end_time = get_time_range()
     profile = generate_profile(start_time, end_time)
@@ -153,6 +188,49 @@ def test_client():
         model_id,
     )
     print("Logging Arize response:", response)
+    print("\n[PASSED]")
+
+
+def test_client_with_model_does_not_exist():
+    client = IntegrationClient(
+        api_key=os.environ["ARIZE_API_KEY"],
+        space_id=os.environ["ARIZE_SPACE_ID"],
+        developer_key=os.environ["ARIZE_DEVELOPER_KEY"],
+    )
+
+    model_name = "fake-model"
+
+    start_time, end_time = get_time_range()
+    profile = generate_profile(start_time, end_time)
+    schema = Schema(
+        feature_column_names=FEATURE_COLUMNS,
+        tag_column_names=["age__tag"],
+        prediction_label_column_name="categoricalPredictionLabel",
+        prediction_score_column_name="scorePredictionLabel",
+        actual_label_column_name="categoricalActualLabel",
+        actual_score_column_name="scoreActualLabel",
+    )
+    environment = Environments.PRODUCTION
+    model_type = ModelTypes.BINARY_CLASSIFICATION
+
+    try:
+        client.log_profile(
+            profile,
+            schema,
+            environment,
+            model_name,
+            model_type,
+        )
+    except Exception as e:
+        print(f"\n[PASSED] Expected error for non-existent model: {str(e)}")
+
+    try:
+        client.log_dataset_profile(
+            profile,
+            model_name,
+        )
+    except Exception as e:
+        print(f"\n[PASSED] Expected error for non-existent model: {str(e)}")
 
 
 def test_log_profile_with_counts_should_fail():
@@ -188,11 +266,10 @@ def test_log_profile_with_counts_should_fail():
         )
         assert (
             response.status_code != 200
-        ), "Expected profile logging to fail due to mismatched counts"
-        print("Profile logging failed as expected with response:", response)
+        ), "[FAILED]Expected profile logging to fail due to mismatched counts"
 
     except Exception as e:
-        print(f"Test passed: Expected error occurred: {str(e)}")
+        print(f"\n[PASSED] Test passed: Expected error occurred: {str(e)}")
 
 
 def test_log_dataset_profile_with_counts_should_fail():
@@ -223,11 +300,10 @@ def test_log_dataset_profile_with_counts_should_fail():
         )
         assert (
             response.status_code != 200
-        ), "Expected profile logging to fail due to mismatched counts"
-        print("Profile logging failed as expected with response:", response)
+        ), "[FAILED] Expected profile logging to fail due to mismatched counts"
 
     except Exception as e:
-        print(f"Test passed: Expected error occurred: {str(e)}")
+        print(f"\n[PASSED] Test passed: Expected error occurred: {str(e)}")
 
 
 def test_log_profile_with_counts():
@@ -263,10 +339,10 @@ def test_log_profile_with_counts():
         assert (
             response.status_code == 200
         ), "Expected profile logging to succeed with mismatched counts"
-        print("Profile logging succeeded with response:", response)
+        print("\n[PASSED] Profile logging succeeded with response:", response)
 
     except Exception as e:
-        print(f"Error occurred: {str(e)}")
+        print(f"\n[FAILED] Error occurred: {str(e)}")
         raise
 
 
@@ -291,16 +367,19 @@ def test_log_dataset_profile_with_counts():
         assert (
             response.status_code == 200
         ), "Expected profile logging to succeed with mismatched counts"
-        print("Profile logging succeeded with response:", response)
+        print("\n[PASSED] Profile logging succeeded with response:", response)
 
     except Exception as e:
-        print(f"Error occurred: {str(e)}")
+        print(f"\n[FAILED] Error occurred: {str(e)}")
         raise
 
 
 if __name__ == "__main__":
     test_profile_adapter()
+    test_model_exists()
+    test_model_does_not_exist()
     test_client()
+    test_client_with_model_does_not_exist()
     test_log_profile_with_counts_should_fail()
     test_log_dataset_profile_with_counts_should_fail()
     test_log_profile_with_counts()

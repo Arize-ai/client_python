@@ -1,5 +1,17 @@
 # Changelog
 
+## [7.35.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.34.0...arize-python-sdk/v7.35.0) (2025-02-20)
+
+
+### 🎁 New Features
+
+* **experimental, whylabs, whylabs-vanguard:** add vanguard governance and ingestion clients, add dataset tags, fix placeholder values  ([#41810](https://github.com/Arize-ai/arize/issues/41810)) ([e1c4933](https://github.com/Arize-ai/arize/commit/e1c4933271abd6c4ae3ecf046a3fa524fc9bdfef))
+
+
+### 🐛 Bug Fixes
+
+* **experimental, whylabs:** fix row count logic ([#41797](https://github.com/Arize-ai/arize/issues/41797)) ([ac00f7c](https://github.com/Arize-ai/arize/commit/ac00f7c523c74d290e95a83cc1d055d57193288d))
+
 ## [7.34.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.33.2...arize-python-sdk/v7.34.0) (2025-02-11)
 
 

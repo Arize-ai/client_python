@@ -21,13 +21,13 @@ from arize.utils.types import (
 class IntegrationClient:
     def __init__(
         self,
+        developer_key: str,
         api_key: Optional[str] = None,
         space_id: Optional[str] = None,
         space_key: Optional[str] = None,
         uri: Optional[str] = "https://api.arize.com/v1",
         additional_headers: Optional[Dict[str, str]] = None,
         request_verify: Union[bool, str] = True,
-        developer_key: Optional[str] = None,
         host: Optional[str] = None,
         port: Optional[int] = None,
     ) -> None:
@@ -45,6 +45,7 @@ class IntegrationClient:
             host=host,
             port=port,
         )
+        self._space_id = space_id
         self._profile_adapter = WhylabsProfileAdapter()
 
     def log_profile(
@@ -75,6 +76,11 @@ class IntegrationClient:
         assert isinstance(
             profile, DatasetProfile
         ), f"Expected WhyLogs DatasetProfile, got {type(profile)}"
+
+        if not self.model_exists(self._space_id, model_id):
+            raise ValueError(
+                f"Model {model_id} does not exist in space {self._space_id}"
+            )
 
         if not num_rows:
             num_rows = self._extract_num_rows(profile)
@@ -123,9 +129,6 @@ class IntegrationClient:
         actual_label_column_name: Optional[str] = None,
         actual_score_column_name: Optional[str] = None,
         timestamp_column_name: Optional[str] = None,
-        tag_column_names: Optional[
-            List[str]
-        ] = None,  # List of columns to be used as tags
     ) -> requests.Response:
         """
         Logs a WhyLogs dataset-based profile to the Arize API.
@@ -135,6 +138,11 @@ class IntegrationClient:
         assert isinstance(
             profile, DatasetProfile
         ), f"Expected WhyLogs DatasetProfile, got {type(profile)}"
+
+        if not self.model_exists(self._space_id, model_id):
+            raise ValueError(
+                f"Model {model_id} does not exist in space {self._space_id}"
+            )
 
         if not num_rows:
             num_rows = self._extract_num_rows(profile)
@@ -148,7 +156,6 @@ class IntegrationClient:
 
         schema = Schema(
             feature_column_names=synthetic_df.columns.tolist(),
-            tag_column_names=tag_column_names,
             prediction_label_column_name="ARIZE_PLACEHOLDER_STRING",
             prediction_score_column_name="ARIZE_PLACEHOLDER_FLOAT",
             actual_label_column_name="ARIZE_PLACEHOLDER_STRING",
@@ -182,6 +189,64 @@ class IntegrationClient:
             path=path,
             timeout=timeout,
             verbose=verbose,
+        )
+
+    def model_exists(self, space_id: str, model_id: str) -> bool:
+        """
+        Check if a model exists using GraphQL API.
+
+        Args:
+            space_id: The ID of the space to check
+
+            model_id: The unique name of the model to check
+            (different from the actual model ID)
+
+        Returns:
+            bool: True if the model exists, False otherwise
+        """
+        query = """
+            query getModels($spaceId: ID!, $cursor: String) {
+                space: node(id: $spaceId) {
+                    ... on Space {
+                        models(first: 50, after: $cursor) {
+                            pageInfo {
+                                endCursor
+                            }
+                            edges {
+                                model: node {
+                                    id
+                                    name
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        """
+        variables = {"spaceId": space_id}
+        headers = {
+            "Content-Type": "application/json",
+            "x-api-key": self._client._developer_key,
+        }
+        response = requests.post(
+            "https://app.arize.com/graphql/",
+            json={"query": query, "variables": variables},
+            headers=headers,
+            verify=self._client._request_verify,
+        )
+
+        if response.status_code != 200:
+            raise Exception(f"GraphQL query failed: {response.text}")
+
+        data = response.json()
+        models = (
+            data.get("data", {})
+            .get("space", {})
+            .get("models", {})
+            .get("edges", [])
+        )
+        return any(
+            edge.get("model", {}).get("name") == model_id for edge in models
         )
 
     def _extract_num_rows(self, profile: DatasetProfile) -> int:
