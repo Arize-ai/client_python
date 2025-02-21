@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.35.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.35.0...arize-python-sdk/v7.35.1) (2025-02-21)
+
+
+### 🐛 Bug Fixes
+
+* **experimental, whylabs-vanguard:** fix profile adapter (generator) name ([#41953](https://github.com/Arize-ai/arize/issues/41953)) ([eff847f](https://github.com/Arize-ai/arize/commit/eff847f6d8cc672202b13a05a3b5d254ce718b0b))
+
 ## [7.35.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.34.0...arize-python-sdk/v7.35.0) (2025-02-20)
 
 

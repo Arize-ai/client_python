@@ -2,7 +2,7 @@ from arize.experimental.integrations.whylabs_vanguard_ingestion.client import (
     IntegrationClient,
 )
 from arize.experimental.integrations.whylabs_vanguard_ingestion.generator import (
-    WhylabsProfileAdapter,
+    WhylabsVanguardProfileAdapter,
 )
 
-__all__ = ["WhylabsProfileAdapter", "IntegrationClient"]
+__all__ = ["WhylabsVanguardProfileAdapter", "IntegrationClient"]

@@ -7,7 +7,7 @@ from whylogs.core import DatasetProfile
 
 from arize.experimental.integrations.whylabs_vanguard_ingestion import (
     IntegrationClient,
-    WhylabsProfileAdapter,
+    WhylabsVanguardProfileAdapter,
 )
 from arize.exporter import ArizeExportClient
 from arize.pandas.logger import Client
@@ -88,7 +88,7 @@ def test_profile_adapter():
         profile = generate_profile(start_time, end_time)
         profile_df = profile.view().to_pandas()
 
-        generator = WhylabsProfileAdapter()
+        generator = WhylabsVanguardProfileAdapter()
         synthetic_df = generator.generate(profile_df, num_rows=len(profile_df))
         print(synthetic_df)
 

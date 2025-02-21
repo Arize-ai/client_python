@@ -5,8 +5,8 @@ import pandas as pd
 import requests
 from whylogs.core import DatasetProfile, DatasetProfileView
 
-from arize.experimental.integrations.whylabs.generator import (
-    WhylabsProfileAdapter,
+from arize.experimental.integrations.whylabs_vanguard_ingestion.generator import (
+    WhylabsVanguardProfileAdapter,
 )
 from arize.pandas.logger import Client
 from arize.utils.types import (
@@ -46,7 +46,7 @@ class IntegrationClient:
             port=port,
         )
         self._space_id = space_id
-        self._profile_adapter = WhylabsProfileAdapter()
+        self._profile_adapter = WhylabsVanguardProfileAdapter()
 
     def log_profile(
         self,
