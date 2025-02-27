@@ -287,6 +287,7 @@ def test_log_dataset_profile_with_counts():
             profile,
             os.environ["ARIZE_MODEL_ID"],
             num_rows=10,
+            timestamp=datetime.now(),
         )
         assert (
             response.status_code == 200
@@ -294,7 +295,69 @@ def test_log_dataset_profile_with_counts():
         print("Profile logging succeeded with response:", response)
 
     except Exception as e:
-        print(f"Error occurred: {str(e)}")
+        print(f"[FAILED] Error occurred: {str(e)}")
+        raise
+
+
+def test_log_profile_with_optional_args():
+    try:
+        client = IntegrationClient(
+            api_key=os.environ["ARIZE_API_KEY"],
+            space_id=os.environ["ARIZE_SPACE_ID"],
+            developer_key=os.environ["ARIZE_DEVELOPER_KEY"],
+        )
+
+        start_time, end_time = get_time_range()
+        profile = generate_profile(start_time, end_time)
+        schema = Schema(
+            feature_column_names=FEATURE_COLUMNS,
+            tag_column_names=["age__tag"],
+            prediction_label_column_name="categoricalPredictionLabel",
+            prediction_score_column_name="scorePredictionLabel",
+            actual_label_column_name="categoricalActualLabel",
+            actual_score_column_name="scoreActualLabel",
+        )
+        environment = Environments.PRODUCTION
+        model_id = os.environ["ARIZE_MODEL_ID"]
+        model_type = ModelTypes.BINARY_CLASSIFICATION
+
+        response = client.log_profile(
+            profile,
+            schema,
+            environment,
+            model_id,
+            model_type,
+            num_rows=10,
+            timestamp=datetime.now(),
+        )
+        print("[PASSED] Logging Arize response:", response)
+
+    except Exception as e:
+        print(f"[FAILED] Error occurred: {str(e)}")
+        raise
+
+
+def test_log_dataset_profile_with_optional_args():
+    try:
+        client = IntegrationClient(
+            api_key=os.environ["ARIZE_API_KEY"],
+            space_id=os.environ["ARIZE_SPACE_ID"],
+            developer_key=os.environ["ARIZE_DEVELOPER_KEY"],
+        )
+
+        start_time, end_time = get_time_range()
+        profile = generate_profile(start_time, end_time)
+        model_id = os.environ["ARIZE_MODEL_ID"]
+
+        response = client.log_dataset_profile(
+            profile,
+            model_id,
+            num_rows=10,
+            timestamp=datetime.now(),
+        )
+        print("[PASSED] Logging Arize response:", response)
+    except Exception as e:
+        print(f"[FAILED] Error occurred: {str(e)}")
         raise
 
 
@@ -305,3 +368,5 @@ if __name__ == "__main__":
     test_log_dataset_profile_with_counts_should_fail()
     test_log_profile_with_counts()
     test_log_dataset_profile_with_counts()
+    test_log_profile_with_optional_args()
+    test_log_dataset_profile_with_optional_args()

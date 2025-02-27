@@ -82,12 +82,9 @@ class IntegrationClient:
                 f"Model {model_id} does not exist in space {self._space_id}"
             )
 
-        if not num_rows:
-            num_rows = self._extract_num_rows(profile)
-
         synthetic_df = self._generate_synthetic_dataset(
             profile,
-            num_rows=num_rows,
+            num_rows=num_rows or self._extract_num_rows(profile),
             kll_profile_view=kll_profile_view,
             n_kll_quantiles=n_kll_quantiles,
         )
@@ -129,6 +126,9 @@ class IntegrationClient:
         actual_label_column_name: Optional[str] = None,
         actual_score_column_name: Optional[str] = None,
         timestamp_column_name: Optional[str] = None,
+        tag_column_names: Optional[
+            List[str]
+        ] = None,  # List of columns to be used as tags
     ) -> requests.Response:
         """
         Logs a WhyLogs dataset-based profile to the Arize API.
@@ -144,18 +144,16 @@ class IntegrationClient:
                 f"Model {model_id} does not exist in space {self._space_id}"
             )
 
-        if not num_rows:
-            num_rows = self._extract_num_rows(profile)
-
         synthetic_df = self._generate_synthetic_dataset(
             profile,
-            num_rows=num_rows,
+            num_rows=num_rows or self._extract_num_rows(profile),
             kll_profile_view=kll_profile_view,
             n_kll_quantiles=n_kll_quantiles,
         )
 
         schema = Schema(
             feature_column_names=synthetic_df.columns.tolist(),
+            tag_column_names=tag_column_names,
             prediction_label_column_name="ARIZE_PLACEHOLDER_STRING",
             prediction_score_column_name="ARIZE_PLACEHOLDER_FLOAT",
             actual_label_column_name="ARIZE_PLACEHOLDER_STRING",

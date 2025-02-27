@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.35.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.35.1...arize-python-sdk/v7.35.2) (2025-02-27)
+
+
+### 🐛 Bug Fixes
+
+* **experimental, whylabs:** fix timestamp logic ([#42170](https://github.com/Arize-ai/arize/issues/42170)) ([cc97a37](https://github.com/Arize-ai/arize/commit/cc97a375313154286db67e1ca3625471c78b3e91))
+
 ## [7.35.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.35.0...arize-python-sdk/v7.35.1) (2025-02-21)
 
 

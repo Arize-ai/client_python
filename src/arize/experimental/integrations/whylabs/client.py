@@ -1,4 +1,5 @@
 # type: ignore[pb2]
+import datetime
 from typing import Dict, List, Optional, Union
 
 import pandas as pd
@@ -66,6 +67,9 @@ class IntegrationClient:
         num_rows: Optional[int] = None,
         kll_profile_view: Optional[DatasetProfileView] = None,
         n_kll_quantiles: Optional[int] = 200,
+        timestamp: Optional[
+            datetime.datetime
+        ] = None,  # Overrides timestamp value set in input schema
     ) -> requests.Response:
         """
         Logs a WhyLogs profile to the Arize API.
@@ -76,15 +80,19 @@ class IntegrationClient:
             profile, DatasetProfile
         ), f"Expected WhyLogs DatasetProfile, got {type(profile)}"
 
-        if not num_rows:
-            num_rows = self._extract_num_rows(profile)
-
         synthetic_df = self._generate_synthetic_dataset(
             profile,
-            num_rows=num_rows,
+            num_rows=num_rows or self._extract_num_rows(profile),
             kll_profile_view=kll_profile_view,
             n_kll_quantiles=n_kll_quantiles,
         )
+
+        if timestamp:
+            synthetic_df["timestamp"] = timestamp
+            # Create a new schema with timestamp added
+            schema_dict = schema.asdict()
+            schema_dict["timestamp_column_name"] = "timestamp"
+            schema = Schema(**schema_dict)
 
         return self._client.log(
             dataframe=synthetic_df,
@@ -122,10 +130,10 @@ class IntegrationClient:
         prediction_score_column_name: Optional[str] = None,
         actual_label_column_name: Optional[str] = None,
         actual_score_column_name: Optional[str] = None,
-        timestamp_column_name: Optional[str] = None,
         tag_column_names: Optional[
             List[str]
         ] = None,  # List of columns to be used as tags
+        timestamp: Optional[datetime.datetime] = None,
     ) -> requests.Response:
         """
         Logs a WhyLogs dataset-based profile to the Arize API.
@@ -136,35 +144,32 @@ class IntegrationClient:
             profile, DatasetProfile
         ), f"Expected WhyLogs DatasetProfile, got {type(profile)}"
 
-        if not num_rows:
-            num_rows = self._extract_num_rows(profile)
-
         synthetic_df = self._generate_synthetic_dataset(
             profile,
-            num_rows=num_rows,
+            num_rows=num_rows or self._extract_num_rows(profile),
             kll_profile_view=kll_profile_view,
             n_kll_quantiles=n_kll_quantiles,
         )
 
-        schema = Schema(
-            feature_column_names=synthetic_df.columns.tolist(),
-            tag_column_names=tag_column_names,
-            prediction_label_column_name="ARIZE_PLACEHOLDER_STRING",
-            prediction_score_column_name="ARIZE_PLACEHOLDER_FLOAT",
-            actual_label_column_name="ARIZE_PLACEHOLDER_STRING",
-            actual_score_column_name="ARIZE_PLACEHOLDER_FLOAT",
-        )
+        schema_args = {
+            "feature_column_names": synthetic_df.columns.tolist(),
+            "tag_column_names": tag_column_names,
+            "prediction_label_column_name": prediction_label_column_name
+            or "ARIZE_PLACEHOLDER_STRING",
+            "prediction_score_column_name": prediction_score_column_name
+            or "ARIZE_PLACEHOLDER_FLOAT",
+            "actual_label_column_name": actual_label_column_name
+            or "ARIZE_PLACEHOLDER_STRING",
+            "actual_score_column_name": actual_score_column_name
+            or "ARIZE_PLACEHOLDER_FLOAT",
+        }
 
-        if timestamp_column_name:
-            schema.timestamp_column_name = timestamp_column_name
-        if prediction_score_column_name:
-            schema.prediction_score_column_name = prediction_score_column_name
-        if prediction_label_column_name:
-            schema.prediction_label_column_name = prediction_label_column_name
-        if actual_label_column_name:
-            schema.actual_label_column_name = actual_label_column_name
-        if actual_score_column_name:
-            schema.actual_score_column_name = actual_score_column_name
+        # Singular timestamp value for the synthetic dataset
+        if timestamp:
+            synthetic_df["timestamp"] = timestamp
+            schema_args["timestamp_column_name"] = "timestamp"
+
+        schema = Schema(**schema_args)
 
         synthetic_df["ARIZE_PLACEHOLDER_STRING"] = "ARIZE_PLACEHOLDER"
         synthetic_df["ARIZE_PLACEHOLDER_FLOAT"] = float("-inf")
