@@ -41,7 +41,10 @@ class IntegrationClient:
         )
 
     def create_model(
-        self, model_id: str, environment: Environments, model_type: ModelTypes
+        self,
+        model_id: str,
+        model_type: ModelTypes,
+        environment: Environments = Environments.PRODUCTION,
     ) -> None:
         df = pd.DataFrame(
             {

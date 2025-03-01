@@ -26,6 +26,7 @@ class IntegrationClient:
         space_id: Optional[str] = None,
         space_key: Optional[str] = None,
         uri: Optional[str] = "https://api.arize.com/v1",
+        graphql_uri: Optional[str] = "https://app.arize.com/graphql",
         additional_headers: Optional[Dict[str, str]] = None,
         request_verify: Union[bool, str] = True,
         host: Optional[str] = None,
@@ -46,6 +47,7 @@ class IntegrationClient:
             port=port,
         )
         self._space_id = space_id
+        self._graphql_uri = graphql_uri
         self._profile_adapter = WhylabsVanguardProfileAdapter()
 
     def log_profile(
@@ -77,7 +79,7 @@ class IntegrationClient:
             profile, DatasetProfile
         ), f"Expected WhyLogs DatasetProfile, got {type(profile)}"
 
-        if not self.model_exists(self._space_id, model_id):
+        if not self.model_exists(self._space_id, model_id, self._graphql_uri):
             raise ValueError(
                 f"Model {model_id} does not exist in space {self._space_id}"
             )
@@ -139,7 +141,7 @@ class IntegrationClient:
             profile, DatasetProfile
         ), f"Expected WhyLogs DatasetProfile, got {type(profile)}"
 
-        if not self.model_exists(self._space_id, model_id):
+        if not self.model_exists(self._space_id, model_id, self._graphql_uri):
             raise ValueError(
                 f"Model {model_id} does not exist in space {self._space_id}"
             )
@@ -189,7 +191,9 @@ class IntegrationClient:
             verbose=verbose,
         )
 
-    def model_exists(self, space_id: str, model_id: str) -> bool:
+    def model_exists(
+        self, space_id: str, model_id: str, graphql_uri: str
+    ) -> bool:
         """
         Check if a model exists using GraphQL API.
 
@@ -227,7 +231,7 @@ class IntegrationClient:
             "x-api-key": self._client._developer_key,
         }
         response = requests.post(
-            "https://app.arize.com/graphql/",
+            graphql_uri,
             json={"query": query, "variables": variables},
             headers=headers,
             verify=self._client._request_verify,

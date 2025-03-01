@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.35.3](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.35.2...arize-python-sdk/v7.35.3) (2025-03-01)
+
+
+### 🐛 Bug Fixes
+
+* **experimental, whylabs-vanguard:** add graphql endpoint parameter, default model env for governance ([#42366](https://github.com/Arize-ai/arize/issues/42366)) ([3c32b91](https://github.com/Arize-ai/arize/commit/3c32b91852bced45729c213e11a11711ca74fabb))
+
 ## [7.35.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.35.1...arize-python-sdk/v7.35.2) (2025-02-27)
 
 
