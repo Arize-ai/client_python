@@ -50,7 +50,7 @@ class IntegrationClient:
 
     def log_profile(
         self,
-        profile: DatasetProfile,
+        profile: DatasetProfile | DatasetProfileView,
         schema: BaseSchema,
         environment: Environments,
         model_id: str,
@@ -77,8 +77,8 @@ class IntegrationClient:
         The input must be a WhyLogs profile.
         """
         assert isinstance(
-            profile, DatasetProfile
-        ), f"Expected WhyLogs DatasetProfile, got {type(profile)}"
+            profile, (DatasetProfile, DatasetProfileView)
+        ), f"Expected WhyLogs DatasetProfile or DatasetProfileView, got {type(profile)}"
 
         synthetic_df = self._generate_synthetic_dataset(
             profile,
@@ -112,7 +112,7 @@ class IntegrationClient:
 
     def log_dataset_profile(
         self,
-        profile: DatasetProfile,
+        profile: DatasetProfile | DatasetProfileView,
         model_id: str,
         metrics_validation: Optional[List[Metrics]] = None,
         model_version: Optional[str] = None,
@@ -141,8 +141,8 @@ class IntegrationClient:
         The input must be a WhyLogs profile.
         """
         assert isinstance(
-            profile, DatasetProfile
-        ), f"Expected WhyLogs DatasetProfile, got {type(profile)}"
+            profile, (DatasetProfile, DatasetProfileView)
+        ), f"Expected WhyLogs DatasetProfile or DatasetProfileView, got {type(profile)}"
 
         synthetic_df = self._generate_synthetic_dataset(
             profile,
@@ -189,9 +189,14 @@ class IntegrationClient:
             verbose=verbose,
         )
 
-    def _extract_num_rows(self, profile: DatasetProfile) -> int:
+    def _extract_num_rows(
+        self, profile: DatasetProfile | DatasetProfileView
+    ) -> int:
         """Extracts number of rows from profile if not explicitly provided."""
-        profile_df = profile.view().to_pandas()
+        if isinstance(profile, DatasetProfileView):
+            profile_df = profile.to_pandas()
+        else:
+            profile_df = profile.view().to_pandas()
 
         if "counts/n" not in profile_df.columns:
             raise ValueError("Profile is missing required 'counts/n' column")
@@ -208,12 +213,16 @@ class IntegrationClient:
 
     def _generate_synthetic_dataset(
         self,
-        profile: DatasetProfile,
+        profile: DatasetProfile | DatasetProfileView,
         num_rows: int,
         kll_profile_view: Optional[DatasetProfileView] = None,
         n_kll_quantiles: Optional[int] = 200,
     ) -> pd.DataFrame:
-        profile_df = profile.view().to_pandas()
+        if isinstance(profile, DatasetProfileView):
+            profile_df = profile.to_pandas()
+        else:
+            profile_df = profile.view().to_pandas()
+
         return self._profile_adapter.generate(
             profile_df,
             num_rows=num_rows,

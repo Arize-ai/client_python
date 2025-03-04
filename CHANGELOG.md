@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.35.4](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.35.3...arize-python-sdk/v7.35.4) (2025-03-04)
+
+
+### 🐛 Bug Fixes
+
+* **experimental, whylabs:** profile view support ([#42462](https://github.com/Arize-ai/arize/issues/42462)) ([eb2f0c0](https://github.com/Arize-ai/arize/commit/eb2f0c0374de7e1b1fb19097a05911c976137b75))
+
 ## [7.35.3](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.35.2...arize-python-sdk/v7.35.3) (2025-03-01)
 
 
