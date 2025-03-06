@@ -1,5 +1,17 @@
 # Changelog
 
+## [7.36.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.35.4...arize-python-sdk/v7.36.0) (2025-03-06)
+
+
+### 🎁 New Features
+
+* **experimental, online_tasks:** Add `extract_nested_data_to_column` for preprocessing ([#42711](https://github.com/Arize-ai/arize/issues/42711)) ([58cb2d9](https://github.com/Arize-ai/arize/commit/58cb2d963e80ecb1c7bc7c2aece4d311284ae035))
+
+
+### 🐛 Bug Fixes
+
+* **experimental, whylabs-vanguard:** update client to recent version, require graphql_uri ([#42695](https://github.com/Arize-ai/arize/issues/42695)) ([526de3b](https://github.com/Arize-ai/arize/commit/526de3bf15c9540020b562a30ea039dd87eefa93))
+
 ## [7.35.4](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.35.3...arize-python-sdk/v7.35.4) (2025-03-04)
 
 
