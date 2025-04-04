@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.36.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.36.0...arize-python-sdk/v7.36.1) (2025-04-04)
+
+
+### 🐛 Bug Fixes
+
+* **experimental, whylabs-vanguard:** add log_dataset_profile env parameter ([#43902](https://github.com/Arize-ai/arize/issues/43902)) ([31b6843](https://github.com/Arize-ai/arize/commit/31b68433aff483b1568d4faeb73ccf8e2129bc45))
+
 ## [7.36.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.35.4...arize-python-sdk/v7.36.0) (2025-03-06)
 
 

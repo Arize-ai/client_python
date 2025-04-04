@@ -129,6 +129,7 @@ class IntegrationClient:
         path: Optional[str] = None,
         timeout: Optional[float] = None,
         verbose: Optional[bool] = False,
+        environment: Optional[Environments] = Environments.PRODUCTION,
         # Synthetic dataset generation parameters
         num_rows: Optional[int] = None,
         kll_profile_view: Optional[DatasetProfileView] = None,
@@ -193,7 +194,7 @@ class IntegrationClient:
         return self._client.log(
             dataframe=synthetic_df,
             schema=schema,
-            environment=Environments.PRODUCTION,  # Hardcoded for production env
+            environment=environment,
             model_id=model_id,
             model_type=ModelTypes.BINARY_CLASSIFICATION,  # Hardcoded as classification model
             metrics_validation=metrics_validation,
