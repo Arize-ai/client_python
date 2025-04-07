@@ -97,6 +97,13 @@ Datasets = [
     "opentelemetry-exporter-otlp>=1.25.0, <2",
     "deprecated", #opentelemetry-semantic-conventions requires it
 ]
+PromptHub = [
+    "gql>=3.0.0",
+    "requests_toolbelt>=1.0.0",
+]
+PromptHub_VertexAI = [
+    "google-cloud-aiplatform>=1.0.0",
+]
 
 [build-system]
 requires = ["hatchling"]

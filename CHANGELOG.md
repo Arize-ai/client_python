@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.37.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.36.1...arize-python-sdk/v7.37.0) (2025-04-05)
+
+
+### 🎁 New Features
+
+* **experimental, prompt-hub:** Prompt Hub Client ([#42802](https://github.com/Arize-ai/arize/issues/42802)) ([f59d9b6](https://github.com/Arize-ai/arize/commit/f59d9b6c0c8f15425ee88837244249643d38bc3d))
+
 ## [7.36.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.36.0...arize-python-sdk/v7.36.1) (2025-04-04)
 
 
