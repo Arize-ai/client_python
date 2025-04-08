@@ -35,6 +35,8 @@ from arize.utils.types import (
     ArizeTypes,
     Embedding,
     Environments,
+    InstanceSegmentationActualLabel,
+    InstanceSegmentationPredictionLabel,
     LLMRunMetadata,
     ModelTypes,
     MultiClassActualLabel,
@@ -42,6 +44,7 @@ from arize.utils.types import (
     ObjectDetectionLabel,
     RankingActualLabel,
     RankingPredictionLabel,
+    SemanticSegmentationLabel,
     TypedValue,
 )
 from arize.utils.utils import convert_dictionary, get_python_version
@@ -74,6 +77,21 @@ inputs = {
     ],
     "object_detection_categories": ["dog", "cat"],
     "object_detection_scores": [0.8, 0.4],
+    "semantic_segmentation_polygon_coordinates": [
+        [0.1, 0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.1],
+        [0.5, 0.5, 0.5, 0.6, 0.6, 0.6, 0.6, 0.5],
+    ],
+    "semantic_segmentation_categories": ["dog", "cat"],
+    "instance_segmentation_polygon_coordinates": [
+        [0.1, 0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.1],
+        [0.5, 0.5, 0.5, 0.6, 0.6, 0.6, 0.6, 0.5],
+    ],
+    "instance_segmentation_categories": ["dog", "cat"],
+    "instance_segmentation_scores": [0.8, 0.4],
+    "instance_segmentation_bounding_boxes_coordinates": [
+        [0.1, 0.1, 0.2, 0.2],
+        [0.5, 0.5, 0.6, 0.6],
+    ],
     "multi_class_prediction_scores": {
         "class1": 0.2,
         "class2": 0.1,
@@ -253,6 +271,60 @@ def _build_basic_prediction(type: str) -> pb2.Prediction:
             prediction_label=pb2.PredictionLabel(object_detection=od),
             model_version=inputs["model_version"],
         )
+    elif type == "semantic_segmentation":
+        polygons = []
+        for i in range(
+            len(inputs["semantic_segmentation_polygon_coordinates"])
+        ):
+            coordinates = inputs["semantic_segmentation_polygon_coordinates"][i]
+            category = inputs["semantic_segmentation_categories"][i]
+            polygons.append(
+                pb2.SemanticSegmentationPolygon(
+                    coordinates=coordinates,
+                    category=category,
+                )
+            )
+        semantic_segmentation_label = pb2.SemanticSegmentationLabel(
+            polygons=polygons,
+        )
+        cv_label = pb2.CVPredictionLabel(
+            semantic_segmentation_label=semantic_segmentation_label,
+        )
+        return pb2.Prediction(
+            prediction_label=pb2.PredictionLabel(cv_label=cv_label),
+            model_version=inputs["model_version"],
+        )
+    elif type == "instance_segmentation":
+        polygons = []
+        for i in range(
+            len(inputs["instance_segmentation_polygon_coordinates"])
+        ):
+            coordinates = inputs["instance_segmentation_polygon_coordinates"][i]
+            category = inputs["instance_segmentation_categories"][i]
+            score = inputs["instance_segmentation_scores"][i]
+            bounding_box_coordinates = inputs[
+                "instance_segmentation_bounding_boxes_coordinates"
+            ][i]
+            polygons.append(
+                pb2.PredictionInstanceSegmentationPolygon(
+                    coordinates=coordinates,
+                    category=category,
+                    score=DoubleValue(value=score),
+                    bbox_coordinates=bounding_box_coordinates,
+                )
+            )
+        prediction_instance_segmentation_label = (
+            pb2.PredictionInstanceSegmentationLabel(
+                polygons=polygons,
+            )
+        )
+        cv_label = pb2.CVPredictionLabel(
+            prediction_instance_segmentation_label=prediction_instance_segmentation_label,
+        )
+        return pb2.Prediction(
+            prediction_label=pb2.PredictionLabel(cv_label=cv_label),
+            model_version=inputs["model_version"],
+        )
     elif type == "multi_class":
         prediction_scores = inputs["multi_class_prediction_scores"]
         threshold_scores = inputs["multi_class_threshold_scores"]
@@ -343,6 +415,51 @@ def _build_basic_actual(type: str = "") -> pb2.Actual:
         od.bounding_boxes.extend(bounding_boxes)
         return pb2.Actual(
             actual_label=pb2.ActualLabel(object_detection=od),
+        )
+    elif type == "semantic_segmentation":
+        polygons = []
+        for i in range(
+            len(inputs["semantic_segmentation_polygon_coordinates"])
+        ):
+            coordinates = inputs["semantic_segmentation_polygon_coordinates"][i]
+            category = inputs["semantic_segmentation_categories"][i]
+            polygons.append(
+                pb2.SemanticSegmentationPolygon(
+                    coordinates=coordinates, category=category
+                )
+            )
+        cv_label = pb2.CVActualLabel(
+            semantic_segmentation_label=pb2.SemanticSegmentationLabel(
+                polygons=polygons,
+            ),
+        )
+        return pb2.Actual(
+            actual_label=pb2.ActualLabel(cv_label=cv_label),
+        )
+    elif type == "instance_segmentation":
+        polygons = []
+        for i in range(
+            len(inputs["instance_segmentation_polygon_coordinates"])
+        ):
+            coordinates = inputs["instance_segmentation_polygon_coordinates"][i]
+            category = inputs["instance_segmentation_categories"][i]
+            bounding_box_coordinates = inputs[
+                "instance_segmentation_bounding_boxes_coordinates"
+            ][i]
+            polygons.append(
+                pb2.ActualInstanceSegmentationPolygon(
+                    coordinates=coordinates,
+                    category=category,
+                    bbox_coordinates=bounding_box_coordinates,
+                )
+            )
+        cv_label = pb2.CVActualLabel(
+            actual_instance_segmentation_label=pb2.ActualInstanceSegmentationLabel(
+                polygons=polygons,
+            ),
+        )
+        return pb2.Actual(
+            actual_label=pb2.ActualLabel(cv_label=cv_label),
         )
     elif type == "multi_class":
         actual_labels = []
@@ -1162,6 +1279,93 @@ def test_build_pred_and_actual_label_object_detection():
     assert record == expected_record
 
 
+def test_build_pred_and_actual_label_semantic_segmentation():
+    pred_label = SemanticSegmentationLabel(
+        polygon_coordinates=inputs["semantic_segmentation_polygon_coordinates"],
+        categories=inputs["semantic_segmentation_categories"],
+    )
+    act_label = SemanticSegmentationLabel(
+        polygon_coordinates=inputs["semantic_segmentation_polygon_coordinates"],
+        categories=inputs["semantic_segmentation_categories"],
+    )
+    c = get_stubbed_client()
+    record = c.log(
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        environment=Environments.PRODUCTION,
+        model_type=ModelTypes.OBJECT_DETECTION,
+        prediction_id=inputs["prediction_id"],
+        prediction_label=pred_label,
+        actual_label=act_label,
+        features=inputs["features"],
+        embedding_features=inputs["object_detection_embedding_feature"],
+        tags=inputs["tags"],
+    )
+
+    #   Get environment in proto format
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("semantic_segmentation")
+    a = _build_basic_actual("semantic_segmentation")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_features_to_prediction())
+    p.MergeFrom(_attach_image_embedding_feature_to_prediction())
+    p.MergeFrom(_attach_tags_to_prediction())
+    #   Add props to prediction according to this test
+    a.MergeFrom(_attach_tags_to_actual())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p, a=a, ep=ep)
+    #   Check result is as expected
+    assert record == expected_record
+
+
+def test_build_pred_and_actual_label_instance_segmentation():
+    pred_label = InstanceSegmentationPredictionLabel(
+        polygon_coordinates=inputs["instance_segmentation_polygon_coordinates"],
+        categories=inputs["instance_segmentation_categories"],
+        bounding_boxes_coordinates=inputs[
+            "instance_segmentation_bounding_boxes_coordinates"
+        ],
+        scores=inputs["instance_segmentation_scores"],
+    )
+    act_label = InstanceSegmentationActualLabel(
+        polygon_coordinates=inputs["instance_segmentation_polygon_coordinates"],
+        categories=inputs["instance_segmentation_categories"],
+        bounding_boxes_coordinates=inputs[
+            "instance_segmentation_bounding_boxes_coordinates"
+        ],
+    )
+    c = get_stubbed_client()
+    record = c.log(
+        model_id=inputs["model_id"],
+        model_version=inputs["model_version"],
+        environment=Environments.PRODUCTION,
+        model_type=ModelTypes.OBJECT_DETECTION,
+        prediction_id=inputs["prediction_id"],
+        prediction_label=pred_label,
+        actual_label=act_label,
+        features=inputs["features"],
+        embedding_features=inputs["object_detection_embedding_feature"],
+        tags=inputs["tags"],
+    )
+
+    #   Get environment in proto format
+    ep = _get_proto_environment_params(Environments.PRODUCTION)
+    #   Start constructing expected result by building the prediction
+    p = _build_basic_prediction("instance_segmentation")
+    a = _build_basic_actual("instance_segmentation")
+    #   Add props to prediction according to this test
+    p.MergeFrom(_attach_features_to_prediction())
+    p.MergeFrom(_attach_image_embedding_feature_to_prediction())
+    p.MergeFrom(_attach_tags_to_prediction())
+    #   Add props to prediction according to this test
+    a.MergeFrom(_attach_tags_to_actual())
+    #   Build expected record using built prediction
+    expected_record = _build_expected_record(p=p, a=a, ep=ep)
+    #   Check result is as expected
+    assert record == expected_record
+
+
 def test_build_prediction_no_embedding_features():
     c = get_stubbed_client()
     record = c.log(
@@ -1416,15 +1620,245 @@ def test_missing_environment():
 
 
 def test_object_detection_item_count_match():
-    c = get_stubbed_client()
-    extra = [0.11, 0.12, 0.13, 0.14]
-
-    pred_label = ObjectDetectionLabel(
-        bounding_boxes_coordinates=inputs["object_detection_bounding_boxes"]
-        + [extra],
+    _test_label_item_count_match(
+        label_class=ObjectDetectionLabel,
+        items=inputs["object_detection_bounding_boxes"]
+        + [[0.11, 0.12, 0.13, 0.14]],
         categories=inputs["object_detection_categories"],
-        scores=inputs["object_detection_scores"],
+        extra_args={"scores": inputs["object_detection_scores"]},
+        error_message_prefix="Object Detection Labels",
+        item_name="bounding boxes",
+        item_arg_name="bounding_boxes_coordinates",
     )
+
+
+def test_object_detection_wrong_coordinates_format():
+    _test_bounding_box_validation(
+        label_class=ObjectDetectionLabel,
+        categories=inputs["object_detection_categories"],
+        extra_args={"scores": inputs["object_detection_scores"]},
+        error_message_prefix="Object Detection Labels",
+    )
+
+
+def test_semantic_segmentation_item_count_match():
+    """Test item count matching for semantic segmentation."""
+    _test_label_item_count_match(
+        label_class=SemanticSegmentationLabel,
+        items=inputs["semantic_segmentation_polygon_coordinates"]
+        + [[0.11, 0.12, 0.13, 0.14, 0.15, 0.16]],
+        categories=inputs["semantic_segmentation_categories"],
+        extra_args={},
+        error_message_prefix="Semantic Segmentation Labels",
+        item_name="polygons",
+        item_arg_name="polygon_coordinates",
+    )
+
+
+def test_semantic_segmentation_wrong_coordinates_format():
+    """Test polygon validation for semantic segmentation."""
+    _test_polygon_validation(
+        label_class=SemanticSegmentationLabel,
+        categories=inputs["semantic_segmentation_categories"],
+        extra_args={},
+        error_message_prefix="Semantic Segmentation Labels",
+    )
+
+
+def test_prediction_instance_segmentation_item_count_match():
+    """Test item count matching for instance segmentation prediction."""
+    _test_label_item_count_match(
+        label_class=InstanceSegmentationPredictionLabel,
+        items=inputs["instance_segmentation_polygon_coordinates"]
+        + [[0.11, 0.12, 0.13, 0.14, 0.15, 0.16]],
+        categories=inputs["instance_segmentation_categories"],
+        extra_args={
+            "scores": inputs["instance_segmentation_scores"],
+            "bounding_boxes_coordinates": inputs[
+                "instance_segmentation_bounding_boxes_coordinates"
+            ],
+        },
+        error_message_prefix="Instance Segmentation Prediction Labels",
+        item_name="polygons",
+        item_arg_name="polygon_coordinates",
+    )
+
+
+def test_prediction_instance_segmentation_wrong_coordinates_format():
+    """Test polygon validation for instance segmentation prediction."""
+    _test_polygon_validation(
+        label_class=InstanceSegmentationPredictionLabel,
+        categories=inputs["instance_segmentation_categories"],
+        extra_args={
+            "scores": inputs["instance_segmentation_scores"],
+            "bounding_boxes_coordinates": inputs[
+                "instance_segmentation_bounding_boxes_coordinates"
+            ],
+        },
+        error_message_prefix="Instance Segmentation Prediction Labels",
+    )
+
+
+def test_actual_instance_segmentation_item_count_match():
+    """Test item count matching for instance segmentation actual."""
+    _test_label_item_count_match(
+        label_class=InstanceSegmentationActualLabel,
+        items=inputs["instance_segmentation_polygon_coordinates"]
+        + [[0.11, 0.12, 0.13, 0.14, 0.15, 0.16]],
+        categories=inputs["instance_segmentation_categories"],
+        extra_args={
+            "bounding_boxes_coordinates": inputs[
+                "instance_segmentation_bounding_boxes_coordinates"
+            ]
+        },
+        error_message_prefix="Instance Segmentation Actual Labels",
+        item_name="polygons",
+        item_arg_name="polygon_coordinates",
+    )
+
+
+def test_actual_instance_segmentation_wrong_coordinates_format():
+    """Test polygon validation for instance segmentation actual."""
+    _test_polygon_validation(
+        label_class=InstanceSegmentationActualLabel,
+        categories=inputs["instance_segmentation_categories"],
+        extra_args={
+            "bounding_boxes_coordinates": inputs[
+                "instance_segmentation_bounding_boxes_coordinates"
+            ]
+        },
+        error_message_prefix="Instance Segmentation Actual Labels",
+    )
+
+
+def test_object_detection_wrong_categories():
+    _test_categories_validation(
+        label_class=ObjectDetectionLabel,
+        invalid_categories=["dog", None],
+        extra_args={
+            "bounding_boxes_coordinates": inputs[
+                "object_detection_bounding_boxes"
+            ],
+            "scores": inputs["object_detection_scores"],
+        },
+        error_message_prefix="Object Detection Label",
+    )
+
+
+def test_object_detection_wrong_scores():
+    _test_scores_validation(
+        label_class=ObjectDetectionLabel,
+        categories=inputs["object_detection_categories"],
+        invalid_scores_cases=[[-0.4], [1.2]],
+        extra_args={
+            "bounding_boxes_coordinates": inputs[
+                "object_detection_bounding_boxes"
+            ]
+        },
+        error_message_prefix="Bounding box",
+    )
+
+
+def test_semantic_segmentation_wrong_categories():
+    _test_categories_validation(
+        label_class=SemanticSegmentationLabel,
+        invalid_categories=["dog", None],
+        extra_args={
+            "polygon_coordinates": inputs[
+                "semantic_segmentation_polygon_coordinates"
+            ]
+        },
+        error_message_prefix="Semantic Segmentation Label",
+    )
+
+
+def test_prediction_instance_segmentation_wrong_categories():
+    _test_categories_validation(
+        label_class=InstanceSegmentationPredictionLabel,
+        invalid_categories=["dog", None],
+        extra_args={
+            "polygon_coordinates": inputs[
+                "instance_segmentation_polygon_coordinates"
+            ]
+        },
+        error_message_prefix="Instance Segmentation Prediction Label",
+    )
+
+
+def test_actual_instance_segmentation_wrong_categories():
+    _test_categories_validation(
+        label_class=InstanceSegmentationActualLabel,
+        invalid_categories=["dog", None],
+        extra_args={
+            "polygon_coordinates": inputs[
+                "instance_segmentation_polygon_coordinates"
+            ]
+        },
+        error_message_prefix="Instance Segmentation Actual Label",
+    )
+
+
+def test_prediction_instance_segmentation_wrong_scores():
+    _test_scores_validation(
+        label_class=InstanceSegmentationPredictionLabel,
+        categories=inputs["instance_segmentation_categories"],
+        invalid_scores_cases=[[-0.4], [1.2]],
+        extra_args={
+            "polygon_coordinates": inputs[
+                "instance_segmentation_polygon_coordinates"
+            ]
+        },
+        error_message_prefix="Instance Segmentation Prediction Label",
+    )
+
+
+def test_prediction_instance_segmentation_wrong_bbox_coordinates_format():
+    _test_bounding_box_validation(
+        label_class=InstanceSegmentationPredictionLabel,
+        categories=inputs["instance_segmentation_categories"],
+        extra_args={
+            "polygon_coordinates": inputs[
+                "instance_segmentation_polygon_coordinates"
+            ],
+            "scores": inputs["instance_segmentation_scores"],
+        },
+        error_message_prefix="Instance Segmentation Prediction Labels",
+    )
+
+
+def test_actual_instance_segmentation_wrong_bbox_coordinates_format():
+    _test_bounding_box_validation(
+        label_class=InstanceSegmentationActualLabel,
+        categories=inputs["instance_segmentation_categories"],
+        extra_args={
+            "polygon_coordinates": inputs[
+                "instance_segmentation_polygon_coordinates"
+            ]
+        },
+        error_message_prefix="Instance Segmentation Actual Labels",
+    )
+
+
+# Helper functions for DRY testing
+
+
+def _test_label_item_count_match(
+    label_class,
+    items,
+    categories,
+    extra_args,
+    error_message_prefix,
+    item_name,
+    item_arg_name,
+):
+    """Generic implementation for testing item count matching."""
+    c = get_stubbed_client()
+
+    # Create the label with the appropriate class
+    args = {item_arg_name: items, "categories": categories}
+    args.update(extra_args or {})
+    pred_label = label_class(**args)
+
     with pytest.raises(ValueError) as excinfo:
         _ = c.log(
             model_id=inputs["model_id"],
@@ -1437,21 +1871,99 @@ def test_object_detection_item_count_match():
             embedding_features=inputs["object_detection_embedding_feature"],
             tags=inputs["tags"],
         )
-    assert (
-        "Object Detection Labels must contain the same number of bounding boxes and "
-        "categories. Found 3 bounding boxes and 2 categories."
-        in str(excinfo.value)
+
+    expected_error = (
+        f"{error_message_prefix} must contain the same number of {item_name} and "
+        f"categories. Found 3 {item_name} and 2 categories."
     )
+    assert expected_error in str(excinfo.value)
 
 
-def test_object_detection_wrong_coordinates_format():
+def _test_polygon_validation(
+    label_class, categories, extra_args, error_message_prefix
+):
+    """Generic implementation for testing polygon coordinate validation."""
     c = get_stubbed_client()
 
-    pred_label = ObjectDetectionLabel(
-        bounding_boxes_coordinates=[[0.1, 0.2, 0.3, 0.4], [0.5, 0.6, 0.7]],
-        categories=inputs["object_detection_categories"],
-        scores=inputs["object_detection_scores"],
-    )
+    test_cases = [
+        {
+            "polygon_coordinates": [[0.1, 0.2, 0.3, 0.4], [0.5, 0.6, 0.7]],
+            "expected_error": "Each polygon's coordinates must be a collection of at "
+            "least 6 floats (3 pairs of x, y coordinates). Received coordinates: ",
+        },
+        {
+            "polygon_coordinates": [
+                [-0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
+                [1.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+            ],
+            "expected_error": "Polygon's coordinates cannot be negative. "
+            "Received coordinates: [-0.1, 0.2, 0.3, 0.4, 0.5, 0.6]",
+        },
+        {
+            "polygon_coordinates": [
+                [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7],
+                [0.7, 0.8, 0.9, 1.0, 1.1, 1.2],
+            ],
+            "expected_error": "Each polygon's coordinates must be a collection of an "
+            "even number of floats (2 * n pairs of x, y coordinates). Received coordinates: ",
+        },
+        {
+            "polygon_coordinates": [
+                [0.1, 0.2, 0.3, 0.4, 0.1, 0.2],
+                [0.7, 0.8, 0.9, 1.0, 1.1, 1.2],
+            ],
+            "expected_error": "Polygon's coordinates cannot have repeated vertices. Received coordinates: ",
+        },
+        {
+            "polygon_coordinates": [
+                [0.1, 0.1, 0.1, 0.2, 0.2, 0.2, 0.0, 0.15],
+                [0.7, 0.8, 0.9, 1.0, 1.1, 1.2],
+            ],
+            "expected_error": "Polygon's coordinates cannot have self-intersections. Received coordinates: ",
+        },
+    ]
+
+    for test_case in test_cases:
+        polygon_coordinates = test_case["polygon_coordinates"]
+        expected_error = test_case["expected_error"]
+
+        args = {
+            "polygon_coordinates": polygon_coordinates,
+            "categories": categories,
+        }
+        args.update(extra_args or {})
+        pred_label = label_class(**args)
+
+        with pytest.raises(ValueError) as excinfo:
+            _ = c.log(
+                model_id=inputs["model_id"],
+                model_version=inputs["model_version"],
+                environment=Environments.PRODUCTION,
+                model_type=ModelTypes.OBJECT_DETECTION,
+                prediction_id=inputs["prediction_id"],
+                prediction_label=pred_label,
+                features=inputs["features"],
+                embedding_features=inputs["object_detection_embedding_feature"],
+                tags=inputs["tags"],
+            )
+
+        assert expected_error in str(excinfo.value)
+
+
+def _test_bounding_box_validation(
+    label_class, categories, extra_args, error_message_prefix
+):
+    """Generic implementation for testing bounding box validation."""
+    c = get_stubbed_client()
+
+    # Test invalid length
+    args = {
+        "bounding_boxes_coordinates": [[0.1, 0.2, 0.3, 0.4], [0.5, 0.6, 0.7]],
+        "categories": categories,
+    }
+    args.update(extra_args or {})
+    pred_label = label_class(**args)
+
     with pytest.raises(ValueError) as excinfo:
         _ = c.log(
             model_id=inputs["model_id"],
@@ -1469,14 +1981,17 @@ def test_object_detection_wrong_coordinates_format():
         in str(excinfo.value)
     )
 
-    pred_label = ObjectDetectionLabel(
-        bounding_boxes_coordinates=[
+    # Test negative values
+    args = {
+        "bounding_boxes_coordinates": [
             [-0.1, 0.2, 0.3, 0.4],
             [1.5, 0.6, 0.7, 0.8],
         ],
-        categories=inputs["object_detection_categories"],
-        scores=inputs["object_detection_scores"],
-    )
+        "categories": categories,
+    }
+    args.update(extra_args or {})
+    pred_label = label_class(**args)
+
     with pytest.raises(ValueError) as excinfo:
         _ = c.log(
             model_id=inputs["model_id"],
@@ -1493,6 +2008,67 @@ def test_object_detection_wrong_coordinates_format():
         "Bounding box's coordinates cannot be negative. Found [-0.1, 0.2, 0.3, 0.4]"
         in str(excinfo.value)
     )
+
+
+def _test_categories_validation(
+    label_class, invalid_categories, extra_args, error_message_prefix
+):
+    """Generic implementation for testing category validation."""
+    c = get_stubbed_client()
+
+    args = {"categories": invalid_categories}
+    args.update(extra_args or {})
+    pred_label = label_class(**args)
+
+    with pytest.raises(TypeError) as excinfo:
+        _ = c.log(
+            model_id=inputs["model_id"],
+            model_version=inputs["model_version"],
+            environment=Environments.PRODUCTION,
+            model_type=ModelTypes.OBJECT_DETECTION,
+            prediction_id=inputs["prediction_id"],
+            prediction_label=pred_label,
+            features=inputs["features"],
+            embedding_features=inputs["object_detection_embedding_feature"],
+            tags=inputs["tags"],
+        )
+    assert (
+        f"{error_message_prefix} categories must be a list of strings"
+        in str(excinfo.value)
+    )
+
+
+def _test_scores_validation(
+    label_class,
+    categories,
+    invalid_scores_cases,
+    extra_args,
+    error_message_prefix,
+):
+    """Generic implementation for testing score validation."""
+    c = get_stubbed_client()
+
+    for invalid_scores in invalid_scores_cases:
+        args = {"categories": categories, "scores": invalid_scores}
+        args.update(extra_args or {})
+        pred_label = label_class(**args)
+
+        with pytest.raises(ValueError) as excinfo:
+            _ = c.log(
+                model_id=inputs["model_id"],
+                model_version=inputs["model_version"],
+                environment=Environments.PRODUCTION,
+                model_type=ModelTypes.OBJECT_DETECTION,
+                prediction_id=inputs["prediction_id"],
+                prediction_label=pred_label,
+                features=inputs["features"],
+                embedding_features=inputs["object_detection_embedding_feature"],
+                tags=inputs["tags"],
+            )
+        assert (
+            f"{error_message_prefix} confidence scores must be between 0 and 1, inclusive"
+            in str(excinfo.value)
+        )
 
 
 def test_valid_prediction_id_embeddings():
@@ -1600,79 +2176,6 @@ def test_prediction_id():
                 tags=inputs["tags"],
             )
         assert case["err_msg"] in str(exc_info.value)
-
-
-def test_object_detection_wrong_categories():
-    c = get_stubbed_client()
-
-    pred_label = ObjectDetectionLabel(
-        bounding_boxes_coordinates=inputs["object_detection_bounding_boxes"],
-        categories=["dog", None],
-        scores=inputs["object_detection_scores"],
-    )
-    with pytest.raises(TypeError) as excinfo:
-        _ = c.log(
-            model_id=inputs["model_id"],
-            model_version=inputs["model_version"],
-            environment=Environments.PRODUCTION,
-            model_type=ModelTypes.OBJECT_DETECTION,
-            prediction_id=inputs["prediction_id"],
-            prediction_label=pred_label,
-            features=inputs["features"],
-            embedding_features=inputs["object_detection_embedding_feature"],
-            tags=inputs["tags"],
-        )
-    assert "Object Detection Label categories must be a list of strings" in str(
-        excinfo.value
-    )
-
-
-def test_object_detection_wrong_scores():
-    c = get_stubbed_client()
-
-    pred_label = ObjectDetectionLabel(
-        bounding_boxes_coordinates=inputs["object_detection_bounding_boxes"],
-        categories=inputs["object_detection_categories"],
-        scores=[-0.4],
-    )
-    with pytest.raises(ValueError) as excinfo:
-        _ = c.log(
-            model_id=inputs["model_id"],
-            model_version=inputs["model_version"],
-            environment=Environments.PRODUCTION,
-            model_type=ModelTypes.OBJECT_DETECTION,
-            prediction_id=inputs["prediction_id"],
-            prediction_label=pred_label,
-            features=inputs["features"],
-            embedding_features=inputs["object_detection_embedding_feature"],
-            tags=inputs["tags"],
-        )
-    assert (
-        "Bounding box confidence scores must be between 0 and 1, inclusive"
-        in str(excinfo.value)
-    )
-
-    pred_label = ObjectDetectionLabel(
-        bounding_boxes_coordinates=inputs["object_detection_bounding_boxes"],
-        categories=inputs["object_detection_categories"],
-        scores=[1.2],
-    )
-    with pytest.raises(ValueError) as excinfo:
-        _ = c.log(
-            model_id=inputs["model_id"],
-            model_version=inputs["model_version"],
-            environment=Environments.PRODUCTION,
-            model_type=ModelTypes.OBJECT_DETECTION,
-            prediction_id=inputs["prediction_id"],
-            prediction_label=pred_label,
-            features=inputs["features"],
-            embedding_features=inputs["object_detection_embedding_feature"],
-            tags=inputs["tags"],
-        )
-    assert (
-        "Bounding box confidence scores must be between 0 and 1, inclusive"
-        in str(excinfo.value)
-    )
 
 
 def test_valid_generative_model():

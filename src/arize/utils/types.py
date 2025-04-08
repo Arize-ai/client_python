@@ -370,6 +370,76 @@ class ObjectDetectionColumnNames(NamedTuple):
     scores_column_name: Optional[str] = None
 
 
+class SemanticSegmentationColumnNames(NamedTuple):
+    """
+    Used to log semantic segmentation prediction and actual values that are assigned to the prediction or
+    actual schema parameter.
+
+    Arguments:
+    ---------
+        polygon_coordinates_column_name (str): Column name containing the coordinates of the vertices
+            of the polygon mask within an image or video. The first sublist contains the
+            coordinates of the outline of the polygon. The subsequent sublists contain the coordinates
+            of any cutouts within the polygon. The contents of this column must be a List[List[float]].
+        categories_column_name (str): Column name containing the predefined classes or labels used
+            by the model to classify the detected objects. The contents of this column must be List[str].
+
+    """
+
+    polygon_coordinates_column_name: str
+    categories_column_name: str
+
+
+class InstanceSegmentationPredictionColumnNames(NamedTuple):
+    """
+    Used to log instance segmentation prediction values that are assigned to the prediction schema parameter.
+
+    Arguments:
+    ---------
+        polygon_coordinates_column_name (str): Column name containing the coordinates of the vertices
+            of the polygon mask within an image or video. The first sublist contains the
+            coordinates of the outline of the polygon. The subsequent sublists contain the coordinates
+            of any cutouts within the polygon. The contents of this column must be a List[List[float]].
+        categories_column_name (str): Column name containing the predefined classes or labels used
+            by the model to classify the detected objects. The contents of this column must be List[str].
+        scores_column_name (str, optional): Column name containing the confidence scores that the
+            model assigns to it's predictions, indicating how certain the model is that the predicted
+            class is contained within the bounding box. This argument is only applicable for prediction
+            values. The contents of this column must be List[float].
+        bounding_boxes_coordinates_column_name (str, optional): Column name containing the coordinates of the
+            rectangular outline that locates an object within an image or video. Pascal VOC format
+            required. The contents of this column must be a List[List[float]].
+
+    """
+
+    polygon_coordinates_column_name: str
+    categories_column_name: str
+    scores_column_name: Optional[str] = None
+    bounding_boxes_coordinates_column_name: Optional[str] = None
+
+
+class InstanceSegmentationActualColumnNames(NamedTuple):
+    """
+    Used to log instance segmentation actual values that are assigned to the actual schema parameter.
+
+    Arguments:
+    ---------
+        polygon_coordinates_column_name (str): Column name containing the coordinates of the
+            polygon that locates an object within an image or video. The contents of this column
+            must be a List[List[float]].
+        categories_column_name (str): Column name containing the predefined classes or labels used
+            by the model to classify the detected objects. The contents of this column must be List[str].
+        bounding_boxes_coordinates_column_name (str, optional): Column name containing the coordinates of the
+            rectangular outline that locates an object within an image or video. Pascal VOC format
+            required. The contents of this column must be a List[List[float]].
+
+    """
+
+    polygon_coordinates_column_name: str
+    categories_column_name: str
+    bounding_boxes_coordinates_column_name: Optional[str] = None
+
+
 class ObjectDetectionLabel(NamedTuple):
     bounding_boxes_coordinates: List[List[float]]
     categories: List[str]
@@ -393,30 +463,7 @@ class ObjectDetectionLabel(NamedTuple):
                 "Object Detection Label bounding boxes must be a list of lists of floats"
             )
         for coordinates in self.bounding_boxes_coordinates:
-            if not is_list_of(coordinates, float):
-                raise TypeError(
-                    "Each bounding box's coordinates must be a lists of floats"
-                )
-            # Format must be (top-left-x, top-left-y, bottom-right-x, bottom-right-y)
-            if len(coordinates) != 4:
-                raise ValueError(
-                    "Each bounding box's coordinates must be a collection of 4 floats. Found "
-                    f"{coordinates}"
-                )
-            if any(coord < 0 for coord in coordinates):
-                raise ValueError(
-                    f"Bounding box's coordinates cannot be negative. Found {coordinates}"
-                )
-            if not (coordinates[2] > coordinates[0]):
-                raise ValueError(
-                    "Each bounding box bottom-right X coordinate should be larger than the "
-                    f"top-left. Found {coordinates}"
-                )
-            if not (coordinates[3] > coordinates[1]):
-                raise ValueError(
-                    "Each bounding box bottom-right Y coordinate should be larger than the "
-                    f"top-left. Found {coordinates}"
-                )
+            _validate_bounding_box_coordinates(coordinates)
 
     def _validate_categories(self):
         # Allows for categories as empty strings
@@ -470,6 +517,189 @@ class ObjectDetectionLabel(NamedTuple):
                     "Object Detection Labels must contain the same number of bounding boxes and "
                     f"confidence scores. Found {n_bounding_boxes} bounding boxes and {n_scores} "
                     "scores."
+                )
+
+
+class SemanticSegmentationLabel(NamedTuple):
+    polygon_coordinates: List[List[float]]
+    categories: List[str]
+
+    def validate(self):
+        # Validate polygon coordinates
+        self._validate_polygon_coordinates()
+        # Validate categories
+        self._validate_categories()
+        # Validate we have the same number of polygon coordinates and categories
+        self._validate_count_match()
+
+    def _validate_polygon_coordinates(self):
+        _validate_polygon_coordinates(self.polygon_coordinates)
+
+    def _validate_categories(self):
+        # Allows for categories as empty strings
+        if not is_list_of(self.categories, str):
+            raise TypeError(
+                "Semantic Segmentation Label categories must be a list of strings"
+            )
+
+    def _validate_count_match(self):
+        n_polygon_coordinates = len(self.polygon_coordinates)
+        if n_polygon_coordinates == 0:
+            raise ValueError(
+                f"Semantic Segmentation Labels must contain at least 1 polygon. Found"
+                f" {n_polygon_coordinates}."
+            )
+
+        n_categories = len(self.categories)
+        if n_polygon_coordinates != n_categories:
+            raise ValueError(
+                "Semantic Segmentation Labels must contain the same number of polygons and "
+                f"categories. Found {n_polygon_coordinates} polygons and {n_categories} "
+                "categories."
+            )
+
+
+class InstanceSegmentationPredictionLabel(NamedTuple):
+    polygon_coordinates: List[List[float]]
+    categories: List[str]
+    scores: Optional[List[float]] = None
+    bounding_boxes_coordinates: Optional[List[List[float]]] = None
+
+    def validate(self):
+        # Validate polygon coordinates
+        self._validate_polygon_coordinates()
+        # Validate categories
+        self._validate_categories()
+        # Validate scores
+        self._validate_scores()
+        # Validate bounding boxes
+        self._validate_bounding_boxes()
+        # Validate we have the same number of polygon coordinates and categories
+        self._validate_count_match()
+
+    def _validate_polygon_coordinates(self):
+        _validate_polygon_coordinates(self.polygon_coordinates)
+
+    def _validate_categories(self):
+        # Allows for categories as empty strings
+        if not is_list_of(self.categories, str):
+            raise TypeError(
+                "Instance Segmentation Prediction Label categories must be a list of strings"
+            )
+
+    def _validate_scores(self):
+        if self.scores is not None:
+            if not is_list_of(self.scores, float):
+                raise TypeError(
+                    "Instance Segmentation Prediction Label confidence scores must be a list of floats"
+                )
+            if any(score > 1 or score < 0 for score in self.scores):
+                raise ValueError(
+                    "Instance Segmentation Prediction Label confidence scores must "
+                    "be between 0 and 1, inclusive. Found "
+                    f"{self.scores}"
+                )
+
+    def _validate_bounding_boxes(self):
+        if self.bounding_boxes_coordinates is not None:
+            if not is_list_of(self.bounding_boxes_coordinates, list):
+                raise TypeError(
+                    "Instance Segmentation Prediction Label bounding boxes must be a list of lists of floats"
+                )
+            for coordinates in self.bounding_boxes_coordinates:
+                _validate_bounding_box_coordinates(coordinates)
+
+    def _validate_count_match(self):
+        n_polygon_coordinates = len(self.polygon_coordinates)
+        if n_polygon_coordinates == 0:
+            raise ValueError(
+                f"Instance Segmentation Prediction Labels must contain at least 1 polygon. Found"
+                f" {n_polygon_coordinates}."
+            )
+
+        n_categories = len(self.categories)
+        if n_polygon_coordinates != n_categories:
+            raise ValueError(
+                "Instance Segmentation Prediction Labels must contain the same number "
+                f"of polygons and categories. Found {n_polygon_coordinates} polygons "
+                f"and {n_categories} categories."
+            )
+        if self.scores is not None:
+            n_scores = len(self.scores)
+            if n_polygon_coordinates != n_scores:
+                raise ValueError(
+                    "Instance Segmentation Prediction Labels must contain the same "
+                    f"number of scores and polygons. Found {n_polygon_coordinates} "
+                    f"polygons and {n_scores} scores."
+                )
+
+        if self.bounding_boxes_coordinates is not None:
+            n_bounding_boxes = len(self.bounding_boxes_coordinates)
+            if n_polygon_coordinates != n_bounding_boxes:
+                raise ValueError(
+                    "Instance Segmentation Prediction Labels must contain the same number "
+                    f"of bounding boxes and polygons. Found {n_polygon_coordinates} polygons "
+                    f"and {n_bounding_boxes} bounding boxes."
+                )
+
+
+class InstanceSegmentationActualLabel(NamedTuple):
+    polygon_coordinates: List[List[float]]
+    categories: List[str]
+    bounding_boxes_coordinates: Optional[List[List[float]]] = None
+
+    def validate(self):
+        # Validate polygon coordinates
+        self._validate_polygon_coordinates()
+        # Validate categories
+        self._validate_categories()
+        # Validate bounding boxes
+        self._validate_bounding_boxes()
+        # Validate we have the same number of polygon coordinates and categories
+        self._validate_count_match()
+
+    def _validate_polygon_coordinates(self):
+        _validate_polygon_coordinates(self.polygon_coordinates)
+
+    def _validate_categories(self):
+        # Allows for categories as empty strings
+        if not is_list_of(self.categories, str):
+            raise TypeError(
+                "Instance Segmentation Actual Label categories must be a list of strings"
+            )
+
+    def _validate_bounding_boxes(self):
+        if self.bounding_boxes_coordinates is not None:
+            if not is_list_of(self.bounding_boxes_coordinates, list):
+                raise TypeError(
+                    "Instance Segmentation Actual Label bounding boxes must be a list of lists of floats"
+                )
+            for coordinates in self.bounding_boxes_coordinates:
+                _validate_bounding_box_coordinates(coordinates)
+
+    def _validate_count_match(self):
+        n_polygon_coordinates = len(self.polygon_coordinates)
+        if n_polygon_coordinates == 0:
+            raise ValueError(
+                f"Instance Segmentation Actual Labels must contain at least 1 polygon. Found"
+                f" {n_polygon_coordinates}."
+            )
+
+        n_categories = len(self.categories)
+        if n_polygon_coordinates != n_categories:
+            raise ValueError(
+                "Instance Segmentation Actual Labels must contain the same number of polygons and "
+                f"categories. Found {n_polygon_coordinates} polygons and {n_categories} "
+                "categories."
+            )
+
+        if self.bounding_boxes_coordinates is not None:
+            n_bounding_boxes = len(self.bounding_boxes_coordinates)
+            if n_polygon_coordinates != n_bounding_boxes:
+                raise ValueError(
+                    "Instance Segmentation Actual Labels must contain the same number of bounding boxes and "
+                    f"polygons. Found {n_polygon_coordinates} polygons and {n_bounding_boxes} "
+                    "bounding boxes."
                 )
 
 
@@ -946,6 +1176,18 @@ class Schema(BaseSchema):
         multi_class_threshold_scores_column_name (str, optional):
             Column name for dictionary that maps class names to threshold values. The
             content of this column must be dictionary of str -> int/float.
+        semantic_segmentation_prediction_column_names (SemanticSegmentationColumnNames, optional):
+            SemanticSegmentationColumnNames object containing information defining the predicted
+            polygon coordinates and categories.
+        semantic_segmentation_actual_column_names (SemanticSegmentationColumnNames, optional):
+            SemanticSegmentationColumnNames object containing information defining the actual
+            polygon coordinates and categories.
+        instance_segmentation_prediction_column_names (InstanceSegmentationPredictionColumnNames, optional):
+            InstanceSegmentationPredictionColumnNames object containing information defining the predicted
+            polygon coordinates, categories, scores, and bounding box coordinates.
+        instance_segmentation_actual_column_names (InstanceSegmentationActualColumnNames, optional):
+            InstanceSegmentationActualColumnNames object containing information defining the actual
+            polygon coordinates, categories, scores, and bounding box coordinates.
 
     Methods:
     -------
@@ -989,6 +1231,18 @@ class Schema(BaseSchema):
     llm_run_metadata_column_names: Optional[LLMRunMetadataColumnNames] = None
     retrieved_document_ids_column_name: Optional[List[str]] = None
     multi_class_threshold_scores_column_name: Optional[str] = None
+    semantic_segmentation_prediction_column_names: Optional[
+        SemanticSegmentationColumnNames
+    ] = None
+    semantic_segmentation_actual_column_names: Optional[
+        SemanticSegmentationColumnNames
+    ] = None
+    instance_segmentation_prediction_column_names: Optional[
+        InstanceSegmentationPredictionColumnNames
+    ] = None
+    instance_segmentation_actual_column_names: Optional[
+        InstanceSegmentationActualColumnNames
+    ] = None
 
     def get_used_columns_counts(self) -> Dict[str, int]:
         columns_used_counts = {}
@@ -1078,6 +1332,22 @@ class Schema(BaseSchema):
             for col in self.llm_run_metadata_column_names:
                 add_to_column_count_dictionary(columns_used_counts, col)
 
+        if self.semantic_segmentation_prediction_column_names is not None:
+            for col in self.semantic_segmentation_prediction_column_names:
+                add_to_column_count_dictionary(columns_used_counts, col)
+
+        if self.semantic_segmentation_actual_column_names is not None:
+            for col in self.semantic_segmentation_actual_column_names:
+                add_to_column_count_dictionary(columns_used_counts, col)
+
+        if self.instance_segmentation_prediction_column_names is not None:
+            for col in self.instance_segmentation_prediction_column_names:
+                add_to_column_count_dictionary(columns_used_counts, col)
+
+        if self.instance_segmentation_actual_column_names is not None:
+            for col in self.instance_segmentation_actual_column_names:
+                add_to_column_count_dictionary(columns_used_counts, col)
+
         return columns_used_counts
 
     def has_prediction_columns(self) -> bool:
@@ -1087,6 +1357,8 @@ class Schema(BaseSchema):
             self.rank_column_name,
             self.prediction_group_id_column_name,
             self.object_detection_prediction_column_names,
+            self.semantic_segmentation_prediction_column_names,
+            self.instance_segmentation_prediction_column_names,
             self.multi_class_threshold_scores_column_name,
         )
         return any(col is not None for col in prediction_cols)
@@ -1098,6 +1370,8 @@ class Schema(BaseSchema):
             self.relevance_labels_column_name,
             self.relevance_score_column_name,
             self.object_detection_actual_column_names,
+            self.semantic_segmentation_actual_column_names,
+            self.instance_segmentation_actual_column_names,
         )
         return any(col is not None for col in actual_cols)
 
@@ -1258,3 +1532,144 @@ def add_to_column_count_dictionary(
             column_dictionary[col] += 1
         else:
             column_dictionary[col] = 1
+
+
+def _validate_bounding_box_coordinates(bounding_box_coordinates: List[float]):
+    if not is_list_of(bounding_box_coordinates, float):
+        raise TypeError(
+            "Each bounding box's coordinates must be a lists of floats"
+        )
+    # Format must be (top-left-x, top-left-y, bottom-right-x, bottom-right-y)
+    if len(bounding_box_coordinates) != 4:
+        raise ValueError(
+            "Each bounding box's coordinates must be a collection of 4 floats. Found "
+            f"{bounding_box_coordinates}"
+        )
+    if any(coord < 0 for coord in bounding_box_coordinates):
+        raise ValueError(
+            f"Bounding box's coordinates cannot be negative. Found {bounding_box_coordinates}"
+        )
+    if not (bounding_box_coordinates[2] > bounding_box_coordinates[0]):
+        raise ValueError(
+            "Each bounding box bottom-right X coordinate should be larger than the "
+            f"top-left. Found {bounding_box_coordinates}"
+        )
+    if not (bounding_box_coordinates[3] > bounding_box_coordinates[1]):
+        raise ValueError(
+            "Each bounding box bottom-right Y coordinate should be larger than the "
+            f"top-left. Found {bounding_box_coordinates}"
+        )
+
+    return None
+
+
+def _validate_polygon_coordinates(polygon_coordinates: List[List[float]]):
+    if not is_list_of(polygon_coordinates, list):
+        raise TypeError("Polygon coordinates must be a list of lists of floats")
+    for coordinates in polygon_coordinates:
+        if not is_list_of(coordinates, float):
+            raise TypeError(
+                "Each polygon's coordinates must be a lists of floats"
+            )
+        if len(coordinates) < 6:
+            raise ValueError(
+                "Each polygon's coordinates must be a collection of at least 6 "
+                "floats (3 pairs of x, y coordinates). Received coordinates: "
+                f"{coordinates}"
+            )
+        if len(coordinates) % 2 != 0:
+            raise ValueError(
+                "Each polygon's coordinates must be a collection of an even number "
+                "of floats (2 * n pairs of x, y coordinates). Received coordinates: "
+                f"{coordinates}"
+            )
+        if any(coord < 0 for coord in coordinates):
+            raise ValueError(
+                "Polygon's coordinates cannot be negative. Received coordinates: "
+                f"{coordinates}"
+            )
+
+        # Validate polygon is well-formed (no repeated vertices, no self-intersections)
+        points = [
+            (coordinates[i], coordinates[i + 1])
+            for i in range(0, len(coordinates), 2)
+        ]
+
+        # Check for repeated vertices. Also, create edges for later intersection checks
+        edges = []
+        for i in range(len(points)):
+            if any(
+                points[i] == points[j]
+                for i in range(len(points))
+                for j in range(i + 1, len(points))
+            ):
+                raise ValueError(
+                    "Polygon's coordinates cannot have repeated vertices. Received coordinates: "
+                    f"{coordinates}"
+                )
+            edges.append((points[i], points[(i + 1) % len(points)]))
+
+        # Check for self-intersections
+        for i in range(len(edges)):
+            for j in range(i + 2, len(edges)):
+                # Skip adjacent edges
+                if i == 0 and j == len(edges) - 1:
+                    continue
+
+                # Check if edges intersect
+                if segments_intersect(
+                    edges[i][0], edges[i][1], edges[j][0], edges[j][1]
+                ):
+                    raise ValueError(
+                        "Polygon's coordinates cannot have self-intersections. Received coordinates: "
+                        f"{coordinates}"
+                    )
+
+    return None
+
+
+def segments_intersect(p1, p2, p3, p4):
+    """
+    Check if two line segments intersect.
+
+    Args:
+        p1, p2: First line segment endpoints (x,y)
+        p3, p4: Second line segment endpoints (x,y)
+
+    Returns:
+        True if the line segments intersect, False otherwise
+    """
+
+    # Function to calculate direction
+    def orientation(p, q, r):
+        return (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1])
+
+    # Function to check if point q is on segment pr
+    def on_segment(p, q, r):
+        return (
+            q[0] <= max(p[0], r[0])
+            and q[0] >= min(p[0], r[0])
+            and q[1] <= max(p[1], r[1])
+            and q[1] >= min(p[1], r[1])
+        )
+
+    # Calculate directions
+    o1 = orientation(p3, p4, p1)
+    o2 = orientation(p3, p4, p2)
+    o3 = orientation(p1, p2, p3)
+    o4 = orientation(p1, p2, p4)
+
+    # Check for general intersection
+    if ((o1 > 0 and o2 < 0) or (o1 < 0 and o2 > 0)) and (
+        (o3 > 0 and o4 < 0) or (o3 < 0 and o4 > 0)
+    ):
+        return True
+
+    # Check for special cases where points are collinear
+    if o1 == 0 and on_segment(p3, p1, p4):
+        return True
+    if o2 == 0 and on_segment(p3, p2, p4):
+        return True
+    if o3 == 0 and on_segment(p1, p3, p2):
+        return True
+    return o4 == 0 and on_segment(p1, p4, p2)

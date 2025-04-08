@@ -53,6 +53,8 @@ from .utils.types import (
     NUMERIC_MODEL_TYPES,
     Embedding,
     Environments,
+    InstanceSegmentationActualLabel,
+    InstanceSegmentationPredictionLabel,
     LLMRunMetadata,
     ModelTypes,
     MultiClassActualLabel,
@@ -60,6 +62,7 @@ from .utils.types import (
     ObjectDetectionLabel,
     RankingActualLabel,
     RankingPredictionLabel,
+    SemanticSegmentationLabel,
     TypedValue,
     _PromptOrResponseText,
     is_list_of,
@@ -652,6 +655,9 @@ def _validate_label(
         ObjectDetectionLabel,
         RankingPredictionLabel,
         RankingActualLabel,
+        SemanticSegmentationLabel,
+        InstanceSegmentationPredictionLabel,
+        InstanceSegmentationActualLabel,
         MultiClassPredictionLabel,
         MultiClassActualLabel,
     ],
@@ -662,9 +668,7 @@ def _validate_label(
     elif model_type in CATEGORICAL_MODEL_TYPES:
         _validate_categorical_label(model_type, label)
     elif model_type == ModelTypes.OBJECT_DETECTION:
-        _validate_object_detection_label(
-            prediction_or_actual, label, embedding_features
-        )
+        _validate_cv_label(prediction_or_actual, label, embedding_features)
     elif model_type == ModelTypes.RANKING:
         _validate_ranking_label(label)
     elif model_type == ModelTypes.GENERATIVE_LLM:
@@ -706,26 +710,40 @@ def _validate_categorical_label(
         )
 
 
-def _validate_object_detection_label(
+def _validate_cv_label(
     prediction_or_actual: str,
-    label: ObjectDetectionLabel,
+    label: Union[
+        ObjectDetectionLabel,
+        SemanticSegmentationLabel,
+        InstanceSegmentationPredictionLabel,
+        InstanceSegmentationActualLabel,
+    ],
     embedding_features: Dict[str, Embedding],
 ):
-    if not isinstance(label, ObjectDetectionLabel):
+    if (
+        not isinstance(label, ObjectDetectionLabel)
+        and not isinstance(label, SemanticSegmentationLabel)
+        and not isinstance(label, InstanceSegmentationPredictionLabel)
+        and not isinstance(label, InstanceSegmentationActualLabel)
+    ):
         raise InvalidValueType(
             f"label {label}",
             label,
-            f"ObjectDetectionLabel for model type {ModelTypes.OBJECT_DETECTION}",
+            "one of: ObjectDetectionLabel, SemanticSegmentationLabel, InstanceSegmentationPredictionLabel, "
+            f"or InstanceSegmentationActualLabel for model type {ModelTypes.OBJECT_DETECTION}",
         )
     if embedding_features is None:
         raise ValueError(
-            "Cannot use Object Detection Labels without an embedding feature"
+            f"Cannot use {type(label)} without an embedding feature"
         )
     if len(embedding_features.keys()) != 1:
         raise ValueError(
-            "Object Detection Labels must be sent with exactly one embedding feature"
+            f"{type(label)} must be sent with exactly one embedding feature"
         )
-    label.validate(prediction_or_actual=prediction_or_actual)
+    if isinstance(label, ObjectDetectionLabel):
+        label.validate(prediction_or_actual=prediction_or_actual)
+    else:
+        label.validate()
 
 
 def _validate_ranking_label(
@@ -775,6 +793,9 @@ def _get_label(
         float,
         Tuple[str, float],
         ObjectDetectionLabel,
+        SemanticSegmentationLabel,
+        InstanceSegmentationPredictionLabel,
+        InstanceSegmentationActualLabel,
         RankingPredictionLabel,
         RankingActualLabel,
         MultiClassPredictionLabel,
@@ -791,7 +812,7 @@ def _get_label(
     ):
         return _get_score_categorical_label(prediction_or_actual, value)
     elif model_type == ModelTypes.OBJECT_DETECTION:
-        return _get_object_detection_label(prediction_or_actual, value)
+        return _get_cv_label(prediction_or_actual, value)
     elif model_type == ModelTypes.RANKING:
         return _get_ranking_label(value)
     elif model_type == ModelTypes.MULTI_CLASS:
@@ -865,6 +886,33 @@ def _get_score_categorical_label(
         return pb2.ActualLabel(score_categorical=sc)
 
 
+def _get_cv_label(
+    prediction_or_actual: str,
+    value: Union[
+        ObjectDetectionLabel,
+        SemanticSegmentationLabel,
+        InstanceSegmentationPredictionLabel,
+        InstanceSegmentationActualLabel,
+    ],
+) -> Union[pb2.PredictionLabel, pb2.ActualLabel]:
+    if isinstance(value, ObjectDetectionLabel):
+        return _get_object_detection_label(prediction_or_actual, value)
+    elif isinstance(value, SemanticSegmentationLabel):
+        return _get_semantic_segmentation_label(prediction_or_actual, value)
+    elif isinstance(value, InstanceSegmentationPredictionLabel):
+        return _get_instance_segmentation_prediction_label(value)
+    elif isinstance(value, InstanceSegmentationActualLabel):
+        return _get_instance_segmentation_actual_label(value)
+    else:
+        raise InvalidValueType(
+            "cv label",
+            value,
+            "ObjectDetectionLabel, SemanticSegmentationLabel, or "
+            "InstanceSegmentationPredictionLabel for model type "
+            f"{ModelTypes.OBJECT_DETECTION}",
+        )
+
+
 def _get_object_detection_label(
     prediction_or_actual: str,
     value: ObjectDetectionLabel,
@@ -901,6 +949,111 @@ def _get_object_detection_label(
         return pb2.PredictionLabel(object_detection=od)
     elif prediction_or_actual == "actual":
         return pb2.ActualLabel(object_detection=od)
+
+
+def _get_semantic_segmentation_label(
+    prediction_or_actual: str,
+    value: SemanticSegmentationLabel,
+) -> Union[pb2.PredictionLabel, pb2.ActualLabel]:
+    if not isinstance(value, SemanticSegmentationLabel):
+        raise InvalidValueType(
+            "semantic segmentation label",
+            value,
+            f"SemanticSegmentationLabel for model type {ModelTypes.OBJECT_DETECTION}",
+        )
+    polygons = []
+    for i in range(len(value.polygon_coordinates)):
+        coordinates = value.polygon_coordinates[i]
+        category = value.categories[i]
+        polygons.append(
+            pb2.SemanticSegmentationPolygon(
+                coordinates=coordinates, category=category
+            )
+        )
+    if prediction_or_actual == "prediction":
+        cv_label = pb2.CVPredictionLabel()
+        cv_label.semantic_segmentation_label.polygons.extend(polygons)
+        return pb2.PredictionLabel(cv_label=cv_label)
+    elif prediction_or_actual == "actual":
+        cv_label = pb2.CVActualLabel()
+        cv_label.semantic_segmentation_label.polygons.extend(polygons)
+        return pb2.ActualLabel(cv_label=cv_label)
+
+
+def _get_instance_segmentation_prediction_label(
+    value: InstanceSegmentationPredictionLabel,
+) -> Union[pb2.PredictionLabel, pb2.ActualLabel]:
+    if not isinstance(value, InstanceSegmentationPredictionLabel):
+        raise InvalidValueType(
+            "instance segmentation prediction label",
+            value,
+            f"InstanceSegmentationPredictionLabel for model type {ModelTypes.OBJECT_DETECTION}",
+        )
+    polygons = []
+    for i in range(len(value.polygon_coordinates)):
+        coordinates = value.polygon_coordinates[i]
+        category = value.categories[i]
+        score = (
+            DoubleValue(value=value.scores[i])
+            if value.scores is not None
+            else None
+        )
+        bounding_box = (
+            value.bounding_boxes_coordinates[i]
+            if value.bounding_boxes_coordinates is not None
+            else None
+        )
+        polygons.append(
+            pb2.PredictionInstanceSegmentationPolygon(
+                coordinates=coordinates,
+                category=category,
+                score=score,
+                bbox_coordinates=bounding_box,
+            )
+        )
+    prediction_instance_segmentation_label = (
+        pb2.PredictionInstanceSegmentationLabel(
+            polygons=polygons,
+        )
+    )
+    cv_label = pb2.CVPredictionLabel(
+        prediction_instance_segmentation_label=prediction_instance_segmentation_label,
+    )
+    return pb2.PredictionLabel(cv_label=cv_label)
+
+
+def _get_instance_segmentation_actual_label(
+    value: InstanceSegmentationActualLabel,
+) -> Union[pb2.PredictionLabel, pb2.ActualLabel]:
+    if not isinstance(value, InstanceSegmentationActualLabel):
+        raise InvalidValueType(
+            "instance segmentation actual label",
+            value,
+            f"InstanceSegmentationActualLabel for model type {ModelTypes.OBJECT_DETECTION}",
+        )
+    polygons = []
+    for i in range(len(value.polygon_coordinates)):
+        coordinates = value.polygon_coordinates[i]
+        category = value.categories[i]
+        bounding_box = (
+            value.bounding_boxes_coordinates[i]
+            if value.bounding_boxes_coordinates is not None
+            else None
+        )
+        polygons.append(
+            pb2.ActualInstanceSegmentationPolygon(
+                coordinates=coordinates,
+                category=category,
+                bbox_coordinates=bounding_box,
+            )
+        )
+    actual_instance_segmentation_label = pb2.ActualInstanceSegmentationLabel(
+        polygons=polygons,
+    )
+    cv_label = pb2.CVActualLabel(
+        actual_instance_segmentation_label=actual_instance_segmentation_label,
+    )
+    return pb2.ActualLabel(cv_label=cv_label)
 
 
 def _get_ranking_label(

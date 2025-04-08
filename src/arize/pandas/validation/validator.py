@@ -50,6 +50,7 @@ from arize.utils.types import (
     Schema,
     count_characters_raw_data,
     is_dict_of,
+    segments_intersect,
 )
 from arize.utils.utils import is_delayed_schema
 
@@ -184,7 +185,7 @@ class Validator:
                 return list(chain(general_checks, r_checks))
             elif model_type == ModelTypes.OBJECT_DETECTION:
                 od_checks = chain(
-                    Validator._check_existence_pred_act_od_column_names(
+                    Validator._check_exactly_one_cv_column_type(
                         schema, environment
                     ),
                     Validator._check_missing_non_object_detection_columns(
@@ -279,13 +280,13 @@ class Validator:
                 return list(chain(general_checks, r_checks))
             elif model_type == ModelTypes.OBJECT_DETECTION:
                 od_checks = chain(
-                    Validator._check_type_bounding_boxes_coordinates(
+                    Validator._check_type_image_segment_coordinates(
                         schema, column_types
                     ),
-                    Validator._check_type_bounding_boxes_categories(
+                    Validator._check_type_image_segment_categories(
                         schema, column_types
                     ),
-                    Validator._check_type_bounding_boxes_scores(
+                    Validator._check_type_image_segment_scores(
                         schema, column_types
                     ),
                 )
@@ -373,6 +374,24 @@ class Validator:
                         dataframe, schema
                     ),
                     Validator._check_value_bounding_boxes_scores(
+                        dataframe, schema
+                    ),
+                    Validator._check_value_semantic_segmentation_polygon_coordinates(
+                        dataframe, schema
+                    ),
+                    Validator._check_value_semantic_segmentation_polygon_categories(
+                        dataframe, schema
+                    ),
+                    Validator._check_value_instance_segmentation_polygon_categories(
+                        dataframe, schema
+                    ),
+                    Validator._check_value_instance_segmentation_polygon_coordinates(
+                        dataframe, schema
+                    ),
+                    Validator._check_value_instance_segmentation_polygon_scores(
+                        dataframe, schema
+                    ),
+                    Validator._check_value_instance_segmentation_bbox_coordinates(
                         dataframe, schema
                     ),
                 )
@@ -748,6 +767,26 @@ class Validator:
                 if col is not None and col not in existing_columns:
                     missing_columns.append(col)
 
+        if schema.semantic_segmentation_prediction_column_names is not None:
+            for col in schema.semantic_segmentation_prediction_column_names:
+                if col is not None and col not in existing_columns:
+                    missing_columns.append(col)
+
+        if schema.semantic_segmentation_actual_column_names is not None:
+            for col in schema.semantic_segmentation_actual_column_names:
+                if col is not None and col not in existing_columns:
+                    missing_columns.append(col)
+
+        if schema.instance_segmentation_prediction_column_names is not None:
+            for col in schema.instance_segmentation_prediction_column_names:
+                if col is not None and col not in existing_columns:
+                    missing_columns.append(col)
+
+        if schema.instance_segmentation_actual_column_names is not None:
+            for col in schema.instance_segmentation_actual_column_names:
+                if col is not None and col not in existing_columns:
+                    missing_columns.append(col)
+
         if schema.prompt_column_names is not None:
             if isinstance(schema.prompt_column_names, str):
                 col = schema.prompt_column_names
@@ -1104,42 +1143,93 @@ class Validator:
         return []
 
     @staticmethod
-    def _check_existence_pred_act_od_column_names(
+    def _check_exactly_one_cv_column_type(
         schema: Schema, environment: Environments
-    ) -> List[err.MissingObjectDetectionPredAct]:
+    ) -> List[Union[err.MultipleCVPredAct, err.MissingCVPredAct]]:
         # Checks that the required prediction/actual columns are given in the schema depending on
-        # the environment, for object detection models
-        if environment == Environments.PRODUCTION:
-            if (
-                schema.object_detection_prediction_column_names is None
-                and schema.object_detection_actual_column_names is None
-            ):
-                return [err.MissingObjectDetectionPredAct(environment)]
+        # the environment, for object detection models. There should be exactly one of
+        # object detection, semantic segmentation, or instance segmentation columns.
+        if environment in (Environments.PRODUCTION,):
+            # Check how many CV column types are present (should be exactly 1). For production,
+            # we only need one of the prediction/actual columns to be present.
+            object_detection_columns_present = (
+                schema.object_detection_prediction_column_names is not None
+                or schema.object_detection_actual_column_names is not None
+            )
+            semantic_segmentation_columns_present = (
+                schema.semantic_segmentation_prediction_column_names is not None
+                or schema.semantic_segmentation_actual_column_names is not None
+            )
+            instance_segmentation_columns_present = (
+                schema.instance_segmentation_prediction_column_names is not None
+                or schema.instance_segmentation_actual_column_names is not None
+            )
+
+            # Count how many types are present
+            cv_types_count = sum(
+                [
+                    object_detection_columns_present,
+                    semantic_segmentation_columns_present,
+                    instance_segmentation_columns_present,
+                ]
+            )
+
+            if cv_types_count == 0:
+                return [err.MissingCVPredAct(environment)]
+            elif cv_types_count > 1:
+                return [err.MultipleCVPredAct(environment)]
+
         elif environment in (
             Environments.TRAINING,
             Environments.VALIDATION,
-        ) and (
-            schema.object_detection_prediction_column_names is None
-            or schema.object_detection_actual_column_names is None
         ):
-            return [err.MissingObjectDetectionPredAct(environment)]
+            # Check how many CV column types are present (should be exactly 1). For training and
+            # validation, we need both the prediction and actual columns to be present.
+            object_detection_columns_present = (
+                schema.object_detection_prediction_column_names is not None
+                and schema.object_detection_actual_column_names is not None
+            )
+            semantic_segmentation_columns_present = (
+                schema.semantic_segmentation_prediction_column_names is not None
+                and schema.semantic_segmentation_actual_column_names is not None
+            )
+            instance_segmentation_columns_present = (
+                schema.instance_segmentation_prediction_column_names is not None
+                and schema.instance_segmentation_actual_column_names is not None
+            )
+
+            # Count how many types are present
+            cv_types_count = sum(
+                [
+                    object_detection_columns_present,
+                    semantic_segmentation_columns_present,
+                    instance_segmentation_columns_present,
+                ]
+            )
+
+            if cv_types_count == 0:
+                return [err.MissingCVPredAct(environment)]
+            elif cv_types_count > 1:
+                return [err.MultipleCVPredAct(environment)]
+
         return []
 
     @staticmethod
     def _check_missing_object_detection_columns(
         schema: Schema, model_type: ModelTypes
-    ) -> List[err.InvalidPredActObjectDetectionColumnNamesForModelType]:
+    ) -> List[err.InvalidPredActCVColumnNamesForModelType]:
         # Checks that models that are not Object Detection models don't have, in the schema, the
-        # object detection dedicated prediciton/actual column names
+        # object detection, semantic segmentation, or instance segmentation dedicated prediciton/actual
+        # column names
         if (
             schema.object_detection_prediction_column_names is not None
             or schema.object_detection_actual_column_names is not None
+            or schema.semantic_segmentation_prediction_column_names is not None
+            or schema.semantic_segmentation_actual_column_names is not None
+            or schema.instance_segmentation_prediction_column_names is not None
+            or schema.instance_segmentation_actual_column_names is not None
         ):
-            return [
-                err.InvalidPredActObjectDetectionColumnNamesForModelType(
-                    model_type
-                )
-            ]
+            return [err.InvalidPredActCVColumnNamesForModelType(model_type)]
         return []
 
     @staticmethod
@@ -1167,6 +1257,10 @@ class Validator:
             allowed_cols = [
                 "object_detection_prediction_column_names",
                 "object_detection_actual_column_names",
+                "semantic_segmentation_prediction_column_names",
+                "semantic_segmentation_actual_column_names",
+                "instance_segmentation_prediction_column_names",
+                "instance_segmentation_actual_column_names",
             ]
             return [
                 err.InvalidPredActColumnNamesForModelType(
@@ -1226,6 +1320,10 @@ class Validator:
             schema.relevance_labels_column_name,
             schema.object_detection_prediction_column_names,
             schema.object_detection_actual_column_names,
+            schema.semantic_segmentation_prediction_column_names,
+            schema.semantic_segmentation_actual_column_names,
+            schema.instance_segmentation_prediction_column_names,
+            schema.instance_segmentation_actual_column_names,
         )
         wrong_cols = []
         for col in columns_to_check:
@@ -1909,7 +2007,7 @@ class Validator:
                     schema.llm_run_metadata_column_names.response_latency_ms_column_name
                 )
 
-            # Return errors if any
+            # Return errors if there are any
             if wrong_type_cols:
                 return [
                     err.InvalidTypeColumns(
@@ -1941,7 +2039,7 @@ class Validator:
         return []
 
     @staticmethod
-    def _check_type_bounding_boxes_coordinates(
+    def _check_type_image_segment_coordinates(
         schema: Schema, column_types: Dict[str, Any]
     ) -> List[err.InvalidTypeColumns]:
         # should mirror server side
@@ -1971,6 +2069,61 @@ class Validator:
             ):
                 wrong_type_cols.append(coord_col)
 
+        if schema.semantic_segmentation_prediction_column_names is not None:
+            coord_col = schema.semantic_segmentation_prediction_column_names.polygon_coordinates_column_name
+            if (
+                coord_col in column_types
+                and column_types[coord_col] not in allowed_coordinate_types
+            ):
+                wrong_type_cols.append(coord_col)
+
+        if schema.semantic_segmentation_actual_column_names is not None:
+            coord_col = schema.semantic_segmentation_actual_column_names.polygon_coordinates_column_name
+            if (
+                coord_col in column_types
+                and column_types[coord_col] not in allowed_coordinate_types
+            ):
+                wrong_type_cols.append(coord_col)
+
+        if schema.instance_segmentation_prediction_column_names is not None:
+            polygons_coord_col = (
+                schema.instance_segmentation_prediction_column_names.polygon_coordinates_column_name  # noqa: E501
+            )
+            if (
+                polygons_coord_col in column_types
+                and column_types[polygons_coord_col]
+                not in allowed_coordinate_types
+            ):
+                wrong_type_cols.append(polygons_coord_col)
+
+            bbox_coord_col = (
+                schema.instance_segmentation_prediction_column_names.bounding_boxes_coordinates_column_name  # noqa: E501
+            )
+            if (
+                bbox_coord_col in column_types
+                and column_types[bbox_coord_col] not in allowed_coordinate_types
+            ):
+                wrong_type_cols.append(bbox_coord_col)
+
+        if schema.instance_segmentation_actual_column_names is not None:
+            coord_col = (
+                schema.instance_segmentation_actual_column_names.polygon_coordinates_column_name  # noqa: E501
+            )
+            if (
+                coord_col in column_types
+                and column_types[coord_col] not in allowed_coordinate_types
+            ):
+                wrong_type_cols.append(coord_col)
+
+            bbox_coord_col = (
+                schema.instance_segmentation_actual_column_names.bounding_boxes_coordinates_column_name  # noqa: E501
+            )
+            if (
+                bbox_coord_col in column_types
+                and column_types[bbox_coord_col] not in allowed_coordinate_types
+            ):
+                wrong_type_cols.append(bbox_coord_col)
+
         return (
             [
                 err.InvalidTypeColumns(
@@ -1983,7 +2136,7 @@ class Validator:
         )
 
     @staticmethod
-    def _check_type_bounding_boxes_categories(
+    def _check_type_image_segment_categories(
         schema: Schema, column_types: Dict[str, Any]
     ) -> List[err.InvalidTypeColumns]:
         # should mirror server side
@@ -2008,6 +2161,38 @@ class Validator:
             ):
                 wrong_type_cols.append(cat_col_name)
 
+        if schema.semantic_segmentation_prediction_column_names is not None:
+            cat_col_name = schema.semantic_segmentation_prediction_column_names.categories_column_name
+            if (
+                cat_col_name in column_types
+                and column_types[cat_col_name] not in allowed_category_datatypes
+            ):
+                wrong_type_cols.append(cat_col_name)
+
+        if schema.semantic_segmentation_actual_column_names is not None:
+            cat_col_name = schema.semantic_segmentation_actual_column_names.categories_column_name
+            if (
+                cat_col_name in column_types
+                and column_types[cat_col_name] not in allowed_category_datatypes
+            ):
+                wrong_type_cols.append(cat_col_name)
+
+        if schema.instance_segmentation_prediction_column_names is not None:
+            cat_col_name = schema.instance_segmentation_prediction_column_names.categories_column_name
+            if (
+                cat_col_name in column_types
+                and column_types[cat_col_name] not in allowed_category_datatypes
+            ):
+                wrong_type_cols.append(cat_col_name)
+
+        if schema.instance_segmentation_actual_column_names is not None:
+            cat_col_name = schema.instance_segmentation_actual_column_names.categories_column_name
+            if (
+                cat_col_name in column_types
+                and column_types[cat_col_name] not in allowed_category_datatypes
+            ):
+                wrong_type_cols.append(cat_col_name)
+
         return (
             [
                 err.InvalidTypeColumns(
@@ -2020,7 +2205,7 @@ class Validator:
         )
 
     @staticmethod
-    def _check_type_bounding_boxes_scores(
+    def _check_type_image_segment_scores(
         schema: Schema, column_types: Dict[str, Any]
     ) -> List[err.InvalidTypeColumns]:
         # should mirror server side
@@ -2047,6 +2232,15 @@ class Validator:
             score_col_name = (
                 schema.object_detection_actual_column_names.scores_column_name
             )
+            if (
+                score_col_name is not None
+                and score_col_name in column_types
+                and column_types[score_col_name] not in allowed_score_datatypes
+            ):
+                wrong_type_cols.append(score_col_name)
+
+        if schema.instance_segmentation_prediction_column_names is not None:
+            score_col_name = schema.instance_segmentation_prediction_column_names.scores_column_name
             if (
                 score_col_name is not None
                 and score_col_name in column_types
@@ -2490,7 +2684,6 @@ class Validator:
                     )
                 ).timestamp(),
             )
-
             # faster than pyarrow compute
             stats = dataframe[col].agg(["min", "max"])
 
@@ -2861,6 +3054,128 @@ class Validator:
             if sc_col_name is not None:
                 error = _check_value_bounding_boxes_scores_helper(
                     dataframe[sc_col_name]
+                )
+                if error is not None:
+                    errors.append(error)
+        return errors
+
+    @staticmethod
+    def _check_value_semantic_segmentation_polygon_coordinates(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[err.InvalidPolygonCoordinates]:
+        errors = []
+        if schema.semantic_segmentation_prediction_column_names is not None:
+            coords_col_name = schema.semantic_segmentation_prediction_column_names.polygon_coordinates_column_name  # noqa: E501
+            error = _check_value_polygon_coordinates_helper(
+                dataframe[coords_col_name]
+            )
+            if error is not None:
+                errors.append(error)
+        if schema.semantic_segmentation_actual_column_names is not None:
+            coords_col_name = schema.semantic_segmentation_actual_column_names.polygon_coordinates_column_name  # noqa: E501
+            error = _check_value_polygon_coordinates_helper(
+                dataframe[coords_col_name]
+            )
+            if error is not None:
+                errors.append(error)
+        return errors
+
+    @staticmethod
+    def _check_value_semantic_segmentation_polygon_categories(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[err.InvalidPolygonCategories]:
+        errors = []
+        if schema.semantic_segmentation_prediction_column_names is not None:
+            cat_col_name = schema.semantic_segmentation_prediction_column_names.categories_column_name
+            error = _check_value_polygon_categories_helper(
+                dataframe[cat_col_name]
+            )
+            if error is not None:
+                errors.append(error)
+        if schema.semantic_segmentation_actual_column_names is not None:
+            cat_col_name = schema.semantic_segmentation_actual_column_names.categories_column_name
+            error = _check_value_polygon_categories_helper(
+                dataframe[cat_col_name]
+            )
+            if error is not None:
+                errors.append(error)
+        return errors
+
+    @staticmethod
+    def _check_value_instance_segmentation_polygon_coordinates(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[err.InvalidPolygonCoordinates]:
+        errors = []
+        if schema.instance_segmentation_prediction_column_names is not None:
+            coords_col_name = schema.instance_segmentation_prediction_column_names.polygon_coordinates_column_name  # noqa: E501
+            error = _check_value_polygon_coordinates_helper(
+                dataframe[coords_col_name]
+            )
+            if error is not None:
+                errors.append(error)
+        if schema.instance_segmentation_actual_column_names is not None:
+            coords_col_name = schema.instance_segmentation_actual_column_names.polygon_coordinates_column_name  # noqa: E501
+            error = _check_value_polygon_coordinates_helper(
+                dataframe[coords_col_name]
+            )
+            if error is not None:
+                errors.append(error)
+        return errors
+
+    @staticmethod
+    def _check_value_instance_segmentation_polygon_categories(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[err.InvalidPolygonCategories]:
+        errors = []
+        if schema.instance_segmentation_prediction_column_names is not None:
+            cat_col_name = schema.instance_segmentation_prediction_column_names.categories_column_name
+            error = _check_value_polygon_categories_helper(
+                dataframe[cat_col_name]
+            )
+            if error is not None:
+                errors.append(error)
+        if schema.instance_segmentation_actual_column_names is not None:
+            cat_col_name = schema.instance_segmentation_actual_column_names.categories_column_name
+            error = _check_value_polygon_categories_helper(
+                dataframe[cat_col_name]
+            )
+            if error is not None:
+                errors.append(error)
+        return errors
+
+    @staticmethod
+    def _check_value_instance_segmentation_polygon_scores(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[err.InvalidPolygonScores]:
+        errors = []
+        if schema.instance_segmentation_prediction_column_names is not None:
+            sc_col_name = schema.instance_segmentation_prediction_column_names.scores_column_name
+            if sc_col_name is not None:
+                error = _check_value_polygon_scores_helper(
+                    dataframe[sc_col_name]
+                )
+                if error is not None:
+                    errors.append(error)
+        return errors
+
+    @staticmethod
+    def _check_value_instance_segmentation_bbox_coordinates(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> List[err.InvalidBoundingBoxesCoordinates]:
+        errors = []
+        if schema.instance_segmentation_prediction_column_names is not None:
+            coords_col_name = schema.instance_segmentation_prediction_column_names.bounding_boxes_coordinates_column_name  # noqa: E501
+            if coords_col_name is not None:
+                error = _check_value_bounding_boxes_coordinates_helper(
+                    dataframe[coords_col_name]
+                )
+                if error is not None:
+                    errors.append(error)
+        if schema.instance_segmentation_actual_column_names is not None:
+            coords_col_name = schema.instance_segmentation_actual_column_names.bounding_boxes_coordinates_column_name  # noqa: E501
+            if coords_col_name is not None:
+                error = _check_value_bounding_boxes_coordinates_helper(
+                    dataframe[coords_col_name]
                 )
                 if error is not None:
                     errors.append(error)
@@ -3239,5 +3554,139 @@ def _check_value_bounding_boxes_scores_helper(
     try:
         scores_col.apply(check)
     except err.InvalidBoundingBoxesScores as e:
+        return e
+    return None
+
+
+def _polygon_coordinates_wrong_format(polygon_coords):
+    """
+    Check if polygon coordinates are valid.
+
+    Validates:
+    - Has at least 3 vertices (6 coordinates)
+    - All coordinates are positive
+    - Number of coordinates is even (pairs of x,y)
+    - No repeated vertices
+    - No self-intersections in the polygon
+
+    Args:
+        polygon_coords: List of coordinates [x1, y1, x2, y2, ...]
+
+    Returns:
+        Error object if invalid, None if valid
+    """
+    # Basic validations
+    if (
+        # Coordinates should be a collection of more than 6 floats (3 pairs of x,y coordinates)
+        len(polygon_coords) < 6
+        # Coordinates should be positive
+        or any(k < 0 for k in polygon_coords)
+        # Coordinates should be a collection of pairs of floats
+        or len(polygon_coords) % 2 != 0
+    ):
+        return err.InvalidPolygonCoordinates(
+            reason="polygon_coordinates_wrong_format",
+            coordinates=polygon_coords,
+        )
+
+    # Convert flat list to list of points [(x1,y1), (x2,y2), ...]
+    points = [
+        (polygon_coords[i], polygon_coords[i + 1])
+        for i in range(0, len(polygon_coords), 2)
+    ]
+
+    # Check for repeated vertices
+    for i in range(len(points)):
+        for j in range(i + 1, len(points)):
+            if points[i] == points[j]:
+                return err.InvalidPolygonCoordinates(
+                    reason="polygon_coordinates_repeated_vertices",
+                    coordinates=polygon_coords,
+                )
+
+    # Check for self-intersections
+    # We need to check if any two non-adjacent edges intersect
+    edges = []
+    for i in range(len(points)):
+        edges.append((points[i], points[(i + 1) % len(points)]))
+
+    for i in range(len(edges)):
+        for j in range(i + 2, len(edges)):
+            # Skip adjacent edges
+            if i == 0 and j == len(edges) - 1:
+                continue
+
+            # Check if edges intersect
+            if segments_intersect(
+                edges[i][0], edges[i][1], edges[j][0], edges[j][1]
+            ):
+                return err.InvalidPolygonCoordinates(
+                    reason="polygon_coordinates_self_intersecting_vertices",
+                    coordinates=polygon_coords,
+                )
+
+    return None
+
+
+def _check_value_polygon_coordinates_helper(
+    coordinates_col: pd.Series,
+) -> Union[err.InvalidPolygonCoordinates, None]:
+    def check(polygons):
+        # We allow for zero polygons. None coordinates list is not allowed (will break following tests:
+        # 'NoneType is not iterable')
+        if polygons is None:
+            raise err.InvalidPolygonCoordinates(reason="none_polygons")
+        for polygon in polygons:
+            if polygon is None or len(polygon) == 0:
+                raise err.InvalidPolygonCoordinates(
+                    reason="none_or_empty_polygon"
+                )
+            error = _polygon_coordinates_wrong_format(polygon)
+            if error is not None:
+                raise error
+
+    try:
+        coordinates_col.apply(check)
+    except err.InvalidPolygonCoordinates as e:
+        return e
+    return None
+
+
+def _check_value_polygon_categories_helper(
+    categories_col: pd.Series,
+) -> Union[err.InvalidPolygonCategories, None]:
+    def check(categories):
+        # We allow for zero boxes. None category list is not allowed (will break following tests:
+        # 'NoneType is not iterable')
+        if categories is None:
+            raise err.InvalidPolygonCategories(reason="none_category_list")
+        for category in categories:
+            # Allow for empty string category, no None values
+            if category is None:
+                raise err.InvalidPolygonCategories(reason="none_category")
+
+    try:
+        categories_col.apply(check)
+    except err.InvalidPolygonCategories as e:
+        return e
+    return None
+
+
+def _check_value_polygon_scores_helper(
+    scores_col: pd.Series,
+) -> Union[err.InvalidPolygonScores, None]:
+    def check(scores):
+        # We allow for zero boxes. None confidence score list is not allowed (will break following tests:
+        # 'NoneType is not iterable')
+        if scores is None:
+            raise err.InvalidPolygonScores(reason="none_score_list")
+        for score in scores:
+            # Confidence scores are between 0 and 1
+            if score < 0 or score > 1:
+                raise err.InvalidPolygonScores(reason="scores_out_of_bounds")
+
+    try:
+        scores_col.apply(check)
+    except err.InvalidPolygonScores as e:
         return e
     return None

@@ -32,12 +32,15 @@ from arize.utils.types import (
     CorpusSchema,
     EmbeddingColumnNames,
     Environments,
+    InstanceSegmentationActualColumnNames,
+    InstanceSegmentationPredictionColumnNames,
     LLMConfigColumnNames,
     LLMRunMetadataColumnNames,
     ModelTypes,
     ObjectDetectionColumnNames,
     PromptTemplateColumnNames,
     Schema,
+    SemanticSegmentationColumnNames,
     TypedColumns,
 )
 from arize.utils.utils import get_python_version
@@ -221,6 +224,127 @@ def get_object_detection_schema() -> Schema:
         object_detection_actual_column_names=ObjectDetectionColumnNames(
             bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
             categories_column_name="bounding_boxes_categories",
+        ),
+    )
+
+
+def get_semantic_segmentation_df() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "image_vector": np.random.randn(3, EMBEDDING_SIZE).tolist(),
+            "image_link": ["link_" + str(x) for x in range(3)],
+            "polygon_coordinates": pd.Series(
+                [
+                    [
+                        [0.1, 0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.1],
+                        [0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.3, 0.2],
+                    ],
+                    [
+                        [0.3, 0.3, 0.3, 0.4, 0.4, 0.4, 0.4, 0.3],
+                        [0.4, 0.4, 0.4, 0.5, 0.5, 0.5, 0.5, 0.4],
+                    ],
+                    [
+                        [0.5, 0.5, 0.5, 0.6, 0.6, 0.6, 0.6, 0.5],
+                        [0.6, 0.6, 0.6, 0.7, 0.7, 0.7, 0.7, 0.6],
+                    ],
+                ]
+            ),
+            "polygon_categories": pd.Series(
+                [
+                    ["dog", "cat"],
+                    ["lion", "tiger"],
+                    ["elephant", "butterfly"],
+                ]
+            ),
+        }
+    )
+
+
+def get_semantic_segmentation_schema() -> Schema:
+    return Schema(
+        embedding_feature_column_names={
+            # Dictionary keys will be the displayed name of the embedding feature in the app
+            "image_embedding": EmbeddingColumnNames(
+                vector_column_name="image_vector",
+                link_to_data_column_name="image_link",
+            ),
+        },
+        semantic_segmentation_prediction_column_names=SemanticSegmentationColumnNames(
+            polygon_coordinates_column_name="polygon_coordinates",
+            categories_column_name="polygon_categories",
+        ),
+        semantic_segmentation_actual_column_names=SemanticSegmentationColumnNames(
+            polygon_coordinates_column_name="polygon_coordinates",
+            categories_column_name="polygon_categories",
+        ),
+    )
+
+
+def get_instance_segmentation_df() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "image_vector": np.random.randn(3, EMBEDDING_SIZE).tolist(),
+            "image_link": ["link_" + str(x) for x in range(3)],
+            "polygon_coordinates": pd.Series(
+                [
+                    [
+                        [0.1, 0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.1],
+                        [0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.3, 0.2],
+                    ],
+                    [
+                        [0.3, 0.3, 0.3, 0.4, 0.4, 0.4, 0.4, 0.3],
+                        [0.4, 0.4, 0.4, 0.5, 0.5, 0.5, 0.5, 0.4],
+                    ],
+                    [
+                        [0.5, 0.5, 0.5, 0.6, 0.6, 0.6, 0.6, 0.5],
+                        [0.6, 0.6, 0.6, 0.7, 0.7, 0.7, 0.7, 0.6],
+                    ],
+                ]
+            ),
+            "polygon_categories": pd.Series(
+                [
+                    ["dog", "cat"],
+                    ["lion", "tiger"],
+                    ["elephant", "butterfly"],
+                ]
+            ),
+            "polygon_scores": pd.Series(
+                [
+                    [0.18, 0.33],
+                    [0.28, 0.23],
+                    [0.38, 0.13],
+                ]
+            ),
+            "bounding_boxes_coordinates": pd.Series(
+                [
+                    [[0.1, 0.1, 0.2, 0.2], [0.2, 0.2, 0.3, 0.3]],
+                    [[0.3, 0.3, 0.4, 0.4], [0.4, 0.4, 0.5, 0.5]],
+                    [[0.5, 0.5, 0.6, 0.6], [0.6, 0.6, 0.7, 0.7]],
+                ]
+            ),
+        }
+    )
+
+
+def get_instance_segmentation_schema() -> Schema:
+    return Schema(
+        embedding_feature_column_names={
+            # Dictionary keys will be the displayed name of the embedding feature in the app
+            "image_embedding": EmbeddingColumnNames(
+                vector_column_name="image_vector",
+                link_to_data_column_name="image_link",
+            ),
+        },
+        instance_segmentation_prediction_column_names=InstanceSegmentationPredictionColumnNames(
+            polygon_coordinates_column_name="polygon_coordinates",
+            categories_column_name="polygon_categories",
+            scores_column_name="polygon_scores",
+            bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
+        ),
+        instance_segmentation_actual_column_names=InstanceSegmentationActualColumnNames(
+            polygon_coordinates_column_name="polygon_coordinates",
+            categories_column_name="polygon_categories",
+            bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
         ),
     )
 
@@ -521,6 +645,48 @@ def test_zero_errors_object_detection():
     data_df = pd.concat([get_base_df(), get_object_detection_df()], axis=1)
     schema = _overwrite_schema_fields(
         get_base_schema(), get_object_detection_schema()
+    )
+    try:
+        response = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.OBJECT_DETECTION
+        )
+        response_df: pd.DataFrame = response.df  # type:ignore
+    except Exception:
+        pytest.fail("Unexpected error")
+    # use json here because some row elements are lists and are not readily comparable
+    assert (
+        response_df.sort_index(axis=1).to_json()
+        == roundtrip_df(data_df).sort_index(axis=1).to_json()
+    )
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
+def test_zero_errors_semantic_segmentation():
+    # CHECK logging object detection model with semantic segmentation columns
+    data_df = pd.concat([get_base_df(), get_semantic_segmentation_df()], axis=1)
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_semantic_segmentation_schema()
+    )
+    try:
+        response = log_dataframe(
+            data_df, schema=schema, model_type=ModelTypes.OBJECT_DETECTION
+        )
+        response_df: pd.DataFrame = response.df  # type:ignore
+    except Exception:
+        pytest.fail("Unexpected error")
+    # use json here because some row elements are lists and are not readily comparable
+    assert (
+        response_df.sort_index(axis=1).to_json()
+        == roundtrip_df(data_df).sort_index(axis=1).to_json()
+    )
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
+def test_zero_errors_instance_segmentation():
+    # CHECK logging object detection model with instance segmentation columns
+    data_df = pd.concat([get_base_df(), get_instance_segmentation_df()], axis=1)
+    schema = _overwrite_schema_fields(
+        get_base_schema(), get_instance_segmentation_schema()
     )
     try:
         response = log_dataframe(

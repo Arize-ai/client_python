@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.38.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.37.0...arize-python-sdk/v7.38.0) (2025-04-07)
+
+
+### 🎁 New Features
+
+* **CV:** Image segmentation support ([#43700](https://github.com/Arize-ai/arize/issues/43700)) ([413d531](https://github.com/Arize-ai/arize/commit/413d53164d444cd0fe04ac71fbd0d0fe736c5dea))
+
 ## [7.37.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.36.1...arize-python-sdk/v7.37.0) (2025-04-05)
 
 

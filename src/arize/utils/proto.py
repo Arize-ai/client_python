@@ -66,17 +66,51 @@ def _get_pb_schema(
             schema.prediction_label_column_name
         )
 
-    if (
-        model_type == ModelTypes.OBJECT_DETECTION
-        and schema.object_detection_prediction_column_names is not None
-    ):
-        s.arrow_schema.prediction_object_detection_label_column_names.bboxes_coordinates_column_name = schema.object_detection_prediction_column_names.bounding_boxes_coordinates_column_name  # noqa: E501
-        s.arrow_schema.prediction_object_detection_label_column_names.bboxes_categories_column_name = schema.object_detection_prediction_column_names.categories_column_name  # noqa: E501
-        if (
-            schema.object_detection_prediction_column_names.scores_column_name
-            is not None
-        ):
-            s.arrow_schema.prediction_object_detection_label_column_names.bboxes_scores_column_name = schema.object_detection_prediction_column_names.scores_column_name  # noqa: E501
+    if model_type == ModelTypes.OBJECT_DETECTION:
+        if schema.object_detection_prediction_column_names is not None:
+            s.arrow_schema.prediction_object_detection_label_column_names.bboxes_coordinates_column_name = (
+                schema.object_detection_prediction_column_names.bounding_boxes_coordinates_column_name  # noqa: E501
+            )
+            s.arrow_schema.prediction_object_detection_label_column_names.bboxes_categories_column_name = (
+                schema.object_detection_prediction_column_names.categories_column_name  # noqa: E501
+            )
+            if (
+                schema.object_detection_prediction_column_names.scores_column_name
+                is not None
+            ):
+                s.arrow_schema.prediction_object_detection_label_column_names.bboxes_scores_column_name = (
+                    schema.object_detection_prediction_column_names.scores_column_name  # noqa: E501
+                )
+
+        if schema.semantic_segmentation_prediction_column_names is not None:
+            s.arrow_schema.prediction_semantic_segmentation_label_column_names.polygons_coordinates_column_name = (  # noqa: E501
+                schema.semantic_segmentation_prediction_column_names.polygon_coordinates_column_name
+            )
+            s.arrow_schema.prediction_semantic_segmentation_label_column_names.polygons_categories_column_name = (  # noqa: E501
+                schema.semantic_segmentation_prediction_column_names.categories_column_name
+            )
+
+        if schema.instance_segmentation_prediction_column_names is not None:
+            s.arrow_schema.prediction_instance_segmentation_label_column_names.polygons_coordinates_column_name = (  # noqa: E501
+                schema.instance_segmentation_prediction_column_names.polygon_coordinates_column_name
+            )
+            s.arrow_schema.prediction_instance_segmentation_label_column_names.polygons_categories_column_name = (  # noqa: E501
+                schema.instance_segmentation_prediction_column_names.categories_column_name
+            )
+            if (
+                schema.instance_segmentation_prediction_column_names.scores_column_name
+                is not None
+            ):
+                s.arrow_schema.prediction_instance_segmentation_label_column_names.polygons_scores_column_name = (  # noqa: E501
+                    schema.instance_segmentation_prediction_column_names.scores_column_name
+                )
+            if (
+                schema.instance_segmentation_prediction_column_names.bounding_boxes_coordinates_column_name
+                is not None
+            ):
+                s.arrow_schema.prediction_instance_segmentation_label_column_names.bboxes_coordinates_column_name = (  # noqa: E501
+                    schema.instance_segmentation_prediction_column_names.bounding_boxes_coordinates_column_name
+                )
 
     if schema.prediction_score_column_name is not None:
         if model_type in NUMERIC_MODEL_TYPES:
@@ -196,24 +230,53 @@ def _get_pb_schema(
     if schema.rank_column_name is not None:
         s.arrow_schema.rank_column_name = schema.rank_column_name
 
-    if (
-        model_type == ModelTypes.OBJECT_DETECTION
-        and schema.object_detection_actual_column_names is not None
-    ):
-        s.arrow_schema.actual_object_detection_label_column_names.bboxes_coordinates_column_name = schema.object_detection_actual_column_names.bounding_boxes_coordinates_column_name  # noqa: E501
-        s.arrow_schema.actual_object_detection_label_column_names.bboxes_categories_column_name = schema.object_detection_actual_column_names.categories_column_name  # noqa: E501
-        if (
-            schema.object_detection_actual_column_names.scores_column_name
-            is not None
-        ):
-            s.arrow_schema.actual_object_detection_label_column_names.bboxes_scores_column_name = schema.object_detection_actual_column_names.scores_column_name  # noqa: E501
+    if model_type == ModelTypes.OBJECT_DETECTION:
+        if schema.object_detection_actual_column_names is not None:
+            s.arrow_schema.actual_object_detection_label_column_names.bboxes_coordinates_column_name = (  # noqa: E501
+                schema.object_detection_actual_column_names.bounding_boxes_coordinates_column_name
+            )
+            s.arrow_schema.actual_object_detection_label_column_names.bboxes_categories_column_name = (  # noqa: E501
+                schema.object_detection_actual_column_names.categories_column_name
+            )
+            if (
+                schema.object_detection_actual_column_names.scores_column_name
+                is not None
+            ):
+                s.arrow_schema.actual_object_detection_label_column_names.bboxes_scores_column_name = (  # noqa: E501
+                    schema.object_detection_actual_column_names.scores_column_name
+                )
+
+        if schema.semantic_segmentation_actual_column_names is not None:
+            s.arrow_schema.actual_semantic_segmentation_label_column_names.polygons_coordinates_column_name = (  # noqa: E501
+                schema.semantic_segmentation_actual_column_names.polygon_coordinates_column_name
+            )
+            s.arrow_schema.actual_semantic_segmentation_label_column_names.polygons_categories_column_name = (  # noqa: E501
+                schema.semantic_segmentation_actual_column_names.categories_column_name
+            )
+
+        if schema.instance_segmentation_actual_column_names is not None:
+            s.arrow_schema.actual_instance_segmentation_label_column_names.polygons_coordinates_column_name = (  # noqa: E501
+                schema.instance_segmentation_actual_column_names.polygon_coordinates_column_name
+            )
+            s.arrow_schema.actual_instance_segmentation_label_column_names.polygons_categories_column_name = (  # noqa: E501
+                schema.instance_segmentation_actual_column_names.categories_column_name
+            )
+            if (
+                schema.instance_segmentation_actual_column_names.bounding_boxes_coordinates_column_name
+                is not None
+            ):
+                s.arrow_schema.actual_instance_segmentation_label_column_names.bboxes_coordinates_column_name = (  # noqa: E501
+                    schema.instance_segmentation_actual_column_names.bounding_boxes_coordinates_column_name
+                )
 
     if model_type == ModelTypes.GENERATIVE_LLM:
         if schema.prompt_template_column_names is not None:
             s.arrow_schema.prompt_template_column_names.template_column_name = (
                 schema.prompt_template_column_names.template_column_name
             )
-            s.arrow_schema.prompt_template_column_names.template_version_column_name = schema.prompt_template_column_names.template_version_column_name  # noqa: E501
+            s.arrow_schema.prompt_template_column_names.template_version_column_name = (  # noqa: E501
+                schema.prompt_template_column_names.template_version_column_name
+            )
         if schema.llm_config_column_names is not None:
             s.arrow_schema.llm_config_column_names.model_column_name = (
                 schema.llm_config_column_names.model_column_name

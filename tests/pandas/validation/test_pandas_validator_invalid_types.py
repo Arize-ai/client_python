@@ -11,11 +11,14 @@ from arize.pandas.validation.validator import Validator
 from arize.utils.types import (
     CorpusSchema,
     EmbeddingColumnNames,
+    InstanceSegmentationActualColumnNames,
+    InstanceSegmentationPredictionColumnNames,
     LLMConfigColumnNames,
     ModelTypes,
     ObjectDetectionColumnNames,
     PromptTemplateColumnNames,
     Schema,
+    SemanticSegmentationColumnNames,
 )
 
 
@@ -604,7 +607,9 @@ def test_multiple():
     assert any(type(e) is err.InvalidTypeShapValues for e in errors)
 
 
-def test_invalid_type_bounding_boxes():
+# Tests object detection model type with invalid object detection types, semantic segmentation types,
+# and instance segmentation types
+def test_invalid_type_image_segments():
     kwargs = get_kwargs()
     errors = Validator.validate_types(
         **ChainMap(
@@ -617,22 +622,33 @@ def test_invalid_type_bounding_boxes():
     expected_errors = [
         err.InvalidTypeColumns(
             wrong_type_columns=[
-                "pred_wrong_bounding_boxes_coordinates",
-                "actual_wrong_bounding_boxes_coordinates",
+                "pred_object_detection_wrong_bounding_boxes_coordinates",
+                "actual_object_detection_wrong_bounding_boxes_coordinates",
+                "pred_semantic_segmentation_wrong_polygon_coordinates",
+                "actual_semantic_segmentation_wrong_polygon_coordinates",
+                "pred_instance_segmentation_wrong_polygon_coordinates",
+                "pred_instance_segmentation_wrong_bounding_boxes_coordinates",
+                "actual_instance_segmentation_wrong_polygon_coordinates",
+                "actual_instance_segmentation_wrong_bounding_boxes_coordinates",
             ],
             expected_types=["List[List[float]]"],
         ),
         err.InvalidTypeColumns(
             wrong_type_columns=[
-                "pred_wrong_bounding_boxes_categories",
-                "actual_wrong_bounding_boxes_categories",
+                "pred_object_detection_wrong_bounding_boxes_categories",
+                "actual_object_detection_wrong_bounding_boxes_categories",
+                "pred_semantic_segmentation_wrong_categories",
+                "actual_semantic_segmentation_wrong_categories",
+                "pred_instance_segmentation_wrong_categories",
+                "actual_instance_segmentation_wrong_categories",
             ],
             expected_types=["List[str]"],
         ),
         err.InvalidTypeColumns(
             wrong_type_columns=[
-                "pred_wrong_bounding_boxes_scores",
-                "actual_wrong_bounding_boxes_scores",
+                "pred_object_detection_wrong_bounding_boxes_scores",
+                "actual_object_detection_wrong_bounding_boxes_scores",
+                "pred_instance_segmentation_wrong_scores",
             ],
             expected_types=["List[float]"],
         ),
@@ -872,14 +888,33 @@ def get_kwargs():
             shap_values_column_names=dict(zip("ABCDEF", "abcdef")),
             multi_class_threshold_scores_column_name="multi_class_threshold_scores",
             object_detection_prediction_column_names=ObjectDetectionColumnNames(
-                bounding_boxes_coordinates_column_name="pred_wrong_bounding_boxes_coordinates",
-                categories_column_name="pred_wrong_bounding_boxes_categories",
-                scores_column_name="pred_wrong_bounding_boxes_scores",
+                bounding_boxes_coordinates_column_name="pred_object_detection_wrong_bounding_boxes_coordinates",
+                categories_column_name="pred_object_detection_wrong_bounding_boxes_categories",
+                scores_column_name="pred_object_detection_wrong_bounding_boxes_scores",
             ),
             object_detection_actual_column_names=ObjectDetectionColumnNames(
-                bounding_boxes_coordinates_column_name="actual_wrong_bounding_boxes_coordinates",
-                categories_column_name="actual_wrong_bounding_boxes_categories",
-                scores_column_name="actual_wrong_bounding_boxes_scores",
+                bounding_boxes_coordinates_column_name="actual_object_detection_wrong_bounding_boxes_coordinates",
+                categories_column_name="actual_object_detection_wrong_bounding_boxes_categories",
+                scores_column_name="actual_object_detection_wrong_bounding_boxes_scores",
+            ),
+            semantic_segmentation_prediction_column_names=SemanticSegmentationColumnNames(
+                polygon_coordinates_column_name="pred_semantic_segmentation_wrong_polygon_coordinates",
+                categories_column_name="pred_semantic_segmentation_wrong_categories",
+            ),
+            semantic_segmentation_actual_column_names=SemanticSegmentationColumnNames(
+                polygon_coordinates_column_name="actual_semantic_segmentation_wrong_polygon_coordinates",
+                categories_column_name="actual_semantic_segmentation_wrong_categories",
+            ),
+            instance_segmentation_prediction_column_names=InstanceSegmentationPredictionColumnNames(
+                polygon_coordinates_column_name="pred_instance_segmentation_wrong_polygon_coordinates",
+                categories_column_name="pred_instance_segmentation_wrong_categories",
+                scores_column_name="pred_instance_segmentation_wrong_scores",
+                bounding_boxes_coordinates_column_name="pred_instance_segmentation_wrong_bounding_boxes_coordinates",
+            ),
+            instance_segmentation_actual_column_names=InstanceSegmentationActualColumnNames(
+                polygon_coordinates_column_name="actual_instance_segmentation_wrong_polygon_coordinates",
+                categories_column_name="actual_instance_segmentation_wrong_categories",
+                bounding_boxes_coordinates_column_name="actual_instance_segmentation_wrong_bounding_boxes_coordinates",
             ),
             prompt_column_names=EmbeddingColumnNames(
                 vector_column_name="wrong_prompt_vector",
@@ -939,35 +974,69 @@ def get_kwargs():
                         [["id1", "id2"], ["id3", "id4"], ["id5"]]
                     ),
                     ##### Wrong type bounding boxes
-                    "pred_wrong_bounding_boxes_coordinates": pd.Series(
+                    "pred_object_detection_wrong_bounding_boxes_coordinates": pd.Series(
                         [
                             ["wrong_type", "wrong_type"],
                         ]
                     ),
-                    "pred_wrong_bounding_boxes_categories": pd.Series(
+                    "pred_object_detection_wrong_bounding_boxes_categories": pd.Series(
                         [
                             [1, 2],  # Wrong type
                         ]
                     ),
-                    "pred_wrong_bounding_boxes_scores": pd.Series(
+                    "pred_object_detection_wrong_bounding_boxes_scores": pd.Series(
                         [
                             ["wrong_type", "wrong_type"],
                         ]
                     ),
-                    "actual_wrong_bounding_boxes_coordinates": pd.Series(
+                    "actual_object_detection_wrong_bounding_boxes_coordinates": pd.Series(
                         [
                             ["wrong_type", "wrong_type"],
                         ]
                     ),
-                    "actual_wrong_bounding_boxes_categories": pd.Series(
+                    "actual_object_detection_wrong_bounding_boxes_categories": pd.Series(
                         [
                             [1, 2],  # Wrong type
                         ]
                     ),
-                    "actual_wrong_bounding_boxes_scores": pd.Series(
+                    "actual_object_detection_wrong_bounding_boxes_scores": pd.Series(
                         [
                             ["wrong_type", "wrong_type"],
                         ]
+                    ),
+                    # Wrong types image segmentation
+                    "pred_semantic_segmentation_wrong_polygon_coordinates": pd.Series(
+                        ["wrong_type", "wrong_type"]
+                    ),
+                    "pred_semantic_segmentation_wrong_categories": pd.Series(
+                        [1, 2]
+                    ),
+                    "actual_semantic_segmentation_wrong_polygon_coordinates": pd.Series(
+                        ["wrong_type", "wrong_type"]
+                    ),
+                    "actual_semantic_segmentation_wrong_categories": pd.Series(
+                        [1, 2]
+                    ),
+                    "pred_instance_segmentation_wrong_polygon_coordinates": pd.Series(
+                        ["wrong_type", "wrong_type"]
+                    ),
+                    "pred_instance_segmentation_wrong_categories": pd.Series(
+                        [1, 2]
+                    ),
+                    "pred_instance_segmentation_wrong_scores": pd.Series(
+                        ["wrong_type", "wrong_type"]
+                    ),
+                    "pred_instance_segmentation_wrong_bounding_boxes_coordinates": pd.Series(
+                        ["wrong_type", "wrong_type"]
+                    ),
+                    "actual_instance_segmentation_wrong_polygon_coordinates": pd.Series(
+                        ["wrong_type", "wrong_type"]
+                    ),
+                    "actual_instance_segmentation_wrong_categories": pd.Series(
+                        [1, 2]
+                    ),
+                    "actual_instance_segmentation_wrong_bounding_boxes_coordinates": pd.Series(
+                        ["wrong_type", "wrong_type"]
                     ),
                     # Wrong type
                     "wrong_prompt_vector": np.random.randn(3, 3)

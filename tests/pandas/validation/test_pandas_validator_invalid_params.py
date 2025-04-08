@@ -11,11 +11,14 @@ from arize.utils.types import (
     CorpusSchema,
     EmbeddingColumnNames,
     Environments,
+    InstanceSegmentationActualColumnNames,
+    InstanceSegmentationPredictionColumnNames,
     LLMConfigColumnNames,
     ModelTypes,
     ObjectDetectionColumnNames,
     PromptTemplateColumnNames,
     Schema,
+    SemanticSegmentationColumnNames,
 )
 
 EMBEDDING_SIZE = 15
@@ -93,6 +96,87 @@ def get_object_detection_kwargs():
                 bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
                 categories_column_name="bounding_boxes_categories",
                 scores_column_name="bounding_boxes_scores",
+            ),
+        ),
+    }
+
+
+def get_semantic_segmentation_kwargs():
+    return {
+        "model_id": "fraud",
+        "model_type": ModelTypes.OBJECT_DETECTION,
+        "environment": Environments.PRODUCTION,
+        "dataframe": pd.DataFrame(
+            {
+                "prediction_id": pd.Series(["0"]),
+                "polygons_coordinates": pd.Series(
+                    [
+                        [[0.31, 0.32, 0.33, 0.34], [0.31, 0.32, 0.33, 0.34]],
+                    ]
+                ),
+                "polygons_categories": pd.Series(
+                    [
+                        ["dog", "cat"],
+                    ]
+                ),
+            }
+        ),
+        "schema": Schema(
+            prediction_id_column_name="prediction_id",
+            semantic_segmentation_prediction_column_names=SemanticSegmentationColumnNames(
+                polygon_coordinates_column_name="polygons_coordinates",
+                categories_column_name="polygons_categories",
+            ),
+            semantic_segmentation_actual_column_names=SemanticSegmentationColumnNames(
+                polygon_coordinates_column_name="polygons_coordinates",
+                categories_column_name="polygons_categories",
+            ),
+        ),
+    }
+
+
+def get_instance_segmentation_kwargs():
+    return {
+        "model_id": "fraud",
+        "model_type": ModelTypes.OBJECT_DETECTION,
+        "environment": Environments.PRODUCTION,
+        "dataframe": pd.DataFrame(
+            {
+                "prediction_id": pd.Series(["0"]),
+                "polygons_coordinates": pd.Series(
+                    [
+                        [[0.31, 0.32, 0.33, 0.34], [0.31, 0.32, 0.33, 0.34]],
+                    ]
+                ),
+                "polygons_categories": pd.Series(
+                    [
+                        ["dog", "cat"],
+                    ]
+                ),
+                "polygons_scores": pd.Series(
+                    [
+                        [0.18, 0.33],
+                    ]
+                ),
+                "bounding_boxes_coordinates": pd.Series(
+                    [
+                        [[0.31, 0.32, 0.33, 0.34], [0.31, 0.32, 0.33, 0.34]],
+                    ]
+                ),
+            }
+        ),
+        "schema": Schema(
+            prediction_id_column_name="prediction_id",
+            instance_segmentation_prediction_column_names=InstanceSegmentationPredictionColumnNames(
+                polygon_coordinates_column_name="polygons_coordinates",
+                categories_column_name="polygons_categories",
+                scores_column_name="polygons_scores",
+                bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
+            ),
+            instance_segmentation_actual_column_names=InstanceSegmentationActualColumnNames(
+                polygon_coordinates_column_name="polygons_coordinates",
+                categories_column_name="polygons_categories",
+                bounding_boxes_coordinates_column_name="bounding_boxes_coordinates",
             ),
         ),
     }
@@ -447,7 +531,7 @@ def test_existence_prompt_response_column_names():
     assert len(errors) == 0
 
 
-def test_existence_pred_act_od_column_names():
+def test_existence_pred_act_cv_column_names():
     object_detection_kwargs = get_object_detection_kwargs()
     # Test that Object Detection models contain the prediction/actual column names
     # It is equivalent to test_missing_columns but for object detection.
@@ -464,7 +548,79 @@ def test_existence_pred_act_od_column_names():
     )
     assert len(errors) == 1
     for error in errors:
-        assert type(error) is err.MissingObjectDetectionPredAct
+        assert type(error) is err.MissingCVPredAct
+
+    semantic_segmentation_kwargs = get_semantic_segmentation_kwargs()
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.OBJECT_DETECTION,
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                ),
+            },
+            semantic_segmentation_kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    for error in errors:
+        assert type(error) is err.MissingCVPredAct
+
+    instance_segmentation_kwargs = get_instance_segmentation_kwargs()
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.OBJECT_DETECTION,
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                ),
+            },
+            instance_segmentation_kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    for error in errors:
+        assert type(error) is err.MissingCVPredAct
+
+
+def test_multiple_cv_pred_act():
+    object_detection_kwargs = get_object_detection_kwargs()
+    # Add in semantic segmentation prediction column names
+    object_detection_kwargs["schema"] = object_detection_kwargs[
+        "schema"
+    ].replace(
+        semantic_segmentation_prediction_column_names=SemanticSegmentationColumnNames(
+            polygon_coordinates_column_name="polygon_coordinates",
+            categories_column_name="categories",
+        )
+    )
+    # Add in semantic segmentation prediciton data
+    object_detection_kwargs["dataframe"] = pd.concat(
+        [
+            object_detection_kwargs["dataframe"],
+            pd.DataFrame(
+                {
+                    "polygon_coordinates": pd.Series(
+                        [[[0.31, 0.32, 0.33, 0.34, 0.35, 0.36]]]
+                    ),
+                    "categories": pd.Series([["dog", "cat"]]),
+                }
+            ),
+        ],
+    )
+    # Test that Object Detection models contain the prediction/actual column names
+    # It is equivalent to test_missing_columns but for object detection.
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.OBJECT_DETECTION,
+            },
+            object_detection_kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    for error in errors:
+        assert type(error) is err.MultipleCVPredAct
 
 
 def test_non_existence_pred_act_od_column_names():
@@ -524,10 +680,57 @@ def test_non_existence_pred_act_od_column_names():
     )
     assert len(errors) == 1
     for error in errors:
-        assert (
-            type(error)
-            is err.InvalidPredActObjectDetectionColumnNamesForModelType
-        )
+        assert type(error) is err.InvalidPredActCVColumnNamesForModelType
+
+    # Test that a non-object-detection model should not have semantic
+    # segmentation prediction/actual column names
+    errors = Validator.validate_params(
+        **ChainMap(
+            {
+                "model_type": ModelTypes.SCORE_CATEGORICAL,
+                "schema": Schema(
+                    prediction_id_column_name="prediction_id",
+                    prediction_label_column_name="prediction_label",
+                    actual_label_column_name="actual_label",
+                    prediction_score_column_name="prediction_score",
+                    semantic_segmentation_prediction_column_names=SemanticSegmentationColumnNames(
+                        polygon_coordinates_column_name="polygon_coordinates",
+                        categories_column_name="categories",
+                    ),
+                    semantic_segmentation_actual_column_names=SemanticSegmentationColumnNames(
+                        polygon_coordinates_column_name="polygon_coordinates",
+                        categories_column_name="categories",
+                    ),
+                ),
+                "dataframe": pd.DataFrame(
+                    {
+                        "prediction_id": pd.Series(["0"]),
+                        "prediction_label": pd.Series(["fraud"]),
+                        "prediction_score": pd.Series([1]),
+                        "actual_label": pd.Series(["not fraud"]),
+                        "actual_score": pd.Series([0]),
+                        "polygon_coordinates": pd.Series(
+                            [
+                                [
+                                    [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                                    [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                                ],
+                            ]
+                        ),
+                        "categories": pd.Series(
+                            [
+                                ["dog", "cat"],
+                            ]
+                        ),
+                    }
+                ),
+            },
+            kwargs,
+        )  # type: ignore
+    )
+    assert len(errors) == 1
+    for error in errors:
+        assert type(error) is err.InvalidPredActCVColumnNamesForModelType
 
 
 def test_non_existence_pred_act_column_name():

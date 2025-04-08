@@ -350,9 +350,9 @@ class MissingRequiredColumnsForRankingModel(ValidationError):
         )
 
 
-class MissingObjectDetectionPredAct(ValidationError):
+class MissingCVPredAct(ValidationError):
     def __repr__(self) -> str:
-        return "Missing_Object_Detection_Prediction_or_Actual"
+        return "Missing_CV_Prediction_or_Actual"
 
     def __init__(self, environment: Environments):
         self.environment = environment
@@ -368,14 +368,35 @@ class MissingObjectDetectionPredAct(ValidationError):
             raise TypeError("Invalid environment")
         return (
             f"For logging {env} data for an Object Detection model,"
-            "the schema must specify 'object_detection_prediction_column_names'"
-            f"{opt} 'object_detection_actual_column_names'"
+            "the schema must specify one of: "
+            f"('object_detection_prediction_column_names' {opt} "
+            f"'object_detection_actual_column_names') "
+            f"or ('semantic_segmentation_prediction_column_names' {opt} "
+            f"'semantic_segmentation_actual_column_names') "
+            f"or ('instance_segmentation_prediction_column_names' {opt} "
+            f"'instance_segmentation_actual_column_names')"
         )
 
 
-class InvalidPredActObjectDetectionColumnNamesForModelType(ValidationError):
+class MultipleCVPredAct(ValidationError):
     def __repr__(self) -> str:
-        return "Invalid_Object_Detection_Prediction_or_Actual_Column_Names_for_Model_Type"
+        return "Multiple_CV_Prediction_or_Actual"
+
+    def __init__(self, environment: Environments):
+        self.environment = environment
+
+    def error_message(self) -> str:
+        return (
+            "The schema must only specify one of the following: "
+            "'object_detection_prediction_column_names'/'object_detection_actual_column_names'"
+            "'semantic_segmentation_prediction_column_names'/'semantic_segmentation_actual_column_names'"
+            "'instance_segmentation_prediction_column_names'/'instance_segmentation_actual_column_names'"
+        )
+
+
+class InvalidPredActCVColumnNamesForModelType(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_CV_Prediction_or_Actual_Column_Names_for_Model_Type"
 
     def __init__(
         self,
@@ -386,7 +407,11 @@ class InvalidPredActObjectDetectionColumnNamesForModelType(ValidationError):
     def error_message(self) -> str:
         return (
             f"Cannot use 'object_detection_prediction_column_names' or "
-            f"'object_detection_actual_column_names' for {self.invalid_model_type} model "
+            f"'object_detection_actual_column_names' or "
+            f"'semantic_segmentation_prediction_column_names' or "
+            f"'semantic_segmentation_actual_column_names' or "
+            f"'instance_segmentation_prediction_column_names' or "
+            f"'instance_segmentation_actual_column_names' for {self.invalid_model_type} model "
             f"type. They are only allowed for ModelTypes.OBJECT_DETECTION models"
         )
 
@@ -835,6 +860,137 @@ class InvalidBoundingBoxesScores(ValidationError, Exception):
             msg += (
                 "Found at least one list of bounding box scores with None value. This field is "
                 "optional. If sent, you must send a confidence score per bounding box"
+            )
+        elif self.reason == "scores_out_of_bounds":
+            msg += (
+                "Found at least one confidence score out of bounds. "
+                "Confidence scores must be between 0 and 1"
+            )
+        return msg
+
+
+class InvalidPolygonCoordinates(ValidationError, Exception):
+    def __repr__(self) -> str:
+        return "Invalid_Polygon_Coordinates"
+
+    def __init__(
+        self, reason: str, coordinates: Optional[List[float]] = None
+    ) -> None:
+        self._check_valid_reason(reason)
+        self.reason = reason
+        self.coordinates = coordinates
+
+    @staticmethod
+    def _check_valid_reason(reason):
+        possible_reasons = (
+            "none_polygons",
+            "none_or_empty_polygon",
+            "polygon_coordinates_wrong_format",
+            "polygon_coordinates_repeated_vertices",
+            "polygon_coordinates_self_intersecting_vertices",
+        )
+        if reason not in possible_reasons:
+            raise ValueError(
+                f"Invalid reason {reason}. Possible reasons are: "
+                f"{', '.join(possible_reasons)}."
+            )
+
+    def error_message(self) -> str:
+        msg = "Invalid polygon coordinates found. "
+        if self.reason == "none_polygons":
+            msg += (
+                "Found at least one list of polygon coordinates with NoneType. List of "
+                "polygon coordinates cannot be None, if you'd like to send no coordinates, "
+                "send an empty list"
+            )
+        elif self.reason == "none_or_empty_polygon":
+            msg += (
+                "Found at least one polygon with None value or without coordinates. All "
+                "polygons in the list must contain its coordinates"
+            )
+        elif self.reason == "polygon_coordinates_wrong_format":
+            msg += (
+                "Found at least one polygon's coordinates incorrectly formatted. Each "
+                "polygon's coordinates must be a collection of even number of positive floats "
+                "representing the x and y coordinates of each point, in pixels. The following "
+                f"coordinates are invalid: {self.coordinates}"
+            )
+        elif self.reason == "polygon_coordinates_repeated_vertices":
+            msg += (
+                "Found at least one polygon with repeated vertices. "
+                "No polygon can have repeated vertices."
+                f"The following coordinates are invalid: {self.coordinates}"
+            )
+        elif self.reason == "polygon_coordinates_self_intersecting_vertices":
+            msg += (
+                "Found at least one polygon with self-intersecting vertices. "
+                "Each polygon must not have self-intersecting vertices."
+                f"The following coordinates are invalid: {self.coordinates}"
+            )
+        return msg
+
+
+class InvalidPolygonCategories(ValidationError, Exception):
+    def __repr__(self) -> str:
+        return "Invalid_Polygon_Categories"
+
+    def __init__(self, reason) -> None:
+        self._check_valid_reason(reason)
+        self.reason = reason
+
+    @staticmethod
+    def _check_valid_reason(reason):
+        possible_reasons = (
+            "none_category_list",
+            "none_category",
+        )
+        if reason not in possible_reasons:
+            raise ValueError(
+                f"Invalid reason {reason}. Possible reasons are: "
+                f"{', '.join(possible_reasons)}."
+            )
+
+    def error_message(self) -> str:
+        msg = "Invalid polygon categories found. "
+        if self.reason == "none_category_list":
+            msg += (
+                "Found at least one list of polygon categories with None value. Must send a "
+                "list of categories, one category per polygon."
+            )
+        elif self.reason == "none_category":
+            msg += (
+                "Found at least one category label with None value. Each polygon category "
+                "must be string. Empty strings are allowed"
+            )
+        return msg
+
+
+class InvalidPolygonScores(ValidationError, Exception):
+    def __repr__(self) -> str:
+        return "Invalid_Polygon_Scores"
+
+    def __init__(self, reason) -> None:
+        self._check_valid_reason(reason)
+        self.reason = reason
+
+    @staticmethod
+    def _check_valid_reason(reason):
+        possible_reasons = (
+            "none_score_list",
+            "scores_out_of_bounds",
+        )
+        if reason not in possible_reasons:
+            raise ValueError(
+                f"Invalid reason {reason}. Possible reasons are: "
+                f"{', '.join(possible_reasons)}."
+            )
+
+    def error_message(self) -> str:
+        msg = "Invalid polygon scores found. "
+        if self.reason == "none_score_list":
+            msg += (
+                "Found at least one list of polygon scores with None value. This field is "
+                "optional. If sent, you must send a confidence score per polygon"
             )
         elif self.reason == "scores_out_of_bounds":
             msg += (

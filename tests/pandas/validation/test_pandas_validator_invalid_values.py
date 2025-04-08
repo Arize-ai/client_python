@@ -27,11 +27,14 @@ from arize.utils.types import (
     CorpusSchema,
     EmbeddingColumnNames,
     Environments,
+    InstanceSegmentationActualColumnNames,
+    InstanceSegmentationPredictionColumnNames,
     LLMConfigColumnNames,
     ModelTypes,
     ObjectDetectionColumnNames,
     PromptTemplateColumnNames,
     Schema,
+    SemanticSegmentationColumnNames,
 )
 
 
@@ -254,10 +257,8 @@ def test_invalid_ts_datetime_min():
                     {
                         "prediction_timestamp": pd.Series(
                             [
-                                (
-                                    datetime.datetime.now()
-                                    - datetime.timedelta(days=365 * 5 + 1)
-                                )
+                                datetime.datetime.now()
+                                - datetime.timedelta(days=365 * 5 + 1)
                             ]
                         )
                     }
@@ -1321,6 +1322,307 @@ def test_invalid_value_bounding_boxes_scores():
             assert error.error_message() == expected_error.error_message()
 
 
+def test_invalid_value_polygon_coordinates():
+    kwargs = get_semantic_segmentation_kwargs()
+
+    # Success case - valid input
+    errors = Validator.validate_values(**kwargs)
+    assert len(errors) == 0
+
+    # Define all test cases with expected outcomes
+    test_cases = [
+        # None/empty value test cases
+        {
+            "label": "None polygon coordinates",
+            "data": [
+                None,
+                [],
+                [
+                    [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                    [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                ],
+            ],
+            "expected_errors": [
+                (0, err.InvalidPolygonCoordinates(reason="none_polygons")),
+                (1, None),
+                (2, None),
+            ],
+        },
+        # Empty polygon coordinates test cases
+        {
+            "label": "Empty box coordinates",
+            "data": [
+                [[], [0.11, 0.12, 0.13, 0.14, 0.15, 0.16]],
+                [[0.21, 0.22, 0.23, 0.24, 0.25, 0.26], None],
+                [
+                    [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                    [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                ],
+            ],
+            "expected_errors": [
+                (
+                    0,
+                    err.InvalidPolygonCoordinates(
+                        reason="none_or_empty_polygon"
+                    ),
+                ),
+                (
+                    1,
+                    err.InvalidPolygonCoordinates(
+                        reason="none_or_empty_polygon"
+                    ),
+                ),
+                (2, None),
+            ],
+        },
+        # Wrong format test cases
+        {
+            "label": "Wrong format coordinates",
+            "data": [
+                [
+                    [0.11, 0.12, 0.13, 0.14],
+                    [0.11, 0.12, 0.13, 0.14],
+                ],  # 4 values (should be at least 6)
+                [
+                    [0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17],
+                    [0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17],
+                ],  # 7 values (should be even)
+                [
+                    [-0.21, 0.22, 0.23, 0.24, 0.25, 0.26],
+                    [0.21, 0.22, 0.23, 0.24, 0.25, 0.26],
+                ],  # value < 0
+                [
+                    [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                    [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                ],  # valid
+            ],
+            "expected_errors": [
+                (
+                    0,
+                    err.InvalidPolygonCoordinates(
+                        reason="polygon_coordinates_wrong_format",
+                        coordinates=[0.11, 0.12, 0.13, 0.14],
+                    ),
+                ),
+                (
+                    1,
+                    err.InvalidPolygonCoordinates(
+                        reason="polygon_coordinates_wrong_format",
+                        coordinates=[0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17],
+                    ),
+                ),
+                (
+                    2,
+                    err.InvalidPolygonCoordinates(
+                        reason="polygon_coordinates_wrong_format",
+                        coordinates=[-0.21, 0.22, 0.23, 0.24, 0.25, 0.26],
+                    ),
+                ),
+                (3, None),
+            ],
+        },
+        # Duplicate coordinates
+        {
+            "label": "Duplicate coordinates",
+            "data": [
+                [
+                    [0.31, 0.32, 0.33, 0.34, 0.31, 0.32],
+                    [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                ]
+            ],
+            "expected_errors": [
+                (
+                    0,
+                    err.InvalidPolygonCoordinates(
+                        reason="polygon_coordinates_repeated_vertices",
+                        coordinates=[0.31, 0.32, 0.33, 0.34, 0.31, 0.32],
+                    ),
+                )
+            ],
+        },
+        # Self-intersecting vertices
+        {
+            "label": "Self-intersecting vertices",
+            "data": [
+                [
+                    [0.1, 0.1, 0.1, 0.2, 0.2, 0.2, 0.0, 0.15],
+                    [0.1, 0.1, 0.1, 0.2, 0.2, 0.2, 0.0, 0.15],
+                ]
+            ],
+            "expected_errors": [
+                (
+                    0,
+                    err.InvalidPolygonCoordinates(
+                        reason="polygon_coordinates_self_intersecting_vertices",
+                        coordinates=[0.1, 0.1, 0.1, 0.2, 0.2, 0.2, 0.0, 0.15],
+                    ),
+                )
+            ],
+        },
+    ]
+
+    for test_case in test_cases:
+        test_label = test_case["label"]
+        dataframe = kwargs["dataframe"]
+        dataframe["prediction_polygon_coordinates"] = pd.Series(
+            test_case["data"]
+        )
+
+        for i, expected_error_info in [
+            (item[0], item[1]) for item in test_case["expected_errors"]
+        ]:
+            if i < len(dataframe):
+                df = dataframe.iloc[[i]]
+                errors = Validator.validate_values(
+                    **ChainMap({"dataframe": df}, kwargs)
+                )
+
+                if expected_error_info is None:
+                    assert len(errors) == 0, f"{test_label}: Failed at row {i}"
+                else:
+                    assert len(errors) == 1, f"{test_label}: Failed at row {i}"
+                    error = errors[0]
+                    assert type(error) is type(
+                        expected_error_info
+                    ), f"{test_label}: Wrong error type at row {i}"
+                    assert (
+                        error.error_message()
+                        == expected_error_info.error_message()
+                    ), f"{test_label}: Wrong error message at row {i}"
+
+
+def test_invalid_value_polygon_categories():
+    kwargs = get_semantic_segmentation_kwargs()
+    # Success case
+    errors = Validator.validate_values(**kwargs)
+    assert len(errors) == 0
+
+    # Empty category list
+    dataframe = kwargs["dataframe"]
+    dataframe["prediction_categories"] = pd.Series(
+        [
+            None,
+            [],
+            ["elephant", "hippo"],
+        ]
+    )
+    for i in range(len(dataframe)):  # Go row by row checking errors
+        df = dataframe.iloc[[i]]
+        errors = Validator.validate_values(
+            **ChainMap(
+                {
+                    "dataframe": df,
+                },
+                kwargs,
+            )
+        )
+        if i == 0:
+            assert len(errors) == 1
+            expected_error = err.InvalidPolygonCategories(
+                reason="none_category_list"
+            )
+            error = errors[0]
+            assert type(error) is type(expected_error)
+            assert error.error_message() == expected_error.error_message()
+        else:
+            assert len(errors) == 0
+
+    # Empty categories
+    dataframe = kwargs["dataframe"]
+    dataframe["prediction_categories"] = pd.Series(
+        [
+            [None, "cat"],
+            ["lion", ""],
+            ["elephant", "hippo"],
+        ]
+    )
+    for i in range(len(dataframe)):  # Go row by row checking errors
+        df = dataframe.iloc[[i]]
+        errors = Validator.validate_values(
+            **ChainMap(
+                {
+                    "dataframe": df,
+                },
+                kwargs,
+            )
+        )
+        if i == 0:
+            assert len(errors) == 1
+            expected_error = err.InvalidPolygonCategories(
+                reason="none_category"
+            )
+            error = errors[0]
+            assert type(error) is type(expected_error)
+            assert error.error_message() == expected_error.error_message()
+        else:
+            assert len(errors) == 0
+
+
+def test_invalid_value_polygon_scores():
+    kwargs = get_instance_segmentation_kwargs()
+    # Success case
+    errors = Validator.validate_values(**kwargs)
+    assert len(errors) == 0
+
+    # Empty confidence score list
+    dataframe = kwargs["dataframe"]
+    dataframe["prediction_scores"] = pd.Series(
+        [
+            None,
+            [],
+            [0.38, 0.73],
+        ]
+    )
+    for i in range(len(dataframe)):  # Go row by row checking errors
+        df = dataframe.iloc[[i]]
+        errors = Validator.validate_values(
+            **ChainMap(
+                {
+                    "dataframe": df,
+                },
+                kwargs,
+            )
+        )
+        if i == 0:
+            assert len(errors) == 1
+            expected_error = err.InvalidPolygonScores(reason="none_score_list")
+            error = errors[0]
+            assert type(error) is type(expected_error)
+            assert error.error_message() == expected_error.error_message()
+        else:
+            assert len(errors) == 0
+
+    # Confidence score out of bounds
+    dataframe = kwargs["dataframe"]
+    dataframe["prediction_scores"] = pd.Series(
+        [
+            [-0.18, 0.93],
+            [0.28, 1.83],
+            [0.38, 0.73],
+        ]
+    )
+    for i in range(len(dataframe)):  # Go row by row checking errors
+        df = dataframe.iloc[[i]]
+        errors = Validator.validate_values(
+            **ChainMap(
+                {
+                    "dataframe": df,
+                },
+                kwargs,
+            )
+        )
+        if i == 2:
+            assert len(errors) == 0
+        else:
+            assert len(errors) == 1
+            expected_error = err.InvalidPolygonScores(
+                reason="scores_out_of_bounds"
+            )
+            error = errors[0]
+            assert type(error) is type(expected_error)
+            assert error.error_message() == expected_error.error_message()
+
+
 def test_invalid_value_multi_class_score():
     kwargs = get_multi_class_kwargs()
     # Success case
@@ -1609,6 +1911,172 @@ def get_object_detection_kwargs():
             object_detection_actual_column_names=ObjectDetectionColumnNames(
                 bounding_boxes_coordinates_column_name="actual_bounding_boxes_coordinates",
                 categories_column_name="actual_bounding_boxes_categories",
+            ),
+        ),
+    }
+
+
+def get_semantic_segmentation_kwargs():
+    return {
+        "model_type": ModelTypes.OBJECT_DETECTION,
+        "environment": Environments.PRODUCTION,
+        "dataframe": pd.DataFrame(
+            {
+                "prediction_id": pd.Series(
+                    [str(uuid.uuid4()) for _ in range(3)]
+                ),
+                "prediction_polygon_coordinates": pd.Series(
+                    [
+                        [
+                            [0.11, 0.12, 0.13, 0.14, 0.15, 0.16],
+                            [0.11, 0.12, 0.13, 0.14, 0.15, 0.16],
+                        ],
+                        [
+                            [0.21, 0.22, 0.23, 0.24, 0.25, 0.26],
+                            [0.21, 0.22, 0.23, 0.24, 0.25, 0.26],
+                        ],
+                        [
+                            [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                            [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                        ],
+                    ]
+                ),
+                "prediction_categories": pd.Series(
+                    [
+                        ["dog", "cat"],
+                        ["lion", "tiger"],
+                        ["elephant", "hippo"],
+                    ]
+                ),
+                "actual_polygon_coordinates": pd.Series(
+                    [
+                        [
+                            [0.11, 0.12, 0.13, 0.14, 0.15, 0.16],
+                            [0.11, 0.12, 0.13, 0.14, 0.15, 0.16],
+                        ],
+                        [
+                            [0.21, 0.22, 0.23, 0.24, 0.25, 0.26],
+                            [0.21, 0.22, 0.23, 0.24, 0.25, 0.26],
+                        ],
+                        [
+                            [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                            [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                        ],
+                    ]
+                ),
+                "actual_categories": pd.Series(
+                    [
+                        ["dog", "cat"],
+                        ["lion", "tiger"],
+                        ["elephant", "hippo"],
+                    ]
+                ),
+            }
+        ),
+        "schema": Schema(
+            prediction_id_column_name="prediction_id",
+            semantic_segmentation_prediction_column_names=SemanticSegmentationColumnNames(
+                polygon_coordinates_column_name="prediction_polygon_coordinates",
+                categories_column_name="prediction_categories",
+            ),
+            semantic_segmentation_actual_column_names=SemanticSegmentationColumnNames(
+                polygon_coordinates_column_name="actual_polygon_coordinates",
+                categories_column_name="actual_categories",
+            ),
+        ),
+    }
+
+
+def get_instance_segmentation_kwargs():
+    return {
+        "model_type": ModelTypes.OBJECT_DETECTION,
+        "environment": Environments.PRODUCTION,
+        "dataframe": pd.DataFrame(
+            {
+                "prediction_id": pd.Series(
+                    [str(uuid.uuid4()) for _ in range(3)]
+                ),
+                "prediction_polygon_coordinates": pd.Series(
+                    [
+                        [
+                            [0.11, 0.12, 0.13, 0.14, 0.15, 0.16],
+                            [0.11, 0.12, 0.13, 0.14, 0.15, 0.16],
+                        ],
+                        [
+                            [0.21, 0.22, 0.23, 0.24, 0.25, 0.26],
+                            [0.21, 0.22, 0.23, 0.24, 0.25, 0.26],
+                        ],
+                        [
+                            [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                            [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                        ],
+                    ]
+                ),
+                "prediction_categories": pd.Series(
+                    [
+                        ["dog", "cat"],
+                        ["lion", "tiger"],
+                        ["elephant", "hippo"],
+                    ]
+                ),
+                "prediction_scores": pd.Series(
+                    [
+                        [0.18, 0.93],
+                        [0.28, 0.83],
+                        [0.38, 0.73],
+                    ]
+                ),
+                "prediction_bounding_boxes_coordinates": pd.Series(
+                    [
+                        [[0.11, 0.12, 0.13, 0.14], [0.11, 0.12, 0.13, 0.14]],
+                        [[0.21, 0.22, 0.23, 0.24], [0.21, 0.22, 0.23, 0.24]],
+                        [[0.31, 0.32, 0.33, 0.34], [0.31, 0.32, 0.33, 0.34]],
+                    ]
+                ),
+                "actual_polygon_coordinates": pd.Series(
+                    [
+                        [
+                            [0.11, 0.12, 0.13, 0.14, 0.15, 0.16],
+                            [0.11, 0.12, 0.13, 0.14, 0.15, 0.16],
+                        ],
+                        [
+                            [0.21, 0.22, 0.23, 0.24, 0.25, 0.26],
+                            [0.21, 0.22, 0.23, 0.24, 0.25, 0.26],
+                        ],
+                        [
+                            [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                            [0.31, 0.32, 0.33, 0.34, 0.35, 0.36],
+                        ],
+                    ]
+                ),
+                "actual_categories": pd.Series(
+                    [
+                        ["dog", "cat"],
+                        ["lion", "tiger"],
+                        ["elephant", "hippo"],
+                    ]
+                ),
+                "actual_bounding_boxes_coordinates": pd.Series(
+                    [
+                        [[0.11, 0.12, 0.13, 0.14], [0.11, 0.12, 0.13, 0.14]],
+                        [[0.21, 0.22, 0.23, 0.24], [0.21, 0.22, 0.23, 0.24]],
+                        [[0.31, 0.32, 0.33, 0.34], [0.31, 0.32, 0.33, 0.34]],
+                    ]
+                ),
+            }
+        ),
+        "schema": Schema(
+            prediction_id_column_name="prediction_id",
+            instance_segmentation_prediction_column_names=InstanceSegmentationPredictionColumnNames(
+                polygon_coordinates_column_name="prediction_polygon_coordinates",
+                categories_column_name="prediction_categories",
+                scores_column_name="prediction_scores",
+                bounding_boxes_coordinates_column_name="prediction_bounding_boxes_coordinates",
+            ),
+            instance_segmentation_actual_column_names=InstanceSegmentationActualColumnNames(
+                polygon_coordinates_column_name="actual_polygon_coordinates",
+                categories_column_name="actual_categories",
+                bounding_boxes_coordinates_column_name="actual_bounding_boxes_coordinates",
             ),
         ),
     }

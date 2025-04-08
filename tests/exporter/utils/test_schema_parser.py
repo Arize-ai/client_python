@@ -5,7 +5,12 @@ import pytest
 
 from arize.exporter.utils.schema_parser import get_arize_schema
 from arize.pandas.logger import Schema
-from arize.utils.types import ObjectDetectionColumnNames
+from arize.utils.types import (
+    InstanceSegmentationActualColumnNames,
+    InstanceSegmentationPredictionColumnNames,
+    ObjectDetectionColumnNames,
+    SemanticSegmentationColumnNames,
+)
 
 
 def test_classification_model():
@@ -37,6 +42,10 @@ def test_classification_model():
         "feature_column_names": None,
         "object_detection_actual_column_names": None,
         "object_detection_prediction_column_names": None,
+        "semantic_segmentation_actual_column_names": None,
+        "semantic_segmentation_prediction_column_names": None,
+        "instance_segmentation_actual_column_names": None,
+        "instance_segmentation_prediction_column_names": None,
         "prediction_group_id_column_name": None,
         "prediction_id_column_name": "predictionID",
         "prediction_label_column_name": "categoricalPredictionLabel",
@@ -107,6 +116,167 @@ def test_object_detection():
             categories_column_name=None,
             scores_column_name="boxPredictionScores",
         ),
+        "semantic_segmentation_actual_column_names": None,
+        "semantic_segmentation_prediction_column_names": None,
+        "instance_segmentation_actual_column_names": None,
+        "instance_segmentation_prediction_column_names": None,
+        "prediction_group_id_column_name": None,
+        "prediction_id_column_name": "predictionID",
+        "prediction_label_column_name": None,
+        "prediction_score_column_name": None,
+        "prompt_column_names": None,
+        "rank_column_name": None,
+        "relevance_labels_column_name": None,
+        "relevance_score_column_name": None,
+        "response_column_names": None,
+        "shap_values_column_names": None,
+        "tag_column_names": [],
+        "timestamp_column_name": "time",
+        "prompt_template_column_names": None,
+        "llm_config_column_names": None,
+        "llm_run_metadata_column_names": None,
+        "retrieved_document_ids_column_name": None,
+        "multi_class_threshold_scores_column_name": None,
+    }
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
+def test_semantic_segmentation():
+    semantic_segmentation_df = pd.DataFrame(
+        [
+            {
+                "semanticSegmentationPolygonPredictionCoordinates": [
+                    [1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 1.0],
+                    [3.0, 3.0, 3.0, 4.0, 4.0, 4.0, 4.0, 3.0],
+                ],
+                "semanticSegmentationPolygonPredictionLabels": [
+                    "banana",
+                    "grapes",
+                ],
+                "time": "2023-04-10 00:00:00+0000",
+                "predictionID": "002b4c71-d335-47f0-92d3-4fd2b337ac95",
+                "image_embedding__embVector": [4, 5, 6],
+                "image_embedding__linkToData": "www.google.com",
+                "semanticSegmentationPolygonActualCoordinates": [
+                    [1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 1.0],
+                ],
+                "semanticSegmentationPolygonActualLabels": ["apples"],
+                "feature_1": "asdf",
+            }
+        ]
+    )
+    schema = get_arize_schema(semantic_segmentation_df)
+
+    assert isinstance(schema, Schema)
+
+    assert schema.asdict() == {
+        "actual_label_column_name": None,
+        "actual_score_column_name": None,
+        "attributions_column_name": None,
+        "embedding_feature_column_names": {
+            "image_embedding": {
+                "vector_column_name": "image_embedding__embVector",
+                "data_column_name": None,
+                "link_to_data_column_name": "image_embedding__linkToData",
+            },
+        },
+        "feature_column_names": None,
+        "semantic_segmentation_actual_column_names": SemanticSegmentationColumnNames(
+            polygon_coordinates_column_name="semanticSegmentationPolygonActualCoordinates",
+            categories_column_name="semanticSegmentationPolygonActualLabels",
+        ),
+        "semantic_segmentation_prediction_column_names": SemanticSegmentationColumnNames(
+            polygon_coordinates_column_name="semanticSegmentationPolygonPredictionCoordinates",
+            categories_column_name="semanticSegmentationPolygonPredictionLabels",
+        ),
+        "object_detection_actual_column_names": None,
+        "object_detection_prediction_column_names": None,
+        "instance_segmentation_actual_column_names": None,
+        "instance_segmentation_prediction_column_names": None,
+        "prediction_group_id_column_name": None,
+        "prediction_id_column_name": "predictionID",
+        "prediction_label_column_name": None,
+        "prediction_score_column_name": None,
+        "prompt_column_names": None,
+        "rank_column_name": None,
+        "relevance_labels_column_name": None,
+        "relevance_score_column_name": None,
+        "response_column_names": None,
+        "shap_values_column_names": None,
+        "tag_column_names": [],
+        "timestamp_column_name": "time",
+        "prompt_template_column_names": None,
+        "llm_config_column_names": None,
+        "llm_run_metadata_column_names": None,
+        "retrieved_document_ids_column_name": None,
+        "multi_class_threshold_scores_column_name": None,
+    }
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
+def test_prediction_instance_segmentation():
+    instance_segmentation_df = pd.DataFrame(
+        [
+            {
+                "instanceSegmentationPolygonPredictionCoordinates": [
+                    [1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 1.0],
+                    [3.0, 3.0, 3.0, 4.0, 4.0, 4.0, 4.0, 3.0],
+                ],
+                "instanceSegmentationPolygonPredictionLabels": [
+                    "banana",
+                    "grapes",
+                ],
+                "instanceSegmentationPolygonPredictionScores": [0.5, 0.5],
+                "instanceSegmentationBoxPredictionCoordinates": [
+                    [1.0, 1.0, 2.0, 2.0],
+                    [3.0, 3.0, 4.0, 4.0],
+                ],
+                "time": "2023-04-10 00:00:00+0000",
+                "predictionID": "002b4c71-d335-47f0-92d3-4fd2b337ac95",
+                "image_embedding__embVector": [4, 5, 6],
+                "image_embedding__linkToData": "www.google.com",
+                "instanceSegmentationPolygonActualCoordinates": [
+                    [1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 1.0],
+                ],
+                "instanceSegmentationPolygonActualLabels": ["apples"],
+                "instanceSegmentationBoxActualCoordinates": [
+                    [1.0, 1.0, 2.0, 2.0],
+                ],
+                "feature_1": "asdf",
+            }
+        ]
+    )
+    schema = get_arize_schema(instance_segmentation_df)
+
+    assert isinstance(schema, Schema)
+
+    assert schema.asdict() == {
+        "actual_label_column_name": None,
+        "actual_score_column_name": None,
+        "attributions_column_name": None,
+        "embedding_feature_column_names": {
+            "image_embedding": {
+                "vector_column_name": "image_embedding__embVector",
+                "data_column_name": None,
+                "link_to_data_column_name": "image_embedding__linkToData",
+            },
+        },
+        "feature_column_names": None,
+        "semantic_segmentation_actual_column_names": None,
+        "semantic_segmentation_prediction_column_names": None,
+        "object_detection_actual_column_names": None,
+        "object_detection_prediction_column_names": None,
+        "instance_segmentation_actual_column_names": InstanceSegmentationActualColumnNames(
+            polygon_coordinates_column_name="instanceSegmentationPolygonActualCoordinates",
+            categories_column_name="instanceSegmentationPolygonActualLabels",
+            bounding_boxes_coordinates_column_name="instanceSegmentationBoxActualCoordinates",
+        ),
+        "instance_segmentation_prediction_column_names": InstanceSegmentationPredictionColumnNames(
+            polygon_coordinates_column_name="instanceSegmentationPolygonPredictionCoordinates",
+            categories_column_name="instanceSegmentationPolygonPredictionLabels",
+            scores_column_name="instanceSegmentationPolygonPredictionScores",
+            bounding_boxes_coordinates_column_name="instanceSegmentationBoxPredictionCoordinates",
+        ),
         "prediction_group_id_column_name": None,
         "prediction_id_column_name": "predictionID",
         "prediction_label_column_name": None,
@@ -163,6 +333,10 @@ def test_embeddings():
         "feature_column_names": None,
         "object_detection_actual_column_names": None,
         "object_detection_prediction_column_names": None,
+        "semantic_segmentation_actual_column_names": None,
+        "semantic_segmentation_prediction_column_names": None,
+        "instance_segmentation_actual_column_names": None,
+        "instance_segmentation_prediction_column_names": None,
         "prediction_group_id_column_name": None,
         "prediction_id_column_name": "predictionID",
         "prediction_label_column_name": None,
@@ -210,6 +384,10 @@ def test_rankings():
         "feature_column_names": None,
         "object_detection_actual_column_names": None,
         "object_detection_prediction_column_names": None,
+        "semantic_segmentation_actual_column_names": None,
+        "semantic_segmentation_prediction_column_names": None,
+        "instance_segmentation_actual_column_names": None,
+        "instance_segmentation_prediction_column_names": None,
         "prediction_group_id_column_name": "predictionGroupID",
         "prediction_id_column_name": "predictionID",
         "prediction_label_column_name": None,
@@ -271,6 +449,10 @@ def test_llm():
         "feature_column_names": None,
         "object_detection_actual_column_names": None,
         "object_detection_prediction_column_names": None,
+        "semantic_segmentation_actual_column_names": None,
+        "semantic_segmentation_prediction_column_names": None,
+        "instance_segmentation_actual_column_names": None,
+        "instance_segmentation_prediction_column_names": None,
         "prediction_group_id_column_name": None,
         "prediction_id_column_name": "predictionID",
         "prediction_label_column_name": None,
@@ -324,6 +506,10 @@ def test_regression():
         "feature_column_names": None,
         "object_detection_actual_column_names": None,
         "object_detection_prediction_column_names": None,
+        "semantic_segmentation_actual_column_names": None,
+        "semantic_segmentation_prediction_column_names": None,
+        "instance_segmentation_actual_column_names": None,
+        "instance_segmentation_prediction_column_names": None,
         "prediction_group_id_column_name": None,
         "prediction_id_column_name": "predictionID",
         "prediction_label_column_name": None,

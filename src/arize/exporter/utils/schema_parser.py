@@ -3,7 +3,13 @@ from typing import Callable, Dict, Iterable, List, Optional
 import pandas as pd
 
 from arize.pandas.logger import Schema
-from arize.utils.types import EmbeddingColumnNames, ObjectDetectionColumnNames
+from arize.utils.types import (
+    EmbeddingColumnNames,
+    InstanceSegmentationActualColumnNames,
+    InstanceSegmentationPredictionColumnNames,
+    ObjectDetectionColumnNames,
+    SemanticSegmentationColumnNames,
+)
 
 PREDICTION_ID_COL = "predictionID"
 TIME_COL = "time"
@@ -36,6 +42,32 @@ get_box_pred_labels = _get_colname("boxPredictionLabel")
 
 get_box_actual_scores = _get_colname("boxActualScores")
 get_box_actual_labels = _get_colname("boxActualLabels")
+
+# Semantic segmentation columns:
+get_semantic_segmentation_polygon_pred_labels = _get_colname(
+    "semanticSegmentationPolygonPredictionLabels"
+)
+get_semantic_segmentation_polygon_actual_labels = _get_colname(
+    "semanticSegmentationPolygonActualLabels"
+)
+
+# Instance segmentation columns:
+get_instance_segmentation_polygon_pred_scores = _get_colname(
+    "instanceSegmentationPolygonPredictionScores"
+)
+get_instance_segmentation_polygon_pred_labels = _get_colname(
+    "instanceSegmentationPolygonPredictionLabels"
+)
+get_instance_segmentation_polygon_pred_bbox_coordinates = _get_colname(
+    "instanceSegmentationBoxPredictionCoordinates"
+)
+
+get_instance_segmentation_polygon_actual_labels = _get_colname(
+    "instanceSegmentationPolygonActualLabels"
+)
+get_instance_segmentation_polygon_actual_bbox_coordinates = _get_colname(
+    "instanceSegmentationBoxActualCoordinates"
+)
 
 
 # Classification columns:
@@ -144,6 +176,63 @@ def get_object_detection_actual(
         )
 
 
+def get_semantic_segmentation_prediction(
+    cols: Iterable[str],
+) -> Optional[SemanticSegmentationColumnNames]:
+    if "semanticSegmentationPolygonPredictionCoordinates" in cols:
+        return SemanticSegmentationColumnNames(
+            polygon_coordinates_column_name="semanticSegmentationPolygonPredictionCoordinates",
+            categories_column_name=get_semantic_segmentation_polygon_pred_labels(
+                cols
+            ),
+        )
+
+
+def get_semantic_segmentation_actual(
+    cols: Iterable[str],
+) -> Optional[SemanticSegmentationColumnNames]:
+    if "semanticSegmentationPolygonActualCoordinates" in cols:
+        return SemanticSegmentationColumnNames(
+            polygon_coordinates_column_name="semanticSegmentationPolygonActualCoordinates",
+            categories_column_name=get_semantic_segmentation_polygon_actual_labels(
+                cols
+            ),
+        )
+
+
+def get_instance_segmentation_prediction(
+    cols: Iterable[str],
+) -> Optional[InstanceSegmentationPredictionColumnNames]:
+    if "instanceSegmentationPolygonPredictionCoordinates" in cols:
+        return InstanceSegmentationPredictionColumnNames(
+            polygon_coordinates_column_name="instanceSegmentationPolygonPredictionCoordinates",
+            categories_column_name=get_instance_segmentation_polygon_pred_labels(
+                cols
+            ),
+            scores_column_name=get_instance_segmentation_polygon_pred_scores(
+                cols
+            ),
+            bounding_boxes_coordinates_column_name=get_instance_segmentation_polygon_pred_bbox_coordinates(
+                cols
+            ),
+        )
+
+
+def get_instance_segmentation_actual(
+    cols: Iterable[str],
+) -> Optional[InstanceSegmentationActualColumnNames]:
+    if "instanceSegmentationPolygonActualCoordinates" in cols:
+        return InstanceSegmentationActualColumnNames(
+            polygon_coordinates_column_name="instanceSegmentationPolygonActualCoordinates",
+            categories_column_name=get_instance_segmentation_polygon_actual_labels(
+                cols
+            ),
+            bounding_boxes_coordinates_column_name=get_instance_segmentation_polygon_actual_bbox_coordinates(
+                cols
+            ),
+        )
+
+
 def get_arize_schema(df: pd.DataFrame) -> Schema:
     """
     Take a dataframe returned from the flight exporter and turn it into an arize schema
@@ -168,6 +257,18 @@ def get_arize_schema(df: pd.DataFrame) -> Schema:
         embedding_feature_column_names=get_embeddings(cols),
         object_detection_actual_column_names=get_object_detection_actual(cols),
         object_detection_prediction_column_names=get_object_detection_prediction(
+            cols
+        ),
+        semantic_segmentation_actual_column_names=get_semantic_segmentation_actual(
+            cols
+        ),
+        semantic_segmentation_prediction_column_names=get_semantic_segmentation_prediction(
+            cols
+        ),
+        instance_segmentation_actual_column_names=get_instance_segmentation_actual(
+            cols
+        ),
+        instance_segmentation_prediction_column_names=get_instance_segmentation_prediction(
             cols
         ),
         prediction_group_id_column_name=get_pred_group_id(cols),
