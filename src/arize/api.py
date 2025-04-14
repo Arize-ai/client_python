@@ -159,8 +159,11 @@ class Client:
         # Grpc-Metadata prefix is required to pass non-standard md through via grpc-gateway
         self._headers = {
             "authorization": api_key,
-            "Grpc-Metadata-space": space_key,
-            "Grpc-Metadata-space_id": space_id,
+            "Grpc-Metadata-arize-space-id": space_id,
+            "Grpc-Metadata-space_id": space_id,  # deprecated, will be removed in future release
+            "Grpc-Metadata-space": space_key,  # deprecated, will be removed in future release
+            "Grpc-Metadata-arize-space-key": space_key,  # deprecated, will be removed in future release
+            "Grpc-Metadata-arize-interface": "stream",
             "Grpc-Metadata-sdk-language": "python",
             "Grpc-Metadata-language-version": get_python_version(),
             "Grpc-Metadata-sdk-version": __version__,

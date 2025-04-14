@@ -2818,11 +2818,14 @@ def test_instantiating_client_additional_header():
 
     expected = {
         "authorization": inputs["api_key"],
+        "Grpc-Metadata-arize-space-key": "test_space",
         "Grpc-Metadata-space": inputs["space_key"],
+        "Grpc-Metadata-arize-space-id": None,
         "Grpc-Metadata-space_id": None,
         "Grpc-Metadata-sdk-language": "python",
         "Grpc-Metadata-language-version": get_python_version(),
         "Grpc-Metadata-sdk-version": arize_version,
+        "Grpc-Metadata-arize-interface": "stream",
         "JWT": "FAKE_VALUE",
     }
     assert c._headers == expected

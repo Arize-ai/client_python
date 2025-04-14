@@ -903,7 +903,13 @@ def _get_tracer_resource(
 ) -> Tuple[Tracer, Resource]:
     resource = Resource({"model_id": model_id})
     tracer_provider = trace_sdk.TracerProvider(resource=resource)
-    headers = f"space_id={space_id},api_key={api_key}"
+    headers = {
+        "authorization": api_key,
+        "api_key": api_key,  # deprecated, will remove in future release
+        "arize-space-id": space_id,
+        "space_id": space_id,  # deprecated, will remove in future release
+        "arize-interface": "otel",
+    }
     span_processor = SimpleSpanProcessor(
         ConsoleSpanExporter()
         if dry_run

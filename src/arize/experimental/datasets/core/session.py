@@ -58,4 +58,5 @@ class Session:
             (b"sdk-language", b"python"),
             (b"language-version", get_python_version().encode("utf-8")),
             (b"sdk-version", __version__.encode("utf-8")),
+            (b"arize-interface", b"flight"),
         ]

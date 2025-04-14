@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.38.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.38.0...arize-python-sdk/v7.38.1) (2025-04-14)
+
+
+### 🐛 Bug Fixes
+
+* Add and mark underscored headers for deprecation ([#44330](https://github.com/Arize-ai/arize/issues/44330)) ([ecb2a55](https://github.com/Arize-ai/arize/commit/ecb2a5582ae49f6138f0ed270f95d17904e39b86))
+
 ## [7.38.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.37.0...arize-python-sdk/v7.38.0) (2025-04-07)
 
 

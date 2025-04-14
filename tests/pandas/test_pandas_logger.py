@@ -1886,13 +1886,16 @@ def test_instantiating_client_additional_header():
     c = get_stubbed_client({"JWT": "FAKE_VALUE"})
     expected = {
         "authorization": "api_key",
-        "space": "space_key",
+        "arize-space-id": None,
         "space_id": None,
+        "arize-space-key": "space_key",
+        "space": "space_key",
         "sdk-language": "python",
         "language-version": get_python_version(),
         "sdk-version": arize_version,
         "sync": "0",  # Defaults to async logging
         "JWT": "FAKE_VALUE",
+        "arize-interface": "batch",
     }
     assert c._headers == expected
 

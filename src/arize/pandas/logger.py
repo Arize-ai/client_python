@@ -138,8 +138,11 @@ class Client:
         self._files_uri = uri + "/pandas_arrow"
         self._headers = {
             "authorization": self._api_key,
-            "space": self._space_key,
-            "space_id": self._space_id,
+            "arize-space-id": self._space_id,
+            "space_id": self._space_id,  # deprecated, will remove in future release
+            "space": self._space_key,  # deprecated, will remove in future release
+            "arize-space-key": self._space_key,  # deprecated, will remove in future release
+            "arize-interface": "batch",
             "sdk-language": "python",
             "language-version": get_python_version(),
             "sdk-version": __version__,
