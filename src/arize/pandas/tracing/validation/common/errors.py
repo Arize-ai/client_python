@@ -354,3 +354,35 @@ class InvalidNullEvalLabelAndScore(ValidationError):
             f"There is at least one row without a label and score for the following evals: "
             f"{log_a_list(self.eval_names, 'and')}"
         )
+
+
+class DuplicateAnnotationNameInSpan(ValidationError):
+    def __repr__(self) -> str:
+        return "Duplicate_Annotation_Name_In_Span"
+
+    def __init__(self, span_id: str, duplicate_names: List[str]) -> None:
+        self.span_id = span_id
+        self.duplicate_names = duplicate_names
+
+    def error_message(self) -> str:
+        return (
+            f"Found duplicate annotation/eval names within the same span_id '{self.span_id}'. "
+            f"Duplicate names: {log_a_list(self.duplicate_names, 'and')}. "
+            "Each annotation/eval name (e.g., 'quality' in 'annotation.quality.label') "
+            "must be unique per span."
+        )
+
+
+class InvalidNullAnnotationLabelAndScore(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Null_Annotation_Label_And_Score"
+
+    def __init__(self, annotation_names: List[str]) -> None:
+        self.annotation_names = annotation_names
+
+    def error_message(self) -> str:
+        return (
+            "There is at least one row where both label and score are missing for the "
+            f"following annotations: {log_a_list(self.annotation_names, 'and')}. "
+            "Each annotation must have at least a label or a score defined."
+        )

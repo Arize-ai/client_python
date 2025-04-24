@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.39.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.38.1...arize-python-sdk/v7.39.0) (2025-04-24)
+
+
+### 🎁 New Features
+
+* log_annotations ([#44813](https://github.com/Arize-ai/arize/issues/44813)) ([5f83671](https://github.com/Arize-ai/arize/commit/5f83671ca3e36a779d656936a2a66dee196ad6a0))
+
 ## [7.38.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.38.0...arize-python-sdk/v7.38.1) (2025-04-14)
 
 

@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Optional
 
 import pandas as pd
 
@@ -8,7 +8,7 @@ from arize.pandas.validation import errors as err
 
 def _check_field_convertible_to_str(
     project_name: str,
-    model_version: str,
+    model_version: Optional[str] = None,
 ) -> List[err.InvalidFieldTypeConversion]:
     wrong_fields = []
     if project_name is not None and not isinstance(project_name, str):

@@ -20,6 +20,8 @@ from pyarrow import flight
 
 from arize.pandas.proto.requests_pb2 import (
     DoPutRequest,
+    WriteSpanAnnotationRequest,
+    WriteSpanAnnotationResponse,
     WriteSpanEvaluationRequest,
     WriteSpanEvaluationResponse,
 )
@@ -667,8 +669,272 @@ class Client:
             pa_schema=pa_schema,
             proto_schema=proto_schema,
             verbose=verbose,
-            model_id=model_id,
+            model_id=project_name,
             model_version=model_version,
+            request_type="evaluation",
+        )
+
+    def log_annotations(
+        self,
+        dataframe: pd.DataFrame,
+        project_name: str,
+        validate: bool = True,
+        verbose: bool = False,
+    ) -> WriteSpanAnnotationResponse:
+        """
+        Logs a pandas dataframe containing LLM span annotations to Arize via a Flight gRPC request.
+        The dataframe must contain a column `context.span_id`
+        such that Arize can assign each annotation to its respective span.
+        Annotation columns should follow the pattern `annotation.<name>.<suffix>` where suffix is
+        either `label` or `score`. An optional `context.note` column can be included for free-form text notes.
+
+        Args:
+            dataframe (pd.DataFrame): A dataframe containing LLM annotation data.
+            project_name (str): A unique name to identify your project in the Arize platform.
+            validate (bool, optional): When set to True, validation is run before sending data.
+                Defaults to True.
+            verbose: (bool, optional) = When set to true, info messages are printed. Defaults to
+                False.
+        """
+        # Auth check
+        if not self._space_id or not self._developer_key:
+            raise AuthError(
+                missing_space_id=not self._space_id,
+                missing_developer_key=not self._developer_key,
+                method_name="log_annotations",
+            )
+        try:
+            # Import validation and required columns locally
+            from .tracing.columns import (
+                ANNOTATION_COLUMN_PATTERN,
+                ANNOTATION_NOTES_COLUMN_NAME,
+                SPAN_SPAN_ID_COL,
+            )
+            from .tracing.validation.annotations import annotations_validation
+        except ImportError as e:
+            raise ImportError(MISSING_TRACING_DEPS_ERROR_MSG) from e
+
+        anno_df = dataframe.copy()
+        self._headers.update({"number-of-rows": str(len(anno_df))})
+        anno_df.reset_index(inplace=True, drop=True)
+
+        if verbose:
+            logger.info(
+                "Checking for and autogenerating missing updated_by/updated_at annotation columns."
+            )
+        try:
+            import re
+            from datetime import datetime, timezone
+
+            from .tracing.columns import (
+                ANNOTATION_COLUMN_PATTERN,
+                ANNOTATION_LABEL_SUFFIX,
+                ANNOTATION_SCORE_SUFFIX,
+                ANNOTATION_UPDATED_AT_SUFFIX,
+                ANNOTATION_UPDATED_BY_SUFFIX,
+            )
+
+            annotation_cols = [
+                col
+                for col in anno_df.columns
+                if re.match(ANNOTATION_COLUMN_PATTERN, col)
+            ]
+            annotation_names = set()
+            # Extract unique annotation names (e.g., "quality" from "annotation.quality.label")
+            for col in annotation_cols:
+                match = re.match(r"^annotation\.([a-zA-Z0-9_\s]+?)(\..+)$", col)
+                if match:
+                    annotation_names.add(match.group(1))
+
+            if verbose:
+                logger.info(f"Found annotation names: {annotation_names}")
+
+            current_time_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+
+            for name in annotation_names:
+                updated_by_col = (
+                    f"annotation.{name}{ANNOTATION_UPDATED_BY_SUFFIX}"
+                )
+                updated_at_col = (
+                    f"annotation.{name}{ANNOTATION_UPDATED_AT_SUFFIX}"
+                )
+                label_col = f"annotation.{name}{ANNOTATION_LABEL_SUFFIX}"
+                score_col = f"annotation.{name}{ANNOTATION_SCORE_SUFFIX}"
+
+                # Check if *any* part of this annotation exists (label or score)
+                # Only add metadata if the annotation itself is present
+                if label_col in anno_df.columns or score_col in anno_df.columns:
+                    if updated_by_col not in anno_df.columns:
+                        if verbose:
+                            logger.info(
+                                f"Autogenerating column: {updated_by_col}"
+                            )
+                        anno_df[updated_by_col] = "SDK"
+
+                    if updated_at_col not in anno_df.columns:
+                        if verbose:
+                            logger.info(
+                                f"Autogenerating column: {updated_at_col}"
+                            )
+                        anno_df[updated_at_col] = current_time_ms
+                else:
+                    if verbose:
+                        logger.info(
+                            f"Skipping metadata generation for '{name}' as no label or score column found."
+                        )
+
+        except Exception as e:
+            logger.error(
+                f"Error during annotation metadata autogeneration: {e}",
+                exc_info=True,
+            )
+
+        if ANNOTATION_NOTES_COLUMN_NAME in anno_df.columns:
+            if verbose:
+                logger.info(
+                    f"Formatting {ANNOTATION_NOTES_COLUMN_NAME} column to JSON strings within lists."
+                )
+            try:
+                import json
+                from datetime import datetime, timezone
+
+                def _format_note_for_storage(note_text):
+                    if pd.isna(note_text):
+                        return None
+                    note_obj = {
+                        "text": str(note_text),
+                        "updated_by": "SDK",
+                        "updated_at": int(
+                            datetime.now(timezone.utc).timestamp() * 1000
+                        ),
+                    }
+                    return [json.dumps(note_obj)]
+
+                anno_df[ANNOTATION_NOTES_COLUMN_NAME] = anno_df[
+                    ANNOTATION_NOTES_COLUMN_NAME
+                ].apply(_format_note_for_storage)
+            except Exception as e:
+                logger.error(
+                    f"Error during annotation notes formatting: {e}",
+                    exc_info=True,
+                )
+
+        if verbose:
+            logger.info(
+                "Performing direct input type validation for annotations."
+            )
+        errors = annotations_validation.validate_argument_types(
+            annotations_dataframe=anno_df,
+            project_name=project_name,
+        )
+        if errors:
+            for e in errors:
+                logger.error(e)
+            raise err.ValidationFailure(errors)
+
+        if validate:
+            if verbose:
+                logger.info(
+                    "Performing dataframe form validation for annotations."
+                )
+            errors = annotations_validation.validate_dataframe_form(
+                annotations_dataframe=anno_df
+            )
+            if errors:
+                for e in errors:
+                    logger.error(e)
+                raise err.ValidationFailure(errors)
+
+        if verbose:
+            logger.info("Removing unnecessary annotation columns.")
+        # Update columns to keep: span_id, annotation.notes, and annotation pattern
+        columns_to_keep = [SPAN_SPAN_ID_COL.name]
+        if ANNOTATION_NOTES_COLUMN_NAME in anno_df.columns:
+            columns_to_keep.append(ANNOTATION_NOTES_COLUMN_NAME)
+        anno_df = self._remove_extraneous_columns(
+            df=anno_df,
+            column_list=columns_to_keep,
+            regex=ANNOTATION_COLUMN_PATTERN,
+        )
+
+        if project_name is not None:
+            project_name = str(project_name)
+
+        if validate:
+            if verbose:
+                logger.info("Performing annotation values validation.")
+
+            errors = annotations_validation.validate_values(
+                annotations_dataframe=anno_df,
+                project_name=project_name,
+            )
+            if errors:
+                for e in errors:
+                    logger.error(e)
+                raise err.ValidationFailure(errors)
+
+        try:
+            if verbose:
+                logger.info("Getting pyarrow schema from annotation dataframe.")
+            try:
+                pa_schema = pa.Schema.from_pandas(anno_df, preserve_index=False)
+                if verbose:
+                    logger.info(f"Inferred schema: {pa_schema}")
+                # Verify the inferred type for notes if the column exists
+                if ANNOTATION_NOTES_COLUMN_NAME in anno_df.columns:
+                    notes_field = pa_schema.field(ANNOTATION_NOTES_COLUMN_NAME)
+                    if not (
+                        isinstance(notes_field.type, pa.ListType)
+                        and notes_field.type.value_type == pa.string()
+                    ):
+                        logger.warning(
+                            f"Warning: Inferred type for {ANNOTATION_NOTES_COLUMN_NAME} is "
+                            f"{notes_field.type}, expected list<string>."
+                        )
+
+            except pa.ArrowInvalid as e:
+                logger.error(f"Error during schema inference/creation: {e}")
+                logger.error(INVALID_ARROW_CONVERSION_MSG)
+                raise
+            except Exception as e:
+                logger.error(f"Unexpected error during schema definition: {e}")
+                raise
+
+            if verbose:
+                logger.info(
+                    "Getting pyarrow table from annotation dataframe using inferred schema."
+                )
+            try:
+                # Create the table using the inferred schema
+                ta = pa.Table.from_pandas(
+                    anno_df, schema=pa_schema, preserve_index=False
+                )
+            except Exception as e:
+                logger.error(
+                    f"Error creating Arrow Table with inferred schema: {e}"
+                )
+                # Log dataframe details for debugging
+                logger.info(f"DataFrame info before error:\\n{anno_df.info()}")
+                logger.info(f"DataFrame head:\\n{anno_df.head().to_string()}")
+                raise
+
+        except pa.ArrowInvalid:
+            logger.error(INVALID_ARROW_CONVERSION_MSG)
+            raise
+
+        proto_schema = proto._get_pb_schema_tracing(
+            model_id=project_name,
+            model_version=None,
+        )
+
+        return self._log_arrow_flight(
+            pa_table=ta,
+            pa_schema=pa_schema,
+            proto_schema=proto_schema,
+            verbose=verbose,
+            model_id=project_name,
+            model_version=None,
+            request_type="annotation",
         )
 
     def log(
@@ -967,7 +1233,8 @@ class Client:
         verbose: bool = False,
         model_id: Optional[str] = None,
         model_version: Optional[str] = None,
-    ) -> WriteSpanEvaluationResponse:
+        request_type: str = "evaluation",
+    ) -> Union[WriteSpanEvaluationResponse, WriteSpanAnnotationResponse]:
         if verbose:
             logger.debug("Serializing schema.")
 
@@ -976,13 +1243,31 @@ class Client:
             pa_schema, {"arize-schema": base64_schema}
         )
 
-        do_put_request = DoPutRequest(
-            write_span_evaluation_request=WriteSpanEvaluationRequest(
-                space_id=self._space_id,
-                external_model_id=model_id,
-                model_version=model_version,
+        if request_type == "evaluation":
+            do_put_request = DoPutRequest(
+                write_span_evaluation_request=WriteSpanEvaluationRequest(
+                    space_id=self._space_id,
+                    external_model_id=model_id,
+                    model_version=model_version,
+                )
             )
-        )
+            response_type = WriteSpanEvaluationResponse
+            log_context = "evaluation"
+        elif request_type == "annotation":
+            do_put_request = DoPutRequest(
+                write_span_annotation_request=WriteSpanAnnotationRequest(
+                    space_id=self._space_id,
+                    external_model_id=model_id,
+                    model_version=model_version,
+                )
+            )
+            response_type = WriteSpanAnnotationResponse
+            log_context = "annotation"
+        else:
+            raise ValueError(
+                f"Unsupported request_type in _log_arrow_flight: {request_type}"
+            )
+
         encoded_command: bytes = json_format.MessageToJson(
             do_put_request
         ).encode("utf-8")
@@ -1001,13 +1286,14 @@ class Client:
                 # read response from flight server
                 flight_response = flight_metadata_reader.read()
                 if flight_response is not None:
-                    res = WriteSpanEvaluationResponse()
+                    # Use the correct response type
+                    res = response_type()
                     res.ParseFromString(flight_response.to_pybytes())
                     logger.info(
-                        f"Successfully logged evaluation data to Arize for model '{model_id}' "
+                        f"Successfully logged {log_context} data to Arize for model '{model_id}' "
                     )
         except Exception:
-            logger.exception("Error logging evaluation data to Arize")
+            logger.exception(f"Error logging {log_context} data to Arize")
         finally:
             flight_client.close()
         return res
@@ -1210,9 +1496,13 @@ class Client:
         if column_list is not None:
             relevant_columns.update(column_list)
         if regex is not None:
-            relevant_columns.update(
-                [col for col in df.columns if re.match(regex, col)]
-            )
+            matched_regex_cols = []
+            for col in df.columns:
+                match_result = re.match(regex, col)
+                if match_result:
+                    matched_regex_cols.append(col)
+            relevant_columns.update(matched_regex_cols)
+
         final_columns = list(set(df.columns) & relevant_columns)
         return df[final_columns]
 
@@ -1238,15 +1528,22 @@ class Client:
     def _append_to_pyarrow_metadata(
         pa_schema: pa.Schema, new_metadata: Dict[str, Any]
     ):
+        # Ensure metadata is handled correctly, even if initially None.
         metadata = pa_schema.metadata
+        if metadata is None:
+            # Initialize an empty dict if schema metadata was None
+            metadata = {}
+
         conflicting_keys = metadata.keys() & new_metadata.keys()
         if conflicting_keys:
             raise KeyError(
                 "Cannot append metadata to pyarrow schema. "
                 f"There are conflicting keys: {log_a_list(conflicting_keys, join_word='and')}"
             )
-        metadata.update(new_metadata)
-        return pa_schema.with_metadata(metadata)
+
+        updated_metadata = metadata.copy()
+        updated_metadata.update(new_metadata)
+        return pa_schema.with_metadata(updated_metadata)
 
 
 @dataclass
