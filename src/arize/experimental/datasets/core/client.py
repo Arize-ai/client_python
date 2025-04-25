@@ -21,6 +21,7 @@ from opentelemetry.trace import Tracer
 from pyarrow import flight
 
 from arize.pandas.proto import requests_pb2 as pb2
+from arize.utils.logging import logger
 
 from ..experiments.evaluators.base import Evaluators
 from ..experiments.functions import (
@@ -50,8 +51,6 @@ class ArizeDatasetsClient:
     ArizeDatasetsClient is a client for interacting with the Arize Datasets API.
 
     Args:
-        developer_key (str, required): Arize provided developer key associated with your user profile,
-            located on the space settings page.
         api_key (str, required): Arize provided API key associated with your user profile,
             located on the space settings page.
         host (str, optional): URI endpoint host to send your export request to Arize AI. Defaults to
@@ -62,21 +61,30 @@ class ArizeDatasetsClient:
             "{DEFAULT_TRANSPORT_SCHEME}".
         otlp_endpoint (str, optional): OTLP endpoint to send experiment traces to Arize. Defaults to
             "{DEFAULT_ARIZE_OTLP_ENDPOINT}".
+        developer_key (str, optional): DEPRECATED. Only api_key is needed.
+            This parameter will be removed in a future version.
     """
 
-    developer_key: str
     api_key: str
     host: str = DEFAULT_ARIZE_FLIGHT_HOST
     port: int = DEFAULT_ARIZE_FLIGHT_PORT
     scheme: str = DEFAULT_TRANSPORT_SCHEME
     otlp_endpoint: str = DEFAULT_ARIZE_OTLP_ENDPOINT
+    developer_key: Optional[str] = None
 
     def __post_init__(self) -> None:
         """
         Initializes the Arize Dataset Client.
         """
+        if self.developer_key is not None:
+            logger.warning(
+                "DEPRECATED: developer_key is deprecated, only api_key is needed."
+            )
+
         self.__session = Session(
-            self.developer_key,
+            self.developer_key
+            if self.developer_key is not None
+            else self.api_key,
             self.host,
             self.port,
             self.scheme,

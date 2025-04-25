@@ -154,7 +154,7 @@ class InvalidStringValueNotAllowedInColumn(ValidationError):
     def error_message(self) -> str:
         return (
             f"The column '{self.col_name}' contains invalid string values. "
-            f"Allowed values are {log_a_list(self.allowed_values,'and')}"
+            f"Allowed values are {log_a_list(self.allowed_values, 'and')}"
         )
 
 

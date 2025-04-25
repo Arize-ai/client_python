@@ -13,7 +13,7 @@ from ..validation.errors import InvalidSessionError
 
 @dataclass
 class Session:
-    developer_key: str
+    api_key: str
     host: str
     port: int
     scheme: str
@@ -23,12 +23,12 @@ class Session:
     def __post_init__(self):
         self.session_name = f"python-sdk-{DEFAULT_PACKAGE_NAME}-{uuid.uuid4()}"
         logger.debug(f"Creating named session as '{self.session_name}'.")
-        if self.developer_key is None:
+        if self.api_key is None:
             logger.error(InvalidSessionError.error_message())
             raise InvalidSessionError
 
         logger.debug(
-            f"Created session with Arize Developer Key '{self.developer_key}' at '{self.host}':'{self.port}'"
+            f"Created session with Arize API Key '{self.api_key}' at '{self.host}':'{self.port}'"
         )
         self._set_headers()
 
@@ -54,7 +54,7 @@ class Session:
     def _set_headers(self) -> None:
         self._headers = [
             (b"origin", b"arize-python-datasets-client"),
-            (b"auth-token-bin", f"{self.developer_key}".encode()),
+            (b"auth-token-bin", f"{self.api_key}".encode()),
             (b"sdk-language", b"python"),
             (b"language-version", get_python_version().encode("utf-8")),
             (b"sdk-version", __version__.encode("utf-8")),

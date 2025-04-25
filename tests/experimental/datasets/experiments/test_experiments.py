@@ -97,7 +97,7 @@ dataset = pd.DataFrame(
 
 
 def test_run_experiment():
-    c = ArizeDatasetsClient(developer_key="dummy_key", api_key="dummy_key")
+    c = ArizeDatasetsClient(api_key="dummy_key")
     exp_id, exp_df = c.run_experiment(
         space_id="dummy_space_id",
         experiment_name="test_experiment",
@@ -175,7 +175,7 @@ class ExceptionEval(Evaluator):
 
 
 def test_task_exception_handling():
-    c = ArizeDatasetsClient(developer_key="dummy_key", api_key="dummy")
+    c = ArizeDatasetsClient(api_key="dummy_key")
     exp_id, exp_df = c.run_experiment(
         space_id="dummy_space_id",
         experiment_name="test_experiment",
@@ -197,7 +197,7 @@ def test_task_exception_handling():
 
 def test_task_exception_handling_exit_on_error():
     # output is empty dataframe since we exit on error
-    c = ArizeDatasetsClient(developer_key="dummy_key", api_key="dummy")
+    c = ArizeDatasetsClient(api_key="dummy_key")
     # expecting exception to be raised
     with pytest.raises(RuntimeError):
         exp_id, exp_df = c.run_experiment(
@@ -212,7 +212,7 @@ def test_task_exception_handling_exit_on_error():
 
 
 def test_evaluator_exception_handling():
-    c = ArizeDatasetsClient(developer_key="dummy_key", api_key="dummy")
+    c = ArizeDatasetsClient(api_key="dummy_key")
     exp_id, exp_df = c.run_experiment(
         space_id="dummy_space_id",
         experiment_name="test_experiment",
@@ -242,7 +242,7 @@ def test_evaluator_exception_handling():
 
 
 def test_evaluator_exception_handling_exit_on_error():
-    c = ArizeDatasetsClient(developer_key="dummy_key", api_key="dummy")
+    c = ArizeDatasetsClient(api_key="dummy_key")
     with pytest.raises(RuntimeError):
         _, _ = c.run_experiment(
             space_id="dummy_space_id",
@@ -292,7 +292,7 @@ def test_functional_evaluation():
             metadata=md,
         )
 
-    c = ArizeDatasetsClient(developer_key="dummy_key", api_key="dummy")
+    c = ArizeDatasetsClient(api_key="dummy_key")
     exp_id, exp_df = c.run_experiment(
         space_id="dummy_space_id",
         experiment_name="test_experiment",

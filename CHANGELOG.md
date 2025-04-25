@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.40.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.39.0...arize-python-sdk/v7.40.0) (2025-04-24)
+
+
+### 🎁 New Features
+
+* **experimental, datasets:** deprecate developer_key parameter in ArizeDatasetsClient ([#44926](https://github.com/Arize-ai/arize/issues/44926)) ([dc928a1](https://github.com/Arize-ai/arize/commit/dc928a1c210a097fd1f347859ab914004d157b47))
+
 ## [7.39.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.38.1...arize-python-sdk/v7.39.0) (2025-04-24)
 
 
