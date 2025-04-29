@@ -2178,7 +2178,6 @@ def test_invalid_client_auth_log_evaluations_sync_method_passed_vars():
         excinfo.value.__str__()
         == AuthError(
             missing_space_id=True,
-            missing_developer_key=True,
             method_name="log_evaluations_sync",
         ).error_message()
     )
@@ -2187,6 +2186,19 @@ def test_invalid_client_auth_log_evaluations_sync_method_passed_vars():
     try:
         _ = Client(
             space_id="space_id",
+            api_key="api_key",
+            host="host",
+            port=1234,  # not a real port
+        )
+        _ = Client(
+            space_id="space_id",
+            developer_key="developer_key",
+            host="host",
+            port=1234,  # not a real port
+        )
+        _ = Client(
+            space_id="space_id",
+            api_key="api_key",
             developer_key="developer_key",
             host="host",
             port=1234,  # not a real port

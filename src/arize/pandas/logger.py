@@ -115,8 +115,7 @@ class Client:
                 "https://api.arize.com/v1".
             additional_headers (Dict[str, str], optional): Dictionary of additional headers to
                 append to request
-            developer_key (str, optional): Arize provided developer key associated with your account.
-                Required for sending evaluations to Arize in a blocking fashion.
+            developer_key (str): [Deprecated] You only need the api_key for all data logging operations.
             host (str, optional): Arize Flight server host. Defaults to DEFAULT_ARIZE_FLIGHT_HOST.
             port (int, optional): Arize Flight server port. Defaults to DEFAULT_ARIZE_FLIGHT_PORT.
         """
@@ -131,6 +130,13 @@ class Client:
                 "The space_key parameter is deprecated and will be removed in a future release. "
                 "Please use the space_id parameter instead."
             )
+        if self._developer_key is not None:
+            logger.warning(
+                "The developer_key parameter is deprecated and will be removed in a future release. "
+                "You only need the api_key for all data logging operations."
+            )
+        else:
+            self._developer_key = self._api_key
 
         if isinstance(request_verify, str) and not os.path.isfile(
             request_verify
@@ -160,13 +166,18 @@ class Client:
             self._headers.update(additional_headers)
 
         # required for sending events to Flight server
-        self._host = host
-        self._port = port
-        if self._developer_key is not None:
+        self._host = host if host else DEFAULT_ARIZE_FLIGHT_HOST
+        self._port = port if port else DEFAULT_ARIZE_FLIGHT_PORT
+        # Only initialize FlightSession if all required params are set
+        self._flight_session = None
+        has_flight_params = all(
+            [self._host, self._port, self._developer_key, self._space_id]
+        )
+        if has_flight_params:
             self._flight_session = FlightSession(
-                host=self._host if self._host else DEFAULT_ARIZE_FLIGHT_HOST,
-                port=self._port if self._port else DEFAULT_ARIZE_FLIGHT_PORT,
-                developer_key=self._developer_key,
+                host=self._host,
+                port=self._port,
+                api_key=self._developer_key,
                 space_id=self._space_id,
                 scheme="grpc+tls",
             )
@@ -1548,7 +1559,7 @@ class Client:
 
 @dataclass
 class FlightSession:
-    developer_key: str
+    api_key: str
     space_id: str
     host: str
     port: int
@@ -1558,7 +1569,7 @@ class FlightSession:
 
     def __post_init__(self):
         self.session_name = f"python-sdk-{uuid.uuid4()}"
-        if self.developer_key is None:
+        if self.api_key is None:
             logger.error(InvalidSessionError.error_message())
             raise InvalidSessionError
 
@@ -1567,7 +1578,7 @@ class FlightSession:
             raise InvalidSessionError
         self._headers = [
             (b"origin", b"arize-logging-client"),
-            (b"auth-token-bin", f"{self.developer_key}".encode()),
+            (b"auth-token-bin", f"{self.api_key}".encode()),
             (b"space-id", f"{self.space_id}".encode()),
             (b"sdk-language", b"python"),
             (b"language-version", get_python_version().encode("utf-8")),
@@ -1597,8 +1608,8 @@ class InvalidSessionError(ValueError):
     @staticmethod
     def error_message() -> str:
         return (
-            "Developer key isn't provided or is invalid. "
-            "Please pass in the correct developer key from the UI when "
+            "API key isn't provided or is invalid. "
+            "Please pass in the correct API key from the UI when "
             "initiating a new Arize python client. Alternatively, you can set up credentials "
             "through a profile or an environment variable"
         )

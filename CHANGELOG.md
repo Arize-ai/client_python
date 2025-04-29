@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.40.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.40.0...arize-python-sdk/v7.40.1) (2025-04-29)
+
+
+### 💫 Code Refactoring
+
+* **pandas logger Client, ArizePromptClient(experimental):** deprecate developer_key in favor of api_key in pandas logger Client and ArizePromptClient constructors ([#45037](https://github.com/Arize-ai/arize/issues/45037)) ([0ada819](https://github.com/Arize-ai/arize/commit/0ada819d11648768b5551a89ba3fca7667f5484b))
+
 ## [7.40.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.39.0...arize-python-sdk/v7.40.0) (2025-04-24)
 
 

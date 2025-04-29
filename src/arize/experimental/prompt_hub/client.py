@@ -12,6 +12,7 @@ from arize.experimental.prompt_hub.prompts import (
     Prompt,
     PromptInputVariableFormat,
 )
+from arize.utils.logging import logger
 
 
 def _convert_to_external_name(model: str) -> str:
@@ -30,18 +31,32 @@ class ArizePromptClient:
     the Arize AI platform.
 
     Args:
-        developer_key: The API key for authentication.
         space_id: The ID of the space to interact with.
+        api_key: The API key for authentication.
+        developer_key: (Deprecated) Use api_key instead.
         base_url: The base URL of the Arize API. Defaults to "https://app.arize.com".
     """
 
     def __init__(
         self,
-        developer_key: str,
         space_id: str,
+        api_key: Optional[str] = None,
+        developer_key: Optional[str] = None,
         base_url: str = "https://app.arize.com",
     ):
-        self.api_key = developer_key
+        if api_key is not None:
+            self.api_key = api_key
+        elif developer_key is not None:
+            logger.warning(
+                "The 'developer_key' parameter is deprecated and will be removed in a future release. "
+                "Please use 'api_key' instead."
+            )
+            self.api_key = developer_key
+        else:
+            raise ValueError(
+                "You must provide 'api_key'(preferred) or 'developer_key'(deprecated)."
+            )
+
         self.space_id = space_id
         self.base_url = base_url
         self.headers = {
