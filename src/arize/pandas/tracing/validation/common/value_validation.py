@@ -223,7 +223,12 @@ def _check_value_timestamp(
 
     ta = pa.Table.from_pandas(stats.to_frame())
     min_, max_ = ta.column(0)
-    if max_.as_py() > now_t.timestamp() * 1e9:
+
+    # Check if min/max are None before comparing (handles NaN input)
+    min_val = min_.as_py()
+    max_val = max_.as_py()
+
+    if max_val is not None and max_val > now_t.timestamp() * 1e9:
         logger.warning(
             f"Detected future timestamp in column '{col_name}'. "
             "Caution when sending spans with future timestamps. "
@@ -233,7 +238,9 @@ def _check_value_timestamp(
             "requirement."
         )
 
-    if min_.as_py() < lbound or max_.as_py() > ubound:
+    if (min_val is not None and min_val < lbound) or (
+        max_val is not None and max_val > ubound
+    ):
         return [
             tracing_err.InvalidTimestampValueInColumn(
                 timestamp_col_name=col_name

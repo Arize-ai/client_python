@@ -7,6 +7,7 @@ from arize.experimental.prompt_hub.prompts.base import (
     LLMProvider,
     Prompt,
     PromptInputVariableFormat,
+    prompt_to_llm_input,
 )
 
 __all__ = [
@@ -14,4 +15,5 @@ __all__ = [
     "Prompt",
     "PromptInputVariableFormat",
     "LLMProvider",
+    "prompt_to_llm_input",
 ]

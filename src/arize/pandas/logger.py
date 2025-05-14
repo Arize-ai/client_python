@@ -697,7 +697,8 @@ class Client:
         The dataframe must contain a column `context.span_id`
         such that Arize can assign each annotation to its respective span.
         Annotation columns should follow the pattern `annotation.<name>.<suffix>` where suffix is
-        either `label` or `score`. An optional `context.note` column can be included for free-form text notes.
+        either `label` or `score`. An optional `annotation.notes` column can be included for
+        free-form text notes.
 
         Args:
             dataframe (pd.DataFrame): A dataframe containing LLM annotation data.

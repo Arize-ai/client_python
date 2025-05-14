@@ -70,7 +70,10 @@ class IntegrationClient:
         timestamp: Optional[
             datetime.datetime
         ] = None,  # Overrides timestamp value set in input schema
-    ) -> requests.Response:
+        # Upload parameters
+        chunk_size: int = 100_000,
+        #
+    ) -> List[requests.Response]:
         """
         Logs a WhyLogs profile to the Arize API.
 
@@ -94,7 +97,7 @@ class IntegrationClient:
             schema_dict["timestamp_column_name"] = "timestamp"
             schema = Schema(**schema_dict)
 
-        return self._client.log(
+        return self._log_to_arize(
             dataframe=synthetic_df,
             schema=schema,
             environment=environment,
@@ -108,6 +111,7 @@ class IntegrationClient:
             path=path,
             timeout=timeout,
             verbose=verbose,
+            chunk_size=chunk_size,
         )
 
     def log_dataset_profile(
@@ -134,7 +138,9 @@ class IntegrationClient:
             List[str]
         ] = None,  # List of columns to be used as tags
         timestamp: Optional[datetime.datetime] = None,
-    ) -> requests.Response:
+        # Upload parameters
+        chunk_size: int = 100_000,
+    ) -> List[requests.Response]:
         """
         Logs a WhyLogs dataset-based profile to the Arize API.
 
@@ -174,7 +180,7 @@ class IntegrationClient:
         synthetic_df["ARIZE_PLACEHOLDER_STRING"] = "ARIZE_PLACEHOLDER"
         synthetic_df["ARIZE_PLACEHOLDER_FLOAT"] = float("-inf")
 
-        return self._client.log(
+        return self._log_to_arize(
             dataframe=synthetic_df,
             schema=schema,
             environment=Environments.PRODUCTION,  # Hardcoded for production env
@@ -187,6 +193,7 @@ class IntegrationClient:
             path=path,
             timeout=timeout,
             verbose=verbose,
+            chunk_size=chunk_size,
         )
 
     def _extract_num_rows(
@@ -229,3 +236,76 @@ class IntegrationClient:
             kll_profile_view=kll_profile_view,
             n_kll_quantiles=n_kll_quantiles,
         )
+
+    def _log_to_arize(
+        self,
+        dataframe: pd.DataFrame,
+        schema: BaseSchema,
+        environment: Environments,
+        model_id: str,
+        model_type: ModelTypes,
+        metrics_validation: Optional[List[Metrics]] = None,
+        model_version: Optional[str] = None,
+        batch_id: Optional[str] = None,
+        sync: Optional[bool] = False,
+        validate: Optional[bool] = True,
+        path: Optional[str] = None,
+        timeout: Optional[float] = None,
+        verbose: Optional[bool] = False,
+        chunk_size: int = 100_000,
+    ) -> List[requests.Response]:
+        """
+        Logs a DataFrame to Arize, uploading the DataFrame in chunks if necessary.
+        """
+
+        total_rows = len(dataframe)
+        if total_rows <= chunk_size:
+            return [
+                self._client.log(
+                    dataframe=dataframe,
+                    schema=schema,
+                    environment=environment,
+                    model_id=model_id,
+                    model_type=model_type,
+                    metrics_validation=metrics_validation,
+                    model_version=model_version,
+                    batch_id=batch_id,
+                    sync=sync,
+                    validate=validate,
+                    path=path,
+                    timeout=timeout,
+                    verbose=verbose,
+                )
+            ]
+
+        responses = []
+
+        for start in range(0, total_rows, chunk_size):
+            end = min(start + chunk_size, total_rows)
+            chunk = dataframe.iloc[start:end]
+            chunk.reset_index(drop=True, inplace=True)
+
+            if verbose:
+                print(f"Uploading dataframe chunk {start}:{end}")
+
+            try:
+                response = self._client.log(
+                    dataframe=chunk,
+                    schema=schema,
+                    environment=environment,
+                    model_id=model_id,
+                    model_type=model_type,
+                    metrics_validation=metrics_validation,
+                    model_version=model_version,
+                    batch_id=batch_id,
+                    sync=sync,
+                    validate=validate,
+                    path=path,
+                    timeout=timeout,
+                    verbose=verbose,
+                )
+                responses.append(response)
+            except Exception as e:
+                print(f"Failed to upload dataframe chunk with error - {e}")
+
+        return responses

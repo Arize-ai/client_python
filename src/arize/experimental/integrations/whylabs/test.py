@@ -145,7 +145,7 @@ def test_client():
         environment,
         model_id,
         model_type,
-    )
+    )[0]
     print("Logging Arize response:", response)
 
     response = client.log_dataset_profile(
@@ -185,7 +185,7 @@ def test_log_profile_with_counts_should_fail():
             Environments.PRODUCTION,
             os.environ["ARIZE_MODEL_ID"],
             ModelTypes.BINARY_CLASSIFICATION,
-        )
+        )[0]
         assert (
             response.status_code != 200
         ), "Expected profile logging to fail due to mismatched counts"
@@ -220,7 +220,7 @@ def test_log_dataset_profile_with_counts_should_fail():
         response = client.log_dataset_profile(
             profile,
             os.environ["ARIZE_MODEL_ID"],
-        )
+        )[0]
         assert (
             response.status_code != 200
         ), "Expected profile logging to fail due to mismatched counts"
@@ -259,7 +259,7 @@ def test_log_profile_with_counts():
             os.environ["ARIZE_MODEL_ID"],
             ModelTypes.BINARY_CLASSIFICATION,
             num_rows=10,
-        )
+        )[0]
         assert (
             response.status_code == 200
         ), "Expected profile logging to succeed with mismatched counts"
@@ -288,7 +288,7 @@ def test_log_dataset_profile_with_counts():
             os.environ["ARIZE_MODEL_ID"],
             num_rows=10,
             timestamp=datetime.now(),
-        )
+        )[0]
         assert (
             response.status_code == 200
         ), "Expected profile logging to succeed with mismatched counts"
@@ -329,7 +329,7 @@ def test_log_profile_with_optional_args():
             model_type,
             num_rows=10,
             timestamp=datetime.now(),
-        )
+        )[0]
         print("[PASSED] Logging Arize response:", response)
 
     except Exception as e:
@@ -354,7 +354,7 @@ def test_log_dataset_profile_with_optional_args():
             model_id,
             num_rows=10,
             timestamp=datetime.now(),
-        )
+        )[0]
         print("[PASSED] Logging Arize response:", response)
     except Exception as e:
         print(f"[FAILED] Error occurred: {str(e)}")

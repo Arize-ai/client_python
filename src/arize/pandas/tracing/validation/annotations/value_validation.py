@@ -13,6 +13,8 @@ from arize.pandas.tracing.columns import (
     ANNOTATION_NAME_PATTERN,
     ANNOTATION_NOTES_COLUMN_NAME,
     ANNOTATION_SCORE_SUFFIX,
+    ANNOTATION_UPDATED_AT_SUFFIX,
+    ANNOTATION_UPDATED_BY_SUFFIX,
 )
 
 # Import common validation errors and functions
@@ -44,6 +46,24 @@ def _check_annotation_cols(
                 common_value_validation._check_float_column_valid_numbers(
                     df=dataframe,
                     col_name=col,
+                )
+            )
+        elif col.endswith(ANNOTATION_UPDATED_BY_SUFFIX):
+            checks.append(
+                common_value_validation._check_string_column_value_length(
+                    df=dataframe,
+                    col_name=col,
+                    min_len=1,
+                    max_len=tracing_constants.ANNOTATION_UPDATED_BY_MAX_STR_LENGTH,
+                    is_required=False,
+                )
+            )
+        elif col.endswith(ANNOTATION_UPDATED_AT_SUFFIX):
+            checks.append(
+                common_value_validation._check_value_timestamp(
+                    df=dataframe,
+                    col_name=col,
+                    is_required=False,  # updated_at is not strictly required per row
                 )
             )
         # No check for ANNOTATION_NOTES_COLUMN_NAME here, handled by _check_annotation_notes_column

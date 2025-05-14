@@ -7,6 +7,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Mapping, Optional, Sequence
 
+from pydantic import BaseModel, Field
+
 
 class FormattedPrompt(ABC, Mapping[str, Any]):
     """
@@ -119,3 +121,157 @@ class Prompt:
             raise NotImplementedError(
                 f"Formatting for provider {self.provider} is not implemented"
             )
+
+
+class MessageRole(str, Enum):
+    SYSTEM = "system"
+    USER = "user"
+    ASSISTANT = "assistant"
+    TOOL = "tool"
+
+
+class GeneratedToolInput(BaseModel):
+    id: str
+    type: str
+    function: Dict[str, Any]
+
+
+class LLMMessageInput(BaseModel):
+    role: MessageRole
+    content: Optional[str] = None
+    imageUrls: Optional[List[str]] = None
+    toolCalls: Optional[List[GeneratedToolInput]] = None
+    toolCallId: Optional[str] = None
+
+    class Config:
+        exclude_none = True
+
+
+class ToolConfig(BaseModel):
+    tools: Optional[List[Dict[str, Any]]] = None
+    toolChoice: Optional[str] = None
+
+
+class InvocationParamsInput(BaseModel):
+    temperature: Optional[float] = None
+    topP: Optional[float] = None
+    maxTokens: Optional[int] = None
+    maxCompletionTokens: Optional[int] = None
+    stop: Optional[List[str]] = None
+    presencePenalty: Optional[float] = None
+    frequencyPenalty: Optional[float] = None
+    topK: Optional[int] = None
+    toolConfig: Optional[ToolConfig] = None
+
+    class Config:
+        exclude_none = True
+
+
+class CustomProviderParams(BaseModel):
+    customModelEndpoint: Dict[str, Any]
+    customProviderAPIVersion: Optional[str] = None
+
+
+class AzureOpenAIParams(BaseModel):
+    azureDeploymentName: str
+    azureOpenAIEndpoint: str
+    azureOpenAIVersion: Optional[str] = None
+
+
+class AnthropicHeaders(BaseModel):
+    anthropicBeta: Optional[List[str]] = None
+
+
+class BedrockOptions(BaseModel):
+    useConverseEndpoint: Optional[bool] = True
+
+
+class ProviderParamsInput(BaseModel):
+    azureParams: Optional[AzureOpenAIParams] = None
+    anthropicHeaders: Optional[AnthropicHeaders] = None
+    customProviderParams: Optional[CustomProviderParams] = None
+    anthropicVersion: Optional[str] = None
+    region: Optional[str] = None
+    bedrockOptions: Optional[BedrockOptions] = None
+
+    class Config:
+        exclude_none = True
+
+
+class LLMInput(BaseModel):
+    invocationParams: InvocationParamsInput = Field(
+        default_factory=InvocationParamsInput
+    )
+    messages: List[LLMMessageInput] = Field(default_factory=list)
+    model: Optional[str] = None
+    provider: LLMProvider = LLMProvider.OPENAI
+    providerParams: ProviderParamsInput = Field(
+        default_factory=ProviderParamsInput
+    )
+
+    class Config:
+        exclude_none = True
+
+
+def prompt_to_llm_input(prompt: Prompt) -> LLMInput:
+    """
+    Convert a Prompt object to the LLMInput format required by the API.
+    """
+    messages = []
+    for msg in prompt.messages:
+        message = LLMMessageInput(
+            role=MessageRole(msg["role"]),
+            content=msg.get("content"),
+            imageUrls=msg.get("imageUrls"),
+            toolCalls=msg.get("toolCalls"),
+            toolCallId=msg.get("toolCallId"),
+        )
+        messages.append(message)
+
+    # Extract LLM parameters
+    invocation_params = InvocationParamsInput(
+        temperature=prompt.llm_parameters.get("temperature"),
+        topP=prompt.llm_parameters.get("topP"),
+        maxTokens=prompt.llm_parameters.get("maxTokens"),
+        maxCompletionTokens=prompt.llm_parameters.get("maxCompletionTokens"),
+        stop=prompt.llm_parameters.get("stop"),
+        presencePenalty=prompt.llm_parameters.get("presencePenalty"),
+        frequencyPenalty=prompt.llm_parameters.get("frequencyPenalty"),
+        topK=prompt.llm_parameters.get("topK"),
+        toolConfig=(
+            ToolConfig(
+                tools=prompt.llm_parameters.get("tools"),
+                toolChoice=prompt.llm_parameters.get("toolChoice"),
+            )
+            if prompt.llm_parameters.get("tools")
+            or prompt.llm_parameters.get("toolChoice")
+            else None
+        ),
+    )
+
+    provider_params = ProviderParamsInput(
+        customProviderParams=(
+            CustomProviderParams(
+                customModelEndpoint=prompt.llm_parameters.get(
+                    "customModelEndpoint", {}
+                ),
+                customProviderAPIVersion=prompt.llm_parameters.get(
+                    "customProviderAPIVersion"
+                ),
+            )
+            if prompt.llm_parameters.get("customModelEndpoint")
+            else None
+        ),
+        anthropicVersion=prompt.llm_parameters.get("anthropicVersion"),
+        region=prompt.llm_parameters.get("region"),
+    )
+    result = LLMInput.model_validate(
+        {
+            "invocationParams": invocation_params,
+            "messages": messages,
+            "model": prompt.model_name,
+            "provider": LLMProvider(prompt.provider.value),
+            "providerParams": provider_params,
+        }
+    )
+    return result

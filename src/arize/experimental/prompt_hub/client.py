@@ -12,6 +12,7 @@ from arize.experimental.prompt_hub.prompts import (
     Prompt,
     PromptInputVariableFormat,
 )
+from arize.experimental.prompt_hub.prompts.base import prompt_to_llm_input
 from arize.utils.logging import logger
 
 
@@ -169,9 +170,12 @@ class ArizePromptClient:
 
     def push_prompt(
         self, prompt: Prompt, commit_message: Optional[str] = None
-    ) -> None:
+    ) -> Prompt:
         """
         Push a prompt to the Arize Prompt Hub.
+
+        Returns:
+            The updated prompt.
         """
         if prompt.id is None:
             return self._create_prompt(prompt)
@@ -179,7 +183,7 @@ class ArizePromptClient:
 
     def _edit_prompt(
         self, prompt: Prompt, commit_message: Optional[str] = None
-    ) -> None:
+    ) -> Prompt:
         """
         Push a prompt to the Arize Prompt Hub.
 
@@ -192,54 +196,52 @@ class ArizePromptClient:
                 $spaceId: ID!,
                 $promptId: ID!,
                 $commitMessage: String!,
-                $messages: [JSON!]!,
                 $inputVariableFormat: PromptVersionInputVariableFormatEnum!,
-                $toolChoice: String,
-                $toolCalls: [JSON!],
-                $llmParameters: JSON!,
-                $provider: LLMIntegrationProvider!,
-                $modelName: ExternalLLMProviderModel
+                $provider: ExternalLLMProvider!,
+                $model: String,
+                $messages: [LLMMessageInput!]!,
+                $invocationParams: InvocationParamsInput!,
+                $providerParams: ProviderParamsInput!,
             ) {
                 createPromptVersion(input: {
                     spaceId: $spaceId,
                     promptId: $promptId,
                     commitMessage: $commitMessage,
-                    messages: $messages,
                     inputVariableFormat: $inputVariableFormat,
-                    toolChoice: $toolChoice,
-                    toolCalls: $toolCalls,
-                    llmParameters: $llmParameters,
                     provider: $provider,
-                    modelName: $modelName
+                    model: $model,
+                    messages: $messages,
+                    invocationParams: $invocationParams,
+                    providerParams: $providerParams,
                 }) {
                     promptVersion {
                         id
-                        commitMessage
-                        messages
-                        inputVariableFormat
-                        toolChoice
-                        toolCalls
-                        llmParameters
-                        provider
-                        modelName
-                        createdAt
                     }
                 }
             }
         """
+
+        llm_input = prompt_to_llm_input(prompt)
         variables = {
             "spaceId": self.space_id,
             "promptId": prompt.id,
-            "commitMessage": commit_message
-            if commit_message is not None
-            else "pushed via ArizePromptClient",
-            "messages": prompt.messages,
+            "commitMessage": (
+                commit_message
+                if commit_message is not None
+                else "pushed via ArizePromptClient"
+            ),
             "inputVariableFormat": prompt.input_variable_format.value,
-            "toolChoice": prompt.tool_choice,
-            "toolCalls": prompt.tool_calls,
-            "llmParameters": prompt.llm_parameters,
-            "provider": prompt.provider.value,
-            "modelName": _convert_to_internal_name(prompt.model_name),
+            "provider": llm_input.provider.value,
+            "model": _convert_to_internal_name(prompt.model_name),
+            "messages": [
+                msg.model_dump(exclude_none=True) for msg in llm_input.messages
+            ],
+            "invocationParams": llm_input.invocationParams.model_dump(
+                exclude_none=True
+            ),
+            "providerParams": llm_input.providerParams.model_dump(
+                exclude_none=True
+            ),
         }
         self._make_request(query, variables)
         return prompt
@@ -249,14 +251,15 @@ class ArizePromptClient:
             mutation CreatePrompt(
                 $spaceId: ID!,
                 $name: String!,
-                $description: String!,
-                $tags: [String!]!,
+                $description: String,
+                $tags: [String!],
                 $commitMessage: String!,
-                $messages: [JSON!]!,
                 $inputVariableFormat: PromptVersionInputVariableFormatEnum!,
-                $llmParameters: JSON!,
-                $provider: LLMIntegrationProvider!,
-                $modelName: ExternalLLMProviderModel
+                $provider: ExternalLLMProvider!,
+                $model: String,
+                $messages: [LLMMessageInput!]!,
+                $invocationParams: InvocationParamsInput!,
+                $providerParams: ProviderParamsInput!,
             ) {
                 createPrompt(input: {
                     spaceId: $spaceId,
@@ -264,42 +267,43 @@ class ArizePromptClient:
                     description: $description,
                     tags: $tags,
                     commitMessage: $commitMessage,
-                    messages: $messages,
                     inputVariableFormat: $inputVariableFormat,
-                    llmParameters: $llmParameters,
                     provider: $provider,
-                    modelName: $modelName
+                    model: $model,
+                    messages: $messages,
+                    invocationParams: $invocationParams,
+                    providerParams: $providerParams,
                 }) {
                     prompt {
                         id
                         name
-                        description
-                        tags
-                        commitMessage
-                        messages
-                        inputVariableFormat
-                        toolChoice
-                        toolCalls
-                        llmParameters
-                        provider
-                        modelName
                     }
                 }
             }
         """
         normalized_model_name = _convert_to_internal_name(prompt.model_name)
+        llm_input = prompt_to_llm_input(prompt)
+
         variables = {
             "spaceId": self.space_id,
             "name": prompt.name,
             "description": prompt.description or "",
             "tags": prompt.tags or [],
             "commitMessage": prompt.commit_message or "Initial prompt creation",
-            "messages": prompt.messages,
             "inputVariableFormat": prompt.input_variable_format.value,
-            "llmParameters": prompt.llm_parameters,
-            "provider": prompt.provider.value,
-            "modelName": normalized_model_name,
+            "provider": llm_input.provider.value,
+            "model": normalized_model_name,
+            "messages": [
+                msg.model_dump(exclude_none=True) for msg in llm_input.messages
+            ],
+            "invocationParams": llm_input.invocationParams.model_dump(
+                exclude_none=True
+            ),
+            "providerParams": llm_input.providerParams.model_dump(
+                exclude_none=True
+            ),
         }
+
         result = self._make_request(query, variables)
         prompt_data = result["createPrompt"]["prompt"]
         prompt.id = prompt_data["id"]

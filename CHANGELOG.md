@@ -1,5 +1,19 @@
 # Changelog
 
+
+## [7.41.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.40.1...arize-python-sdk/v7.41.0) (2025-05-13)
+
+
+### 🎁 New Features
+
+* Update prompt hub client to use unified params for push prompt ([#45420](https://github.com/Arize-ai/arize/issues/45420)) ([17203b4](https://github.com/Arize-ai/arize/commit/17203b479a20b9f5ac47bd2ae6aa842b730b23f1))
+
+### 🐛 Bug Fixes
+
+* Log annotations validation and tests ([#45243](https://github.com/Arize-ai/arize/issues/45243)) ([8ce405f](https://github.com/Arize-ai/arize/commit/8ce405f0cde5c721f636b052c1a8c91e3b8adab0))
+* Update whylabs integration client to upload dataframes in chunks ([#45846](https://github.com/Arize-ai/arize/issues/45846)) ([21ac184](https://github.com/Arize-ai/arize/commit/21ac1842e1458007b5ac81e259fd5aac41e24b5d))
+
+
 ## [7.40.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.40.0...arize-python-sdk/v7.40.1) (2025-04-29)
 
 

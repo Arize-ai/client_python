@@ -43,6 +43,7 @@ dependencies = [
     "pandas>=0.25.3,<3",
     "pyarrow>=0.15.0",
     "tqdm>=4.60.0,<5",
+    "pydantic>=2.0.0,<3",
 ]
 dynamic = ["version"]
 

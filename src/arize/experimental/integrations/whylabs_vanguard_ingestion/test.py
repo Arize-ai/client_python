@@ -18,6 +18,7 @@ os.environ["ARIZE_API_KEY"] = "REPLACE_ME"
 os.environ["ARIZE_DEVELOPER_KEY"] = "REPLACE_ME"
 os.environ["ARIZE_MODEL_ID"] = "REPLACE_ME"
 os.environ["ARIZE_DEMO_MODEL_ID"] = "arize-demo-fraud-detection-use-case"
+os.environ["GRAPHQL_URI"] = "https://app.arize.com/graphql"
 
 os.environ["WHYLABS_API_KEY"] = "REPLACE_ME"
 os.environ["WHYLABS_DEFAULT_ORG_ID"] = "REPLACE_ME"
@@ -121,6 +122,7 @@ def test_profile_adapter():
 def test_model_exists():
     client = IntegrationClient(
         api_key=os.environ["ARIZE_API_KEY"],
+        graphql_uri=os.environ["GRAPHQL_URI"],
         space_id=os.environ["ARIZE_SPACE_ID"],
         developer_key=os.environ["ARIZE_DEVELOPER_KEY"],
     )
@@ -128,7 +130,7 @@ def test_model_exists():
     model_name = "test-1"  # REPLACE ME
 
     assert client.model_exists(
-        os.environ["ARIZE_SPACE_ID"], model_name
+        os.environ["ARIZE_SPACE_ID"], model_name, os.environ["GRAPHQL_URI"]
     ), "Model does not exist"
     print("\n[PASSED]")
 
@@ -136,13 +138,14 @@ def test_model_exists():
 def test_model_does_not_exist():
     client = IntegrationClient(
         api_key=os.environ["ARIZE_API_KEY"],
+        graphql_uri=os.environ["GRAPHQL_URI"],
         space_id=os.environ["ARIZE_SPACE_ID"],
         developer_key=os.environ["ARIZE_DEVELOPER_KEY"],
     )
 
     model_name = "fake-model"
     assert not client.model_exists(
-        os.environ["ARIZE_SPACE_ID"], model_name
+        os.environ["ARIZE_SPACE_ID"], model_name, os.environ["GRAPHQL_URI"]
     ), "Model should not exist"
     print("\n[PASSED]")
 
@@ -150,6 +153,7 @@ def test_model_does_not_exist():
 def test_client():
     client = IntegrationClient(
         api_key=os.environ["ARIZE_API_KEY"],
+        graphql_uri=os.environ["GRAPHQL_URI"],
         space_id=os.environ["ARIZE_SPACE_ID"],
         developer_key=os.environ["ARIZE_DEVELOPER_KEY"],
     )
@@ -157,7 +161,7 @@ def test_client():
     model_name = "test-1"  # REPLACE ME
 
     assert client.model_exists(
-        os.environ["ARIZE_SPACE_ID"], model_name
+        os.environ["ARIZE_SPACE_ID"], model_name, os.environ["GRAPHQL_URI"]
     ), "Model does not exist"
 
     start_time, end_time = get_time_range()
@@ -180,13 +184,13 @@ def test_client():
         environment,
         model_id,
         model_type,
-    )
+    )[0]
     print("Logging Arize response:", response)
 
     response = client.log_dataset_profile(
         profile,
         model_id,
-    )
+    )[0]
     print("Logging Arize response:", response)
     print("\n[PASSED]")
 
@@ -194,6 +198,7 @@ def test_client():
 def test_client_with_model_does_not_exist():
     client = IntegrationClient(
         api_key=os.environ["ARIZE_API_KEY"],
+        graphql_uri=os.environ["GRAPHQL_URI"],
         space_id=os.environ["ARIZE_SPACE_ID"],
         developer_key=os.environ["ARIZE_DEVELOPER_KEY"],
     )
@@ -237,6 +242,7 @@ def test_log_profile_with_counts_should_fail():
     try:
         client = IntegrationClient(
             api_key=os.environ["ARIZE_API_KEY"],
+            graphql_uri=os.environ["GRAPHQL_URI"],
             space_id=os.environ["ARIZE_SPACE_ID"],
             developer_key=os.environ["ARIZE_DEVELOPER_KEY"],
         )
@@ -263,7 +269,7 @@ def test_log_profile_with_counts_should_fail():
             Environments.PRODUCTION,
             os.environ["ARIZE_MODEL_ID"],
             ModelTypes.BINARY_CLASSIFICATION,
-        )
+        )[0]
         assert (
             response.status_code != 200
         ), "[FAILED]Expected profile logging to fail due to mismatched counts"
@@ -276,6 +282,7 @@ def test_log_dataset_profile_with_counts_should_fail():
     try:
         client = IntegrationClient(
             api_key=os.environ["ARIZE_API_KEY"],
+            graphql_uri=os.environ["GRAPHQL_URI"],
             space_id=os.environ["ARIZE_SPACE_ID"],
             developer_key=os.environ["ARIZE_DEVELOPER_KEY"],
         )
@@ -297,7 +304,7 @@ def test_log_dataset_profile_with_counts_should_fail():
         response = client.log_dataset_profile(
             profile,
             os.environ["ARIZE_MODEL_ID"],
-        )
+        )[0]
         assert (
             response.status_code != 200
         ), "[FAILED] Expected profile logging to fail due to mismatched counts"
@@ -310,6 +317,7 @@ def test_log_profile_with_counts():
     try:
         client = IntegrationClient(
             api_key=os.environ["ARIZE_API_KEY"],
+            graphql_uri=os.environ["GRAPHQL_URI"],
             space_id=os.environ["ARIZE_SPACE_ID"],
             developer_key=os.environ["ARIZE_DEVELOPER_KEY"],
         )
@@ -335,7 +343,7 @@ def test_log_profile_with_counts():
             os.environ["ARIZE_MODEL_ID"],
             ModelTypes.BINARY_CLASSIFICATION,
             num_rows=10,
-        )
+        )[0]
         assert (
             response.status_code == 200
         ), "Expected profile logging to succeed with mismatched counts"
@@ -350,6 +358,7 @@ def test_log_dataset_profile_with_counts():
     try:
         client = IntegrationClient(
             api_key=os.environ["ARIZE_API_KEY"],
+            graphql_uri=os.environ["GRAPHQL_URI"],
             space_id=os.environ["ARIZE_SPACE_ID"],
             developer_key=os.environ["ARIZE_DEVELOPER_KEY"],
         )
@@ -363,7 +372,7 @@ def test_log_dataset_profile_with_counts():
             profile,
             os.environ["ARIZE_MODEL_ID"],
             num_rows=10,
-        )
+        )[0]
         assert (
             response.status_code == 200
         ), "Expected profile logging to succeed with mismatched counts"
