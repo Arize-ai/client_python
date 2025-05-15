@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.41.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.41.0...arize-python-sdk/v7.41.1) (2025-05-15)
+
+
+### 📚 Documentation
+
+* New README landing page for `arize` package ([#45993](https://github.com/Arize-ai/arize/issues/45993)) ([b20ea1a](https://github.com/Arize-ai/arize/commit/b20ea1ab3ff8186457e10eef3b5d0bc893c020f5))
+
 ## [7.41.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.40.1...arize-python-sdk/v7.41.0) (2025-05-13)
 
 

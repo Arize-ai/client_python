@@ -1,9 +1,17 @@
-<div align="center">
-  <img src="https://storage.googleapis.com/arize-assets/arize-logo-white.jpg" width="600" /><br><br>
-</div>
-
-[![Pypi](https://badge.fury.io/py/arize.svg)](https://badge.fury.io/py/arize)
-[![Slack](https://img.shields.io/badge/slack-@arize-yellow.svg?logo=slack)](https://join.slack.com/t/arize-ai/shared_invite/zt-g9c1j1xs-aQEwOAkU4T2x5K8cqI1Xqg)
+<p align="center">
+  <a href="https://arize.com/ax">
+    <img src="https://storage.googleapis.com/arize-assets/arize-logo-white.jpg" width="600" />
+  </a>
+  <a target="_blank" href="https://pypi.org/project/arize/">
+    <img src="https://img.shields.io/pypi/v/arize?color=blue">
+  </a>
+  <a target="_blank" href="https://pypi.org/project/arize/">
+      <img src="https://img.shields.io/pypi/pyversions/arize">
+  </a>
+  <a target="_blank" href="https://arize-ai.slack.com/join/shared_invite/zt-2w57bhem8-hq24MB6u7yE_ZF_ilOYSBw#/shared-invite/email">
+    <img src="https://img.shields.io/badge/slack-@arize-blue.svg?logo=slack">
+  </a>
+</p>
 
 ---
 
@@ -11,294 +19,146 @@
 
 A helper package to interact with Arize AI APIs.
 
-Arize is an end-to-end ML & LLM observability and monitoring platform. The platform is designed to help AI & ML engineers and data science practitioners surface and fix issues with ML models in production faster with:
+Arize is an AI engineering platform. It helps engineers develop, evaluate, and observe AI applications and agents. 
 
-- LLM tracing
-- Automated ML monitoring and model monitoring
-- Workflows to troubleshoot model performance
-- Real-time visualizations for model performance monitoring, data quality monitoring, and drift monitoring
-- Model prediction cohort analysis
-- Pre-deployment model validation
-- Integrated model explainability
+Arize has both Enterprise and OSS products to support this goal: 
+- [Arize AX](https://arize.com/) — an enterprise AI engineering platform from development to production, with an embedded AI Copilot
+- [Phoenix](https://github.com/Arize-ai/phoenix) — a lightweight, open-source project for tracing, prompt engineering, and evaluation
+- [OpenInference](https://github.com/Arize-ai/openinference) — an open-source instrumentation package to trace LLM applications across models and frameworks
 
----
+We log over 1 trillion inferences and spans, 10 million evaluation runs, and 2 million OSS downloads every month. 
 
-## Quickstart
+## Key Features
+- [**_Tracing_**](https://docs.arize.com/arize/observe/tracing) - Trace your LLM application's runtime using OpenTelemetry-based instrumentation.
+- [**_Evaluation_**](https://docs.arize.com/arize/evaluate/online-evals) - Leverage LLMs to benchmark your application's performance using response and retrieval evals.
+- [**_Datasets_**](https://docs.arize.com/arize/develop/datasets) - Create versioned datasets of examples for experimentation, evaluation, and fine-tuning.
+- [**_Experiments_**](https://docs.arize.com/arize/develop/datasets-and-experiments) - Track and evaluate changes to prompts, LLMs, and retrieval.
+- [**_Playground_**](https://docs.arize.com/arize/develop/prompt-playground)- Optimize prompts, compare models, adjust parameters, and replay traced LLM calls.
+- [**_Prompt Management_**](https://docs.arize.com/arize/develop/prompt-hub)- Manage and test prompt changes systematically using version control, tagging, and experimentation.
 
-This guide will help you instrument your code to log observability data for model monitoring and ML observability. The types of data supported include prediction labels, human readable/debuggable model features and tags, actual labels (once the ground truth is learned), and other model-related data. Logging model data allows you to generate powerful visualizations in the Arize platform to better monitor model performance, understand issues that arise, and debug your model's behavior. Additionally, Arize provides data quality monitoring, data drift detection, and performance management of your production models.
+## Installation
 
-Start logging your model data with the following steps:
-
-### 1. Create your account
-
-Sign up for a free account [HERE](https://app.arize.com/auth/join).
-
-<div align="center">
-  <img src="https://storage.googleapis.com/arize-assets/Arize%20UI%20platform.jpg" /><br><br>
-</div>
-
-### 2. Get your service API key
-
-When you create an account, we generate a service API key. You will need this API Key and your Space Key for logging authentication.
-
-### 3. Instrument your code
-
-### Python Client
-
-If you are using the Arize python client, add a few lines to your code to log predictions and actuals. Logs are sent to Arize asynchronously.
-
-### Install Library
-
-Install the Arize library in an environment using Python >= 3.6.
-
-```sh
-$ pip3 install arize
-```
-
-Or clone the repo:
-
-```sh
-$ git clone https://github.com/Arize-ai/client_python.git
-$ python3 -m pip install client_python/
-```
-
-### Initialize Python Client
-
-Initialize the arize client at the start of your service using your previously created API and Space Keys.
-
-> **_NOTE:_** We strongly suggest storing the API key as a secret or an environment variable.
-
-```python
-from arize.api import Client
-from arize.utils.types import ModelTypes, Environments
-
-
-API_KEY = os.environ.get('ARIZE_API_KEY') #If passing api_key via env vars
-
-arize_client = Client(space_key='ARIZE_SPACE_KEY', api_key=API_KEY)
-```
-
-### Collect your model input features and labels you'd like to track
-
-#### Real-time single prediction:
-
-For a single real-time prediction, you can track all input features used at prediction time by logging them via a key:value dictionary.
-
-```python
-features = {
-    'state': 'ca',
-    'city': 'berkeley',
-    'merchant_name': 'Peets Coffee',
-    'pos_approved': True,
-    'item_count': 10,
-    'merchant_type': 'coffee shop',
-    'charge_amount': 20.11,
-    }
-```
-
-#### Bulk predictions:
-
-When dealing with bulk predictions, you can pass in input features, prediction/actual labels, and prediction_ids for more than one prediction via a Pandas Dataframe where df.columns contain feature names.
-
-```python
-## e.g. labels from a CSV. Labels must be 2-D data frames where df.columns correspond to the label name
-features_df = pd.read_csv('path/to/file.csv')
-
-prediction_labels_df = pd.DataFrame(np.random.randint(1, 100, size=(features.shape[0], 1)))
-
-ids_df = pd.DataFrame([str(uuid.uuid4()) for _ in range(len(prediction_labels.index))])
-```
-
-### Log Predictions
-
-#### Single real-time prediction:
-
-```python
-## Returns an array of concurrent.futures.Future
-pred = arize.log(
-    model_id='sample-model-1',
-    model_version='v1.23.64',
-    model_type=ModelTypes.BINARY,
-    prediction_id='plED4eERDCasd9797ca34',
-    prediction_label=True,
-    features=features,
-    )
-
-#### To confirm that the log request completed successfully, await for it to resolve:
-## NB: This is a blocking call
-response = pred.get()
-res = response.result()
-if res.status_code != 200:
-  print(f'future failed with response code {res.status_code}, {res.text}')
-```
-
-#### Bulk upload of predictions:
-
-```python
-responses = arize.bulk_log(
-    model_id='sample-model-1',
-    model_version='v1.23.64',
-    model_type=ModelTypes.BINARY,
-    prediction_ids=ids_df,
-    prediction_labels=prediction_labels_df,
-    features=features_df
-    )
-#### To confirm that the log request completed successfully, await for futures to resolve:
-## NB: This is a blocking call
-import concurrent.futures as cf
-for response in cf.as_completed(responses):
-  res = response.result()
-  if res.status_code != 200:
-    print(f'future failed with response code {res.status_code}, {res.text}')
-```
-
-The client's log_prediction/actual function returns a single concurrent future while log_bulk_predictions/actuals returns a list of concurrent futures for asynchronous behavior. To capture the logging response, you can await the resolved futures. If you desire a fire-and-forget pattern, you can disregard the responses altogether.
-
-We automatically discover new models logged over time based on the model ID sent on each prediction.
-
-### Logging Actual Labels
-
-> **_NOTE:_** Notice the prediction_id passed in matches the original prediction sent on the previous example above.
-
-```python
-response = arize.log(
-    model_id='sample-model-1',
-    model_type=ModelTypes.BINARY,
-    prediction_id='plED4eERDCasd9797ca34',
-    actual_label=False
-    )
-```
-
-#### Bulk upload of actuals:
-
-```python
-responses = arize.bulk_log(
-    model_id='sample-model-1',
-    model_type=ModelTypes.BINARY,
-    prediction_ids=ids_df,
-    actual_labels=actual_labels_df,
-    )
-
-#### To confirm that the log request completed successfully, await for futures to resolve:
-## NB: This is a blocking call
-import concurrent.futures as cf
-for response in cf.as_completed(responses):
-  res = response.result()
-  if res.status_code != 200:
-    print(f'future failed with response code {res.status_code}, {res.text}')
-```
-
-Once the actual labels (ground truth) for your predictions have been determined, you can send them to Arize and evaluate your metrics over time. The prediction id for one prediction links to its corresponding actual label so it's important to note those must be the same when matching events.
-
-### Bulk upload of all your data (features, predictions, actuals, SHAP values) in a pandas.DataFrame
-
-Use arize.pandas.logger to publish a dataframe with the features, predicted label, actual, and/or SHAP to Arize for monitoring, analysis, and explainability.
-
-#### Initialize Arize Client from `arize.pandas.logger`
-
-```python
-from arize.pandas.logger import Client, Schema
-from arize.utils.types import ModelTypes, Environments
-
-API_KEY = os.environ.get('ARIZE_API_KEY') #If passing api_key via env vars
-arize_client = Client(space_key='ARIZE_SPACE_KEY', api_key=API_KEY)
-```
-
-#### Logging features & predictions only, then actuals
-
-```python
-response = arize_client.log(
-    dataframe=your_sample_df,
-    model_id="fraud-model",
-    model_version="1.0",
-    model_type=ModelTypes.SCORE_CATEGORICAL,
-    environment=Environments.PRODUCTION,
-    schema = Schema(
-        prediction_id_column_name="prediction_id",
-        timestamp_column_name="prediction_ts",
-        prediction_label_column_name="prediction_label",
-        prediction_score_column_name="prediction_score",
-        feature_column_names=feature_cols,
-    )
-)
-
-response = arize_client.log(
-    dataframe=your_sample_df,
-    model_id=model_id,
-    model_type=ModelTypes.SCORE_CATEGORICAL,
-    environment=Environments.PRODUCTION,
-    schema = Schema(
-        prediction_id_column_name="prediction_id",
-        actual_label_column_name="actual_label",
-    )
-)
-```
-
-#### Logging features, predictions, actuals, and SHAP values together
-
-```python
-response = arize_client.log(
-    dataframe=your_sample_df,
-    model_id="fraud-model",
-    model_version="1.0",
-    model_type=ModelTypes.NUMERIC,
-    environment=Environments.PRODUCTION,
-    schema = Schema(
-        prediction_id_column_name="prediction_id",
-        timestamp_column_name="prediction_ts",
-        prediction_label_column_name="prediction_label",
-        actual_label_column_name="actual_label",
-        feature_column_names=feature_col_name,
-        shap_values_column_names=dict(zip(feature_col_name, shap_col_name))
-    )
-)
-```
-
-### 4. Log In for Analytics
-
-That's it! Once your service is deployed and predictions are logged you'll be able to log into your Arize account and dive into your data, slicing it by features, tags, models, time, etc.
-
-#### Analytics Dashboard
-
-<div align="center">
-  <img src="https://storage.googleapis.com/arize-assets/Arize%20UI%20platform.jpg" /><br><br>
-</div>
-
----
-
-### Logging SHAP values
-
-Log feature importance in SHAP values to the Arize platform to explain your model's predictions. By logging SHAP values you gain the ability to view the global feature importances of your predictions as well as the ability to perform cohort and prediction based analysis to compare feature importance values under varying conditions. For more information on SHAP and how to use SHAP with Arize, check out our [SHAP documentation](https://docs.arize.com/arize/product-guides/explainability).
-
----
-
-### Other languages
-
-If you are using a different language, you'll be able to post an HTTP request to our Arize edge-servers to log your events.
-
-### HTTP post request to Arize
+Install Arize via `pip` or `conda`:
 
 ```bash
-curl -X POST -H "Authorization: YOU_API_KEY" "https://log.arize.com/v1/log" -d'{"space_key": "YOUR_SPACE_KEY", "model_id": "test_model_1", "prediction_id":"test100", "prediction":{"model_version": "v1.23.64", "features":{"state":{"string": "CO"}, "item_count":{"int": 10}, "charge_amt":{"float": 12.34}, "physical_card":{"string": true}}, "prediction_label": {"binary": false}}}'
+pip install arize
 ```
 
----
+Install the `arize-otel` package for auto-instrumentation of your LLM library:
 
-### Website
+```bash
+pip install arize-otel
+```
 
-Visit Us At: https://arize.com/model-monitoring/
+## Usage
+  
+### Instrumentation
+See https://pypi.org/project/arize-otel/
 
-Official Documentations: https://docs.arize.com/arize/
+```python
+from arize.otel import register
+from openinference.instrumentation.openai import OpenAIInstrumentor
 
-### Additional Resources
+# Setup OpenTelemetry via our convenience function
+tracer_provider = register(
+    space_id=SPACE_ID,
+    api_key=API_KEY,
+    project_name="agents-cookbook",
+)
 
-- [What is ML observability?](https://arize.com/what-is-ml-observability/)
-- [Playbook to model monitoring in production](https://arize.com/the-playbook-to-monitor-your-models-performance-in-production/)
-- [Using statistical distance metrics for ML monitoring and observability](https://arize.com/using-statistical-distance-metrics-for-machine-learning-observability/)
-- [ML infrastructure tools for data preparation](https://arize.com/ml-infrastructure-tools-for-data-preparation/)
-- [ML infrastructure tools for model building](https://arize.com/ml-infrastructure-tools-for-model-building/)
-- [ML infrastructure tools for production](https://arize.com/ml-infrastructure-tools-for-production-part-1/)
-- [ML infrastructure tools for model deployment and model serving](https://arize.com/ml-infrastructure-tools-for-production-part-2-model-deployment-and-serving/)
-- [ML infrastructure tools for ML monitoring and observability](https://arize.com/ml-infrastructure-tools-ml-observability/)
+# Start instrumentation
+OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
+```
 
-Visit the [Arize Blog](https://arize.com/blog) and [Resource Center](https://arize.com/resource-hub/) for more resources on ML observability and model monitoring.
+
+### Logging Spans, Evaluations, and Annotations
+
+Use `arize.pandas.logger` to log spans, evaluations, and annotations in bulk. See https://arize-client-python.readthedocs.io/en/latest/llm-api/logger.html
+
+```python
+from arize.pandas.logger import Client
+
+arize_client = Client(
+    space_key=os.environ["ARIZE_SPACE_KEY"],
+    api_key=os.environ["ARIZE_API_KEY"],
+)
+
+arize_client.log_spans(
+    dataframe=spans_df,
+    project_name="your-llm-project",
+)
+
+arize_client.log_evaluations_sync(
+    dataframe=evals_df,
+    project_name="your-llm-project",
+)
+
+arize_client.log_annotations(
+    dataframe=annotations_df,
+    project_name="your-llm-project",
+)
+```
+
+### Datasets & Experiments
+
+Use `arize.experimental.datasets` to create datasets and run experiments. See https://arize-client-python.readthedocs.io/en/latest/llm-api/datasets.html
+
+```python
+from arize.experimental.datasets import ArizeDatasetsClient
+
+datasets_client = ArizeDatasetsClient(api_key=os.environ["ARIZE_API_KEY"])
+
+dataset_id = datasets_client.create_dataset(
+    space_id=os.environ["ARIZE_SPACE_KEY"],
+    dataset_name="llm-span-dataset",
+    data=spans_df,
+)
+```
+
+
+## Tracing Integrations
+
+Arize is built on top of OpenTelemetry and is vendor, language, and framework agnostic. For details about tracing integrations and example applications, see the [OpenInference](https://github.com/Arize-ai/openinference) project.
+
+**Python Integrations**
+| Integration | Package | Version Badge |
+|------------------|-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| [OpenAI](https://docs.arize.com/phoenix/tracing/integrations-tracing/openai) | `openinference-instrumentation-openai` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-openai.svg)](https://pypi.python.org/pypi/openinference-instrumentation-openai) |
+| [OpenAI Agents](https://docs.arize.com/phoenix/tracing/integrations-tracing/openai-agents-sdk) | `openinference-instrumentation-openai-agents` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-openai-agents.svg)](https://pypi.python.org/pypi/openinference-instrumentation-openai-agents) |
+| [LlamaIndex](https://docs.arize.com/phoenix/tracing/integrations-tracing/llamaindex) | `openinference-instrumentation-llama-index` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-llama-index.svg)](https://pypi.python.org/pypi/openinference-instrumentation-llama-index) |
+| [DSPy](https://docs.arize.com/phoenix/tracing/integrations-tracing/dspy) | `openinference-instrumentation-dspy` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-dspy.svg)](https://pypi.python.org/pypi/openinference-instrumentation-dspy) |
+| [AWS Bedrock](https://docs.arize.com/phoenix/tracing/integrations-tracing/bedrock) | `openinference-instrumentation-bedrock` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-bedrock.svg)](https://pypi.python.org/pypi/openinference-instrumentation-bedrock) |
+| [LangChain](https://docs.arize.com/phoenix/tracing/integrations-tracing/langchain) | `openinference-instrumentation-langchain` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-langchain.svg)](https://pypi.python.org/pypi/openinference-instrumentation-langchain) |
+| [MistralAI](https://docs.arize.com/phoenix/tracing/integrations-tracing/mistralai) | `openinference-instrumentation-mistralai` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-mistralai.svg)](https://pypi.python.org/pypi/openinference-instrumentation-mistralai) |
+| [Google GenAI](https://docs.arize.com/phoenix/tracing/integrations-tracing/google-gen-ai) | `openinference-instrumentation-google-genai` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-google-genai.svg)](https://pypi.python.org/pypi/openinference-instrumentation-google-genai) |
+| [Guardrails](https://docs.arize.com/phoenix/tracing/integrations-tracing/guardrails) | `openinference-instrumentation-guardrails` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-guardrails.svg)](https://pypi.python.org/pypi/openinference-instrumentation-guardrails) |
+| [VertexAI](https://docs.arize.com/phoenix/tracing/integrations-tracing/vertexai) | `openinference-instrumentation-vertexai` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-vertexai.svg)](https://pypi.python.org/pypi/openinference-instrumentation-vertexai) |
+| [CrewAI](https://docs.arize.com/phoenix/tracing/integrations-tracing/crewai) | `openinference-instrumentation-crewai` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-crewai.svg)](https://pypi.python.org/pypi/openinference-instrumentation-crewai) |
+| [Haystack](https://docs.arize.com/phoenix/tracing/integrations-tracing/haystack) | `openinference-instrumentation-haystack` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-haystack.svg)](https://pypi.python.org/pypi/openinference-instrumentation-haystack) |
+| [LiteLLM](https://docs.arize.com/phoenix/tracing/integrations-tracing/litellm) | `openinference-instrumentation-litellm` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-litellm.svg)](https://pypi.python.org/pypi/openinference-instrumentation-litellm) |
+| [Groq](https://docs.arize.com/phoenix/tracing/integrations-tracing/groq) | `openinference-instrumentation-groq` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-groq.svg)](https://pypi.python.org/pypi/openinference-instrumentation-groq) |
+| [Instructor](https://docs.arize.com/phoenix/tracing/integrations-tracing/instructor) | `openinference-instrumentation-instructor` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-instructor.svg)](https://pypi.python.org/pypi/openinference-instrumentation-instructor) |
+| [Anthropic](https://docs.arize.com/phoenix/tracing/integrations-tracing/anthropic) | `openinference-instrumentation-anthropic` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-anthropic.svg)](https://pypi.python.org/pypi/openinference-instrumentation-anthropic) |
+| [Smolagents](https://huggingface.co/docs/smolagents/en/tutorials/inspect_runs) | `openinference-instrumentation-smolagents` | [![PyPI Version](https://img.shields.io/pypi/v/openinference-instrumentation-smolagents.svg)](https://pypi.python.org/pypi/openinference-instrumentation-smolagents) |
+
+### JavaScript Integrations
+
+| Integration                                                                                | Package                                            | Version Badge                                                                                                                                                                       |
+| ------------------------------------------------------------------------------------------ | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [OpenAI](https://docs.arize.com/phoenix/tracing/integrations-tracing/openai-node-sdk)      | `@arizeai/openinference-instrumentation-openai`    | [![NPM Version](https://img.shields.io/npm/v/@arizeai/openinference-instrumentation-openai.svg)](https://www.npmjs.com/package/@arizeai/openinference-instrumentation-openai)       |
+| [LangChain.js](https://docs.arize.com/phoenix/tracing/integrations-tracing/langchain.js)   | `@arizeai/openinference-instrumentation-langchain` | [![NPM Version](https://img.shields.io/npm/v/@arizeai/openinference-instrumentation-langchain.svg)](https://www.npmjs.com/package/@arizeai/openinference-instrumentation-langchain) |
+| [Vercel AI SDK](https://docs.arize.com/phoenix/tracing/integrations-tracing/vercel-ai-sdk) | `@arizeai/openinference-vercel`                    | [![NPM Version](https://img.shields.io/npm/v/@arizeai/openinference-vercel)](https://www.npmjs.com/package/@arizeai/openinference-vercel)                                           |
+| [BeeAI](https://docs.arize.com/phoenix/tracing/integrations-tracing/beeai)                 | `@arizeai/openinference-instrumentation-beeai`     | [![NPM Version](https://img.shields.io/npm/v/@arizeai/openinference-vercel)](https://www.npmjs.com/package/@arizeai/openinference-instrumentation-beeai)                            |
+
+
+## Community
+
+Join our community to connect with thousands of AI builders.
+
+- 🌍 Join our [Slack community](https://arize-ai.slack.com/join/shared_invite/zt-11t1vbu4x-xkBIHmOREQnYnYDH1GDfCg?__hstc=259489365.a667dfafcfa0169c8aee4178d115dc81.1733501603539.1733501603539.1733501603539.1&__hssc=259489365.1.1733501603539&__hsfp=3822854628&submissionGuid=381a0676-8f38-437b-96f2-fc10875658df#/shared-invite/email).
+- 📚 Read our [documentation](https://docs.arize.com/arize).
+- 💡 Ask questions and provide feedback in the _#arize-support_ channel.
+- 𝕏 Follow us on [𝕏](https://twitter.com/ArizeAI).
+- 🧑‍🏫 Deep dive into everything [Agents](http://arize.com/ai-agents/) and [LLM Evaluations](https://arize.com/llm-evaluation) on Arize's Learning Hubs.
+
+Copyright 2025 Arize AI, Inc. All Rights Reserved.
