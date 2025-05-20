@@ -1,6 +1,18 @@
 # Changelog
 
 
+## [7.42.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.41.1...arize-python-sdk/v7.42.0) (2025-05-20)
+
+
+### 🎁 New Features
+
+* add log_metadata method for LLM span metadata updates ([#45860](https://github.com/Arize-ai/arize/issues/45860)) ([0fc2615](https://github.com/Arize-ai/arize/commit/0fc2615bb95688cb335a61806c018080aa450e44))
+
+
+### 🐛 Bug Fixes
+
+* use nanoseconds for annotations updated_at timestamp ([#46289](https://github.com/Arize-ai/arize/issues/46289)) ([6cbb486](https://github.com/Arize-ai/arize/commit/6cbb486479013dd7488b285f9e50fa21114fa57e))
+
 ## [7.41.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.41.0...arize-python-sdk/v7.41.1) (2025-05-15)
 
 

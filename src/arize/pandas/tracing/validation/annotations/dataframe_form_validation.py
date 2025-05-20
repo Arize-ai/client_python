@@ -6,6 +6,7 @@ import pandas as pd
 # Import annotation-specific and common column constants
 from arize.pandas.tracing.columns import (
     ANNOTATION_COLUMN_PATTERN,
+    ANNOTATION_COLUMN_PREFIX,
     ANNOTATION_LABEL_SUFFIX,
     ANNOTATION_NOTES_COLUMN_NAME,
     ANNOTATION_SCORE_SUFFIX,
@@ -46,9 +47,34 @@ def _log_info_dataframe_extra_column_names(
     return None
 
 
+def _check_invalid_annotation_column_names(
+    df: pd.DataFrame,
+) -> List[tracing_err.ValidationError]:
+    """Checks for columns that start with 'annotation.' but don't match the expected pattern."""
+    errors = []
+
+    invalid_annotation_columns = [
+        col
+        for col in df.columns
+        if col.startswith(ANNOTATION_COLUMN_PREFIX)
+        and not pd.Series(col).str.match(ANNOTATION_COLUMN_PATTERN).any()
+        and col != ANNOTATION_NOTES_COLUMN_NAME
+    ]
+
+    if invalid_annotation_columns:
+        errors.append(
+            tracing_err.InvalidAnnotationColumnFormat(
+                invalid_format_cols=invalid_annotation_columns,
+                expected_format="annotation.<name>.label|score|updated_by|updated_at",
+            )
+        )
+
+    return errors
+
+
 def _check_dataframe_column_content_type(
     df: pd.DataFrame,
-) -> List[tracing_err.InvalidDataFrameColumnContentTypes]:
+) -> List[tracing_err.ValidationError]:
     """Checks that columns matching annotation patterns have the correct data types."""
     wrong_labels_cols = []
     wrong_scores_cols = []
@@ -56,6 +82,11 @@ def _check_dataframe_column_content_type(
     wrong_updated_by_cols = []
     wrong_updated_at_cols = []
     errors = []
+
+    # First check if there are any invalid annotation column names
+    column_format_errors = _check_invalid_annotation_column_names(df)
+    if column_format_errors:
+        errors.extend(column_format_errors)
 
     # Regex patterns for annotation suffixes
     annotation_label_re = re.compile(

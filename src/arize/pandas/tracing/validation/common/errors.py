@@ -386,3 +386,21 @@ class InvalidNullAnnotationLabelAndScore(ValidationError):
             f"following annotations: {log_a_list(self.annotation_names, 'and')}. "
             "Each annotation must have at least a label or a score defined."
         )
+
+
+class InvalidAnnotationColumnFormat(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Annotation_Column_Format"
+
+    def __init__(
+        self, invalid_format_cols: List[str], expected_format: str
+    ) -> None:
+        self.invalid_format_cols = invalid_format_cols
+        self.expected_format = expected_format
+
+    def error_message(self) -> str:
+        return (
+            f"The following columns have an invalid annotation column format: "
+            f"{log_a_list(self.invalid_format_cols, 'and')}. "
+            f"Annotation columns must follow the format: {self.expected_format}"
+        )

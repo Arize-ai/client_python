@@ -10,6 +10,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Union
 
+import numpy as np
 import pandas as pd
 import pandas.api.types as ptypes
 import pyarrow as pa
@@ -22,6 +23,8 @@ from arize.pandas.proto.requests_pb2 import (
     DoPutRequest,
     WriteSpanAnnotationRequest,
     WriteSpanAnnotationResponse,
+    WriteSpanAttributesMetadataRequest,
+    WriteSpanAttributesMetadataResponse,
     WriteSpanEvaluationRequest,
     WriteSpanEvaluationResponse,
 )
@@ -723,8 +726,8 @@ class Client:
                 SPAN_SPAN_ID_COL,
             )
             from .tracing.validation.annotations import annotations_validation
-        except ImportError as e:
-            raise ImportError(MISSING_TRACING_DEPS_ERROR_MSG) from e
+        except ImportError:
+            raise ImportError(MISSING_TRACING_DEPS_ERROR_MSG) from None
 
         anno_df = dataframe.copy()
         self._headers.update({"number-of-rows": str(len(anno_df))})
@@ -761,7 +764,10 @@ class Client:
             if verbose:
                 logger.info(f"Found annotation names: {annotation_names}")
 
-            current_time_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+            # Timestamp in nanoseconds
+            current_time_ns = int(
+                datetime.now(timezone.utc).timestamp() * 1_000_000_000
+            )
 
             for name in annotation_names:
                 updated_by_col = (
@@ -788,7 +794,7 @@ class Client:
                             logger.info(
                                 f"Autogenerating column: {updated_at_col}"
                             )
-                        anno_df[updated_at_col] = current_time_ms
+                        anno_df[updated_at_col] = current_time_ns
                 else:
                     if verbose:
                         logger.info(
@@ -816,9 +822,7 @@ class Client:
                     note_obj = {
                         "text": str(note_text),
                         "updated_by": "SDK",
-                        "updated_at": int(
-                            datetime.now(timezone.utc).timestamp() * 1000
-                        ),
+                        "updated_at": current_time_ns,
                     }
                     return [json.dumps(note_obj)]
 
@@ -948,6 +952,469 @@ class Client:
             model_version=None,
             request_type="annotation",
         )
+
+    def log_metadata(
+        self,
+        dataframe: pd.DataFrame,
+        project_name: str,
+        patch_document_column_name: str = "patch_document",
+        validate: bool = True,
+        verbose: bool = False,
+    ) -> Dict[str, Any]:
+        """
+        Log metadata updates using JSON Merge Patch format. This method is only supported for LLM model types.
+
+        The dataframe must contain a column `context.span_id` to identify spans and either:
+        1. A column with JSON patch documents (specified by patch_document_column_name), or
+        2. One or more columns with prefix `attributes.metadata.` that will be automatically
+           converted to a patch document (e.g., `attributes.metadata.tag` → `{"tag": value}`).
+
+        If both methods are used, the explicit patch document is applied after the individual field updates.
+        The patches will be applied to the `attributes.metadata` field of each span.
+
+        **Type Handling:**
+        - The client primarily supports string, integer, and float data types.
+        - Boolean values are converted to string representations.
+        - Nested JSON objects and arrays are serialized to JSON strings during transmission.
+        - Setting a field to `None` or `null` will set the field to JSON null in the metadata.
+          Note: This differs from standard JSON Merge Patch where null values remove fields.
+
+        Args:
+            dataframe: DataFrame with span_ids and either patch documents or metadata field columns.
+            project_name: A unique name to identify your project in the Arize platform.
+            patch_document_column_name: Name of the column containing JSON patch documents.
+                Defaults to "patch_document".
+            validate: When set to True, validation is run before sending data.
+            verbose: When set to true, info messages are printed.
+
+        Returns:
+            Dictionary containing update results with the following keys:
+                - spans_processed: Total number of spans in the input dataframe
+                - spans_updated: Count of successfully updated span metadata records
+                - spans_failed: Count of spans that failed to update
+                - errors: List of dictionaries with 'span_id' and 'error_message' keys for each failed span
+
+            Error types from the server include:
+                - parse_failure: Failed to parse JSON metadata
+                - patch_failure: Failed to apply JSON patch
+                - type_conflict: Type conflict in metadata
+                - connection_failure: Connection issues
+                - segment_not_found: No matching segment found
+                - druid_rejection: Backend rejected the update
+
+        Raises:
+            AuthError: When API key or space ID is missing
+            ValidationFailure: When validation of the dataframe or values fails
+            ImportError: When required tracing dependencies are missing
+            ArrowInvalid: When the dataframe cannot be converted to Arrow format
+            RuntimeError: If the request fails or no response is received
+
+        Example:
+            ```python
+            # Method 1: Using a patch document
+            df = pd.DataFrame(
+                {
+                    "context.span_id": ["span1", "span2"],
+                    "patch_document": [{"tag": "important"}, {"priority": "high"}],
+                }
+            )
+
+            # Method 2: Using direct field columns
+            df = pd.DataFrame(
+                {
+                    "context.span_id": ["span1", "span2"],
+                    "attributes.metadata.tag": ["important", "standard"],
+                    "attributes.metadata.priority": ["high", "medium"],
+                }
+            )
+
+            # Method 3: Combining both approaches
+            df = pd.DataFrame(
+                {
+                    "context.span_id": ["span1"],
+                    "attributes.metadata.tag": ["important"],
+                    "patch_document": [
+                        {"priority": "high"}
+                    ],  # This will override any conflicting fields
+                }
+            )
+
+            # Method 4: Setting fields to null
+            df = pd.DataFrame(
+                {
+                    "context.span_id": ["span1"],
+                    "attributes.metadata.old_field": [
+                        None
+                    ],  # Sets field to JSON null
+                    "patch_document": [
+                        {"other_field": None}
+                    ],  # Also sets field to JSON null
+                }
+            )
+            ```
+        """
+        # Auth check
+        if not self._space_id or not self._developer_key:
+            raise AuthError(
+                missing_space_id=not self._space_id,
+                missing_developer_key=not self._developer_key,
+                method_name="log_metadata",
+            )
+
+        try:
+            # Import validation modules
+            from .tracing.columns import SPAN_SPAN_ID_COL
+            from .tracing.validation.metadata.argument_validation import (
+                validate_argument_types,
+            )
+            from .tracing.validation.metadata.dataframe_form_validation import (
+                validate_dataframe_form,
+            )
+            from .tracing.validation.metadata.value_validation import (
+                validate_values,
+            )
+        except ImportError:
+            raise ImportError(MISSING_TRACING_DEPS_ERROR_MSG) from None
+
+        # Create a copy to avoid side effects
+        metadata_df = dataframe.copy()
+        total_spans = len(metadata_df)
+        self._headers.update({"number-of-rows": str(total_spans)})
+        metadata_df.reset_index(inplace=True, drop=True)
+
+        if verbose:
+            logger.info(
+                f"Attempting to update metadata for {total_spans} spans"
+            )
+
+        # Check if we have any attributes.metadata.* columns to build a patch document
+        metadata_prefix = "attributes.metadata."
+        metadata_fields = [
+            col
+            for col in metadata_df.columns
+            if col.startswith(metadata_prefix)
+        ]
+        has_metadata_fields = len(metadata_fields) > 0
+        has_patch_document = patch_document_column_name in metadata_df.columns
+
+        if not has_metadata_fields and not has_patch_document:
+            error_msg = (
+                f"No metadata fields found. Either provide columns with prefix '{metadata_prefix}' "
+                f"or a '{patch_document_column_name}' column with JSON patch documents."
+            )
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        if has_metadata_fields and verbose:
+            logger.info(
+                f"Found {len(metadata_fields)} metadata field columns with prefix '{metadata_prefix}'"
+            )
+
+        # Create a new column for patch documents if we're going to use it
+        if has_metadata_fields or has_patch_document:
+            # Use 'patch_document' as the standardized column name for downstream processing
+            final_patch_column = "patch_document"
+            if final_patch_column not in metadata_df.columns:
+                metadata_df[final_patch_column] = None
+
+        # Process metadata field columns if they exist
+        if has_metadata_fields:
+
+            def build_patch_document(row):
+                # Extract and preserve metadata values with proper types
+                patch = {}
+                for key in row.index:
+                    if key.startswith("attributes.metadata."):
+                        field_name = key.replace("attributes.metadata.", "")
+                        # Check if the value is an array/list or other iterable (except strings)
+                        if isinstance(row[key], (list, np.ndarray)) or (
+                            hasattr(row[key], "__iter__")
+                            and not isinstance(row[key], str)
+                        ):
+                            # For arrays/iterables, just add the value (nulls will be handled later)
+                            patch[field_name] = row[key]
+                        else:
+                            # For scalar values, include even if it's None/null
+                            # This is important for explicitly setting fields to null
+                            patch[field_name] = row[key]
+                return patch
+
+            # Create patch documents from metadata fields
+            field_patches = metadata_df.apply(build_patch_document, axis=1)
+
+            # If there's an existing patch document column, we'll handle merging
+            if has_patch_document:
+
+                def process_patch_document(row_idx):
+                    # Get the field patch for this row
+                    field_patch = field_patches.iloc[row_idx]
+
+                    # Get and process the explicit patch document
+                    patch_doc = metadata_df.loc[
+                        row_idx, patch_document_column_name
+                    ]
+
+                    # Handle different patch document formats
+                    if patch_doc is None:
+                        # None (as opposed to NaN) is a valid value but creates an empty patch
+                        explicit_patch = {}
+                    elif isinstance(patch_doc, float) and np.isnan(patch_doc):
+                        # NaN is treated as an empty patch
+                        explicit_patch = {}
+                    elif isinstance(patch_doc, dict):
+                        # Dict is used directly
+                        explicit_patch = patch_doc
+                    elif isinstance(patch_doc, str):
+                        try:
+                            explicit_patch = json.loads(patch_doc)
+                            if not isinstance(explicit_patch, dict):
+                                logger.warning(
+                                    f"Row {row_idx}: Parsed patch document is not a dictionary. "
+                                    f"Using empty dictionary instead."
+                                )
+                                explicit_patch = {}
+                        except json.JSONDecodeError as e:
+                            logger.warning(
+                                f"Row {row_idx}: Failed to parse patch document: {e}. "
+                                f"Using empty dictionary instead."
+                            )
+                            explicit_patch = {}
+                    else:
+                        logger.warning(
+                            f"Row {row_idx}: Unsupported patch document type: {type(patch_doc)}. "
+                            f"Using empty dictionary instead."
+                        )
+                        explicit_patch = {}
+
+                    # Merge patches - explicit patch takes precedence
+                    merged_patch = {**field_patch, **explicit_patch}
+                    return merged_patch
+
+                # Apply the processing function to each row
+                merged_patches = [
+                    process_patch_document(i) for i in range(len(metadata_df))
+                ]
+                metadata_df[final_patch_column] = merged_patches
+            else:
+                # Just use the field patches directly
+                metadata_df[final_patch_column] = field_patches
+        elif (
+            has_patch_document
+            and patch_document_column_name != final_patch_column
+        ):
+            # If there are only patch documents (no metadata fields) and the column
+            # isn't already named patch_document, rename it
+            metadata_df[final_patch_column] = metadata_df[
+                patch_document_column_name
+            ]
+
+        # Now process any patch documents that need to be parsed from strings to dicts
+        if final_patch_column in metadata_df.columns:
+            validation_errors = []
+
+            def ensure_dict_patch(row_idx):
+                patch = metadata_df.loc[row_idx, final_patch_column]
+
+                # For None/null values, return an empty dict
+                if patch is None:
+                    return {}
+
+                # Handle NaN differently from None
+                if isinstance(patch, float) and np.isnan(patch):
+                    return {}
+
+                # If already a dict, return as is
+                if isinstance(patch, dict):
+                    return patch
+
+                # If string, try to parse as JSON
+                if isinstance(patch, str):
+                    try:
+                        parsed = json.loads(patch)
+                        if isinstance(parsed, dict):
+                            return parsed
+                        else:
+                            error_msg = (
+                                f"Row {row_idx}: JSON must be an object/dictionary, "
+                                f"got {type(parsed).__name__}"
+                            )
+                            logger.warning(error_msg)
+                            validation_errors.append(error_msg)
+                            return {} if not validate else None
+                    except json.JSONDecodeError as e:
+                        error_msg = f"Row {row_idx}: Invalid JSON in patch document: {e}"
+                        logger.warning(error_msg)
+                        validation_errors.append(error_msg)
+                        return {} if not validate else None
+
+                # For other types, log warning
+                error_msg = f"Row {row_idx}: Unsupported patch type: {type(patch).__name__}"
+                logger.warning(error_msg)
+                validation_errors.append(error_msg)
+                return {} if not validate else None
+
+            # Process each row
+            processed_patches = []
+            for i in range(len(metadata_df)):
+                patch = ensure_dict_patch(i)
+                if patch is not None:
+                    processed_patches.append(patch)
+
+            # If validation is enabled and errors found, raise ValidationFailure
+            if validate and validation_errors:
+                raise err.ValidationFailure(validation_errors)
+
+            metadata_df[final_patch_column] = processed_patches
+
+        # Run validations on the processed dataframe
+        if validate:
+            if verbose:
+                logger.info("Validating metadata update input")
+
+            # Type validation
+            errors = validate_argument_types(
+                metadata_dataframe=metadata_df, project_name=project_name
+            )
+            if errors:
+                for e in errors:
+                    logger.error(f"Metadata validation error: {e}")
+                raise err.ValidationFailure(errors)
+
+            # Dataframe form validation
+            if verbose:
+                logger.info("Validating metadata update dataframe form")
+            errors = validate_dataframe_form(
+                metadata_dataframe=metadata_df,
+                patch_document_column_name=final_patch_column,
+            )
+            if errors:
+                for e in errors:
+                    logger.error(f"Metadata dataframe validation error: {e}")
+                raise err.ValidationFailure(errors)
+
+            # Value validation
+            if verbose:
+                logger.info("Validating metadata update values")
+            errors = validate_values(
+                metadata_dataframe=metadata_df,
+                patch_document_column_name=final_patch_column,
+            )
+            if errors:
+                for e in errors:
+                    logger.error(f"Metadata value validation error: {e}")
+                raise err.ValidationFailure(errors)
+
+        # Keep only the required columns
+        metadata_df = self._remove_extraneous_columns(
+            df=metadata_df,
+            column_list=[SPAN_SPAN_ID_COL.name, final_patch_column],
+        )
+
+        if verbose:
+            logger.info(
+                "Using column names: context.span_id and patch_document"
+            )
+
+        # Ensure all patches are JSON strings for sending
+        if final_patch_column in metadata_df.columns:
+            metadata_df[final_patch_column] = metadata_df[
+                final_patch_column
+            ].apply(
+                lambda p: json.dumps(p)
+                if not isinstance(p, float) or not np.isnan(p)
+                else json.dumps({})
+            )
+
+        # Convert to Arrow table
+        try:
+            if verbose:
+                logger.info("Converting data to Arrow format")
+            pa_schema = pa.Schema.from_pandas(metadata_df)
+            ta = pa.Table.from_pandas(metadata_df)
+        except pa.ArrowInvalid as e:
+            logger.error(f"{INVALID_ARROW_CONVERSION_MSG}: {str(e)}")
+            raise pa.ArrowInvalid(
+                f"Error converting metadata to Arrow format: {str(e)}"
+            ) from e
+        except Exception as e:
+            logger.error(f"Unexpected error creating Arrow table: {str(e)}")
+            raise
+
+        # Create protocol schema
+        proto_schema = proto._get_pb_schema_tracing(
+            model_id=project_name,
+            model_version=None,
+        )
+
+        # Use the _log_arrow_flight helper for consistency
+        try:
+            response = self._log_arrow_flight(
+                pa_table=ta,
+                pa_schema=pa_schema,
+                proto_schema=proto_schema,
+                verbose=verbose,
+                model_id=project_name,
+                model_version=None,
+                request_type="metadata",
+            )
+        except Exception as e:
+            logger.error(f"Error during metadata update request: {str(e)}")
+            raise RuntimeError(
+                f"Failed to submit metadata update: {str(e)}"
+            ) from e
+
+        if response:
+            # Convert Protocol Buffer SpanError objects to dictionaries for easier access
+            span_errors = [
+                {"span_id": error.span_id, "error_message": error.error_message}
+                for error in response.errors
+            ]
+
+            # Create result dictionary with direct field mapping from the response
+            result = {
+                "spans_processed": response.spans_processed,
+                "spans_updated": response.spans_updated,
+                "spans_failed": response.spans_failed,
+                "errors": span_errors,
+            }
+
+            # Log summary of response
+            if verbose:
+                if response.spans_updated > 0 and response.spans_processed > 0:
+                    msg = (
+                        f"Metadata update: {response.spans_updated} of "
+                        f"{response.spans_processed} spans updated "
+                        f"({(response.spans_updated / response.spans_processed * 100):.1f}% success rate)"
+                    )
+                    logger.info(msg)
+                else:
+                    logger.warning(
+                        f"Metadata update: {response.spans_updated} of "
+                        f"{response.spans_processed} spans updated "
+                        f"(0% success rate)"
+                    )
+
+                if span_errors:
+                    logger.warning(
+                        f"Encountered {len(span_errors)} errors during metadata update"
+                    )
+                    if verbose:
+                        # Log all errors with their details
+                        for error in span_errors:
+                            logger.warning(
+                                f"  Span {error['span_id']}: {error['error_message']}"
+                            )
+
+            return result
+        else:
+            # This should not happen with proper Flight client implementation,
+            # but we handle it defensively
+            logger.error(
+                "No response received from server during metadata update"
+            )
+            raise RuntimeError(
+                "Failed to receive response from metadata update operation"
+            )
 
     def log(
         self,
@@ -1246,7 +1713,11 @@ class Client:
         model_id: Optional[str] = None,
         model_version: Optional[str] = None,
         request_type: str = "evaluation",
-    ) -> Union[WriteSpanEvaluationResponse, WriteSpanAnnotationResponse]:
+    ) -> Union[
+        WriteSpanEvaluationResponse,
+        WriteSpanAnnotationResponse,
+        WriteSpanAttributesMetadataResponse,
+    ]:
         if verbose:
             logger.debug("Serializing schema.")
 
@@ -1275,6 +1746,15 @@ class Client:
             )
             response_type = WriteSpanAnnotationResponse
             log_context = "annotation"
+        elif request_type == "metadata":
+            do_put_request = DoPutRequest(
+                write_span_attributes_metadata_request=WriteSpanAttributesMetadataRequest(
+                    space_id=self._space_id,
+                    external_model_id=model_id,
+                )
+            )
+            response_type = WriteSpanAttributesMetadataResponse
+            log_context = "metadata"
         else:
             raise ValueError(
                 f"Unsupported request_type in _log_arrow_flight: {request_type}"
