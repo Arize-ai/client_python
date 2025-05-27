@@ -1,6 +1,18 @@
 # Changelog
 
 
+## [7.43.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.42.0...arize-python-sdk/v7.43.0) (2025-05-23)
+
+
+### 🎁 New Features
+
+* **experiments:** Add delete experiment method to ArizeDatasetsClient ([#46490](https://github.com/Arize-ai/arize/issues/46490)) ([74baf1b](https://github.com/Arize-ai/arize/commit/74baf1ba70f1620c48a1040bd7d0d117b14fcdea))
+
+
+### 🐛 Bug Fixes
+
+* Add toolchoice options for pull_prompts method in PromptHub API ([#46619](https://github.com/Arize-ai/arize/issues/46619)) ([5e171e4](https://github.com/Arize-ai/arize/commit/5e171e435cde3570a25692736c1a5edf76a054fc))
+
 ## [7.42.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.41.1...arize-python-sdk/v7.42.0) (2025-05-20)
 
 

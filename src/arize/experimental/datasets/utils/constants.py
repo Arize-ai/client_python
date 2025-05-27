@@ -37,6 +37,7 @@ class FlightActionKey(Enum):
     LIST_DATASETS = "list_datasets"
     DELETE_DATASET = "delete_dataset"
     CREATE_EXPERIMENT_DB_ENTRY = "create_experiment_db_entry"
+    DELETE_EXPERIMENT = "delete_experiment"
 
 
 OPEN_INFERENCE_JSON_STR_TYPES = frozenset(

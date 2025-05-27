@@ -653,6 +653,76 @@ class ArizeDatasetsClient:
         finally:
             flight_client.close()
 
+    def delete_experiment(
+        self,
+        space_id: str,
+        experiment_id: Optional[str] = None,
+        experiment_name: Optional[str] = None,
+        dataset_name: Optional[str] = None,
+    ) -> Tuple[bool, str]:
+        """
+        Delete an experiment.
+
+        Args:
+            space_id (str): The ID of the space where the experiment is located.
+            experiment_id (Optional[str]): The ID of the experiment to delete. Required if
+                experiment_name and dataset_name are not provided.
+            experiment_name (Optional[str]): The name of the experiment to delete. Required if
+                experiment_id is not provided.
+            dataset_name (Optional[str]): The name of the dataset associated with the experiment.
+                Required if experiment_id is not provided.
+
+        Returns:
+            Tuple[bool, str]: A tuple containing a boolean indicating if the experiment was
+                successfully deleted, and a string representing the deleted experiment ID.
+
+        Raises:
+            ValueError: If neither experiment_id nor both experiment_name and dataset_name are provided.
+            RuntimeError: If the request to delete the experiment fails.
+        """
+        experiment_id_invalid = experiment_id is None
+        experiment_name_invalid = (
+            experiment_name is None or dataset_name is None
+        )
+        if experiment_id_invalid and experiment_name_invalid:
+            raise ValueError(
+                "must provide experiment_id or both experiment_name and dataset_name"
+            )
+
+        delete_request = pb2.DeleteExperimentRequest(
+            space_id=space_id,
+        )
+
+        if experiment_id:
+            delete_request.experiment_id = experiment_id
+        else:
+            delete_request.experiment_name_identifier.CopyFrom(
+                pb2.ExperimentNameIdentifier(
+                    experiment_name=experiment_name, dataset_name=dataset_name
+                )
+            )
+
+        request = pb2.DoActionRequest(delete_experiment=delete_request)
+        action = _action_for_request(FlightActionKey.DELETE_EXPERIMENT, request)
+        flight_client = self.session.connect()
+        try:
+            response = flight_client.do_action(
+                action, self.session.call_options
+            )
+            res = next(response, None)
+        except BaseException as exc:
+            raise RuntimeError(
+                f"Failed to delete experiment {experiment_id if experiment_id else experiment_name}"
+            ) from exc
+        else:
+            if res is None:
+                return False, ""
+            resp_pb = pb2.DeleteExperimentResponse()
+            resp_pb.ParseFromString(res.body.to_pybytes())
+            return True, resp_pb.experiment_id
+        finally:
+            flight_client.close()
+
     def get_dataset_versions(
         self,
         space_id: str,

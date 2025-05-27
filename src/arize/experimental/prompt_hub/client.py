@@ -111,7 +111,14 @@ class ArizePromptClient:
                                 commitMessage
                                 messages
                                 inputVariableFormat
-                                toolChoice
+                                toolChoice {
+                                ... on ToolChoiceTool {
+                                        tool
+                                    }
+                                ... on ToolChoiceChoice {
+                                        choice
+                                    }
+                                }
                                 toolCalls
                                 llmParameters
                                 provider
