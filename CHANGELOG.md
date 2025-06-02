@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.43.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.43.0...arize-python-sdk/v7.43.1) (2025-05-30)
+
+
+### 🐛 Bug Fixes
+
+* delete_experiment dependency sync ([#46796](https://github.com/Arize-ai/arize/issues/46796)) ([1373405](https://github.com/Arize-ai/arize/commit/13734056a6a2330c1ae9c33ca5002038444fc45b))
+
 ## [7.43.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.42.0...arize-python-sdk/v7.43.0) (2025-05-23)
 
 
