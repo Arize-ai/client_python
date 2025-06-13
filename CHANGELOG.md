@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.44.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.43.1...arize-python-sdk/v7.44.0) (2025-06-12)
+
+
+### 🎁 New Features
+
+* Update evals logging to allow `session_eval.` and `trace_eval.` prefixes in addition to `eval.` ([#47592](https://github.com/Arize-ai/arize/issues/47592)) ([2184409](https://github.com/Arize-ai/arize/commit/21844096b78b6933c90fcac458295149bec8c6ba))
+
 ## [7.43.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.43.0...arize-python-sdk/v7.43.1) (2025-05-30)
 
 

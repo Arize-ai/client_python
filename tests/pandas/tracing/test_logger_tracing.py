@@ -251,6 +251,12 @@ def generate_mock_eval_data(input_df: pd.DataFrame) -> pd.DataFrame:
             "eval.test_eval.label": labels,
             "eval.test_eval.score": scores,
             "eval.test_eval.explanation": explanations,
+            "session_eval.sesh_eval.label": labels,
+            "session_eval.sesh_eval.score": scores,
+            "session_eval.sesh_eval.explanation": explanations,
+            "trace_eval.trace_eval.label": labels,
+            "trace_eval.trace_eval.score": scores,
+            "trace_eval.trace_eval.explanation": explanations,
         }
     )
 

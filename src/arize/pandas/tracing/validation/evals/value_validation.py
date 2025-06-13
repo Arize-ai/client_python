@@ -6,10 +6,9 @@ import pandas as pd
 
 import arize.pandas.tracing.constants as tracing_constants
 from arize.pandas.tracing.columns import (
-    EVAL_COLUMN_PREFIX,
     EVAL_EXPLANATION_SUFFIX,
     EVAL_LABEL_SUFFIX,
-    EVAL_NAME_PATTERN,
+    EVAL_PREFIX_AND_NAME_PATTERN,
     EVAL_SCORE_SUFFIX,
 )
 from arize.pandas.tracing.validation.common import errors as tracing_err
@@ -59,18 +58,17 @@ def _check_eval_columns_null_values(
     dataframe: pd.DataFrame,
 ) -> List[err.ValidationError]:
     invalid_eval_names = []
-    eval_names = set()
+    eval_prefix_and_name = set()
     for col in dataframe.columns:
-        match = re.match(EVAL_NAME_PATTERN, col)
+        match = re.match(EVAL_PREFIX_AND_NAME_PATTERN, col)
         if match:
-            eval_names.add(match.group(1))
+            # match is eval.Hallucination or session_eval.Repetitive
+            eval_prefix_and_name.add(match.group(1))
 
-    for eval_name in eval_names:
-        label_col = f"{EVAL_COLUMN_PREFIX}{eval_name}{EVAL_LABEL_SUFFIX}"
-        score_col = f"{EVAL_COLUMN_PREFIX}{eval_name}{EVAL_SCORE_SUFFIX}"
-        explanation_col = (
-            f"{EVAL_COLUMN_PREFIX}{eval_name}{EVAL_EXPLANATION_SUFFIX}"
-        )
+    for prefix_and_name in eval_prefix_and_name:
+        label_col = prefix_and_name + EVAL_LABEL_SUFFIX
+        score_col = prefix_and_name + EVAL_SCORE_SUFFIX
+        explanation_col = prefix_and_name + EVAL_EXPLANATION_SUFFIX
         columns_to_check = []
 
         if label_col in dataframe.columns:
@@ -85,7 +83,7 @@ def _check_eval_columns_null_values(
                 & ~dataframe[explanation_col].isnull()
             )
             if condition.any():
-                invalid_eval_names.append(eval_name)
+                invalid_eval_names.append(prefix_and_name)
 
     if invalid_eval_names:
         return [

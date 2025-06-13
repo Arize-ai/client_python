@@ -22,15 +22,18 @@ valid_spans_dataframe = pd.DataFrame(
     }
 )
 
+EVAL_PREFIXES = ["eval", "session_eval", "trace_eval"]
+
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
-def test_valid_eval_column_types():
+@pytest.mark.parametrize("prefix", EVAL_PREFIXES)
+def test_valid_eval_column_types(prefix):
     evals_dataframe = pd.DataFrame(
         {
             "context.span_id": ["span_id_1", "span_id_2"],
-            "eval.eval_1.label": ["relevant", "irrelevant"],
-            "eval.eval_1.score": [1.0, None],
-            "eval.eval_1.explanation": [
+            f"{prefix}.eval_1.label": ["relevant", "irrelevant"],
+            f"{prefix}.eval_1.score": [1.0, None],
+            f"{prefix}.eval_1.explanation": [
                 "explanation for relevant",
                 "explanation for irrelevant",
             ],
@@ -39,18 +42,18 @@ def test_valid_eval_column_types():
     errors = evals_validation.validate_dataframe_form(
         evals_dataframe=evals_dataframe
     )
-    assert len(errors) == 0, "Expected no validation errors for all columns"
+    assert (
+        len(errors) == 0
+    ), f"Expected no validation errors for all columns with prefix {prefix}"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
-def test_invalid_label_columns_type():
+@pytest.mark.parametrize("prefix", EVAL_PREFIXES)
+def test_invalid_label_columns_type(prefix):
     evals_dataframe = pd.DataFrame(
         {
             "context.span_id": ["span_id_1", "span_id_2"],
-            "eval.eval_1.label": [
-                1,
-                2,
-            ],
+            f"{prefix}.eval_1.label": [1, 2],
         }
     )
     errors = evals_validation.validate_dataframe_form(
@@ -58,18 +61,16 @@ def test_invalid_label_columns_type():
     )
     assert (
         len(errors) > 0
-    ), "Expected validation errors for label columns with incorrect type"
+    ), f"Expected validation errors for label columns with incorrect type with prefix {prefix}"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
-def test_invalid_score_columns_type():
+@pytest.mark.parametrize("prefix", EVAL_PREFIXES)
+def test_invalid_score_columns_type(prefix):
     evals_dataframe = pd.DataFrame(
         {
             "context.span_id": ["span_id_1", "span_id_2"],
-            "eval.eval_1.score": [
-                "1.0",
-                "None",
-            ],
+            f"{prefix}.eval_1.score": ["1.0", "None"],
         }
     )
     errors = evals_validation.validate_dataframe_form(
@@ -77,18 +78,16 @@ def test_invalid_score_columns_type():
     )
     assert (
         len(errors) > 0
-    ), "Expected validation errors for score columns with incorrect type"
+    ), f"Expected validation errors for score columns with incorrect type with prefix {prefix}"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
-def test_invalid_explanation_columns_type():
+@pytest.mark.parametrize("prefix", EVAL_PREFIXES)
+def test_invalid_explanation_columns_type(prefix):
     evals_dataframe = pd.DataFrame(
         {
             "context.span_id": ["span_id_1", "span_id_2"],
-            "eval.eval_1.explanation": [
-                1,
-                2,
-            ],
+            f"{prefix}.eval_1.explanation": [1, 2],
         }
     )
     errors = evals_validation.validate_dataframe_form(
@@ -96,7 +95,7 @@ def test_invalid_explanation_columns_type():
     )
     assert (
         len(errors) > 0
-    ), "Expected validation errors for explanation columns with incorrect type"
+    ), f"Expected validation errors for explanation columns with incorrect type with prefix {prefix}"
 
 
 if __name__ == "__main__":
