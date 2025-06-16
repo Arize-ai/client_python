@@ -36,6 +36,7 @@ from ..utils.constants import (
     API_KEY_ENVVAR_NAME,
     DEFAULT_ARIZE_FLIGHT_HOST,
     DEFAULT_ARIZE_FLIGHT_PORT,
+    DEFAULT_TRANSPORT_SCHEME,
     DEVELOPER_KEY_ENVVAR_NAME,
     GENERATED_LLM_PARAMS_JSON_COL,
     GENERATED_PREDICTION_LABEL_COL,
@@ -103,6 +104,7 @@ class Client:
         developer_key: Optional[str] = None,
         host: Optional[str] = None,
         port: Optional[int] = None,
+        scheme: str = DEFAULT_TRANSPORT_SCHEME,
     ) -> None:
         """
         Initializes the Arize Client
@@ -121,6 +123,7 @@ class Client:
             developer_key (str): [Deprecated] You only need the api_key for all data logging operations.
             host (str, optional): Arize Flight server host. Defaults to DEFAULT_ARIZE_FLIGHT_HOST.
             port (int, optional): Arize Flight server port. Defaults to DEFAULT_ARIZE_FLIGHT_PORT.
+            scheme (str, optional): Arize Flight server scheme. Defaults to DEFAULT_TRANSPORT_SCHEME.
         """
         self._api_key = api_key or os.getenv(API_KEY_ENVVAR_NAME)
         self._space_id = space_id or os.getenv(SPACE_ID_ENVVAR_NAME)
@@ -171,6 +174,7 @@ class Client:
         # required for sending events to Flight server
         self._host = host if host else DEFAULT_ARIZE_FLIGHT_HOST
         self._port = port if port else DEFAULT_ARIZE_FLIGHT_PORT
+        self._scheme = scheme
         # Only initialize FlightSession if all required params are set
         self._flight_session = None
         has_flight_params = all(
@@ -182,7 +186,7 @@ class Client:
                 port=self._port,
                 api_key=self._developer_key,
                 space_id=self._space_id,
-                scheme="grpc+tls",
+                scheme=self._scheme,
             )
 
     def log_spans(

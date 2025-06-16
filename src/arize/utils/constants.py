@@ -67,3 +67,6 @@ DEFAULT_ARIZE_FLIGHT_PORT = 443
 path = Path(__file__).with_name("model_mapping.json")
 with path.open("r") as f:
     MODEL_MAPPING_CONFIG = json.load(f)
+
+# Default to use grpc + tls scheme.
+DEFAULT_TRANSPORT_SCHEME = "grpc+tls"

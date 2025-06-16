@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.45.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.44.0...arize-python-sdk/v7.45.0) (2025-06-16)
+
+
+### 🎁 New Features
+
+* Add `scheme` argument to pandas client ([#47922](https://github.com/Arize-ai/arize/issues/47922)) ([70d20e7](https://github.com/Arize-ai/arize/commit/70d20e73ad871f27c5327f21d2a7a151434384bb))
+
 ## [7.44.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.43.1...arize-python-sdk/v7.44.0) (2025-06-12)
 
 
