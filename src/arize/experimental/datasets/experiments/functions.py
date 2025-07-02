@@ -775,12 +775,14 @@ def transform_to_experiment_format(
         raise ValueError(f"Missing required columns: {missing_cols}")
 
     # Initialize output DataFrame with required columns
-    out_df = pd.DataFrame()
+    out_df = df.copy()
     out_df["id"] = range(len(df))  # Generate sequential IDs
     out_df["example_id"] = df[task_columns.example_id]
+    out_df.drop(task_columns.example_id, axis=1, inplace=True)
     out_df["result"] = df[task_columns.result].apply(
         lambda x: json.dumps(x) if isinstance(x, dict) else x
     )
+    out_df.drop(task_columns.result, axis=1, inplace=True)
 
     # Process evaluator results
     if evaluator_columns:
@@ -803,10 +805,12 @@ def _add_evaluator_columns(
     # Add score if specified
     if column_names.score and column_names.score in input_df.columns:
         output_df[f"eval.{evaluator_name}.score"] = input_df[column_names.score]
+        output_df.drop(column_names.score, axis=1, inplace=True)
 
     # Add label if specified
     if column_names.label and column_names.label in input_df.columns:
         output_df[f"eval.{evaluator_name}.label"] = input_df[column_names.label]
+        output_df.drop(column_names.label, axis=1, inplace=True)
 
     # Add explanation if specified
     if (
@@ -816,6 +820,7 @@ def _add_evaluator_columns(
         output_df[f"eval.{evaluator_name}.explanation"] = input_df[
             column_names.explanation
         ]
+        output_df.drop(column_names.explanation, axis=1, inplace=True)
 
     # Add metadata columns if specified
     if column_names.metadata:
@@ -830,6 +835,7 @@ def _add_evaluator_columns(
                 )
 
             output_col = f"eval.{evaluator_name}.metadata.{metadata_key}"
+            output_df.drop(md_col_name, axis=1, inplace=True)
 
             output_vals = input_df[md_col_name].apply(
                 lambda x: str(x)

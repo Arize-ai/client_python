@@ -306,7 +306,7 @@ class ExperimentRun:
         )
 
     def __post_init__(self) -> None:
-        if bool(self.output) == bool(self.error):
+        if (self.output is None) == (self.error is None):
             raise ValueError(
                 "Must specify exactly one of experiment_run_output or error"
             )

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## [7.46.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.45.0...arize-python-sdk/v7.46.0) (2025-07-02)
+
+
+### 🎁 New Features
+
+* Support Sending in Additional Columns for Experiments  ([#48283](https://github.com/Arize-ai/arize/issues/48283)) ([e6c1e00](https://github.com/Arize-ai/arize/commit/e6c1e00c6196776ca36dd9f1817eb5ba7b2514c1))
+
+
+### 🐛 Bug Fixes
+
+* Allow falsy experiment outputs without raising exception ([#48594](https://github.com/Arize-ai/arize/issues/48594)) ([6ee6478](https://github.com/Arize-ai/arize/commit/6ee647845b95da2b0be685a810cf25ef7f11d1e5))
+
 ## [7.45.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.44.0...arize-python-sdk/v7.45.0) (2025-06-16)
 
 

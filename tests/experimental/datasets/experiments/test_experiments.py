@@ -374,6 +374,8 @@ def test_converting_exp_df():
         "id",
         "example_id",
         "result",
+        "unused_col",
+        "unsed_col_2",
         "eval.QualityEvaluator.score",
         "eval.QualityEvaluator.label",
         "eval.QualityEvaluator.explanation",
@@ -382,7 +384,7 @@ def test_converting_exp_df():
         "eval.QualityEvaluator.metadata.dict",
     }
 
-    assert output_df.shape == (2, 9)
+    assert output_df.shape == (2, 11)
     assert set(output_df.columns.tolist()) == expected_columns
     # task result (if in dictionary) is converted to json str
     assert type(output_df["result"][0]) is str
