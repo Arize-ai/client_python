@@ -778,11 +778,13 @@ def transform_to_experiment_format(
     out_df = df.copy()
     out_df["id"] = range(len(df))  # Generate sequential IDs
     out_df["example_id"] = df[task_columns.example_id]
-    out_df.drop(task_columns.example_id, axis=1, inplace=True)
+    if task_columns.example_id != "example_id":
+        out_df.drop(task_columns.example_id, axis=1, inplace=True)
     out_df["result"] = df[task_columns.result].apply(
         lambda x: json.dumps(x) if isinstance(x, dict) else x
     )
-    out_df.drop(task_columns.result, axis=1, inplace=True)
+    if task_columns.result != "result":
+        out_df.drop(task_columns.result, axis=1, inplace=True)
 
     # Process evaluator results
     if evaluator_columns:

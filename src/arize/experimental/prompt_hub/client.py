@@ -90,7 +90,11 @@ class ArizePromptClient:
         result = self.client.execute(query_obj, variables)
         return result
 
-    def pull_prompts(self) -> List[Prompt]:
+    def pull_prompts(
+        self,
+        *,
+        search: Optional[str] = None,
+    ) -> List[Prompt]:
         """
         Pull all prompts from the space.
 
@@ -98,10 +102,10 @@ class ArizePromptClient:
             A list of prompts.
         """
         query = """
-            query GetPrompts($spaceId: ID!) {
+            query GetPrompts($spaceId: ID!, $search: String) {
                 node(id: $spaceId) {
                   ... on Space {
-                    prompts(first: 50) {
+                    prompts(first: 50, search: $search) {
                         edges {
                             node {
                                 id
@@ -131,6 +135,8 @@ class ArizePromptClient:
             }
         """
         variables = {"spaceId": self.space_id}
+        if search:
+            variables["search"] = search
         result = self._make_request(query, variables)
         prompts = []
         for edge in result["node"]["prompts"]["edges"]:
@@ -155,25 +161,86 @@ class ArizePromptClient:
             )
         return prompts
 
-    def pull_prompt(self, prompt_name: str) -> Prompt:
+    def pull_prompt(
+        self,
+        prompt_name: Optional[str] = None,
+        *,
+        version_id: Optional[str] = None,
+        version_label: Optional[str] = None,
+    ) -> Prompt:
+        """Pull a prompt by name, version ID, or name + version label combination."""
+
+        query = """
+            query GetPrompt($spaceId: ID!, $versionId: ID, $name: String, $versionLabel: String) {
+                node(id: $spaceId) {
+                    ... on Space {
+                        prompts(
+                            first: 1,
+                            versionId: $versionId,
+                            name: $name,
+                            versionLabel: $versionLabel
+                        ) {
+                            edges {
+                                node {
+                                    id
+                                    name
+                                    description
+                                    tags
+                                    commitMessage
+                                    messages
+                                    inputVariableFormat
+                                    toolChoice {
+                                        ... on ToolChoiceTool {
+                                            tool
+                                        }
+                                        ... on ToolChoiceChoice {
+                                            choice
+                                        }
+                                    }
+                                    toolCalls
+                                    llmParameters
+                                    provider
+                                    modelName
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         """
-        Pull a prompt by name.
 
-        Args:
-            prompt_name: The name of the prompt to pull.
+        variables = {"spaceId": self.space_id}
 
-        Returns:
-            The prompt with the given name.
+        if version_id:
+            variables["versionId"] = version_id
+        if version_label:
+            variables["versionLabel"] = version_label.strip()
+        if prompt_name:
+            variables["name"] = prompt_name.strip()
 
-        Raises:
-            ValueError: If no prompt with the given name is found.
-        """
-        # Client-side filtering since the GraphQL endpoint doesn't support strict filtering yet
-        prompts = self.pull_prompts()
-        for prompt in prompts:
-            if prompt.name == prompt_name:
-                return prompt
-        raise ValueError(f"Prompt with name {prompt_name} not found")
+        result = self._make_request(query, variables)
+
+        edges = result["node"]["prompts"]["edges"]
+        if not edges:
+            raise ValueError("Prompt not found")
+
+        node = edges[0]["node"]
+        return Prompt(
+            id=node["id"],
+            name=node["name"],
+            description=node["description"],
+            tags=node["tags"],
+            commit_message=node["commitMessage"],
+            messages=node["messages"],
+            input_variable_format=PromptInputVariableFormat(
+                node["inputVariableFormat"]
+            ),
+            tool_choice=node["toolChoice"],
+            tool_calls=node["toolCalls"],
+            llm_parameters=node["llmParameters"],
+            provider=LLMProvider(node["provider"]),
+            model_name=_convert_to_external_name(node["modelName"]),
+        )
 
     def push_prompt(
         self, prompt: Prompt, commit_message: Optional[str] = None

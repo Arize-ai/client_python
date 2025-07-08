@@ -1,6 +1,20 @@
 # Changelog
 
 
+## [7.47.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.46.0...arize-python-sdk/v7.47.0) (2025-07-08)
+
+
+### 🎁 New Features
+
+* prompt hub SDK support pull by versionID and pull by prompt version label. ([#48354](https://github.com/Arize-ai/arize/issues/48354)) ([c8b361e](https://github.com/Arize-ai/arize/commit/c8b361e306f2103fc120524f325b79cda871e242))
+* support tool calls in prompt hub SDK ([#48785](https://github.com/Arize-ai/arize/issues/48785)) ([28ec8aa](https://github.com/Arize-ai/arize/commit/28ec8aa0ab0d473f274fc2ca21c32e2171845cfc))
+
+
+### 🐛 Bug Fixes
+
+* Experiments logger fix ([#48940](https://github.com/Arize-ai/arize/issues/48940)) ([f308be8](https://github.com/Arize-ai/arize/commit/f308be80be93b7064ffcde894bfdff476b4bd585))
+* promp_pull revert name back to prompt_name ([#48998](https://github.com/Arize-ai/arize/issues/48998)) ([21bbb0f](https://github.com/Arize-ai/arize/commit/21bbb0f716e46b981b9eea627fa6bbd6e1f9274f))
+
 ## [7.46.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.45.0...arize-python-sdk/v7.46.0) (2025-07-02)
 
 

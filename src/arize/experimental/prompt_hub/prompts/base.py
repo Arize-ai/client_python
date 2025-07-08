@@ -147,9 +147,48 @@ class LLMMessageInput(BaseModel):
         exclude_none = True
 
 
+class FunctionDetailsInput(BaseModel):
+    """Details for a function tool."""
+
+    name: str
+    description: Optional[str] = None
+    parameters: Optional[Dict[str, Any]] = None
+
+    class Config:
+        exclude_none = True
+
+
+class ToolInput(BaseModel):
+    """Input specification for a tool."""
+
+    id: Optional[str] = None
+    type: str
+    function: FunctionDetailsInput
+    description: Optional[str] = None
+    name: Optional[str] = None
+
+    class Config:
+        exclude_none = True
+
+
+class ToolChoiceInput(BaseModel):
+    """Input specification for tool choice."""
+
+    choice: Optional[str] = None  # none, auto, required
+    tool: Optional[ToolInput] = None
+
+    class Config:
+        exclude_none = True
+
+
 class ToolConfig(BaseModel):
-    tools: Optional[List[Dict[str, Any]]] = None
-    toolChoice: Optional[str] = None
+    """Tool configuration for LLM calls."""
+
+    tools: Optional[List[ToolInput]] = None
+    toolChoice: Optional[ToolChoiceInput] = None
+
+    class Config:
+        exclude_none = True
 
 
 class InvocationParamsInput(BaseModel):
@@ -213,6 +252,42 @@ class LLMInput(BaseModel):
         exclude_none = True
 
 
+def _create_tool_config(
+    tool_calls: Optional[List[Dict[str, Any]]], tool_choice: Optional[str]
+) -> Optional[ToolConfig]:
+    """Convert raw tool data into structured ToolConfig model."""
+    if not tool_calls and not tool_choice:
+        return None
+
+    tools = None
+    if tool_calls:
+        tools = []
+        for tool_call in tool_calls:
+            function_details = FunctionDetailsInput(
+                # Intentionally use direct key access to surface missing keys to the user
+                name=tool_call["function"]["name"],
+                description=tool_call["function"]["description"],
+                parameters=tool_call["function"]["parameters"],
+            )
+
+            tool_input = ToolInput(
+                id=tool_call.get("id"),
+                type=tool_call.get(
+                    "type", "function"
+                ),  # Default to "function" type
+                function=function_details,
+                description=tool_call.get("description"),
+                name=tool_call.get("name"),
+            )
+            tools.append(tool_input)
+
+    tool_choice_input = None
+    if tool_choice:
+        tool_choice_input = ToolChoiceInput(choice=tool_choice)
+
+    return ToolConfig(tools=tools, toolChoice=tool_choice_input)
+
+
 def prompt_to_llm_input(prompt: Prompt) -> LLMInput:
     """
     Convert a Prompt object to the LLMInput format required by the API.
@@ -239,12 +314,8 @@ def prompt_to_llm_input(prompt: Prompt) -> LLMInput:
         frequencyPenalty=prompt.llm_parameters.get("frequencyPenalty"),
         topK=prompt.llm_parameters.get("topK"),
         toolConfig=(
-            ToolConfig(
-                tools=prompt.llm_parameters.get("tools"),
-                toolChoice=prompt.llm_parameters.get("toolChoice"),
-            )
-            if prompt.llm_parameters.get("tools")
-            or prompt.llm_parameters.get("toolChoice")
+            _create_tool_config(prompt.tool_calls, prompt.tool_choice)
+            if prompt.tool_calls or prompt.tool_choice
             else None
         ),
     )
