@@ -7,6 +7,7 @@ from typing import Optional, Tuple
 import pandas as pd
 import pyarrow.parquet as pq
 from google.protobuf.timestamp_pb2 import Timestamp
+from google.protobuf.wrappers_pb2 import Int64Value
 from pyarrow import flight
 from tqdm import tqdm
 
@@ -83,6 +84,7 @@ class ArizeExportClient:
         where: Optional[str] = None,
         similarity_search_params: Optional[SimilaritySearchParams] = None,
         columns: Optional[list] = None,
+        stream_chunk_size: Optional[int] = None,
     ) -> pd.DataFrame:
         """
         Exports data of a specific model in the Arize platform to a pandas dataframe for a defined
@@ -117,6 +119,11 @@ class ArizeExportClient:
                 be considered similar.
             columns (list, optional): Specifies the columns to include from the model data during export. If
                 not provided, all columns will be exported.
+            stream_chunk_size (int, optional): Optional parameter to explicitly specify the pagination chunk
+                size during the export stream. Normally this value is determined dynamically in the backend
+                but in extreme cases where individual records are large enough to cause issues that result
+                in export stream error, setting this to a very low value (e.g. 10) could help.
+                The maximum value accepted by the server is 5000. Defaults to None.
 
         Returns:
             A pandas dataframe
@@ -134,6 +141,7 @@ class ArizeExportClient:
             where=where,
             similarity_search_params=similarity_search_params,
             columns=columns,
+            stream_chunk_size=stream_chunk_size,
         )
         if stream_reader is None:
             return pd.DataFrame()
@@ -188,6 +196,7 @@ class ArizeExportClient:
         where: Optional[str] = None,
         similarity_search_params: Optional[SimilaritySearchParams] = None,
         columns: Optional[list] = None,
+        stream_chunk_size: Optional[int] = None,
     ) -> None:
         """
         Exports data of a specific model in the Arize platform to a parquet file for a defined time
@@ -224,6 +233,11 @@ class ArizeExportClient:
                 be considered similar.
             columns (list, optional): Specifies the columns to include from the model data during export. If
                 not provided, all columns will be exported.
+            stream_chunk_size (int, optional): Optional parameter to explicitly specify the pagination chunk
+                size during the export stream. Normally this value is determined dynamically in the backend
+                but in extreme cases where individual records are large enough to cause issues that result
+                in export stream error, setting this to a very low value (e.g. 10) could help.
+                The maximum value accepted by the server is 5000. Defaults to None.
 
 
         Returns:
@@ -243,6 +257,7 @@ class ArizeExportClient:
             where=where,
             similarity_search_params=similarity_search_params,
             columns=columns,
+            stream_chunk_size=stream_chunk_size,
         )
         if stream_reader is None:
             return None
@@ -271,6 +286,7 @@ class ArizeExportClient:
         where: Optional[str] = None,
         similarity_search_params: Optional[SimilaritySearchParams] = None,
         columns: Optional[list] = None,
+        stream_chunk_size: Optional[int] = None,
     ) -> Tuple[flight.FlightStreamReader, int]:
         Validator.validate_input_type(space_id, "space_id", str)
         Validator.validate_input_type(model_id, "model_id", str)
@@ -283,6 +299,9 @@ class ArizeExportClient:
         Validator.validate_start_end_time(start_time, end_time)
         Validator.validate_input_type(where, "where", str)
         Validator.validate_input_type(columns, "columns", list)
+        Validator.validate_input_type(
+            stream_chunk_size, "stream_chunk_size", int
+        )
 
         # Create query descriptor
         query_descriptor = exp_pb2.RecordQueryDescriptor(
@@ -301,6 +320,9 @@ class ArizeExportClient:
                 else None
             ),
             projected_columns=columns if columns else [],
+            stream_chunk_size=Int64Value(value=stream_chunk_size)
+            if stream_chunk_size is not None
+            else None,
         )
 
         flight_client = self.session.connect()

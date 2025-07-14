@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.48.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.47.0...arize-python-sdk/v7.48.0) (2025-07-14)
+
+
+### 🎁 New Features
+
+* **exporter**: enable pagination for export jobs ([#49190](https://github.com/Arize-ai/arize/issues/49190)) ([236a3a9](https://github.com/Arize-ai/arize/commit/236a3a9613472e9d819380e4ec50fc386f9f5963))
+
 ## [7.47.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.46.0...arize-python-sdk/v7.47.0) (2025-07-08)
 
 

@@ -13,9 +13,10 @@ _sym_db = _symbol_database.Default()
 
 
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
+from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14publicexporter.proto\x12\x0epublicexporter\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfa\x03\n\x15RecordQueryDescriptor\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x46\n\x0b\x65nvironment\x18\x03 \x01(\x0e\x32\x31.publicexporter.RecordQueryDescriptor.Environment\x12\x15\n\rmodel_version\x18\x04 \x01(\t\x12\x10\n\x08\x62\x61tch_id\x18\x05 \x01(\t\x12.\n\nstart_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x17\n\x0finclude_actuals\x18\x08 \x01(\x08\x12\x19\n\x11\x66ilter_expression\x18\t \x01(\t\x12H\n\x18similarity_search_params\x18\n \x01(\x0b\x32&.publicexporter.SimilaritySearchParams\x12\x19\n\x11projected_columns\x18\x0b \x03(\t\"U\n\x0b\x45nvironment\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0c\n\x08TRAINING\x10\x01\x12\x0e\n\nVALIDATION\x10\x02\x12\x0e\n\nPRODUCTION\x10\x03\x12\x0b\n\x07TRACING\x10\x04\"\x9b\x02\n\x16SimilaritySearchParams\x12\x44\n\nreferences\x18\x01 \x03(\x0b\x32\x30.publicexporter.SimilaritySearchParams.Reference\x12\x1a\n\x12search_column_name\x18\x02 \x01(\t\x12\x11\n\tthreshold\x18\x03 \x01(\x01\x1a\x8b\x01\n\tReference\x12\x15\n\rprediction_id\x18\x01 \x01(\t\x12\x1d\n\x15reference_column_name\x18\x02 \x01(\t\x12\x38\n\x14prediction_timestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0e\n\x06vector\x18\x04 \x03(\x01\x42GZEgithub.com/Arize-ai/arize/go/pkg/flightserver/protocol/publicexporterb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14publicexporter.proto\x12\x0epublicexporter\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\xb2\x04\n\x15RecordQueryDescriptor\x12\x10\n\x08space_id\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x46\n\x0b\x65nvironment\x18\x03 \x01(\x0e\x32\x31.publicexporter.RecordQueryDescriptor.Environment\x12\x15\n\rmodel_version\x18\x04 \x01(\t\x12\x10\n\x08\x62\x61tch_id\x18\x05 \x01(\t\x12.\n\nstart_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x17\n\x0finclude_actuals\x18\x08 \x01(\x08\x12\x19\n\x11\x66ilter_expression\x18\t \x01(\t\x12H\n\x18similarity_search_params\x18\n \x01(\x0b\x32&.publicexporter.SimilaritySearchParams\x12\x19\n\x11projected_columns\x18\x0b \x03(\t\x12\x36\n\x11stream_chunk_size\x18\x0c \x01(\x0b\x32\x1b.google.protobuf.Int64Value\"U\n\x0b\x45nvironment\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0c\n\x08TRAINING\x10\x01\x12\x0e\n\nVALIDATION\x10\x02\x12\x0e\n\nPRODUCTION\x10\x03\x12\x0b\n\x07TRACING\x10\x04\"\x9b\x02\n\x16SimilaritySearchParams\x12\x44\n\nreferences\x18\x01 \x03(\x0b\x32\x30.publicexporter.SimilaritySearchParams.Reference\x12\x1a\n\x12search_column_name\x18\x02 \x01(\t\x12\x11\n\tthreshold\x18\x03 \x01(\x01\x1a\x8b\x01\n\tReference\x12\x15\n\rprediction_id\x18\x01 \x01(\t\x12\x1d\n\x15reference_column_name\x18\x02 \x01(\t\x12\x38\n\x14prediction_timestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0e\n\x06vector\x18\x04 \x03(\x01\x42GZEgithub.com/Arize-ai/arize/go/pkg/flightserver/protocol/publicexporterb\x06proto3')
 
 
 
@@ -49,12 +50,12 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'ZEgithub.com/Arize-ai/arize/go/pkg/flightserver/protocol/publicexporter'
-  _RECORDQUERYDESCRIPTOR._serialized_start=74
-  _RECORDQUERYDESCRIPTOR._serialized_end=580
-  _RECORDQUERYDESCRIPTOR_ENVIRONMENT._serialized_start=495
-  _RECORDQUERYDESCRIPTOR_ENVIRONMENT._serialized_end=580
-  _SIMILARITYSEARCHPARAMS._serialized_start=583
-  _SIMILARITYSEARCHPARAMS._serialized_end=866
-  _SIMILARITYSEARCHPARAMS_REFERENCE._serialized_start=727
-  _SIMILARITYSEARCHPARAMS_REFERENCE._serialized_end=866
+  _RECORDQUERYDESCRIPTOR._serialized_start=106
+  _RECORDQUERYDESCRIPTOR._serialized_end=668
+  _RECORDQUERYDESCRIPTOR_ENVIRONMENT._serialized_start=583
+  _RECORDQUERYDESCRIPTOR_ENVIRONMENT._serialized_end=668
+  _SIMILARITYSEARCHPARAMS._serialized_start=671
+  _SIMILARITYSEARCHPARAMS._serialized_end=954
+  _SIMILARITYSEARCHPARAMS_REFERENCE._serialized_start=815
+  _SIMILARITYSEARCHPARAMS_REFERENCE._serialized_end=954
 # @@protoc_insertion_point(module_scope)
