@@ -7,7 +7,11 @@ from typing import Any, List, Mapping, Sequence
 
 from vertexai.generative_models import Content, Part
 
-from arize.experimental.prompt_hub.prompts.base import FormattedPrompt, Prompt
+from arize.experimental.prompt_hub.prompts.base import (
+    FormattedPrompt,
+    Prompt,
+)
+from arize.experimental.prompt_hub.prompts.template_utils import format_template
 
 
 @dataclass(frozen=True)
@@ -63,9 +67,12 @@ def format_vertexai_prompt(
     """
     formatted_messages = []
     for message in prompt.messages:
+        content_text = format_template(
+            message["content"], variables, prompt.input_variable_format
+        )
         formatted_message = Content(
             role=message["role"],
-            parts=[Part.from_text(message["content"].format(**variables))],
+            parts=[Part.from_text(content_text)],
         )
         formatted_messages.append(formatted_message)
     return formatted_messages

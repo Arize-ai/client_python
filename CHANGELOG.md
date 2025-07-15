@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.48.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.48.0...arize-python-sdk/v7.48.1) (2025-07-15)
+
+
+### 🐛 Bug Fixes
+
+* Formatting prompt templates to allow for mustache variables with string delimiters ([#49338](https://github.com/Arize-ai/arize/issues/49338)) ([69ceca3](https://github.com/Arize-ai/arize/commit/69ceca3749d66a761a6138370ce1e3ac243bf8bb))
+
 ## [7.48.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.47.0...arize-python-sdk/v7.48.0) (2025-07-14)
 
 

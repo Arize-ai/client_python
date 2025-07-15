@@ -5,7 +5,11 @@ OpenAI-specific prompt implementations.
 from dataclasses import dataclass
 from typing import Any, Dict, List, Mapping, Sequence
 
-from arize.experimental.prompt_hub.prompts.base import FormattedPrompt, Prompt
+from arize.experimental.prompt_hub.prompts.base import (
+    FormattedPrompt,
+    Prompt,
+)
+from arize.experimental.prompt_hub.prompts.template_utils import format_template
 
 
 @dataclass(frozen=True)
@@ -56,7 +60,10 @@ def format_openai_prompt(
     formatted_messages = []
     for message in prompt.messages:
         formatted_message = message.copy()
-        formatted_message["content"] = message["content"].format(**variables)
+        if "content" in formatted_message:
+            formatted_message["content"] = format_template(
+                message["content"], variables, prompt.input_variable_format
+            )
         formatted_messages.append(formatted_message)
     return formatted_messages
 
