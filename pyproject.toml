@@ -63,7 +63,7 @@ MimicExplainer = [
     "interpret-community[mimic]>=0.22.0,<1",
 ]
 AutoEmbeddings = [
-    "transformers>=4.25, <5",
+    "transformers>=4.25, <4.53",
     "tokenizers>=0.13, <1",
     "datasets>=2.8, <3, !=2.14.*",
     "torch>=1.13, <3",
