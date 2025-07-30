@@ -1,6 +1,14 @@
 # Changelog
 
 
+## [7.48.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.48.1...arize-python-sdk/v7.48.2) (2025-07-30)
+
+
+### 🐛 Bug Fixes
+
+* add validation for empty dataset for ArizeDatasetsClient ([#50260](https://github.com/Arize-ai/arize/issues/50260)) ([bdf728f](https://github.com/Arize-ai/arize/commit/bdf728f9b4f4d7eed5c3e93d36511d7223317e71))
+* **datasets:** properly handles datatime/timestamp columns ([#49371](https://github.com/Arize-ai/arize/issues/49371)) ([8b65b70](https://github.com/Arize-ai/arize/commit/8b65b7099be41e3fd8bc555ad62565e2ade9df4f))
+
 ## [7.48.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.48.0...arize-python-sdk/v7.48.1) (2025-07-15)
 
 

@@ -394,3 +394,52 @@ def test_converting_exp_df():
 
     # metadata subfield, if a dict is converted to json str
     assert type(output_df["eval.QualityEvaluator.metadata.dict"][0]) is str
+
+
+def test_experiment_with_datetime_columns():
+    """Test that experiments work correctly with datetime columns in the dataset"""
+
+    # Create test data with datetime columns, following existing pattern
+    df_with_datetime = pd.DataFrame(
+        {
+            "id": [f"id_{i}" for i in range(3)],
+            "question": [
+                "".join(
+                    random.choices(string.ascii_letters + string.digits, k=10)
+                )
+                for _ in range(3)
+            ],
+            "timestamp": [
+                pd.Timestamp("2024-01-01T12:00:00Z"),
+                pd.Timestamp("2024-01-02T12:00:00Z"),
+                pd.Timestamp("2024-01-03T12:00:00Z"),
+            ],
+        }
+    )
+
+    def dummy_task(x):
+        question = x["question"]
+        return f"Answer to {question}"
+
+    # Test that run_experiment works with datetime columns
+    c = ArizeDatasetsClient(api_key="dummy_key")
+    exp_id, exp_df = c.run_experiment(
+        space_id="dummy_space_id",
+        experiment_name="test_experiment",
+        dataset_id="dummy_dataset_id",
+        dataset_df=df_with_datetime,
+        task=dummy_task,
+        evaluators=[DummyEval()],
+        dry_run=True,
+    )
+
+    # Should complete successfully with expected results
+    assert exp_id == ""
+    assert exp_df.shape[0] == 3  # 3 rows
+    assert exp_df.shape[1] >= 11  # At least 11 columns (base + 1 evaluator)
+    assert not exp_df.empty
+
+    # Verify experiment results are as expected
+    for _, row in exp_df.iterrows():
+        assert row["example_id"] == row["eval.DummyEval.label"]
+        assert row.result == row["eval.DummyEval.metadata.output"]

@@ -45,3 +45,9 @@ class RequiredColumnsError(DatasetError):
 
     def __repr__(self) -> str:
         return f"RequiredColumnsError({self.missing_columns})"
+
+
+class EmptyDatasetError(DatasetError):
+    @staticmethod
+    def error_message() -> str:
+        return "DataFrame must have at least one row in it."

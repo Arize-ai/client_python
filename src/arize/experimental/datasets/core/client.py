@@ -45,6 +45,14 @@ from ..validation.validator import Validator
 from .session import Session
 
 
+def _convert_datetime_columns_to_int(df: pd.DataFrame) -> pd.DataFrame:
+    for col in df.select_dtypes(
+        include=["datetime64[ns]", "datetime64[ns, UTC]"]
+    ):
+        df[col] = df[col].astype("int64") // 10**6  # ms since epoch
+    return df
+
+
 @dataclass
 class ArizeDatasetsClient:
     """
@@ -431,6 +439,8 @@ class ArizeDatasetsClient:
         Returns:
             str: The ID of the created dataset, or None if the creation failed.
         """
+        # Convert datetime columns to int64 (ms since epoch)
+        data = _convert_datetime_columns_to_int(data)
         df = self._set_default_columns_for_dataset(data)
         if convert_dict_to_json:
             df = _convert_default_columns_to_json_str(df)

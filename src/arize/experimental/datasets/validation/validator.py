@@ -22,6 +22,11 @@ class Validator:
         if id_column_unique_constraint_error:
             return id_column_unique_constraint_error
 
+        # check DataFrame has at least one row in it
+        emtpy_dataframe_error = Validator._check_empty_dataframe(df)
+        if emtpy_dataframe_error:
+            return emtpy_dataframe_error
+
         return []
 
     @staticmethod
@@ -36,4 +41,10 @@ class Validator:
     def _check_id_column_is_unique(df: pd.DataFrame) -> List[err.DatasetError]:
         if not df["id"].is_unique:
             return [err.IDColumnUniqueConstraintError]
+        return []
+
+    @staticmethod
+    def _check_empty_dataframe(df: pd.DataFrame) -> List[err.DatasetError]:
+        if df.empty:
+            return [err.EmptyDatasetError]
         return []
