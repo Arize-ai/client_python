@@ -1,6 +1,14 @@
 # Changelog
 
 
+## [7.48.3](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.48.2...arize-python-sdk/v7.48.3) (2025-08-05)
+
+
+### 🐛 Bug Fixes
+
+* Add insecure argument for ArizeDatasetsClient ([#50637](https://github.com/Arize-ai/arize/issues/50637)) ([360cf94](https://github.com/Arize-ai/arize/commit/360cf94fed584a8be3e91396aee19134d973c7da))
+* update log_evaluations_sync logging message  ([#50384](https://github.com/Arize-ai/arize/issues/50384)) ([357f784](https://github.com/Arize-ai/arize/commit/357f7843f9c5857645abd4c04e333fcdc2c94b45))
+
 ## [7.48.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.48.1...arize-python-sdk/v7.48.2) (2025-07-30)
 
 

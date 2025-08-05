@@ -69,6 +69,8 @@ class ArizeDatasetsClient:
             "{DEFAULT_TRANSPORT_SCHEME}".
         otlp_endpoint (str, optional): OTLP endpoint to send experiment traces to Arize. Defaults to
             "{DEFAULT_ARIZE_OTLP_ENDPOINT}".
+        insecure (bool, optional): Determines the connection type for the experiment tracer resource.
+            Defaults to False
         developer_key (str, optional): DEPRECATED. Only api_key is needed.
             This parameter will be removed in a future version.
     """
@@ -78,6 +80,7 @@ class ArizeDatasetsClient:
     port: int = DEFAULT_ARIZE_FLIGHT_PORT
     scheme: str = DEFAULT_TRANSPORT_SCHEME
     otlp_endpoint: str = DEFAULT_ARIZE_OTLP_ENDPOINT
+    insecure: bool = False
     developer_key: Optional[str] = None
 
     def __post_init__(self) -> None:
@@ -206,7 +209,7 @@ class ArizeDatasetsClient:
             api_key=self.api_key,
             endpoint=self.otlp_endpoint,
             dry_run=dry_run,
-            insecure=(self.host == "localhost"),
+            insecure=self.insecure,
             set_global_tracer_provider=set_global_tracer_provider,
         )
 

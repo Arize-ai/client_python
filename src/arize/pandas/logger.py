@@ -1785,9 +1785,18 @@ class Client:
                     # Use the correct response type
                     res = response_type()
                     res.ParseFromString(flight_response.to_pybytes())
-                    logger.info(
-                        f"Successfully logged {log_context} data to Arize for model '{model_id}' "
-                    )
+                    if len(pa_table) == res.records_updated:
+                        logger.info(
+                            f"✅ All {len(pa_table)} {log_context} data have been logged successfully "
+                            f"for model '{model_id}'!"
+                        )
+                    else:
+                        missing_records = len(pa_table) - res.records_updated
+                        logger.warning(
+                            f"⚠️ Only {res.records_updated} out of {len(pa_table)} {log_context} data "
+                            f"were logged, and {missing_records} of data were not logged successfully "
+                            f"for model '{model_id}'."
+                        )
         except Exception:
             logger.exception(f"Error logging {log_context} data to Arize")
         finally:
