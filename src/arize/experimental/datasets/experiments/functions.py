@@ -63,6 +63,7 @@ RateLimitErrors: TypeAlias = Union[
 
 def run_experiment(
     experiment_name: str,
+    experiment_id: str,
     dataset: pd.DataFrame,
     task: ExperimentTask,
     tracer: Tracer,
@@ -76,6 +77,7 @@ def run_experiment(
     Run an experiment on a dataset.
     Args:
         experiment_name (str): The name for the experiment.
+        experiment_id (str): The ID for the experiment.
         dataset (pd.DataFrame): The dataset to run the experiment on.
         task (ExperimentTask): The task to be executed on the dataset.
         tracer (Tracer): Tracer for tracing the experiment.
@@ -100,7 +102,7 @@ def run_experiment(
 
     logger.info("🧪 Experiment started.")
 
-    md = {"experiment_name": experiment_name}
+    md = {"experiment_id": experiment_id}
 
     def sync_run_experiment(example: Example) -> ExperimentRun:
         output = None

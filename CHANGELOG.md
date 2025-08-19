@@ -1,6 +1,19 @@
 # Changelog
 
 
+## [7.49.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.48.3...arize-python-sdk/v7.49.0) (2025-08-19)
+
+
+### 🎁 New Features
+
+* add keys and host warnings  ([#50882](https://github.com/Arize-ai/arize/issues/50882)) ([fd2dabf](https://github.com/Arize-ai/arize/commit/fd2dabf667b5ff490615a567c4794036461443f6))
+* use experiment id for experiment trace metadata ([#51089](https://github.com/Arize-ai/arize/issues/51089)) ([b7fb176](https://github.com/Arize-ai/arize/commit/b7fb176b416d452c1b6a75b29b5c6bfcadcc8aad))
+
+
+### 🐛 Bug Fixes
+
+* internal `_log_arrow_flight` calculation of records updated for different response types ([#51388](https://github.com/Arize-ai/arize/issues/51388)) ([ccf932e](https://github.com/Arize-ai/arize/commit/ccf932e841fa6e2f9dddd6de94b6ee5d1c37ad2a))
+
 ## [7.48.3](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.48.2...arize-python-sdk/v7.48.3) (2025-08-05)
 
 

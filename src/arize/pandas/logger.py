@@ -18,6 +18,7 @@ import requests
 from google.protobuf import json_format
 from packaging.version import parse as parse_version
 from pyarrow import flight
+from typing_extensions import assert_never
 
 from arize.pandas.proto.requests_pb2 import (
     DoPutRequest,
@@ -125,12 +126,31 @@ class Client:
             port (int, optional): Arize Flight server port. Defaults to DEFAULT_ARIZE_FLIGHT_PORT.
             scheme (str, optional): Arize Flight server scheme. Defaults to DEFAULT_TRANSPORT_SCHEME.
         """
-        self._api_key = api_key or os.getenv(API_KEY_ENVVAR_NAME)
-        self._space_id = space_id or os.getenv(SPACE_ID_ENVVAR_NAME)
-        self._space_key = space_key or os.getenv(SPACE_KEY_ENVVAR_NAME)
-        self._developer_key = developer_key or os.getenv(
-            DEVELOPER_KEY_ENVVAR_NAME
-        )
+
+        env_api_key = os.getenv(API_KEY_ENVVAR_NAME)
+        env_space_id = os.getenv(SPACE_ID_ENVVAR_NAME)
+        env_space_key = os.getenv(SPACE_KEY_ENVVAR_NAME)
+        env_developer_key = os.getenv(DEVELOPER_KEY_ENVVAR_NAME)
+
+        def _warn_conflict(
+            param_val: Optional[str], env_val: Optional[str], name: str
+        ) -> None:
+            if param_val is not None and env_val and param_val != env_val:
+                logger.warning(
+                    f"Both the '{name}' parameter and the environment variable are set with different "
+                    f"values. Using the explicit parameter value ('{param_val}') and ignoring the "
+                    f"environment variable ('{env_val}')."
+                )
+
+        _warn_conflict(api_key, env_api_key, "api_key")
+        _warn_conflict(space_id, env_space_id, "space_id")
+        _warn_conflict(space_key, env_space_key, "space_key")
+        _warn_conflict(developer_key, env_developer_key, "developer_key")
+
+        self._api_key = api_key or env_api_key
+        self._space_id = space_id or env_space_id
+        self._space_key = space_key or env_space_key
+        self._developer_key = developer_key or env_developer_key
         if self._space_key is not None:
             logger.warning(
                 "The space_key parameter is deprecated and will be removed in a future release. "
@@ -141,6 +161,11 @@ class Client:
                 "The developer_key parameter is deprecated and will be removed in a future release. "
                 "You only need the api_key for all data logging operations."
             )
+            if self._api_key is not None:
+                logger.warning(
+                    """Both the api_key and developer_key parameters are set. Using the api_key and
+                      ignoring the developer_key which will be deprecated in a future release."""
+                )
         else:
             self._developer_key = self._api_key
 
@@ -173,6 +198,14 @@ class Client:
 
         # required for sending events to Flight server
         self._host = host if host else DEFAULT_ARIZE_FLIGHT_HOST
+
+        if isinstance(self._host, str) and re.match(
+            r"^https?://", self._host, flags=re.IGNORECASE
+        ):
+            logger.warning(
+                """The 'host' parameter should only include the host name (e.g. example.com)
+                  without the URL scheme (e.g. 'https://')."""
+            )
         self._port = port if port else DEFAULT_ARIZE_FLIGHT_PORT
         self._scheme = scheme
         # Only initialize FlightSession if all required params are set
@@ -1019,7 +1052,10 @@ class Client:
             df = pd.DataFrame(
                 {
                     "context.span_id": ["span1", "span2"],
-                    "patch_document": [{"tag": "important"}, {"priority": "high"}],
+                    "patch_document": [
+                        {"tag": "important"},
+                        {"priority": "high"},
+                    ],
                 }
             )
 
@@ -1785,15 +1821,29 @@ class Client:
                     # Use the correct response type
                     res = response_type()
                     res.ParseFromString(flight_response.to_pybytes())
-                    if len(pa_table) == res.records_updated:
+
+                    if isinstance(res, WriteSpanAttributesMetadataResponse):
+                        records_updated = res.spans_updated
+                    elif isinstance(
+                        res,
+                        (
+                            WriteSpanEvaluationResponse,
+                            WriteSpanAnnotationResponse,
+                        ),
+                    ):
+                        records_updated = res.records_updated
+                    else:
+                        assert_never(res)
+
+                    if len(pa_table) == records_updated:
                         logger.info(
                             f"✅ All {len(pa_table)} {log_context} data have been logged successfully "
                             f"for model '{model_id}'!"
                         )
                     else:
-                        missing_records = len(pa_table) - res.records_updated
+                        missing_records = len(pa_table) - records_updated
                         logger.warning(
-                            f"⚠️ Only {res.records_updated} out of {len(pa_table)} {log_context} data "
+                            f"⚠️ Only {records_updated} out of {len(pa_table)} {log_context} data "
                             f"were logged, and {missing_records} of data were not logged successfully "
                             f"for model '{model_id}'."
                         )

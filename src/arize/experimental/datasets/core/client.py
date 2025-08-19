@@ -170,13 +170,14 @@ class ArizeDatasetsClient:
                     raise RuntimeError(
                         f"Failed to initialize experiment {experiment_name}"
                     )
-                _, dataset_id, trace_model_name = init_result
+                experiment_id, dataset_id, trace_model_name = init_result
             except BaseException as exc:
                 raise RuntimeError(
                     f"Failed to initialize experiment {experiment_name}"
                 ) from exc
         else:
             trace_model_name = "traces_for_dry_run"
+            experiment_id = "experiment_id_for_dry_run"
 
         # download dataset if not provided
         if dataset_df is None:
@@ -215,6 +216,7 @@ class ArizeDatasetsClient:
 
         output_df = run_experiment(
             experiment_name=experiment_name,
+            experiment_id=experiment_id,
             dataset=input_df,
             task=task,
             tracer=tracer,
