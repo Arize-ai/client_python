@@ -1,6 +1,7 @@
 import re
+from datetime import datetime
 from itertools import chain
-from typing import List
+from typing import List, Union
 
 import pandas as pd
 
@@ -23,6 +24,76 @@ from arize.pandas.tracing.validation.common import (
     value_validation as common_value_validation,
 )
 from arize.pandas.validation import errors as err
+from arize.pandas.validation.errors import ValidationError
+from arize.utils.logging import logger
+
+
+class InvalidAnnotationTimestamp(ValidationError):
+    def __repr__(self) -> str:
+        return "Invalid_Annotation_Timestamp"
+
+    def __init__(self, timestamp_col_name: str, error_type: str) -> None:
+        self.timestamp_col_name = timestamp_col_name
+        self.error_type = error_type
+
+    def error_message(self) -> str:
+        if self.error_type == "future":
+            return (
+                f"At least one timestamp in the annotation column '{self.timestamp_col_name}' "
+                f"is in the future. Annotation timestamps cannot be in the future."
+            )
+        elif self.error_type == "non_positive":
+            return (
+                f"At least one timestamp in the annotation column '{self.timestamp_col_name}' "
+                f"is zero or negative. Annotation timestamps must be positive values."
+            )
+        else:
+            return f"Invalid timestamp in annotation column '{self.timestamp_col_name}'."
+
+
+def _check_annotation_updated_at_timestamp(
+    df: pd.DataFrame,
+    col_name: str,
+    is_required: bool,
+) -> List[
+    Union[
+        tracing_err.InvalidMissingValueInColumn,
+        InvalidAnnotationTimestamp,
+    ]
+]:
+    # This check expects that timestamps have previously been converted to milliseconds
+    if col_name not in df.columns:
+        return []
+
+    errors = []
+    if is_required and df[col_name].isnull().any():
+        errors.append(
+            tracing_err.InvalidMissingValueInColumn(
+                col_name=col_name,
+            )
+        )
+
+    if df[col_name].isnull().all():
+        return errors
+
+    now_ms = datetime.now().timestamp() * 1000
+
+    if df[col_name].max() > now_ms:
+        logger.warning(f"Detected future timestamp in column '{col_name}'.")
+        errors.append(
+            InvalidAnnotationTimestamp(
+                timestamp_col_name=col_name, error_type="future"
+            )
+        )
+
+    if df[col_name].min() <= 0:
+        errors.append(
+            InvalidAnnotationTimestamp(
+                timestamp_col_name=col_name, error_type="non_positive"
+            )
+        )
+
+    return errors
 
 
 def _check_annotation_cols(
@@ -60,7 +131,7 @@ def _check_annotation_cols(
             )
         elif col.endswith(ANNOTATION_UPDATED_AT_SUFFIX):
             checks.append(
-                common_value_validation._check_value_timestamp(
+                _check_annotation_updated_at_timestamp(
                     df=dataframe,
                     col_name=col,
                     is_required=False,  # updated_at is not strictly required per row

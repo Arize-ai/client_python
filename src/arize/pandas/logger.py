@@ -801,10 +801,7 @@ class Client:
             if verbose:
                 logger.info(f"Found annotation names: {annotation_names}")
 
-            # Timestamp in nanoseconds
-            current_time_ns = int(
-                datetime.now(timezone.utc).timestamp() * 1_000_000_000
-            )
+            current_time_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
 
             for name in annotation_names:
                 updated_by_col = (
@@ -831,7 +828,7 @@ class Client:
                             logger.info(
                                 f"Autogenerating column: {updated_at_col}"
                             )
-                        anno_df[updated_at_col] = current_time_ns
+                        anno_df[updated_at_col] = current_time_ms
                 else:
                     if verbose:
                         logger.info(
@@ -859,7 +856,7 @@ class Client:
                     note_obj = {
                         "text": str(note_text),
                         "updated_by": "SDK",
-                        "updated_at": current_time_ns,
+                        "updated_at": current_time_ms,
                     }
                     return [json.dumps(note_obj)]
 

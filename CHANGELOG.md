@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.49.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.49.0...arize-python-sdk/v7.49.1) (2025-08-20)
+
+
+### 🐛 Bug Fixes
+
+* Use milliseconds for annotations updated_at timestamps ([#51504](https://github.com/Arize-ai/arize/issues/51504)) ([4a6c968](https://github.com/Arize-ai/arize/commit/4a6c9687c521aa5428350b66f953c3c39412de4b))
+
 ## [7.49.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.48.3...arize-python-sdk/v7.49.0) (2025-08-19)
 
 

@@ -27,7 +27,7 @@ if sys.version_info >= (3, 8):
 def get_valid_df_for_values_test(num_rows=2):
     """Helper to create a base valid DataFrame for value validation."""
     span_ids = [str(uuid.uuid4()) for _ in range(num_rows)]
-    current_time_ns = int(time.time() * 1e9)
+    current_time_ms = int(time.time() * 1e3)
     notes_list = [[] for _ in range(num_rows)]
     if num_rows > 0:
         notes_list[0] = ['{"text": "Note 1"}']
@@ -46,8 +46,8 @@ def get_valid_df_for_values_test(num_rows=2):
                 "user2",
             ][:num_rows],
             f"annotation.quality{ANNOTATION_UPDATED_AT_SUFFIX}": [
-                current_time_ns - 1000000000,
-                current_time_ns,
+                current_time_ms - 1000,
+                current_time_ms,
             ][:num_rows],
             ANNOTATION_NOTES_COLUMN_NAME: pd.Series(notes_list, dtype=object),
         }
