@@ -98,14 +98,17 @@ class ArizePromptClient:
         """
         Pull all prompts from the space.
 
+        Args:
+            search: Optional search term to filter prompts by name or description.
+
         Returns:
-            A list of prompts.
+            A list of all prompts in the space.
         """
         query = """
-            query GetPrompts($spaceId: ID!, $search: String) {
+            query GetPrompts($spaceId: ID!, $search: String, $first: Int!, $after: String) {
                 node(id: $spaceId) {
                   ... on Space {
-                    prompts(first: 50, search: $search) {
+                    prompts(first: $first, after: $after, search: $search) {
                         edges {
                             node {
                                 id
@@ -129,36 +132,61 @@ class ArizePromptClient:
                                 modelName
                             }
                         }
+                        pageInfo {
+                            hasNextPage
+                            endCursor
+                        }
                     }
                   }
                 }
             }
         """
-        variables = {"spaceId": self.space_id}
-        if search:
-            variables["search"] = search
-        result = self._make_request(query, variables)
+
         prompts = []
-        for edge in result["node"]["prompts"]["edges"]:
-            node = edge["node"]
-            prompts.append(
-                Prompt(
-                    id=node["id"],
-                    name=node["name"],
-                    description=node["description"],
-                    tags=node["tags"],
-                    commit_message=node["commitMessage"],
-                    messages=node["messages"],
-                    input_variable_format=PromptInputVariableFormat(
-                        node["inputVariableFormat"]
-                    ),
-                    tool_choice=node["toolChoice"],
-                    tool_calls=node["toolCalls"],
-                    llm_parameters=node["llmParameters"],
-                    provider=LLMProvider(node["provider"]),
-                    model_name=_convert_to_external_name(node["modelName"]),
+        has_next_page = True
+        end_cursor = None
+        page_size = 50  # Number of prompts to fetch per request
+
+        while has_next_page:
+            variables = {
+                "spaceId": self.space_id,
+                "first": page_size,
+            }
+            if search:
+                variables["search"] = search
+            if end_cursor:
+                variables["after"] = end_cursor
+
+            result = self._make_request(query, variables)
+            prompts_data = result["node"]["prompts"]
+
+            # Process the current page of prompts
+            for edge in prompts_data["edges"]:
+                node = edge["node"]
+                prompts.append(
+                    Prompt(
+                        id=node["id"],
+                        name=node["name"],
+                        description=node["description"],
+                        tags=node["tags"],
+                        commit_message=node["commitMessage"],
+                        messages=node["messages"],
+                        input_variable_format=PromptInputVariableFormat(
+                            node["inputVariableFormat"]
+                        ),
+                        tool_choice=node["toolChoice"],
+                        tool_calls=node["toolCalls"],
+                        llm_parameters=node["llmParameters"],
+                        provider=LLMProvider(node["provider"]),
+                        model_name=_convert_to_external_name(node["modelName"]),
+                    )
                 )
-            )
+
+            # Update pagination info for next iteration
+            page_info = prompts_data["pageInfo"]
+            has_next_page = page_info["hasNextPage"]
+            end_cursor = page_info["endCursor"]
+
         return prompts
 
     def pull_prompt(

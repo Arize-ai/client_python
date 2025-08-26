@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.49.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.49.1...arize-python-sdk/v7.49.2) (2025-08-26)
+
+
+### 🐛 Bug Fixes
+
+* pull prompts method pagination ([#51873](https://github.com/Arize-ai/arize/issues/51873)) ([3429bb1](https://github.com/Arize-ai/arize/commit/3429bb1ec4b9dacdf4c7d62326ec4b86717a4952))
+
 ## [7.49.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.49.0...arize-python-sdk/v7.49.1) (2025-08-20)
 
 
