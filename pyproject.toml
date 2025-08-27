@@ -99,7 +99,7 @@ Datasets = [
     "deprecated", #opentelemetry-semantic-conventions requires it
 ]
 PromptHub = [
-    "gql>=3.0.0",
+    "gql>=3.0.0, <4.0.0",
     "requests_toolbelt>=1.0.0",
 ]
 PromptHub_VertexAI = [

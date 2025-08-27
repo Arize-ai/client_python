@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.49.3](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.49.2...arize-python-sdk/v7.49.3) (2025-08-27)
+
+
+### ❔ Miscellaneous Chores 
+
+* update gql dependency for prompthub client ([#51924](https://github.com/Arize-ai/arize/issues/51924)) ([cafcbdd](https://github.com/Arize-ai/arize/commit/cafcbdd9daa78edd36b0f84310946dbc3d6cb401))
+
 ## [7.49.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.49.1...arize-python-sdk/v7.49.2) (2025-08-26)
 
 
