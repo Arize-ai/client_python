@@ -15,9 +15,11 @@ from arize.experimental.datasets.core.client import (
     _convert_datetime_columns_to_int,
     _convert_default_columns_to_json_str,
 )
+from arize.experimental.datasets.utils.constants import MAX_MAX_CHUNK_SIZE
 from arize.experimental.datasets.validation.errors import (
     EmptyDatasetError,
     IDColumnUniqueConstraintError,
+    InvalidChunkSizeError,
     RequiredColumnsError,
 )
 from arize.experimental.datasets.validation.validator import Validator
@@ -207,3 +209,43 @@ def test_empty_dataset():
     validation_errors = Validator.validate(df_new)
     assert len(validation_errors) == 1
     assert validation_errors[0] is EmptyDatasetError
+
+
+def test_negative_chunk_size():
+    max_chunk_size = -1
+    df = pd.DataFrame(
+        {
+            "user_data": [1, 2, 3],
+        }
+    )
+    df_new = ArizeDatasetsClient._set_default_columns_for_dataset(df)
+    validation_errors = Validator.validate(df_new)
+    validation_errors.extend(Validator.validate_max_chunk_size(max_chunk_size))
+    assert len(validation_errors) == 1
+    assert type(validation_errors[0]) is InvalidChunkSizeError
+
+
+def test_max_chunk_size():
+    max_chunk_size = MAX_MAX_CHUNK_SIZE + 1
+    df = pd.DataFrame(
+        {
+            "user_data": [1, 2, 3],
+        }
+    )
+    df_new = ArizeDatasetsClient._set_default_columns_for_dataset(df)
+    validation_errors = Validator.validate(df_new)
+    validation_errors.extend(Validator.validate_max_chunk_size(max_chunk_size))
+    assert len(validation_errors) == 1
+    assert type(validation_errors[0]) is InvalidChunkSizeError
+
+
+def test_chunk_size_and_empty_dataset():
+    max_chunk_size = -1
+    df = pd.DataFrame(columns=["id", "user_data"])
+    df_new = ArizeDatasetsClient._set_default_columns_for_dataset(df)
+
+    validation_errors = Validator.validate(df_new)
+    validation_errors.extend(Validator.validate_max_chunk_size(max_chunk_size))
+    assert len(validation_errors) == 2
+    assert validation_errors[0] is EmptyDatasetError
+    assert type(validation_errors[1]) is InvalidChunkSizeError

@@ -31,6 +31,10 @@ DEFAULT_RETRY_MAX_WAIT_TIME = 10.0
 # Default to use grpc + tls scheme.
 DEFAULT_TRANSPORT_SCHEME = "grpc+tls"
 
+# Max and default max chunk size for FilghtStreamWriter in number of rows
+DEFAULT_MAX_CHUNK_SIZE = 10_000
+MAX_MAX_CHUNK_SIZE = 10_000
+
 
 class FlightActionKey(Enum):
     GET_DATASET_VERSION = "get_dataset_version"

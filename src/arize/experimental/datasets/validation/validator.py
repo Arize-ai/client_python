@@ -2,6 +2,7 @@ from typing import List
 
 import pandas as pd
 
+from ..utils.constants import MAX_MAX_CHUNK_SIZE
 from . import errors as err
 
 
@@ -47,4 +48,10 @@ class Validator:
     def _check_empty_dataframe(df: pd.DataFrame) -> List[err.DatasetError]:
         if df.empty:
             return [err.EmptyDatasetError]
+        return []
+
+    @staticmethod
+    def validate_max_chunk_size(chunk_size: int) -> List[err.DatasetError]:
+        if chunk_size <= 0 or chunk_size > MAX_MAX_CHUNK_SIZE:
+            return [err.InvalidChunkSizeError(chunk_size, MAX_MAX_CHUNK_SIZE)]
         return []

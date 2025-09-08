@@ -37,6 +37,7 @@ from ..utils.constants import (
     DEFAULT_ARIZE_FLIGHT_HOST,
     DEFAULT_ARIZE_FLIGHT_PORT,
     DEFAULT_ARIZE_OTLP_ENDPOINT,
+    DEFAULT_MAX_CHUNK_SIZE,
     DEFAULT_TRANSPORT_SCHEME,
     OPEN_INFERENCE_JSON_STR_TYPES,
     FlightActionKey,
@@ -429,6 +430,7 @@ class ArizeDatasetsClient:
         dataset_type: pb2.DatasetType,
         data: pd.DataFrame,
         convert_dict_to_json: bool = True,
+        max_chunk_size: int = DEFAULT_MAX_CHUNK_SIZE,
     ) -> Optional[str]:
         """
         Create a new dataset.
@@ -440,6 +442,8 @@ class ArizeDatasetsClient:
             data (pd.DataFrame): The data to be included in the dataset.
             convert_dict_to_json (bool, optional): Convert dictionary columns to JSON strings
                 for default JSON str columns per Open Inference. Defaults to True.
+            max_chunk_size (int, optional): The maximum number of rows to include in each batch
+                sent. Defaults to DEFAULT_MAX_CHUNK_SIZE.
 
         Returns:
             str: The ID of the created dataset, or None if the creation failed.
@@ -451,6 +455,9 @@ class ArizeDatasetsClient:
             df = _convert_default_columns_to_json_str(df)
         df = _convert_boolean_columns_to_str(df)
         validation_errors = Validator.validate(df)
+        validation_errors.extend(
+            Validator.validate_max_chunk_size(max_chunk_size)
+        )
         if validation_errors:
             raise RuntimeError([e.error_message() for e in validation_errors])
 
@@ -472,7 +479,7 @@ class ArizeDatasetsClient:
                 descriptor, tbl.schema, self.session.call_options
             )
             with writer:
-                writer.write_table(tbl, max_chunksize=10_000)
+                writer.write_table(tbl, max_chunksize=max_chunk_size)
                 writer.done_writing()
                 response = metadata_reader.read()
                 if response is not None:

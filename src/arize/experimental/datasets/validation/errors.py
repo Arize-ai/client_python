@@ -51,3 +51,15 @@ class EmptyDatasetError(DatasetError):
     @staticmethod
     def error_message() -> str:
         return "DataFrame must have at least one row in it."
+
+
+class InvalidChunkSizeError(DatasetError):
+    def __init__(self, chunk_size: int, max_chunk_size: int) -> None:
+        self.chunk_size = chunk_size
+        self.max_chunk_size = max_chunk_size
+
+    def error_message(self) -> str:
+        return f"Invalid chunk size: {self.chunk_size}. Must be between 0 and {self.max_chunk_size}"
+
+    def __repr__(self) -> str:
+        return f"InvalidChunkSizeError({self.chunk_size})"

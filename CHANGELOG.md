@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.50.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.49.3...arize-python-sdk/v7.50.0) (2025-09-05)
+
+
+### 🎁 New Features
+
+* add max_chunksize as configurable parameter to create_dataset method ([#52500](https://github.com/Arize-ai/arize/issues/52500)) ([3dc616a](https://github.com/Arize-ai/arize/commit/3dc616a2dbe59baee6cb8aaf714adad2813fe43c))
+
 ## [7.49.3](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.49.2...arize-python-sdk/v7.49.3) (2025-08-27)
 
 
