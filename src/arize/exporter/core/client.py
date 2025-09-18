@@ -7,7 +7,7 @@ from typing import Optional, Tuple
 import pandas as pd
 import pyarrow.parquet as pq
 from google.protobuf.timestamp_pb2 import Timestamp
-from google.protobuf.wrappers_pb2 import Int64Value
+from google.protobuf.wrappers_pb2 import BoolValue, Int64Value
 from pyarrow import flight
 from tqdm import tqdm
 
@@ -85,6 +85,7 @@ class ArizeExportClient:
         similarity_search_params: Optional[SimilaritySearchParams] = None,
         columns: Optional[list] = None,
         stream_chunk_size: Optional[int] = None,
+        parallelize_exports: Optional[bool] = None,
     ) -> pd.DataFrame:
         """
         Exports data of a specific model in the Arize platform to a pandas dataframe for a defined
@@ -124,6 +125,8 @@ class ArizeExportClient:
                 but in extreme cases where individual records are large enough to cause issues that result
                 in export stream error, setting this to a very low value (e.g. 10) could help.
                 The maximum value accepted by the server is 5000. Defaults to None.
+            parallelize_exports (bool, optional): Optional parameter to enable parallelized exports
+                for faster data retrieval.
 
         Returns:
             A pandas dataframe
@@ -142,6 +145,7 @@ class ArizeExportClient:
             similarity_search_params=similarity_search_params,
             columns=columns,
             stream_chunk_size=stream_chunk_size,
+            parallelize_exports=parallelize_exports,
         )
         if stream_reader is None:
             return pd.DataFrame()
@@ -197,6 +201,7 @@ class ArizeExportClient:
         similarity_search_params: Optional[SimilaritySearchParams] = None,
         columns: Optional[list] = None,
         stream_chunk_size: Optional[int] = None,
+        parallelize_exports: Optional[bool] = None,
     ) -> None:
         """
         Exports data of a specific model in the Arize platform to a parquet file for a defined time
@@ -238,6 +243,8 @@ class ArizeExportClient:
                 but in extreme cases where individual records are large enough to cause issues that result
                 in export stream error, setting this to a very low value (e.g. 10) could help.
                 The maximum value accepted by the server is 5000. Defaults to None.
+            parallelize_exports (bool, optional): Optional parameter to enable parallelized exports
+                for faster data retrieval.
 
 
         Returns:
@@ -258,6 +265,7 @@ class ArizeExportClient:
             similarity_search_params=similarity_search_params,
             columns=columns,
             stream_chunk_size=stream_chunk_size,
+            parallelize_exports=parallelize_exports,
         )
         if stream_reader is None:
             return None
@@ -287,6 +295,7 @@ class ArizeExportClient:
         similarity_search_params: Optional[SimilaritySearchParams] = None,
         columns: Optional[list] = None,
         stream_chunk_size: Optional[int] = None,
+        parallelize_exports: Optional[bool] = None,
     ) -> Tuple[flight.FlightStreamReader, int]:
         Validator.validate_input_type(space_id, "space_id", str)
         Validator.validate_input_type(model_id, "model_id", str)
@@ -301,6 +310,9 @@ class ArizeExportClient:
         Validator.validate_input_type(columns, "columns", list)
         Validator.validate_input_type(
             stream_chunk_size, "stream_chunk_size", int
+        )
+        Validator.validate_input_type(
+            parallelize_exports, "parallelize_exports", bool
         )
 
         # Create query descriptor
@@ -322,6 +334,9 @@ class ArizeExportClient:
             projected_columns=columns if columns else [],
             stream_chunk_size=Int64Value(value=stream_chunk_size)
             if stream_chunk_size is not None
+            else None,
+            parallelize_exports=BoolValue(value=parallelize_exports)
+            if parallelize_exports is not None
             else None,
         )
 

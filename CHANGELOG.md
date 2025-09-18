@@ -1,6 +1,14 @@
 # Changelog
 
 
+## [7.51.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.50.0...arize-python-sdk/v7.51.0) (2025-09-18)
+
+
+### 🎁 New Features
+
+* add should_parallelize_exports as flag for sdk ([#52940](https://github.com/Arize-ai/arize/issues/52940)) ([45321dd](https://github.com/Arize-ai/arize/commit/45321ddd530d6571bad24b52060137b5030bb28d))
+
+
 ## [7.50.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.49.3...arize-python-sdk/v7.50.0) (2025-09-05)
 
 
