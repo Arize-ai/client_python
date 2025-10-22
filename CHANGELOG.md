@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.51.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.51.0...arize-python-sdk/v7.51.1) (2025-10-22)
+
+
+### ❔ Miscellaneous Chores
+
+* bump protobuf dependency upper bound to &lt;7 ([#55320](https://github.com/Arize-ai/arize/issues/55320)) ([68689da](https://github.com/Arize-ai/arize/commit/68689dab0a1c451ac9a94e0d690ca5eacaee6cbc))
+
 ## [7.51.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.50.0...arize-python-sdk/v7.51.0) (2025-09-18)
 
 

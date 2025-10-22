@@ -39,7 +39,7 @@ classifiers = [
 dependencies = [
     "requests_futures==1.0.0",
     "googleapis_common_protos>=1.51.0,<2",
-    "protobuf>=4.21.0,<6",
+    "protobuf>=4.21.0,<7",
     "pandas>=0.25.3,<3",
     "pyarrow>=0.15.0",
     "tqdm>=4.60.0,<5",
