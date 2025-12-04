@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.51.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.51.1...arize-python-sdk/v7.51.2) (2025-12-02)
+
+
+### ❔ Miscellaneous Chores
+
+* increase multi class class limit to 500 ([#57731](https://github.com/Arize-ai/arize/issues/57731)) ([27c84c2](https://github.com/Arize-ai/arize/commit/27c84c2b732ed36cffb52d1602c1477d3665c2c8))
+
 ## [7.51.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.51.0...arize-python-sdk/v7.51.1) (2025-10-22)
 
 

@@ -20,7 +20,7 @@ from opentelemetry.sdk.trace.export import (
 from opentelemetry.trace import Tracer
 from pyarrow import flight
 
-from arize.pandas.proto import requests_pb2 as pb2
+from arize.pandas.proto import flight_pb2
 from arize.utils.logging import logger
 
 from ..experiments.evaluators.base import Evaluators
@@ -251,8 +251,8 @@ class ArizeDatasetsClient:
         dataset_id: Optional[str] = None,
         dataset_name: Optional[str] = None,
     ) -> Optional[Tuple[str, str, str]]:
-        request = pb2.DoActionRequest(
-            create_experiment_db_entry=pb2.CreateExperimentDBEntryRequest(
+        request = flight_pb2.DoActionRequest(
+            create_experiment_db_entry=flight_pb2.CreateExperimentDBEntryRequest(
                 space_id=space_id,
                 dataset_id=dataset_id,
                 dataset_name=dataset_name,
@@ -275,7 +275,7 @@ class ArizeDatasetsClient:
         else:
             if res is None:
                 return None
-            resp_pb = pb2.CreateExperimentDBEntryResponse()
+            resp_pb = flight_pb2.CreateExperimentDBEntryResponse()
             resp_pb.ParseFromString(res.body.to_pybytes())
             return (
                 resp_pb.experiment_id,
@@ -295,8 +295,8 @@ class ArizeDatasetsClient:
         if experiment_df.empty:
             raise ValueError("experiment result DataFrame cannot be empty")
         tbl = pa.Table.from_pandas(experiment_df)
-        request = pb2.DoPutRequest(
-            post_experiment_data=pb2.PostExperimentDataRequest(
+        request = flight_pb2.DoPutRequest(
+            post_experiment_data=flight_pb2.PostExperimentDataRequest(
                 space_id=space_id,
                 dataset_id=dataset_id,
                 experiment_name=experiment_name,
@@ -313,7 +313,7 @@ class ArizeDatasetsClient:
                 writer.done_writing()
                 response = metadata_reader.read()
                 if response is not None:
-                    res = pb2.PostExperimentDataResponse()
+                    res = flight_pb2.PostExperimentDataResponse()
                     res.ParseFromString(response.to_pybytes())
                     if res:
                         return str(res.experiment_id)
@@ -427,7 +427,7 @@ class ArizeDatasetsClient:
         self,
         space_id: str,
         dataset_name: str,
-        dataset_type: pb2.DatasetType,
+        dataset_type: flight_pb2.DatasetType,
         data: pd.DataFrame,
         convert_dict_to_json: bool = True,
         max_chunk_size: int = DEFAULT_MAX_CHUNK_SIZE,
@@ -465,8 +465,8 @@ class ArizeDatasetsClient:
         new_schema = pa.schema([field for field in pa_schema])
         tbl = pa.Table.from_pandas(df, schema=new_schema)
 
-        request = pb2.DoPutRequest(
-            create_dataset=pb2.CreateDatasetRequest(
+        request = flight_pb2.DoPutRequest(
+            create_dataset=flight_pb2.CreateDatasetRequest(
                 space_id=space_id,
                 dataset_name=dataset_name,
                 dataset_type=dataset_type,
@@ -483,7 +483,7 @@ class ArizeDatasetsClient:
                 writer.done_writing()
                 response = metadata_reader.read()
                 if response is not None:
-                    res = pb2.CreateDatasetResponse()
+                    res = flight_pb2.CreateDatasetResponse()
                     res.ParseFromString(response.to_pybytes())
                     if res:
                         return str(res.dataset_id)
@@ -532,8 +532,8 @@ class ArizeDatasetsClient:
         new_schema = pa.schema([field for field in pa_schema])
         tbl = pa.Table.from_pandas(df, schema=new_schema)
 
-        request = pb2.DoPutRequest(
-            update_dataset=pb2.UpdateDatasetRequest(
+        request = flight_pb2.DoPutRequest(
+            update_dataset=flight_pb2.UpdateDatasetRequest(
                 space_id=space_id,
                 dataset_id=dataset_id if dataset_id else None,
                 dataset_name=dataset_name if dataset_name else None,
@@ -550,7 +550,7 @@ class ArizeDatasetsClient:
                 writer.done_writing()
                 response = metadata_reader.read()
                 if response is not None:
-                    res = pb2.UpdateDatasetResponse()
+                    res = flight_pb2.UpdateDatasetResponse()
                     res.ParseFromString(response.to_pybytes())
                     return str(res.dataset_id)
         except Exception as e:
@@ -589,8 +589,8 @@ class ArizeDatasetsClient:
                 f"one and only one of dataset_id={dataset_id} or dataset_name={dataset_name} is required"
             )
 
-        request = pb2.DoGetRequest(
-            get_dataset=pb2.GetDatasetRequest(
+        request = flight_pb2.DoGetRequest(
+            get_dataset=flight_pb2.GetDatasetRequest(
                 space_id=space_id,
                 dataset_version=dataset_version,
                 dataset_id=dataset_id,
@@ -653,8 +653,8 @@ class ArizeDatasetsClient:
                 "must provide experiment_id or both experiment_name and dataset_name"
             )
 
-        request = pb2.DoGetRequest(
-            get_experiment=pb2.GetExperimentRequest(
+        request = flight_pb2.DoGetRequest(
+            get_experiment=flight_pb2.GetExperimentRequest(
                 space_id=space_id,
                 experiment_name=experiment_name,
                 dataset_name=dataset_name,
@@ -711,7 +711,7 @@ class ArizeDatasetsClient:
                 "must provide experiment_id or both experiment_name and dataset_name"
             )
 
-        delete_request = pb2.DeleteExperimentRequest(
+        delete_request = flight_pb2.DeleteExperimentRequest(
             space_id=space_id,
         )
 
@@ -719,12 +719,12 @@ class ArizeDatasetsClient:
             delete_request.experiment_id = experiment_id
         else:
             delete_request.experiment_name_identifier.CopyFrom(
-                pb2.ExperimentNameIdentifier(
+                flight_pb2.ExperimentNameIdentifier(
                     experiment_name=experiment_name, dataset_name=dataset_name
                 )
             )
 
-        request = pb2.DoActionRequest(delete_experiment=delete_request)
+        request = flight_pb2.DoActionRequest(delete_experiment=delete_request)
         action = _action_for_request(FlightActionKey.DELETE_EXPERIMENT, request)
         flight_client = self.session.connect()
         try:
@@ -739,7 +739,7 @@ class ArizeDatasetsClient:
         else:
             if res is None:
                 return False, ""
-            resp_pb = pb2.DeleteExperimentResponse()
+            resp_pb = flight_pb2.DeleteExperimentResponse()
             resp_pb.ParseFromString(res.body.to_pybytes())
             return True, resp_pb.experiment_id
         finally:
@@ -770,8 +770,8 @@ class ArizeDatasetsClient:
         """
         if dataset_id == "" and dataset_name == "":
             raise ValueError("one of dataset_id or dataset_name is required")
-        request = pb2.DoActionRequest(
-            get_dataset_versions=pb2.GetDatasetVersionsRequest(
+        request = flight_pb2.DoActionRequest(
+            get_dataset_versions=flight_pb2.GetDatasetVersionsRequest(
                 space_id=space_id,
                 dataset_id=dataset_id if dataset_id else None,
                 dataset_name=dataset_name if dataset_name else None,
@@ -793,7 +793,7 @@ class ArizeDatasetsClient:
         else:
             if res is None:
                 return None
-            resp_pb = pb2.GetDatasetVersionsResponse()
+            resp_pb = flight_pb2.GetDatasetVersionsResponse()
             resp_pb.ParseFromString(res.body.to_pybytes())
             out = []
             for v in resp_pb.versions:
@@ -818,8 +818,8 @@ class ArizeDatasetsClient:
         Returns:
             pd.DataFrame: A table summary of the datasets in the space.
         """
-        request = pb2.DoActionRequest(
-            list_datasets=pb2.ListDatasetsRequest(space_id=space_id)
+        request = flight_pb2.DoActionRequest(
+            list_datasets=flight_pb2.ListDatasetsRequest(space_id=space_id)
         )
         action = _action_for_request(FlightActionKey.LIST_DATASETS, request)
         flight_client = self.session.connect()
@@ -835,7 +835,7 @@ class ArizeDatasetsClient:
         else:
             if res is None:
                 return None
-            resp_pb = pb2.ListDatasetsResponse()
+            resp_pb = flight_pb2.ListDatasetsResponse()
             resp_pb.ParseFromString(res.body.to_pybytes())
             out = []
             for dataset in resp_pb.datasets:
@@ -843,7 +843,7 @@ class ArizeDatasetsClient:
                     {
                         "dataset_id": dataset.dataset_id,
                         "dataset_name": dataset.dataset_name,
-                        "dataset_type": pb2.DatasetType.Name(
+                        "dataset_type": flight_pb2.DatasetType.Name(
                             dataset.dataset_type
                         ),
                         "created_at": dataset.created_at.ToJsonString(),
@@ -879,8 +879,8 @@ class ArizeDatasetsClient:
         """
         if dataset_id == "" and dataset_name == "":
             raise ValueError("one of dataset_id or dataset_name is required")
-        request = pb2.DoActionRequest(
-            delete_dataset=pb2.DeleteDatasetRequest(
+        request = flight_pb2.DoActionRequest(
+            delete_dataset=flight_pb2.DeleteDatasetRequest(
                 space_id=space_id,
                 dataset_id=dataset_id if dataset_id else None,
                 dataset_name=dataset_name if dataset_name else None,
@@ -900,7 +900,7 @@ class ArizeDatasetsClient:
         else:
             if res is None:
                 return False
-            resp_pb = pb2.DeleteDatasetResponse()
+            resp_pb = flight_pb2.DeleteDatasetResponse()
             resp_pb.ParseFromString(res.body.to_pybytes())
             return resp_pb.success
         finally:

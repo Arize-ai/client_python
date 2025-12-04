@@ -12,7 +12,7 @@ from pyarrow import flight
 from requests import Response
 
 from arize.pandas.logger import Client
-from arize.pandas.proto.requests_pb2 import WriteSpanEvaluationResponse
+from arize.pandas.proto.flight_pb2 import WriteSpanEvaluationResponse
 
 
 class MockResponse(Response):

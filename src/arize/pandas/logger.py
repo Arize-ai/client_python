@@ -20,7 +20,7 @@ from packaging.version import parse as parse_version
 from pyarrow import flight
 from typing_extensions import assert_never
 
-from arize.pandas.proto.requests_pb2 import (
+from arize.pandas.proto.flight_pb2 import (
     DoPutRequest,
     WriteSpanAnnotationRequest,
     WriteSpanAnnotationResponse,

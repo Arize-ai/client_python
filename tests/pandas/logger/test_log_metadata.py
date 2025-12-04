@@ -8,7 +8,7 @@ import pyarrow as pa
 import pytest
 
 from arize.pandas.logger import Client
-from arize.pandas.proto.requests_pb2 import WriteSpanAttributesMetadataResponse
+from arize.pandas.proto.flight_pb2 import WriteSpanAttributesMetadataResponse
 from arize.utils.errors import AuthError
 
 # Conditionally import tracing/validation components only for Python 3.8+

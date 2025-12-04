@@ -2,10 +2,10 @@ from enum import Enum
 
 from openinference.semconv import trace
 
-from arize.pandas.proto import requests_pb2 as pb2
+from arize.pandas.proto import flight_pb2
 
-INFERENCES = pb2.INFERENCES
-GENERATIVE = pb2.GENERATIVE
+INFERENCES = flight_pb2.INFERENCES
+GENERATIVE = flight_pb2.GENERATIVE
 
 """Internal Use"""
 

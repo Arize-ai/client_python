@@ -11,9 +11,9 @@ from google.protobuf.wrappers_pb2 import BoolValue, Int64Value
 from pyarrow import flight
 from tqdm import tqdm
 
+from arize.pandas.proto import flight_pb2
 from arize.utils.types import Environments, SimilaritySearchParams
 
-from .. import publicexporter_pb2 as exp_pb2
 from ..utils.constants import (
     ARIZE_PROFILE,
     DEFAULT_ARIZE_FLIGHT_HOST,
@@ -316,7 +316,7 @@ class ArizeExportClient:
         )
 
         # Create query descriptor
-        query_descriptor = exp_pb2.RecordQueryDescriptor(
+        query_descriptor = flight_pb2.RecordQueryDescriptor(
             space_id=space_id,
             model_id=model_id,
             environment=environment.name,
@@ -357,8 +357,8 @@ class ArizeExportClient:
 
     def _to_similarity_proto_params(
         self, similarity_params: SimilaritySearchParams
-    ) -> exp_pb2.SimilaritySearchParams:
-        proto_params = exp_pb2.SimilaritySearchParams()
+    ) -> flight_pb2.SimilaritySearchParams:
+        proto_params = flight_pb2.SimilaritySearchParams()
         proto_params.search_column_name = similarity_params.search_column_name
         proto_params.threshold = similarity_params.threshold
         for ref in similarity_params.references:

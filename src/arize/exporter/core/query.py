@@ -4,14 +4,13 @@ from typing import Tuple
 from google.protobuf import json_format
 from pyarrow import flight
 
+from arize.pandas.proto import flight_pb2
 from arize.utils.logging import logger
-
-from .. import publicexporter_pb2 as exp_pb2
 
 
 @dataclass(frozen=True)
 class Query:
-    query_descriptor: exp_pb2.RecordQueryDescriptor
+    query_descriptor: flight_pb2.RecordQueryDescriptor
 
     def execute(
         self,
