@@ -119,6 +119,7 @@ class ArizeDatasetsClient:
         concurrency: int = 3,
         set_global_tracer_provider: bool = False,
         exit_on_error: bool = False,
+        timeout: float = 120,
     ) -> Union[Tuple[str, pd.DataFrame], None]:
         """
         Run an experiment on a dataset and upload the results.
@@ -145,6 +146,7 @@ class ArizeDatasetsClient:
             set_global_tracer_provider (bool): If True, sets the global tracer provider for the experiment.
                 Defaults to False.
             exit_on_error (bool): If True, the experiment will stop running on first occurrence of an error.
+            timeout (float): The timeout in seconds for each task execution. Defaults to 120.
 
         Returns:
             Tuple[str, pd.DataFrame]:
@@ -225,6 +227,7 @@ class ArizeDatasetsClient:
             evaluators=evaluators,
             concurrency=concurrency,
             exit_on_error=exit_on_error,
+            timeout=timeout,
         )
         output_df = _convert_default_columns_to_json_str(output_df)
         output_df = _convert_boolean_columns_to_str(output_df)

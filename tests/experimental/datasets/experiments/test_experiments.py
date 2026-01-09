@@ -443,3 +443,43 @@ def test_experiment_with_datetime_columns():
     for _, row in exp_df.iterrows():
         assert row["example_id"] == row["eval.DummyEval.label"]
         assert row.result == row["eval.DummyEval.metadata.output"]
+
+
+def test_timeout_parameter():
+    """Test that custom timeout parameter is accepted and experiment runs successfully"""
+    import time
+
+    def slow_task(x):
+        # Simulate a task that takes some time but less than timeout
+        time.sleep(0.1)
+        question = x["question"]
+        return f"Answer to {question}"
+
+    # Create a small dataset for testing
+    test_dataset = pd.DataFrame(
+        {
+            "id": [f"id_{i}" for i in range(3)],
+            "question": [f"question_{i}" for i in range(3)],
+        }
+    )
+
+    c = ArizeDatasetsClient(api_key="dummy_key")
+
+    # Test with custom timeout value (should succeed)
+    exp_id, exp_df = c.run_experiment(
+        space_id="dummy_space_id",
+        experiment_name="test_timeout_experiment",
+        dataset_id="dummy_dataset_id",
+        dataset_df=test_dataset,
+        task=slow_task,
+        evaluators=[DummyEval()],
+        dry_run=True,
+        timeout=300,  # 5 minutes timeout
+    )
+
+    # Should complete successfully
+    assert exp_id == ""
+    assert exp_df.shape[0] == 3
+    assert not exp_df.empty
+    # All tasks should complete successfully
+    assert not exp_df["result"].isnull().any()

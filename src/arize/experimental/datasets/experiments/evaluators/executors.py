@@ -100,6 +100,8 @@ class AsyncExecutor(Executor):
 
         termination_signal (signal.Signals, optional): The signal handled to terminate the executor.
 
+        timeout (float, optional): The timeout in seconds for each task execution. Defaults to 120.
+
     """
 
     def __init__(
@@ -111,6 +113,7 @@ class AsyncExecutor(Executor):
         exit_on_error: bool = True,
         fallback_return_value: Union[Unset, Any] = _unset,
         termination_signal: signal.Signals = signal.SIGINT,
+        timeout: float = 120,
     ):
         self.generate = generation_fn
         self.fallback_return_value = fallback_return_value
@@ -120,6 +123,7 @@ class AsyncExecutor(Executor):
         self.exit_on_error = exit_on_error
         self.base_priority = 0
         self.termination_signal = termination_signal
+        self.timeout = timeout
 
     async def producer(
         self,
@@ -174,7 +178,7 @@ class AsyncExecutor(Executor):
                 )
                 done, pending = await asyncio.wait(
                     [generate_task, termination_event_watcher],
-                    timeout=120,
+                    timeout=self.timeout,
                     return_when=asyncio.FIRST_COMPLETED,
                 )
 
@@ -429,6 +433,7 @@ def get_executor_on_sync_context(
     max_retries: int = 10,
     exit_on_error: bool = True,
     fallback_return_value: Union[Unset, Any] = _unset,
+    timeout: float = 120,
 ) -> Executor:
     if threading.current_thread() is not threading.main_thread():
         # run evals synchronously if not in the main thread
@@ -464,6 +469,7 @@ def get_executor_on_sync_context(
                 max_retries=max_retries,
                 exit_on_error=exit_on_error,
                 fallback_return_value=fallback_return_value,
+                timeout=timeout,
             )
         else:
             logger.warning(
@@ -486,6 +492,7 @@ def get_executor_on_sync_context(
             max_retries=max_retries,
             exit_on_error=exit_on_error,
             fallback_return_value=fallback_return_value,
+            timeout=timeout,
         )
 
 

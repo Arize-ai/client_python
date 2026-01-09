@@ -72,6 +72,7 @@ def run_experiment(
     evaluators: Optional[Evaluators] = None,
     concurrency: int = 3,
     exit_on_error: bool = False,
+    timeout: float = 120,
 ) -> pd.DataFrame:
     """
     Run an experiment on a dataset.
@@ -86,6 +87,7 @@ def run_experiment(
         evaluators (Optional[Evaluators]): Optional evaluators to assess the task.
         concurrency (int): The number of concurrent tasks to run. Default is 3.
         exit_on_error (bool): Whether to exit on error. Default is False.
+        timeout (float): The timeout in seconds for each task execution. Default is 120.
     Returns:
         pd.DataFrame: The results of the experiment.
     """
@@ -280,6 +282,7 @@ def run_experiment(
         fallback_return_value=None,
         tqdm_bar_format=get_tqdm_progress_bar_formatter("running tasks"),
         concurrency=concurrency,
+        timeout=timeout,
     )
 
     runs, _execution_details = executor.run(examples)
@@ -312,6 +315,7 @@ def run_experiment(
             tracer=tracer,
             resource=resource,
             exit_on_error=exit_on_error,
+            timeout=timeout,
         )
 
         if exit_on_error and (None in eval_results):
@@ -362,6 +366,7 @@ def evaluate_experiment(
     tracer: Optional[Tracer] = None,
     resource: Optional[Resource] = None,
     exit_on_error: bool = False,
+    timeout: float = 120,
 ):
     """
     Evaluate the results of an experiment using the provided evaluators.
@@ -375,6 +380,7 @@ def evaluate_experiment(
         tracer (Optional[Tracer]): Optional tracer for tracing the evaluation.
         resource (Optional[Resource]): Optional resource for the evaluation.
         exit_on_error (bool): Whether to exit on error. Default is False.
+        timeout (float): The timeout in seconds for each evaluator execution. Default is 120.
     Returns:
         List[ExperimentEvaluationRun]: The evaluation results.
     """
@@ -548,6 +554,7 @@ def evaluate_experiment(
             "running experiment evaluations"
         ),
         concurrency=concurrency,
+        timeout=timeout,
     )
     eval_runs, _execution_details = executor.run(evaluation_input)
     return eval_runs
