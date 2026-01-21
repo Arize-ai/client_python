@@ -42,9 +42,9 @@ def test_valid_eval_column_types(prefix):
     errors = evals_validation.validate_dataframe_form(
         evals_dataframe=evals_dataframe
     )
-    assert (
-        len(errors) == 0
-    ), f"Expected no validation errors for all columns with prefix {prefix}"
+    assert len(errors) == 0, (
+        f"Expected no validation errors for all columns with prefix {prefix}"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -59,9 +59,9 @@ def test_invalid_label_columns_type(prefix):
     errors = evals_validation.validate_dataframe_form(
         evals_dataframe=evals_dataframe
     )
-    assert (
-        len(errors) > 0
-    ), f"Expected validation errors for label columns with incorrect type with prefix {prefix}"
+    assert len(errors) > 0, (
+        f"Expected validation errors for label columns with incorrect type with prefix {prefix}"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -76,9 +76,9 @@ def test_invalid_score_columns_type(prefix):
     errors = evals_validation.validate_dataframe_form(
         evals_dataframe=evals_dataframe
     )
-    assert (
-        len(errors) > 0
-    ), f"Expected validation errors for score columns with incorrect type with prefix {prefix}"
+    assert len(errors) > 0, (
+        f"Expected validation errors for score columns with incorrect type with prefix {prefix}"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -93,9 +93,9 @@ def test_invalid_explanation_columns_type(prefix):
     errors = evals_validation.validate_dataframe_form(
         evals_dataframe=evals_dataframe
     )
-    assert (
-        len(errors) > 0
-    ), f"Expected validation errors for explanation columns with incorrect type with prefix {prefix}"
+    assert len(errors) > 0, (
+        f"Expected validation errors for explanation columns with incorrect type with prefix {prefix}"
+    )
 
 
 if __name__ == "__main__":

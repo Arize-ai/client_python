@@ -293,15 +293,15 @@ def test_log_annotations_invalid_data_types():
         )
 
     error_messages = [str(e) for e in excinfo.value.errors]
-    assert any(
-        score_col in msg for msg in error_messages
-    ), f"Error for {score_col}"
-    assert any(
-        label_col in msg for msg in error_messages
-    ), f"Error for {label_col}"
-    assert any(
-        updated_at_col in msg for msg in error_messages
-    ), f"Error for {updated_at_col}"
+    assert any(score_col in msg for msg in error_messages), (
+        f"Error for {score_col}"
+    )
+    assert any(label_col in msg for msg in error_messages), (
+        f"Error for {label_col}"
+    )
+    assert any(updated_at_col in msg for msg in error_messages), (
+        f"Error for {updated_at_col}"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")

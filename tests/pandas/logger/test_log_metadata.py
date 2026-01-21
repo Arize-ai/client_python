@@ -284,9 +284,9 @@ def test_log_metadata_invalid_data():
         )
 
     error_messages = [str(e) for e in excinfo.value.errors]
-    assert any(
-        "span id" in msg.lower() for msg in error_messages
-    ), "Expected error about invalid span ID"
+    assert any("span id" in msg.lower() for msg in error_messages), (
+        "Expected error about invalid span ID"
+    )
 
     # Test with invalid JSON
     test_df_invalid_json = pd.DataFrame(

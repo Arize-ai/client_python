@@ -45,9 +45,9 @@ def test_valid_labels_and_explanations(prefix):
         evals_dataframe=evals_dataframe,
         project_name=valid_project_name,
     )
-    assert (
-        len(errors) == 0
-    ), f"Expected no validation errors for valid labels and explanations with prefix {prefix}"
+    assert len(errors) == 0, (
+        f"Expected no validation errors for valid labels and explanations with prefix {prefix}"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -63,9 +63,9 @@ def test_label_not_empty_string(prefix):
         evals_dataframe=evals_dataframe,
         project_name=valid_project_name,
     )
-    assert (
-        len(errors) > 0
-    ), f"Expected validation errors for empty string labels with prefix {prefix}"
+    assert len(errors) > 0, (
+        f"Expected validation errors for empty string labels with prefix {prefix}"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -83,9 +83,9 @@ def test_label_exceeds_max_length(prefix):
         evals_dataframe=evals_dataframe,
         project_name=valid_project_name,
     )
-    assert (
-        len(errors) > 0
-    ), f"Expected validation errors for labels exceeding max length with prefix {prefix}"
+    assert len(errors) > 0, (
+        f"Expected validation errors for labels exceeding max length with prefix {prefix}"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -103,9 +103,9 @@ def test_explanation_exceeds_max_length(prefix):
         evals_dataframe=evals_dataframe,
         project_name=valid_project_name,
     )
-    assert (
-        len(errors) > 0
-    ), f"Expected validation errors for explanations exceeding max length with prefix {prefix}"
+    assert len(errors) > 0, (
+        f"Expected validation errors for explanations exceeding max length with prefix {prefix}"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -125,9 +125,9 @@ def test_valid_float_values(prefix):
         evals_dataframe=evals_dataframe,
         project_name=valid_project_name,
     )
-    assert (
-        len(errors) == 0
-    ), f"Expected no validation errors for valid float values with prefix {prefix}"
+    assert len(errors) == 0, (
+        f"Expected no validation errors for valid float values with prefix {prefix}"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -147,9 +147,9 @@ def test_infinite_values_present(prefix):
         evals_dataframe=evals_dataframe,
         project_name=valid_project_name,
     )
-    assert (
-        len(errors) > 0
-    ), f"Expected validation errors for infinite values present with prefix {prefix}"
+    assert len(errors) > 0, (
+        f"Expected validation errors for infinite values present with prefix {prefix}"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -175,9 +175,9 @@ def test_valid_null_values(prefix):
         evals_dataframe=evals_dataframe,
         project_name=valid_project_name,
     )
-    assert (
-        len(errors) == 0
-    ), f"Expected no validation errors for evals with label or score with explanations for {prefix}"
+    assert len(errors) == 0, (
+        f"Expected no validation errors for evals with label or score with explanations for {prefix}"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -196,9 +196,9 @@ def test_invalid_null_values(prefix):
         evals_dataframe=evals_dataframe,
         project_name=valid_project_name,
     )
-    assert (
-        len(errors) > 0
-    ), f"Expected validation errors for invalid labels and scores all null with explanations for: {prefix}"
+    assert len(errors) > 0, (
+        f"Expected validation errors for invalid labels and scores all null with explanations for: {prefix}"
+    )
 
 
 if __name__ == "__main__":

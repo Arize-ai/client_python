@@ -53,9 +53,9 @@ def test_invalid_dataframe_type():
     errors = validate_argument_types(
         metadata_dataframe=invalid_df, project_name=project_name
     )
-    assert (
-        len(errors) > 0
-    ), "Expected error for non-DataFrame metadata_dataframe"
+    assert len(errors) > 0, (
+        "Expected error for non-DataFrame metadata_dataframe"
+    )
     assert any("dataframe" in str(error).lower() for error in errors)
 
 
@@ -82,9 +82,9 @@ def test_invalid_project_name_type():
     errors_nonstring = validate_argument_types(
         metadata_dataframe=metadata_df, project_name=123
     )
-    assert (
-        len(errors_nonstring) > 0
-    ), "Expected error for non-string project_name"
+    assert len(errors_nonstring) > 0, (
+        "Expected error for non-string project_name"
+    )
     assert any(
         "project_name" in str(error).lower() for error in errors_nonstring
     )
@@ -97,9 +97,9 @@ def test_valid_dataframe_form():
     metadata_df = get_valid_metadata_df()
 
     errors = validate_dataframe_form(metadata_dataframe=metadata_df)
-    assert (
-        len(errors) == 0
-    ), "Expected no validation errors for valid DataFrame form"
+    assert len(errors) == 0, (
+        "Expected no validation errors for valid DataFrame form"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -199,9 +199,9 @@ def test_metadata_fields_only():
     )
 
     errors_null = validate_dataframe_form(metadata_dataframe=df_null_fields)
-    assert (
-        len(errors_null) > 0
-    ), "Expected error when all metadata fields are null"
+    assert len(errors_null) > 0, (
+        "Expected error when all metadata fields are null"
+    )
     assert any("null values" in str(error).lower() for error in errors_null)
 
 
@@ -228,9 +228,9 @@ def test_combined_metadata_approach():
     errors_null_patch = validate_dataframe_form(
         metadata_dataframe=df_null_patch
     )
-    assert (
-        len(errors_null_patch) > 0
-    ), "Expected error with null patch document even with valid metadata fields"
+    assert len(errors_null_patch) > 0, (
+        "Expected error with null patch document even with valid metadata fields"
+    )
 
     # Test with no metadata fields, no patch document, and only span_id (should fail)
     df_no_metadata = pd.DataFrame({SPAN_SPAN_ID_COL.name: [span_id]})
@@ -238,9 +238,9 @@ def test_combined_metadata_approach():
     errors_no_metadata = validate_dataframe_form(
         metadata_dataframe=df_no_metadata
     )
-    assert (
-        len(errors_no_metadata) > 0
-    ), "Expected error with no metadata content"
+    assert len(errors_no_metadata) > 0, (
+        "Expected error with no metadata content"
+    )
     assert any(
         "missing metadata columns" in str(error).lower()
         for error in errors_no_metadata

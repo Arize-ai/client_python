@@ -79,9 +79,9 @@ class IntegrationClient:
 
         The input must be a WhyLogs profile.
         """
-        assert isinstance(
-            profile, (DatasetProfile, DatasetProfileView)
-        ), f"Expected WhyLogs DatasetProfile or DatasetProfileView, got {type(profile)}"
+        assert isinstance(profile, (DatasetProfile, DatasetProfileView)), (
+            f"Expected WhyLogs DatasetProfile or DatasetProfileView, got {type(profile)}"
+        )
 
         synthetic_df = self._generate_synthetic_dataset(
             profile,
@@ -146,9 +146,9 @@ class IntegrationClient:
 
         The input must be a WhyLogs profile.
         """
-        assert isinstance(
-            profile, (DatasetProfile, DatasetProfileView)
-        ), f"Expected WhyLogs DatasetProfile or DatasetProfileView, got {type(profile)}"
+        assert isinstance(profile, (DatasetProfile, DatasetProfileView)), (
+            f"Expected WhyLogs DatasetProfile or DatasetProfileView, got {type(profile)}"
+        )
 
         synthetic_df = self._generate_synthetic_dataset(
             profile,

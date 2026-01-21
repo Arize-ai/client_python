@@ -324,15 +324,15 @@ def test_log_evals_sync_zero_errors(mock_flight_client):
             mock_flight_client=mock_flight_client,
         )
         # Assertions
-        assert (
-            mock_flight_client.do_put_called
-        ), "do_put should be called on the FlightClient"
-        assert (
-            mock_flight_client.written_table is not None
-        ), "write_table should be called with the correct table"
-        assert (
-            mock_flight_client.done_writing_called
-        ), "done_writing should be called on the FlightWriter"
+        assert mock_flight_client.do_put_called, (
+            "do_put should be called on the FlightClient"
+        )
+        assert mock_flight_client.written_table is not None, (
+            "write_table should be called with the correct table"
+        )
+        assert mock_flight_client.done_writing_called, (
+            "done_writing should be called on the FlightWriter"
+        )
     except Exception:
         pytest.fail("Unexpected error")
 

@@ -105,9 +105,9 @@ def test_invalid_scores():
         multi_class_label = input_labels[key]
         with pytest.raises(ValueError) as e:
             multi_class_label.validate()
-            assert isinstance(
-                e, ValueError
-            ), "Invalid values should raise value errors"
+            assert isinstance(e, ValueError), (
+                "Invalid values should raise value errors"
+            )
 
 
 if __name__ == "__main__":

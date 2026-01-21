@@ -134,9 +134,9 @@ class Evaluator(ABC):
             if evaluate := super_cls.__dict__.get(Evaluator.evaluate.__name__):
                 if isinstance(evaluate, classmethod):
                     evaluate = evaluate.__func__
-                assert callable(
-                    evaluate
-                ), "`evaluate()` method should be callable"
+                assert callable(evaluate), (
+                    "`evaluate()` method should be callable"
+                )
                 # need to remove the first param, i.e. `self`
                 _validate_sig(functools.partial(evaluate, None), "evaluate")
                 return
@@ -145,9 +145,9 @@ class Evaluator(ABC):
             ):
                 if isinstance(async_evaluate, classmethod):
                     async_evaluate = async_evaluate.__func__
-                assert callable(
-                    async_evaluate
-                ), "`async_evaluate()` method should be callable"
+                assert callable(async_evaluate), (
+                    "`async_evaluate()` method should be callable"
+                )
                 # need to remove the first param, i.e. `self`
                 _validate_sig(
                     functools.partial(async_evaluate, None), "async_evaluate"

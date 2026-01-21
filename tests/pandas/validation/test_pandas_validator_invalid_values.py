@@ -1482,9 +1482,9 @@ def test_invalid_value_polygon_coordinates():
                 else:
                     assert len(errors) == 1, f"{test_label}: Failed at row {i}"
                     error = errors[0]
-                    assert type(error) is type(
-                        expected_error_info
-                    ), f"{test_label}: Wrong error type at row {i}"
+                    assert type(error) is type(expected_error_info), (
+                        f"{test_label}: Wrong error type at row {i}"
+                    )
                     assert (
                         error.error_message()
                         == expected_error_info.error_message()

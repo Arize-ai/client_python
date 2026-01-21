@@ -1,4 +1,4 @@
-# The defualt format used to parse datetime objects from strings
+# The default format used to parse datetime objects from strings
 DEFAULT_DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%f+00:00"
 # Minumum/Maximum number of characters for span/trace/parent ids in spans
 SPAN_ID_MIN_STR_LENGTH = 12

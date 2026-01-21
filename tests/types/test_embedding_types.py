@@ -107,9 +107,9 @@ def test_wrong_value_fields():
         try:
             embedding.validate(key)
         except Exception as err:
-            assert isinstance(
-                err, ValueError
-            ), "Wrong field values should raise value errors"
+            assert isinstance(err, ValueError), (
+                "Wrong field values should raise value errors"
+            )
 
 
 def test_wrong_type_fields():
@@ -121,9 +121,9 @@ def test_wrong_type_fields():
         try:
             embedding.validate(key)
         except Exception as err:
-            assert isinstance(
-                err, TypeError
-            ), "Wrong field types should raise type errors"
+            assert isinstance(err, TypeError), (
+                "Wrong field types should raise type errors"
+            )
 
 
 if __name__ == "__main__":

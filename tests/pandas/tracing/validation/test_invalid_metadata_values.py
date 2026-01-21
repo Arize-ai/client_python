@@ -44,9 +44,9 @@ def test_invalid_span_id_empty():
 
     errors = validate_values(metadata_dataframe=metadata_df)
     assert len(errors) > 0, "Expected error for empty span_id"
-    assert any(
-        "span id" in str(error).lower() for error in errors
-    ), "Expected error message about span ID"
+    assert any("span id" in str(error).lower() for error in errors), (
+        "Expected error message about span ID"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -58,9 +58,9 @@ def test_invalid_span_id_non_string():
 
     errors = validate_values(metadata_dataframe=metadata_df)
     assert len(errors) > 0, "Expected error for non-string span_id"
-    assert any(
-        "span id" in str(error).lower() for error in errors
-    ), "Expected error message about span ID"
+    assert any("span id" in str(error).lower() for error in errors), (
+        "Expected error message about span ID"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -71,9 +71,9 @@ def test_invalid_json_syntax():
 
     errors = validate_values(metadata_dataframe=metadata_df)
     assert len(errors) > 0, "Expected error for invalid JSON syntax"
-    assert any(
-        "json" in str(error).lower() for error in errors
-    ), "Expected error message about JSON"
+    assert any("json" in str(error).lower() for error in errors), (
+        "Expected error message about JSON"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -84,9 +84,9 @@ def test_invalid_json_incomplete():
 
     errors = validate_values(metadata_dataframe=metadata_df)
     assert len(errors) > 0, "Expected error for incomplete JSON"
-    assert any(
-        "json" in str(error).lower() for error in errors
-    ), "Expected error message about JSON"
+    assert any("json" in str(error).lower() for error in errors), (
+        "Expected error message about JSON"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -115,17 +115,17 @@ def test_invalid_patch_type():
     metadata_df["patch_document"] = [123]
     errors_numeric = validate_values(metadata_dataframe=metadata_df)
     assert len(errors_numeric) > 0, "Expected error for numeric patch_document"
-    assert any(
-        "json" in str(error).lower() for error in errors_numeric
-    ), "Expected error message about invalid type"
+    assert any("json" in str(error).lower() for error in errors_numeric), (
+        "Expected error message about invalid type"
+    )
 
     # Test with list type
     metadata_df["patch_document"] = [[1, 2, 3]]
     errors_list = validate_values(metadata_dataframe=metadata_df)
     assert len(errors_list) > 0, "Expected error for list-type patch_document"
-    assert any(
-        "json" in str(error).lower() for error in errors_list
-    ), "Expected error message about invalid type"
+    assert any("json" in str(error).lower() for error in errors_list), (
+        "Expected error message about invalid type"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -146,12 +146,12 @@ def test_custom_patch_document_column():
     errors_invalid = validate_values(
         metadata_dataframe=metadata_df, patch_document_column_name=custom_name
     )
-    assert (
-        len(errors_invalid) > 0
-    ), "Expected errors with invalid custom column values"
-    assert any(
-        "json" in str(error).lower() for error in errors_invalid
-    ), "Expected error message about JSON"
+    assert len(errors_invalid) > 0, (
+        "Expected errors with invalid custom column values"
+    )
+    assert any("json" in str(error).lower() for error in errors_invalid), (
+        "Expected error message about JSON"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -233,17 +233,17 @@ def test_combined_metadata_approach():
     )
 
     errors_invalid = validate_values(metadata_dataframe=invalid_df)
-    assert (
-        len(errors_invalid) >= 2
-    ), "Expected at least 2 errors with invalid combined approach"
+    assert len(errors_invalid) >= 2, (
+        "Expected at least 2 errors with invalid combined approach"
+    )
 
     error_messages = [str(error).lower() for error in errors_invalid]
-    assert any(
-        "json" in msg for msg in error_messages
-    ), "Expected error about invalid JSON"
-    assert any(
-        "metadata fields" in msg for msg in error_messages
-    ), "Expected error about invalid metadata fields"
+    assert any("json" in msg for msg in error_messages), (
+        "Expected error about invalid JSON"
+    )
+    assert any("metadata fields" in msg for msg in error_messages), (
+        "Expected error about invalid metadata fields"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -292,9 +292,9 @@ def test_excessive_json_size():
 
     # This should pass since it's under the max size
     errors_valid = validate_values(metadata_dataframe=metadata_df)
-    assert (
-        len(errors_valid) == 0
-    ), "Expected no errors for JSON under size limit"
+    assert len(errors_valid) == 0, (
+        "Expected no errors for JSON under size limit"
+    )
 
     # Use a direct patching approach instead of module reloading
     # Create a test with a much smaller size limit
@@ -325,18 +325,18 @@ def test_excessive_json_size():
     errors_with_small_limit = patched_validate(test_df)
 
     # Now we should get a size validation error
-    assert (
-        len(errors_with_small_limit) > 0
-    ), "Expected error for oversized JSON with small limit"
+    assert len(errors_with_small_limit) > 0, (
+        "Expected error for oversized JSON with small limit"
+    )
     # Look for errors mentioning size
     size_errors = [
         e
         for e in errors_with_small_limit
         if "size" in str(e).lower() or "oversized" in str(e).lower()
     ]
-    assert (
-        len(size_errors) > 0
-    ), "Expected error message about size or oversized patch"
+    assert len(size_errors) > 0, (
+        "Expected error message about size or oversized patch"
+    )
 
 
 if __name__ == "__main__":

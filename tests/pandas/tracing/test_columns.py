@@ -71,9 +71,9 @@ def test_eval_name_capture():
     for test_str, expected_name in matches:
         match = re.match(EVAL_PREFIX_AND_NAME_PATTERN, test_str)
         assert match is not None, f"Failed to match '{test_str}'"
-        assert (
-            match.group(1) == expected_name
-        ), f"Incorrect name captured for '{test_str}'"
+        assert match.group(1) == expected_name, (
+            f"Incorrect name captured for '{test_str}'"
+        )
 
     non_matches = [
         "evalname.",  # Missing dot
@@ -81,9 +81,9 @@ def test_eval_name_capture():
         "eval.name",  # Missing suffix
     ]
     for test_str in non_matches:
-        assert (
-            re.match(EVAL_PREFIX_AND_NAME_PATTERN, test_str) is None
-        ), f"Incorrectly matched '{test_str}'"
+        assert re.match(EVAL_PREFIX_AND_NAME_PATTERN, test_str) is None, (
+            f"Incorrectly matched '{test_str}'"
+        )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -107,13 +107,13 @@ def test_annotation_column_pattern():
     ]
 
     for pattern in valid_patterns:
-        assert re.match(
-            ANNOTATION_COLUMN_PATTERN, pattern
-        ), f"Should match: {pattern}"
+        assert re.match(ANNOTATION_COLUMN_PATTERN, pattern), (
+            f"Should match: {pattern}"
+        )
     for pattern in invalid_patterns:
-        assert not re.match(
-            ANNOTATION_COLUMN_PATTERN, pattern
-        ), f"Should NOT match: {pattern}"
+        assert not re.match(ANNOTATION_COLUMN_PATTERN, pattern), (
+            f"Should NOT match: {pattern}"
+        )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -127,9 +127,9 @@ def test_annotation_name_capture():
     for test_str, expected_name in matches:
         match = re.match(ANNOTATION_NAME_PATTERN, test_str)
         assert match is not None, f"Failed to match '{test_str}'"
-        assert (
-            match.group(1) == expected_name
-        ), f"Incorrect name captured for '{test_str}'"
+        assert match.group(1) == expected_name, (
+            f"Incorrect name captured for '{test_str}'"
+        )
 
     non_matches = [
         "annotationname.label",  # Missing dot after prefix
@@ -138,9 +138,9 @@ def test_annotation_name_capture():
         "quality.label",  # Missing prefix
     ]
     for test_str in non_matches:
-        assert (
-            re.match(ANNOTATION_NAME_PATTERN, test_str) is None
-        ), f"Incorrectly matched '{test_str}'"
+        assert re.match(ANNOTATION_NAME_PATTERN, test_str) is None, (
+            f"Incorrectly matched '{test_str}'"
+        )
 
 
 if __name__ == "__main__":

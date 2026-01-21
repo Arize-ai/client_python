@@ -81,9 +81,9 @@ class IntegrationClient:
 
         The input must be a WhyLogs profile.
         """
-        assert isinstance(
-            profile, (DatasetProfile, DatasetProfileView)
-        ), f"Expected WhyLogs DatasetProfile or DatasetProfileView, got {type(profile)}"
+        assert isinstance(profile, (DatasetProfile, DatasetProfileView)), (
+            f"Expected WhyLogs DatasetProfile or DatasetProfileView, got {type(profile)}"
+        )
 
         if not self.model_exists(self._space_id, model_id, self._graphql_uri):
             raise ValueError(
@@ -157,9 +157,9 @@ class IntegrationClient:
 
         The input must be a WhyLogs profile.
         """
-        assert isinstance(
-            profile, (DatasetProfile, DatasetProfileView)
-        ), f"Expected WhyLogs DatasetProfile or DatasetProfileView, got {type(profile)}"
+        assert isinstance(profile, (DatasetProfile, DatasetProfileView)), (
+            f"Expected WhyLogs DatasetProfile or DatasetProfileView, got {type(profile)}"
+        )
 
         if not self.model_exists(self._space_id, model_id, self._graphql_uri):
             raise ValueError(

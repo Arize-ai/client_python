@@ -84,9 +84,9 @@ def test_invalid_empty_strings():
     errors_updated_by = annotations_validation.validate_values(
         df_updated_by, valid_project_name
     )
-    assert (
-        len(errors_updated_by) > 0
-    ), "Expected error for empty updated_by string"
+    assert len(errors_updated_by) > 0, (
+        "Expected error for empty updated_by string"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -100,9 +100,9 @@ def test_invalid_string_lengths():
     errors_label = annotations_validation.validate_values(
         df_label, valid_project_name
     )
-    assert (
-        len(errors_label) > 0
-    ), "Expected error for label exceeding max length"
+    assert len(errors_label) > 0, (
+        "Expected error for label exceeding max length"
+    )
 
     df_updated_by = get_valid_df_for_values_test(1)
     # Use the imported constant for updated_by length check
@@ -112,9 +112,9 @@ def test_invalid_string_lengths():
     errors_updated_by = annotations_validation.validate_values(
         df_updated_by, valid_project_name
     )
-    assert (
-        len(errors_updated_by) > 0
-    ), "Expected error for updated_by exceeding max length"
+    assert len(errors_updated_by) > 0, (
+        "Expected error for updated_by exceeding max length"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")
@@ -131,9 +131,9 @@ def test_invalid_numeric_values():
     df_time_inf = get_valid_df_for_values_test(1)
     # Need to cast to float first to assign np.inf
     df_time_inf[f"annotation.quality{ANNOTATION_UPDATED_AT_SUFFIX}"] = (
-        df_time_inf[
-            f"annotation.quality{ANNOTATION_UPDATED_AT_SUFFIX}"
-        ].astype(float)
+        df_time_inf[f"annotation.quality{ANNOTATION_UPDATED_AT_SUFFIX}"].astype(
+            float
+        )
     )
     df_time_inf[f"annotation.quality{ANNOTATION_UPDATED_AT_SUFFIX}"] = [np.inf]
     errors_time_inf = annotations_validation.validate_values(
@@ -143,18 +143,18 @@ def test_invalid_numeric_values():
 
     df_time_nan = get_valid_df_for_values_test(1)
     df_time_nan[f"annotation.quality{ANNOTATION_UPDATED_AT_SUFFIX}"] = (
-        df_time_nan[
-            f"annotation.quality{ANNOTATION_UPDATED_AT_SUFFIX}"
-        ].astype(float)
+        df_time_nan[f"annotation.quality{ANNOTATION_UPDATED_AT_SUFFIX}"].astype(
+            float
+        )
     )
     df_time_nan[f"annotation.quality{ANNOTATION_UPDATED_AT_SUFFIX}"] = [np.nan]
     errors_time_nan = annotations_validation.validate_values(
         df_time_nan, valid_project_name
     )
     # Adjust assertion: _check_value_timestamp currently allows NaN (treats as None internally)
-    assert (
-        len(errors_time_nan) == 0
-    ), "Expected no error for NaN updated_at (treated as null by validator)"
+    assert len(errors_time_nan) == 0, (
+        "Expected no error for NaN updated_at (treated as null by validator)"
+    )
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires python>=3.8")

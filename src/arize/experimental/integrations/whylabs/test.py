@@ -170,12 +170,12 @@ def test_log_profile_with_counts_should_fail():
         profile_df = profile.view().to_pandas()
 
         # Verify counts were modified as expected
-        assert (
-            profile_df.iloc[0]["counts/n"] == 5
-        ), "First row count should be 5"
-        assert (
-            profile_df.iloc[1]["counts/n"] == 3
-        ), "Second row count should be 3"
+        assert profile_df.iloc[0]["counts/n"] == 5, (
+            "First row count should be 5"
+        )
+        assert profile_df.iloc[1]["counts/n"] == 3, (
+            "Second row count should be 3"
+        )
 
         schema = Schema(feature_column_names=["a", "b"])
 
@@ -186,9 +186,9 @@ def test_log_profile_with_counts_should_fail():
             os.environ["ARIZE_MODEL_ID"],
             ModelTypes.BINARY_CLASSIFICATION,
         )[0]
-        assert (
-            response.status_code != 200
-        ), "Expected profile logging to fail due to mismatched counts"
+        assert response.status_code != 200, (
+            "Expected profile logging to fail due to mismatched counts"
+        )
         print("Profile logging failed as expected with response:", response)
 
     except Exception as e:
@@ -210,20 +210,20 @@ def test_log_dataset_profile_with_counts_should_fail():
         profile_df = profile.view().to_pandas()
 
         # Verify counts were modified as expected
-        assert (
-            profile_df.iloc[0]["counts/n"] == 5
-        ), "First row count should be 5"
-        assert (
-            profile_df.iloc[1]["counts/n"] == 3
-        ), "Second row count should be 3"
+        assert profile_df.iloc[0]["counts/n"] == 5, (
+            "First row count should be 5"
+        )
+        assert profile_df.iloc[1]["counts/n"] == 3, (
+            "Second row count should be 3"
+        )
 
         response = client.log_dataset_profile(
             profile,
             os.environ["ARIZE_MODEL_ID"],
         )[0]
-        assert (
-            response.status_code != 200
-        ), "Expected profile logging to fail due to mismatched counts"
+        assert response.status_code != 200, (
+            "Expected profile logging to fail due to mismatched counts"
+        )
         print("Profile logging failed as expected with response:", response)
 
     except Exception as e:
@@ -260,9 +260,9 @@ def test_log_profile_with_counts():
             ModelTypes.BINARY_CLASSIFICATION,
             num_rows=10,
         )[0]
-        assert (
-            response.status_code == 200
-        ), "Expected profile logging to succeed with mismatched counts"
+        assert response.status_code == 200, (
+            "Expected profile logging to succeed with mismatched counts"
+        )
         print("Profile logging succeeded with response:", response)
 
     except Exception as e:
@@ -289,9 +289,9 @@ def test_log_dataset_profile_with_counts():
             num_rows=10,
             timestamp=datetime.now(),
         )[0]
-        assert (
-            response.status_code == 200
-        ), "Expected profile logging to succeed with mismatched counts"
+        assert response.status_code == 200, (
+            "Expected profile logging to succeed with mismatched counts"
+        )
         print("Profile logging succeeded with response:", response)
 
     except Exception as e:

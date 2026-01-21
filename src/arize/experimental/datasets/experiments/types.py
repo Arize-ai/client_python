@@ -480,7 +480,9 @@ class EvaluationResultColumnNames:
         >>> # Using metadata with same key and column name
         >>> EvaluationResultColumnNames(
         ...     score="quality.score",
-        ...     metadata={"version": None},  # Will look for column named "version"
+        ...     metadata={
+        ...         "version": None
+        ...     },  # Will look for column named "version"
         ... )
 
         >>> # Using metadata with different key and column name

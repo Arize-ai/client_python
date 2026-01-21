@@ -68,9 +68,9 @@ def test_sacrebleu_score() -> None:
     except Exception as e:
         raise AssertionError("Unexpected Error") from e
 
-    assert (
-        sacrebleu_scores == results["sacrebleu"]
-    ).all(), "SacreBLEU scores should match"  # type:ignore
+    assert (sacrebleu_scores == results["sacrebleu"]).all(), (
+        "SacreBLEU scores should match"
+    )  # type:ignore
 
 
 def test_google_bleu_score() -> None:
@@ -84,9 +84,9 @@ def test_google_bleu_score() -> None:
     except Exception as e:
         raise AssertionError("Unexpected Error") from e
 
-    assert (
-        gbleu_scores == results["google_bleu"]
-    ).all(), "Google BLEU scores should match"  # type:ignore
+    assert (gbleu_scores == results["google_bleu"]).all(), (
+        "Google BLEU scores should match"
+    )  # type:ignore
 
 
 def test_rouge_score() -> None:
@@ -104,9 +104,9 @@ def test_rouge_score() -> None:
     assert isinstance(rouge_scores, dict)
     assert len(rouge_scores.keys()) == 1
     assert list(rouge_scores.keys())[0] == "rougeL"  # type:ignore
-    assert (
-        rouge_scores["rougeL"] == results["rougeL"]
-    ).all(), "ROUGE scores should match"  # type: ignore
+    assert (rouge_scores["rougeL"] == results["rougeL"]).all(), (
+        "ROUGE scores should match"
+    )  # type: ignore
 
     rouge_types = [
         "rouge1",
@@ -127,9 +127,9 @@ def test_rouge_score() -> None:
     assert isinstance(rouge_scores, dict)
     assert list(rouge_scores.keys()) == rouge_types
     for rtype in rouge_types:
-        assert (
-            rouge_scores[rtype] == results[rtype]
-        ).all(), f"ROUGE scores ({rtype}) should match"  # type: ignore
+        assert (rouge_scores[rtype] == results[rtype]).all(), (
+            f"ROUGE scores ({rtype}) should match"
+        )  # type: ignore
 
 
 def test_meteor_score() -> None:
@@ -143,9 +143,9 @@ def test_meteor_score() -> None:
     except Exception as e:
         raise AssertionError("Unexpected Error") from e
 
-    assert (
-        meteor_scores == results["meteor"]
-    ).all(), "METEOR scores should match"  # type:ignore
+    assert (meteor_scores == results["meteor"]).all(), (
+        "METEOR scores should match"
+    )  # type:ignore
 
 
 if __name__ == "__main__":

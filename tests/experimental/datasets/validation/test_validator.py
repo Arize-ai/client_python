@@ -147,9 +147,9 @@ def test_datetime_conversion():
         for i, val in enumerate(converted_df[col]):
             original = df[col].iloc[i]
             expected_ms = int(original.timestamp() * 1000)
-            assert (
-                val == expected_ms
-            ), f"Conversion failed for {col} row {i}: got {val}, expected {expected_ms}"
+            assert val == expected_ms, (
+                f"Conversion failed for {col} row {i}: got {val}, expected {expected_ms}"
+            )
 
     # Verify non-datetime columns are unchanged
     assert converted_df["regular_col"].equals(df["regular_col"])

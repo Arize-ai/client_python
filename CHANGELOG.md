@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [7.52.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.51.2...arize-python-sdk/v7.52.0) (2026-01-21)
+
+
+### 🎁 New Features
+
+* add configurable timeout parameter for experiment task execution ([#59917](https://github.com/Arize-ai/arize/issues/59917)) ([b2ebb81](https://github.com/Arize-ai/arize/commit/b2ebb81b9e87779ed66a4333f1c189b2e3295e91))
+
 ## [7.51.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.51.1...arize-python-sdk/v7.51.2) (2025-12-02)
 
 

@@ -132,7 +132,7 @@ include = '\.pyi?$'
 exclude = '(_pb2\.py$|docs/source/.*\.py)'
 
 [tool.ruff]
-target-version = "py37"
+target-version = "py38"
 line-length = 80
 exclude = [
     "dist/",
@@ -169,6 +169,7 @@ select = [
 ignore= [
     "D203", # Do not use a blank line to separate the docstring from the class definition,
     "D212", # The summary line should be located on the second physical line of the docstring
+    "UP036", # The summary line should be located on the second physical line of the docstring
 ]
 
 [tool.ruff.lint.isort]
