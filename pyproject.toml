@@ -44,6 +44,7 @@ dependencies = [
     "pyarrow>=0.15.0",
     "tqdm>=4.60.0,<5",
     "pydantic>=2.0.0,<3",
+    "packaging>=20.0",
 ]
 dynamic = ["version"]
 
