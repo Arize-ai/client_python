@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.0.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.0.0...arize-python-sdk/v8.0.1) (2026-02-04)
+
+
+### ❔ Miscellaneous Chores
+
+* **docs:** add Read the Docs configuration file ([#62085](https://github.com/Arize-ai/arize/issues/62085)) ([2d06ef4](https://github.com/Arize-ai/arize/commit/2d06ef4ae8e5f569a69ff3ae45f2a2d95116de9a))
+
 ## [8.0.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.52.0...arize-python-sdk/v8.0.0) (2026-02-04)
 
  ### ⚠️ BREAKING CHANGES
