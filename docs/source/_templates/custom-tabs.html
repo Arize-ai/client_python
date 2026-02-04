@@ -1,0 +1,58 @@
+{# Mix of custom tabs and dropdowns #}
+<div id="navbar-main-elements">
+  <ul class="navbar-nav">
+    {# Main client pages as top-level tabs #}
+    <li class="nav-item">
+      <a class="nav-link" href="{{ pathto('client') }}">Client</a>
+    </li>
+
+    {# Tracing dropdown #}
+    <li class="nav-item dropdown">
+      <button class="btn dropdown-toggle nav-link" type="button" data-bs-toggle="dropdown">
+        Tracing
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{{ pathto('spans') }}">Spans</a></li>
+      </ul>
+    </li>
+
+    <li class="nav-item dropdown">
+      <button class="btn dropdown-toggle nav-link" type="button" data-bs-toggle="dropdown">
+        LLMs
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{{ pathto('datasets') }}">Datasets</a></li>
+        <li><a class="dropdown-item" href="{{ pathto('experiments') }}">Experiments</a></li>
+      </ul>
+    </li>
+
+    <li class="nav-item dropdown">
+      <button class="btn dropdown-toggle nav-link" type="button" data-bs-toggle="dropdown">
+        ML
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{{ pathto('models') }}">Models</a></li>
+        <li><a class="dropdown-item" href="{{ pathto('embeddings') }}">Embeddings</a></li>
+      </ul>
+    </li>
+
+    {# Utilities as single tabs #}
+    {# <li class="nav-item"> #}
+    {#   <a class="nav-link" href="{{ pathto('embeddings') }}">Embeddings</a> #}
+    {# </li> #}
+    {# <li class="nav-item"> #}
+    {#   <a class="nav-link" href="{{ pathto('types') }}">Types</a> #}
+    {# </li> #}
+
+    {# External links #}
+    {% if theme_external_links %}
+      {% for link in theme_external_links %}
+        <li class="nav-item">
+          <a class="nav-link nav-external" href="{{ link.url }}" target="_blank" rel="noopener noreferrer">
+            {{ link.name }}
+          </a>
+        </li>
+      {% endfor %}
+    {% endif %}
+  </ul>
+</div>

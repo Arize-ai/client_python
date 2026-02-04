@@ -1,5 +1,13 @@
 # Changelog
 
+## [8.0.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.52.0...arize-python-sdk/v8.0.0) (2026-02-04)
+
+ ### ⚠️ BREAKING CHANGES
+
+ **Version 8 is a complete architectural redesign.** This is not an incremental update—the SDK has been rebuilt almost from the ground up.
+
+ **📚 [Complete Migration Guide](https://arize.com/docs/api-clients/python/version-8/migration/index)**
+
 
 ## [7.52.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v7.51.2...arize-python-sdk/v7.52.0) (2026-01-21)
 

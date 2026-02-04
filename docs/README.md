@@ -1,30 +1,132 @@
-# Maintenance README for Arize Sphinx API Documentation
+# Arize Python SDK API Reference
 
-This API reference provides comprehensive details for Arize's API. The documentation covers only public, user-facing API endpoints offered in Arize.
+This directory contains the Sphinx-based API reference documentation for the Arize Python SDK. This reference provides comprehensive details for the SDK's public API.
 
-Maintaining the API reference consists of two parts:
+## Structure
 
-1. Building the documentation with Sphinx
-2. Hosting and CI with readthedocs
-
-## TL;DR
 ```
-uv venv --python=python3.11
-uv pip install -r requirements.txt
-make clean html
-# then open build/html/index.html in your browser
-# currently, the build/html directory is copied over as the static site for arize-docs.onrender.com
+docs/
+ ┣ source/
+ ┃ ┣ _static/
+ ┃ ┃ └── custom.css
+ ┃ ┣ client.md          # ArizeClient
+ ┃ ┣ spans.md           # SpansClient
+ ┃ ┣ ml.md              # MLModelsClient
+ ┃ ┣ datasets.md        # DatasetsClient
+ ┃ ┣ experiments.md     # ExperimentsClient
+ ┃ ┣ embeddings.md      # EmbeddingGenerator
+ ┃ ┣ types.md           # Type definitions
+ ┃ ┣ config.md          # SDKConfiguration
+ ┃ ┣ conf.py            # Sphinx configuration
+ ┃ └── index.md         # Main entry point
+ ┣ Makefile
+ ┣ make.bat
+ ┣ requirements.txt
+ └── README.md
+
 ```
 
-## Files
-- conf.py: All sphinx-related configuration is done here and is necessary to run Sphinx.
-- index.md: Main entrypoint for the API reference. This file must be in the `source` directory. For documentation to show up on the API reference, there must be a path (does not have to be direct) defined in index.md to the target documentation file.
-- requirements.txt: This file is necessary for management of dependencies on the readthedocs platform and its build process.
-- make files: Not required but useful in generating static HTML pages locally.
+- **conf.py**: Sphinx configuration for theme, extensions, and autodoc settings
+- **index.md**: Main entry point with table of contents
+- **requirements.txt**: Python dependencies for building the documentation
+- **Makefiles**: Commands for building HTML documentation locally
 
-## Useful references
-https://pydata-sphinx-theme.readthedocs.io/
-https://sphinx-design.readthedocs.io/en/latest/
-https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
-https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
-https://docs.readthedocs.io/en/stable/automation-rules.html
+## Building the Documentation
+
+### Prerequisites
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Build HTML
+
+```bash
+cd docs
+make clean
+make html
+```
+
+The generated HTML will be in `build/html/`. Open `build/html/index.html` in your browser.
+
+### Live Reload
+
+For development with auto-reload:
+
+```bash
+make livehtml
+```
+
+## Configuration
+
+### Theme
+
+The documentation uses the [PyData Sphinx Theme](https://pydata-sphinx-theme.readthedocs.io/), which provides:
+
+- Clean, modern design
+- Responsive layout
+- Good navigation
+
+### Autodoc
+
+Documentation is automatically generated from Google-style docstrings in the source code using Sphinx's autodoc extension.
+
+Configuration settings:
+
+- `autodoc_typehints = "none"` - Types documented in parameter descriptions
+- `autoclass_content = "class"` - Only class docstring, not **init**
+- `add_module_names = False` - Cleaner class names
+
+### MyST Parser
+
+Markdown files are processed using [MyST Parser](https://myst-parser.readthedocs.io/), allowing:
+
+- Markdown syntax for documentation
+- Sphinx directives with `{eval-rst}` blocks
+- Cross-references and linking
+
+## Adding New API Documentation
+
+1. Create a new `.md` file in `source/` directory
+2. Add autodoc directives:
+
+   ````markdown
+   # MyClass
+
+   ```{eval-rst}
+   .. currentmodule:: arize.mymodule
+
+   .. autoclass:: MyClass
+      :members:
+      :undoc-members:
+      :show-inheritance:
+      :special-members: __init__
+   ```
+   ````
+
+   ```
+
+   ```
+
+3. Add the file to the toctree in `index.md`:
+
+   ````markdown
+   ```{toctree}
+   :maxdepth: 2
+
+   client
+   myclass  # <- Add here
+   ```
+   ````
+
+   ```
+
+   ```
+
+4. Rebuild the documentation
+
+## Publishing
+
+For ReadTheDocs integration, create a `.readthedocs.yaml` file in the repository root (see plan document for template).

@@ -1,7 +1,5 @@
-myst_parser
-sphinx==7.3.7
-pydata-sphinx-theme
-linkify-it-py
-sphinx_design
-
--e ".[Datasets]"
+# Install the SDK with all extras needed for documentation
+# Path relative to docs/ directory
+# - docs: Sphinx and documentation build tools
+# - otel, mimic, embeddings: Optional features that need to be importable for autodoc
+-e ..[docs,otel,mimic,embeddings]

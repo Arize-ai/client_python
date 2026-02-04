@@ -1,61 +1,461 @@
-@import "pydata_sphinx_theme.scss";
+/* ============================================================================
+   Custom CSS for Arize Python SDK Documentation
 
-/* -- index ------------------------------------------------------------------ */
+   This file customizes the PyData Sphinx Theme to match Arize branding
+   and improve the API reference documentation appearance.
 
-.bd-article h1 {
-  display: flex;
-  justify-content: center;
+   PyData theme variables (--pst-color-*) automatically adapt to light/dark mode
+   ============================================================================ */
+
+/* ============================================================================
+   PyData Sphinx Theme - Overridable CSS Variables Reference
+
+   Below is a comprehensive list of CSS custom properties (variables) that you
+   can override to customize the PyData Sphinx Theme. These variables
+   automatically adapt between light and dark modes.
+
+   USAGE: Override any variable in the :root selector or html[data-theme="light"]
+   and html[data-theme="dark"] selectors for theme-specific customization.
+
+   ---------------------------------------------------------------------------- */
+
+/*
+   COLOR VARIABLES
+   ---------------
+
+   Background & Surface Colors:
+   - --pst-color-background          Main page background
+   - --pst-color-surface             Raised surfaces (cards, code blocks)
+   - --pst-color-on-background       Text on background
+   - --pst-color-on-surface          Text on surfaces
+
+   Text Colors:
+   - --pst-color-text-base           Primary text color
+   - --pst-color-text-muted          Secondary/muted text
+   - --pst-color-heading             Heading text color
+
+   Brand & Interactive Colors:
+   - --pst-color-primary             Primary brand color (links, buttons)
+   - --pst-color-secondary           Secondary brand color
+   - --pst-color-accent              Accent color for highlights
+   - --pst-color-link                Hyperlink color
+   - --pst-color-link-hover          Hyperlink hover color
+
+   UI Element Colors:
+   - --pst-color-border              Standard borders
+   - --pst-color-shadow              Drop shadows
+   - --pst-color-inline-code         Inline code background
+   - --pst-color-target              Target highlight (for anchors)
+
+   Admonition Colors (Note, Warning, Tip, etc.):
+   - --pst-color-info                Info/note admonitions
+   - --pst-color-warning             Warning admonitions
+   - --pst-color-success             Success/tip admonitions
+   - --pst-color-attention           Attention/important admonitions
+   - --pst-color-danger              Danger/error admonitions
+
+   Sidebar & Navigation:
+   - --pst-color-sidebar-bg          Sidebar background
+   - --pst-color-sidebar-text        Sidebar text
+   - --pst-color-sidebar-link        Sidebar links
+   - --pst-color-sidebar-link-hover  Sidebar link hover
+
+   SPACING VARIABLES
+   -----------------
+   - --pst-sidebar-width             Width of left sidebar
+   - --pst-font-size-base            Base font size
+   - --pst-font-size-muted           Muted text font size
+
+   EXAMPLE OVERRIDES
+   -----------------
+
+   Override primary color:
+   :root {
+     --pst-color-primary: #ff6b35;
+     --pst-color-link: #ff6b35;
+   }
+
+   Customize for light mode only:
+   html[data-theme="light"] {
+     --pst-color-background: #fafafa;
+     --pst-color-text-base: #1a1a1a;
+   }
+
+   Customize for dark mode only:
+   html[data-theme="dark"] {
+     --pst-color-background: #0d1117;
+     --pst-color-text-base: #e6edf3;
+   }
+
+   For a complete list, see:
+   https://pydata-sphinx-theme.readthedocs.io/en/stable/user_guide/styling.html
+
+   ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+   Brand Colors - Arize Customization
+   ---------------------------------------------------------------------------- */
+
+:root {
+  /* Arize brand orange - used for highlights, borders, and accents */
+  --color-brand-primary: #ff6b35;
+
+  /* Future: Add more brand colors as needed
+  --color-brand-secondary: #2c3e50;
+  --color-brand-accent: #f39c12;
+  --pst-color-primary: var(--color-brand-primary);
+  --pst-color-link: var(--color-brand-primary);
+  */
 }
 
-/* .bd-article #api-definition h2 {
-    display: flex;
-    justify-content: center;
-} */
+/* ----------------------------------------------------------------------------
+   Code Blocks
+   ---------------------------------------------------------------------------- */
 
-#main-content > .bd-article > img {
-  display: flex;
-  justify-content: center;
+/* Main code block container - adds rounded corners and padding */
+.highlight pre {
+  border-radius: 4px;
+  padding: 1em;
+  /* Future: Add border or shadow
+  border: 1px solid var(--pst-color-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  */
 }
 
-#arize-api-reference > #external-links {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
+/* Inline code elements (like `variable` in text) */
+code.literal {
+  background-color: var(
+    --pst-color-inline-code
+  ); /* Adapts to light/dark theme */
+  border-radius: 3px;
+  padding: 0.2em 0.4em;
+  /* Future: Add border for more definition
+  border: 1px solid var(--pst-color-border);
+  */
 }
 
-#arize-api-reference > #api-definition > .toctree-wrapper > ul {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  flex-wrap: wrap;
+/* Dark mode specific fixes for code blocks */
+html[data-theme="dark"] .highlight pre {
+  background-color: var(--pst-color-surface); /* Dark gray background */
 }
 
-#arize-api-reference > #api-definition > .toctree-wrapper > ul > li {
-  padding: 1em 1em 1em 1em;
+html[data-theme="dark"] .highlight {
+  background-color: var(--pst-color-surface); /* Ensures container matches */
 }
 
-/* -- navbar display --------------------------------------------------------- */
-
-.navbar-nav .nav-link {
-  text-transform: capitalize;
+html[data-theme="dark"] code.literal {
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle light background */
+  color: var(--pst-color-text-base); /* Light text */
 }
 
-/* -- sidebar display -------------------------------------------------------- */
+/* ----------------------------------------------------------------------------
+   Tables
+   ---------------------------------------------------------------------------- */
 
-/* -- signature display ------------------------------------------------------ */
-
-.sig.sig-object.py {
-  font-style: normal !important;
-  font-feature-settings: "kern";
-  font-family: "Roboto Mono", "Courier New", Courier, monospace;
-  background: var(--pst-color-surface);
+/* Table structure - ensures proper spacing and borders */
+table.docutils {
+  border-collapse: collapse; /* Clean borders without gaps */
+  width: 100%;
+  /* Future: Add margin
+  margin: 1.5em 0;
+  */
 }
 
-.sig.sig-object.py .sig-param,
-.sig-paren {
-  font-weight: normal;
+/* Table headers - uses Arize brand color */
+table.docutils th {
+  background-color: var(--color-brand-primary); /* Arize orange */
+  color: white;
+  padding: 0.75em;
+  text-align: left;
+  /* Future: Make sticky on scroll
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  */
 }
 
-.sig.sig-object.py em {
-  font-style: normal;
+/* Table cells - subtle borders that adapt to theme */
+table.docutils td {
+  padding: 0.75em;
+  border-bottom: 1px solid var(--pst-color-border); /* Theme-aware border */
+  /* Future: Add hover effect
+  transition: background-color 0.2s;
+  */
 }
+
+/* Future: Table row hover effect
+table.docutils tbody tr:hover {
+  background-color: var(--pst-color-surface);
+}
+*/
+
+/* ----------------------------------------------------------------------------
+   API Reference Documentation
+   ---------------------------------------------------------------------------- */
+
+/* Class, method, and function signatures - adds visual hierarchy */
+dl.py.class > dt,
+dl.py.method > dt,
+dl.py.function > dt {
+  background-color: var(--pst-color-surface); /* Subtle background */
+  border-left: 3px solid var(--color-brand-primary); /* Arize orange accent */
+  padding: 0.5em;
+  margin-bottom: 0.5em;
+  /* Future: Add rounded corners or shadow
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  */
+}
+
+/* "Bases:" inheritance line styling - shows which class is inherited from */
+.py.class dd p:first-child {
+  font-size: 0.85em; /* Slightly smaller text */
+  color: var(--pst-color-text-muted); /* Muted color (adapts to theme) */
+  margin-bottom: 1em;
+  padding: 0.5em;
+  background-color: var(--pst-color-surface); /* Matches theme */
+  border-left: 2px solid var(--pst-color-border); /* Subtle accent */
+
+  /* To hide this completely instead, uncomment:
+  display: none;
+  */
+}
+
+/* Future: Parameter styling for better readability
+.sig-param {
+  display: inline-block;
+  margin: 0.2em 0;
+}
+*/
+
+/* Future: Return type styling
+.sig-return {
+  color: var(--pst-color-link);
+}
+*/
+
+/* ----------------------------------------------------------------------------
+   Admonitions (Note, Warning, Tip boxes)
+   ---------------------------------------------------------------------------- */
+
+/* Spacing around admonition blocks */
+.admonition {
+  margin: 1.5em 0;
+  /* Future: Add custom styling per type
+  border-radius: 4px;
+  */
+}
+
+/* Future: Custom colors for different admonition types
+.admonition.warning {
+  border-left: 3px solid #f39c12;
+}
+
+.admonition.tip {
+  border-left: 3px solid #27ae60;
+}
+
+.admonition.note {
+  border-left: 3px solid #3498db;
+}
+*/
+
+/* ----------------------------------------------------------------------------
+   Navigation & Sidebar Customization
+   ---------------------------------------------------------------------------- */
+
+/* Future: Adjust left sidebar width
+.bd-sidebar-primary {
+  width: 280px;
+  max-width: 280px;
+}
+*/
+
+/* Future: Sticky sidebar that scrolls with page
+.bd-sidebar-primary {
+  position: sticky;
+  top: 0;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+*/
+
+/* Future: Adjust right sidebar (TOC) width
+.bd-sidebar-secondary {
+  width: 240px;
+}
+*/
+
+/* Future: Style the active page link in navigation
+.bd-links .current {
+  font-weight: bold;
+  border-left: 3px solid var(--color-brand-primary);
+}
+*/
+
+/* ----------------------------------------------------------------------------
+   Typography & Font Customization
+   ---------------------------------------------------------------------------- */
+
+/* Future: Custom font stack
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+*/
+
+/* Future: Custom code font
+code, pre {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+}
+*/
+
+/* Future: Adjust heading sizes
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.5rem; }
+*/
+
+/* ----------------------------------------------------------------------------
+   Links & Interactive Elements
+   ---------------------------------------------------------------------------- */
+
+/* Future: Custom link styling
+a {
+  color: var(--color-brand-primary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+*/
+
+/* Future: External link indicator
+a.nav-external::after {
+  content: " ↗";
+  font-size: 0.8em;
+  vertical-align: super;
+}
+*/
+
+/* ----------------------------------------------------------------------------
+   Search Box Customization
+   ---------------------------------------------------------------------------- */
+
+/* Future: Style the search input
+.search-button__kbd-shortcut {
+  background-color: var(--pst-color-surface);
+  border: 1px solid var(--pst-color-border);
+  border-radius: 3px;
+  padding: 0.2em 0.4em;
+}
+*/
+
+/* ----------------------------------------------------------------------------
+   Mobile Responsive Adjustments
+   ---------------------------------------------------------------------------- */
+
+/* Future: Adjust for mobile devices
+@media (max-width: 768px) {
+  .bd-sidebar-primary {
+    width: 100%;
+  }
+
+  table.docutils {
+    font-size: 0.9em;
+  }
+}
+*/
+
+/* ----------------------------------------------------------------------------
+   Badges & Labels
+   ---------------------------------------------------------------------------- */
+
+/* Future: Style version badges or labels
+.badge {
+  background-color: var(--color-brand-primary);
+  color: white;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.85em;
+}
+*/
+
+/* ----------------------------------------------------------------------------
+   Footer Customization
+   ---------------------------------------------------------------------------- */
+
+/* Future: Custom footer styling
+.bd-footer-content {
+  border-top: 2px solid var(--color-brand-primary);
+  padding-top: 1em;
+}
+*/
+
+/* ----------------------------------------------------------------------------
+   Copy Button Customization
+   ---------------------------------------------------------------------------- */
+
+/* Future: Style the code copy button
+.copybtn {
+  background-color: var(--pst-color-surface);
+  border: 1px solid var(--pst-color-border);
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.copybtn:hover {
+  background-color: var(--color-brand-primary);
+  color: white;
+}
+*/
+
+/* ----------------------------------------------------------------------------
+   Scroll Behavior
+   ---------------------------------------------------------------------------- */
+
+/* Future: Smooth scrolling for anchor links
+html {
+  scroll-behavior: smooth;
+}
+*/
+
+/* Future: Custom scrollbar styling (WebKit browsers)
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--pst-color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--pst-color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-primary);
+}
+*/
+
+/* ----------------------------------------------------------------------------
+   Print Styles
+   ---------------------------------------------------------------------------- */
+
+/* Future: Optimize for printing
+@media print {
+  .bd-sidebar-primary,
+  .bd-sidebar-secondary,
+  .bd-header {
+    display: none;
+  }
+
+  .bd-main {
+    margin: 0;
+    max-width: 100%;
+  }
+}
+*/

@@ -1,1 +1,23 @@
-build
+# Sphinx build outputs
+build/
+_build/
+
+# Sphinx cache
+.doctrees/
+*.doctree
+
+# Generated documentation
+_generated/
+_autosummary/
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# IDE
+.vscode/
+.idea/

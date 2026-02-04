@@ -2,8 +2,9 @@
 name = "arize"
 description = "A helper library to interact with Arize AI APIs"
 readme = "README.md"
-requires-python = ">=3.6"
-license = { text = "BSD" }
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+license-files = ["LICENSE", "NOTICE"]
 keywords = [
     "Arize",
     "Observability",
@@ -13,23 +14,16 @@ keywords = [
     "LLM",
     "Evaluations",
 ]
-authors = [
-  { name = "Arize AI", email = "support@arize.com" },
-]
-maintainers = [
-  { name = "Arize AI", email = "support@arize.com" },
-]
+authors = [{ name = "Arize AI", email = "support@arize.com" }]
+maintainers = [{ name = "Arize AI", email = "support@arize.com" }]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 3 - Alpha",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Intended Audience :: Developers",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -37,15 +31,60 @@ classifiers = [
     "Topic :: System :: Monitoring",
 ]
 dependencies = [
-    "requests_futures==1.0.0",
-    "googleapis_common_protos>=1.51.0,<2",
-    "protobuf>=4.21.0,<7",
-    "pandas>=0.25.3,<3",
+    "numpy>=2.0.0",
+    "openinference-semantic-conventions>=0.1.25, <1",
+    "opentelemetry-exporter-otlp-proto-common>=1.38.0",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.38.0",
+    "opentelemetry-sdk>=1.38.0",
+    "opentelemetry-semantic-conventions>=0.43b0, <1",
+    "pandas>=2.0.0, <3",
+    "protobuf>=4.21.0, <7",
     "pyarrow>=0.15.0",
-    "tqdm>=4.60.0,<5",
-    "pydantic>=2.0.0,<3",
+    "pydantic>=2, <3",
+    "python-dateutil>=2.8.2, <3",
+    "requests>=2.0.0, <3",
+    "requests_futures>=1.0.0, <2",
+    "tqdm>4, <5",                                       # For progress bars
+    "typing-extensions>=4.7.1, <5",
+    "urllib3>=2.1.0, <3",
+    "wrapt>=1.0.0, <2.0.0",
 ]
 dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+    "mypy==1.19.1",
+    "pandas-stubs>=2.2.0",
+    "pytest-cov==6.0.0",
+    "pytest==8.4.2",
+    "ruff==0.14.9",
+    "taskipy>=1.14.1, <2",
+    "types-python-dateutil>=2.9.0",
+    "types-requests>=2.31.0",
+    "types-tabulate>=0.9.0",
+    "types-tqdm>=4.66.0",
+]
+otel = [
+    "arize-otel>=0.11.0, <1",
+]
+mimic = [
+    "interpret-community[mimic]>=0.22.0,<1",
+]
+embeddings = [
+    "Pillow>=8.4.0, <11",
+    "datasets>=2.8, <3, !=2.14.*",
+    "tokenizers>=0.13, <1",
+    "torch>=1.13, <3",
+    "transformers>=4.25, <5",
+]
+docs = [
+    "sphinx>=7.0.0, <8.0.0",
+    "sphinx-autobuild>=2024.0.0",
+    "pydata-sphinx-theme>=0.15.0",
+    "sphinx-copybutton>=0.5.0",
+    "sphinx-design>=0.5.0",
+    "myst-parser>=2.0.0",
+]
 
 [project.urls]
 Homepage = "https://arize.com"
@@ -54,57 +93,6 @@ Issues = "https://github.com/Arize-ai/client_python/issues"
 Source = "https://github.com/Arize-ai/client_python"
 Changelog = "https://github.com/Arize-ai/client_python/blob/main/CHANGELOG.md"
 
-[project.optional-dependencies]
-dev = [
-    "pytest==8.3.3",
-    "ruff==0.6.9",
-]
-MimicExplainer = [
-    "interpret-community[mimic]>=0.22.0,<1",
-]
-AutoEmbeddings = [
-    "transformers>=4.25, <5",
-    "tokenizers>=0.13, <1",
-    "datasets>=2.8, <3, !=2.14.*",
-    "torch>=1.13, <3",
-    "Pillow>=8.4.0, <11",
-]
-NLP_Metrics = [
-    "nltk>=3.0.0, <4",
-    "sacrebleu>=2.3.1, <3",
-    "rouge-score>=0.1.2, <1",
-    "evaluate>=0.3, <1",
-    "datasets!=2.14.*",
-]
-LLM_Evaluation = [
-    # To be removed in version 8 in favor of NLP_Metrics
-    "nltk>=3.0.0, <4",
-    "sacrebleu>=2.3.1, <3",
-    "rouge-score>=0.1.2, <1",
-    "evaluate>=0.3, <1",
-    "datasets!=2.14.*",
-]
-Tracing = [
-    "opentelemetry-semantic-conventions>=0.43b0, <1",
-    "openinference-semantic-conventions>=0.1.12, <1",
-    "deprecated", #opentelemetry-semantic-conventions requires it
-]
-Datasets = [
-    "typing-extensions>=4, <5",
-    "wrapt>=1.12.1, <2",
-    "opentelemetry-semantic-conventions>=0.43b0, <1",
-    "openinference-semantic-conventions>=0.1.6, <1",
-    "opentelemetry-sdk>=1.25.0, <2",
-    "opentelemetry-exporter-otlp>=1.25.0, <2",
-    "deprecated", #opentelemetry-semantic-conventions requires it
-]
-PromptHub = [
-    "gql>=3.0.0, <4.0.0",
-    "requests_toolbelt>=1.0.0",
-]
-PromptHub_VertexAI = [
-    "google-cloud-aiplatform>=1.0.0",
-]
 
 [build-system]
 requires = ["hatchling"]
@@ -120,11 +108,7 @@ only-packages = true
 packages = ["src/arize"]
 
 [tool.hatch.build.targets.sdist]
-exclude = [
-    "src/arize/examples",
-    "tests",
-    "docs",
-]
+exclude = ["tests", "docs"]
 
 
 [tool.black]
@@ -132,11 +116,13 @@ include = '\.pyi?$'
 exclude = '(_pb2\.py$|docs/source/.*\.py)'
 
 [tool.ruff]
-target-version = "py38"
+target-version = "py310"
 line-length = 80
 exclude = [
     "dist/",
+    "testing_notebooks/",
     "__pycache__",
+    "src/arize/_generated/**/*.py",
     "*_pb2.py*",
     "*_pb2_grpc.py*",
     "*.pyi",
@@ -148,28 +134,45 @@ line-ending = "native"
 
 [tool.ruff.lint]
 select = [
-    # pycodestyle Error
-    "E",
-    # pycodestyle Warning
-    "W",
-    # Pyflakes
-    "F",
-    # pyupgrade
-    "UP",
-    # flake8-bugbear
-    "B",
-    # flake8-simplify
-    "SIM",
-    # isort
-    "I",
-    # TODO: Enable pydocstyle when ready for API docs
-    # # pydocstyle
-    # "D",
+    # Core correctness & style
+    # ------------------------
+    "E",   # pycodestyle errors (syntax, indentation, whitespace)
+    "W",   # pycodestyle warnings (less severe style issues)
+    "F",   # Pyflakes (unused imports, undefined names, etc.)
+    "UP",  # pyupgrade (modernize syntax for your Python version)
+    "B",   # flake8-bugbear (likely bugs and design problems)
+    "SIM", # flake8-simplify (simpler / clearer code patterns)
+    "I",   # isort (import ordering)
+
+    # Typing & documentation
+    # ------------------------
+    "ANN", # flake8-annotations (enforce type annotations)
+    "D",   # pydocstyle (docstring conventions for public APIs)
+    "TCH", # flake8-type-checking (TYPE_CHECKING import hygiene)
+
+    # Recommended for SDKs
+    # ------------------------
+    "RUF",  # Ruff-native rules (high-signal correctness & footguns)
+    "C4",   # flake8-comprehensions (cleaner comprehensions)
+    "PIE",  # flake8-pie (small correctness & readability improvements)
+    "PERF", # perflint (common performance pitfalls)
+    "DTZ",  # flake8-datetimez (timezone-aware datetime usage)
+    "TRY",  # tryceratops (better exception handling patterns)
+    "RET",  # flake8-return (return consistency)
+    "S",    # flake8-bandit (basic security issues; tune via ignores)
 ]
-ignore= [
-    "D203", # Do not use a blank line to separate the docstring from the class definition,
-    "D212", # The summary line should be located on the second physical line of the docstring
-    "UP036", # The summary line should be located on the second physical line of the docstring
+ignore = [
+    "TRY003", # Put long / detailed messages inside the exception class
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "D104",   # Missing docstring in public package
+    "DTZ001", # Allow naive datetime usage in tests
+    "S101",   # Allow assert statements in tests
+    "S108",   # Allow insecure usage of temporary file or directory
+    "TRY301", # Allow generic exception catching in tests
+    "B017",   # Allow blind asserting exception: `Exception`
 ]
 
 [tool.ruff.lint.isort]
@@ -184,3 +187,111 @@ convention = "google"
 
 [tool.ruff.lint.pyupgrade]
 keep-runtime-typing = true
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_configs = true
+exclude = ["testing_notebooks/", "src/arize/_generated/", "tests/"]
+# Incrementally enable strict type checking by uncommenting checks from bottom to top.
+# Fix foundational issues (imports, syntax) before type definitions, then signatures, then implementations.
+disable_error_code = []
+
+# Ignore missing imports for libraries without type stubs
+[[tool.mypy.overrides]]
+module = [
+    "pyarrow.*",
+    "google.protobuf.*",
+    "wrapt.*",
+    "datasets.*",
+    "requests_futures.*",
+    "interpret_community.*",
+    "sklearn.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+# Directory where pytest will search for tests
+testpaths = ["tests"]
+# Patterns for discovering test files (files matching these patterns will be collected)
+python_files = ["test_*.py", "*_test.py"]
+# Patterns for discovering test classes (classes matching this pattern will be collected)
+python_classes = ["Test*"]
+# Patterns for discovering test functions (functions matching this pattern will be collected)
+python_functions = ["test_*"]
+# Directories and patterns to ignore during test collection
+norecursedirs = [
+    "testing_notebooks",
+    ".*",
+    "build",
+    "dist",
+    "*.egg"
+]
+# Additional command-line options to always apply when running pytest
+addopts = [
+    "-v",               # Verbose: show individual test names as they run
+    "--strict-markers", # Error on undefined markers (prevents typos like @pytest.mark.slo instead of @pytest.mark.slow)
+    "--tb=short",       # Shorter tracebacks: show only the failure point without full stack
+    "--durations=10",   # Show the 10 slowest tests at the end (helps identify performance bottlenecks)
+]
+# Custom markers that can be used to categorize tests (use with @pytest.mark.marker_name)
+markers = [
+    "unit: marks tests as unit tests (fast, isolated, uses mocks)",
+    "integration: marks tests as integration tests",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
+
+[tool.coverage.run]
+source = ["src/arize"]
+omit = [
+    "*/tests/*",
+    "*/testing_notebooks/*",
+    "*/_generated/*",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+    "src/arize/constants/*", # We don't need to test constants, they are just definitions
+    "src/arize/exceptions/*", # We don't need to test exceptions, they are just definitions
+    # Exclude other src/arize modules. TODO(Kiko): Remove them progressively.
+    "src/arize/datasets/*",
+    "src/arize/experiments/*",
+    "src/arize/ml/*",
+    "src/arize/projects/*",
+    "src/arize/spans/*",
+]
+# Enable branch coverage (measures whether all branches of if/else/try/except are tested)
+# Without this, only line coverage is measured
+branch = true
+
+[tool.coverage.report]
+# Number of decimal places to show in coverage percentages (e.g., 85.47% instead of 85%)
+precision = 2
+# Show line numbers for lines that are missing coverage in the report
+show_missing = true
+# If true, files with 100% coverage would be hidden from the report
+skip_covered = false
+# Minimum coverage percentage required (build fails if total coverage is below this)
+fail_under = 90
+# Lines matching these patterns are excluded from coverage measurement
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+    "@abc.abstractmethod",
+]
+
+[tool.coverage.html]
+# Directory where HTML coverage reports will be generated (browsable in a web browser)
+directory = "htmlcov"
+
+[tool.taskipy.tasks]
+lint = { cmd = "ruff format . && ruff check --fix .", cwd = ".", help = "Run ruff to format and lint the package." }
+type-check = {cmd = "mypy --no-incremental --show-traceback --config-file pyproject.toml .", cwd = ".", help = "Run mypy for type checking."}
+test = {cmd = "pytest --cov .", cwd = ".", help = "Run the test suite with coverage."}
+# Exclusive for CI
+ci-format = { cmd = "ruff format --check .", cwd = ".", help = "Run ruff to check formatting of the package during CI." }
+ci-lint = { cmd = "ruff check .", cwd = ".", help = "Run ruff to check linting rules of the package during CI." }
+ci-type-check = {cmd = "mypy --no-incremental --show-traceback --config-file pyproject.toml .", cwd = ".", help = "Run mypy for type checking during CI."}
+ci-test = {cmd = "pytest --cov --cov-report=term-missing --cov-report=html .", cwd = ".", help = "Run the test suite with coverage during CI."}

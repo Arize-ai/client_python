@@ -1,0 +1,39 @@
+/* ----------------------------------------------------------------------------
+   Right Sidebar (TOC) - Expand by Default
+   ---------------------------------------------------------------------------- */
+
+/* Keep all TOC sections expanded by default */
+.bd-toc .nav-link + ul {
+  display: block !important;
+}
+
+/* Ensure nested list items are visible */
+.bd-toc .nav > .nav-item > ul {
+  display: block !important;
+}
+
+/* If using details/summary elements, keep them open */
+.bd-toc details {
+  display: block;
+}
+
+.bd-toc details > summary {
+  display: none;
+}
+
+.bd-toc details[open] > *:not(summary) {
+  display: block;
+}
+
+/* ----------------------------------------------------------------------------
+   Right Sidebar (TOC) - Hide Class Prefix
+   ---------------------------------------------------------------------------- */
+
+/* Hide class prefix in TOC entries (e.g., show "datasets" instead of "ArizeClient.datasets") */
+.bd-toc .toc-h3 code::before {
+  content: '';
+  /* This will be handled by JavaScript for better control */
+}
+
+/* Alternative: Use JavaScript to remove class prefixes from TOC */
+/* See bottom of this file or add to page template */
