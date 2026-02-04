@@ -4,6 +4,7 @@ arize/_generated/api_client/api/__init__.py
 arize/_generated/api_client/api/datasets_api.py
 arize/_generated/api_client/api/experiments_api.py
 arize/_generated/api_client/api/projects_api.py
+arize/_generated/api_client/api/prompts_api.py
 arize/_generated/api_client/api_client.py
 arize/_generated/api_client/api_response.py
 arize/_generated/api_client/configuration.py
@@ -30,6 +31,9 @@ arize/_generated/api_client/docs/Project.md
 arize/_generated/api_client/docs/ProjectsApi.md
 arize/_generated/api_client/docs/ProjectsCreateRequest.md
 arize/_generated/api_client/docs/ProjectsList200Response.md
+arize/_generated/api_client/docs/Prompt.md
+arize/_generated/api_client/docs/PromptsApi.md
+arize/_generated/api_client/docs/PromptsList200Response.md
 arize/_generated/api_client/exceptions.py
 arize/_generated/api_client/models/__init__.py
 arize/_generated/api_client/models/dataset.py
@@ -52,6 +56,8 @@ arize/_generated/api_client/models/problem.py
 arize/_generated/api_client/models/project.py
 arize/_generated/api_client/models/projects_create_request.py
 arize/_generated/api_client/models/projects_list200_response.py
+arize/_generated/api_client/models/prompt.py
+arize/_generated/api_client/models/prompts_list200_response.py
 arize/_generated/api_client/rest.py
 arize/_generated/api_client/test/__init__.py
 arize/_generated/api_client/test/test_dataset.py
@@ -77,4 +83,7 @@ arize/_generated/api_client/test/test_project.py
 arize/_generated/api_client/test/test_projects_api.py
 arize/_generated/api_client/test/test_projects_create_request.py
 arize/_generated/api_client/test/test_projects_list200_response.py
+arize/_generated/api_client/test/test_prompt.py
+arize/_generated/api_client/test/test_prompts_api.py
+arize/_generated/api_client/test/test_prompts_list200_response.py
 arize/_generated/api_client_README.md

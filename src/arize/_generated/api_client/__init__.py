@@ -21,6 +21,7 @@ __all__ = [
     "DatasetsApi",
     "ExperimentsApi",
     "ProjectsApi",
+    "PromptsApi",
     "ApiResponse",
     "ApiClient",
     "Configuration",
@@ -50,12 +51,15 @@ __all__ = [
     "Project",
     "ProjectsCreateRequest",
     "ProjectsList200Response",
+    "Prompt",
+    "PromptsList200Response",
 ]
 
 # import apis into sdk package
 from arize._generated.api_client.api.datasets_api import DatasetsApi as DatasetsApi
 from arize._generated.api_client.api.experiments_api import ExperimentsApi as ExperimentsApi
 from arize._generated.api_client.api.projects_api import ProjectsApi as ProjectsApi
+from arize._generated.api_client.api.prompts_api import PromptsApi as PromptsApi
 
 # import ApiClient
 from arize._generated.api_client.api_response import ApiResponse as ApiResponse
@@ -89,4 +93,6 @@ from arize._generated.api_client.models.problem import Problem as Problem
 from arize._generated.api_client.models.project import Project as Project
 from arize._generated.api_client.models.projects_create_request import ProjectsCreateRequest as ProjectsCreateRequest
 from arize._generated.api_client.models.projects_list200_response import ProjectsList200Response as ProjectsList200Response
+from arize._generated.api_client.models.prompt import Prompt as Prompt
+from arize._generated.api_client.models.prompts_list200_response import PromptsList200Response as PromptsList200Response
 

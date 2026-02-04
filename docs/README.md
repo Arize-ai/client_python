@@ -38,7 +38,7 @@ docs/
 Install dependencies:
 
 ```bash
-pip install -r requirements.txt
+pip install -e '.[docs,otel,mimic,embeddings]'
 ```
 
 ### Build HTML

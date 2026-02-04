@@ -33,4 +33,6 @@ from arize._generated.api_client.models.problem import Problem
 from arize._generated.api_client.models.project import Project
 from arize._generated.api_client.models.projects_create_request import ProjectsCreateRequest
 from arize._generated.api_client.models.projects_list200_response import ProjectsList200Response
+from arize._generated.api_client.models.prompt import Prompt
+from arize._generated.api_client.models.prompts_list200_response import PromptsList200Response
 

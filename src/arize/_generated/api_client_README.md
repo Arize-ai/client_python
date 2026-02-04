@@ -89,6 +89,7 @@ Class | Method | HTTP request | Description
 *ProjectsApi* | [**projects_delete**](arize/_generated/api_client/docs/ProjectsApi.md#projects_delete) | **DELETE** /v2/projects/{project_id} | Delete a project
 *ProjectsApi* | [**projects_get**](arize/_generated/api_client/docs/ProjectsApi.md#projects_get) | **GET** /v2/projects/{project_id} | Get a project
 *ProjectsApi* | [**projects_list**](arize/_generated/api_client/docs/ProjectsApi.md#projects_list) | **GET** /v2/projects | List projects
+*PromptsApi* | [**prompts_list**](arize/_generated/api_client/docs/PromptsApi.md#prompts_list) | **GET** /v2/prompts | List prompts
 
 
 ## Documentation For Models
@@ -113,6 +114,8 @@ Class | Method | HTTP request | Description
  - [Project](arize/_generated/api_client/docs/Project.md)
  - [ProjectsCreateRequest](arize/_generated/api_client/docs/ProjectsCreateRequest.md)
  - [ProjectsList200Response](arize/_generated/api_client/docs/ProjectsList200Response.md)
+ - [Prompt](arize/_generated/api_client/docs/Prompt.md)
+ - [PromptsList200Response](arize/_generated/api_client/docs/PromptsList200Response.md)
 
 
 <a id="documentation-for-authorization"></a>

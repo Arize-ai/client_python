@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.0.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.0.1...arize-python-sdk/v8.0.2) (2026-02-04)
+
+
+### 📚 Documentation
+
+* add optional extras to RTD build and local install ([#62097](https://github.com/Arize-ai/arize/issues/62097)) ([2549d6c](https://github.com/Arize-ai/arize/commit/2549d6c889857cf5dc4364034b283c5cd42280cf))
+
 ## [8.0.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.0.0...arize-python-sdk/v8.0.1) (2026-02-04)
 
 
