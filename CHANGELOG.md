@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.1.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.0.2...arize-python-sdk/v8.1.0) (2026-02-09)
+
+
+### 🎁 New Features
+
+* **responses:** support one-level expansion in `to_df` methods ([#62391](https://github.com/Arize-ai/arize/issues/62391)) ([899edeb](https://github.com/Arize-ai/arize/commit/899edeba53d7c1212127f0673af7c77af0820a87))
+* **regions:** add `Region.list_regions` class method
+
+### 🐛 Bug Fixes
+
+* **config:** add max_val constraint to stream_max_workers
+
 ## [8.0.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.0.1...arize-python-sdk/v8.0.2) (2026-02-04)
 
 

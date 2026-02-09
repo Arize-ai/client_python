@@ -400,7 +400,10 @@ class SDKConfiguration:
     )
     stream_max_workers: int = field(
         default_factory=lambda: _env_int(
-            ENV_STREAM_MAX_WORKERS, DEFAULT_STREAM_MAX_WORKERS, min_val=1
+            ENV_STREAM_MAX_WORKERS,
+            DEFAULT_STREAM_MAX_WORKERS,
+            min_val=1,
+            max_val=32,
         )
     )
     stream_max_queue_bound: int = field(

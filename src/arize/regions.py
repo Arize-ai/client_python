@@ -15,6 +15,21 @@ class Region(Enum):
     US_EAST_1B = "us-east-1b"
     UNSET = ""
 
+    @classmethod
+    def list_regions(cls, include_unset: bool = False) -> list[str]:
+        """Return the list of available region values.
+
+        Args:
+            include_unset: Whether to include the UNSET region.
+
+        Returns:
+            A list of region strings.
+        """
+        regions = [region.value for region in cls if region != cls.UNSET]
+        if include_unset:
+            regions.append(cls.UNSET.value)
+        return regions
+
 
 @dataclass(frozen=True)
 class RegionEndpoints:

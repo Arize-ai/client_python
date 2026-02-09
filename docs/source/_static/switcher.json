@@ -5,6 +5,10 @@
     "preferred": true
   },
   {
+    "version": "v8.1.0",
+    "url": "https://arize-client-python.readthedocs.io/en/v8.1.0/"
+  },
+  {
     "version": "v8.0.0",
     "url": "https://arize-client-python.readthedocs.io/en/v8.0.0/"
   },
@@ -87,37 +91,5 @@
   {
     "version": "v7.33.0",
     "url": "https://arize-client-python.readthedocs.io/en/v7.33.0/"
-  },
-  {
-    "version": "v7.32.0",
-    "url": "https://arize-client-python.readthedocs.io/en/v7.32.0/"
-  },
-  {
-    "version": "v7.31.0",
-    "url": "https://arize-client-python.readthedocs.io/en/v7.31.0/"
-  },
-  {
-    "version": "v7.30.0",
-    "url": "https://arize-client-python.readthedocs.io/en/v7.30.0/"
-  },
-  {
-    "version": "v7.29.0",
-    "url": "https://arize-client-python.readthedocs.io/en/v7.29.0/"
-  },
-  {
-    "version": "v7.28.0",
-    "url": "https://arize-client-python.readthedocs.io/en/v7.28.0/"
-  },
-  {
-    "version": "v7.27.1",
-    "url": "https://arize-client-python.readthedocs.io/en/v7.27.1/"
-  },
-  {
-    "version": "v7.26.0",
-    "url": "https://arize-client-python.readthedocs.io/en/v7.26.0/"
-  },
-  {
-    "version": "v7.25.0",
-    "url": "https://arize-client-python.readthedocs.io/en/v7.25.0/"
   }
 ]

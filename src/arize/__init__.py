@@ -37,6 +37,8 @@ def make_to_df(field_name: str) -> object:
         exclude_none: str | bool = False,
         json_normalize: bool = False,
         convert_dtypes: bool = True,
+        expand_field: str = "additional_properties",
+        expand_prefix: str = "",
     ) -> object:
         """Convert a list of objects to a :class:`pandas.DataFrame`.
 
@@ -55,6 +57,9 @@ def make_to_df(field_name: str) -> object:
                 - True: alias for "all"
             json_normalize (bool): If True, flatten nested dicts via `pandas.json_normalize`.
             convert_dtypes (bool): If True, call `DataFrame.convert_dtypes()` at the end.
+            expand_field (str): If set, look for this field in each row and
+            expand its keys into top-level columns.
+            expand_prefix (str): If set, prefix expanded column names with this string.
 
         Returns:
             pandas.DataFrame: The converted DataFrame.
@@ -66,14 +71,25 @@ def make_to_df(field_name: str) -> object:
         rows = []
         for it in items:
             if hasattr(it, "model_dump"):  # Pydantic v2 object
-                rows.append(it.model_dump(by_alias=by_alias))
-
+                row = it.model_dump(by_alias=by_alias)
             elif isinstance(it, Mapping):  # Plain mapping
-                rows.append(it)
+                row = dict(it)  # Make a copy to avoid mutating the original
             else:
                 raise ValueError(
                     f"Cannot convert item of type {type(it)} to DataFrame row"
                 )
+
+            # --- one-level expansion (no recursion) ---
+            if expand_field and isinstance(row.get(expand_field), Mapping):
+                nested = dict(row.pop(expand_field))
+                if expand_prefix:
+                    nested = {
+                        f"{expand_prefix}{k}": v for k, v in nested.items()
+                    }
+                # nested keys win only if you want them to; swap order if not
+                row = {**row, **nested}
+
+            rows.append(row)
 
         df = (
             pd.json_normalize(rows, sep=".")

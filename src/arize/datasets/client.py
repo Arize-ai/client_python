@@ -225,7 +225,7 @@ class DatasetsClient:
         self,
         *,
         dataset_id: str,
-        dataset_version_id: str = "",
+        dataset_version_id: str | None = None,
         limit: int = 100,
         all: bool = False,
     ) -> models.DatasetsExamplesList200Response:

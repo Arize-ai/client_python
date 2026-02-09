@@ -89,6 +89,8 @@ Class | Method | HTTP request | Description
 *ProjectsApi* | [**projects_delete**](arize/_generated/api_client/docs/ProjectsApi.md#projects_delete) | **DELETE** /v2/projects/{project_id} | Delete a project
 *ProjectsApi* | [**projects_get**](arize/_generated/api_client/docs/ProjectsApi.md#projects_get) | **GET** /v2/projects/{project_id} | Get a project
 *ProjectsApi* | [**projects_list**](arize/_generated/api_client/docs/ProjectsApi.md#projects_list) | **GET** /v2/projects | List projects
+*PromptsApi* | [**prompts_delete**](arize/_generated/api_client/docs/PromptsApi.md#prompts_delete) | **DELETE** /v2/prompts/{prompt_id} | Delete a prompt
+*PromptsApi* | [**prompts_get**](arize/_generated/api_client/docs/PromptsApi.md#prompts_get) | **GET** /v2/prompts/{prompt_id} | Get a prompt
 *PromptsApi* | [**prompts_list**](arize/_generated/api_client/docs/PromptsApi.md#prompts_list) | **GET** /v2/prompts | List prompts
 
 
