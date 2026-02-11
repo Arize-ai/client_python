@@ -89,9 +89,11 @@ Class | Method | HTTP request | Description
 *ProjectsApi* | [**projects_delete**](arize/_generated/api_client/docs/ProjectsApi.md#projects_delete) | **DELETE** /v2/projects/{project_id} | Delete a project
 *ProjectsApi* | [**projects_get**](arize/_generated/api_client/docs/ProjectsApi.md#projects_get) | **GET** /v2/projects/{project_id} | Get a project
 *ProjectsApi* | [**projects_list**](arize/_generated/api_client/docs/ProjectsApi.md#projects_list) | **GET** /v2/projects | List projects
+*PromptsApi* | [**prompts_create**](arize/_generated/api_client/docs/PromptsApi.md#prompts_create) | **POST** /v2/prompts | Create a prompt
 *PromptsApi* | [**prompts_delete**](arize/_generated/api_client/docs/PromptsApi.md#prompts_delete) | **DELETE** /v2/prompts/{prompt_id} | Delete a prompt
 *PromptsApi* | [**prompts_get**](arize/_generated/api_client/docs/PromptsApi.md#prompts_get) | **GET** /v2/prompts/{prompt_id} | Get a prompt
 *PromptsApi* | [**prompts_list**](arize/_generated/api_client/docs/PromptsApi.md#prompts_list) | **GET** /v2/prompts | List prompts
+*SpansApi* | [**spans_list**](arize/_generated/api_client/docs/SpansApi.md#spans_list) | **POST** /v2/spans | List spans
 
 
 ## Documentation For Models
@@ -111,13 +113,35 @@ Class | Method | HTTP request | Description
  - [ExperimentsCreateRequest](arize/_generated/api_client/docs/ExperimentsCreateRequest.md)
  - [ExperimentsList200Response](arize/_generated/api_client/docs/ExperimentsList200Response.md)
  - [ExperimentsRunsList200Response](arize/_generated/api_client/docs/ExperimentsRunsList200Response.md)
+ - [InputVariableFormat](arize/_generated/api_client/docs/InputVariableFormat.md)
+ - [InvocationParams](arize/_generated/api_client/docs/InvocationParams.md)
+ - [LLMMessage](arize/_generated/api_client/docs/LLMMessage.md)
+ - [LlmProvider](arize/_generated/api_client/docs/LlmProvider.md)
+ - [MessageRole](arize/_generated/api_client/docs/MessageRole.md)
  - [PaginationMetadata](arize/_generated/api_client/docs/PaginationMetadata.md)
  - [Problem](arize/_generated/api_client/docs/Problem.md)
  - [Project](arize/_generated/api_client/docs/Project.md)
  - [ProjectsCreateRequest](arize/_generated/api_client/docs/ProjectsCreateRequest.md)
  - [ProjectsList200Response](arize/_generated/api_client/docs/ProjectsList200Response.md)
  - [Prompt](arize/_generated/api_client/docs/Prompt.md)
+ - [PromptsCreateRequest](arize/_generated/api_client/docs/PromptsCreateRequest.md)
  - [PromptsList200Response](arize/_generated/api_client/docs/PromptsList200Response.md)
+ - [ProviderParams](arize/_generated/api_client/docs/ProviderParams.md)
+ - [ProviderParamsAnthropicHeaders](arize/_generated/api_client/docs/ProviderParamsAnthropicHeaders.md)
+ - [ProviderParamsAzureParams](arize/_generated/api_client/docs/ProviderParamsAzureParams.md)
+ - [ProviderParamsBedrockOptions](arize/_generated/api_client/docs/ProviderParamsBedrockOptions.md)
+ - [ResponseFormat](arize/_generated/api_client/docs/ResponseFormat.md)
+ - [ResponseFormatJsonSchema](arize/_generated/api_client/docs/ResponseFormatJsonSchema.md)
+ - [ResponseFormatType](arize/_generated/api_client/docs/ResponseFormatType.md)
+ - [Span](arize/_generated/api_client/docs/Span.md)
+ - [SpanContext](arize/_generated/api_client/docs/SpanContext.md)
+ - [SpanEvent](arize/_generated/api_client/docs/SpanEvent.md)
+ - [SpansList200Response](arize/_generated/api_client/docs/SpansList200Response.md)
+ - [SpansListRequest](arize/_generated/api_client/docs/SpansListRequest.md)
+ - [ToolCall](arize/_generated/api_client/docs/ToolCall.md)
+ - [ToolCallFunction](arize/_generated/api_client/docs/ToolCallFunction.md)
+ - [ToolCallType](arize/_generated/api_client/docs/ToolCallType.md)
+ - [ToolConfig](arize/_generated/api_client/docs/ToolConfig.md)
 
 
 <a id="documentation-for-authorization"></a>

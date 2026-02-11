@@ -22,6 +22,7 @@ __all__ = [
     "ExperimentsApi",
     "ProjectsApi",
     "PromptsApi",
+    "SpansApi",
     "ApiResponse",
     "ApiClient",
     "Configuration",
@@ -46,13 +47,35 @@ __all__ = [
     "ExperimentsCreateRequest",
     "ExperimentsList200Response",
     "ExperimentsRunsList200Response",
+    "InputVariableFormat",
+    "InvocationParams",
+    "LLMMessage",
+    "LlmProvider",
+    "MessageRole",
     "PaginationMetadata",
     "Problem",
     "Project",
     "ProjectsCreateRequest",
     "ProjectsList200Response",
     "Prompt",
+    "PromptsCreateRequest",
     "PromptsList200Response",
+    "ProviderParams",
+    "ProviderParamsAnthropicHeaders",
+    "ProviderParamsAzureParams",
+    "ProviderParamsBedrockOptions",
+    "ResponseFormat",
+    "ResponseFormatJsonSchema",
+    "ResponseFormatType",
+    "Span",
+    "SpanContext",
+    "SpanEvent",
+    "SpansList200Response",
+    "SpansListRequest",
+    "ToolCall",
+    "ToolCallFunction",
+    "ToolCallType",
+    "ToolConfig",
 ]
 
 # import apis into sdk package
@@ -60,6 +83,7 @@ from arize._generated.api_client.api.datasets_api import DatasetsApi as Datasets
 from arize._generated.api_client.api.experiments_api import ExperimentsApi as ExperimentsApi
 from arize._generated.api_client.api.projects_api import ProjectsApi as ProjectsApi
 from arize._generated.api_client.api.prompts_api import PromptsApi as PromptsApi
+from arize._generated.api_client.api.spans_api import SpansApi as SpansApi
 
 # import ApiClient
 from arize._generated.api_client.api_response import ApiResponse as ApiResponse
@@ -88,11 +112,33 @@ from arize._generated.api_client.models.experiment_run_create import ExperimentR
 from arize._generated.api_client.models.experiments_create_request import ExperimentsCreateRequest as ExperimentsCreateRequest
 from arize._generated.api_client.models.experiments_list200_response import ExperimentsList200Response as ExperimentsList200Response
 from arize._generated.api_client.models.experiments_runs_list200_response import ExperimentsRunsList200Response as ExperimentsRunsList200Response
+from arize._generated.api_client.models.input_variable_format import InputVariableFormat as InputVariableFormat
+from arize._generated.api_client.models.invocation_params import InvocationParams as InvocationParams
+from arize._generated.api_client.models.llm_message import LLMMessage as LLMMessage
+from arize._generated.api_client.models.llm_provider import LlmProvider as LlmProvider
+from arize._generated.api_client.models.message_role import MessageRole as MessageRole
 from arize._generated.api_client.models.pagination_metadata import PaginationMetadata as PaginationMetadata
 from arize._generated.api_client.models.problem import Problem as Problem
 from arize._generated.api_client.models.project import Project as Project
 from arize._generated.api_client.models.projects_create_request import ProjectsCreateRequest as ProjectsCreateRequest
 from arize._generated.api_client.models.projects_list200_response import ProjectsList200Response as ProjectsList200Response
 from arize._generated.api_client.models.prompt import Prompt as Prompt
+from arize._generated.api_client.models.prompts_create_request import PromptsCreateRequest as PromptsCreateRequest
 from arize._generated.api_client.models.prompts_list200_response import PromptsList200Response as PromptsList200Response
+from arize._generated.api_client.models.provider_params import ProviderParams as ProviderParams
+from arize._generated.api_client.models.provider_params_anthropic_headers import ProviderParamsAnthropicHeaders as ProviderParamsAnthropicHeaders
+from arize._generated.api_client.models.provider_params_azure_params import ProviderParamsAzureParams as ProviderParamsAzureParams
+from arize._generated.api_client.models.provider_params_bedrock_options import ProviderParamsBedrockOptions as ProviderParamsBedrockOptions
+from arize._generated.api_client.models.response_format import ResponseFormat as ResponseFormat
+from arize._generated.api_client.models.response_format_json_schema import ResponseFormatJsonSchema as ResponseFormatJsonSchema
+from arize._generated.api_client.models.response_format_type import ResponseFormatType as ResponseFormatType
+from arize._generated.api_client.models.span import Span as Span
+from arize._generated.api_client.models.span_context import SpanContext as SpanContext
+from arize._generated.api_client.models.span_event import SpanEvent as SpanEvent
+from arize._generated.api_client.models.spans_list200_response import SpansList200Response as SpansList200Response
+from arize._generated.api_client.models.spans_list_request import SpansListRequest as SpansListRequest
+from arize._generated.api_client.models.tool_call import ToolCall as ToolCall
+from arize._generated.api_client.models.tool_call_function import ToolCallFunction as ToolCallFunction
+from arize._generated.api_client.models.tool_call_type import ToolCallType as ToolCallType
+from arize._generated.api_client.models.tool_config import ToolConfig as ToolConfig
 

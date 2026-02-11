@@ -451,7 +451,7 @@ class SpansClient:
 
         The dataframe must contain a column `context.span_id` such that Arize can assign
         each annotation to its respective span. Annotation columns should follow the pattern
-        `annotation.<name>.<suffix>` where suffix is either `label` or `score`. An optional
+        `annotation.<name>.<suffix>` where suffix is `label`, `score`, or `text`. An optional
         `annotation.notes` column can be included for free-form text notes.
 
         Args:
@@ -466,6 +466,7 @@ class SpansClient:
             ANNOTATION_LABEL_SUFFIX,
             ANNOTATION_NOTES_COLUMN_NAME,
             ANNOTATION_SCORE_SUFFIX,
+            ANNOTATION_TEXT_SUFFIX,
             ANNOTATION_UPDATED_AT_SUFFIX,
             ANNOTATION_UPDATED_BY_SUFFIX,
             SPAN_SPAN_ID_COL,
@@ -522,10 +523,15 @@ class SpansClient:
             updated_at_col = f"annotation.{name}{ANNOTATION_UPDATED_AT_SUFFIX}"
             label_col = f"annotation.{name}{ANNOTATION_LABEL_SUFFIX}"
             score_col = f"annotation.{name}{ANNOTATION_SCORE_SUFFIX}"
+            text_col = f"annotation.{name}{ANNOTATION_TEXT_SUFFIX}"
 
-            # Check if *any* part of this annotation exists (label or score)
+            # Check if *any* part of this annotation exists (label, score, or text)
             # Only add metadata if the annotation itself is present
-            if label_col in anno_df.columns or score_col in anno_df.columns:
+            if (
+                label_col in anno_df.columns
+                or score_col in anno_df.columns
+                or text_col in anno_df.columns
+            ):
                 if updated_by_col not in anno_df.columns:
                     log.debug(f"Autogenerating column: {updated_by_col}")
                     anno_df[updated_by_col] = "SDK"
@@ -534,7 +540,7 @@ class SpansClient:
                     anno_df[updated_at_col] = current_time_ms
             else:
                 log.debug(
-                    f"Skipping metadata generation for '{name}' as no label or score column found."
+                    f"Skipping metadata generation for '{name}' as no label, score, or text column found."
                 )
 
         if ANNOTATION_NOTES_COLUMN_NAME in anno_df.columns:

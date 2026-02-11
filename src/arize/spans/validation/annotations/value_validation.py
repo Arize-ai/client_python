@@ -12,6 +12,7 @@ from arize.constants.spans import (
     ANNOTATION_LABEL_MAX_STR_LENGTH,
     ANNOTATION_LABEL_MIN_STR_LENGTH,
     ANNOTATION_NOTES_MAX_STR_LENGTH,
+    ANNOTATION_TEXT_MAX_STR_LENGTH,
     ANNOTATION_UPDATED_BY_MAX_STR_LENGTH,
 )
 from arize.exceptions.base import ValidationError
@@ -23,6 +24,7 @@ from arize.spans.columns import (
     ANNOTATION_NAME_PATTERN,
     ANNOTATION_NOTES_COLUMN_NAME,
     ANNOTATION_SCORE_SUFFIX,
+    ANNOTATION_TEXT_SUFFIX,
     ANNOTATION_UPDATED_AT_SUFFIX,
     ANNOTATION_UPDATED_BY_SUFFIX,
 )
@@ -151,6 +153,16 @@ def check_annotation_cols(
                     col_name=col,
                 )
             )
+        elif col.endswith(ANNOTATION_TEXT_SUFFIX):
+            checks.append(
+                common_value_validation.check_string_column_value_length(
+                    df=dataframe,
+                    col_name=col,
+                    min_len=1,
+                    max_len=ANNOTATION_TEXT_MAX_STR_LENGTH,
+                    is_required=False,
+                )
+            )
         elif col.endswith(ANNOTATION_UPDATED_BY_SUFFIX):
             checks.append(
                 common_value_validation.check_string_column_value_length(
@@ -176,7 +188,7 @@ def check_annotation_cols(
 def check_annotation_columns_null_values(
     dataframe: pd.DataFrame,
 ) -> list[ValidationError]:
-    """Checks that for a given annotation name, at least one of label or score is non-null per row."""
+    """Checks that for a given annotation name, at least one of label, score, or text is non-null per row."""
     invalid_annotation_names = []
     annotation_names = set()
     # Find all unique annotation names from column headers
@@ -192,26 +204,36 @@ def check_annotation_columns_null_values(
         score_col = (
             f"{ANNOTATION_COLUMN_PREFIX}{ann_name}{ANNOTATION_SCORE_SUFFIX}"
         )
+        text_col = (
+            f"{ANNOTATION_COLUMN_PREFIX}{ann_name}{ANNOTATION_TEXT_SUFFIX}"
+        )
 
         label_exists = label_col in dataframe.columns
         score_exists = score_col in dataframe.columns
+        text_exists = text_col in dataframe.columns
 
-        # Check only if both label and score columns exist for this name
+        # Check only if label, score, and text columns exist for this name
         # If only one exists, its presence is sufficient
-        if label_exists and score_exists:
-            # Find rows where BOTH label and score are null
+        if label_exists and score_exists and text_exists:
+            # Find rows where label, score and text are null
             condition = (
-                dataframe[label_col].isnull() & dataframe[score_col].isnull()
+                dataframe[label_col].isnull()
+                & dataframe[score_col].isnull()
+                & dataframe[text_col].isnull()
             )
             if condition.any():
                 invalid_annotation_names.append(ann_name)
         # Check if only label exists but it's always null
-        elif label_exists and not score_exists:
+        elif label_exists and not score_exists and not text_exists:
             if dataframe[label_col].isnull().all():
                 invalid_annotation_names.append(ann_name)
         # Check if only score exists but it's always null
-        elif not label_exists and score_exists:
+        elif not label_exists and score_exists and not text_exists:
             if dataframe[score_col].isnull().all():
+                invalid_annotation_names.append(ann_name)
+        # Check if only text exists but it's always null
+        elif not label_exists and not score_exists and text_exists:
+            if dataframe[text_col].isnull().all():
                 invalid_annotation_names.append(ann_name)
 
     # Use set to report each name only once

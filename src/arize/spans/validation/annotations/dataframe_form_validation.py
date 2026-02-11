@@ -17,6 +17,7 @@ from arize.spans.columns import (
     ANNOTATION_LABEL_SUFFIX,
     ANNOTATION_NOTES_COLUMN_NAME,
     ANNOTATION_SCORE_SUFFIX,
+    ANNOTATION_TEXT_SUFFIX,
     ANNOTATION_UPDATED_AT_SUFFIX,
     ANNOTATION_UPDATED_BY_SUFFIX,
     SPAN_SPAN_ID_COL,
@@ -79,7 +80,7 @@ def check_invalid_annotation_column_names(
         errors.append(
             InvalidAnnotationColumnFormat(
                 invalid_format_cols=invalid_annotation_columns,
-                expected_format="annotation.<name>.label|score|updated_by|updated_at",
+                expected_format="annotation.<name>.label|score|text|updated_by|updated_at",
             )
         )
 
@@ -92,6 +93,7 @@ def check_dataframe_column_content_type(
     """Checks that columns matching annotation patterns have the correct data types."""
     wrong_labels_cols = []
     wrong_scores_cols = []
+    wrong_text_cols = []
     wrong_notes_cols = []  # Add list for note column type errors
     wrong_updated_by_cols = []
     wrong_updated_at_cols = []
@@ -109,6 +111,7 @@ def check_dataframe_column_content_type(
     annotation_score_re = re.compile(
         rf".+{re.escape(ANNOTATION_SCORE_SUFFIX)}$"
     )
+    annotation_text_re = re.compile(rf".+{re.escape(ANNOTATION_TEXT_SUFFIX)}$")
     annotation_updated_by_re = re.compile(
         rf".+{re.escape(ANNOTATION_UPDATED_BY_SUFFIX)}$"
     )
@@ -141,6 +144,13 @@ def check_dataframe_column_content_type(
                 for value in df[column]
             ):
                 wrong_scores_cols.append(column)
+        # Check annotation text column type (string or missing)
+        elif annotation_text_re.match(column):
+            if not all(
+                isinstance(value, str) or is_missing_value(value)
+                for value in df[column]
+            ):
+                wrong_text_cols.append(column)
         # Check note column type (string or missing)
         elif column == ANNOTATION_NOTES_COLUMN_NAME:
             if not all(
@@ -178,6 +188,13 @@ def check_dataframe_column_content_type(
             InvalidDataFrameColumnContentTypes(
                 invalid_type_cols=wrong_scores_cols,
                 expected_type="ints or floats",
+            ),
+        )
+    if wrong_text_cols:
+        errors.append(
+            InvalidDataFrameColumnContentTypes(
+                invalid_type_cols=wrong_text_cols,
+                expected_type="strings",
             ),
         )
     if wrong_notes_cols:

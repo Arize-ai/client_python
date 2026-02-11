@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.2.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.1.0...arize-python-sdk/v8.2.0) (2026-02-11)
+
+
+### 🎁 New Features
+
+* Support text annotations when updating annotations ([#62764](https://github.com/Arize-ai/arize/issues/62764)) ([545eb42](https://github.com/Arize-ai/arize/commit/545eb42662ad852cef2a83256849cf98cd3d1588))
+
 ## [8.1.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.0.2...arize-python-sdk/v8.1.0) (2026-02-09)
 
 
