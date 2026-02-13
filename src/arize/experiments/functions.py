@@ -865,7 +865,6 @@ def transform_to_experiment_format(
 
     # Initialize output DataFrame with required columns
     out_df = data.copy()
-    out_df["id"] = range(len(data))  # Generate sequential IDs
     out_df["example_id"] = data[task_fields.example_id]
     if task_fields.example_id != "example_id":
         out_df.drop(task_fields.example_id, axis=1, inplace=True)
@@ -881,7 +880,6 @@ def transform_to_experiment_format(
             _add_evaluator_columns(data, out_df, evaluator_name, column_names)
 
     # Set index but keep id column
-    out_df.set_index("id", inplace=True, drop=False)
     out_df.reset_index(drop=True, inplace=True)
     return out_df
 

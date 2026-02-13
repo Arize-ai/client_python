@@ -18,6 +18,7 @@ __version__ = "1.0.0"
 
 # Define package exports
 __all__ = [
+    "AnnotationConfigsApi",
     "DatasetsApi",
     "ExperimentsApi",
     "ProjectsApi",
@@ -32,6 +33,12 @@ __all__ = [
     "ApiKeyError",
     "ApiAttributeError",
     "ApiException",
+    "AnnotationConfig",
+    "AnnotationConfigBase",
+    "AnnotationConfigsList200Response",
+    "CategoricalAnnotationConfig",
+    "CategoricalAnnotationValue",
+    "ContinuousAnnotationConfig",
     "Dataset",
     "DatasetExample",
     "DatasetExampleUpdate",
@@ -47,11 +54,13 @@ __all__ = [
     "ExperimentsCreateRequest",
     "ExperimentsList200Response",
     "ExperimentsRunsList200Response",
+    "FreeformAnnotationConfig",
     "InputVariableFormat",
     "InvocationParams",
     "LLMMessage",
     "LlmProvider",
     "MessageRole",
+    "OptimizationDirection",
     "PaginationMetadata",
     "Problem",
     "Project",
@@ -79,6 +88,7 @@ __all__ = [
 ]
 
 # import apis into sdk package
+from arize._generated.api_client.api.annotation_configs_api import AnnotationConfigsApi as AnnotationConfigsApi
 from arize._generated.api_client.api.datasets_api import DatasetsApi as DatasetsApi
 from arize._generated.api_client.api.experiments_api import ExperimentsApi as ExperimentsApi
 from arize._generated.api_client.api.projects_api import ProjectsApi as ProjectsApi
@@ -97,6 +107,12 @@ from arize._generated.api_client.exceptions import ApiAttributeError as ApiAttri
 from arize._generated.api_client.exceptions import ApiException as ApiException
 
 # import models into sdk package
+from arize._generated.api_client.models.annotation_config import AnnotationConfig as AnnotationConfig
+from arize._generated.api_client.models.annotation_config_base import AnnotationConfigBase as AnnotationConfigBase
+from arize._generated.api_client.models.annotation_configs_list200_response import AnnotationConfigsList200Response as AnnotationConfigsList200Response
+from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig as CategoricalAnnotationConfig
+from arize._generated.api_client.models.categorical_annotation_value import CategoricalAnnotationValue as CategoricalAnnotationValue
+from arize._generated.api_client.models.continuous_annotation_config import ContinuousAnnotationConfig as ContinuousAnnotationConfig
 from arize._generated.api_client.models.dataset import Dataset as Dataset
 from arize._generated.api_client.models.dataset_example import DatasetExample as DatasetExample
 from arize._generated.api_client.models.dataset_example_update import DatasetExampleUpdate as DatasetExampleUpdate
@@ -112,11 +128,13 @@ from arize._generated.api_client.models.experiment_run_create import ExperimentR
 from arize._generated.api_client.models.experiments_create_request import ExperimentsCreateRequest as ExperimentsCreateRequest
 from arize._generated.api_client.models.experiments_list200_response import ExperimentsList200Response as ExperimentsList200Response
 from arize._generated.api_client.models.experiments_runs_list200_response import ExperimentsRunsList200Response as ExperimentsRunsList200Response
+from arize._generated.api_client.models.freeform_annotation_config import FreeformAnnotationConfig as FreeformAnnotationConfig
 from arize._generated.api_client.models.input_variable_format import InputVariableFormat as InputVariableFormat
 from arize._generated.api_client.models.invocation_params import InvocationParams as InvocationParams
 from arize._generated.api_client.models.llm_message import LLMMessage as LLMMessage
 from arize._generated.api_client.models.llm_provider import LlmProvider as LlmProvider
 from arize._generated.api_client.models.message_role import MessageRole as MessageRole
+from arize._generated.api_client.models.optimization_direction import OptimizationDirection as OptimizationDirection
 from arize._generated.api_client.models.pagination_metadata import PaginationMetadata as PaginationMetadata
 from arize._generated.api_client.models.problem import Problem as Problem
 from arize._generated.api_client.models.project import Project as Project

@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.2.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.2.0...arize-python-sdk/v8.2.1) (2026-02-13)
+
+
+### 🐛 Bug Fixes
+
+* dict-to-model conversions using from_dict and remove redundant id indexing ([#62818](https://github.com/Arize-ai/arize/issues/62818)) ([14779c0](https://github.com/Arize-ai/arize/commit/14779c0ed91336715e01c72ac9900582de22c433))
+
 ## [8.2.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.1.0...arize-python-sdk/v8.2.0) (2026-02-11)
 
 

@@ -13,6 +13,12 @@
 """  # noqa: E501
 
 # import models into model package
+from arize._generated.api_client.models.annotation_config import AnnotationConfig
+from arize._generated.api_client.models.annotation_config_base import AnnotationConfigBase
+from arize._generated.api_client.models.annotation_configs_list200_response import AnnotationConfigsList200Response
+from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig
+from arize._generated.api_client.models.categorical_annotation_value import CategoricalAnnotationValue
+from arize._generated.api_client.models.continuous_annotation_config import ContinuousAnnotationConfig
 from arize._generated.api_client.models.dataset import Dataset
 from arize._generated.api_client.models.dataset_example import DatasetExample
 from arize._generated.api_client.models.dataset_example_update import DatasetExampleUpdate
@@ -28,11 +34,13 @@ from arize._generated.api_client.models.experiment_run_create import ExperimentR
 from arize._generated.api_client.models.experiments_create_request import ExperimentsCreateRequest
 from arize._generated.api_client.models.experiments_list200_response import ExperimentsList200Response
 from arize._generated.api_client.models.experiments_runs_list200_response import ExperimentsRunsList200Response
+from arize._generated.api_client.models.freeform_annotation_config import FreeformAnnotationConfig
 from arize._generated.api_client.models.input_variable_format import InputVariableFormat
 from arize._generated.api_client.models.invocation_params import InvocationParams
 from arize._generated.api_client.models.llm_message import LLMMessage
 from arize._generated.api_client.models.llm_provider import LlmProvider
 from arize._generated.api_client.models.message_role import MessageRole
+from arize._generated.api_client.models.optimization_direction import OptimizationDirection
 from arize._generated.api_client.models.pagination_metadata import PaginationMetadata
 from arize._generated.api_client.models.problem import Problem
 from arize._generated.api_client.models.project import Project

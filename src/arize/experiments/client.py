@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import opentelemetry.sdk.trace as trace_sdk
 import pandas as pd
@@ -182,10 +182,20 @@ class ExperimentsClient:
             from arize._generated import api_client as gen
 
             data = experiment_df.to_dict(orient="records")
+            runs_create = [
+                obj
+                for run in data
+                if (
+                    obj := gen.ExperimentRunCreate.from_dict(
+                        cast("dict[str, Any]", run)
+                    )
+                )
+                is not None
+            ]
             body = gen.ExperimentsCreateRequest(
                 name=name,
                 dataset_id=dataset_id,
-                experiment_runs=cast("list[gen.ExperimentRunCreate]", data),
+                experiment_runs=runs_create,
             )
             return self._api.experiments_create(experiments_create_request=body)
 
@@ -306,11 +316,18 @@ class ExperimentsClient:
                 resource_updated_at=experiment_updated_at,
             )
         if experiment_df is not None:
+            experiment_runs = [
+                obj
+                for run in experiment_df.to_dict(orient="records")
+                if (
+                    obj := models.ExperimentRun.from_dict(
+                        cast("dict[str, Any]", run)
+                    )
+                )
+                is not None
+            ]
             return models.ExperimentsRunsList200Response(
-                experiment_runs=cast(
-                    "list[models.ExperimentRun]",
-                    experiment_df.to_dict(orient="records"),
-                ),
+                experiment_runs=experiment_runs,
                 pagination=models.PaginationMetadata(
                     has_more=False,  # Note that all=True
                 ),
@@ -349,11 +366,18 @@ class ExperimentsClient:
             resource_data=experiment_df,
         )
 
+        experiment_runs = [
+            obj
+            for run in experiment_df.to_dict(orient="records")
+            if (
+                obj := models.ExperimentRun.from_dict(
+                    cast("dict[str, Any]", run)
+                )
+            )
+            is not None
+        ]
         return models.ExperimentsRunsList200Response(
-            experiment_runs=cast(
-                "list[models.ExperimentRun]",
-                experiment_df.to_dict(orient="records"),
-            ),
+            experiment_runs=experiment_runs,
             pagination=models.PaginationMetadata(
                 has_more=False,  # Note that all=True
             ),

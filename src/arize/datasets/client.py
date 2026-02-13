@@ -281,12 +281,18 @@ class DatasetsClient:
                 resource_updated_at=dataset_updated_at,
             )
         if dataset_df is not None:
+            examples = [
+                obj
+                for example in dataset_df.to_dict(orient="records")
+                if (
+                    obj := models.DatasetExample.from_dict(
+                        cast("dict[str, Any]", example)
+                    )
+                )
+                is not None
+            ]
             return models.DatasetsExamplesList200Response(
-                # Cast: Pydantic validates and converts dicts to DatasetExample at runtime
-                examples=cast(
-                    "list[models.DatasetExample]",
-                    dataset_df.to_dict(orient="records"),
-                ),
+                examples=examples,
                 pagination=models.PaginationMetadata(
                     has_more=False,  # Note that all=True
                 ),
@@ -326,12 +332,18 @@ class DatasetsClient:
             resource_data=dataset_df,
         )
 
+        examples = [
+            obj
+            for example in dataset_df.to_dict(orient="records")
+            if (
+                obj := models.DatasetExample.from_dict(
+                    cast("dict[str, Any]", example)
+                )
+            )
+            is not None
+        ]
         return models.DatasetsExamplesList200Response(
-            # Cast: Pydantic validates and converts dicts to DatasetExample at runtime
-            examples=cast(
-                "list[models.DatasetExample]",
-                dataset_df.to_dict(orient="records"),
-            ),
+            examples=examples,
             pagination=models.PaginationMetadata(
                 has_more=False,  # Note that all=True
             ),

@@ -54,16 +54,18 @@ configuration = arize._generated.api_client.Configuration(
 # Enter a context with an instance of the API client
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = arize._generated.api_client.DatasetsApi(api_client)
-    datasets_create_request = {"name":"Math Questions Dataset","space_id":"space_12345","examples":[{"question":"What is 2 + 2?","answer":"4","topic":"arithmetic"},{"question":"What is the square root of 16?","answer":"4","topic":"geometry"},{"question":"If 3x = 12, what is x?","answer":"4","topic":"algebra"}]} # DatasetsCreateRequest | Body containing dataset creation parameters
+    api_instance = arize._generated.api_client.AnnotationConfigsApi(api_client)
+    space_id = 'space_id_example' # str | Filter search results to a particular space ID (optional)
+    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
-        # Create a dataset
-        api_response = api_instance.datasets_create(datasets_create_request)
-        print("The response of DatasetsApi->datasets_create:\n")
+        # List annotation configs
+        api_response = api_instance.annotation_configs_list(space_id=space_id, limit=limit, cursor=cursor)
+        print("The response of AnnotationConfigsApi->annotation_configs_list:\n")
         pprint(api_response)
     except ApiException as e:
-        print("Exception when calling DatasetsApi->datasets_create: %s\n" % e)
+        print("Exception when calling AnnotationConfigsApi->annotation_configs_list: %s\n" % e)
 
 ```
 
@@ -73,6 +75,7 @@ All URIs are relative to *https://api.arize.com*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*AnnotationConfigsApi* | [**annotation_configs_list**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_list) | **GET** /v2/annotation-configs | List annotation configs
 *DatasetsApi* | [**datasets_create**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_create) | **POST** /v2/datasets | Create a dataset
 *DatasetsApi* | [**datasets_delete**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_delete) | **DELETE** /v2/datasets/{dataset_id} | Delete a dataset
 *DatasetsApi* | [**datasets_examples_insert**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_examples_insert) | **POST** /v2/datasets/{dataset_id}/examples | Add new examples to a dataset
@@ -98,6 +101,12 @@ Class | Method | HTTP request | Description
 
 ## Documentation For Models
 
+ - [AnnotationConfig](arize/_generated/api_client/docs/AnnotationConfig.md)
+ - [AnnotationConfigBase](arize/_generated/api_client/docs/AnnotationConfigBase.md)
+ - [AnnotationConfigsList200Response](arize/_generated/api_client/docs/AnnotationConfigsList200Response.md)
+ - [CategoricalAnnotationConfig](arize/_generated/api_client/docs/CategoricalAnnotationConfig.md)
+ - [CategoricalAnnotationValue](arize/_generated/api_client/docs/CategoricalAnnotationValue.md)
+ - [ContinuousAnnotationConfig](arize/_generated/api_client/docs/ContinuousAnnotationConfig.md)
  - [Dataset](arize/_generated/api_client/docs/Dataset.md)
  - [DatasetExample](arize/_generated/api_client/docs/DatasetExample.md)
  - [DatasetExampleUpdate](arize/_generated/api_client/docs/DatasetExampleUpdate.md)
@@ -113,11 +122,13 @@ Class | Method | HTTP request | Description
  - [ExperimentsCreateRequest](arize/_generated/api_client/docs/ExperimentsCreateRequest.md)
  - [ExperimentsList200Response](arize/_generated/api_client/docs/ExperimentsList200Response.md)
  - [ExperimentsRunsList200Response](arize/_generated/api_client/docs/ExperimentsRunsList200Response.md)
+ - [FreeformAnnotationConfig](arize/_generated/api_client/docs/FreeformAnnotationConfig.md)
  - [InputVariableFormat](arize/_generated/api_client/docs/InputVariableFormat.md)
  - [InvocationParams](arize/_generated/api_client/docs/InvocationParams.md)
  - [LLMMessage](arize/_generated/api_client/docs/LLMMessage.md)
  - [LlmProvider](arize/_generated/api_client/docs/LlmProvider.md)
  - [MessageRole](arize/_generated/api_client/docs/MessageRole.md)
+ - [OptimizationDirection](arize/_generated/api_client/docs/OptimizationDirection.md)
  - [PaginationMetadata](arize/_generated/api_client/docs/PaginationMetadata.md)
  - [Problem](arize/_generated/api_client/docs/Problem.md)
  - [Project](arize/_generated/api_client/docs/Project.md)
