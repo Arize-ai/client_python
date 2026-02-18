@@ -15,10 +15,14 @@
 # import models into model package
 from arize._generated.api_client.models.annotation_config import AnnotationConfig
 from arize._generated.api_client.models.annotation_config_base import AnnotationConfigBase
+from arize._generated.api_client.models.annotation_config_create_base import AnnotationConfigCreateBase
 from arize._generated.api_client.models.annotation_configs_list200_response import AnnotationConfigsList200Response
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig
+from arize._generated.api_client.models.categorical_annotation_config_create import CategoricalAnnotationConfigCreate
 from arize._generated.api_client.models.categorical_annotation_value import CategoricalAnnotationValue
 from arize._generated.api_client.models.continuous_annotation_config import ContinuousAnnotationConfig
+from arize._generated.api_client.models.continuous_annotation_config_create import ContinuousAnnotationConfigCreate
+from arize._generated.api_client.models.create_annotation_config_request_body import CreateAnnotationConfigRequestBody
 from arize._generated.api_client.models.dataset import Dataset
 from arize._generated.api_client.models.dataset_example import DatasetExample
 from arize._generated.api_client.models.dataset_example_update import DatasetExampleUpdate
@@ -35,6 +39,7 @@ from arize._generated.api_client.models.experiments_create_request import Experi
 from arize._generated.api_client.models.experiments_list200_response import ExperimentsList200Response
 from arize._generated.api_client.models.experiments_runs_list200_response import ExperimentsRunsList200Response
 from arize._generated.api_client.models.freeform_annotation_config import FreeformAnnotationConfig
+from arize._generated.api_client.models.freeform_annotation_config_create import FreeformAnnotationConfigCreate
 from arize._generated.api_client.models.input_variable_format import InputVariableFormat
 from arize._generated.api_client.models.invocation_params import InvocationParams
 from arize._generated.api_client.models.llm_message import LLMMessage
@@ -49,6 +54,7 @@ from arize._generated.api_client.models.projects_list200_response import Project
 from arize._generated.api_client.models.prompt import Prompt
 from arize._generated.api_client.models.prompts_create_request import PromptsCreateRequest
 from arize._generated.api_client.models.prompts_list200_response import PromptsList200Response
+from arize._generated.api_client.models.prompts_update_request import PromptsUpdateRequest
 from arize._generated.api_client.models.provider_params import ProviderParams
 from arize._generated.api_client.models.provider_params_anthropic_headers import ProviderParamsAnthropicHeaders
 from arize._generated.api_client.models.provider_params_azure_params import ProviderParamsAzureParams

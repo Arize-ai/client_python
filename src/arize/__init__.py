@@ -34,7 +34,7 @@ def make_to_df(field_name: str) -> object:
     def to_df(
         self: object,
         by_alias: bool = False,
-        exclude_none: str | bool = False,
+        exclude_none: str | bool = True,
         json_normalize: bool = False,
         convert_dtypes: bool = True,
         expand_field: str = "additional_properties",
@@ -115,8 +115,9 @@ def make_to_df(field_name: str) -> object:
 
 # Monkey-patch convenience methods onto generated response models
 # Type ignore comments needed: mypy can't verify runtime attribute additions
-models.DatasetsList200Response.to_df = make_to_df("datasets")  # type: ignore[attr-defined]
 models.DatasetsExamplesList200Response.to_df = make_to_df("examples")  # type: ignore[attr-defined]
+models.DatasetsList200Response.to_df = make_to_df("datasets")  # type: ignore[attr-defined]
 models.ExperimentsList200Response.to_df = make_to_df("experiments")  # type: ignore[attr-defined]
 models.ExperimentsRunsList200Response.to_df = make_to_df("experiment_runs")  # type: ignore[attr-defined]
 models.ProjectsList200Response.to_df = make_to_df("projects")  # type: ignore[attr-defined]
+models.SpansList200Response.to_df = make_to_df("spans")  # type: ignore[attr-defined]

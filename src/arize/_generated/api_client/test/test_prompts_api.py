@@ -54,6 +54,13 @@ class TestPromptsApi(unittest.TestCase):
         """
         pass
 
+    def test_prompts_update(self) -> None:
+        """Test case for prompts_update
+
+        Update a prompt
+        """
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()

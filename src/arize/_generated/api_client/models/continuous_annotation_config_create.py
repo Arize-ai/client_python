@@ -17,20 +17,30 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List
-from arize._generated.api_client.models.pagination_metadata import PaginationMetadata
-from arize._generated.api_client.models.span import Span
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, List, Optional, Union
+from arize._generated.api_client.models.optimization_direction import OptimizationDirection
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SpansList200Response(BaseModel):
+class ContinuousAnnotationConfigCreate(BaseModel):
     """
-    SpansList200Response
+    ContinuousAnnotationConfigCreate
     """ # noqa: E501
-    spans: List[Span] = Field(description="A list of spans")
-    pagination: PaginationMetadata
-    __properties: ClassVar[List[str]] = ["spans", "pagination"]
+    name: StrictStr = Field(description="Name of the new annotation config")
+    space_id: StrictStr = Field(description="ID of the space the annotation config will belong to")
+    annotation_config_type: StrictStr = Field(description="The type of the annotation config")
+    minimum_score: Union[StrictFloat, StrictInt] = Field(description="The minimum score value")
+    maximum_score: Union[StrictFloat, StrictInt] = Field(description="The maximum score value")
+    optimization_direction: Optional[OptimizationDirection] = None
+    __properties: ClassVar[List[str]] = ["name", "space_id", "annotation_config_type", "minimum_score", "maximum_score", "optimization_direction"]
+
+    @field_validator('annotation_config_type')
+    def annotation_config_type_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['continuous']):
+            raise ValueError("must be one of enum values ('continuous')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -50,7 +60,7 @@ class SpansList200Response(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SpansList200Response from a JSON string"""
+        """Create an instance of ContinuousAnnotationConfigCreate from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -71,21 +81,11 @@ class SpansList200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in spans (list)
-        _items = []
-        if self.spans:
-            for _item_spans in self.spans:
-                if _item_spans:
-                    _items.append(_item_spans.to_dict())
-            _dict['spans'] = _items
-        # override the default output from pydantic by calling `to_dict()` of pagination
-        if self.pagination:
-            _dict['pagination'] = self.pagination.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SpansList200Response from a dict"""
+        """Create an instance of ContinuousAnnotationConfigCreate from a dict"""
         if obj is None:
             return None
 
@@ -95,11 +95,15 @@ class SpansList200Response(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in SpansList200Response) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in ContinuousAnnotationConfigCreate) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "spans": [Span.from_dict(_item) for _item in obj["spans"]] if obj.get("spans") is not None else None,
-            "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
+            "name": obj.get("name"),
+            "space_id": obj.get("space_id"),
+            "annotation_config_type": obj.get("annotation_config_type"),
+            "minimum_score": obj.get("minimum_score"),
+            "maximum_score": obj.get("maximum_score"),
+            "optimization_direction": obj.get("optimization_direction")
         })
         return _obj
 

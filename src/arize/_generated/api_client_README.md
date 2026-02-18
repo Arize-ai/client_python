@@ -55,17 +55,15 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationConfigsApi(api_client)
-    space_id = 'space_id_example' # str | Filter search results to a particular space ID (optional)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
-    cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
+    create_annotation_config_request_body = {"name":"Accuracy","space_id":"space_12345","annotation_config_type":"categorical","values":[{"label":"accurate","score":1},{"label":"inaccurate","score":0}],"optimization_direction":"maximize"} # CreateAnnotationConfigRequestBody | Body containing annotation config creation parameters
 
     try:
-        # List annotation configs
-        api_response = api_instance.annotation_configs_list(space_id=space_id, limit=limit, cursor=cursor)
-        print("The response of AnnotationConfigsApi->annotation_configs_list:\n")
+        # Create an annotation config
+        api_response = api_instance.annotation_configs_create(create_annotation_config_request_body)
+        print("The response of AnnotationConfigsApi->annotation_configs_create:\n")
         pprint(api_response)
     except ApiException as e:
-        print("Exception when calling AnnotationConfigsApi->annotation_configs_list: %s\n" % e)
+        print("Exception when calling AnnotationConfigsApi->annotation_configs_create: %s\n" % e)
 
 ```
 
@@ -75,6 +73,9 @@ All URIs are relative to *https://api.arize.com*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*AnnotationConfigsApi* | [**annotation_configs_create**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_create) | **POST** /v2/annotation-configs | Create an annotation config
+*AnnotationConfigsApi* | [**annotation_configs_delete**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_delete) | **DELETE** /v2/annotation-configs/{annotation_config_id} | Delete an annotation config
+*AnnotationConfigsApi* | [**annotation_configs_get**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_get) | **GET** /v2/annotation-configs/{annotation_config_id} | Get an annotation config
 *AnnotationConfigsApi* | [**annotation_configs_list**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_list) | **GET** /v2/annotation-configs | List annotation configs
 *DatasetsApi* | [**datasets_create**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_create) | **POST** /v2/datasets | Create a dataset
 *DatasetsApi* | [**datasets_delete**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_delete) | **DELETE** /v2/datasets/{dataset_id} | Delete a dataset
@@ -96,6 +97,7 @@ Class | Method | HTTP request | Description
 *PromptsApi* | [**prompts_delete**](arize/_generated/api_client/docs/PromptsApi.md#prompts_delete) | **DELETE** /v2/prompts/{prompt_id} | Delete a prompt
 *PromptsApi* | [**prompts_get**](arize/_generated/api_client/docs/PromptsApi.md#prompts_get) | **GET** /v2/prompts/{prompt_id} | Get a prompt
 *PromptsApi* | [**prompts_list**](arize/_generated/api_client/docs/PromptsApi.md#prompts_list) | **GET** /v2/prompts | List prompts
+*PromptsApi* | [**prompts_update**](arize/_generated/api_client/docs/PromptsApi.md#prompts_update) | **PATCH** /v2/prompts/{prompt_id} | Update a prompt
 *SpansApi* | [**spans_list**](arize/_generated/api_client/docs/SpansApi.md#spans_list) | **POST** /v2/spans | List spans
 
 
@@ -103,10 +105,14 @@ Class | Method | HTTP request | Description
 
  - [AnnotationConfig](arize/_generated/api_client/docs/AnnotationConfig.md)
  - [AnnotationConfigBase](arize/_generated/api_client/docs/AnnotationConfigBase.md)
+ - [AnnotationConfigCreateBase](arize/_generated/api_client/docs/AnnotationConfigCreateBase.md)
  - [AnnotationConfigsList200Response](arize/_generated/api_client/docs/AnnotationConfigsList200Response.md)
  - [CategoricalAnnotationConfig](arize/_generated/api_client/docs/CategoricalAnnotationConfig.md)
+ - [CategoricalAnnotationConfigCreate](arize/_generated/api_client/docs/CategoricalAnnotationConfigCreate.md)
  - [CategoricalAnnotationValue](arize/_generated/api_client/docs/CategoricalAnnotationValue.md)
  - [ContinuousAnnotationConfig](arize/_generated/api_client/docs/ContinuousAnnotationConfig.md)
+ - [ContinuousAnnotationConfigCreate](arize/_generated/api_client/docs/ContinuousAnnotationConfigCreate.md)
+ - [CreateAnnotationConfigRequestBody](arize/_generated/api_client/docs/CreateAnnotationConfigRequestBody.md)
  - [Dataset](arize/_generated/api_client/docs/Dataset.md)
  - [DatasetExample](arize/_generated/api_client/docs/DatasetExample.md)
  - [DatasetExampleUpdate](arize/_generated/api_client/docs/DatasetExampleUpdate.md)
@@ -123,6 +129,7 @@ Class | Method | HTTP request | Description
  - [ExperimentsList200Response](arize/_generated/api_client/docs/ExperimentsList200Response.md)
  - [ExperimentsRunsList200Response](arize/_generated/api_client/docs/ExperimentsRunsList200Response.md)
  - [FreeformAnnotationConfig](arize/_generated/api_client/docs/FreeformAnnotationConfig.md)
+ - [FreeformAnnotationConfigCreate](arize/_generated/api_client/docs/FreeformAnnotationConfigCreate.md)
  - [InputVariableFormat](arize/_generated/api_client/docs/InputVariableFormat.md)
  - [InvocationParams](arize/_generated/api_client/docs/InvocationParams.md)
  - [LLMMessage](arize/_generated/api_client/docs/LLMMessage.md)
@@ -137,6 +144,7 @@ Class | Method | HTTP request | Description
  - [Prompt](arize/_generated/api_client/docs/Prompt.md)
  - [PromptsCreateRequest](arize/_generated/api_client/docs/PromptsCreateRequest.md)
  - [PromptsList200Response](arize/_generated/api_client/docs/PromptsList200Response.md)
+ - [PromptsUpdateRequest](arize/_generated/api_client/docs/PromptsUpdateRequest.md)
  - [ProviderParams](arize/_generated/api_client/docs/ProviderParams.md)
  - [ProviderParamsAnthropicHeaders](arize/_generated/api_client/docs/ProviderParamsAnthropicHeaders.md)
  - [ProviderParamsAzureParams](arize/_generated/api_client/docs/ProviderParamsAzureParams.md)

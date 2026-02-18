@@ -17,20 +17,30 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List
-from arize._generated.api_client.models.pagination_metadata import PaginationMetadata
-from arize._generated.api_client.models.span import Span
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.categorical_annotation_value import CategoricalAnnotationValue
+from arize._generated.api_client.models.optimization_direction import OptimizationDirection
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SpansList200Response(BaseModel):
+class CategoricalAnnotationConfigCreate(BaseModel):
     """
-    SpansList200Response
+    CategoricalAnnotationConfigCreate
     """ # noqa: E501
-    spans: List[Span] = Field(description="A list of spans")
-    pagination: PaginationMetadata
-    __properties: ClassVar[List[str]] = ["spans", "pagination"]
+    name: StrictStr = Field(description="Name of the new annotation config")
+    space_id: StrictStr = Field(description="ID of the space the annotation config will belong to")
+    annotation_config_type: StrictStr = Field(description="The type of the annotation config")
+    values: List[CategoricalAnnotationValue] = Field(description="An array of categorical annotation values")
+    optimization_direction: Optional[OptimizationDirection] = None
+    __properties: ClassVar[List[str]] = ["name", "space_id", "annotation_config_type", "values", "optimization_direction"]
+
+    @field_validator('annotation_config_type')
+    def annotation_config_type_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['categorical']):
+            raise ValueError("must be one of enum values ('categorical')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -50,7 +60,7 @@ class SpansList200Response(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SpansList200Response from a JSON string"""
+        """Create an instance of CategoricalAnnotationConfigCreate from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -71,21 +81,18 @@ class SpansList200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in spans (list)
+        # override the default output from pydantic by calling `to_dict()` of each item in values (list)
         _items = []
-        if self.spans:
-            for _item_spans in self.spans:
-                if _item_spans:
-                    _items.append(_item_spans.to_dict())
-            _dict['spans'] = _items
-        # override the default output from pydantic by calling `to_dict()` of pagination
-        if self.pagination:
-            _dict['pagination'] = self.pagination.to_dict()
+        if self.values:
+            for _item_values in self.values:
+                if _item_values:
+                    _items.append(_item_values.to_dict())
+            _dict['values'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SpansList200Response from a dict"""
+        """Create an instance of CategoricalAnnotationConfigCreate from a dict"""
         if obj is None:
             return None
 
@@ -95,11 +102,14 @@ class SpansList200Response(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in SpansList200Response) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in CategoricalAnnotationConfigCreate) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "spans": [Span.from_dict(_item) for _item in obj["spans"]] if obj.get("spans") is not None else None,
-            "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
+            "name": obj.get("name"),
+            "space_id": obj.get("space_id"),
+            "annotation_config_type": obj.get("annotation_config_type"),
+            "values": [CategoricalAnnotationValue.from_dict(_item) for _item in obj["values"]] if obj.get("values") is not None else None,
+            "optimization_direction": obj.get("optimization_direction")
         })
         return _obj
 

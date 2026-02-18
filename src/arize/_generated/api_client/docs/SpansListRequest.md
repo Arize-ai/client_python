@@ -6,8 +6,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **project_id** | **str** | The project ID to list spans for | 
-**start_time** | **datetime** | Filter to spans starting at or after this timestamp (inclusive). ISO 8601 format (e.g., &#x60;2024-01-01T00:00:00Z&#x60;).  | [optional] 
-**end_time** | **datetime** | Filter to spans starting before this timestamp (exclusive). ISO 8601 format (e.g., &#x60;2024-01-02T00:00:00Z&#x60;).  | [optional] 
+**start_time** | **datetime** | Filter to spans starting at or after this timestamp (inclusive). ISO 8601 format (e.g., &#x60;2024-01-01T00:00:00Z&#x60;). Defaults to 1 week ago.  | [optional] 
+**end_time** | **datetime** | Filter to spans starting before this timestamp (exclusive). ISO 8601 format (e.g., &#x60;2024-01-02T00:00:00Z&#x60;). Defaults to the current time.  | [optional] 
 **filter** | **str** | Filter expression to apply to the query. Supports SQL-like syntax for filtering spans by attributes (e.g., &#x60;status_code &#x3D; &#39;ERROR&#39;&#x60;).  | [optional] 
 
 ## Example

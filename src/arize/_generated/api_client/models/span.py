@@ -38,8 +38,10 @@ class Span(BaseModel):
     status_code: Optional[StrictStr] = Field(default=None, description="Status code of the span")
     status_message: Optional[StrictStr] = Field(default=None, description="Status message associated with the span")
     attributes: Optional[Dict[str, Any]] = Field(default=None, description="Key-value pairs of span attributes")
+    annotations: Optional[Dict[str, Any]] = Field(default=None, description="Key-value pairs of span annotations")
+    evaluations: Optional[Dict[str, Any]] = Field(default=None, description="Key-value pairs of span evaluations")
     events: Optional[List[SpanEvent]] = Field(default=None, description="List of events that occurred during the span")
-    __properties: ClassVar[List[str]] = ["name", "context", "kind", "parent_id", "start_time", "end_time", "status_code", "status_message", "attributes", "events"]
+    __properties: ClassVar[List[str]] = ["name", "context", "kind", "parent_id", "start_time", "end_time", "status_code", "status_message", "attributes", "annotations", "evaluations", "events"]
 
     @field_validator('status_code')
     def status_code_validate_enum(cls, value):
@@ -126,6 +128,8 @@ class Span(BaseModel):
             "status_code": obj.get("status_code"),
             "status_message": obj.get("status_message"),
             "attributes": obj.get("attributes"),
+            "annotations": obj.get("annotations"),
+            "evaluations": obj.get("evaluations"),
             "events": [SpanEvent.from_dict(_item) for _item in obj["events"]] if obj.get("events") is not None else None
         })
         return _obj

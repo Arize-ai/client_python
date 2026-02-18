@@ -1,5 +1,13 @@
 # Changelog
 
+## [8.3.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.2.1...arize-python-sdk/v8.3.0) (2026-02-18)
+
+
+### 🎁 New Features
+
+* **deprecation:** add deprecation utilities and warnings to Arize SDK ([#62599](https://github.com/Arize-ai/arize/issues/62599)) ([7784067](https://github.com/Arize-ai/arize/commit/7784067ce4c583f5e2207278a0438306d34aece9))
+* **spans:** add prerelease `list` endpoint with generated API client support ([#63340](https://github.com/Arize-ai/arize/issues/63340)) ([15319d0](https://github.com/Arize-ai/arize/commit/15319d099bc54e14639d889611b430cbfdf92174))
+
 ## [8.2.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.2.0...arize-python-sdk/v8.2.1) (2026-02-13)
 
 

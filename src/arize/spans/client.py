@@ -18,6 +18,7 @@ from arize._exporter.client import ArizeExportClient
 from arize._flight.client import ArizeFlightClient, FlightPostArrowFileResponse
 from arize._flight.types import FlightRequestType
 from arize.constants.spans import DEFAULT_DATETIME_FMT
+from arize.deprecated import deprecated
 from arize.exceptions.base import (
     INVALID_ARROW_CONVERSION_MSG,
     ValidationError,
@@ -27,6 +28,7 @@ from arize.exceptions.models import MissingProjectNameError
 from arize.exceptions.spaces import MissingSpaceIDError
 from arize.logging import CtxAdapter
 from arize.ml.types import Environments
+from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.spans.validation.metadata.value_validation import (
     InvalidPatchDocumentFormat,
 )
@@ -38,8 +40,14 @@ from arize.utils.dataframe import (
 from arize.utils.proto import get_pb_schema_tracing
 
 if TYPE_CHECKING:
+    # builtins is needed to use builtins.list in type annotations because
+    # the class has a list() method that shadows the built-in list type
+    import builtins
+
     import requests
 
+    from arize._generated.api_client import models
+    from arize._generated.api_client.api_client import ApiClient
     from arize._generated.protocol.flight import flight_pb2
     from arize.config import SDKConfiguration
 
@@ -54,12 +62,83 @@ class SpansClient:
     :class:`arize.ArizeClient`.
     """
 
-    def __init__(self, *, sdk_config: SDKConfiguration) -> None:
+    def __init__(
+        self, *, sdk_config: SDKConfiguration, generated_client: ApiClient
+    ) -> None:
         """
         Args:
             sdk_config: Resolved SDK configuration.
+            generated_client: Shared generated API client instance.
         """  # noqa: D205, D212
         self._sdk_config = sdk_config
+
+        # Import at runtime so it's still lazy and extras-gated by the parent
+        from arize._generated import api_client as gen
+
+        # Use the provided client directly
+        self._api = gen.SpansApi(generated_client)
+
+    @prerelease_endpoint(key="spans.list", stage=ReleaseStage.ALPHA)
+    def list(
+        self,
+        *,
+        project_id: str,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
+        filter: str | None = None,
+        limit: int = 100,
+        cursor: str | None = None,
+    ) -> models.SpansList200Response:
+        """List spans for a project within a time range.
+
+        Spans are returned in descending start-time order (most recent first).
+        If ``start_time`` and ``end_time`` are not provided, the query covers the
+        last seven days relative to the time of the request.
+
+        Args:
+            project_id: ID of the project to list spans for.
+            start_time: Inclusive lower bound of the time window. Defaults to
+                seven days before the request time.
+            end_time: Exclusive upper bound of the time window. Defaults to the
+                request time.
+            filter: Optional filter expression to narrow results. Supports
+                equality, comparison, and SQL-style ``AND``/``OR`` operators.
+                Examples::
+
+                    "status_code = 'ERROR'"
+                    "eval.Custom_eval_correctness.label = 'correct'"
+                    "annotation.Correctness.label = 'Correct'"
+                    "latency_ms > 1789"
+                    "status_code = 'ERROR' AND eval.Custom_eval_correctness.label = 'correct'"
+                    "status_code = 'ERROR' OR eval.Custom_eval_correctness.label = 'correct'"
+            limit: Maximum number of spans to return. The server enforces an
+                upper bound. Defaults to 100.
+            cursor: Opaque pagination cursor returned from a previous response.
+
+        Returns:
+            A response object with the spans and pagination information.
+
+        Raises:
+            arize._generated.api_client.exceptions.ApiException: If the REST API
+                returns an error response (e.g. 401/403/429).
+        """
+        logger.warning(
+            "The spans.list endpoint is currently in active development and may "
+            "not be suitable to download large amounts of spans. Use `export_to_df` instead."
+        )
+        from arize._generated import api_client as gen
+
+        body = gen.SpansListRequest(
+            project_id=project_id,
+            start_time=start_time,
+            end_time=end_time,
+            filter=filter,
+        )
+        return self._api.spans_list(
+            spans_list_request=body,
+            limit=limit,
+            cursor=cursor,
+        )
 
     def log(
         self,
@@ -1006,6 +1085,10 @@ class SpansClient:
         # Convert Protocol Buffer SpanError objects to dictionaries for easier access
         return _message_to_dict(response)
 
+    @deprecated(
+        key="client.spans.export_to_df",
+        alternative="client.spans.list",
+    )
     def export_to_df(
         self,
         *,
@@ -1014,7 +1097,7 @@ class SpansClient:
         start_time: datetime,
         end_time: datetime,
         where: str = "",
-        columns: list | None = None,
+        columns: builtins.list | None = None,
         stream_chunk_size: int | None = None,
     ) -> pd.DataFrame:
         """Export span data from Arize to a :class:`pandas.DataFrame`.
@@ -1058,7 +1141,7 @@ class SpansClient:
         start_time: datetime,
         end_time: datetime,
         where: str = "",
-        columns: list | None = None,
+        columns: builtins.list | None = None,
         stream_chunk_size: int | None = None,
     ) -> None:
         """Export span data from Arize to a Parquet file.

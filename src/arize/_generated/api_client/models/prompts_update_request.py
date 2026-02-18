@@ -17,20 +17,18 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List
-from arize._generated.api_client.models.pagination_metadata import PaginationMetadata
-from arize._generated.api_client.models.span import Span
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SpansList200Response(BaseModel):
+class PromptsUpdateRequest(BaseModel):
     """
-    SpansList200Response
+    PromptsUpdateRequest
     """ # noqa: E501
-    spans: List[Span] = Field(description="A list of spans")
-    pagination: PaginationMetadata
-    __properties: ClassVar[List[str]] = ["spans", "pagination"]
+    description: Optional[StrictStr] = Field(default=None, description="Updated description for the prompt")
+    tags: Optional[List[StrictStr]] = Field(default=None, description="Updated tags for the prompt")
+    __properties: ClassVar[List[str]] = ["description", "tags"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -50,7 +48,7 @@ class SpansList200Response(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SpansList200Response from a JSON string"""
+        """Create an instance of PromptsUpdateRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -71,21 +69,16 @@ class SpansList200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in spans (list)
-        _items = []
-        if self.spans:
-            for _item_spans in self.spans:
-                if _item_spans:
-                    _items.append(_item_spans.to_dict())
-            _dict['spans'] = _items
-        # override the default output from pydantic by calling `to_dict()` of pagination
-        if self.pagination:
-            _dict['pagination'] = self.pagination.to_dict()
+        # set to None if description (nullable) is None
+        # and model_fields_set contains the field
+        if self.description is None and "description" in self.model_fields_set:
+            _dict['description'] = None
+
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SpansList200Response from a dict"""
+        """Create an instance of PromptsUpdateRequest from a dict"""
         if obj is None:
             return None
 
@@ -95,11 +88,11 @@ class SpansList200Response(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in SpansList200Response) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in PromptsUpdateRequest) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "spans": [Span.from_dict(_item) for _item in obj["spans"]] if obj.get("spans") is not None else None,
-            "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
+            "description": obj.get("description"),
+            "tags": obj.get("tags")
         })
         return _obj
 

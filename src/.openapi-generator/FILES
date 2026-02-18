@@ -12,11 +12,15 @@ arize/_generated/api_client/api_response.py
 arize/_generated/api_client/configuration.py
 arize/_generated/api_client/docs/AnnotationConfig.md
 arize/_generated/api_client/docs/AnnotationConfigBase.md
+arize/_generated/api_client/docs/AnnotationConfigCreateBase.md
 arize/_generated/api_client/docs/AnnotationConfigsApi.md
 arize/_generated/api_client/docs/AnnotationConfigsList200Response.md
 arize/_generated/api_client/docs/CategoricalAnnotationConfig.md
+arize/_generated/api_client/docs/CategoricalAnnotationConfigCreate.md
 arize/_generated/api_client/docs/CategoricalAnnotationValue.md
 arize/_generated/api_client/docs/ContinuousAnnotationConfig.md
+arize/_generated/api_client/docs/ContinuousAnnotationConfigCreate.md
+arize/_generated/api_client/docs/CreateAnnotationConfigRequestBody.md
 arize/_generated/api_client/docs/Dataset.md
 arize/_generated/api_client/docs/DatasetExample.md
 arize/_generated/api_client/docs/DatasetExampleUpdate.md
@@ -35,6 +39,7 @@ arize/_generated/api_client/docs/ExperimentsCreateRequest.md
 arize/_generated/api_client/docs/ExperimentsList200Response.md
 arize/_generated/api_client/docs/ExperimentsRunsList200Response.md
 arize/_generated/api_client/docs/FreeformAnnotationConfig.md
+arize/_generated/api_client/docs/FreeformAnnotationConfigCreate.md
 arize/_generated/api_client/docs/InputVariableFormat.md
 arize/_generated/api_client/docs/InvocationParams.md
 arize/_generated/api_client/docs/LLMMessage.md
@@ -51,6 +56,7 @@ arize/_generated/api_client/docs/Prompt.md
 arize/_generated/api_client/docs/PromptsApi.md
 arize/_generated/api_client/docs/PromptsCreateRequest.md
 arize/_generated/api_client/docs/PromptsList200Response.md
+arize/_generated/api_client/docs/PromptsUpdateRequest.md
 arize/_generated/api_client/docs/ProviderParams.md
 arize/_generated/api_client/docs/ProviderParamsAnthropicHeaders.md
 arize/_generated/api_client/docs/ProviderParamsAzureParams.md
@@ -72,10 +78,14 @@ arize/_generated/api_client/exceptions.py
 arize/_generated/api_client/models/__init__.py
 arize/_generated/api_client/models/annotation_config.py
 arize/_generated/api_client/models/annotation_config_base.py
+arize/_generated/api_client/models/annotation_config_create_base.py
 arize/_generated/api_client/models/annotation_configs_list200_response.py
 arize/_generated/api_client/models/categorical_annotation_config.py
+arize/_generated/api_client/models/categorical_annotation_config_create.py
 arize/_generated/api_client/models/categorical_annotation_value.py
 arize/_generated/api_client/models/continuous_annotation_config.py
+arize/_generated/api_client/models/continuous_annotation_config_create.py
+arize/_generated/api_client/models/create_annotation_config_request_body.py
 arize/_generated/api_client/models/dataset.py
 arize/_generated/api_client/models/dataset_example.py
 arize/_generated/api_client/models/dataset_example_update.py
@@ -92,6 +102,7 @@ arize/_generated/api_client/models/experiments_create_request.py
 arize/_generated/api_client/models/experiments_list200_response.py
 arize/_generated/api_client/models/experiments_runs_list200_response.py
 arize/_generated/api_client/models/freeform_annotation_config.py
+arize/_generated/api_client/models/freeform_annotation_config_create.py
 arize/_generated/api_client/models/input_variable_format.py
 arize/_generated/api_client/models/invocation_params.py
 arize/_generated/api_client/models/llm_message.py
@@ -106,6 +117,7 @@ arize/_generated/api_client/models/projects_list200_response.py
 arize/_generated/api_client/models/prompt.py
 arize/_generated/api_client/models/prompts_create_request.py
 arize/_generated/api_client/models/prompts_list200_response.py
+arize/_generated/api_client/models/prompts_update_request.py
 arize/_generated/api_client/models/provider_params.py
 arize/_generated/api_client/models/provider_params_anthropic_headers.py
 arize/_generated/api_client/models/provider_params_azure_params.py
@@ -126,11 +138,15 @@ arize/_generated/api_client/rest.py
 arize/_generated/api_client/test/__init__.py
 arize/_generated/api_client/test/test_annotation_config.py
 arize/_generated/api_client/test/test_annotation_config_base.py
+arize/_generated/api_client/test/test_annotation_config_create_base.py
 arize/_generated/api_client/test/test_annotation_configs_api.py
 arize/_generated/api_client/test/test_annotation_configs_list200_response.py
 arize/_generated/api_client/test/test_categorical_annotation_config.py
+arize/_generated/api_client/test/test_categorical_annotation_config_create.py
 arize/_generated/api_client/test/test_categorical_annotation_value.py
 arize/_generated/api_client/test/test_continuous_annotation_config.py
+arize/_generated/api_client/test/test_continuous_annotation_config_create.py
+arize/_generated/api_client/test/test_create_annotation_config_request_body.py
 arize/_generated/api_client/test/test_dataset.py
 arize/_generated/api_client/test/test_dataset_example.py
 arize/_generated/api_client/test/test_dataset_example_update.py
@@ -149,6 +165,7 @@ arize/_generated/api_client/test/test_experiments_create_request.py
 arize/_generated/api_client/test/test_experiments_list200_response.py
 arize/_generated/api_client/test/test_experiments_runs_list200_response.py
 arize/_generated/api_client/test/test_freeform_annotation_config.py
+arize/_generated/api_client/test/test_freeform_annotation_config_create.py
 arize/_generated/api_client/test/test_input_variable_format.py
 arize/_generated/api_client/test/test_invocation_params.py
 arize/_generated/api_client/test/test_llm_message.py
@@ -165,6 +182,7 @@ arize/_generated/api_client/test/test_prompt.py
 arize/_generated/api_client/test/test_prompts_api.py
 arize/_generated/api_client/test/test_prompts_create_request.py
 arize/_generated/api_client/test/test_prompts_list200_response.py
+arize/_generated/api_client/test/test_prompts_update_request.py
 arize/_generated/api_client/test/test_provider_params.py
 arize/_generated/api_client/test/test_provider_params_anthropic_headers.py
 arize/_generated/api_client/test/test_provider_params_azure_params.py
