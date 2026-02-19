@@ -222,7 +222,7 @@ class SpansClient:
         # We expect the index to be 0,1,2,3..., len(df)-1. Phoenix, for example, will give us a dataframe
         # with context_id as the index
         reset_dataframe_index(dataframe=spans_df)
-        if evals_df:
+        if evals_df is not None:
             reset_dataframe_index(dataframe=evals_df)
 
         log.debug("Performing direct input type validation")
@@ -262,7 +262,7 @@ class SpansClient:
             df=spans_df,
             column_list=[col.name for col in SPAN_OPENINFERENCE_COLUMNS],
         )
-        if evals_df:
+        if evals_df is not None:
             evals_df = remove_extraneous_columns(
                 df=evals_df,
                 column_list=[SPAN_SPAN_ID_COL.name],
@@ -278,7 +278,7 @@ class SpansClient:
                 spans_dataframe=spans_df,
                 project_name=project_name,
             )
-            if evals_df:
+            if evals_df is not None:
                 eval_errors = evals_validation.validate_values(
                     evals_dataframe=evals_df,
                     project_name=project_name,
@@ -303,7 +303,7 @@ class SpansClient:
 
         df = (
             pd.merge(spans_df, evals_df, on=SPAN_SPAN_ID_COL.name, how="left")
-            if evals_df
+            if evals_df is not None
             else spans_df
         )
 
