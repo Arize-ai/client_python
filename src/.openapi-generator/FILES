@@ -2,10 +2,12 @@ arize/_generated/__init__.py
 arize/_generated/api_client/__init__.py
 arize/_generated/api_client/api/__init__.py
 arize/_generated/api_client/api/annotation_configs_api.py
+arize/_generated/api_client/api/annotation_queues_api.py
 arize/_generated/api_client/api/datasets_api.py
 arize/_generated/api_client/api/experiments_api.py
 arize/_generated/api_client/api/projects_api.py
 arize/_generated/api_client/api/prompts_api.py
+arize/_generated/api_client/api/spaces_api.py
 arize/_generated/api_client/api/spans_api.py
 arize/_generated/api_client/api_client.py
 arize/_generated/api_client/api_response.py
@@ -15,6 +17,9 @@ arize/_generated/api_client/docs/AnnotationConfigBase.md
 arize/_generated/api_client/docs/AnnotationConfigCreateBase.md
 arize/_generated/api_client/docs/AnnotationConfigsApi.md
 arize/_generated/api_client/docs/AnnotationConfigsList200Response.md
+arize/_generated/api_client/docs/AnnotationQueue.md
+arize/_generated/api_client/docs/AnnotationQueuesApi.md
+arize/_generated/api_client/docs/AnnotationQueuesList200Response.md
 arize/_generated/api_client/docs/CategoricalAnnotationConfig.md
 arize/_generated/api_client/docs/CategoricalAnnotationConfigCreate.md
 arize/_generated/api_client/docs/CategoricalAnnotationValue.md
@@ -64,6 +69,9 @@ arize/_generated/api_client/docs/ProviderParamsBedrockOptions.md
 arize/_generated/api_client/docs/ResponseFormat.md
 arize/_generated/api_client/docs/ResponseFormatJsonSchema.md
 arize/_generated/api_client/docs/ResponseFormatType.md
+arize/_generated/api_client/docs/Space.md
+arize/_generated/api_client/docs/SpacesApi.md
+arize/_generated/api_client/docs/SpacesList200Response.md
 arize/_generated/api_client/docs/Span.md
 arize/_generated/api_client/docs/SpanContext.md
 arize/_generated/api_client/docs/SpanEvent.md
@@ -80,6 +88,8 @@ arize/_generated/api_client/models/annotation_config.py
 arize/_generated/api_client/models/annotation_config_base.py
 arize/_generated/api_client/models/annotation_config_create_base.py
 arize/_generated/api_client/models/annotation_configs_list200_response.py
+arize/_generated/api_client/models/annotation_queue.py
+arize/_generated/api_client/models/annotation_queues_list200_response.py
 arize/_generated/api_client/models/categorical_annotation_config.py
 arize/_generated/api_client/models/categorical_annotation_config_create.py
 arize/_generated/api_client/models/categorical_annotation_value.py
@@ -125,6 +135,8 @@ arize/_generated/api_client/models/provider_params_bedrock_options.py
 arize/_generated/api_client/models/response_format.py
 arize/_generated/api_client/models/response_format_json_schema.py
 arize/_generated/api_client/models/response_format_type.py
+arize/_generated/api_client/models/space.py
+arize/_generated/api_client/models/spaces_list200_response.py
 arize/_generated/api_client/models/span.py
 arize/_generated/api_client/models/span_context.py
 arize/_generated/api_client/models/span_event.py
@@ -141,6 +153,9 @@ arize/_generated/api_client/test/test_annotation_config_base.py
 arize/_generated/api_client/test/test_annotation_config_create_base.py
 arize/_generated/api_client/test/test_annotation_configs_api.py
 arize/_generated/api_client/test/test_annotation_configs_list200_response.py
+arize/_generated/api_client/test/test_annotation_queue.py
+arize/_generated/api_client/test/test_annotation_queues_api.py
+arize/_generated/api_client/test/test_annotation_queues_list200_response.py
 arize/_generated/api_client/test/test_categorical_annotation_config.py
 arize/_generated/api_client/test/test_categorical_annotation_config_create.py
 arize/_generated/api_client/test/test_categorical_annotation_value.py

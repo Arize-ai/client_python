@@ -236,7 +236,14 @@ class TestArizeClientProperties:
 
     @pytest.mark.parametrize(
         "property_name",
-        ["datasets", "experiments", "ml", "projects", "spans"],
+        [
+            "datasets",
+            "experiments",
+            "ml",
+            "projects",
+            "spans",
+            "annotation_configs",
+        ],
     )
     def test_property_lazy_loads(
         self, property_name: str, test_api_key: str
@@ -291,6 +298,7 @@ class TestArizeClientRepr:
                 "ml",
                 "projects",
                 "spans",
+                "annotation_configs",
             ]:
                 assert f"'{subclient}'" in repr_str
 

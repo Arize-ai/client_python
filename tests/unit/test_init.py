@@ -384,6 +384,7 @@ class TestMonkeyPatching:
         assert hasattr(models.ExperimentsList200Response, "to_df")
         assert hasattr(models.ExperimentsRunsList200Response, "to_df")
         assert hasattr(models.ProjectsList200Response, "to_df")
+        assert hasattr(models.AnnotationConfigsList200Response, "to_df")
 
     def test_factory_receives_correct_field_names(self) -> None:
         """Monkey-patched methods should reference correct field names."""
@@ -405,12 +406,20 @@ class TestMonkeyPatching:
         projects_resp = Mock(spec=models.ProjectsList200Response)
         projects_resp.projects = []
 
+        annotation_configs_resp = Mock(
+            spec=models.AnnotationConfigsList200Response
+        )
+        annotation_configs_resp.annotation_configs = []
+
         # Call to_df on each and verify they work
         df1 = models.DatasetsList200Response.to_df(datasets_resp)
         df2 = models.DatasetsExamplesList200Response.to_df(examples_resp)
         df3 = models.ExperimentsList200Response.to_df(experiments_resp)
         df4 = models.ExperimentsRunsList200Response.to_df(runs_resp)
         df5 = models.ProjectsList200Response.to_df(projects_resp)
+        df6 = models.AnnotationConfigsList200Response.to_df(
+            annotation_configs_resp
+        )
 
         # All should return DataFrames
         assert isinstance(df1, pd.DataFrame)
@@ -418,3 +427,38 @@ class TestMonkeyPatching:
         assert isinstance(df3, pd.DataFrame)
         assert isinstance(df4, pd.DataFrame)
         assert isinstance(df5, pd.DataFrame)
+        assert isinstance(df6, pd.DataFrame)
+
+    def test_annotation_configs_to_df_expands_actual_instance(self) -> None:
+        """Annotation config to_df should flatten oneOf wrapper internals."""
+        from arize._generated.api_client import models
+
+        annotation_configs_resp = Mock(
+            spec=models.AnnotationConfigsList200Response
+        )
+        annotation_configs_resp.annotation_configs = [
+            {
+                "actual_instance": {
+                    "id": "cfg_1",
+                    "name": "Accuracy",
+                    "type": "categorical",
+                },
+                "one_of_schemas": {
+                    "CategoricalAnnotationConfig",
+                    "ContinuousAnnotationConfig",
+                    "FreeformAnnotationConfig",
+                },
+                "discriminator_value_class_map": {},
+            }
+        ]
+
+        df = models.AnnotationConfigsList200Response.to_df(
+            annotation_configs_resp
+        )
+
+        assert "id" in df.columns
+        assert "name" in df.columns
+        assert "type" in df.columns
+        assert "actual_instance" not in df.columns
+        assert "one_of_schemas" not in df.columns
+        assert "discriminator_value_class_map" not in df.columns

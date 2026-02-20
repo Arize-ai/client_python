@@ -19,10 +19,12 @@ __version__ = "1.0.0"
 # Define package exports
 __all__ = [
     "AnnotationConfigsApi",
+    "AnnotationQueuesApi",
     "DatasetsApi",
     "ExperimentsApi",
     "ProjectsApi",
     "PromptsApi",
+    "SpacesApi",
     "SpansApi",
     "ApiResponse",
     "ApiClient",
@@ -37,6 +39,8 @@ __all__ = [
     "AnnotationConfigBase",
     "AnnotationConfigCreateBase",
     "AnnotationConfigsList200Response",
+    "AnnotationQueue",
+    "AnnotationQueuesList200Response",
     "CategoricalAnnotationConfig",
     "CategoricalAnnotationConfigCreate",
     "CategoricalAnnotationValue",
@@ -82,6 +86,8 @@ __all__ = [
     "ResponseFormat",
     "ResponseFormatJsonSchema",
     "ResponseFormatType",
+    "Space",
+    "SpacesList200Response",
     "Span",
     "SpanContext",
     "SpanEvent",
@@ -95,10 +101,12 @@ __all__ = [
 
 # import apis into sdk package
 from arize._generated.api_client.api.annotation_configs_api import AnnotationConfigsApi as AnnotationConfigsApi
+from arize._generated.api_client.api.annotation_queues_api import AnnotationQueuesApi as AnnotationQueuesApi
 from arize._generated.api_client.api.datasets_api import DatasetsApi as DatasetsApi
 from arize._generated.api_client.api.experiments_api import ExperimentsApi as ExperimentsApi
 from arize._generated.api_client.api.projects_api import ProjectsApi as ProjectsApi
 from arize._generated.api_client.api.prompts_api import PromptsApi as PromptsApi
+from arize._generated.api_client.api.spaces_api import SpacesApi as SpacesApi
 from arize._generated.api_client.api.spans_api import SpansApi as SpansApi
 
 # import ApiClient
@@ -117,6 +125,8 @@ from arize._generated.api_client.models.annotation_config import AnnotationConfi
 from arize._generated.api_client.models.annotation_config_base import AnnotationConfigBase as AnnotationConfigBase
 from arize._generated.api_client.models.annotation_config_create_base import AnnotationConfigCreateBase as AnnotationConfigCreateBase
 from arize._generated.api_client.models.annotation_configs_list200_response import AnnotationConfigsList200Response as AnnotationConfigsList200Response
+from arize._generated.api_client.models.annotation_queue import AnnotationQueue as AnnotationQueue
+from arize._generated.api_client.models.annotation_queues_list200_response import AnnotationQueuesList200Response as AnnotationQueuesList200Response
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig as CategoricalAnnotationConfig
 from arize._generated.api_client.models.categorical_annotation_config_create import CategoricalAnnotationConfigCreate as CategoricalAnnotationConfigCreate
 from arize._generated.api_client.models.categorical_annotation_value import CategoricalAnnotationValue as CategoricalAnnotationValue
@@ -162,6 +172,8 @@ from arize._generated.api_client.models.provider_params_bedrock_options import P
 from arize._generated.api_client.models.response_format import ResponseFormat as ResponseFormat
 from arize._generated.api_client.models.response_format_json_schema import ResponseFormatJsonSchema as ResponseFormatJsonSchema
 from arize._generated.api_client.models.response_format_type import ResponseFormatType as ResponseFormatType
+from arize._generated.api_client.models.space import Space as Space
+from arize._generated.api_client.models.spaces_list200_response import SpacesList200Response as SpacesList200Response
 from arize._generated.api_client.models.span import Span as Span
 from arize._generated.api_client.models.span_context import SpanContext as SpanContext
 from arize._generated.api_client.models.span_event import SpanEvent as SpanEvent

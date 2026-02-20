@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.4.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.3.0...arize-python-sdk/v8.4.0) (2026-02-20)
+
+
+### 🎁 New Features
+
+* Annotation configs ([#63369](https://github.com/Arize-ai/arize/issues/63369)) ([d6a6b00](https://github.com/Arize-ai/arize/commit/d6a6b0011dcaafd1eeaf58551b264738c95170f3))
+
 ## [8.3.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.2.1...arize-python-sdk/v8.3.0) (2026-02-18)
 
 

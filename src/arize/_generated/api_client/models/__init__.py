@@ -17,6 +17,8 @@ from arize._generated.api_client.models.annotation_config import AnnotationConfi
 from arize._generated.api_client.models.annotation_config_base import AnnotationConfigBase
 from arize._generated.api_client.models.annotation_config_create_base import AnnotationConfigCreateBase
 from arize._generated.api_client.models.annotation_configs_list200_response import AnnotationConfigsList200Response
+from arize._generated.api_client.models.annotation_queue import AnnotationQueue
+from arize._generated.api_client.models.annotation_queues_list200_response import AnnotationQueuesList200Response
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig
 from arize._generated.api_client.models.categorical_annotation_config_create import CategoricalAnnotationConfigCreate
 from arize._generated.api_client.models.categorical_annotation_value import CategoricalAnnotationValue
@@ -62,6 +64,8 @@ from arize._generated.api_client.models.provider_params_bedrock_options import P
 from arize._generated.api_client.models.response_format import ResponseFormat
 from arize._generated.api_client.models.response_format_json_schema import ResponseFormatJsonSchema
 from arize._generated.api_client.models.response_format_type import ResponseFormatType
+from arize._generated.api_client.models.space import Space
+from arize._generated.api_client.models.spaces_list200_response import SpacesList200Response
 from arize._generated.api_client.models.span import Span
 from arize._generated.api_client.models.span_context import SpanContext
 from arize._generated.api_client.models.span_event import SpanEvent

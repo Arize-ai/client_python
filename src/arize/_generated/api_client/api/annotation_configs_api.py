@@ -60,7 +60,7 @@ class AnnotationConfigsApi:
     ) -> AnnotationConfig:
         """Create an annotation config
 
-        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"categorical\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"maximize\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"categorical\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"maximize\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_annotation_config_request_body: Body containing annotation config creation parameters (required)
         :type create_annotation_config_request_body: CreateAnnotationConfigRequestBody
@@ -133,7 +133,7 @@ class AnnotationConfigsApi:
     ) -> ApiResponse[AnnotationConfig]:
         """Create an annotation config
 
-        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"categorical\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"maximize\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"categorical\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"maximize\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_annotation_config_request_body: Body containing annotation config creation parameters (required)
         :type create_annotation_config_request_body: CreateAnnotationConfigRequestBody
@@ -206,7 +206,7 @@ class AnnotationConfigsApi:
     ) -> RESTResponseType:
         """Create an annotation config
 
-        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"categorical\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"maximize\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"categorical\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"maximize\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_annotation_config_request_body: Body containing annotation config creation parameters (required)
         :type create_annotation_config_request_body: CreateAnnotationConfigRequestBody
@@ -353,7 +353,7 @@ class AnnotationConfigsApi:
     ) -> None:
         """Delete an annotation config
 
-        Delete an annotation config by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete an annotation config by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param annotation_config_id: The unique identifier of the annotation config (required)
         :type annotation_config_id: str
@@ -424,7 +424,7 @@ class AnnotationConfigsApi:
     ) -> ApiResponse[None]:
         """Delete an annotation config
 
-        Delete an annotation config by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete an annotation config by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param annotation_config_id: The unique identifier of the annotation config (required)
         :type annotation_config_id: str
@@ -495,7 +495,7 @@ class AnnotationConfigsApi:
     ) -> RESTResponseType:
         """Delete an annotation config
 
-        Delete an annotation config by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete an annotation config by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param annotation_config_id: The unique identifier of the annotation config (required)
         :type annotation_config_id: str
@@ -626,7 +626,7 @@ class AnnotationConfigsApi:
     ) -> AnnotationConfig:
         """Get an annotation config
 
-        Get an annotation config object by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get an annotation config object by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param annotation_config_id: The unique identifier of the annotation config (required)
         :type annotation_config_id: str
@@ -697,7 +697,7 @@ class AnnotationConfigsApi:
     ) -> ApiResponse[AnnotationConfig]:
         """Get an annotation config
 
-        Get an annotation config object by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get an annotation config object by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param annotation_config_id: The unique identifier of the annotation config (required)
         :type annotation_config_id: str
@@ -768,7 +768,7 @@ class AnnotationConfigsApi:
     ) -> RESTResponseType:
         """Get an annotation config
 
-        Get an annotation config object by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get an annotation config object by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param annotation_config_id: The unique identifier of the annotation config (required)
         :type annotation_config_id: str
@@ -902,7 +902,7 @@ class AnnotationConfigsApi:
     ) -> AnnotationConfigsList200Response:
         """List annotation configs
 
-        List annotation configs the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List annotation configs the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -981,7 +981,7 @@ class AnnotationConfigsApi:
     ) -> ApiResponse[AnnotationConfigsList200Response]:
         """List annotation configs
 
-        List annotation configs the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List annotation configs the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -1060,7 +1060,7 @@ class AnnotationConfigsApi:
     ) -> RESTResponseType:
         """List annotation configs
 
-        List annotation configs the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List annotation configs the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str

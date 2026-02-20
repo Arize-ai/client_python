@@ -77,6 +77,7 @@ Class | Method | HTTP request | Description
 *AnnotationConfigsApi* | [**annotation_configs_delete**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_delete) | **DELETE** /v2/annotation-configs/{annotation_config_id} | Delete an annotation config
 *AnnotationConfigsApi* | [**annotation_configs_get**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_get) | **GET** /v2/annotation-configs/{annotation_config_id} | Get an annotation config
 *AnnotationConfigsApi* | [**annotation_configs_list**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_list) | **GET** /v2/annotation-configs | List annotation configs
+*AnnotationQueuesApi* | [**annotation_queues_list**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_list) | **GET** /v2/annotation-queues | List annotation queues
 *DatasetsApi* | [**datasets_create**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_create) | **POST** /v2/datasets | Create a dataset
 *DatasetsApi* | [**datasets_delete**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_delete) | **DELETE** /v2/datasets/{dataset_id} | Delete a dataset
 *DatasetsApi* | [**datasets_examples_insert**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_examples_insert) | **POST** /v2/datasets/{dataset_id}/examples | Add new examples to a dataset
@@ -98,6 +99,7 @@ Class | Method | HTTP request | Description
 *PromptsApi* | [**prompts_get**](arize/_generated/api_client/docs/PromptsApi.md#prompts_get) | **GET** /v2/prompts/{prompt_id} | Get a prompt
 *PromptsApi* | [**prompts_list**](arize/_generated/api_client/docs/PromptsApi.md#prompts_list) | **GET** /v2/prompts | List prompts
 *PromptsApi* | [**prompts_update**](arize/_generated/api_client/docs/PromptsApi.md#prompts_update) | **PATCH** /v2/prompts/{prompt_id} | Update a prompt
+*SpacesApi* | [**spaces_list**](arize/_generated/api_client/docs/SpacesApi.md#spaces_list) | **GET** /v2/spaces | List spaces
 *SpansApi* | [**spans_list**](arize/_generated/api_client/docs/SpansApi.md#spans_list) | **POST** /v2/spans | List spans
 
 
@@ -107,6 +109,8 @@ Class | Method | HTTP request | Description
  - [AnnotationConfigBase](arize/_generated/api_client/docs/AnnotationConfigBase.md)
  - [AnnotationConfigCreateBase](arize/_generated/api_client/docs/AnnotationConfigCreateBase.md)
  - [AnnotationConfigsList200Response](arize/_generated/api_client/docs/AnnotationConfigsList200Response.md)
+ - [AnnotationQueue](arize/_generated/api_client/docs/AnnotationQueue.md)
+ - [AnnotationQueuesList200Response](arize/_generated/api_client/docs/AnnotationQueuesList200Response.md)
  - [CategoricalAnnotationConfig](arize/_generated/api_client/docs/CategoricalAnnotationConfig.md)
  - [CategoricalAnnotationConfigCreate](arize/_generated/api_client/docs/CategoricalAnnotationConfigCreate.md)
  - [CategoricalAnnotationValue](arize/_generated/api_client/docs/CategoricalAnnotationValue.md)
@@ -152,6 +156,8 @@ Class | Method | HTTP request | Description
  - [ResponseFormat](arize/_generated/api_client/docs/ResponseFormat.md)
  - [ResponseFormatJsonSchema](arize/_generated/api_client/docs/ResponseFormatJsonSchema.md)
  - [ResponseFormatType](arize/_generated/api_client/docs/ResponseFormatType.md)
+ - [Space](arize/_generated/api_client/docs/Space.md)
+ - [SpacesList200Response](arize/_generated/api_client/docs/SpacesList200Response.md)
  - [Span](arize/_generated/api_client/docs/Span.md)
  - [SpanContext](arize/_generated/api_client/docs/SpanContext.md)
  - [SpanEvent](arize/_generated/api_client/docs/SpanEvent.md)

@@ -11,6 +11,7 @@ from arize._lazy import LazySubclientsMixin
 from arize.config import SDKConfiguration
 
 if TYPE_CHECKING:
+    from arize.annotation_configs.client import AnnotationConfigsClient
     from arize.datasets.client import DatasetsClient
     from arize.experiments.client import ExperimentsClient
     from arize.ml.client import MLModelsClient
@@ -85,6 +86,10 @@ class ArizeClient(LazySubclientsMixin):
         "spans": (
             "arize.spans.client",
             "SpansClient",
+        ),
+        "annotation_configs": (
+            "arize.annotation_configs.client",
+            "AnnotationConfigsClient",
         ),
     }
     # DISABLED: Optional dependency gating system
@@ -269,6 +274,14 @@ class ArizeClient(LazySubclientsMixin):
     def spans(self) -> SpansClient:
         """Access the spans client for tracing and span operations (lazy-loaded)."""
         return cast("SpansClient", self.__getattr__("spans"))
+
+    @property
+    def annotation_configs(self) -> AnnotationConfigsClient:
+        """Access the annotation configs client for config operations."""
+        return cast(
+            "AnnotationConfigsClient",
+            self.__getattr__("annotation_configs"),
+        )
 
     def __repr__(self) -> str:
         """Return a string representation of the Arize client configuration."""
