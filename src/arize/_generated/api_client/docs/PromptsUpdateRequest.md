@@ -6,7 +6,6 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **description** | **str** | Updated description for the prompt | [optional] 
-**tags** | **List[str]** | Updated tags for the prompt | [optional] 
 
 ## Example
 

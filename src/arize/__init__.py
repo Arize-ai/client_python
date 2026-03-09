@@ -155,3 +155,4 @@ models.ExperimentsRunsList200Response.to_df = make_to_df("experiment_runs")  # t
 models.ProjectsList200Response.to_df = make_to_df("projects")  # type: ignore[attr-defined]
 models.AnnotationConfigsList200Response.to_df = annotation_configs_to_df  # type: ignore[attr-defined]
 models.SpansList200Response.to_df = make_to_df("spans")  # type: ignore[attr-defined]
+models.SpacesList200Response.to_df = make_to_df("spaces")  # type: ignore[attr-defined]

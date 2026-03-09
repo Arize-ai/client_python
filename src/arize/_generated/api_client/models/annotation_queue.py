@@ -21,6 +21,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.annotation_config import AnnotationConfig
+from arize._generated.api_client.models.annotator_user import AnnotatorUser
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -33,9 +34,10 @@ class AnnotationQueue(BaseModel):
     space_id: StrictStr = Field(description="The space id the annotation queue belongs to")
     instructions: Optional[StrictStr] = Field(default=None, description="The instructions for the annotation queue")
     annotation_configs: Optional[List[AnnotationConfig]] = Field(default=None, description="The annotation configs associated with this queue")
+    annotators: List[AnnotatorUser] = Field(description="Users assigned as annotators to this queue")
     created_at: datetime = Field(description="The timestamp for when the annotation queue was created")
     updated_at: datetime = Field(description="The timestamp for when the annotation queue was last updated")
-    __properties: ClassVar[List[str]] = ["id", "name", "space_id", "instructions", "annotation_configs", "created_at", "updated_at"]
+    __properties: ClassVar[List[str]] = ["id", "name", "space_id", "instructions", "annotation_configs", "annotators", "created_at", "updated_at"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -83,6 +85,13 @@ class AnnotationQueue(BaseModel):
                 if _item_annotation_configs:
                     _items.append(_item_annotation_configs.to_dict())
             _dict['annotation_configs'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in annotators (list)
+        _items = []
+        if self.annotators:
+            for _item_annotators in self.annotators:
+                if _item_annotators:
+                    _items.append(_item_annotators.to_dict())
+            _dict['annotators'] = _items
         # set to None if instructions (nullable) is None
         # and model_fields_set contains the field
         if self.instructions is None and "instructions" in self.model_fields_set:
@@ -110,6 +119,7 @@ class AnnotationQueue(BaseModel):
             "space_id": obj.get("space_id"),
             "instructions": obj.get("instructions"),
             "annotation_configs": [AnnotationConfig.from_dict(_item) for _item in obj["annotation_configs"]] if obj.get("annotation_configs") is not None else None,
+            "annotators": [AnnotatorUser.from_dict(_item) for _item in obj["annotators"]] if obj.get("annotators") is not None else None,
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at")
         })

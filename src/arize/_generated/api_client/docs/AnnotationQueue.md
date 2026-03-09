@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **space_id** | **str** | The space id the annotation queue belongs to | 
 **instructions** | **str** | The instructions for the annotation queue | [optional] 
 **annotation_configs** | [**List[AnnotationConfig]**](AnnotationConfig.md) | The annotation configs associated with this queue | [optional] 
+**annotators** | [**List[AnnotatorUser]**](AnnotatorUser.md) | Users assigned as annotators to this queue | 
 **created_at** | **datetime** | The timestamp for when the annotation queue was created | 
 **updated_at** | **datetime** | The timestamp for when the annotation queue was last updated | 
 

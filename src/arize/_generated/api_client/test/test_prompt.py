@@ -41,10 +41,7 @@ class TestPrompt(unittest.TestCase):
                 space_id = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
-                created_by_user_id = '',
-                tags = [
-                    ''
-                    ]
+                created_by_user_id = ''
             )
         else:
             return Prompt(

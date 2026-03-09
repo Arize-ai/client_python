@@ -97,6 +97,7 @@ class TestLazyLoadingRealSubclients:
                 "annotation_configs",
                 "arize.annotation_configs.client.AnnotationConfigsClient",
             ),
+            ("spaces", "arize.spaces.client.SpacesClient"),
         ],
     )
     def test_lazy_loading_subclients(
@@ -166,6 +167,7 @@ class TestSubclientCaching:
         projects = client.projects
         spans = client.spans
         annotation_configs = client.annotation_configs
+        spaces = client.spaces
 
         # All should be different instances
         assert datasets is not experiments
@@ -173,9 +175,10 @@ class TestSubclientCaching:
         assert ml is not projects
         assert projects is not spans
         assert spans is not annotation_configs
+        assert annotation_configs is not spaces
 
         # All should be in cache
-        assert len(client._lazy_cache) == 6
+        assert len(client._lazy_cache) == 7
 
     def test_repr_shows_loaded_state(
         self, monkeypatch: pytest.MonkeyPatch
@@ -367,6 +370,7 @@ class TestClientWithSubclients:
         assert client.projects is not None
         assert client.spans is not None
         assert client.annotation_configs is not None
+        assert client.spaces is not None
 
         # All should be in cache
-        assert len(client._lazy_cache) == 6
+        assert len(client._lazy_cache) == 7

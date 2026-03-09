@@ -10,7 +10,6 @@ Name | Type | Description | Notes
 **name** | **str** | Name of the space | 
 **description** | **str** | A brief description of the space&#39;s purpose | 
 **created_at** | **datetime** | Timestamp for when the space was created | 
-**updated_at** | **datetime** | Timestamp for the last update of the space | 
 
 ## Example
 

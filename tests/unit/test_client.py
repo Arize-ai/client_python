@@ -243,6 +243,7 @@ class TestArizeClientProperties:
             "projects",
             "spans",
             "annotation_configs",
+            "spaces",
         ],
     )
     def test_property_lazy_loads(
@@ -299,6 +300,7 @@ class TestArizeClientRepr:
                 "projects",
                 "spans",
                 "annotation_configs",
+                "spaces",
             ]:
                 assert f"'{subclient}'" in repr_str
 

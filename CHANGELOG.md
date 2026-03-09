@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.5.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.4.0...arize-python-sdk/v8.5.0) (2026-03-04)
+
+
+### 🎁 New Features
+
+* **py-sdk:** Add spaces client for list, get, update, create ([#63829](https://github.com/Arize-ai/arize/issues/63829)) ([8ba56bc](https://github.com/Arize-ai/arize/commit/8ba56bcb552104b769bb73848c3f0516eacb5571))
+
 ## [8.4.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.3.0...arize-python-sdk/v8.4.0) (2026-02-20)
 
 

@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from arize.ml.client import MLModelsClient
     from arize.projects.client import ProjectsClient
     from arize.regions import Region
+    from arize.spaces.client import SpacesClient
     from arize.spans.client import SpansClient
 
 logger = logging.getLogger(__name__)
@@ -90,6 +91,10 @@ class ArizeClient(LazySubclientsMixin):
         "annotation_configs": (
             "arize.annotation_configs.client",
             "AnnotationConfigsClient",
+        ),
+        "spaces": (
+            "arize.spaces.client",
+            "SpacesClient",
         ),
     }
     # DISABLED: Optional dependency gating system
@@ -282,6 +287,11 @@ class ArizeClient(LazySubclientsMixin):
             "AnnotationConfigsClient",
             self.__getattr__("annotation_configs"),
         )
+
+    @property
+    def spaces(self) -> SpacesClient:
+        """Access the spaces client for space operations (lazy-loaded)."""
+        return cast("SpacesClient", self.__getattr__("spaces"))
 
     def __repr__(self) -> str:
         """Return a string representation of the Arize client configuration."""

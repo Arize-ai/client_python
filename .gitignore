@@ -42,3 +42,4 @@ output/
 
 .workon
 .coverage.*
+uv.lock

@@ -18,6 +18,7 @@ __version__ = "1.0.0"
 
 # Define package exports
 __all__ = [
+    "APIKeysApi",
     "AnnotationConfigsApi",
     "AnnotationQueuesApi",
     "DatasetsApi",
@@ -35,18 +36,29 @@ __all__ = [
     "ApiKeyError",
     "ApiAttributeError",
     "ApiException",
+    "Annotation",
     "AnnotationConfig",
     "AnnotationConfigBase",
     "AnnotationConfigCreateBase",
     "AnnotationConfigsList200Response",
     "AnnotationQueue",
+    "AnnotationQueueAssignedUser",
+    "AnnotationQueueExampleRecordInput",
+    "AnnotationQueueRecord",
+    "AnnotationQueueRecordInput",
+    "AnnotationQueueRecordsList200Response",
+    "AnnotationQueueSpanRecordInput",
     "AnnotationQueuesList200Response",
+    "AnnotatorUser",
+    "ApiKey",
+    "ApiKeysList200Response",
     "CategoricalAnnotationConfig",
     "CategoricalAnnotationConfigCreate",
     "CategoricalAnnotationValue",
     "ContinuousAnnotationConfig",
     "ContinuousAnnotationConfigCreate",
     "CreateAnnotationConfigRequestBody",
+    "CreateAnnotationQueueRequestBody",
     "Dataset",
     "DatasetExample",
     "DatasetExampleUpdate",
@@ -56,6 +68,7 @@ __all__ = [
     "DatasetsExamplesList200Response",
     "DatasetsExamplesUpdateRequest",
     "DatasetsList200Response",
+    "Evaluation",
     "Experiment",
     "ExperimentRun",
     "ExperimentRunCreate",
@@ -87,7 +100,9 @@ __all__ = [
     "ResponseFormatJsonSchema",
     "ResponseFormatType",
     "Space",
+    "SpacesCreateRequest",
     "SpacesList200Response",
+    "SpacesUpdateRequest",
     "Span",
     "SpanContext",
     "SpanEvent",
@@ -97,9 +112,12 @@ __all__ = [
     "ToolCallFunction",
     "ToolCallType",
     "ToolConfig",
+    "UpdateAnnotationQueueRequestBody",
+    "User",
 ]
 
 # import apis into sdk package
+from arize._generated.api_client.api.api_keys_api import APIKeysApi as APIKeysApi
 from arize._generated.api_client.api.annotation_configs_api import AnnotationConfigsApi as AnnotationConfigsApi
 from arize._generated.api_client.api.annotation_queues_api import AnnotationQueuesApi as AnnotationQueuesApi
 from arize._generated.api_client.api.datasets_api import DatasetsApi as DatasetsApi
@@ -121,18 +139,29 @@ from arize._generated.api_client.exceptions import ApiAttributeError as ApiAttri
 from arize._generated.api_client.exceptions import ApiException as ApiException
 
 # import models into sdk package
+from arize._generated.api_client.models.annotation import Annotation as Annotation
 from arize._generated.api_client.models.annotation_config import AnnotationConfig as AnnotationConfig
 from arize._generated.api_client.models.annotation_config_base import AnnotationConfigBase as AnnotationConfigBase
 from arize._generated.api_client.models.annotation_config_create_base import AnnotationConfigCreateBase as AnnotationConfigCreateBase
 from arize._generated.api_client.models.annotation_configs_list200_response import AnnotationConfigsList200Response as AnnotationConfigsList200Response
 from arize._generated.api_client.models.annotation_queue import AnnotationQueue as AnnotationQueue
+from arize._generated.api_client.models.annotation_queue_assigned_user import AnnotationQueueAssignedUser as AnnotationQueueAssignedUser
+from arize._generated.api_client.models.annotation_queue_example_record_input import AnnotationQueueExampleRecordInput as AnnotationQueueExampleRecordInput
+from arize._generated.api_client.models.annotation_queue_record import AnnotationQueueRecord as AnnotationQueueRecord
+from arize._generated.api_client.models.annotation_queue_record_input import AnnotationQueueRecordInput as AnnotationQueueRecordInput
+from arize._generated.api_client.models.annotation_queue_records_list200_response import AnnotationQueueRecordsList200Response as AnnotationQueueRecordsList200Response
+from arize._generated.api_client.models.annotation_queue_span_record_input import AnnotationQueueSpanRecordInput as AnnotationQueueSpanRecordInput
 from arize._generated.api_client.models.annotation_queues_list200_response import AnnotationQueuesList200Response as AnnotationQueuesList200Response
+from arize._generated.api_client.models.annotator_user import AnnotatorUser as AnnotatorUser
+from arize._generated.api_client.models.api_key import ApiKey as ApiKey
+from arize._generated.api_client.models.api_keys_list200_response import ApiKeysList200Response as ApiKeysList200Response
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig as CategoricalAnnotationConfig
 from arize._generated.api_client.models.categorical_annotation_config_create import CategoricalAnnotationConfigCreate as CategoricalAnnotationConfigCreate
 from arize._generated.api_client.models.categorical_annotation_value import CategoricalAnnotationValue as CategoricalAnnotationValue
 from arize._generated.api_client.models.continuous_annotation_config import ContinuousAnnotationConfig as ContinuousAnnotationConfig
 from arize._generated.api_client.models.continuous_annotation_config_create import ContinuousAnnotationConfigCreate as ContinuousAnnotationConfigCreate
 from arize._generated.api_client.models.create_annotation_config_request_body import CreateAnnotationConfigRequestBody as CreateAnnotationConfigRequestBody
+from arize._generated.api_client.models.create_annotation_queue_request_body import CreateAnnotationQueueRequestBody as CreateAnnotationQueueRequestBody
 from arize._generated.api_client.models.dataset import Dataset as Dataset
 from arize._generated.api_client.models.dataset_example import DatasetExample as DatasetExample
 from arize._generated.api_client.models.dataset_example_update import DatasetExampleUpdate as DatasetExampleUpdate
@@ -142,6 +171,7 @@ from arize._generated.api_client.models.datasets_examples_insert_request import 
 from arize._generated.api_client.models.datasets_examples_list200_response import DatasetsExamplesList200Response as DatasetsExamplesList200Response
 from arize._generated.api_client.models.datasets_examples_update_request import DatasetsExamplesUpdateRequest as DatasetsExamplesUpdateRequest
 from arize._generated.api_client.models.datasets_list200_response import DatasetsList200Response as DatasetsList200Response
+from arize._generated.api_client.models.evaluation import Evaluation as Evaluation
 from arize._generated.api_client.models.experiment import Experiment as Experiment
 from arize._generated.api_client.models.experiment_run import ExperimentRun as ExperimentRun
 from arize._generated.api_client.models.experiment_run_create import ExperimentRunCreate as ExperimentRunCreate
@@ -173,7 +203,9 @@ from arize._generated.api_client.models.response_format import ResponseFormat as
 from arize._generated.api_client.models.response_format_json_schema import ResponseFormatJsonSchema as ResponseFormatJsonSchema
 from arize._generated.api_client.models.response_format_type import ResponseFormatType as ResponseFormatType
 from arize._generated.api_client.models.space import Space as Space
+from arize._generated.api_client.models.spaces_create_request import SpacesCreateRequest as SpacesCreateRequest
 from arize._generated.api_client.models.spaces_list200_response import SpacesList200Response as SpacesList200Response
+from arize._generated.api_client.models.spaces_update_request import SpacesUpdateRequest as SpacesUpdateRequest
 from arize._generated.api_client.models.span import Span as Span
 from arize._generated.api_client.models.span_context import SpanContext as SpanContext
 from arize._generated.api_client.models.span_event import SpanEvent as SpanEvent
@@ -183,4 +215,6 @@ from arize._generated.api_client.models.tool_call import ToolCall as ToolCall
 from arize._generated.api_client.models.tool_call_function import ToolCallFunction as ToolCallFunction
 from arize._generated.api_client.models.tool_call_type import ToolCallType as ToolCallType
 from arize._generated.api_client.models.tool_config import ToolConfig as ToolConfig
+from arize._generated.api_client.models.update_annotation_queue_request_body import UpdateAnnotationQueueRequestBody as UpdateAnnotationQueueRequestBody
+from arize._generated.api_client.models.user import User as User
 

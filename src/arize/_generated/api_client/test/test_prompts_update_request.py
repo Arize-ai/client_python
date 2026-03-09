@@ -35,10 +35,7 @@ class TestPromptsUpdateRequest(unittest.TestCase):
         model = PromptsUpdateRequest()
         if include_optional:
             return PromptsUpdateRequest(
-                description = '',
-                tags = [
-                    ''
-                    ]
+                description = ''
             )
         else:
             return PromptsUpdateRequest(

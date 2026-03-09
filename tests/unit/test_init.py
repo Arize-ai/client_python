@@ -385,6 +385,7 @@ class TestMonkeyPatching:
         assert hasattr(models.ExperimentsRunsList200Response, "to_df")
         assert hasattr(models.ProjectsList200Response, "to_df")
         assert hasattr(models.AnnotationConfigsList200Response, "to_df")
+        assert hasattr(models.SpacesList200Response, "to_df")
 
     def test_factory_receives_correct_field_names(self) -> None:
         """Monkey-patched methods should reference correct field names."""
@@ -411,6 +412,9 @@ class TestMonkeyPatching:
         )
         annotation_configs_resp.annotation_configs = []
 
+        spaces_resp = Mock(spec=models.SpacesList200Response)
+        spaces_resp.spaces = []
+
         # Call to_df on each and verify they work
         df1 = models.DatasetsList200Response.to_df(datasets_resp)
         df2 = models.DatasetsExamplesList200Response.to_df(examples_resp)
@@ -420,6 +424,7 @@ class TestMonkeyPatching:
         df6 = models.AnnotationConfigsList200Response.to_df(
             annotation_configs_resp
         )
+        df7 = models.SpacesList200Response.to_df(spaces_resp)
 
         # All should return DataFrames
         assert isinstance(df1, pd.DataFrame)
@@ -428,6 +433,7 @@ class TestMonkeyPatching:
         assert isinstance(df4, pd.DataFrame)
         assert isinstance(df5, pd.DataFrame)
         assert isinstance(df6, pd.DataFrame)
+        assert isinstance(df7, pd.DataFrame)
 
     def test_annotation_configs_to_df_expands_actual_instance(self) -> None:
         """Annotation config to_df should flatten oneOf wrapper internals."""

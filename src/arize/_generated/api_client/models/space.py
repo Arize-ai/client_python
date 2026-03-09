@@ -31,8 +31,7 @@ class Space(BaseModel):
     name: StrictStr = Field(description="Name of the space")
     description: StrictStr = Field(description="A brief description of the space's purpose")
     created_at: datetime = Field(description="Timestamp for when the space was created")
-    updated_at: datetime = Field(description="Timestamp for the last update of the space")
-    __properties: ClassVar[List[str]] = ["id", "name", "description", "created_at", "updated_at"]
+    __properties: ClassVar[List[str]] = ["id", "name", "description", "created_at"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -93,8 +92,7 @@ class Space(BaseModel):
             "id": obj.get("id"),
             "name": obj.get("name"),
             "description": obj.get("description"),
-            "created_at": obj.get("created_at"),
-            "updated_at": obj.get("updated_at")
+            "created_at": obj.get("created_at")
         })
         return _obj
 

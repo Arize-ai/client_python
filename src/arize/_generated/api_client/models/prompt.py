@@ -34,8 +34,7 @@ class Prompt(BaseModel):
     created_at: datetime = Field(description="When the prompt was created")
     updated_at: datetime = Field(description="When the prompt was last updated")
     created_by_user_id: StrictStr = Field(description="The user ID of the user who created the prompt")
-    tags: Optional[List[StrictStr]] = Field(default=None, description="The tags associated with the prompt")
-    __properties: ClassVar[List[str]] = ["id", "name", "description", "space_id", "created_at", "updated_at", "created_by_user_id", "tags"]
+    __properties: ClassVar[List[str]] = ["id", "name", "description", "space_id", "created_at", "updated_at", "created_by_user_id"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -104,8 +103,7 @@ class Prompt(BaseModel):
             "space_id": obj.get("space_id"),
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at"),
-            "created_by_user_id": obj.get("created_by_user_id"),
-            "tags": obj.get("tags")
+            "created_by_user_id": obj.get("created_by_user_id")
         })
         return _obj
 

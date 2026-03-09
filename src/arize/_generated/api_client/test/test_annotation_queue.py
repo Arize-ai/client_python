@@ -42,6 +42,11 @@ class TestAnnotationQueue(unittest.TestCase):
                 annotation_configs = [
                     arize._generated.api_client.models.annotation_config.AnnotationConfig()
                     ],
+                annotators = [
+                    arize._generated.api_client.models.annotator_user.AnnotatorUser(
+                        id = '', 
+                        email = '', )
+                    ],
                 created_at = '2024-01-15T10:30Z',
                 updated_at = '2024-01-20T14:45Z'
             )
@@ -50,6 +55,11 @@ class TestAnnotationQueue(unittest.TestCase):
                 id = 'aq_abc123',
                 name = 'Quality Review Queue',
                 space_id = 'spc_xyz789',
+                annotators = [
+                    arize._generated.api_client.models.annotator_user.AnnotatorUser(
+                        id = '', 
+                        email = '', )
+                    ],
                 created_at = '2024-01-15T10:30Z',
                 updated_at = '2024-01-20T14:45Z',
         )

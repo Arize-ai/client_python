@@ -26,10 +26,45 @@ class TestAnnotationQueuesApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
+    def test_annotation_queue_records_list(self) -> None:
+        """Test case for annotation_queue_records_list
+
+        List annotation queue records
+        """
+        pass
+
+    def test_annotation_queues_create(self) -> None:
+        """Test case for annotation_queues_create
+
+        Create an annotation queue
+        """
+        pass
+
+    def test_annotation_queues_delete(self) -> None:
+        """Test case for annotation_queues_delete
+
+        Delete an annotation queue
+        """
+        pass
+
+    def test_annotation_queues_get(self) -> None:
+        """Test case for annotation_queues_get
+
+        Get an annotation queue
+        """
+        pass
+
     def test_annotation_queues_list(self) -> None:
         """Test case for annotation_queues_list
 
         List annotation queues
+        """
+        pass
+
+    def test_annotation_queues_update(self) -> None:
+        """Test case for annotation_queues_update
+
+        Update an annotation queue
         """
         pass
 

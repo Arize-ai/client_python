@@ -1215,7 +1215,7 @@ class PromptsApi:
     ) -> Prompt:
         """Update a prompt
 
-        Update a prompt's metadata by its ID. Currently supports updating the description and tags. At least one field must be provided.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a prompt's metadata by its ID. Currently supports updating the description.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param prompt_id: The unique identifier of the prompt (required)
         :type prompt_id: str
@@ -1291,7 +1291,7 @@ class PromptsApi:
     ) -> ApiResponse[Prompt]:
         """Update a prompt
 
-        Update a prompt's metadata by its ID. Currently supports updating the description and tags. At least one field must be provided.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a prompt's metadata by its ID. Currently supports updating the description.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param prompt_id: The unique identifier of the prompt (required)
         :type prompt_id: str
@@ -1367,7 +1367,7 @@ class PromptsApi:
     ) -> RESTResponseType:
         """Update a prompt
 
-        Update a prompt's metadata by its ID. Currently supports updating the description and tags. At least one field must be provided.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a prompt's metadata by its ID. Currently supports updating the description.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param prompt_id: The unique identifier of the prompt (required)
         :type prompt_id: str

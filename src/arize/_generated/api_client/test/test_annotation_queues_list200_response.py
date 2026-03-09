@@ -44,6 +44,11 @@ class TestAnnotationQueuesList200Response(unittest.TestCase):
                         annotation_configs = [
                             arize._generated.api_client.models.annotation_config.AnnotationConfig()
                             ], 
+                        annotators = [
+                            arize._generated.api_client.models.annotator_user.AnnotatorUser(
+                                id = '', 
+                                email = '', )
+                            ], 
                         created_at = '2024-01-15T10:30Z', 
                         updated_at = '2024-01-20T14:45Z', )
                     ],
@@ -61,6 +66,11 @@ class TestAnnotationQueuesList200Response(unittest.TestCase):
                         instructions = 'Review each response for accuracy and helpfulness', 
                         annotation_configs = [
                             arize._generated.api_client.models.annotation_config.AnnotationConfig()
+                            ], 
+                        annotators = [
+                            arize._generated.api_client.models.annotator_user.AnnotatorUser(
+                                id = '', 
+                                email = '', )
                             ], 
                         created_at = '2024-01-15T10:30Z', 
                         updated_at = '2024-01-20T14:45Z', )

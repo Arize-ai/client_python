@@ -27,8 +27,7 @@ class PromptsUpdateRequest(BaseModel):
     PromptsUpdateRequest
     """ # noqa: E501
     description: Optional[StrictStr] = Field(default=None, description="Updated description for the prompt")
-    tags: Optional[List[StrictStr]] = Field(default=None, description="Updated tags for the prompt")
-    __properties: ClassVar[List[str]] = ["description", "tags"]
+    __properties: ClassVar[List[str]] = ["description"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -91,8 +90,7 @@ class PromptsUpdateRequest(BaseModel):
                 raise ValueError("Error due to additional fields (not defined in PromptsUpdateRequest) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "description": obj.get("description"),
-            "tags": obj.get("tags")
+            "description": obj.get("description")
         })
         return _obj
 

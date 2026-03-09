@@ -35,7 +35,6 @@ class PromptsCreateRequest(BaseModel):
     space_id: StrictStr = Field(description="ID of the space to create the prompt in")
     name: StrictStr = Field(description="Name of the prompt (must be unique within the space)")
     description: Optional[StrictStr] = Field(default=None, description="Description of the prompt")
-    tags: Optional[List[StrictStr]] = Field(default=None, description="Tags to associate with the prompt")
     commit_message: StrictStr = Field(description="Commit message describing this version")
     input_variable_format: InputVariableFormat
     provider: LlmProvider
@@ -43,7 +42,7 @@ class PromptsCreateRequest(BaseModel):
     messages: Annotated[List[LLMMessage], Field(min_length=1)] = Field(description="The messages that make up the prompt template")
     invocation_params: Optional[InvocationParams] = None
     provider_params: Optional[ProviderParams] = None
-    __properties: ClassVar[List[str]] = ["space_id", "name", "description", "tags", "commit_message", "input_variable_format", "provider", "model", "messages", "invocation_params", "provider_params"]
+    __properties: ClassVar[List[str]] = ["space_id", "name", "description", "commit_message", "input_variable_format", "provider", "model", "messages", "invocation_params", "provider_params"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -117,7 +116,6 @@ class PromptsCreateRequest(BaseModel):
             "space_id": obj.get("space_id"),
             "name": obj.get("name"),
             "description": obj.get("description"),
-            "tags": obj.get("tags"),
             "commit_message": obj.get("commit_message"),
             "input_variable_format": obj.get("input_variable_format"),
             "provider": obj.get("provider"),

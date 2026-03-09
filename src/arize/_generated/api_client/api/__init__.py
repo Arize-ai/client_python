@@ -1,6 +1,7 @@
 # flake8: noqa
 
 # import apis into api package
+from arize._generated.api_client.api.api_keys_api import APIKeysApi
 from arize._generated.api_client.api.annotation_configs_api import AnnotationConfigsApi
 from arize._generated.api_client.api.annotation_queues_api import AnnotationQueuesApi
 from arize._generated.api_client.api.datasets_api import DatasetsApi

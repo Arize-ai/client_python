@@ -38,9 +38,6 @@ class TestPromptsCreateRequest(unittest.TestCase):
                 space_id = '',
                 name = '',
                 description = '',
-                tags = [
-                    ''
-                    ],
                 commit_message = '',
                 input_variable_format = 'f_string',
                 provider = 'openAI',

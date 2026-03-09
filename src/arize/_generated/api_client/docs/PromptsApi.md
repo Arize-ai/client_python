@@ -56,7 +56,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.PromptsApi(api_client)
-    prompts_create_request = {"space_id":"U3BhY2U6MTIzOmFiY2Q=","name":"My Prompt","description":"A helpful assistant prompt","tags":["customer-support"],"commit_message":"Initial version","input_variable_format":"f_string","provider":"openAI","model":"gpt-4","messages":[{"role":"system","content":"You are a helpful assistant."},{"role":"user","content":"Hello, {name}!"}]} # PromptsCreateRequest | Body containing prompt creation parameters
+    prompts_create_request = {"space_id":"U3BhY2U6MTIzOmFiY2Q=","name":"My Prompt","description":"A helpful assistant prompt","commit_message":"Initial version","input_variable_format":"f_string","provider":"openAI","model":"gpt-4","messages":[{"role":"system","content":"You are a helpful assistant."},{"role":"user","content":"Hello, {name}!"}]} # PromptsCreateRequest | Body containing prompt creation parameters
 
     try:
         # Create a prompt
@@ -369,7 +369,7 @@ Name | Type | Description  | Notes
 Update a prompt
 
 Update a prompt's metadata by its ID. Currently supports updating the
-description and tags. At least one field must be provided.
+description.
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -406,7 +406,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.PromptsApi(api_client)
     prompt_id = 'prompt_12345' # str | The unique identifier of the prompt
-    prompts_update_request = {"description":"Updated prompt description","tags":["new-tag"]} # PromptsUpdateRequest | Body containing prompt update parameters. At least one field must be provided.
+    prompts_update_request = {"description":"Updated prompt description"} # PromptsUpdateRequest | Body containing prompt update parameters. At least one field must be provided.
 
     try:
         # Update a prompt

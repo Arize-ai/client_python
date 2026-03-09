@@ -13,7 +13,6 @@ Name | Type | Description | Notes
 **created_at** | **datetime** | When the prompt was created | 
 **updated_at** | **datetime** | When the prompt was last updated | 
 **created_by_user_id** | **str** | The user ID of the user who created the prompt | 
-**tags** | **List[str]** | The tags associated with the prompt | [optional] 
 
 ## Example
 
