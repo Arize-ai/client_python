@@ -28,7 +28,7 @@ CV_PRETRAINED_MODELS = [
 ]
 IMPORT_ERROR_MESSAGE = (
     "To enable embedding generation, the arize module must be installed with "
-    "extra dependencies. Run: pip install 'arize[auto-embeddings]'."
+    "extra dependencies. Run: pip install 'arize[embeddings]'."
 )
 
 GPT = "GPT"

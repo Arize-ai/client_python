@@ -41,7 +41,7 @@ class TestCreateAnnotationQueueRequestBody(unittest.TestCase):
                 annotation_config_ids = ["ac_abc123","ac_def456"],
                 annotator_emails = ["annotator1@example.com","annotator2@example.com"],
                 assignment_method = 'all',
-                records = [
+                record_sources = [
                     null
                     ]
             )

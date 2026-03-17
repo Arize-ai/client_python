@@ -66,7 +66,7 @@ class ProjectsClient:
             A paginated project list response from the Arize REST API.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the API request fails.
+            ApiException: If the API request fails.
         """
         return self._api.projects_list(
             space_id=space_id,
@@ -93,7 +93,7 @@ class ProjectsClient:
             The created project object.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the API request fails
+            ApiException: If the API request fails
                 (for example, due to invalid input or a uniqueness conflict).
         """
         from arize._generated import api_client as gen
@@ -115,7 +115,7 @@ class ProjectsClient:
             The project object.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the API request fails
+            ApiException: If the API request fails
                 (for example, project not found).
         """
         return self._api.projects_get(project_id=project_id)
@@ -133,7 +133,7 @@ class ProjectsClient:
             This method returns None on success (common empty 204 response).
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the API request fails
+            ApiException: If the API request fails
                 (for example, project not found or insufficient permissions).
         """
         return self._api.projects_delete(project_id=project_id)

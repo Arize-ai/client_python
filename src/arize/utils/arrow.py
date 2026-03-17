@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING, Any
 
 import pyarrow as pa
 
+from arize.exceptions.auth import AuthenticationError
+from arize.exceptions.http import APIError
 from arize.logging import get_arize_project_url, log_a_list
 
 if TYPE_CHECKING:
@@ -100,6 +102,16 @@ def post_arrow_table(
                 headers=headers,
                 verify=verify,
             )
+            if resp.status_code in (401, 403):
+                raise AuthenticationError(
+                    status_code=resp.status_code,
+                    message=resp.text,
+                )
+            if not (200 <= resp.status_code < 300):
+                raise APIError(
+                    status_code=resp.status_code,
+                    message=resp.text,
+                )
             _maybe_log_project_url(resp)
             return resp
     finally:

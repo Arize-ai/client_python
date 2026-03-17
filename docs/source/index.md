@@ -14,10 +14,14 @@ config
 :maxdepth: 1
 :caption: Resource Operations
 
+ai_integrations
+api_keys
 datasets
 experiments
 ml
 projects
+prompts
+spaces
 spans
 ```
 

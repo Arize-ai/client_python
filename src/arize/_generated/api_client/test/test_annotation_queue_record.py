@@ -56,9 +56,11 @@ class TestAnnotationQueueRecord(unittest.TestCase):
                         explanation = '', )
                     ],
                 assigned_users = [
-                    arize._generated.api_client.models.assigned_user.AssignedUser(
-                        user_id = '', 
-                        status = 'pending', )
+                    arize._generated.api_client.models.annotation_queue_assigned_user.AnnotationQueueAssignedUser(
+                        user = arize._generated.api_client.models.annotator_user.AnnotatorUser(
+                            id = '', 
+                            email = '', ), 
+                        completion_status = 'pending', )
                     ]
             )
         else:
@@ -84,9 +86,11 @@ class TestAnnotationQueueRecord(unittest.TestCase):
                         explanation = '', )
                     ],
                 assigned_users = [
-                    arize._generated.api_client.models.assigned_user.AssignedUser(
-                        user_id = '', 
-                        status = 'pending', )
+                    arize._generated.api_client.models.annotation_queue_assigned_user.AnnotationQueueAssignedUser(
+                        user = arize._generated.api_client.models.annotator_user.AnnotatorUser(
+                            id = '', 
+                            email = '', ), 
+                        completion_status = 'pending', )
                     ],
         )
         """

@@ -18,7 +18,6 @@ from arize._exporter.client import ArizeExportClient
 from arize._flight.client import ArizeFlightClient, FlightPostArrowFileResponse
 from arize._flight.types import FlightRequestType
 from arize.constants.spans import DEFAULT_DATETIME_FMT
-from arize.deprecated import deprecated
 from arize.exceptions.base import (
     INVALID_ARROW_CONVERSION_MSG,
     ValidationError,
@@ -119,7 +118,7 @@ class SpansClient:
             A response object with the spans and pagination information.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the REST API
+            ApiException: If the REST API
                 returns an error response (e.g. 401/403/429).
         """
         logger.warning(
@@ -175,7 +174,18 @@ class SpansClient:
                 before sending to Arize.
 
         Returns:
-            Response object from the HTTP request.
+            Response object from the HTTP request (only returned on HTTP 2xx).
+
+        Raises:
+            MissingSpaceIDError: If space_id is not provided or empty.
+            MissingProjectNameError: If project_name is not provided or empty.
+            ValidationFailure: If validate=True and validation checks fail.
+            pa.ArrowInvalid: If the dataframe cannot be converted to Arrow format.
+            AuthenticationError: If the server returns HTTP 401 or 403 (invalid API key or
+                space ID). Raised immediately to prevent further uploads with bad credentials.
+            APIError: If the server returns any other non-2xx response (e.g. 400, 422, 429,
+                5xx). Raised immediately to prevent further uploads when the server signals
+                an error.
 
         """
         from arize.spans.columns import (
@@ -371,6 +381,16 @@ class SpansClient:
                 of seconds with the timeout parameter. Defaults to None.
             tmp_dir: Temporary directory/file to store the serialized data in binary
                 before sending to Arize.
+
+        Raises:
+            MissingSpaceIDError: If space_id is not provided or empty.
+            MissingProjectNameError: If project_name is not provided or empty.
+            ValidationFailure: If validate=True and validation checks fail.
+            pa.ArrowInvalid: If the dataframe cannot be converted to Arrow format.
+            AuthenticationError: If the server returns HTTP 401 or 403.
+                Raised immediately to prevent further uploads with bad credentials.
+            APIError: If the server returns any other non-2xx response.
+                Raised immediately to prevent further uploads when the server signals an error.
         """
         from arize.spans.columns import EVAL_COLUMN_PATTERN, SPAN_SPAN_ID_COL
         from arize.spans.validation.evals import evals_validation
@@ -1085,10 +1105,6 @@ class SpansClient:
         # Convert Protocol Buffer SpanError objects to dictionaries for easier access
         return _message_to_dict(response)
 
-    @deprecated(
-        key="client.spans.export_to_df",
-        alternative="client.spans.list",
-    )
     def export_to_df(
         self,
         *,

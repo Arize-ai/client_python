@@ -61,6 +61,13 @@ class TestAnnotationQueuesApi(unittest.TestCase):
         """
         pass
 
+    def test_annotation_queues_records_create(self) -> None:
+        """Test case for annotation_queues_records_create
+
+        Create annotation queue records
+        """
+        pass
+
     def test_annotation_queues_update(self) -> None:
         """Test case for annotation_queues_update
 

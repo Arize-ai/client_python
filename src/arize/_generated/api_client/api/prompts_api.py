@@ -20,6 +20,12 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.prompt import Prompt
+from arize._generated.api_client.models.prompt_version import PromptVersion
+from arize._generated.api_client.models.prompt_version_labels_set200_response import PromptVersionLabelsSet200Response
+from arize._generated.api_client.models.prompt_version_labels_set_request import PromptVersionLabelsSetRequest
+from arize._generated.api_client.models.prompt_versions_create_request import PromptVersionsCreateRequest
+from arize._generated.api_client.models.prompt_versions_list200_response import PromptVersionsList200Response
+from arize._generated.api_client.models.prompt_with_version import PromptWithVersion
 from arize._generated.api_client.models.prompts_create_request import PromptsCreateRequest
 from arize._generated.api_client.models.prompts_list200_response import PromptsList200Response
 from arize._generated.api_client.models.prompts_update_request import PromptsUpdateRequest
@@ -43,9 +49,10 @@ class PromptsApi:
 
 
     @validate_call
-    def prompts_create(
+    def prompt_labels_get(
         self,
-        prompts_create_request: Annotated[PromptsCreateRequest, Field(description="Body containing prompt creation parameters")],
+        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        label_name: Annotated[StrictStr, Field(description="The name of the label (e.g., \"production\", \"staging\")")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -58,12 +65,1792 @@ class PromptsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Prompt:
+    ) -> PromptVersion:
+        """Resolve a label to a prompt version
+
+        Resolve a label on a prompt to the version it points to. Returns the full `PromptVersion` object that this label currently references.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param prompt_id: The unique identifier of the prompt (required)
+        :type prompt_id: str
+        :param label_name: The name of the label (e.g., \"production\", \"staging\") (required)
+        :type label_name: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_labels_get_serialize(
+            prompt_id=prompt_id,
+            label_name=label_name,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PromptVersion",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def prompt_labels_get_with_http_info(
+        self,
+        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        label_name: Annotated[StrictStr, Field(description="The name of the label (e.g., \"production\", \"staging\")")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[PromptVersion]:
+        """Resolve a label to a prompt version
+
+        Resolve a label on a prompt to the version it points to. Returns the full `PromptVersion` object that this label currently references.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param prompt_id: The unique identifier of the prompt (required)
+        :type prompt_id: str
+        :param label_name: The name of the label (e.g., \"production\", \"staging\") (required)
+        :type label_name: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_labels_get_serialize(
+            prompt_id=prompt_id,
+            label_name=label_name,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PromptVersion",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def prompt_labels_get_without_preload_content(
+        self,
+        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        label_name: Annotated[StrictStr, Field(description="The name of the label (e.g., \"production\", \"staging\")")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Resolve a label to a prompt version
+
+        Resolve a label on a prompt to the version it points to. Returns the full `PromptVersion` object that this label currently references.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param prompt_id: The unique identifier of the prompt (required)
+        :type prompt_id: str
+        :param label_name: The name of the label (e.g., \"production\", \"staging\") (required)
+        :type label_name: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_labels_get_serialize(
+            prompt_id=prompt_id,
+            label_name=label_name,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PromptVersion",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _prompt_labels_get_serialize(
+        self,
+        prompt_id,
+        label_name,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if prompt_id is not None:
+            _path_params['prompt_id'] = prompt_id
+        if label_name is not None:
+            _path_params['label_name'] = label_name
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/prompts/{prompt_id}/labels/{label_name}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def prompt_version_labels_delete(
+        self,
+        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        label_name: Annotated[StrictStr, Field(description="The name of the label (e.g., \"production\", \"staging\")")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> None:
+        """Remove a label from a prompt version
+
+        Remove a specific label from a prompt version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param version_id: The unique identifier of the prompt version (required)
+        :type version_id: str
+        :param label_name: The name of the label (e.g., \"production\", \"staging\") (required)
+        :type label_name: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_version_labels_delete_serialize(
+            version_id=version_id,
+            label_name=label_name,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def prompt_version_labels_delete_with_http_info(
+        self,
+        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        label_name: Annotated[StrictStr, Field(description="The name of the label (e.g., \"production\", \"staging\")")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[None]:
+        """Remove a label from a prompt version
+
+        Remove a specific label from a prompt version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param version_id: The unique identifier of the prompt version (required)
+        :type version_id: str
+        :param label_name: The name of the label (e.g., \"production\", \"staging\") (required)
+        :type label_name: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_version_labels_delete_serialize(
+            version_id=version_id,
+            label_name=label_name,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def prompt_version_labels_delete_without_preload_content(
+        self,
+        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        label_name: Annotated[StrictStr, Field(description="The name of the label (e.g., \"production\", \"staging\")")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Remove a label from a prompt version
+
+        Remove a specific label from a prompt version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param version_id: The unique identifier of the prompt version (required)
+        :type version_id: str
+        :param label_name: The name of the label (e.g., \"production\", \"staging\") (required)
+        :type label_name: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_version_labels_delete_serialize(
+            version_id=version_id,
+            label_name=label_name,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _prompt_version_labels_delete_serialize(
+        self,
+        version_id,
+        label_name,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if version_id is not None:
+            _path_params['version_id'] = version_id
+        if label_name is not None:
+            _path_params['label_name'] = label_name
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/v2/prompt-versions/{version_id}/labels/{label_name}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def prompt_version_labels_set(
+        self,
+        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        prompt_version_labels_set_request: Annotated[PromptVersionLabelsSetRequest, Field(description="Body containing the labels to set on a prompt version")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> PromptVersionLabelsSet200Response:
+        """Set labels on a prompt version
+
+        Set (replace) all labels on a prompt version. This is an idempotent operation. If a label already exists on another version of the same prompt, it will be moved to this version.  Labels not included in the request will be removed from this version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param version_id: The unique identifier of the prompt version (required)
+        :type version_id: str
+        :param prompt_version_labels_set_request: Body containing the labels to set on a prompt version (required)
+        :type prompt_version_labels_set_request: PromptVersionLabelsSetRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_version_labels_set_serialize(
+            version_id=version_id,
+            prompt_version_labels_set_request=prompt_version_labels_set_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PromptVersionLabelsSet200Response",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def prompt_version_labels_set_with_http_info(
+        self,
+        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        prompt_version_labels_set_request: Annotated[PromptVersionLabelsSetRequest, Field(description="Body containing the labels to set on a prompt version")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[PromptVersionLabelsSet200Response]:
+        """Set labels on a prompt version
+
+        Set (replace) all labels on a prompt version. This is an idempotent operation. If a label already exists on another version of the same prompt, it will be moved to this version.  Labels not included in the request will be removed from this version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param version_id: The unique identifier of the prompt version (required)
+        :type version_id: str
+        :param prompt_version_labels_set_request: Body containing the labels to set on a prompt version (required)
+        :type prompt_version_labels_set_request: PromptVersionLabelsSetRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_version_labels_set_serialize(
+            version_id=version_id,
+            prompt_version_labels_set_request=prompt_version_labels_set_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PromptVersionLabelsSet200Response",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def prompt_version_labels_set_without_preload_content(
+        self,
+        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        prompt_version_labels_set_request: Annotated[PromptVersionLabelsSetRequest, Field(description="Body containing the labels to set on a prompt version")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Set labels on a prompt version
+
+        Set (replace) all labels on a prompt version. This is an idempotent operation. If a label already exists on another version of the same prompt, it will be moved to this version.  Labels not included in the request will be removed from this version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param version_id: The unique identifier of the prompt version (required)
+        :type version_id: str
+        :param prompt_version_labels_set_request: Body containing the labels to set on a prompt version (required)
+        :type prompt_version_labels_set_request: PromptVersionLabelsSetRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_version_labels_set_serialize(
+            version_id=version_id,
+            prompt_version_labels_set_request=prompt_version_labels_set_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PromptVersionLabelsSet200Response",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _prompt_version_labels_set_serialize(
+        self,
+        version_id,
+        prompt_version_labels_set_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if version_id is not None:
+            _path_params['version_id'] = version_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if prompt_version_labels_set_request is not None:
+            _body_params = prompt_version_labels_set_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='PUT',
+            resource_path='/v2/prompt-versions/{version_id}/labels',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def prompt_versions_create(
+        self,
+        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_versions_create_request: Annotated[PromptVersionsCreateRequest, Field(description="Body containing prompt version creation parameters")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> PromptVersion:
+        """Create a prompt version
+
+        Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `input_variable_format` and `provider` are required.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"openAI\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"openAI\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param prompt_id: The unique identifier of the prompt (required)
+        :type prompt_id: str
+        :param prompt_versions_create_request: Body containing prompt version creation parameters (required)
+        :type prompt_versions_create_request: PromptVersionsCreateRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_versions_create_serialize(
+            prompt_id=prompt_id,
+            prompt_versions_create_request=prompt_versions_create_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "PromptVersion",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def prompt_versions_create_with_http_info(
+        self,
+        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_versions_create_request: Annotated[PromptVersionsCreateRequest, Field(description="Body containing prompt version creation parameters")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[PromptVersion]:
+        """Create a prompt version
+
+        Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `input_variable_format` and `provider` are required.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"openAI\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"openAI\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param prompt_id: The unique identifier of the prompt (required)
+        :type prompt_id: str
+        :param prompt_versions_create_request: Body containing prompt version creation parameters (required)
+        :type prompt_versions_create_request: PromptVersionsCreateRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_versions_create_serialize(
+            prompt_id=prompt_id,
+            prompt_versions_create_request=prompt_versions_create_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "PromptVersion",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def prompt_versions_create_without_preload_content(
+        self,
+        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_versions_create_request: Annotated[PromptVersionsCreateRequest, Field(description="Body containing prompt version creation parameters")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Create a prompt version
+
+        Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `input_variable_format` and `provider` are required.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"openAI\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"openAI\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param prompt_id: The unique identifier of the prompt (required)
+        :type prompt_id: str
+        :param prompt_versions_create_request: Body containing prompt version creation parameters (required)
+        :type prompt_versions_create_request: PromptVersionsCreateRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_versions_create_serialize(
+            prompt_id=prompt_id,
+            prompt_versions_create_request=prompt_versions_create_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "PromptVersion",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _prompt_versions_create_serialize(
+        self,
+        prompt_id,
+        prompt_versions_create_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if prompt_id is not None:
+            _path_params['prompt_id'] = prompt_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if prompt_versions_create_request is not None:
+            _body_params = prompt_versions_create_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/prompts/{prompt_id}/versions',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def prompt_versions_get(
+        self,
+        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> PromptVersion:
+        """Get a prompt version
+
+        Get a specific prompt version by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param version_id: The unique identifier of the prompt version (required)
+        :type version_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_versions_get_serialize(
+            version_id=version_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PromptVersion",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def prompt_versions_get_with_http_info(
+        self,
+        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[PromptVersion]:
+        """Get a prompt version
+
+        Get a specific prompt version by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param version_id: The unique identifier of the prompt version (required)
+        :type version_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_versions_get_serialize(
+            version_id=version_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PromptVersion",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def prompt_versions_get_without_preload_content(
+        self,
+        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get a prompt version
+
+        Get a specific prompt version by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param version_id: The unique identifier of the prompt version (required)
+        :type version_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_versions_get_serialize(
+            version_id=version_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PromptVersion",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _prompt_versions_get_serialize(
+        self,
+        version_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if version_id is not None:
+            _path_params['version_id'] = version_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/prompt-versions/{version_id}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def prompt_versions_list(
+        self,
+        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> PromptVersionsList200Response:
+        """List prompt versions
+
+        List all versions of a prompt, sorted by creation date with the most recently created versions first.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param prompt_id: The unique identifier of the prompt (required)
+        :type prompt_id: str
+        :param limit: Maximum items to return
+        :type limit: int
+        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
+        :type cursor: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_versions_list_serialize(
+            prompt_id=prompt_id,
+            limit=limit,
+            cursor=cursor,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PromptVersionsList200Response",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def prompt_versions_list_with_http_info(
+        self,
+        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[PromptVersionsList200Response]:
+        """List prompt versions
+
+        List all versions of a prompt, sorted by creation date with the most recently created versions first.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param prompt_id: The unique identifier of the prompt (required)
+        :type prompt_id: str
+        :param limit: Maximum items to return
+        :type limit: int
+        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
+        :type cursor: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_versions_list_serialize(
+            prompt_id=prompt_id,
+            limit=limit,
+            cursor=cursor,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PromptVersionsList200Response",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def prompt_versions_list_without_preload_content(
+        self,
+        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List prompt versions
+
+        List all versions of a prompt, sorted by creation date with the most recently created versions first.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param prompt_id: The unique identifier of the prompt (required)
+        :type prompt_id: str
+        :param limit: Maximum items to return
+        :type limit: int
+        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
+        :type cursor: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._prompt_versions_list_serialize(
+            prompt_id=prompt_id,
+            limit=limit,
+            cursor=cursor,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PromptVersionsList200Response",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _prompt_versions_list_serialize(
+        self,
+        prompt_id,
+        limit,
+        cursor,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if prompt_id is not None:
+            _path_params['prompt_id'] = prompt_id
+        # process the query parameters
+        if limit is not None:
+            
+            _query_params.append(('limit', limit))
+            
+        if cursor is not None:
+            
+            _query_params.append(('cursor', cursor))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/prompts/{prompt_id}/versions',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def prompts_create(
+        self,
+        prompts_create_request: Annotated[PromptsCreateRequest, Field(description="Body containing prompt creation parameters with an initial version")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> PromptWithVersion:
         """Create a prompt
 
         Create a new prompt with an initial version.  **Payload Requirements** - The prompt name must be unique within the given space. - At least one message is required.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompts_create_request: Body containing prompt creation parameters (required)
+        :param prompts_create_request: Body containing prompt creation parameters with an initial version (required)
         :type prompts_create_request: PromptsCreateRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -96,7 +1883,7 @@ class PromptsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Prompt",
+            '201': "PromptWithVersion",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -117,7 +1904,7 @@ class PromptsApi:
     @validate_call
     def prompts_create_with_http_info(
         self,
-        prompts_create_request: Annotated[PromptsCreateRequest, Field(description="Body containing prompt creation parameters")],
+        prompts_create_request: Annotated[PromptsCreateRequest, Field(description="Body containing prompt creation parameters with an initial version")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -130,12 +1917,12 @@ class PromptsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Prompt]:
+    ) -> ApiResponse[PromptWithVersion]:
         """Create a prompt
 
         Create a new prompt with an initial version.  **Payload Requirements** - The prompt name must be unique within the given space. - At least one message is required.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompts_create_request: Body containing prompt creation parameters (required)
+        :param prompts_create_request: Body containing prompt creation parameters with an initial version (required)
         :type prompts_create_request: PromptsCreateRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -168,7 +1955,7 @@ class PromptsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Prompt",
+            '201': "PromptWithVersion",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -189,7 +1976,7 @@ class PromptsApi:
     @validate_call
     def prompts_create_without_preload_content(
         self,
-        prompts_create_request: Annotated[PromptsCreateRequest, Field(description="Body containing prompt creation parameters")],
+        prompts_create_request: Annotated[PromptsCreateRequest, Field(description="Body containing prompt creation parameters with an initial version")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -207,7 +1994,7 @@ class PromptsApi:
 
         Create a new prompt with an initial version.  **Payload Requirements** - The prompt name must be unique within the given space. - At least one message is required.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompts_create_request: Body containing prompt creation parameters (required)
+        :param prompts_create_request: Body containing prompt creation parameters with an initial version (required)
         :type prompts_create_request: PromptsCreateRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -240,7 +2027,7 @@ class PromptsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Prompt",
+            '201': "PromptWithVersion",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -351,7 +2138,7 @@ class PromptsApi:
     ) -> None:
         """Delete a prompt
 
-        Delete a prompt by its ID. This operation is irreversible.  <Warning>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete a prompt by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param prompt_id: The unique identifier of the prompt (required)
         :type prompt_id: str
@@ -423,7 +2210,7 @@ class PromptsApi:
     ) -> ApiResponse[None]:
         """Delete a prompt
 
-        Delete a prompt by its ID. This operation is irreversible.  <Warning>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete a prompt by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param prompt_id: The unique identifier of the prompt (required)
         :type prompt_id: str
@@ -495,7 +2282,7 @@ class PromptsApi:
     ) -> RESTResponseType:
         """Delete a prompt
 
-        Delete a prompt by its ID. This operation is irreversible.  <Warning>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete a prompt by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param prompt_id: The unique identifier of the prompt (required)
         :type prompt_id: str
@@ -612,6 +2399,8 @@ class PromptsApi:
     def prompts_get(
         self,
         prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        version_id: Annotated[Optional[StrictStr], Field(description="Return the prompt with this specific version. Mutually exclusive with `label`.")] = None,
+        label: Annotated[Optional[StrictStr], Field(description="Return the prompt with the version pointed to by this label (e.g., \"production\"). Mutually exclusive with `version_id`.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -624,13 +2413,17 @@ class PromptsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Prompt:
+    ) -> PromptWithVersion:
         """Get a prompt
 
-        Get a specific prompt by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific prompt by its ID. The response always includes a resolved version. By default, the latest version is returned. Use the `version_id` or `label` query parameter to resolve a specific version instead. You cannot supply both `version_id` and `label`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param prompt_id: The unique identifier of the prompt (required)
         :type prompt_id: str
+        :param version_id: Return the prompt with this specific version. Mutually exclusive with `label`.
+        :type version_id: str
+        :param label: Return the prompt with the version pointed to by this label (e.g., \"production\"). Mutually exclusive with `version_id`.
+        :type label: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -655,6 +2448,8 @@ class PromptsApi:
 
         _param = self._prompts_get_serialize(
             prompt_id=prompt_id,
+            version_id=version_id,
+            label=label,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -662,7 +2457,7 @@ class PromptsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Prompt",
+            '200': "PromptWithVersion",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -684,6 +2479,8 @@ class PromptsApi:
     def prompts_get_with_http_info(
         self,
         prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        version_id: Annotated[Optional[StrictStr], Field(description="Return the prompt with this specific version. Mutually exclusive with `label`.")] = None,
+        label: Annotated[Optional[StrictStr], Field(description="Return the prompt with the version pointed to by this label (e.g., \"production\"). Mutually exclusive with `version_id`.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -696,13 +2493,17 @@ class PromptsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Prompt]:
+    ) -> ApiResponse[PromptWithVersion]:
         """Get a prompt
 
-        Get a specific prompt by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific prompt by its ID. The response always includes a resolved version. By default, the latest version is returned. Use the `version_id` or `label` query parameter to resolve a specific version instead. You cannot supply both `version_id` and `label`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param prompt_id: The unique identifier of the prompt (required)
         :type prompt_id: str
+        :param version_id: Return the prompt with this specific version. Mutually exclusive with `label`.
+        :type version_id: str
+        :param label: Return the prompt with the version pointed to by this label (e.g., \"production\"). Mutually exclusive with `version_id`.
+        :type label: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -727,6 +2528,8 @@ class PromptsApi:
 
         _param = self._prompts_get_serialize(
             prompt_id=prompt_id,
+            version_id=version_id,
+            label=label,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -734,7 +2537,7 @@ class PromptsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Prompt",
+            '200': "PromptWithVersion",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -756,6 +2559,8 @@ class PromptsApi:
     def prompts_get_without_preload_content(
         self,
         prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        version_id: Annotated[Optional[StrictStr], Field(description="Return the prompt with this specific version. Mutually exclusive with `label`.")] = None,
+        label: Annotated[Optional[StrictStr], Field(description="Return the prompt with the version pointed to by this label (e.g., \"production\"). Mutually exclusive with `version_id`.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -771,10 +2576,14 @@ class PromptsApi:
     ) -> RESTResponseType:
         """Get a prompt
 
-        Get a specific prompt by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific prompt by its ID. The response always includes a resolved version. By default, the latest version is returned. Use the `version_id` or `label` query parameter to resolve a specific version instead. You cannot supply both `version_id` and `label`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param prompt_id: The unique identifier of the prompt (required)
         :type prompt_id: str
+        :param version_id: Return the prompt with this specific version. Mutually exclusive with `label`.
+        :type version_id: str
+        :param label: Return the prompt with the version pointed to by this label (e.g., \"production\"). Mutually exclusive with `version_id`.
+        :type label: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -799,6 +2608,8 @@ class PromptsApi:
 
         _param = self._prompts_get_serialize(
             prompt_id=prompt_id,
+            version_id=version_id,
+            label=label,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -806,7 +2617,7 @@ class PromptsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Prompt",
+            '200': "PromptWithVersion",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -823,6 +2634,8 @@ class PromptsApi:
     def _prompts_get_serialize(
         self,
         prompt_id,
+        version_id,
+        label,
         _request_auth,
         _content_type,
         _headers,
@@ -847,6 +2660,14 @@ class PromptsApi:
         if prompt_id is not None:
             _path_params['prompt_id'] = prompt_id
         # process the query parameters
+        if version_id is not None:
+            
+            _query_params.append(('version_id', version_id))
+            
+        if label is not None:
+            
+            _query_params.append(('label', label))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -889,6 +2710,7 @@ class PromptsApi:
     def prompts_list(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -910,6 +2732,8 @@ class PromptsApi:
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. 
+        :type name: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -938,6 +2762,7 @@ class PromptsApi:
 
         _param = self._prompts_list_serialize(
             space_id=space_id,
+            name=name,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -968,6 +2793,7 @@ class PromptsApi:
     def prompts_list_with_http_info(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -989,6 +2815,8 @@ class PromptsApi:
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. 
+        :type name: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -1017,6 +2845,7 @@ class PromptsApi:
 
         _param = self._prompts_list_serialize(
             space_id=space_id,
+            name=name,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1047,6 +2876,7 @@ class PromptsApi:
     def prompts_list_without_preload_content(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1068,6 +2898,8 @@ class PromptsApi:
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. 
+        :type name: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -1096,6 +2928,7 @@ class PromptsApi:
 
         _param = self._prompts_list_serialize(
             space_id=space_id,
+            name=name,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1121,6 +2954,7 @@ class PromptsApi:
     def _prompts_list_serialize(
         self,
         space_id,
+        name,
         limit,
         cursor,
         _request_auth,
@@ -1148,6 +2982,10 @@ class PromptsApi:
         if space_id is not None:
             
             _query_params.append(('space_id', space_id))
+            
+        if name is not None:
+            
+            _query_params.append(('name', name))
             
         if limit is not None:
             

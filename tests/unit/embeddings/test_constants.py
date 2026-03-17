@@ -146,7 +146,7 @@ class TestErrorMessages:
     def test_import_error_message_contains_install_instructions(self) -> None:
         """Should include pip install instructions in import error message."""
         assert "pip install" in IMPORT_ERROR_MESSAGE
-        assert "arize[auto-embeddings]" in IMPORT_ERROR_MESSAGE
+        assert "arize[embeddings]" in IMPORT_ERROR_MESSAGE
 
     def test_import_error_message_mentions_extra_dependencies(self) -> None:
         """Should mention extra dependencies in import error message."""

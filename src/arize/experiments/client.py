@@ -105,7 +105,7 @@ class ExperimentsClient:
             A response object with the experiments and pagination information.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the REST API
+            ApiException: If the REST API
                 returns an error response (e.g. 401/403/429).
         """
         return self._api.experiments_list(
@@ -162,7 +162,7 @@ class ExperimentsClient:
             TypeError: If `experiment_runs` is not a list of dicts or a DataFrame.
             RuntimeError: If the Flight upload path is selected and the Flight request
                 fails.
-            arize._generated.api_client.exceptions.ApiException: If the REST API
+            ApiException: If the REST API
                 returns an error response (e.g. 400/401/403/409/429).
         """
         if not isinstance(experiment_runs, list | pd.DataFrame):
@@ -232,7 +232,7 @@ class ExperimentsClient:
             The experiment object.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the REST API
+            ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
         return self._api.experiments_get(experiment_id=experiment_id)
@@ -250,7 +250,7 @@ class ExperimentsClient:
             This method returns None on success (common empty 204 response).
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the REST API
+            ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
         return self._api.experiments_delete(
@@ -288,7 +288,7 @@ class ExperimentsClient:
         Raises:
             RuntimeError: If the Flight request fails or returns no response when
                 `all=True`.
-            arize._generated.api_client.exceptions.ApiException: If the REST API
+            ApiException: If the REST API
                 returns an error response when `all=False` (e.g. 401/403/404/429).
         """
         if not all:

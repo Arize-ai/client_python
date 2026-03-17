@@ -46,9 +46,6 @@ class TestAnnotationQueueExampleRecordInput(unittest.TestCase):
             return AnnotationQueueExampleRecordInput(
                 record_type = 'example',
                 dataset_id = '',
-                example_ids = [
-                    ''
-                    ],
         )
         """
 

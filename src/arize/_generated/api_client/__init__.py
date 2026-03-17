@@ -18,13 +18,16 @@ __version__ = "1.0.0"
 
 # Define package exports
 __all__ = [
+    "AIIntegrationsApi",
     "APIKeysApi",
     "AnnotationConfigsApi",
     "AnnotationQueuesApi",
     "DatasetsApi",
+    "EvaluatorsApi",
     "ExperimentsApi",
     "ProjectsApi",
     "PromptsApi",
+    "RolesApi",
     "SpacesApi",
     "SpansApi",
     "ApiResponse",
@@ -36,6 +39,14 @@ __all__ = [
     "ApiKeyError",
     "ApiAttributeError",
     "ApiException",
+    "AddAnnotationQueueRecordsRequestBody",
+    "AiIntegration",
+    "AiIntegrationAuthType",
+    "AiIntegrationProvider",
+    "AiIntegrationScoping",
+    "AiIntegrationsCreateRequest",
+    "AiIntegrationsList200Response",
+    "AiIntegrationsUpdateRequest",
     "Annotation",
     "AnnotationConfig",
     "AnnotationConfigBase",
@@ -49,9 +60,15 @@ __all__ = [
     "AnnotationQueueRecordsList200Response",
     "AnnotationQueueSpanRecordInput",
     "AnnotationQueuesList200Response",
+    "AnnotationQueuesRecordsCreate201Response",
     "AnnotatorUser",
     "ApiKey",
+    "ApiKeyCreate",
+    "ApiKeyCreated",
+    "ApiKeyRefresh",
+    "ApiKeyRoles",
     "ApiKeysList200Response",
+    "AwsProviderMetadata",
     "CategoricalAnnotationConfig",
     "CategoricalAnnotationConfigCreate",
     "CategoricalAnnotationValue",
@@ -69,6 +86,16 @@ __all__ = [
     "DatasetsExamplesUpdateRequest",
     "DatasetsList200Response",
     "Evaluation",
+    "Evaluator",
+    "EvaluatorLlmConfig",
+    "EvaluatorVersion",
+    "EvaluatorVersionsCreateRequest",
+    "EvaluatorVersionsList200Response",
+    "EvaluatorWithVersion",
+    "EvaluatorsCreateRequest",
+    "EvaluatorsCreateRequestVersion",
+    "EvaluatorsList200Response",
+    "EvaluatorsUpdateRequest",
     "Experiment",
     "ExperimentRun",
     "ExperimentRunCreate",
@@ -77,6 +104,7 @@ __all__ = [
     "ExperimentsRunsList200Response",
     "FreeformAnnotationConfig",
     "FreeformAnnotationConfigCreate",
+    "GcpProviderMetadata",
     "InputVariableFormat",
     "InvocationParams",
     "LLMMessage",
@@ -89,6 +117,13 @@ __all__ = [
     "ProjectsCreateRequest",
     "ProjectsList200Response",
     "Prompt",
+    "PromptVersion",
+    "PromptVersionCreateRequest",
+    "PromptVersionLabelsSet200Response",
+    "PromptVersionLabelsSetRequest",
+    "PromptVersionsCreateRequest",
+    "PromptVersionsList200Response",
+    "PromptWithVersion",
     "PromptsCreateRequest",
     "PromptsList200Response",
     "PromptsUpdateRequest",
@@ -99,6 +134,10 @@ __all__ = [
     "ResponseFormat",
     "ResponseFormatJsonSchema",
     "ResponseFormatType",
+    "Role",
+    "RoleCreate",
+    "RoleUpdate",
+    "RolesList200Response",
     "Space",
     "SpacesCreateRequest",
     "SpacesList200Response",
@@ -108,6 +147,7 @@ __all__ = [
     "SpanEvent",
     "SpansList200Response",
     "SpansListRequest",
+    "TemplateConfig",
     "ToolCall",
     "ToolCallFunction",
     "ToolCallType",
@@ -117,13 +157,16 @@ __all__ = [
 ]
 
 # import apis into sdk package
+from arize._generated.api_client.api.ai_integrations_api import AIIntegrationsApi as AIIntegrationsApi
 from arize._generated.api_client.api.api_keys_api import APIKeysApi as APIKeysApi
 from arize._generated.api_client.api.annotation_configs_api import AnnotationConfigsApi as AnnotationConfigsApi
 from arize._generated.api_client.api.annotation_queues_api import AnnotationQueuesApi as AnnotationQueuesApi
 from arize._generated.api_client.api.datasets_api import DatasetsApi as DatasetsApi
+from arize._generated.api_client.api.evaluators_api import EvaluatorsApi as EvaluatorsApi
 from arize._generated.api_client.api.experiments_api import ExperimentsApi as ExperimentsApi
 from arize._generated.api_client.api.projects_api import ProjectsApi as ProjectsApi
 from arize._generated.api_client.api.prompts_api import PromptsApi as PromptsApi
+from arize._generated.api_client.api.roles_api import RolesApi as RolesApi
 from arize._generated.api_client.api.spaces_api import SpacesApi as SpacesApi
 from arize._generated.api_client.api.spans_api import SpansApi as SpansApi
 
@@ -139,6 +182,14 @@ from arize._generated.api_client.exceptions import ApiAttributeError as ApiAttri
 from arize._generated.api_client.exceptions import ApiException as ApiException
 
 # import models into sdk package
+from arize._generated.api_client.models.add_annotation_queue_records_request_body import AddAnnotationQueueRecordsRequestBody as AddAnnotationQueueRecordsRequestBody
+from arize._generated.api_client.models.ai_integration import AiIntegration as AiIntegration
+from arize._generated.api_client.models.ai_integration_auth_type import AiIntegrationAuthType as AiIntegrationAuthType
+from arize._generated.api_client.models.ai_integration_provider import AiIntegrationProvider as AiIntegrationProvider
+from arize._generated.api_client.models.ai_integration_scoping import AiIntegrationScoping as AiIntegrationScoping
+from arize._generated.api_client.models.ai_integrations_create_request import AiIntegrationsCreateRequest as AiIntegrationsCreateRequest
+from arize._generated.api_client.models.ai_integrations_list200_response import AiIntegrationsList200Response as AiIntegrationsList200Response
+from arize._generated.api_client.models.ai_integrations_update_request import AiIntegrationsUpdateRequest as AiIntegrationsUpdateRequest
 from arize._generated.api_client.models.annotation import Annotation as Annotation
 from arize._generated.api_client.models.annotation_config import AnnotationConfig as AnnotationConfig
 from arize._generated.api_client.models.annotation_config_base import AnnotationConfigBase as AnnotationConfigBase
@@ -152,9 +203,15 @@ from arize._generated.api_client.models.annotation_queue_record_input import Ann
 from arize._generated.api_client.models.annotation_queue_records_list200_response import AnnotationQueueRecordsList200Response as AnnotationQueueRecordsList200Response
 from arize._generated.api_client.models.annotation_queue_span_record_input import AnnotationQueueSpanRecordInput as AnnotationQueueSpanRecordInput
 from arize._generated.api_client.models.annotation_queues_list200_response import AnnotationQueuesList200Response as AnnotationQueuesList200Response
+from arize._generated.api_client.models.annotation_queues_records_create201_response import AnnotationQueuesRecordsCreate201Response as AnnotationQueuesRecordsCreate201Response
 from arize._generated.api_client.models.annotator_user import AnnotatorUser as AnnotatorUser
 from arize._generated.api_client.models.api_key import ApiKey as ApiKey
+from arize._generated.api_client.models.api_key_create import ApiKeyCreate as ApiKeyCreate
+from arize._generated.api_client.models.api_key_created import ApiKeyCreated as ApiKeyCreated
+from arize._generated.api_client.models.api_key_refresh import ApiKeyRefresh as ApiKeyRefresh
+from arize._generated.api_client.models.api_key_roles import ApiKeyRoles as ApiKeyRoles
 from arize._generated.api_client.models.api_keys_list200_response import ApiKeysList200Response as ApiKeysList200Response
+from arize._generated.api_client.models.aws_provider_metadata import AwsProviderMetadata as AwsProviderMetadata
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig as CategoricalAnnotationConfig
 from arize._generated.api_client.models.categorical_annotation_config_create import CategoricalAnnotationConfigCreate as CategoricalAnnotationConfigCreate
 from arize._generated.api_client.models.categorical_annotation_value import CategoricalAnnotationValue as CategoricalAnnotationValue
@@ -172,6 +229,16 @@ from arize._generated.api_client.models.datasets_examples_list200_response impor
 from arize._generated.api_client.models.datasets_examples_update_request import DatasetsExamplesUpdateRequest as DatasetsExamplesUpdateRequest
 from arize._generated.api_client.models.datasets_list200_response import DatasetsList200Response as DatasetsList200Response
 from arize._generated.api_client.models.evaluation import Evaluation as Evaluation
+from arize._generated.api_client.models.evaluator import Evaluator as Evaluator
+from arize._generated.api_client.models.evaluator_llm_config import EvaluatorLlmConfig as EvaluatorLlmConfig
+from arize._generated.api_client.models.evaluator_version import EvaluatorVersion as EvaluatorVersion
+from arize._generated.api_client.models.evaluator_versions_create_request import EvaluatorVersionsCreateRequest as EvaluatorVersionsCreateRequest
+from arize._generated.api_client.models.evaluator_versions_list200_response import EvaluatorVersionsList200Response as EvaluatorVersionsList200Response
+from arize._generated.api_client.models.evaluator_with_version import EvaluatorWithVersion as EvaluatorWithVersion
+from arize._generated.api_client.models.evaluators_create_request import EvaluatorsCreateRequest as EvaluatorsCreateRequest
+from arize._generated.api_client.models.evaluators_create_request_version import EvaluatorsCreateRequestVersion as EvaluatorsCreateRequestVersion
+from arize._generated.api_client.models.evaluators_list200_response import EvaluatorsList200Response as EvaluatorsList200Response
+from arize._generated.api_client.models.evaluators_update_request import EvaluatorsUpdateRequest as EvaluatorsUpdateRequest
 from arize._generated.api_client.models.experiment import Experiment as Experiment
 from arize._generated.api_client.models.experiment_run import ExperimentRun as ExperimentRun
 from arize._generated.api_client.models.experiment_run_create import ExperimentRunCreate as ExperimentRunCreate
@@ -180,6 +247,7 @@ from arize._generated.api_client.models.experiments_list200_response import Expe
 from arize._generated.api_client.models.experiments_runs_list200_response import ExperimentsRunsList200Response as ExperimentsRunsList200Response
 from arize._generated.api_client.models.freeform_annotation_config import FreeformAnnotationConfig as FreeformAnnotationConfig
 from arize._generated.api_client.models.freeform_annotation_config_create import FreeformAnnotationConfigCreate as FreeformAnnotationConfigCreate
+from arize._generated.api_client.models.gcp_provider_metadata import GcpProviderMetadata as GcpProviderMetadata
 from arize._generated.api_client.models.input_variable_format import InputVariableFormat as InputVariableFormat
 from arize._generated.api_client.models.invocation_params import InvocationParams as InvocationParams
 from arize._generated.api_client.models.llm_message import LLMMessage as LLMMessage
@@ -192,6 +260,13 @@ from arize._generated.api_client.models.project import Project as Project
 from arize._generated.api_client.models.projects_create_request import ProjectsCreateRequest as ProjectsCreateRequest
 from arize._generated.api_client.models.projects_list200_response import ProjectsList200Response as ProjectsList200Response
 from arize._generated.api_client.models.prompt import Prompt as Prompt
+from arize._generated.api_client.models.prompt_version import PromptVersion as PromptVersion
+from arize._generated.api_client.models.prompt_version_create_request import PromptVersionCreateRequest as PromptVersionCreateRequest
+from arize._generated.api_client.models.prompt_version_labels_set200_response import PromptVersionLabelsSet200Response as PromptVersionLabelsSet200Response
+from arize._generated.api_client.models.prompt_version_labels_set_request import PromptVersionLabelsSetRequest as PromptVersionLabelsSetRequest
+from arize._generated.api_client.models.prompt_versions_create_request import PromptVersionsCreateRequest as PromptVersionsCreateRequest
+from arize._generated.api_client.models.prompt_versions_list200_response import PromptVersionsList200Response as PromptVersionsList200Response
+from arize._generated.api_client.models.prompt_with_version import PromptWithVersion as PromptWithVersion
 from arize._generated.api_client.models.prompts_create_request import PromptsCreateRequest as PromptsCreateRequest
 from arize._generated.api_client.models.prompts_list200_response import PromptsList200Response as PromptsList200Response
 from arize._generated.api_client.models.prompts_update_request import PromptsUpdateRequest as PromptsUpdateRequest
@@ -202,6 +277,10 @@ from arize._generated.api_client.models.provider_params_bedrock_options import P
 from arize._generated.api_client.models.response_format import ResponseFormat as ResponseFormat
 from arize._generated.api_client.models.response_format_json_schema import ResponseFormatJsonSchema as ResponseFormatJsonSchema
 from arize._generated.api_client.models.response_format_type import ResponseFormatType as ResponseFormatType
+from arize._generated.api_client.models.role import Role as Role
+from arize._generated.api_client.models.role_create import RoleCreate as RoleCreate
+from arize._generated.api_client.models.role_update import RoleUpdate as RoleUpdate
+from arize._generated.api_client.models.roles_list200_response import RolesList200Response as RolesList200Response
 from arize._generated.api_client.models.space import Space as Space
 from arize._generated.api_client.models.spaces_create_request import SpacesCreateRequest as SpacesCreateRequest
 from arize._generated.api_client.models.spaces_list200_response import SpacesList200Response as SpacesList200Response
@@ -211,6 +290,7 @@ from arize._generated.api_client.models.span_context import SpanContext as SpanC
 from arize._generated.api_client.models.span_event import SpanEvent as SpanEvent
 from arize._generated.api_client.models.spans_list200_response import SpansList200Response as SpansList200Response
 from arize._generated.api_client.models.spans_list_request import SpansListRequest as SpansListRequest
+from arize._generated.api_client.models.template_config import TemplateConfig as TemplateConfig
 from arize._generated.api_client.models.tool_call import ToolCall as ToolCall
 from arize._generated.api_client.models.tool_call_function import ToolCallFunction as ToolCallFunction
 from arize._generated.api_client.models.tool_call_type import ToolCallType as ToolCallType

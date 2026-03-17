@@ -54,14 +54,16 @@ configuration = arize._generated.api_client.Configuration(
 # Enter a context with an instance of the API client
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = arize._generated.api_client.APIKeysApi(api_client)
-    api_key_id = 'api_key_id_example' # str | The unique identifier of the API key
+    api_instance = arize._generated.api_client.AIIntegrationsApi(api_client)
+    ai_integrations_create_request = {"name":"Production OpenAI","provider":"openAI","api_key":"sk-abc123...","model_names":["gpt-4","gpt-4o"],"enable_default_models":true,"scopings":[{"organization_id":"QWNjb3VudE9yZzoxMjM6YWJj","space_id":null}]} # AiIntegrationsCreateRequest | Body containing AI integration creation parameters
 
     try:
-        # Delete an API key
-        api_instance.api_keys_delete(api_key_id)
+        # Create an AI integration
+        api_response = api_instance.ai_integrations_create(ai_integrations_create_request)
+        print("The response of AIIntegrationsApi->ai_integrations_create:\n")
+        pprint(api_response)
     except ApiException as e:
-        print("Exception when calling APIKeysApi->api_keys_delete: %s\n" % e)
+        print("Exception when calling AIIntegrationsApi->ai_integrations_create: %s\n" % e)
 
 ```
 
@@ -71,8 +73,15 @@ All URIs are relative to *https://api.arize.com*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*AIIntegrationsApi* | [**ai_integrations_create**](arize/_generated/api_client/docs/AIIntegrationsApi.md#ai_integrations_create) | **POST** /v2/ai-integrations | Create an AI integration
+*AIIntegrationsApi* | [**ai_integrations_delete**](arize/_generated/api_client/docs/AIIntegrationsApi.md#ai_integrations_delete) | **DELETE** /v2/ai-integrations/{integration_id} | Delete an AI integration
+*AIIntegrationsApi* | [**ai_integrations_get**](arize/_generated/api_client/docs/AIIntegrationsApi.md#ai_integrations_get) | **GET** /v2/ai-integrations/{integration_id} | Get an AI integration
+*AIIntegrationsApi* | [**ai_integrations_list**](arize/_generated/api_client/docs/AIIntegrationsApi.md#ai_integrations_list) | **GET** /v2/ai-integrations | List AI integrations
+*AIIntegrationsApi* | [**ai_integrations_update**](arize/_generated/api_client/docs/AIIntegrationsApi.md#ai_integrations_update) | **PATCH** /v2/ai-integrations/{integration_id} | Update an AI integration
+*APIKeysApi* | [**api_keys_create**](arize/_generated/api_client/docs/APIKeysApi.md#api_keys_create) | **POST** /v2/api-keys | Create an API key
 *APIKeysApi* | [**api_keys_delete**](arize/_generated/api_client/docs/APIKeysApi.md#api_keys_delete) | **DELETE** /v2/api-keys/{api_key_id} | Delete an API key
 *APIKeysApi* | [**api_keys_list**](arize/_generated/api_client/docs/APIKeysApi.md#api_keys_list) | **GET** /v2/api-keys | List API keys
+*APIKeysApi* | [**api_keys_refresh**](arize/_generated/api_client/docs/APIKeysApi.md#api_keys_refresh) | **POST** /v2/api-keys/{api_key_id}/refresh | Refresh an API key
 *AnnotationConfigsApi* | [**annotation_configs_create**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_create) | **POST** /v2/annotation-configs | Create an annotation config
 *AnnotationConfigsApi* | [**annotation_configs_delete**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_delete) | **DELETE** /v2/annotation-configs/{annotation_config_id} | Delete an annotation config
 *AnnotationConfigsApi* | [**annotation_configs_get**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_get) | **GET** /v2/annotation-configs/{annotation_config_id} | Get an annotation config
@@ -82,6 +91,7 @@ Class | Method | HTTP request | Description
 *AnnotationQueuesApi* | [**annotation_queues_delete**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_delete) | **DELETE** /v2/annotation-queues/{annotation_queue_id} | Delete an annotation queue
 *AnnotationQueuesApi* | [**annotation_queues_get**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_get) | **GET** /v2/annotation-queues/{annotation_queue_id} | Get an annotation queue
 *AnnotationQueuesApi* | [**annotation_queues_list**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_list) | **GET** /v2/annotation-queues | List annotation queues
+*AnnotationQueuesApi* | [**annotation_queues_records_create**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_records_create) | **POST** /v2/annotation-queues/{annotation_queue_id}/records | Create annotation queue records
 *AnnotationQueuesApi* | [**annotation_queues_update**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_update) | **PATCH** /v2/annotation-queues/{annotation_queue_id} | Update an annotation queue
 *DatasetsApi* | [**datasets_create**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_create) | **POST** /v2/datasets | Create a dataset
 *DatasetsApi* | [**datasets_delete**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_delete) | **DELETE** /v2/datasets/{dataset_id} | Delete a dataset
@@ -90,6 +100,14 @@ Class | Method | HTTP request | Description
 *DatasetsApi* | [**datasets_examples_update**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_examples_update) | **PATCH** /v2/datasets/{dataset_id}/examples | Update existing examples in a dataset
 *DatasetsApi* | [**datasets_get**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_get) | **GET** /v2/datasets/{dataset_id} | Get a dataset
 *DatasetsApi* | [**datasets_list**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_list) | **GET** /v2/datasets | List datasets
+*EvaluatorsApi* | [**evaluator_versions_create**](arize/_generated/api_client/docs/EvaluatorsApi.md#evaluator_versions_create) | **POST** /v2/evaluators/{evaluator_id}/versions | Create evaluator version
+*EvaluatorsApi* | [**evaluator_versions_get**](arize/_generated/api_client/docs/EvaluatorsApi.md#evaluator_versions_get) | **GET** /v2/evaluator-versions/{version_id} | Get evaluator version
+*EvaluatorsApi* | [**evaluator_versions_list**](arize/_generated/api_client/docs/EvaluatorsApi.md#evaluator_versions_list) | **GET** /v2/evaluators/{evaluator_id}/versions | List evaluator versions
+*EvaluatorsApi* | [**evaluators_create**](arize/_generated/api_client/docs/EvaluatorsApi.md#evaluators_create) | **POST** /v2/evaluators | Create evaluator
+*EvaluatorsApi* | [**evaluators_delete**](arize/_generated/api_client/docs/EvaluatorsApi.md#evaluators_delete) | **DELETE** /v2/evaluators/{evaluator_id} | Delete evaluator
+*EvaluatorsApi* | [**evaluators_get**](arize/_generated/api_client/docs/EvaluatorsApi.md#evaluators_get) | **GET** /v2/evaluators/{evaluator_id} | Get evaluator
+*EvaluatorsApi* | [**evaluators_list**](arize/_generated/api_client/docs/EvaluatorsApi.md#evaluators_list) | **GET** /v2/evaluators | List evaluators
+*EvaluatorsApi* | [**evaluators_update**](arize/_generated/api_client/docs/EvaluatorsApi.md#evaluators_update) | **PATCH** /v2/evaluators/{evaluator_id} | Update evaluator
 *ExperimentsApi* | [**experiments_create**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_create) | **POST** /v2/experiments | Create an experiment
 *ExperimentsApi* | [**experiments_delete**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_delete) | **DELETE** /v2/experiments/{experiment_id} | Delete an experiment
 *ExperimentsApi* | [**experiments_get**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_get) | **GET** /v2/experiments/{experiment_id} | Get an experiment
@@ -99,11 +117,22 @@ Class | Method | HTTP request | Description
 *ProjectsApi* | [**projects_delete**](arize/_generated/api_client/docs/ProjectsApi.md#projects_delete) | **DELETE** /v2/projects/{project_id} | Delete a project
 *ProjectsApi* | [**projects_get**](arize/_generated/api_client/docs/ProjectsApi.md#projects_get) | **GET** /v2/projects/{project_id} | Get a project
 *ProjectsApi* | [**projects_list**](arize/_generated/api_client/docs/ProjectsApi.md#projects_list) | **GET** /v2/projects | List projects
+*PromptsApi* | [**prompt_labels_get**](arize/_generated/api_client/docs/PromptsApi.md#prompt_labels_get) | **GET** /v2/prompts/{prompt_id}/labels/{label_name} | Resolve a label to a prompt version
+*PromptsApi* | [**prompt_version_labels_delete**](arize/_generated/api_client/docs/PromptsApi.md#prompt_version_labels_delete) | **DELETE** /v2/prompt-versions/{version_id}/labels/{label_name} | Remove a label from a prompt version
+*PromptsApi* | [**prompt_version_labels_set**](arize/_generated/api_client/docs/PromptsApi.md#prompt_version_labels_set) | **PUT** /v2/prompt-versions/{version_id}/labels | Set labels on a prompt version
+*PromptsApi* | [**prompt_versions_create**](arize/_generated/api_client/docs/PromptsApi.md#prompt_versions_create) | **POST** /v2/prompts/{prompt_id}/versions | Create a prompt version
+*PromptsApi* | [**prompt_versions_get**](arize/_generated/api_client/docs/PromptsApi.md#prompt_versions_get) | **GET** /v2/prompt-versions/{version_id} | Get a prompt version
+*PromptsApi* | [**prompt_versions_list**](arize/_generated/api_client/docs/PromptsApi.md#prompt_versions_list) | **GET** /v2/prompts/{prompt_id}/versions | List prompt versions
 *PromptsApi* | [**prompts_create**](arize/_generated/api_client/docs/PromptsApi.md#prompts_create) | **POST** /v2/prompts | Create a prompt
 *PromptsApi* | [**prompts_delete**](arize/_generated/api_client/docs/PromptsApi.md#prompts_delete) | **DELETE** /v2/prompts/{prompt_id} | Delete a prompt
 *PromptsApi* | [**prompts_get**](arize/_generated/api_client/docs/PromptsApi.md#prompts_get) | **GET** /v2/prompts/{prompt_id} | Get a prompt
 *PromptsApi* | [**prompts_list**](arize/_generated/api_client/docs/PromptsApi.md#prompts_list) | **GET** /v2/prompts | List prompts
 *PromptsApi* | [**prompts_update**](arize/_generated/api_client/docs/PromptsApi.md#prompts_update) | **PATCH** /v2/prompts/{prompt_id} | Update a prompt
+*RolesApi* | [**roles_create**](arize/_generated/api_client/docs/RolesApi.md#roles_create) | **POST** /v2/roles | Create a role
+*RolesApi* | [**roles_delete**](arize/_generated/api_client/docs/RolesApi.md#roles_delete) | **DELETE** /v2/roles/{role_id} | Delete a role
+*RolesApi* | [**roles_get**](arize/_generated/api_client/docs/RolesApi.md#roles_get) | **GET** /v2/roles/{role_id} | Get a role
+*RolesApi* | [**roles_list**](arize/_generated/api_client/docs/RolesApi.md#roles_list) | **GET** /v2/roles | List roles
+*RolesApi* | [**roles_update**](arize/_generated/api_client/docs/RolesApi.md#roles_update) | **PATCH** /v2/roles/{role_id} | Update a role
 *SpacesApi* | [**spaces_create**](arize/_generated/api_client/docs/SpacesApi.md#spaces_create) | **POST** /v2/spaces | Create a space
 *SpacesApi* | [**spaces_get**](arize/_generated/api_client/docs/SpacesApi.md#spaces_get) | **GET** /v2/spaces/{space_id} | Get a space
 *SpacesApi* | [**spaces_list**](arize/_generated/api_client/docs/SpacesApi.md#spaces_list) | **GET** /v2/spaces | List spaces
@@ -113,6 +142,14 @@ Class | Method | HTTP request | Description
 
 ## Documentation For Models
 
+ - [AddAnnotationQueueRecordsRequestBody](arize/_generated/api_client/docs/AddAnnotationQueueRecordsRequestBody.md)
+ - [AiIntegration](arize/_generated/api_client/docs/AiIntegration.md)
+ - [AiIntegrationAuthType](arize/_generated/api_client/docs/AiIntegrationAuthType.md)
+ - [AiIntegrationProvider](arize/_generated/api_client/docs/AiIntegrationProvider.md)
+ - [AiIntegrationScoping](arize/_generated/api_client/docs/AiIntegrationScoping.md)
+ - [AiIntegrationsCreateRequest](arize/_generated/api_client/docs/AiIntegrationsCreateRequest.md)
+ - [AiIntegrationsList200Response](arize/_generated/api_client/docs/AiIntegrationsList200Response.md)
+ - [AiIntegrationsUpdateRequest](arize/_generated/api_client/docs/AiIntegrationsUpdateRequest.md)
  - [Annotation](arize/_generated/api_client/docs/Annotation.md)
  - [AnnotationConfig](arize/_generated/api_client/docs/AnnotationConfig.md)
  - [AnnotationConfigBase](arize/_generated/api_client/docs/AnnotationConfigBase.md)
@@ -126,9 +163,15 @@ Class | Method | HTTP request | Description
  - [AnnotationQueueRecordsList200Response](arize/_generated/api_client/docs/AnnotationQueueRecordsList200Response.md)
  - [AnnotationQueueSpanRecordInput](arize/_generated/api_client/docs/AnnotationQueueSpanRecordInput.md)
  - [AnnotationQueuesList200Response](arize/_generated/api_client/docs/AnnotationQueuesList200Response.md)
+ - [AnnotationQueuesRecordsCreate201Response](arize/_generated/api_client/docs/AnnotationQueuesRecordsCreate201Response.md)
  - [AnnotatorUser](arize/_generated/api_client/docs/AnnotatorUser.md)
  - [ApiKey](arize/_generated/api_client/docs/ApiKey.md)
+ - [ApiKeyCreate](arize/_generated/api_client/docs/ApiKeyCreate.md)
+ - [ApiKeyCreated](arize/_generated/api_client/docs/ApiKeyCreated.md)
+ - [ApiKeyRefresh](arize/_generated/api_client/docs/ApiKeyRefresh.md)
+ - [ApiKeyRoles](arize/_generated/api_client/docs/ApiKeyRoles.md)
  - [ApiKeysList200Response](arize/_generated/api_client/docs/ApiKeysList200Response.md)
+ - [AwsProviderMetadata](arize/_generated/api_client/docs/AwsProviderMetadata.md)
  - [CategoricalAnnotationConfig](arize/_generated/api_client/docs/CategoricalAnnotationConfig.md)
  - [CategoricalAnnotationConfigCreate](arize/_generated/api_client/docs/CategoricalAnnotationConfigCreate.md)
  - [CategoricalAnnotationValue](arize/_generated/api_client/docs/CategoricalAnnotationValue.md)
@@ -146,6 +189,16 @@ Class | Method | HTTP request | Description
  - [DatasetsExamplesUpdateRequest](arize/_generated/api_client/docs/DatasetsExamplesUpdateRequest.md)
  - [DatasetsList200Response](arize/_generated/api_client/docs/DatasetsList200Response.md)
  - [Evaluation](arize/_generated/api_client/docs/Evaluation.md)
+ - [Evaluator](arize/_generated/api_client/docs/Evaluator.md)
+ - [EvaluatorLlmConfig](arize/_generated/api_client/docs/EvaluatorLlmConfig.md)
+ - [EvaluatorVersion](arize/_generated/api_client/docs/EvaluatorVersion.md)
+ - [EvaluatorVersionsCreateRequest](arize/_generated/api_client/docs/EvaluatorVersionsCreateRequest.md)
+ - [EvaluatorVersionsList200Response](arize/_generated/api_client/docs/EvaluatorVersionsList200Response.md)
+ - [EvaluatorWithVersion](arize/_generated/api_client/docs/EvaluatorWithVersion.md)
+ - [EvaluatorsCreateRequest](arize/_generated/api_client/docs/EvaluatorsCreateRequest.md)
+ - [EvaluatorsCreateRequestVersion](arize/_generated/api_client/docs/EvaluatorsCreateRequestVersion.md)
+ - [EvaluatorsList200Response](arize/_generated/api_client/docs/EvaluatorsList200Response.md)
+ - [EvaluatorsUpdateRequest](arize/_generated/api_client/docs/EvaluatorsUpdateRequest.md)
  - [Experiment](arize/_generated/api_client/docs/Experiment.md)
  - [ExperimentRun](arize/_generated/api_client/docs/ExperimentRun.md)
  - [ExperimentRunCreate](arize/_generated/api_client/docs/ExperimentRunCreate.md)
@@ -154,6 +207,7 @@ Class | Method | HTTP request | Description
  - [ExperimentsRunsList200Response](arize/_generated/api_client/docs/ExperimentsRunsList200Response.md)
  - [FreeformAnnotationConfig](arize/_generated/api_client/docs/FreeformAnnotationConfig.md)
  - [FreeformAnnotationConfigCreate](arize/_generated/api_client/docs/FreeformAnnotationConfigCreate.md)
+ - [GcpProviderMetadata](arize/_generated/api_client/docs/GcpProviderMetadata.md)
  - [InputVariableFormat](arize/_generated/api_client/docs/InputVariableFormat.md)
  - [InvocationParams](arize/_generated/api_client/docs/InvocationParams.md)
  - [LLMMessage](arize/_generated/api_client/docs/LLMMessage.md)
@@ -166,6 +220,13 @@ Class | Method | HTTP request | Description
  - [ProjectsCreateRequest](arize/_generated/api_client/docs/ProjectsCreateRequest.md)
  - [ProjectsList200Response](arize/_generated/api_client/docs/ProjectsList200Response.md)
  - [Prompt](arize/_generated/api_client/docs/Prompt.md)
+ - [PromptVersion](arize/_generated/api_client/docs/PromptVersion.md)
+ - [PromptVersionCreateRequest](arize/_generated/api_client/docs/PromptVersionCreateRequest.md)
+ - [PromptVersionLabelsSet200Response](arize/_generated/api_client/docs/PromptVersionLabelsSet200Response.md)
+ - [PromptVersionLabelsSetRequest](arize/_generated/api_client/docs/PromptVersionLabelsSetRequest.md)
+ - [PromptVersionsCreateRequest](arize/_generated/api_client/docs/PromptVersionsCreateRequest.md)
+ - [PromptVersionsList200Response](arize/_generated/api_client/docs/PromptVersionsList200Response.md)
+ - [PromptWithVersion](arize/_generated/api_client/docs/PromptWithVersion.md)
  - [PromptsCreateRequest](arize/_generated/api_client/docs/PromptsCreateRequest.md)
  - [PromptsList200Response](arize/_generated/api_client/docs/PromptsList200Response.md)
  - [PromptsUpdateRequest](arize/_generated/api_client/docs/PromptsUpdateRequest.md)
@@ -176,6 +237,10 @@ Class | Method | HTTP request | Description
  - [ResponseFormat](arize/_generated/api_client/docs/ResponseFormat.md)
  - [ResponseFormatJsonSchema](arize/_generated/api_client/docs/ResponseFormatJsonSchema.md)
  - [ResponseFormatType](arize/_generated/api_client/docs/ResponseFormatType.md)
+ - [Role](arize/_generated/api_client/docs/Role.md)
+ - [RoleCreate](arize/_generated/api_client/docs/RoleCreate.md)
+ - [RoleUpdate](arize/_generated/api_client/docs/RoleUpdate.md)
+ - [RolesList200Response](arize/_generated/api_client/docs/RolesList200Response.md)
  - [Space](arize/_generated/api_client/docs/Space.md)
  - [SpacesCreateRequest](arize/_generated/api_client/docs/SpacesCreateRequest.md)
  - [SpacesList200Response](arize/_generated/api_client/docs/SpacesList200Response.md)
@@ -185,6 +250,7 @@ Class | Method | HTTP request | Description
  - [SpanEvent](arize/_generated/api_client/docs/SpanEvent.md)
  - [SpansList200Response](arize/_generated/api_client/docs/SpansList200Response.md)
  - [SpansListRequest](arize/_generated/api_client/docs/SpansListRequest.md)
+ - [TemplateConfig](arize/_generated/api_client/docs/TemplateConfig.md)
  - [ToolCall](arize/_generated/api_client/docs/ToolCall.md)
  - [ToolCallFunction](arize/_generated/api_client/docs/ToolCallFunction.md)
  - [ToolCallType](arize/_generated/api_client/docs/ToolCallType.md)

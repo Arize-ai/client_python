@@ -26,6 +26,48 @@ class TestPromptsApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
+    def test_prompt_labels_get(self) -> None:
+        """Test case for prompt_labels_get
+
+        Resolve a label to a prompt version
+        """
+        pass
+
+    def test_prompt_version_labels_delete(self) -> None:
+        """Test case for prompt_version_labels_delete
+
+        Remove a label from a prompt version
+        """
+        pass
+
+    def test_prompt_version_labels_set(self) -> None:
+        """Test case for prompt_version_labels_set
+
+        Set labels on a prompt version
+        """
+        pass
+
+    def test_prompt_versions_create(self) -> None:
+        """Test case for prompt_versions_create
+
+        Create a prompt version
+        """
+        pass
+
+    def test_prompt_versions_get(self) -> None:
+        """Test case for prompt_versions_get
+
+        Get a prompt version
+        """
+        pass
+
+    def test_prompt_versions_list(self) -> None:
+        """Test case for prompt_versions_list
+
+        List prompt versions
+        """
+        pass
+
     def test_prompts_create(self) -> None:
         """Test case for prompts_create
 

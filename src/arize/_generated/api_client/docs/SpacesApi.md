@@ -24,7 +24,7 @@ Create a new space within an organization.
 - System-managed fields (`id`, `created_at`) are generated
   automatically and rejected if provided.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -112,7 +112,7 @@ Get a space
 
 Get a specific space by its ID.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -192,13 +192,13 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **spaces_list**
-> SpacesList200Response spaces_list(org_id=org_id, limit=limit, cursor=cursor)
+> SpacesList200Response spaces_list(org_id=org_id, name=name, limit=limit, cursor=cursor)
 
 List spaces
 
 List spaces the user has access to.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -232,12 +232,13 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpacesApi(api_client)
     org_id = 'org_id_example' # str | The unique identifier of an organization. When provided, only spaces belonging to this organization are returned. (optional)
+    name = 'name_example' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned.  (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
         # List spaces
-        api_response = api_instance.spaces_list(org_id=org_id, limit=limit, cursor=cursor)
+        api_response = api_instance.spaces_list(org_id=org_id, name=name, limit=limit, cursor=cursor)
         print("The response of SpacesApi->spaces_list:\n")
         pprint(api_response)
     except Exception as e:
@@ -252,6 +253,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **org_id** | **str**| The unique identifier of an organization. When provided, only spaces belonging to this organization are returned. | [optional] 
+ **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. When omitted, no name filter is applied and all resources are returned.  | [optional] 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
@@ -293,7 +295,7 @@ name and description. At least one field must be provided.
 - If `name` is provided, it must be unique within the organization.
 - System-managed fields (`id`, `created_at`) cannot be modified.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example

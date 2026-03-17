@@ -7,14 +7,8 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **space_id** | **str** | ID of the space to create the prompt in | 
 **name** | **str** | Name of the prompt (must be unique within the space) | 
-**description** | **str** | Description of the prompt | [optional] 
-**commit_message** | **str** | Commit message describing this version | 
-**input_variable_format** | [**InputVariableFormat**](InputVariableFormat.md) |  | 
-**provider** | [**LlmProvider**](LlmProvider.md) |  | 
-**model** | **str** | The model to use for the call | [optional] 
-**messages** | [**List[LLMMessage]**](LLMMessage.md) | The messages that make up the prompt template | 
-**invocation_params** | [**InvocationParams**](InvocationParams.md) |  | [optional] 
-**provider_params** | [**ProviderParams**](ProviderParams.md) |  | [optional] 
+**description** | **str** | Description of the prompt. Optional. If omitted, the prompt has no description. | [optional] 
+**version** | [**PromptVersionCreateRequest**](PromptVersionCreateRequest.md) |  | 
 
 ## Example
 

@@ -11,11 +11,14 @@ from arize._lazy import LazySubclientsMixin
 from arize.config import SDKConfiguration
 
 if TYPE_CHECKING:
+    from arize.ai_integrations.client import AiIntegrationsClient
     from arize.annotation_configs.client import AnnotationConfigsClient
+    from arize.api_keys.client import ApiKeysClient
     from arize.datasets.client import DatasetsClient
     from arize.experiments.client import ExperimentsClient
     from arize.ml.client import MLModelsClient
     from arize.projects.client import ProjectsClient
+    from arize.prompts.client import PromptsClient
     from arize.regions import Region
     from arize.spaces.client import SpacesClient
     from arize.spans.client import SpansClient
@@ -68,6 +71,10 @@ class ArizeClient(LazySubclientsMixin):
     """
 
     _SUBCLIENTS: ClassVar[dict[str, tuple[str, str]]] = {
+        "ai_integrations": (
+            "arize.ai_integrations.client",
+            "AiIntegrationsClient",
+        ),
         "datasets": (
             "arize.datasets.client",
             "DatasetsClient",
@@ -95,6 +102,14 @@ class ArizeClient(LazySubclientsMixin):
         "spaces": (
             "arize.spaces.client",
             "SpacesClient",
+        ),
+        "prompts": (
+            "arize.prompts.client",
+            "PromptsClient",
+        ),
+        "api_keys": (
+            "arize.api_keys.client",
+            "ApiKeysClient",
         ),
     }
     # DISABLED: Optional dependency gating system
@@ -256,6 +271,11 @@ class ArizeClient(LazySubclientsMixin):
 
     # typed properties for IDE completion
     @property
+    def ai_integrations(self) -> AiIntegrationsClient:
+        """Access the AI integrations client for managing LLM provider integrations (lazy-loaded)."""
+        return cast("AiIntegrationsClient", self.__getattr__("ai_integrations"))
+
+    @property
     def datasets(self) -> DatasetsClient:
         """Access the datasets client for dataset operations (lazy-loaded)."""
         return cast("DatasetsClient", self.__getattr__("datasets"))
@@ -292,6 +312,16 @@ class ArizeClient(LazySubclientsMixin):
     def spaces(self) -> SpacesClient:
         """Access the spaces client for space operations (lazy-loaded)."""
         return cast("SpacesClient", self.__getattr__("spaces"))
+
+    @property
+    def prompts(self) -> PromptsClient:
+        """Access the prompts client for prompt management operations (lazy-loaded)."""
+        return cast("PromptsClient", self.__getattr__("prompts"))
+
+    @property
+    def api_keys(self) -> ApiKeysClient:
+        """Access the API keys client for API key operations (lazy-loaded)."""
+        return cast("ApiKeysClient", self.__getattr__("api_keys"))
 
     def __repr__(self) -> str:
         """Return a string representation of the Arize client configuration."""

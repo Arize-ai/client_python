@@ -885,6 +885,7 @@ class AnnotationConfigsApi:
     def annotation_configs_list(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -906,6 +907,8 @@ class AnnotationConfigsApi:
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. 
+        :type name: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -934,6 +937,7 @@ class AnnotationConfigsApi:
 
         _param = self._annotation_configs_list_serialize(
             space_id=space_id,
+            name=name,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -964,6 +968,7 @@ class AnnotationConfigsApi:
     def annotation_configs_list_with_http_info(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -985,6 +990,8 @@ class AnnotationConfigsApi:
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. 
+        :type name: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -1013,6 +1020,7 @@ class AnnotationConfigsApi:
 
         _param = self._annotation_configs_list_serialize(
             space_id=space_id,
+            name=name,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1043,6 +1051,7 @@ class AnnotationConfigsApi:
     def annotation_configs_list_without_preload_content(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1064,6 +1073,8 @@ class AnnotationConfigsApi:
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. 
+        :type name: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -1092,6 +1103,7 @@ class AnnotationConfigsApi:
 
         _param = self._annotation_configs_list_serialize(
             space_id=space_id,
+            name=name,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1117,6 +1129,7 @@ class AnnotationConfigsApi:
     def _annotation_configs_list_serialize(
         self,
         space_id,
+        name,
         limit,
         cursor,
         _request_auth,
@@ -1144,6 +1157,10 @@ class AnnotationConfigsApi:
         if space_id is not None:
             
             _query_params.append(('space_id', space_id))
+            
+        if name is not None:
+            
+            _query_params.append(('name', name))
             
         if limit is not None:
             

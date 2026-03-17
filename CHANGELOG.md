@@ -1,5 +1,31 @@
 # Changelog
 
+## [8.6.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.5.0...arize-python-sdk/v8.6.0) (2026-03-17)
+
+
+### 🎁 New Features
+
+* **prompts:** add PromptsClient for /v2/prompts endpoints ([#65174](https://github.com/Arize-ai/arize/issues/65174)) ([b709bbe](https://github.com/Arize-ai/arize/commit/b709bbe148a70816e7d4b67573e80b21caf709e8))
+* **py-sdk:** add AiIntegrationsClient for /v2/ai-integrations ([#65051](https://github.com/Arize-ai/arize/issues/65051)) ([83c27cf](https://github.com/Arize-ai/arize/commit/83c27cfb9d4f2000ac32af66c4c227bab9383c03))
+* **python-sdk:** API Keys Create/List/Delete ([#64923](https://github.com/Arize-ai/arize/issues/64923)) ([818badd](https://github.com/Arize-ai/arize/commit/818badd86f76577e9a600d1a71624e8bec25ed68))
+* **spaces:** Spaces CLI CRUD ([#64776](https://github.com/Arize-ai/arize/issues/64776)) ([54e3edf](https://github.com/Arize-ai/arize/commit/54e3edf42b6c2fbb438fba3dab7d7ec62c0b9f40))
+
+
+### 🐛 Bug Fixes
+
+* **sdk:** Exit early on authentication errors ([#65266](https://github.com/Arize-ai/arize/issues/65266)) ([55e4dee](https://github.com/Arize-ai/arize/commit/55e4dee7a7c8b15d75be6a72c091f062dd2811ab))
+* **api-keys:** rename regenerate endpoint to refresh ([#65562](https://github.com/Arize-ai/arize/issues/65562)) ([36df84f](https://github.com/Arize-ai/arize/commit/36df84ff50fc77d121173cb449b49344e9b9dded))
+
+
+### ❔ Miscellaneous Chores
+
+* Add AGENTS.md for SDKs and CLI ([#65353](https://github.com/Arize-ai/arize/issues/65353)) ([ab80512](https://github.com/Arize-ai/arize/commit/ab80512f26e3b2d08cca6fcc9c831f1b633e55d3))
+
+
+### 🧪 Tests
+
+* **spans:** remove deprecated export_to_df warning tests ([#65402](https://github.com/Arize-ai/arize/issues/65402)) ([1278a31](https://github.com/Arize-ai/arize/commit/1278a31faa6552f71d82aa8bca2f3f15dc125877))
+
 ## [8.5.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.4.0...arize-python-sdk/v8.5.0) (2026-03-04)
 
 

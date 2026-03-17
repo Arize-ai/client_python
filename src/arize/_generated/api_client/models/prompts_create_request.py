@@ -19,12 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
-from arize._generated.api_client.models.input_variable_format import InputVariableFormat
-from arize._generated.api_client.models.invocation_params import InvocationParams
-from arize._generated.api_client.models.llm_message import LLMMessage
-from arize._generated.api_client.models.llm_provider import LlmProvider
-from arize._generated.api_client.models.provider_params import ProviderParams
+from arize._generated.api_client.models.prompt_version_create_request import PromptVersionCreateRequest
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -34,15 +29,9 @@ class PromptsCreateRequest(BaseModel):
     """ # noqa: E501
     space_id: StrictStr = Field(description="ID of the space to create the prompt in")
     name: StrictStr = Field(description="Name of the prompt (must be unique within the space)")
-    description: Optional[StrictStr] = Field(default=None, description="Description of the prompt")
-    commit_message: StrictStr = Field(description="Commit message describing this version")
-    input_variable_format: InputVariableFormat
-    provider: LlmProvider
-    model: Optional[StrictStr] = Field(default=None, description="The model to use for the call")
-    messages: Annotated[List[LLMMessage], Field(min_length=1)] = Field(description="The messages that make up the prompt template")
-    invocation_params: Optional[InvocationParams] = None
-    provider_params: Optional[ProviderParams] = None
-    __properties: ClassVar[List[str]] = ["space_id", "name", "description", "commit_message", "input_variable_format", "provider", "model", "messages", "invocation_params", "provider_params"]
+    description: Optional[StrictStr] = Field(default=None, description="Description of the prompt. Optional. If omitted, the prompt has no description.")
+    version: PromptVersionCreateRequest
+    __properties: ClassVar[List[str]] = ["space_id", "name", "description", "version"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -83,19 +72,9 @@ class PromptsCreateRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in messages (list)
-        _items = []
-        if self.messages:
-            for _item_messages in self.messages:
-                if _item_messages:
-                    _items.append(_item_messages.to_dict())
-            _dict['messages'] = _items
-        # override the default output from pydantic by calling `to_dict()` of invocation_params
-        if self.invocation_params:
-            _dict['invocation_params'] = self.invocation_params.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of provider_params
-        if self.provider_params:
-            _dict['provider_params'] = self.provider_params.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of version
+        if self.version:
+            _dict['version'] = self.version.to_dict()
         return _dict
 
     @classmethod
@@ -116,13 +95,7 @@ class PromptsCreateRequest(BaseModel):
             "space_id": obj.get("space_id"),
             "name": obj.get("name"),
             "description": obj.get("description"),
-            "commit_message": obj.get("commit_message"),
-            "input_variable_format": obj.get("input_variable_format"),
-            "provider": obj.get("provider"),
-            "model": obj.get("model"),
-            "messages": [LLMMessage.from_dict(_item) for _item in obj["messages"]] if obj.get("messages") is not None else None,
-            "invocation_params": InvocationParams.from_dict(obj["invocation_params"]) if obj.get("invocation_params") is not None else None,
-            "provider_params": ProviderParams.from_dict(obj["provider_params"]) if obj.get("provider_params") is not None else None
+            "version": PromptVersionCreateRequest.from_dict(obj["version"]) if obj.get("version") is not None else None
         })
         return _obj
 

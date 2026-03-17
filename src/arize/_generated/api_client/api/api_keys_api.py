@@ -19,6 +19,9 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr, field_validator
 from typing import Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.api_key_create import ApiKeyCreate
+from arize._generated.api_client.models.api_key_created import ApiKeyCreated
+from arize._generated.api_client.models.api_key_refresh import ApiKeyRefresh
 from arize._generated.api_client.models.api_keys_list200_response import ApiKeysList200Response
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
@@ -37,6 +40,299 @@ class APIKeysApi:
         if api_client is None:
             api_client = ApiClient.get_default()
         self.api_client = api_client
+
+
+    @validate_call
+    def api_keys_create(
+        self,
+        api_key_create: Annotated[ApiKeyCreate, Field(description="Body containing API key creation parameters")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiKeyCreated:
+        """Create an API key
+
+        Create a new API key for the authenticated user.  - `key_type` defaults to `user` when omitted. - For `service` keys, `space_id` is required. The service key is   scoped to the given space, and a bot user will be created with the specified roles. - For `user` keys, `space_id` and `roles` must not be set — passing either returns `400`.   The key inherits the authenticated user's own permissions. - You may only assign roles at or below your own privilege level. Attempting to   assign a role higher than your own returns `400 Bad Request`. - All roles default to the minimum privilege when omitted: `space_role` → `member`,   `org_role` → `read-only`, `account_role` → `member`.  The full API key value (`key`) is **only returned once** in the creation response. Store it securely — it cannot be retrieved again. Use the `redacted_key` field on subsequent reads.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param api_key_create: Body containing API key creation parameters (required)
+        :type api_key_create: ApiKeyCreate
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._api_keys_create_serialize(
+            api_key_create=api_key_create,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "ApiKeyCreated",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def api_keys_create_with_http_info(
+        self,
+        api_key_create: Annotated[ApiKeyCreate, Field(description="Body containing API key creation parameters")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ApiKeyCreated]:
+        """Create an API key
+
+        Create a new API key for the authenticated user.  - `key_type` defaults to `user` when omitted. - For `service` keys, `space_id` is required. The service key is   scoped to the given space, and a bot user will be created with the specified roles. - For `user` keys, `space_id` and `roles` must not be set — passing either returns `400`.   The key inherits the authenticated user's own permissions. - You may only assign roles at or below your own privilege level. Attempting to   assign a role higher than your own returns `400 Bad Request`. - All roles default to the minimum privilege when omitted: `space_role` → `member`,   `org_role` → `read-only`, `account_role` → `member`.  The full API key value (`key`) is **only returned once** in the creation response. Store it securely — it cannot be retrieved again. Use the `redacted_key` field on subsequent reads.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param api_key_create: Body containing API key creation parameters (required)
+        :type api_key_create: ApiKeyCreate
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._api_keys_create_serialize(
+            api_key_create=api_key_create,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "ApiKeyCreated",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def api_keys_create_without_preload_content(
+        self,
+        api_key_create: Annotated[ApiKeyCreate, Field(description="Body containing API key creation parameters")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Create an API key
+
+        Create a new API key for the authenticated user.  - `key_type` defaults to `user` when omitted. - For `service` keys, `space_id` is required. The service key is   scoped to the given space, and a bot user will be created with the specified roles. - For `user` keys, `space_id` and `roles` must not be set — passing either returns `400`.   The key inherits the authenticated user's own permissions. - You may only assign roles at or below your own privilege level. Attempting to   assign a role higher than your own returns `400 Bad Request`. - All roles default to the minimum privilege when omitted: `space_role` → `member`,   `org_role` → `read-only`, `account_role` → `member`.  The full API key value (`key`) is **only returned once** in the creation response. Store it securely — it cannot be retrieved again. Use the `redacted_key` field on subsequent reads.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param api_key_create: Body containing API key creation parameters (required)
+        :type api_key_create: ApiKeyCreate
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._api_keys_create_serialize(
+            api_key_create=api_key_create,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "ApiKeyCreated",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _api_keys_create_serialize(
+        self,
+        api_key_create,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if api_key_create is not None:
+            _body_params = api_key_create
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/api-keys',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
 
 
     @validate_call
@@ -630,6 +926,311 @@ class APIKeysApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/api-keys',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def api_keys_refresh(
+        self,
+        api_key_id: Annotated[StrictStr, Field(description="The unique identifier of the API key")],
+        api_key_refresh: Annotated[Optional[ApiKeyRefresh], Field(description="Optional body for overriding expiry on a refreshed API key.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiKeyCreated:
+        """Refresh an API key
+
+        Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type). Attempting to refresh a key you did not create returns a `400` error.  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Expiry behaviour:** Supply `expires_at` in the request body to set an expiration on the replacement key. Omit `expires_at` (or send an empty body `{}`) to create the replacement key with no expiration (infinite lifetime).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param api_key_id: The unique identifier of the API key (required)
+        :type api_key_id: str
+        :param api_key_refresh: Optional body for overriding expiry on a refreshed API key.
+        :type api_key_refresh: ApiKeyRefresh
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._api_keys_refresh_serialize(
+            api_key_id=api_key_id,
+            api_key_refresh=api_key_refresh,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ApiKeyCreated",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def api_keys_refresh_with_http_info(
+        self,
+        api_key_id: Annotated[StrictStr, Field(description="The unique identifier of the API key")],
+        api_key_refresh: Annotated[Optional[ApiKeyRefresh], Field(description="Optional body for overriding expiry on a refreshed API key.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ApiKeyCreated]:
+        """Refresh an API key
+
+        Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type). Attempting to refresh a key you did not create returns a `400` error.  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Expiry behaviour:** Supply `expires_at` in the request body to set an expiration on the replacement key. Omit `expires_at` (or send an empty body `{}`) to create the replacement key with no expiration (infinite lifetime).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param api_key_id: The unique identifier of the API key (required)
+        :type api_key_id: str
+        :param api_key_refresh: Optional body for overriding expiry on a refreshed API key.
+        :type api_key_refresh: ApiKeyRefresh
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._api_keys_refresh_serialize(
+            api_key_id=api_key_id,
+            api_key_refresh=api_key_refresh,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ApiKeyCreated",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def api_keys_refresh_without_preload_content(
+        self,
+        api_key_id: Annotated[StrictStr, Field(description="The unique identifier of the API key")],
+        api_key_refresh: Annotated[Optional[ApiKeyRefresh], Field(description="Optional body for overriding expiry on a refreshed API key.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Refresh an API key
+
+        Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type). Attempting to refresh a key you did not create returns a `400` error.  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Expiry behaviour:** Supply `expires_at` in the request body to set an expiration on the replacement key. Omit `expires_at` (or send an empty body `{}`) to create the replacement key with no expiration (infinite lifetime).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param api_key_id: The unique identifier of the API key (required)
+        :type api_key_id: str
+        :param api_key_refresh: Optional body for overriding expiry on a refreshed API key.
+        :type api_key_refresh: ApiKeyRefresh
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._api_keys_refresh_serialize(
+            api_key_id=api_key_id,
+            api_key_refresh=api_key_refresh,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ApiKeyCreated",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _api_keys_refresh_serialize(
+        self,
+        api_key_id,
+        api_key_refresh,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if api_key_id is not None:
+            _path_params['api_key_id'] = api_key_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if api_key_refresh is not None:
+            _body_params = api_key_refresh
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/api-keys/{api_key_id}/refresh',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

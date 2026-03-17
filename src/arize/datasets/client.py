@@ -86,7 +86,7 @@ class DatasetsClient:
             A response object with the datasets and pagination information.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the REST API
+            ApiException: If the REST API
                 returns an error response (e.g. 401/403/429).
         """
         return self._api.datasets_list(
@@ -136,7 +136,7 @@ class DatasetsClient:
             TypeError: If `examples` is not a list of dicts or a :class:`pandas.DataFrame`.
             RuntimeError: If the Flight upload path is selected and the Flight request
                 fails.
-            arize._generated.api_client.exceptions.ApiException: If the REST API
+            ApiException: If the REST API
                 returns an error response (e.g. 400/401/403/409/429).
         """
         if not isinstance(examples, list | pd.DataFrame):
@@ -197,7 +197,7 @@ class DatasetsClient:
             The dataset object.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the REST API
+            ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
         return self._api.datasets_get(dataset_id=dataset_id)
@@ -215,7 +215,7 @@ class DatasetsClient:
             This method returns None on success (common empty 204 response).
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the REST API
+            ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
         return self._api.datasets_delete(dataset_id=dataset_id)
@@ -255,7 +255,7 @@ class DatasetsClient:
         Raises:
             RuntimeError: If the Flight request fails or returns no response when
                 `all=True`.
-            arize._generated.api_client.exceptions.ApiException: If the REST API
+            ApiException: If the REST API
                 returns an error response when `all=False` (e.g. 401/403/404/429).
         """
         if not all:
@@ -388,7 +388,7 @@ class DatasetsClient:
 
         Raises:
             AssertionError: If `examples` is not a list of dicts or a :class:`pandas.DataFrame`.
-            arize._generated.api_client.exceptions.ApiException: If the REST API
+            ApiException: If the REST API
                 returns an error response (e.g. 400/401/403/404/429).
         """
         from arize._generated import api_client as gen

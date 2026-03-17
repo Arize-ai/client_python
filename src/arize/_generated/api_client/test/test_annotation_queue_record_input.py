@@ -52,9 +52,6 @@ class TestAnnotationQueueRecordInput(unittest.TestCase):
             return AnnotationQueueRecordInput(
                 record_type = 'span',
                 dataset_id = '',
-                example_ids = [
-                    ''
-                    ],
                 project_id = '',
                 start_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 end_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),

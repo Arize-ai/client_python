@@ -19,9 +19,11 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.add_annotation_queue_records_request_body import AddAnnotationQueueRecordsRequestBody
 from arize._generated.api_client.models.annotation_queue import AnnotationQueue
 from arize._generated.api_client.models.annotation_queue_records_list200_response import AnnotationQueueRecordsList200Response
 from arize._generated.api_client.models.annotation_queues_list200_response import AnnotationQueuesList200Response
+from arize._generated.api_client.models.annotation_queues_records_create201_response import AnnotationQueuesRecordsCreate201Response
 from arize._generated.api_client.models.create_annotation_queue_request_body import CreateAnnotationQueueRequestBody
 from arize._generated.api_client.models.update_annotation_queue_request_body import UpdateAnnotationQueueRequestBody
 
@@ -1204,6 +1206,7 @@ class AnnotationQueuesApi:
     def annotation_queues_list(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1225,6 +1228,8 @@ class AnnotationQueuesApi:
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. 
+        :type name: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -1253,6 +1258,7 @@ class AnnotationQueuesApi:
 
         _param = self._annotation_queues_list_serialize(
             space_id=space_id,
+            name=name,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1283,6 +1289,7 @@ class AnnotationQueuesApi:
     def annotation_queues_list_with_http_info(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1304,6 +1311,8 @@ class AnnotationQueuesApi:
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. 
+        :type name: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -1332,6 +1341,7 @@ class AnnotationQueuesApi:
 
         _param = self._annotation_queues_list_serialize(
             space_id=space_id,
+            name=name,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1362,6 +1372,7 @@ class AnnotationQueuesApi:
     def annotation_queues_list_without_preload_content(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1383,6 +1394,8 @@ class AnnotationQueuesApi:
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. 
+        :type name: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -1411,6 +1424,7 @@ class AnnotationQueuesApi:
 
         _param = self._annotation_queues_list_serialize(
             space_id=space_id,
+            name=name,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1436,6 +1450,7 @@ class AnnotationQueuesApi:
     def _annotation_queues_list_serialize(
         self,
         space_id,
+        name,
         limit,
         cursor,
         _request_auth,
@@ -1463,6 +1478,10 @@ class AnnotationQueuesApi:
         if space_id is not None:
             
             _query_params.append(('space_id', space_id))
+            
+        if name is not None:
+            
+            _query_params.append(('name', name))
             
         if limit is not None:
             
@@ -1495,6 +1514,311 @@ class AnnotationQueuesApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/annotation-queues',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def annotation_queues_records_create(
+        self,
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        add_annotation_queue_records_request_body: Annotated[AddAnnotationQueueRecordsRequestBody, Field(description="Body containing records to add to an annotation queue")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> AnnotationQueuesRecordsCreate201Response:
+        """Create annotation queue records
+
+        Add new records from either spans (a project) or from dataset examples to an existing annotation queue.  **Payload Requirements**   - At least one record source is required.   - At most 2 record sources are allowed per request   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.   - For dataset record source: all `example_ids` must be non-empty strings.   - For spans record source: all `span_ids` must be non-empty strings.   - At most 500 records total may be added in one request  <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue.</Note>  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :type annotation_queue_id: str
+        :param add_annotation_queue_records_request_body: Body containing records to add to an annotation queue (required)
+        :type add_annotation_queue_records_request_body: AddAnnotationQueueRecordsRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._annotation_queues_records_create_serialize(
+            annotation_queue_id=annotation_queue_id,
+            add_annotation_queue_records_request_body=add_annotation_queue_records_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "AnnotationQueuesRecordsCreate201Response",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def annotation_queues_records_create_with_http_info(
+        self,
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        add_annotation_queue_records_request_body: Annotated[AddAnnotationQueueRecordsRequestBody, Field(description="Body containing records to add to an annotation queue")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[AnnotationQueuesRecordsCreate201Response]:
+        """Create annotation queue records
+
+        Add new records from either spans (a project) or from dataset examples to an existing annotation queue.  **Payload Requirements**   - At least one record source is required.   - At most 2 record sources are allowed per request   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.   - For dataset record source: all `example_ids` must be non-empty strings.   - For spans record source: all `span_ids` must be non-empty strings.   - At most 500 records total may be added in one request  <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue.</Note>  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :type annotation_queue_id: str
+        :param add_annotation_queue_records_request_body: Body containing records to add to an annotation queue (required)
+        :type add_annotation_queue_records_request_body: AddAnnotationQueueRecordsRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._annotation_queues_records_create_serialize(
+            annotation_queue_id=annotation_queue_id,
+            add_annotation_queue_records_request_body=add_annotation_queue_records_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "AnnotationQueuesRecordsCreate201Response",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def annotation_queues_records_create_without_preload_content(
+        self,
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        add_annotation_queue_records_request_body: Annotated[AddAnnotationQueueRecordsRequestBody, Field(description="Body containing records to add to an annotation queue")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Create annotation queue records
+
+        Add new records from either spans (a project) or from dataset examples to an existing annotation queue.  **Payload Requirements**   - At least one record source is required.   - At most 2 record sources are allowed per request   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.   - For dataset record source: all `example_ids` must be non-empty strings.   - For spans record source: all `span_ids` must be non-empty strings.   - At most 500 records total may be added in one request  <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue.</Note>  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :type annotation_queue_id: str
+        :param add_annotation_queue_records_request_body: Body containing records to add to an annotation queue (required)
+        :type add_annotation_queue_records_request_body: AddAnnotationQueueRecordsRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._annotation_queues_records_create_serialize(
+            annotation_queue_id=annotation_queue_id,
+            add_annotation_queue_records_request_body=add_annotation_queue_records_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "AnnotationQueuesRecordsCreate201Response",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _annotation_queues_records_create_serialize(
+        self,
+        annotation_queue_id,
+        add_annotation_queue_records_request_body,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if annotation_queue_id is not None:
+            _path_params['annotation_queue_id'] = annotation_queue_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if add_annotation_queue_records_request_body is not None:
+            _body_params = add_annotation_queue_records_request_body
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/annotation-queues/{annotation_queue_id}/records',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

@@ -577,8 +577,8 @@ class MLModelsClient:
                 upload.
 
         Returns:
-            A requests.Response object from the upload request. Check .status_code for
-            success (200) or error conditions.
+            A requests.Response object from the upload request (only returned on HTTP 2xx).
+            Non-2xx responses raise exceptions rather than being returned.
 
         Raises:
             MissingSpaceIDError: If space_id is not provided or empty.
@@ -589,6 +589,11 @@ class MLModelsClient:
                 of validation error messages.
             pa.ArrowInvalid: If the dataframe cannot be converted to Arrow format, typically
                 due to mixed types in columns not specified in the schema.
+            AuthenticationError: If the server returns HTTP 401 or 403 (invalid API key or
+                space ID). Raised immediately to prevent further uploads with bad credentials.
+            APIError: If the server returns any other non-2xx response (e.g. 400, 422, 429,
+                5xx). Raised immediately to prevent further uploads when the server signals
+                an error.
 
         Notes:
             - Categorical dtype columns are automatically converted to string

@@ -9,6 +9,7 @@ Method | HTTP request | Description
 [**annotation_queues_delete**](AnnotationQueuesApi.md#annotation_queues_delete) | **DELETE** /v2/annotation-queues/{annotation_queue_id} | Delete an annotation queue
 [**annotation_queues_get**](AnnotationQueuesApi.md#annotation_queues_get) | **GET** /v2/annotation-queues/{annotation_queue_id} | Get an annotation queue
 [**annotation_queues_list**](AnnotationQueuesApi.md#annotation_queues_list) | **GET** /v2/annotation-queues | List annotation queues
+[**annotation_queues_records_create**](AnnotationQueuesApi.md#annotation_queues_records_create) | **POST** /v2/annotation-queues/{annotation_queue_id}/records | Create annotation queue records
 [**annotation_queues_update**](AnnotationQueuesApi.md#annotation_queues_update) | **PATCH** /v2/annotation-queues/{annotation_queue_id} | Update an annotation queue
 
 
@@ -415,7 +416,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **annotation_queues_list**
-> AnnotationQueuesList200Response annotation_queues_list(space_id=space_id, limit=limit, cursor=cursor)
+> AnnotationQueuesList200Response annotation_queues_list(space_id=space_id, name=name, limit=limit, cursor=cursor)
 
 List annotation queues
 
@@ -455,12 +456,13 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
     space_id = 'space_id_example' # str | Filter search results to a particular space ID (optional)
+    name = 'name_example' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned.  (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
         # List annotation queues
-        api_response = api_instance.annotation_queues_list(space_id=space_id, limit=limit, cursor=cursor)
+        api_response = api_instance.annotation_queues_list(space_id=space_id, name=name, limit=limit, cursor=cursor)
         print("The response of AnnotationQueuesApi->annotation_queues_list:\n")
         pprint(api_response)
     except Exception as e:
@@ -475,6 +477,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **space_id** | **str**| Filter search results to a particular space ID | [optional] 
+ **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. When omitted, no name filter is applied and all resources are returned.  | [optional] 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
@@ -499,6 +502,105 @@ Name | Type | Description  | Notes
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **annotation_queues_records_create**
+> AnnotationQueuesRecordsCreate201Response annotation_queues_records_create(annotation_queue_id, add_annotation_queue_records_request_body)
+
+Create annotation queue records
+
+Add new records from either spans (a project) or from dataset examples to an existing annotation queue.
+
+**Payload Requirements**
+  - At least one record source is required.
+  - At most 2 record sources are allowed per request
+  - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.
+  - For dataset record source: all `example_ids` must be non-empty strings.
+  - For spans record source: all `span_ids` must be non-empty strings.
+  - At most 500 records total may be added in one request
+
+<Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue.</Note>
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.add_annotation_queue_records_request_body import AddAnnotationQueueRecordsRequestBody
+from arize._generated.api_client.models.annotation_queues_records_create201_response import AnnotationQueuesRecordsCreate201Response
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
+    annotation_queue_id = 'annotation_queue_id_example' # str | The unique identifier of the annotation queue
+    add_annotation_queue_records_request_body = arize._generated.api_client.AddAnnotationQueueRecordsRequestBody() # AddAnnotationQueueRecordsRequestBody | Body containing records to add to an annotation queue
+
+    try:
+        # Create annotation queue records
+        api_response = api_instance.annotation_queues_records_create(annotation_queue_id, add_annotation_queue_records_request_body)
+        print("The response of AnnotationQueuesApi->annotation_queues_records_create:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling AnnotationQueuesApi->annotation_queues_records_create: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **annotation_queue_id** | **str**| The unique identifier of the annotation queue | 
+ **add_annotation_queue_records_request_body** | [**AddAnnotationQueueRecordsRequestBody**](AddAnnotationQueueRecordsRequestBody.md)| Body containing records to add to an annotation queue | 
+
+### Return type
+
+[**AnnotationQueuesRecordsCreate201Response**](AnnotationQueuesRecordsCreate201Response.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**201** | Returns the created annotation queue records |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

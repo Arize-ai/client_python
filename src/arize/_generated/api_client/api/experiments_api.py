@@ -898,6 +898,7 @@ class ExperimentsApi:
     def experiments_list(
         self,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter experiments to a particular dataset ID")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -919,6 +920,8 @@ class ExperimentsApi:
 
         :param dataset_id: Filter experiments to a particular dataset ID
         :type dataset_id: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. 
+        :type name: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -947,6 +950,7 @@ class ExperimentsApi:
 
         _param = self._experiments_list_serialize(
             dataset_id=dataset_id,
+            name=name,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -978,6 +982,7 @@ class ExperimentsApi:
     def experiments_list_with_http_info(
         self,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter experiments to a particular dataset ID")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -999,6 +1004,8 @@ class ExperimentsApi:
 
         :param dataset_id: Filter experiments to a particular dataset ID
         :type dataset_id: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. 
+        :type name: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -1027,6 +1034,7 @@ class ExperimentsApi:
 
         _param = self._experiments_list_serialize(
             dataset_id=dataset_id,
+            name=name,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1058,6 +1066,7 @@ class ExperimentsApi:
     def experiments_list_without_preload_content(
         self,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter experiments to a particular dataset ID")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1079,6 +1088,8 @@ class ExperimentsApi:
 
         :param dataset_id: Filter experiments to a particular dataset ID
         :type dataset_id: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. 
+        :type name: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -1107,6 +1118,7 @@ class ExperimentsApi:
 
         _param = self._experiments_list_serialize(
             dataset_id=dataset_id,
+            name=name,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1133,6 +1145,7 @@ class ExperimentsApi:
     def _experiments_list_serialize(
         self,
         dataset_id,
+        name,
         limit,
         cursor,
         _request_auth,
@@ -1160,6 +1173,10 @@ class ExperimentsApi:
         if dataset_id is not None:
             
             _query_params.append(('dataset_id', dataset_id))
+            
+        if name is not None:
+            
+            _query_params.append(('name', name))
             
         if limit is not None:
             

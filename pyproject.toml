@@ -206,6 +206,9 @@ module = [
     "requests_futures.*",
     "interpret_community.*",
     "sklearn.*",
+    "torch.*",
+    "transformers.*",
+    "PIL.*"
 ]
 ignore_missing_imports = true
 
@@ -224,7 +227,8 @@ norecursedirs = [
     ".*",
     "build",
     "dist",
-    "*.egg"
+    "*.egg",
+    "_generated",  # OpenAPI-generated tests conflict with installed package
 ]
 # Additional command-line options to always apply when running pytest
 addopts = [
@@ -289,7 +293,7 @@ directory = "htmlcov"
 [tool.taskipy.tasks]
 lint = { cmd = "ruff format . && ruff check --fix .", cwd = ".", help = "Run ruff to format and lint the package." }
 type-check = {cmd = "mypy --no-incremental --show-traceback --config-file pyproject.toml .", cwd = ".", help = "Run mypy for type checking."}
-test = {cmd = "pytest --cov .", cwd = ".", help = "Run the test suite with coverage."}
+test = {cmd = "pytest --cov --cov-report=term-missing .", cwd = ".", help = "Run the test suite with coverage."}
 # Exclusive for CI
 ci-format = { cmd = "ruff format --check .", cwd = ".", help = "Run ruff to check formatting of the package during CI." }
 ci-lint = { cmd = "ruff check .", cwd = ".", help = "Run ruff to check linting rules of the package during CI." }

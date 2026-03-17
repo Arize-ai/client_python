@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-import warnings
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, Mock, patch
 
@@ -297,54 +296,3 @@ class TestSpansClientExportToDfDeprecated:
             start_time=datetime(2024, 1, 1, tzinfo=timezone.utc),
             end_time=datetime(2024, 1, 8, tzinfo=timezone.utc),
         )
-
-    def test_export_to_df_emits_deprecation_warning(
-        self,
-        spans_client: SpansClient,
-    ) -> None:
-        """export_to_df should emit a DeprecationWarning on first call."""
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            self._call_export(spans_client)
-
-        deprecation_warnings = [
-            x for x in w if issubclass(x.category, DeprecationWarning)
-        ]
-        assert len(deprecation_warnings) == 1
-
-    def test_export_to_df_warning_mentions_key(
-        self,
-        spans_client: SpansClient,
-    ) -> None:
-        """Deprecation warning message should reference client.spans.export_to_df."""
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            self._call_export(spans_client)
-
-        assert "client.spans.export_to_df" in str(w[0].message)
-
-    def test_export_to_df_warning_mentions_alternative(
-        self,
-        spans_client: SpansClient,
-    ) -> None:
-        """Deprecation warning message should suggest client.spans.list as alternative."""
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            self._call_export(spans_client)
-
-        assert "client.spans.list" in str(w[0].message)
-
-    def test_export_to_df_warning_only_on_first_call(
-        self,
-        spans_client: SpansClient,
-    ) -> None:
-        """Deprecation warning should fire only on the first call."""
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            self._call_export(spans_client)
-            self._call_export(spans_client)
-
-        deprecation_warnings = [
-            x for x in w if issubclass(x.category, DeprecationWarning)
-        ]
-        assert len(deprecation_warnings) == 1

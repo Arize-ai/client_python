@@ -34,8 +34,8 @@ class CreateAnnotationQueueRequestBody(BaseModel):
     annotation_config_ids: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="IDs of annotation configs to associate with this queue. All configs must belong to the same space.")
     annotator_emails: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="Email addresses of annotators to assign to the queue. Emails are resolved to user IDs server-side.")
     assignment_method: Optional[StrictStr] = Field(default='all', description="How records are assigned to annotators. Defaults to \"all\". - `all`: Every annotator is assigned to every record. - `random`: Each record is randomly assigned to one annotator. ")
-    records: Optional[Annotated[List[AnnotationQueueRecordInput], Field(max_length=2)]] = Field(default=None, description="Records to add to the annotation queue on creation. At most 2 record sources (projects or datasets) may be provided in a single create request. Additional records from other sources can be added after creation.")
-    __properties: ClassVar[List[str]] = ["name", "space_id", "instructions", "annotation_config_ids", "annotator_emails", "assignment_method", "records"]
+    record_sources: Optional[Annotated[List[AnnotationQueueRecordInput], Field(max_length=2)]] = Field(default=None, description="Record sources to add to the annotation queue on creation. At most 2 record sources (projects or datasets) may be provided in a single create request. Additional records from other sources can be added after creation.")
+    __properties: ClassVar[List[str]] = ["name", "space_id", "instructions", "annotation_config_ids", "annotator_emails", "assignment_method", "record_sources"]
 
     @field_validator('assignment_method')
     def assignment_method_validate_enum(cls, value):
@@ -86,13 +86,13 @@ class CreateAnnotationQueueRequestBody(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in records (list)
+        # override the default output from pydantic by calling `to_dict()` of each item in record_sources (list)
         _items = []
-        if self.records:
-            for _item_records in self.records:
-                if _item_records:
-                    _items.append(_item_records.to_dict())
-            _dict['records'] = _items
+        if self.record_sources:
+            for _item_record_sources in self.record_sources:
+                if _item_record_sources:
+                    _items.append(_item_record_sources.to_dict())
+            _dict['record_sources'] = _items
         return _dict
 
     @classmethod
@@ -116,7 +116,7 @@ class CreateAnnotationQueueRequestBody(BaseModel):
             "annotation_config_ids": obj.get("annotation_config_ids"),
             "annotator_emails": obj.get("annotator_emails"),
             "assignment_method": obj.get("assignment_method") if obj.get("assignment_method") is not None else 'all',
-            "records": [AnnotationQueueRecordInput.from_dict(_item) for _item in obj["records"]] if obj.get("records") is not None else None
+            "record_sources": [AnnotationQueueRecordInput.from_dict(_item) for _item in obj["record_sources"]] if obj.get("record_sources") is not None else None
         })
         return _obj
 

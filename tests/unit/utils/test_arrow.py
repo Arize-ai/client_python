@@ -8,6 +8,8 @@ from unittest.mock import MagicMock, patch
 import pyarrow as pa
 import pytest
 
+from arize.exceptions.auth import AuthenticationError
+from arize.exceptions.http import APIError
 from arize.utils.arrow import (
     _append_to_pyarrow_metadata,
     _filesize,
@@ -358,6 +360,67 @@ class TestPostArrowTable:
                     max_chunksize=1000,
                     tmp_dir="",  # Empty means we own the directory
                 )
+
+    @pytest.mark.parametrize("status_code", [401, 403])
+    def test_raises_authentication_error_on_auth_failure(
+        self,
+        tmp_path: Path,
+        sample_arrow_table: pa.Table,
+        mock_proto_schema: MagicMock,
+        status_code: int,
+    ) -> None:
+        """Should raise AuthenticationError immediately on 401/403."""
+        auth_response = MagicMock()
+        auth_response.status_code = status_code
+        auth_response.text = '{"error":"space key or api key is invalid"}'
+
+        with patch("requests.post") as mock_post:
+            mock_post.return_value = auth_response
+
+            with pytest.raises(AuthenticationError) as exc_info:
+                post_arrow_table(
+                    files_url="https://api.arize.com/upload",
+                    pa_table=sample_arrow_table,
+                    proto_schema=mock_proto_schema,
+                    headers={"Authorization": "Bearer bad-key"},
+                    timeout=30.0,
+                    verify=True,
+                    max_chunksize=1000,
+                    tmp_dir=str(tmp_path),
+                )
+
+            assert exc_info.value.status_code == status_code
+            assert "Verify your API key" in str(exc_info.value)
+
+    @pytest.mark.parametrize("status_code", [400, 422, 429, 500, 503])
+    def test_raises_api_error_on_non_2xx(
+        self,
+        tmp_path: Path,
+        sample_arrow_table: pa.Table,
+        mock_proto_schema: MagicMock,
+        status_code: int,
+    ) -> None:
+        """Should raise APIError immediately on any non-2xx response (other than 401/403)."""
+        error_response = MagicMock()
+        error_response.status_code = status_code
+        error_response.text = "server error"
+
+        with patch("requests.post") as mock_post:
+            mock_post.return_value = error_response
+
+            with pytest.raises(APIError) as exc_info:
+                post_arrow_table(
+                    files_url="https://api.arize.com/upload",
+                    pa_table=sample_arrow_table,
+                    proto_schema=mock_proto_schema,
+                    headers={"Authorization": "Bearer token"},
+                    timeout=30.0,
+                    verify=True,
+                    max_chunksize=1000,
+                    tmp_dir=str(tmp_path),
+                )
+
+            assert exc_info.value.status_code == status_code
 
     def test_logs_project_url_on_success(
         self,

@@ -271,7 +271,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **projects_list**
-> ProjectsList200Response projects_list(space_id=space_id, limit=limit, cursor=cursor)
+> ProjectsList200Response projects_list(space_id=space_id, name=name, limit=limit, cursor=cursor)
 
 List projects
 
@@ -311,12 +311,13 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ProjectsApi(api_client)
     space_id = 'space_id_example' # str | Filter search results to a particular space ID (optional)
+    name = 'name_example' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned.  (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
         # List projects
-        api_response = api_instance.projects_list(space_id=space_id, limit=limit, cursor=cursor)
+        api_response = api_instance.projects_list(space_id=space_id, name=name, limit=limit, cursor=cursor)
         print("The response of ProjectsApi->projects_list:\n")
         pprint(api_response)
     except Exception as e:
@@ -331,6 +332,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **space_id** | **str**| Filter search results to a particular space ID | [optional] 
+ **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. When omitted, no name filter is applied and all resources are returned.  | [optional] 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 

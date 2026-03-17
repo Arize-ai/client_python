@@ -9,16 +9,20 @@ docs/
  ┣ source/
  ┃ ┣ _static/
  ┃ ┃ └── custom.css
- ┃ ┣ client.md          # ArizeClient
- ┃ ┣ spans.md           # SpansClient
- ┃ ┣ ml.md              # MLModelsClient
- ┃ ┣ datasets.md        # DatasetsClient
- ┃ ┣ experiments.md     # ExperimentsClient
- ┃ ┣ embeddings.md      # EmbeddingGenerator
- ┃ ┣ types.md           # Type definitions
- ┃ ┣ config.md          # SDKConfiguration
- ┃ ┣ conf.py            # Sphinx configuration
- ┃ └── index.md         # Main entry point
+ ┃ ┣ client.md              # ArizeClient
+ ┃ ┣ config.md              # SDKConfiguration
+ ┃ ┣ api_keys.md            # ApiKeysClient
+ ┃ ┣ datasets.md            # DatasetsClient
+ ┃ ┣ experiments.md         # ExperimentsClient, Evaluator, EvaluationResult
+ ┃ ┣ ml.md                  # MLModelsClient
+ ┃ ┣ projects.md            # ProjectsClient
+ ┃ ┣ prompts.md             # PromptsClient
+ ┃ ┣ spans.md               # SpansClient
+ ┃ ┣ annotation_configs.md  # AnnotationConfigsClient, AnnotationConfigType
+ ┃ ┣ spaces.md              # SpacesClient
+ ┃ ┣ embeddings.md          # EmbeddingGenerator
+ ┃ ┣ conf.py                # Sphinx configuration
+ ┃ └── index.md             # Main entry point
  ┣ Makefile
  ┣ make.bat
  ┣ requirements.txt

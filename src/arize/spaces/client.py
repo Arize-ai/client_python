@@ -43,7 +43,7 @@ class SpacesClient:
         # Use the provided client directly
         self._api = gen.SpacesApi(generated_client)
 
-    @prerelease_endpoint(key="spaces.list", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="spaces.list", stage=ReleaseStage.BETA)
     def list(
         self,
         *,
@@ -66,7 +66,7 @@ class SpacesClient:
             A paginated space list response from the Arize REST API.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the API request fails.
+            ApiException: If the API request fails.
         """
         return self._api.spaces_list(
             org_id=organization_id,
@@ -74,7 +74,7 @@ class SpacesClient:
             cursor=cursor,
         )
 
-    @prerelease_endpoint(key="spaces.get", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="spaces.get", stage=ReleaseStage.BETA)
     def get(self, *, space_id: str) -> models.Space:
         """Get a space by ID.
 
@@ -85,12 +85,12 @@ class SpacesClient:
             The space object.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the API request fails
+            ApiException: If the API request fails
                 (for example, space not found).
         """
         return self._api.spaces_get(space_id=space_id)
 
-    @prerelease_endpoint(key="spaces.create", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="spaces.create", stage=ReleaseStage.BETA)
     def create(
         self,
         *,
@@ -122,7 +122,7 @@ class SpacesClient:
         )
         return self._api.spaces_create(spaces_create_request=body)
 
-    @prerelease_endpoint(key="spaces.update", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="spaces.update", stage=ReleaseStage.BETA)
     def update(
         self,
         *,
@@ -142,7 +142,7 @@ class SpacesClient:
 
         Raises:
             ValueError: If neither ``name`` nor ``description`` is provided.
-            arize._generated.api_client.exceptions.ApiException: If the API request fails
+            ApiException: If the API request fails
                 (for example, space not found or insufficient permissions).
         """
         if name is None and description is None:

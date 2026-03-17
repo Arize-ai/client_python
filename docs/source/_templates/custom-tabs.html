@@ -6,6 +6,17 @@
       <a class="nav-link" href="{{ pathto('client') }}">Client</a>
     </li>
 
+    {# Settings dropdown #}
+    <li class="nav-item dropdown">
+      <button class="btn dropdown-toggle nav-link" type="button" data-bs-toggle="dropdown">
+        Settings
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{{ pathto('ai_integrations') }}">AI Integrations</a></li>
+        <li><a class="dropdown-item" href="{{ pathto('api_keys') }}">API Keys</a></li>
+      </ul>
+    </li>
+
     {# Tracing dropdown #}
     <li class="nav-item dropdown">
       <button class="btn dropdown-toggle nav-link" type="button" data-bs-toggle="dropdown">

@@ -61,7 +61,7 @@ class SpacesApi:
     ) -> Space:
         """Create a space
 
-        Create a new space within an organization.  **Payload Requirements** - `name` and `organization_id` are required. - The space name must be unique within the organization. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated   automatically and rejected if provided.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new space within an organization.  **Payload Requirements** - `name` and `organization_id` are required. - The space name must be unique within the organization. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated   automatically and rejected if provided.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param spaces_create_request: Body containing space creation parameters (required)
         :type spaces_create_request: SpacesCreateRequest
@@ -134,7 +134,7 @@ class SpacesApi:
     ) -> ApiResponse[Space]:
         """Create a space
 
-        Create a new space within an organization.  **Payload Requirements** - `name` and `organization_id` are required. - The space name must be unique within the organization. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated   automatically and rejected if provided.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new space within an organization.  **Payload Requirements** - `name` and `organization_id` are required. - The space name must be unique within the organization. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated   automatically and rejected if provided.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param spaces_create_request: Body containing space creation parameters (required)
         :type spaces_create_request: SpacesCreateRequest
@@ -207,7 +207,7 @@ class SpacesApi:
     ) -> RESTResponseType:
         """Create a space
 
-        Create a new space within an organization.  **Payload Requirements** - `name` and `organization_id` are required. - The space name must be unique within the organization. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated   automatically and rejected if provided.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new space within an organization.  **Payload Requirements** - `name` and `organization_id` are required. - The space name must be unique within the organization. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated   automatically and rejected if provided.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param spaces_create_request: Body containing space creation parameters (required)
         :type spaces_create_request: SpacesCreateRequest
@@ -354,7 +354,7 @@ class SpacesApi:
     ) -> Space:
         """Get a space
 
-        Get a specific space by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific space by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: The unique identifier of the space (required)
         :type space_id: str
@@ -426,7 +426,7 @@ class SpacesApi:
     ) -> ApiResponse[Space]:
         """Get a space
 
-        Get a specific space by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific space by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: The unique identifier of the space (required)
         :type space_id: str
@@ -498,7 +498,7 @@ class SpacesApi:
     ) -> RESTResponseType:
         """Get a space
 
-        Get a specific space by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific space by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: The unique identifier of the space (required)
         :type space_id: str
@@ -616,6 +616,7 @@ class SpacesApi:
     def spaces_list(
         self,
         org_id: Annotated[Optional[StrictStr], Field(description="The unique identifier of an organization. When provided, only spaces belonging to this organization are returned.")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -633,10 +634,12 @@ class SpacesApi:
     ) -> SpacesList200Response:
         """List spaces
 
-        List spaces the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List spaces the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique identifier of an organization. When provided, only spaces belonging to this organization are returned.
         :type org_id: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. 
+        :type name: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -665,6 +668,7 @@ class SpacesApi:
 
         _param = self._spaces_list_serialize(
             org_id=org_id,
+            name=name,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -695,6 +699,7 @@ class SpacesApi:
     def spaces_list_with_http_info(
         self,
         org_id: Annotated[Optional[StrictStr], Field(description="The unique identifier of an organization. When provided, only spaces belonging to this organization are returned.")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -712,10 +717,12 @@ class SpacesApi:
     ) -> ApiResponse[SpacesList200Response]:
         """List spaces
 
-        List spaces the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List spaces the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique identifier of an organization. When provided, only spaces belonging to this organization are returned.
         :type org_id: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. 
+        :type name: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -744,6 +751,7 @@ class SpacesApi:
 
         _param = self._spaces_list_serialize(
             org_id=org_id,
+            name=name,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -774,6 +782,7 @@ class SpacesApi:
     def spaces_list_without_preload_content(
         self,
         org_id: Annotated[Optional[StrictStr], Field(description="The unique identifier of an organization. When provided, only spaces belonging to this organization are returned.")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -791,10 +800,12 @@ class SpacesApi:
     ) -> RESTResponseType:
         """List spaces
 
-        List spaces the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List spaces the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique identifier of an organization. When provided, only spaces belonging to this organization are returned.
         :type org_id: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. When omitted, no name filter is applied and all resources are returned. 
+        :type name: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -823,6 +834,7 @@ class SpacesApi:
 
         _param = self._spaces_list_serialize(
             org_id=org_id,
+            name=name,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -848,6 +860,7 @@ class SpacesApi:
     def _spaces_list_serialize(
         self,
         org_id,
+        name,
         limit,
         cursor,
         _request_auth,
@@ -875,6 +888,10 @@ class SpacesApi:
         if org_id is not None:
             
             _query_params.append(('org_id', org_id))
+            
+        if name is not None:
+            
+            _query_params.append(('name', name))
             
         if limit is not None:
             
@@ -942,7 +959,7 @@ class SpacesApi:
     ) -> Space:
         """Update a space
 
-        Update a space's metadata by its ID. Currently supports updating the name and description. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a space's metadata by its ID. Currently supports updating the name and description. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: The unique identifier of the space (required)
         :type space_id: str
@@ -1019,7 +1036,7 @@ class SpacesApi:
     ) -> ApiResponse[Space]:
         """Update a space
 
-        Update a space's metadata by its ID. Currently supports updating the name and description. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a space's metadata by its ID. Currently supports updating the name and description. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: The unique identifier of the space (required)
         :type space_id: str
@@ -1096,7 +1113,7 @@ class SpacesApi:
     ) -> RESTResponseType:
         """Update a space
 
-        Update a space's metadata by its ID. Currently supports updating the name and description. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a space's metadata by its ID. Currently supports updating the name and description. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: The unique identifier of the space (required)
         :type space_id: str

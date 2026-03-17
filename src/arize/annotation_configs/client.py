@@ -69,7 +69,7 @@ class AnnotationConfigsClient:
             A response object with the annotation configs and pagination information.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the REST API
+            ApiException: If the REST API
                 returns an error response (e.g. 401/403/429).
         """
         return self._api.annotation_configs_list(
@@ -114,7 +114,7 @@ class AnnotationConfigsClient:
 
         Raises:
             ValueError: If required fields for the selected config type are missing.
-            arize._generated.api_client.exceptions.ApiException: If the REST API
+            ApiException: If the REST API
                 returns an error response (e.g. 400/401/403/409/429).
         """
         from arize._generated import api_client as gen
@@ -163,7 +163,7 @@ class AnnotationConfigsClient:
             The annotation config object.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the REST API
+            ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
         return self._api.annotation_configs_get(annotation_config_id=id)
@@ -183,7 +183,7 @@ class AnnotationConfigsClient:
             This method returns None on success (common empty 204 response).
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the REST API
+            ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
         return self._api.annotation_configs_delete(annotation_config_id=id)
