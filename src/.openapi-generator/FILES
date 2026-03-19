@@ -67,6 +67,7 @@ arize/_generated/api_client/docs/DatasetsExamplesInsertRequest.md
 arize/_generated/api_client/docs/DatasetsExamplesList200Response.md
 arize/_generated/api_client/docs/DatasetsExamplesUpdateRequest.md
 arize/_generated/api_client/docs/DatasetsList200Response.md
+arize/_generated/api_client/docs/DeleteAnnotationQueueRecordsRequestBody.md
 arize/_generated/api_client/docs/Evaluation.md
 arize/_generated/api_client/docs/Evaluator.md
 arize/_generated/api_client/docs/EvaluatorLlmConfig.md
@@ -191,6 +192,7 @@ arize/_generated/api_client/models/datasets_examples_insert_request.py
 arize/_generated/api_client/models/datasets_examples_list200_response.py
 arize/_generated/api_client/models/datasets_examples_update_request.py
 arize/_generated/api_client/models/datasets_list200_response.py
+arize/_generated/api_client/models/delete_annotation_queue_records_request_body.py
 arize/_generated/api_client/models/evaluation.py
 arize/_generated/api_client/models/evaluator.py
 arize/_generated/api_client/models/evaluator_llm_config.py
@@ -301,6 +303,8 @@ arize/_generated/api_client/test/test_datasets_examples_insert_request.py
 arize/_generated/api_client/test/test_datasets_examples_list200_response.py
 arize/_generated/api_client/test/test_datasets_examples_update_request.py
 arize/_generated/api_client/test/test_datasets_list200_response.py
+arize/_generated/api_client/test/test_delete_annotation_queue_records_request_body.py
+arize/_generated/api_client/test/test_evaluation.py
 arize/_generated/api_client/test/test_evaluator_llm_config.py
 arize/_generated/api_client/test/test_evaluator_version.py
 arize/_generated/api_client/test/test_evaluator_versions_create_request.py

@@ -86,7 +86,7 @@ class AnnotationConfigsClient:
         *,
         name: str,
         space_id: str,
-        type: AnnotationConfigType,
+        config_type: AnnotationConfigType,
         minimum_score: float | int | None = None,
         maximum_score: float | int | None = None,
         values: builtins.list[models.CategoricalAnnotationValue] | None = None,
@@ -102,7 +102,7 @@ class AnnotationConfigsClient:
         Args:
             name: Annotation config name (must be unique within the target space).
             space_id: Space ID to create the annotation config in.
-            type: Type of annotation config to create.
+            config_type: Type of annotation config to create.
             minimum_score: Minimum score for continuous configs.
             maximum_score: Maximum score for continuous configs.
             values: Categorical values for categorical configs.
@@ -119,7 +119,7 @@ class AnnotationConfigsClient:
         """
         from arize._generated import api_client as gen
 
-        if type == AnnotationConfigType.CONTINUOUS.value:
+        if config_type == AnnotationConfigType.CONTINUOUS.value:
             body = gen.CreateAnnotationConfigRequestBody(
                 actual_instance=gen.ContinuousAnnotationConfigCreate(
                     name=name,
@@ -130,7 +130,7 @@ class AnnotationConfigsClient:
                     optimization_direction=optimization_direction,
                 )
             )
-        elif type == AnnotationConfigType.CATEGORICAL.value:
+        elif config_type == AnnotationConfigType.CATEGORICAL.value:
             body = gen.CreateAnnotationConfigRequestBody(
                 actual_instance=gen.CategoricalAnnotationConfigCreate(
                     name=name,

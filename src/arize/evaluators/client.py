@@ -1,0 +1,353 @@
+"""Client implementation for managing evaluators in the Arize platform."""
+
+from __future__ import annotations
+
+import logging
+from typing import TYPE_CHECKING, Literal
+
+from arize.pre_releases import ReleaseStage, prerelease_endpoint
+
+if TYPE_CHECKING:
+    from arize._generated.api_client import models
+    from arize._generated.api_client.api_client import ApiClient
+    from arize.config import SDKConfiguration
+
+
+logger = logging.getLogger(__name__)
+
+
+class EvaluatorsClient:
+    """Client for managing Arize evaluators and evaluator versions.
+
+    This class is primarily intended for internal use within the SDK. Users are
+    highly encouraged to access resource-specific functionality via
+    :class:`arize.ArizeClient`.
+
+    The evaluators client is a thin wrapper around the generated REST API client,
+    using the shared generated API client owned by
+    :class:`arize.config.SDKConfiguration`.
+    """
+
+    def __init__(
+        self, *, sdk_config: SDKConfiguration, generated_client: ApiClient
+    ) -> None:
+        """
+        Args:
+            sdk_config: Resolved SDK configuration.
+            generated_client: Shared generated API client instance.
+        """  # noqa: D205, D212
+        self._sdk_config = sdk_config
+
+        # Import at runtime so it's still lazy and extras-gated by the parent
+        from arize._generated import api_client as gen
+
+        self._api = gen.EvaluatorsApi(generated_client)
+
+    # -------------------------------------------------------------------------
+    # Evaluators
+    # -------------------------------------------------------------------------
+
+    @prerelease_endpoint(key="evaluators.list", stage=ReleaseStage.ALPHA)
+    def list(
+        self,
+        *,
+        space_id: str | None = None,
+        limit: int = 100,
+        cursor: str | None = None,
+    ) -> models.EvaluatorsList200Response:
+        """List evaluators the user has access to.
+
+        Results are sorted by update date (most recent first). This endpoint
+        supports cursor-based pagination. When ``space_id`` is provided, results
+        are limited to that space; otherwise evaluators from all permitted spaces
+        are returned.
+
+        Args:
+            space_id: Optional space ID to filter results.
+            limit: Maximum number of evaluators to return (1-100).
+            cursor: Opaque pagination cursor from a previous response.
+
+        Returns:
+            A paginated evaluator list response from the Arize REST API.
+
+        Raises:
+            ApiException: If the API request fails.
+        """
+        return self._api.evaluators_list(
+            space_id=space_id,
+            limit=limit,
+            cursor=cursor,
+        )
+
+    @prerelease_endpoint(key="evaluators.get", stage=ReleaseStage.ALPHA)
+    def get(
+        self,
+        *,
+        evaluator_id: str,
+        version_id: str | None = None,
+    ) -> models.EvaluatorWithVersion:
+        """Get an evaluator by ID, with its resolved version.
+
+        By default, the latest version is returned. Pass ``version_id`` to
+        resolve a specific version instead.
+
+        Args:
+            evaluator_id: Evaluator global ID (base64) to retrieve.
+            version_id: Optional version global ID (base64). If omitted, the
+                latest version is returned.
+
+        Returns:
+            The evaluator with its resolved version.
+
+        Raises:
+            ApiException: If the API request fails
+                (for example, evaluator not found).
+        """
+        return self._api.evaluators_get(
+            evaluator_id=evaluator_id,
+            version_id=version_id,
+        )
+
+    @prerelease_endpoint(key="evaluators.create", stage=ReleaseStage.ALPHA)
+    def create(
+        self,
+        *,
+        name: str,
+        space_id: str,
+        evaluator_type: Literal["template", "code"] = "template",
+        commit_message: str,
+        template_config: models.TemplateConfig,
+        description: str | None = None,
+    ) -> models.EvaluatorWithVersion:
+        r"""Create a new evaluator with an initial version.
+
+        The evaluator ``name`` must be unique within the given space.
+
+        Currently, only ``"template"`` evaluators are supported. The ``evaluator_type``
+        parameter is accepted for forward-compatibility but raises
+        ``ValueError`` if set to anything other than ``"template"``.
+
+        Args:
+            name: Evaluator name (must be unique within ``space_id``).
+            space_id: Space global ID (base64) to create the evaluator in.
+            evaluator_type: Evaluator type. Only ``"template"`` is supported;
+                the parameter is accepted for forward-compatibility.
+            commit_message: Commit message for the initial version.
+            template_config: Template configuration for the initial version.
+                Build this with :class:`arize.TemplateConfig` (or
+                :class:`arize._generated.api_client.models.TemplateConfig`).
+                Required fields:
+
+                - ``name`` — eval column name; must match
+                  ``^[a-zA-Z0-9_\\s\\-&()]+$``.
+                - ``template`` — prompt template string with ``{{variable}}``
+                  placeholders referencing span/trace attributes.
+                - ``include_explanations`` — whether the LLM should include a
+                  reasoning explanation alongside the score.
+                - ``use_function_calling_if_available`` — prefer structured
+                  function-call output over free-text parsing when the model
+                  supports it.
+                - ``llm_config`` — :class:`arize.EvaluatorLlmConfig`
+                  specifying the model provider, model name, and API key.
+
+                Optional fields:
+
+                - ``classification_choices`` — ``dict[str, float]`` mapping
+                  label → numeric score (e.g. ``{"relevant": 1,
+                  "irrelevant": 0}``). When omitted the evaluator produces
+                  freeform (non-classification) output.
+                - ``direction`` — ``"maximize"`` or ``"minimize"``, the
+                  optimization direction for annotation scores.
+                - ``data_granularity`` — ``"span"``, ``"trace"``, or
+                  ``"session"``.
+            description: Optional human-readable description of the evaluator.
+
+        Returns:
+            The created evaluator with its initial version.
+
+        Raises:
+            ApiException: If the API request fails
+                (for example, name conflict or invalid payload).
+        """
+        from arize._generated import api_client as gen
+
+        if evaluator_type != "template":
+            raise ValueError(
+                f"Evaluator type {evaluator_type} is not supported"
+            )
+
+        version = gen.EvaluatorsCreateRequestVersion(
+            commit_message=commit_message,
+            template_config=template_config,
+        )
+        body = gen.EvaluatorsCreateRequest(
+            name=name,
+            space_id=space_id,
+            type=evaluator_type,
+            description=description,
+            version=version,
+        )
+        return self._api.evaluators_create(evaluators_create_request=body)
+
+    @prerelease_endpoint(key="evaluators.update", stage=ReleaseStage.ALPHA)
+    def update(
+        self,
+        *,
+        evaluator_id: str,
+        name: str | None = None,
+        description: str | None = None,
+    ) -> models.Evaluator:
+        """Update an evaluator's metadata.
+
+        Args:
+            evaluator_id: Evaluator global ID (base64) to update.
+            name: New evaluator name (must be unique within its space).
+            description: New description for the evaluator.
+
+        Returns:
+            The updated evaluator.
+
+        Raises:
+            ApiException: If the API request fails.
+        """
+        from arize._generated import api_client as gen
+
+        body = gen.EvaluatorsUpdateRequest(name=name, description=description)
+        return self._api.evaluators_update(
+            evaluator_id=evaluator_id,
+            evaluators_update_request=body,
+        )
+
+    @prerelease_endpoint(key="evaluators.delete", stage=ReleaseStage.ALPHA)
+    def delete(self, *, evaluator_id: str) -> None:
+        """Delete an evaluator and all its versions.
+
+        This operation is irreversible.
+
+        Args:
+            evaluator_id: Evaluator global ID (base64) to delete.
+
+        Returns:
+            None.
+
+        Raises:
+            ApiException: If the API request fails
+                (for example, evaluator not found).
+        """
+        self._api.evaluators_delete(evaluator_id=evaluator_id)
+
+    # -------------------------------------------------------------------------
+    # Evaluator versions
+    # -------------------------------------------------------------------------
+
+    @prerelease_endpoint(
+        key="evaluators.list_versions", stage=ReleaseStage.ALPHA
+    )
+    def list_versions(
+        self,
+        *,
+        evaluator_id: str,
+        limit: int = 100,
+        cursor: str | None = None,
+    ) -> models.EvaluatorVersionsList200Response:
+        """List all versions of an evaluator.
+
+        Results are returned with cursor-based pagination.
+
+        Args:
+            evaluator_id: Evaluator global ID (base64) to list versions for.
+            limit: Maximum number of versions to return (1-100).
+            cursor: Opaque pagination cursor from a previous response.
+
+        Returns:
+            A paginated evaluator version list response.
+
+        Raises:
+            ApiException: If the API request fails.
+        """
+        return self._api.evaluator_versions_list(
+            evaluator_id=evaluator_id,
+            limit=limit,
+            cursor=cursor,
+        )
+
+    @prerelease_endpoint(key="evaluators.get_version", stage=ReleaseStage.ALPHA)
+    def get_version(self, *, version_id: str) -> models.EvaluatorVersion:
+        """Get a specific evaluator version by its global ID.
+
+        Args:
+            version_id: Evaluator version global ID (base64).
+
+        Returns:
+            The evaluator version.
+
+        Raises:
+            ApiException: If the API request fails
+                (for example, version not found).
+        """
+        return self._api.evaluator_versions_get(version_id=version_id)
+
+    @prerelease_endpoint(
+        key="evaluators.create_version", stage=ReleaseStage.ALPHA
+    )
+    def create_version(
+        self,
+        *,
+        evaluator_id: str,
+        commit_message: str,
+        template_config: models.TemplateConfig,
+    ) -> models.EvaluatorVersion:
+        r"""Create a new version of an existing evaluator.
+
+        The new version becomes the latest version immediately (versioning is
+        append-only).
+
+        Versions are immutable once created. To change the configuration, create a new version.
+
+        Args:
+            evaluator_id: Evaluator global ID (base64) to add a version to.
+            commit_message: Commit message describing the changes in this version.
+            template_config: Updated template configuration for this version.
+                Build this with :class:`arize.TemplateConfig` (or
+                :class:`arize._generated.api_client.models.TemplateConfig`).
+                Required fields:
+
+                - ``name`` — eval column name; must match
+                  ``^[a-zA-Z0-9_\\s\\-&()]+$``.
+                - ``template`` — prompt template string with ``{{variable}}``
+                  placeholders referencing span/trace attributes.
+                - ``include_explanations`` — whether the LLM should include a
+                  reasoning explanation alongside the score.
+                - ``use_function_calling_if_available`` — prefer structured
+                  function-call output over free-text parsing when the model
+                  supports it.
+                - ``llm_config`` — :class:`arize.EvaluatorLlmConfig`
+                  specifying the model provider, model name, and API key.
+
+                Optional fields:
+
+                - ``classification_choices`` — ``dict[str, float]`` mapping
+                  label → numeric score (e.g. ``{"relevant": 1,
+                  "irrelevant": 0}``). When omitted the evaluator produces
+                  freeform (non-classification) output.
+                - ``direction`` — ``"maximize"`` or ``"minimize"``, the
+                  optimization direction for annotation scores.
+                - ``data_granularity`` — ``"span"``, ``"trace"``, or
+                  ``"session"``.
+
+        Returns:
+            The newly created evaluator version.
+
+        Raises:
+            ApiException: If the API request fails.
+        """
+        from arize._generated import api_client as gen
+
+        body = gen.EvaluatorVersionsCreateRequest(
+            commit_message=commit_message,
+            template_config=template_config,
+        )
+        return self._api.evaluator_versions_create(
+            evaluator_id=evaluator_id,
+            evaluator_versions_create_request=body,
+        )

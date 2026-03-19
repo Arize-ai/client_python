@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from arize.annotation_configs.client import AnnotationConfigsClient
     from arize.api_keys.client import ApiKeysClient
     from arize.datasets.client import DatasetsClient
+    from arize.evaluators.client import EvaluatorsClient
     from arize.experiments.client import ExperimentsClient
     from arize.ml.client import MLModelsClient
     from arize.projects.client import ProjectsClient
@@ -110,6 +111,10 @@ class ArizeClient(LazySubclientsMixin):
         "api_keys": (
             "arize.api_keys.client",
             "ApiKeysClient",
+        ),
+        "evaluators": (
+            "arize.evaluators.client",
+            "EvaluatorsClient",
         ),
     }
     # DISABLED: Optional dependency gating system
@@ -322,6 +327,11 @@ class ArizeClient(LazySubclientsMixin):
     def api_keys(self) -> ApiKeysClient:
         """Access the API keys client for API key operations (lazy-loaded)."""
         return cast("ApiKeysClient", self.__getattr__("api_keys"))
+
+    @property
+    def evaluators(self) -> EvaluatorsClient:
+        """Access the evaluators client for evaluator operations (lazy-loaded)."""
+        return cast("EvaluatorsClient", self.__getattr__("evaluators"))
 
     def __repr__(self) -> str:
         """Return a string representation of the Arize client configuration."""

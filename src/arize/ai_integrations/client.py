@@ -88,7 +88,7 @@ class AiIntegrationsClient:
             A paginated AI integrations list response from the Arize REST API.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the API request fails.
+            ApiException: If the API request fails.
         """
         return self._api.ai_integrations_list(
             space_id=space_id,
@@ -107,7 +107,7 @@ class AiIntegrationsClient:
             The AI integration object.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the API request fails
+            ApiException: If the API request fails
                 (for example, integration not found).
         """
         return self._api.ai_integrations_get(integration_id=integration_id)
@@ -156,7 +156,7 @@ class AiIntegrationsClient:
             The created AI integration object.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the API request fails.
+            ApiException: If the API request fails.
         """
         from arize._generated import api_client as gen
 
@@ -219,7 +219,7 @@ class AiIntegrationsClient:
             The updated AI integration object.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the API request fails
+            ApiException: If the API request fails
                 (for example, integration not found or insufficient permissions).
         """
         from arize._generated import api_client as gen
@@ -263,7 +263,7 @@ class AiIntegrationsClient:
             integration_id: Integration ID to delete.
 
         Raises:
-            arize._generated.api_client.exceptions.ApiException: If the API request fails
+            ApiException: If the API request fails
                 (for example, integration not found or insufficient permissions).
         """
         self._api.ai_integrations_delete(integration_id=integration_id)

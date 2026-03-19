@@ -17,6 +17,7 @@ config
 ai_integrations
 api_keys
 datasets
+evaluators
 experiments
 ml
 projects

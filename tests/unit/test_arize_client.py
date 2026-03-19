@@ -98,6 +98,7 @@ class TestLazyLoadingRealSubclients:
                 "arize.annotation_configs.client.AnnotationConfigsClient",
             ),
             ("spaces", "arize.spaces.client.SpacesClient"),
+            ("evaluators", "arize.evaluators.client.EvaluatorsClient"),
         ],
     )
     def test_lazy_loading_subclients(

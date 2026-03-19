@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.7.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.6.0...arize-python-sdk/v8.7.0) (2026-03-19)
+
+
+### 🎁 New Features
+
+* Add evaluators subclient ([#65528](https://github.com/Arize-ai/arize/issues/65528)) ([66b9113](https://github.com/Arize-ai/arize/commit/66b91135eb6cf76c840b2afe2362955b77c19d66))
+
 ## [8.6.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.5.0...arize-python-sdk/v8.6.0) (2026-03-17)
 
 

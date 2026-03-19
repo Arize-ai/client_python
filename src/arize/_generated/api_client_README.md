@@ -92,6 +92,7 @@ Class | Method | HTTP request | Description
 *AnnotationQueuesApi* | [**annotation_queues_get**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_get) | **GET** /v2/annotation-queues/{annotation_queue_id} | Get an annotation queue
 *AnnotationQueuesApi* | [**annotation_queues_list**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_list) | **GET** /v2/annotation-queues | List annotation queues
 *AnnotationQueuesApi* | [**annotation_queues_records_create**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_records_create) | **POST** /v2/annotation-queues/{annotation_queue_id}/records | Create annotation queue records
+*AnnotationQueuesApi* | [**annotation_queues_records_delete**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_records_delete) | **DELETE** /v2/annotation-queues/{annotation_queue_id}/records | Delete annotation queue records
 *AnnotationQueuesApi* | [**annotation_queues_update**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_update) | **PATCH** /v2/annotation-queues/{annotation_queue_id} | Update an annotation queue
 *DatasetsApi* | [**datasets_create**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_create) | **POST** /v2/datasets | Create a dataset
 *DatasetsApi* | [**datasets_delete**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_delete) | **DELETE** /v2/datasets/{dataset_id} | Delete a dataset
@@ -188,6 +189,7 @@ Class | Method | HTTP request | Description
  - [DatasetsExamplesList200Response](arize/_generated/api_client/docs/DatasetsExamplesList200Response.md)
  - [DatasetsExamplesUpdateRequest](arize/_generated/api_client/docs/DatasetsExamplesUpdateRequest.md)
  - [DatasetsList200Response](arize/_generated/api_client/docs/DatasetsList200Response.md)
+ - [DeleteAnnotationQueueRecordsRequestBody](arize/_generated/api_client/docs/DeleteAnnotationQueueRecordsRequestBody.md)
  - [Evaluation](arize/_generated/api_client/docs/Evaluation.md)
  - [Evaluator](arize/_generated/api_client/docs/Evaluator.md)
  - [EvaluatorLlmConfig](arize/_generated/api_client/docs/EvaluatorLlmConfig.md)

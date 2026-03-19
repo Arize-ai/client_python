@@ -10,6 +10,7 @@ Method | HTTP request | Description
 [**annotation_queues_get**](AnnotationQueuesApi.md#annotation_queues_get) | **GET** /v2/annotation-queues/{annotation_queue_id} | Get an annotation queue
 [**annotation_queues_list**](AnnotationQueuesApi.md#annotation_queues_list) | **GET** /v2/annotation-queues | List annotation queues
 [**annotation_queues_records_create**](AnnotationQueuesApi.md#annotation_queues_records_create) | **POST** /v2/annotation-queues/{annotation_queue_id}/records | Create annotation queue records
+[**annotation_queues_records_delete**](AnnotationQueuesApi.md#annotation_queues_records_delete) | **DELETE** /v2/annotation-queues/{annotation_queue_id}/records | Delete annotation queue records
 [**annotation_queues_update**](AnnotationQueuesApi.md#annotation_queues_update) | **PATCH** /v2/annotation-queues/{annotation_queue_id} | Update an annotation queue
 
 
@@ -193,7 +194,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
-    create_annotation_queue_request_body = {"name":"Quality Review Queue","space_id":"spc_xyz789","annotation_config_ids":["ac_abc123"],"assignment_method":"all"} # CreateAnnotationQueueRequestBody | Body containing annotation queue creation parameters
+    create_annotation_queue_request_body = {"name":"Quality Review Queue","space_id":"spc_xyz789","annotation_config_ids":["ac_abc123"],"annotator_emails":["annotator1@example.com"],"assignment_method":"all"} # CreateAnnotationQueueRequestBody | Body containing annotation queue creation parameters
 
     try:
         # Create an annotation queue
@@ -558,7 +559,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
     annotation_queue_id = 'annotation_queue_id_example' # str | The unique identifier of the annotation queue
-    add_annotation_queue_records_request_body = arize._generated.api_client.AddAnnotationQueueRecordsRequestBody() # AddAnnotationQueueRecordsRequestBody | Body containing records to add to an annotation queue
+    add_annotation_queue_records_request_body = {"record_sources":[{"record_type":"span","project_id":"proj_abc123","start_time":"2024-01-15T00:00:00Z","end_time":"2024-01-15T23:59:59Z","span_ids":["span_abc123","span_def456"]}]} # AddAnnotationQueueRecordsRequestBody | Body containing records to add to an annotation queue
 
     try:
         # Create annotation queue records
@@ -597,6 +598,99 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **201** | Returns the created annotation queue records |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **annotation_queues_records_delete**
+> annotation_queues_records_delete(annotation_queue_id, delete_annotation_queue_records_request_body)
+
+Delete annotation queue records
+
+Delete one or more records from an annotation queue by their IDs.
+
+If one or more record IDs are not found or do not belong to the specified
+queue, they are silently ignored. A 204 response does not guarantee that
+all provided IDs were deleted.
+
+Returns 404 if the annotation queue specified by `annotation_queue_id` is not found.
+Individual missing record IDs do not trigger a 404.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.delete_annotation_queue_records_request_body import DeleteAnnotationQueueRecordsRequestBody
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
+    annotation_queue_id = 'annotation_queue_id_example' # str | The unique identifier of the annotation queue
+    delete_annotation_queue_records_request_body = {"record_ids":["aqr_abc123","aqr_def456"]} # DeleteAnnotationQueueRecordsRequestBody | Body containing the IDs of annotation queue records to delete
+
+    try:
+        # Delete annotation queue records
+        api_instance.annotation_queues_records_delete(annotation_queue_id, delete_annotation_queue_records_request_body)
+    except Exception as e:
+        print("Exception when calling AnnotationQueuesApi->annotation_queues_records_delete: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **annotation_queue_id** | **str**| The unique identifier of the annotation queue | 
+ **delete_annotation_queue_records_request_body** | [**DeleteAnnotationQueueRecordsRequestBody**](DeleteAnnotationQueueRecordsRequestBody.md)| Body containing the IDs of annotation queue records to delete | 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**204** | Annotation queue records successfully deleted |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |

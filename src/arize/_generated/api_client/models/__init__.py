@@ -59,6 +59,7 @@ from arize._generated.api_client.models.datasets_examples_insert_request import 
 from arize._generated.api_client.models.datasets_examples_list200_response import DatasetsExamplesList200Response
 from arize._generated.api_client.models.datasets_examples_update_request import DatasetsExamplesUpdateRequest
 from arize._generated.api_client.models.datasets_list200_response import DatasetsList200Response
+from arize._generated.api_client.models.delete_annotation_queue_records_request_body import DeleteAnnotationQueueRecordsRequestBody
 from arize._generated.api_client.models.evaluation import Evaluation
 from arize._generated.api_client.models.evaluator import Evaluator
 from arize._generated.api_client.models.evaluator_llm_config import EvaluatorLlmConfig
