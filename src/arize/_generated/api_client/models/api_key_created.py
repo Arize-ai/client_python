@@ -20,6 +20,7 @@ import json
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.api_key_status import ApiKeyStatus
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -31,7 +32,7 @@ class ApiKeyCreated(BaseModel):
     name: StrictStr = Field(description="User-defined name for the API key.")
     description: Optional[StrictStr] = Field(default=None, description="Optional user-defined description for the API key.")
     key_type: StrictStr = Field(description="Type of the API key. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")
-    status: StrictStr = Field(description="Current status of the API key. - active - The key is valid for use. - deleted - The key has been deleted by a user. ")
+    status: ApiKeyStatus
     redacted_key: StrictStr = Field(description="Redacted version of the key suitable for display (e.g., \"ak-abc...xyz\").")
     created_at: datetime = Field(description="Timestamp when the key was created.")
     expires_at: Optional[datetime] = Field(default=None, description="Optional timestamp when the key will expire.")
@@ -44,13 +45,6 @@ class ApiKeyCreated(BaseModel):
         """Validates the enum"""
         if value not in set(['user', 'service']):
             raise ValueError("must be one of enum values ('user', 'service')")
-        return value
-
-    @field_validator('status')
-    def status_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['active', 'deleted']):
-            raise ValueError("must be one of enum values ('active', 'deleted')")
         return value
 
     model_config = ConfigDict(

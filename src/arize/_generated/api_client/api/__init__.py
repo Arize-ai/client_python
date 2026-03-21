@@ -13,4 +13,5 @@ from arize._generated.api_client.api.prompts_api import PromptsApi
 from arize._generated.api_client.api.roles_api import RolesApi
 from arize._generated.api_client.api.spaces_api import SpacesApi
 from arize._generated.api_client.api.spans_api import SpansApi
+from arize._generated.api_client.api.tasks_api import TasksApi
 

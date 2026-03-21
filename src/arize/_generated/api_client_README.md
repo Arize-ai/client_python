@@ -139,6 +139,13 @@ Class | Method | HTTP request | Description
 *SpacesApi* | [**spaces_list**](arize/_generated/api_client/docs/SpacesApi.md#spaces_list) | **GET** /v2/spaces | List spaces
 *SpacesApi* | [**spaces_update**](arize/_generated/api_client/docs/SpacesApi.md#spaces_update) | **PATCH** /v2/spaces/{space_id} | Update a space
 *SpansApi* | [**spans_list**](arize/_generated/api_client/docs/SpansApi.md#spans_list) | **POST** /v2/spans | List spans
+*TasksApi* | [**task_runs_cancel**](arize/_generated/api_client/docs/TasksApi.md#task_runs_cancel) | **POST** /v2/task-runs/{run_id}/cancel | Cancel task run
+*TasksApi* | [**task_runs_get**](arize/_generated/api_client/docs/TasksApi.md#task_runs_get) | **GET** /v2/task-runs/{run_id} | Get task run
+*TasksApi* | [**tasks_create**](arize/_generated/api_client/docs/TasksApi.md#tasks_create) | **POST** /v2/tasks | Create task
+*TasksApi* | [**tasks_get**](arize/_generated/api_client/docs/TasksApi.md#tasks_get) | **GET** /v2/tasks/{task_id} | Get task
+*TasksApi* | [**tasks_list**](arize/_generated/api_client/docs/TasksApi.md#tasks_list) | **GET** /v2/tasks | List tasks
+*TasksApi* | [**tasks_list_runs**](arize/_generated/api_client/docs/TasksApi.md#tasks_list_runs) | **GET** /v2/tasks/{task_id}/runs | List task runs
+*TasksApi* | [**tasks_trigger_run**](arize/_generated/api_client/docs/TasksApi.md#tasks_trigger_run) | **POST** /v2/tasks/{task_id}/trigger | Trigger a task run
 
 
 ## Documentation For Models
@@ -171,6 +178,7 @@ Class | Method | HTTP request | Description
  - [ApiKeyCreated](arize/_generated/api_client/docs/ApiKeyCreated.md)
  - [ApiKeyRefresh](arize/_generated/api_client/docs/ApiKeyRefresh.md)
  - [ApiKeyRoles](arize/_generated/api_client/docs/ApiKeyRoles.md)
+ - [ApiKeyStatus](arize/_generated/api_client/docs/ApiKeyStatus.md)
  - [ApiKeysList200Response](arize/_generated/api_client/docs/ApiKeysList200Response.md)
  - [AwsProviderMetadata](arize/_generated/api_client/docs/AwsProviderMetadata.md)
  - [CategoricalAnnotationConfig](arize/_generated/api_client/docs/CategoricalAnnotationConfig.md)
@@ -252,6 +260,14 @@ Class | Method | HTTP request | Description
  - [SpanEvent](arize/_generated/api_client/docs/SpanEvent.md)
  - [SpansList200Response](arize/_generated/api_client/docs/SpansList200Response.md)
  - [SpansListRequest](arize/_generated/api_client/docs/SpansListRequest.md)
+ - [Task](arize/_generated/api_client/docs/Task.md)
+ - [TaskEvaluator](arize/_generated/api_client/docs/TaskEvaluator.md)
+ - [TaskRun](arize/_generated/api_client/docs/TaskRun.md)
+ - [TasksCreateRequest](arize/_generated/api_client/docs/TasksCreateRequest.md)
+ - [TasksCreateRequestEvaluatorsInner](arize/_generated/api_client/docs/TasksCreateRequestEvaluatorsInner.md)
+ - [TasksList200Response](arize/_generated/api_client/docs/TasksList200Response.md)
+ - [TasksListRuns200Response](arize/_generated/api_client/docs/TasksListRuns200Response.md)
+ - [TasksTriggerRunRequest](arize/_generated/api_client/docs/TasksTriggerRunRequest.md)
  - [TemplateConfig](arize/_generated/api_client/docs/TemplateConfig.md)
  - [ToolCall](arize/_generated/api_client/docs/ToolCall.md)
  - [ToolCallFunction](arize/_generated/api_client/docs/ToolCallFunction.md)

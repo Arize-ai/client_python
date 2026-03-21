@@ -1,5 +1,22 @@
 # Changelog
 
+## [8.8.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.7.0...arize-python-sdk/v8.8.0) (2026-03-21)
+
+
+### 🎁 New Features
+
+* **tasks:** Implement tasks and task runs client ([#66089](https://github.com/Arize-ai/arize/issues/66089)) ([1faca44](https://github.com/Arize-ai/arize/commit/1faca441e9257d9d46ad61a9706c3d7a4e8c93b8))
+
+
+### 🐛 Bug Fixes
+
+* extend to_df support to additional List200Response models ([#66354](https://github.com/Arize-ai/arize/issues/66354)) ([50252d6](https://github.com/Arize-ai/arize/commit/50252d6264338af364088cf725b8b2473ef1646b))
+
+
+### 💫 Code Refactoring
+
+* **api-keys:** centralize ApiKeyStatus schema and update references ([#66333](https://github.com/Arize-ai/arize/issues/66333)) ([e32438d](https://github.com/Arize-ai/arize/commit/e32438d56098a25bd925c17ee262e0895e9f5ab6))
+
 ## [8.7.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.6.0...arize-python-sdk/v8.7.0) (2026-03-19)
 
 

@@ -15,8 +15,8 @@ Name | Type | Description | Notes
 **status_code** | **str** | Status code of the span | [optional] 
 **status_message** | **str** | Status message associated with the span | [optional] 
 **attributes** | **Dict[str, object]** | Key-value pairs of span attributes | [optional] 
-**annotations** | **Dict[str, object]** | Key-value pairs of span annotations | [optional] 
-**evaluations** | **Dict[str, object]** | Key-value pairs of span evaluations | [optional] 
+**annotations** | [**List[Annotation]**](Annotation.md) | List of human annotations on this span | [optional] 
+**evaluations** | [**List[Evaluation]**](Evaluation.md) | List of evaluation results on this span | [optional] 
 **events** | [**List[SpanEvent]**](SpanEvent.md) | List of events that occurred during the span | [optional] 
 
 ## Example

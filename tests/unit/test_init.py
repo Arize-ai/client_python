@@ -386,6 +386,16 @@ class TestMonkeyPatching:
         assert hasattr(models.ProjectsList200Response, "to_df")
         assert hasattr(models.AnnotationConfigsList200Response, "to_df")
         assert hasattr(models.SpacesList200Response, "to_df")
+        assert hasattr(models.AnnotationQueueRecordsList200Response, "to_df")
+        assert hasattr(models.AnnotationQueuesList200Response, "to_df")
+        assert hasattr(models.EvaluatorsList200Response, "to_df")
+        assert hasattr(models.EvaluatorVersionsList200Response, "to_df")
+        assert hasattr(models.PromptsList200Response, "to_df")
+        assert hasattr(models.PromptVersionsList200Response, "to_df")
+        assert hasattr(models.RolesList200Response, "to_df")
+        assert hasattr(models.TasksList200Response, "to_df")
+        assert hasattr(models.TasksListRuns200Response, "to_df")
+        assert hasattr(models.AiIntegrationsList200Response, "to_df")
 
     def test_factory_receives_correct_field_names(self) -> None:
         """Monkey-patched methods should reference correct field names."""

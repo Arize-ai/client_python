@@ -24,6 +24,7 @@ projects
 prompts
 spaces
 spans
+tasks
 ```
 
 ```{toctree}

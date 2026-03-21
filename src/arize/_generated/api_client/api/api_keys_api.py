@@ -22,6 +22,7 @@ from typing_extensions import Annotated
 from arize._generated.api_client.models.api_key_create import ApiKeyCreate
 from arize._generated.api_client.models.api_key_created import ApiKeyCreated
 from arize._generated.api_client.models.api_key_refresh import ApiKeyRefresh
+from arize._generated.api_client.models.api_key_status import ApiKeyStatus
 from arize._generated.api_client.models.api_keys_list200_response import ApiKeysList200Response
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
@@ -615,7 +616,7 @@ class APIKeysApi:
     def api_keys_list(
         self,
         key_type: Annotated[Optional[StrictStr], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
-        status: Annotated[Optional[StrictStr], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
+        status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -638,7 +639,7 @@ class APIKeysApi:
         :param key_type: Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. 
         :type key_type: str
         :param status: Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. 
-        :type status: str
+        :type status: ApiKeyStatus
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -699,7 +700,7 @@ class APIKeysApi:
     def api_keys_list_with_http_info(
         self,
         key_type: Annotated[Optional[StrictStr], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
-        status: Annotated[Optional[StrictStr], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
+        status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -722,7 +723,7 @@ class APIKeysApi:
         :param key_type: Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. 
         :type key_type: str
         :param status: Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. 
-        :type status: str
+        :type status: ApiKeyStatus
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -783,7 +784,7 @@ class APIKeysApi:
     def api_keys_list_without_preload_content(
         self,
         key_type: Annotated[Optional[StrictStr], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
-        status: Annotated[Optional[StrictStr], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
+        status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -806,7 +807,7 @@ class APIKeysApi:
         :param key_type: Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. 
         :type key_type: str
         :param status: Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. 
-        :type status: str
+        :type status: ApiKeyStatus
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -893,7 +894,7 @@ class APIKeysApi:
             
         if status is not None:
             
-            _query_params.append(('status', status))
+            _query_params.append(('status', status.value))
             
         if limit is not None:
             

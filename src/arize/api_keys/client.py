@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
     from arize._generated.api_client import models
     from arize._generated.api_client.api_client import ApiClient
+    from arize._generated.api_client.models.api_key_status import ApiKeyStatus
     from arize.config import SDKConfiguration
 
 logger = logging.getLogger(__name__)
@@ -48,7 +49,7 @@ class ApiKeysClient:
         self,
         *,
         key_type: str | None = None,
-        status: str | None = None,
+        status: ApiKeyStatus | None = None,
         limit: int = 50,
         cursor: str | None = None,
     ) -> models.ApiKeysList200Response:

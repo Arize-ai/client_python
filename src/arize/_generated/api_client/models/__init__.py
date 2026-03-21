@@ -41,6 +41,7 @@ from arize._generated.api_client.models.api_key_create import ApiKeyCreate
 from arize._generated.api_client.models.api_key_created import ApiKeyCreated
 from arize._generated.api_client.models.api_key_refresh import ApiKeyRefresh
 from arize._generated.api_client.models.api_key_roles import ApiKeyRoles
+from arize._generated.api_client.models.api_key_status import ApiKeyStatus
 from arize._generated.api_client.models.api_keys_list200_response import ApiKeysList200Response
 from arize._generated.api_client.models.aws_provider_metadata import AwsProviderMetadata
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig
@@ -122,6 +123,14 @@ from arize._generated.api_client.models.span_context import SpanContext
 from arize._generated.api_client.models.span_event import SpanEvent
 from arize._generated.api_client.models.spans_list200_response import SpansList200Response
 from arize._generated.api_client.models.spans_list_request import SpansListRequest
+from arize._generated.api_client.models.task import Task
+from arize._generated.api_client.models.task_evaluator import TaskEvaluator
+from arize._generated.api_client.models.task_run import TaskRun
+from arize._generated.api_client.models.tasks_create_request import TasksCreateRequest
+from arize._generated.api_client.models.tasks_create_request_evaluators_inner import TasksCreateRequestEvaluatorsInner
+from arize._generated.api_client.models.tasks_list200_response import TasksList200Response
+from arize._generated.api_client.models.tasks_list_runs200_response import TasksListRuns200Response
+from arize._generated.api_client.models.tasks_trigger_run_request import TasksTriggerRunRequest
 from arize._generated.api_client.models.template_config import TemplateConfig
 from arize._generated.api_client.models.tool_call import ToolCall
 from arize._generated.api_client.models.tool_call_function import ToolCallFunction

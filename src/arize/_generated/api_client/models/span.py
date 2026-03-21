@@ -20,6 +20,8 @@ import json
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.annotation import Annotation
+from arize._generated.api_client.models.evaluation import Evaluation
 from arize._generated.api_client.models.span_context import SpanContext
 from arize._generated.api_client.models.span_event import SpanEvent
 from typing import Optional, Set
@@ -38,8 +40,8 @@ class Span(BaseModel):
     status_code: Optional[StrictStr] = Field(default=None, description="Status code of the span")
     status_message: Optional[StrictStr] = Field(default=None, description="Status message associated with the span")
     attributes: Optional[Dict[str, Any]] = Field(default=None, description="Key-value pairs of span attributes")
-    annotations: Optional[Dict[str, Any]] = Field(default=None, description="Key-value pairs of span annotations")
-    evaluations: Optional[Dict[str, Any]] = Field(default=None, description="Key-value pairs of span evaluations")
+    annotations: Optional[List[Annotation]] = Field(default=None, description="List of human annotations on this span")
+    evaluations: Optional[List[Evaluation]] = Field(default=None, description="List of evaluation results on this span")
     events: Optional[List[SpanEvent]] = Field(default=None, description="List of events that occurred during the span")
     __properties: ClassVar[List[str]] = ["name", "context", "kind", "parent_id", "start_time", "end_time", "status_code", "status_message", "attributes", "annotations", "evaluations", "events"]
 
@@ -95,6 +97,20 @@ class Span(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of context
         if self.context:
             _dict['context'] = self.context.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in annotations (list)
+        _items = []
+        if self.annotations:
+            for _item_annotations in self.annotations:
+                if _item_annotations:
+                    _items.append(_item_annotations.to_dict())
+            _dict['annotations'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in evaluations (list)
+        _items = []
+        if self.evaluations:
+            for _item_evaluations in self.evaluations:
+                if _item_evaluations:
+                    _items.append(_item_evaluations.to_dict())
+            _dict['evaluations'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in events (list)
         _items = []
         if self.events:
@@ -128,8 +144,8 @@ class Span(BaseModel):
             "status_code": obj.get("status_code"),
             "status_message": obj.get("status_message"),
             "attributes": obj.get("attributes"),
-            "annotations": obj.get("annotations"),
-            "evaluations": obj.get("evaluations"),
+            "annotations": [Annotation.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None,
+            "evaluations": [Evaluation.from_dict(_item) for _item in obj["evaluations"]] if obj.get("evaluations") is not None else None,
             "events": [SpanEvent.from_dict(_item) for _item in obj["events"]] if obj.get("events") is not None else None
         })
         return _obj

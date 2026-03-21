@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **name** | **str** | User-defined name for the API key. | 
 **description** | **str** | Optional user-defined description for the API key. | [optional] 
 **key_type** | **str** | Type of the API key. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication.  | 
-**status** | **str** | Current status of the API key. - active - The key is valid for use. - deleted - The key has been deleted by a user.  | 
+**status** | [**ApiKeyStatus**](ApiKeyStatus.md) |  | 
 **redacted_key** | **str** | Redacted version of the key suitable for display (e.g., \&quot;ak-abc...xyz\&quot;). | 
 **created_at** | **datetime** | Timestamp when the key was created. | 
 **expires_at** | **datetime** | Optional timestamp when the key will expire. | [optional] 

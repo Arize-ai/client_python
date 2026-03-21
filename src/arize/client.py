@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from arize.regions import Region
     from arize.spaces.client import SpacesClient
     from arize.spans.client import SpansClient
+    from arize.tasks.client import TasksClient
 
 logger = logging.getLogger(__name__)
 
@@ -115,6 +116,10 @@ class ArizeClient(LazySubclientsMixin):
         "evaluators": (
             "arize.evaluators.client",
             "EvaluatorsClient",
+        ),
+        "tasks": (
+            "arize.tasks.client",
+            "TasksClient",
         ),
     }
     # DISABLED: Optional dependency gating system
@@ -332,6 +337,11 @@ class ArizeClient(LazySubclientsMixin):
     def evaluators(self) -> EvaluatorsClient:
         """Access the evaluators client for evaluator operations (lazy-loaded)."""
         return cast("EvaluatorsClient", self.__getattr__("evaluators"))
+
+    @property
+    def tasks(self) -> TasksClient:
+        """Access the tasks client for task and task run operations (lazy-loaded)."""
+        return cast("TasksClient", self.__getattr__("tasks"))
 
     def __repr__(self) -> str:
         """Return a string representation of the Arize client configuration."""
