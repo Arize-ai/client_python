@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.8.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.8.0...arize-python-sdk/v8.8.1) (2026-03-23)
+
+
+### 🐛 Bug Fixes
+
+* annotation-configs create always created freeform configs ([#66405](https://github.com/Arize-ai/arize/issues/66405)) ([46dbf42](https://github.com/Arize-ai/arize/commit/46dbf4226366366e32211e711d89ecc427a1d0e3))
+
 ## [8.8.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.7.0...arize-python-sdk/v8.8.0) (2026-03-21)
 
 

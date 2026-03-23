@@ -119,7 +119,11 @@ class AnnotationConfigsClient:
         """
         from arize._generated import api_client as gen
 
-        if config_type == AnnotationConfigType.CONTINUOUS.value:
+        if config_type == AnnotationConfigType.CONTINUOUS:
+            if minimum_score is None or maximum_score is None:
+                raise ValueError(
+                    "minimum_score and maximum_score are required for continuous configs"
+                )
             body = gen.CreateAnnotationConfigRequestBody(
                 actual_instance=gen.ContinuousAnnotationConfigCreate(
                     name=name,
@@ -130,7 +134,9 @@ class AnnotationConfigsClient:
                     optimization_direction=optimization_direction,
                 )
             )
-        elif config_type == AnnotationConfigType.CATEGORICAL.value:
+        elif config_type == AnnotationConfigType.CATEGORICAL:
+            if values is None:
+                raise ValueError("values are required for categorical configs")
             body = gen.CreateAnnotationConfigRequestBody(
                 actual_instance=gen.CategoricalAnnotationConfigCreate(
                     name=name,
