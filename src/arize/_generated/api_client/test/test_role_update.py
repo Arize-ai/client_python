@@ -38,7 +38,7 @@ class TestRoleUpdate(unittest.TestCase):
                 name = '',
                 description = '',
                 permissions = [
-                    ''
+                    'AI_PROVIDER_READ'
                     ]
             )
         else:

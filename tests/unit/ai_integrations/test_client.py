@@ -9,6 +9,9 @@ import pytest
 
 from arize.ai_integrations.client import AiIntegrationsClient
 
+# Base64 ID that decodes to "Integration:123" — passes _is_resource_id()
+_INTEGRATION_ID = "SW50ZWdyYXRpb246MTIz"
+
 
 @pytest.fixture
 def mock_api() -> Mock:
@@ -67,18 +70,38 @@ class TestAiIntegrationsClientInit:
 class TestAiIntegrationsClientList:
     """Tests for AiIntegrationsClient.list()."""
 
-    def test_list_calls_api_with_all_params(
+    def test_list_calls_api_with_space_id(
         self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
     ) -> None:
-        """list() should pass space_id, limit, and cursor to ai_integrations_list."""
+        """list() should resolve a base64 resource ID space value to space_id."""
         ai_integrations_client.list(
-            space_id="space-123",
+            space="U3BhY2U6OTA1MDoxSmtS",
             limit=50,
             cursor="cursor-abc",
         )
 
         mock_api.ai_integrations_list.assert_called_once_with(
-            space_id="space-123",
+            space_id="U3BhY2U6OTA1MDoxSmtS",
+            space_name=None,
+            name=None,
+            limit=50,
+            cursor="cursor-abc",
+        )
+
+    def test_list_calls_api_with_space_name(
+        self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
+    ) -> None:
+        """list() should resolve a non-prefixed space value to space_name."""
+        ai_integrations_client.list(
+            space="my-space",
+            limit=50,
+            cursor="cursor-abc",
+        )
+
+        mock_api.ai_integrations_list.assert_called_once_with(
+            space_id=None,
+            space_name="my-space",
+            name=None,
             limit=50,
             cursor="cursor-abc",
         )
@@ -86,11 +109,13 @@ class TestAiIntegrationsClientList:
     def test_list_defaults(
         self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
     ) -> None:
-        """list() should default space_id/cursor to None and limit to 100."""
+        """list() should default space/name/cursor to None and limit to 100."""
         ai_integrations_client.list()
 
         mock_api.ai_integrations_list.assert_called_once_with(
             space_id=None,
+            space_name=None,
+            name=None,
             limit=100,
             cursor=None,
         )
@@ -133,11 +158,11 @@ class TestAiIntegrationsClientGet:
     def test_get_calls_api_with_integration_id(
         self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
     ) -> None:
-        """get() should pass integration_id to ai_integrations_get."""
-        ai_integrations_client.get(integration_id="integ-123")
+        """get() should resolve integration and pass integration_id to ai_integrations_get."""
+        ai_integrations_client.get(integration=_INTEGRATION_ID)
 
         mock_api.ai_integrations_get.assert_called_once_with(
-            integration_id="integ-123"
+            integration_id=_INTEGRATION_ID
         )
 
     def test_get_returns_api_response(
@@ -147,7 +172,7 @@ class TestAiIntegrationsClientGet:
         expected = Mock()
         mock_api.ai_integrations_get.return_value = expected
 
-        result = ai_integrations_client.get(integration_id="integ-123")
+        result = ai_integrations_client.get(integration=_INTEGRATION_ID)
 
         assert result is expected
 
@@ -242,7 +267,7 @@ class TestAiIntegrationsClientUpdate:
             mock_request_cls.return_value = mock_body
 
             ai_integrations_client.update(
-                integration_id="integ-123",
+                integration=_INTEGRATION_ID,
                 name="Updated Integration",
                 model_names=["gpt-4"],
             )
@@ -253,7 +278,7 @@ class TestAiIntegrationsClientUpdate:
             model_names=["gpt-4"],
         )
         mock_api.ai_integrations_update.assert_called_once_with(
-            integration_id="integ-123",
+            integration_id=_INTEGRATION_ID,
             ai_integrations_update_request=mock_body,
         )
 
@@ -267,7 +292,7 @@ class TestAiIntegrationsClientUpdate:
             mock_request_cls.return_value = Mock()
 
             ai_integrations_client.update(
-                integration_id="integ-123",
+                integration=_INTEGRATION_ID,
                 name="Keep Name",
                 api_key=None,
             )
@@ -286,7 +311,7 @@ class TestAiIntegrationsClientUpdate:
         ) as mock_request_cls:
             mock_request_cls.return_value = Mock()
 
-            ai_integrations_client.update(integration_id="integ-123")
+            ai_integrations_client.update(integration=_INTEGRATION_ID)
 
         mock_request_cls.assert_called_once_with()
 
@@ -300,7 +325,7 @@ class TestAiIntegrationsClientUpdate:
             mock_request_cls.return_value = Mock()
 
             ai_integrations_client.update(
-                integration_id="integ-123",
+                integration=_INTEGRATION_ID,
                 enable_default_models=False,
             )
 
@@ -317,7 +342,7 @@ class TestAiIntegrationsClientUpdate:
 
         with patch("arize._generated.api_client.AiIntegrationsUpdateRequest"):
             result = ai_integrations_client.update(
-                integration_id="integ-123",
+                integration=_INTEGRATION_ID,
                 name="Updated Integration",
             )
 
@@ -336,7 +361,7 @@ class TestAiIntegrationsClientUpdate:
 
         with patch("arize._generated.api_client.AiIntegrationsUpdateRequest"):
             ai_integrations_client.update(
-                integration_id="integ-123", name="Updated"
+                integration=_INTEGRATION_ID, name="Updated"
             )
 
         assert any(
@@ -353,11 +378,11 @@ class TestAiIntegrationsClientDelete:
     def test_delete_calls_api_with_integration_id(
         self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
     ) -> None:
-        """delete() should pass integration_id to ai_integrations_delete."""
-        ai_integrations_client.delete(integration_id="integ-123")
+        """delete() should resolve integration and pass integration_id to ai_integrations_delete."""
+        ai_integrations_client.delete(integration=_INTEGRATION_ID)
 
         mock_api.ai_integrations_delete.assert_called_once_with(
-            integration_id="integ-123"
+            integration_id=_INTEGRATION_ID
         )
 
     def test_delete_returns_none(
@@ -366,7 +391,7 @@ class TestAiIntegrationsClientDelete:
         """delete() should return None."""
         mock_api.ai_integrations_delete.return_value = None
 
-        result = ai_integrations_client.delete(integration_id="integ-123")
+        result = ai_integrations_client.delete(integration=_INTEGRATION_ID)
 
         assert result is None
 
@@ -381,7 +406,7 @@ class TestAiIntegrationsClientDelete:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        ai_integrations_client.delete(integration_id="integ-123")
+        ai_integrations_client.delete(integration=_INTEGRATION_ID)
 
         assert any(
             "ALPHA" in record.message

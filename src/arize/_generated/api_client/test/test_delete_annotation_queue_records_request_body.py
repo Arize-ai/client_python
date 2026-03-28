@@ -36,13 +36,13 @@ class TestDeleteAnnotationQueueRecordsRequestBody(unittest.TestCase):
         if include_optional:
             return DeleteAnnotationQueueRecordsRequestBody(
                 record_ids = [
-                    ''
+                    'RW50aXR5OjEyMzQ1'
                     ]
             )
         else:
             return DeleteAnnotationQueueRecordsRequestBody(
                 record_ids = [
-                    ''
+                    'RW50aXR5OjEyMzQ1'
                     ],
         )
         """

@@ -27,7 +27,8 @@ def _format_prerelease_message(*, key: str, stage: ReleaseStage) -> str:
     article = "an" if stage is ReleaseStage.ALPHA else "a"
     return (
         f"[{stage.value.upper()}] {key} is {article} {stage.value} API "
-        f"in Arize SDK v{__version__} and may change without notice."
+        f"in Arize SDK v{__version__} and may change without notice. "
+        f"If you experience unexpected failures, please upgrade to the most recent version of the package."
     )
 
 

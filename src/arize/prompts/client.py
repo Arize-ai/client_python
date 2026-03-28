@@ -6,6 +6,11 @@ import logging
 from typing import TYPE_CHECKING
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
+from arize.utils.resolve import (
+    find_prompt_id,
+    find_space_id,
+    resolve_resource,
+)
 
 if TYPE_CHECKING:
     import builtins
@@ -55,20 +60,24 @@ class PromptsClient:
 
         # Use the provided client directly
         self._api = gen.PromptsApi(generated_client)
+        self._spaces_api = gen.SpacesApi(generated_client)
 
     @prerelease_endpoint(key="prompts.list", stage=ReleaseStage.ALPHA)
     def list(
         self,
         *,
-        space_id: str | None = None,
+        name: str | None = None,
+        space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
     ) -> models.PromptsList200Response:
         """List prompts in a space.
 
         Args:
-            space_id: Optional space ID to filter prompts. If omitted, all prompts
-                accessible to the caller are returned.
+            name: Optional case-insensitive substring filter on the prompt name.
+            space: Optional space filter. If the value is a base64-encoded resource ID it is
+                treated as a space ID; otherwise it is used as a case-insensitive
+                substring filter on the space name.
             limit: Maximum number of prompts to return. The server enforces an
                 upper bound of 100.
             cursor: Opaque pagination cursor returned from a previous response.
@@ -80,8 +89,11 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/429).
         """
+        resolved_space = resolve_resource(space)
         return self._api.prompts_list(
-            space_id=space_id,
+            space_id=resolved_space.id,
+            space_name=resolved_space.name,
+            name=name,
             limit=limit,
             cursor=cursor,
         )
@@ -90,7 +102,7 @@ class PromptsClient:
     def create(
         self,
         *,
-        space_id: str,
+        space: str,
         name: str,
         commit_message: str,
         input_variable_format: InputVariableFormat,
@@ -104,7 +116,8 @@ class PromptsClient:
         """Create a prompt with an initial version.
 
         Args:
-            space_id: Space ID to create the prompt in.
+            space: Space ID or name to create the prompt in. If a name is
+                provided it will be resolved to a space ID automatically.
             name: Prompt name (must be unique within the space).
             commit_message: Commit message describing the initial version.
             input_variable_format: Variable interpolation format for the prompt
@@ -125,6 +138,8 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 400/401/403/409/429).
         """
+        space_id = find_space_id(self._spaces_api, space)
+
         from arize._generated import api_client as gen
 
         version = gen.PromptVersionCreateRequest(
@@ -148,17 +163,20 @@ class PromptsClient:
     def get(
         self,
         *,
-        prompt_id: str,
+        prompt: str,
+        space: str | None = None,
         version_id: str | None = None,
         label: str | None = None,
     ) -> models.PromptWithVersion:
-        """Get a prompt by ID.
+        """Get a prompt by ID or name.
 
         Optionally resolves a specific version by ``version_id`` or a ``label``.
         If neither is supplied, the latest version is returned.
 
         Args:
-            prompt_id: Prompt ID to retrieve.
+            prompt: Prompt ID or name. If a name is provided, ``space`` must
+                also be supplied so the name can be resolved.
+            space: Optional space ID or name. Required when *prompt* is a name.
             version_id: Optional specific version ID to retrieve.
             label: Optional label name to resolve to a version (e.g. ``"production"``).
 
@@ -169,6 +187,11 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
+        prompt_id = find_prompt_id(
+            api=self._api,
+            prompt=prompt,
+            space=space,
+        )
         return self._api.prompts_get(
             prompt_id=prompt_id,
             version_id=version_id,
@@ -179,13 +202,16 @@ class PromptsClient:
     def update(
         self,
         *,
-        prompt_id: str,
+        prompt: str,
+        space: str | None = None,
         description: str,
     ) -> models.Prompt:
         """Update a prompt's metadata.
 
         Args:
-            prompt_id: Prompt ID to update.
+            prompt: Prompt ID or name. If a name is provided, ``space`` must
+                also be supplied so the name can be resolved.
+            space: Optional space ID or name. Required when *prompt* is a name.
             description: Updated description for the prompt.
 
         Returns:
@@ -196,6 +222,12 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
+        prompt_id = find_prompt_id(
+            api=self._api,
+            prompt=prompt,
+            space=space,
+        )
+
         from arize._generated import api_client as gen
 
         body = gen.PromptsUpdateRequest(description=description)
@@ -204,13 +236,15 @@ class PromptsClient:
         )
 
     @prerelease_endpoint(key="prompts.delete", stage=ReleaseStage.ALPHA)
-    def delete(self, *, prompt_id: str) -> None:
-        """Delete a prompt by ID.
+    def delete(self, *, prompt: str, space: str | None = None) -> None:
+        """Delete a prompt by ID or name.
 
         This operation is irreversible and removes all associated versions.
 
         Args:
-            prompt_id: Prompt ID to delete.
+            prompt: Prompt ID or name. If a name is provided, ``space`` must
+                also be supplied so the name can be resolved.
+            space: Optional space ID or name. Required when *prompt* is a name.
 
         Returns:
             None on success (204 No Content).
@@ -219,20 +253,28 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
+        prompt_id = find_prompt_id(
+            api=self._api,
+            prompt=prompt,
+            space=space,
+        )
         return self._api.prompts_delete(prompt_id=prompt_id)
 
     @prerelease_endpoint(key="prompts.list_versions", stage=ReleaseStage.ALPHA)
     def list_versions(
         self,
         *,
-        prompt_id: str,
+        prompt: str,
+        space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
     ) -> models.PromptVersionsList200Response:
         """List versions for a prompt.
 
         Args:
-            prompt_id: Prompt ID to list versions for.
+            prompt: Prompt ID or name. If a name is provided, ``space`` must
+                also be supplied so the name can be resolved.
+            space: Optional space ID or name. Required when *prompt* is a name.
             limit: Maximum number of versions to return. The server enforces an
                 upper bound of 100.
             cursor: Opaque pagination cursor returned from a previous response.
@@ -244,6 +286,11 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
+        prompt_id = find_prompt_id(
+            api=self._api,
+            prompt=prompt,
+            space=space,
+        )
         return self._api.prompt_versions_list(
             prompt_id=prompt_id,
             limit=limit,
@@ -254,7 +301,8 @@ class PromptsClient:
     def create_version(
         self,
         *,
-        prompt_id: str,
+        prompt: str,
+        space: str | None = None,
         commit_message: str,
         input_variable_format: InputVariableFormat,
         provider: LlmProvider,
@@ -266,7 +314,9 @@ class PromptsClient:
         """Create a new version for an existing prompt.
 
         Args:
-            prompt_id: Prompt ID to create a version for.
+            prompt: Prompt ID or name. If a name is provided, ``space`` must
+                also be supplied so the name can be resolved.
+            space: Optional space ID or name. Required when *prompt* is a name.
             commit_message: Commit message describing this version.
             input_variable_format: Variable interpolation format for the prompt
                 template (e.g. ``InputVariableFormat.F_STRING``).
@@ -285,6 +335,12 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 400/401/403/404/429).
         """
+        prompt_id = find_prompt_id(
+            api=self._api,
+            prompt=prompt,
+            space=space,
+        )
+
         from arize._generated import api_client as gen
 
         body = gen.PromptVersionsCreateRequest(
@@ -302,12 +358,14 @@ class PromptsClient:
 
     @prerelease_endpoint(key="prompts.get_label", stage=ReleaseStage.ALPHA)
     def get_label(
-        self, *, prompt_id: str, label_name: str
+        self, *, prompt: str, space: str | None = None, label_name: str
     ) -> models.PromptVersion:
         """Resolve a label to a prompt version.
 
         Args:
-            prompt_id: Prompt ID the label belongs to.
+            prompt: Prompt ID or name. If a name is provided, ``space`` must
+                also be supplied so the name can be resolved.
+            space: Optional space ID or name. Required when *prompt* is a name.
             label_name: Label name to resolve (e.g. ``"production"``, ``"staging"``).
 
         Returns:
@@ -317,6 +375,11 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
+        prompt_id = find_prompt_id(
+            api=self._api,
+            prompt=prompt,
+            space=space,
+        )
         return self._api.prompt_labels_get(
             prompt_id=prompt_id, label_name=label_name
         )

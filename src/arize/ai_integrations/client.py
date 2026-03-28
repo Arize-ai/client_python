@@ -6,6 +6,10 @@ import logging
 from typing import TYPE_CHECKING, Any
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
+from arize.utils.resolve import (
+    find_ai_integration_id,
+    resolve_resource,
+)
 
 if TYPE_CHECKING:
     # builtins is needed to use builtins.list in type annotations because
@@ -69,17 +73,21 @@ class AiIntegrationsClient:
     def list(
         self,
         *,
-        space_id: str | None = None,
+        name: str | None = None,
+        space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
     ) -> models.AiIntegrationsList200Response:
         """List AI integrations the user has access to.
 
         This endpoint supports cursor-based pagination. When provided,
-        ``space_id`` filters results to a particular space.
+        ``space`` filters results to a particular space.
 
         Args:
-            space_id: Optional space ID to filter results.
+            name: Optional case-insensitive substring filter on the integration name.
+            space: Optional space filter. If the value is a base64-encoded resource ID it is
+                treated as a space ID; otherwise it is used as a case-insensitive
+                substring filter on the space name.
             limit: Maximum number of integrations to return. The server may enforce
                 an upper bound (max 100).
             cursor: Opaque pagination cursor from a previous response.
@@ -90,18 +98,25 @@ class AiIntegrationsClient:
         Raises:
             ApiException: If the API request fails.
         """
+        resolved_space = resolve_resource(space)
         return self._api.ai_integrations_list(
-            space_id=space_id,
+            space_id=resolved_space.id,
+            space_name=resolved_space.name,
+            name=name,
             limit=limit,
             cursor=cursor,
         )
 
     @prerelease_endpoint(key="ai_integrations.get", stage=ReleaseStage.ALPHA)
-    def get(self, *, integration_id: str) -> models.AiIntegration:
-        """Get an AI integration by ID.
+    def get(
+        self, *, integration: str, space: str | None = None
+    ) -> models.AiIntegration:
+        """Get an AI integration by name or ID.
 
         Args:
-            integration_id: Integration ID to retrieve.
+            integration: Integration name or ID to retrieve.
+            space: Optional space name or ID used to disambiguate when
+                resolving by name.
 
         Returns:
             The AI integration object.
@@ -110,6 +125,11 @@ class AiIntegrationsClient:
             ApiException: If the API request fails
                 (for example, integration not found).
         """
+        integration_id = find_ai_integration_id(
+            api=self._api,
+            integration=integration,
+            space=space,
+        )
         return self._api.ai_integrations_get(integration_id=integration_id)
 
     @prerelease_endpoint(key="ai_integrations.create", stage=ReleaseStage.ALPHA)
@@ -181,7 +201,8 @@ class AiIntegrationsClient:
     def update(
         self,
         *,
-        integration_id: str,
+        integration: str,
+        space: str | None = None,
         name: str | None = _UNSET,
         provider: AiIntegrationProvider | None = _UNSET,
         api_key: str | None = _UNSET,
@@ -194,14 +215,16 @@ class AiIntegrationsClient:
         provider_metadata: dict[str, Any] | None = _UNSET,
         scopings: builtins.list[AiIntegrationScoping] | None = _UNSET,
     ) -> models.AiIntegration:
-        """Update an AI integration by ID.
+        """Update an AI integration by name or ID.
 
         Only the fields you pass are sent to the server. Omitted fields are
         left unchanged. To explicitly clear a nullable field (e.g.
         ``api_key``), pass ``None``.
 
         Args:
-            integration_id: Integration ID to update.
+            integration: Integration name or ID to update.
+            space: Optional space name or ID used to disambiguate when
+                resolving by name.
             name: Updated integration name.
             provider: Updated LLM provider.
             api_key: New API key. Pass ``None`` to clear the existing key.
@@ -247,6 +270,12 @@ class AiIntegrationsClient:
             if v is not _UNSET
         }
 
+        integration_id = find_ai_integration_id(
+            api=self._api,
+            integration=integration,
+            space=space,
+        )
+
         body = gen.AiIntegrationsUpdateRequest(**kwargs)
         return self._api.ai_integrations_update(
             integration_id=integration_id,
@@ -254,16 +283,23 @@ class AiIntegrationsClient:
         )
 
     @prerelease_endpoint(key="ai_integrations.delete", stage=ReleaseStage.ALPHA)
-    def delete(self, *, integration_id: str) -> None:
-        """Delete an AI integration by ID.
+    def delete(self, *, integration: str, space: str | None = None) -> None:
+        """Delete an AI integration by name or ID.
 
         This operation is irreversible.
 
         Args:
-            integration_id: Integration ID to delete.
+            integration: Integration name or ID to delete.
+            space: Optional space name or ID used to disambiguate when
+                resolving by name.
 
         Raises:
             ApiException: If the API request fails
                 (for example, integration not found or insufficient permissions).
         """
+        integration_id = find_ai_integration_id(
+            api=self._api,
+            integration=integration,
+            space=space,
+        )
         self._api.ai_integrations_delete(integration_id=integration_id)

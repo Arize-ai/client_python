@@ -74,7 +74,9 @@ class TestFormatPrereleaseMessage:
         msg = _format_prerelease_message(key="test_key", stage=stage)
         expected = (
             f"[{stage_name}] test_key is {article} {stage.value} API "
-            f"in Arize SDK v{__version__} and may change without notice."
+            f"in Arize SDK v{__version__} and may change without notice. "
+            f"If you experience unexpected failures, please upgrade "
+            f"to the most recent version of the package."
         )
         assert msg == expected
 

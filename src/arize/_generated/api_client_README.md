@@ -129,6 +129,12 @@ Class | Method | HTTP request | Description
 *PromptsApi* | [**prompts_get**](arize/_generated/api_client/docs/PromptsApi.md#prompts_get) | **GET** /v2/prompts/{prompt_id} | Get a prompt
 *PromptsApi* | [**prompts_list**](arize/_generated/api_client/docs/PromptsApi.md#prompts_list) | **GET** /v2/prompts | List prompts
 *PromptsApi* | [**prompts_update**](arize/_generated/api_client/docs/PromptsApi.md#prompts_update) | **PATCH** /v2/prompts/{prompt_id} | Update a prompt
+*ResourceRestrictionsApi* | [**resource_restrictions_create**](arize/_generated/api_client/docs/ResourceRestrictionsApi.md#resource_restrictions_create) | **POST** /v2/resource-restrictions | Restrict a resource
+*ResourceRestrictionsApi* | [**resource_restrictions_delete**](arize/_generated/api_client/docs/ResourceRestrictionsApi.md#resource_restrictions_delete) | **DELETE** /v2/resource-restrictions/{resource_id} | Unrestrict a resource
+*RoleBindingsApi* | [**role_bindings_create**](arize/_generated/api_client/docs/RoleBindingsApi.md#role_bindings_create) | **POST** /v2/role-bindings | Create a role binding
+*RoleBindingsApi* | [**role_bindings_delete**](arize/_generated/api_client/docs/RoleBindingsApi.md#role_bindings_delete) | **DELETE** /v2/role-bindings/{binding_id} | Delete a role binding
+*RoleBindingsApi* | [**role_bindings_get**](arize/_generated/api_client/docs/RoleBindingsApi.md#role_bindings_get) | **GET** /v2/role-bindings/{binding_id} | Get a role binding
+*RoleBindingsApi* | [**role_bindings_update**](arize/_generated/api_client/docs/RoleBindingsApi.md#role_bindings_update) | **PATCH** /v2/role-bindings/{binding_id} | Update a role binding
 *RolesApi* | [**roles_create**](arize/_generated/api_client/docs/RolesApi.md#roles_create) | **POST** /v2/roles | Create a role
 *RolesApi* | [**roles_delete**](arize/_generated/api_client/docs/RolesApi.md#roles_delete) | **DELETE** /v2/roles/{role_id} | Delete a role
 *RolesApi* | [**roles_get**](arize/_generated/api_client/docs/RolesApi.md#roles_get) | **GET** /v2/roles/{role_id} | Get a role
@@ -225,6 +231,7 @@ Class | Method | HTTP request | Description
  - [MessageRole](arize/_generated/api_client/docs/MessageRole.md)
  - [OptimizationDirection](arize/_generated/api_client/docs/OptimizationDirection.md)
  - [PaginationMetadata](arize/_generated/api_client/docs/PaginationMetadata.md)
+ - [Permission](arize/_generated/api_client/docs/Permission.md)
  - [Problem](arize/_generated/api_client/docs/Problem.md)
  - [Project](arize/_generated/api_client/docs/Project.md)
  - [ProjectsCreateRequest](arize/_generated/api_client/docs/ProjectsCreateRequest.md)
@@ -244,10 +251,17 @@ Class | Method | HTTP request | Description
  - [ProviderParamsAnthropicHeaders](arize/_generated/api_client/docs/ProviderParamsAnthropicHeaders.md)
  - [ProviderParamsAzureParams](arize/_generated/api_client/docs/ProviderParamsAzureParams.md)
  - [ProviderParamsBedrockOptions](arize/_generated/api_client/docs/ProviderParamsBedrockOptions.md)
+ - [ResourceRestriction](arize/_generated/api_client/docs/ResourceRestriction.md)
+ - [ResourceRestrictionsCreate200Response](arize/_generated/api_client/docs/ResourceRestrictionsCreate200Response.md)
+ - [ResourceRestrictionsCreateRequest](arize/_generated/api_client/docs/ResourceRestrictionsCreateRequest.md)
  - [ResponseFormat](arize/_generated/api_client/docs/ResponseFormat.md)
  - [ResponseFormatJsonSchema](arize/_generated/api_client/docs/ResponseFormatJsonSchema.md)
  - [ResponseFormatType](arize/_generated/api_client/docs/ResponseFormatType.md)
  - [Role](arize/_generated/api_client/docs/Role.md)
+ - [RoleBinding](arize/_generated/api_client/docs/RoleBinding.md)
+ - [RoleBindingCreate](arize/_generated/api_client/docs/RoleBindingCreate.md)
+ - [RoleBindingResourceType](arize/_generated/api_client/docs/RoleBindingResourceType.md)
+ - [RoleBindingUpdate](arize/_generated/api_client/docs/RoleBindingUpdate.md)
  - [RoleCreate](arize/_generated/api_client/docs/RoleCreate.md)
  - [RoleUpdate](arize/_generated/api_client/docs/RoleUpdate.md)
  - [RolesList200Response](arize/_generated/api_client/docs/RolesList200Response.md)

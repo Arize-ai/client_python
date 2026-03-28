@@ -9,6 +9,9 @@ import pytest
 
 from arize.prompts.client import PromptsClient
 
+# Base64 ID that decodes to "Prompt:123" — passes _is_resource_id()
+_PROMPT_ID = "UHJvbXB0OjEyMw=="
+
 
 @pytest.fixture
 def mock_api() -> Mock:
@@ -62,18 +65,40 @@ class TestPromptsClientInit:
 class TestPromptsClientList:
     """Tests for PromptsClient.list()."""
 
-    def test_list_calls_api_with_all_params(
+    def test_list_with_space_id(
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
-        """list() should pass space_id, limit, and cursor to prompts_list."""
+        """list() should resolve a base64 resource ID space value to space_id."""
         prompts_client.list(
-            space_id="space-123",
+            name="my-prompt",
+            space="U3BhY2U6OTA1MDoxSmtS",
             limit=50,
             cursor="cursor-abc",
         )
 
         mock_api.prompts_list.assert_called_once_with(
-            space_id="space-123",
+            space_id="U3BhY2U6OTA1MDoxSmtS",
+            space_name=None,
+            name="my-prompt",
+            limit=50,
+            cursor="cursor-abc",
+        )
+
+    def test_list_with_space_name(
+        self, prompts_client: PromptsClient, mock_api: Mock
+    ) -> None:
+        """list() should resolve a non-prefixed space value to space_name."""
+        prompts_client.list(
+            name="my-prompt",
+            space="my-space",
+            limit=50,
+            cursor="cursor-abc",
+        )
+
+        mock_api.prompts_list.assert_called_once_with(
+            space_id=None,
+            space_name="my-space",
+            name="my-prompt",
             limit=50,
             cursor="cursor-abc",
         )
@@ -81,11 +106,13 @@ class TestPromptsClientList:
     def test_list_defaults(
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
-        """list() should default space_id/cursor to None and limit to 100."""
+        """list() should default space/name/cursor to None and limit to 100."""
         prompts_client.list()
 
         mock_api.prompts_list.assert_called_once_with(
             space_id=None,
+            space_name=None,
+            name=None,
             limit=100,
             cursor=None,
         )
@@ -146,7 +173,7 @@ class TestPromptsClientCreate:
             mock_request_cls.return_value = mock_body
 
             prompts_client.create(
-                space_id="space-123",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 name="my-prompt",
                 description="a prompt",
                 commit_message="initial version",
@@ -166,7 +193,7 @@ class TestPromptsClientCreate:
             provider_params=None,
         )
         mock_request_cls.assert_called_once_with(
-            space_id="space-123",
+            space_id="U3BhY2U6OTA1MDoxSmtS",
             name="my-prompt",
             description="a prompt",
             version=mock_version,
@@ -187,7 +214,7 @@ class TestPromptsClientCreate:
             patch("arize._generated.api_client.PromptsCreateRequest"),
         ):
             result = prompts_client.create(
-                space_id="space-123",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 name="my-prompt",
                 commit_message="v1",
                 input_variable_format=Mock(),
@@ -205,11 +232,11 @@ class TestPromptsClientGet:
     def test_get_calls_api_with_prompt_id(
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
-        """get() should pass prompt_id to prompts_get."""
-        prompts_client.get(prompt_id="prompt-123")
+        """get() should resolve prompt and pass prompt_id to prompts_get."""
+        prompts_client.get(prompt=_PROMPT_ID)
 
         mock_api.prompts_get.assert_called_once_with(
-            prompt_id="prompt-123",
+            prompt_id=_PROMPT_ID,
             version_id=None,
             label=None,
         )
@@ -218,10 +245,10 @@ class TestPromptsClientGet:
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
         """get() should forward version_id to prompts_get."""
-        prompts_client.get(prompt_id="prompt-123", version_id="ver-456")
+        prompts_client.get(prompt=_PROMPT_ID, version_id="ver-456")
 
         mock_api.prompts_get.assert_called_once_with(
-            prompt_id="prompt-123",
+            prompt_id=_PROMPT_ID,
             version_id="ver-456",
             label=None,
         )
@@ -230,10 +257,10 @@ class TestPromptsClientGet:
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
         """get() should forward label to prompts_get."""
-        prompts_client.get(prompt_id="prompt-123", label="production")
+        prompts_client.get(prompt=_PROMPT_ID, label="production")
 
         mock_api.prompts_get.assert_called_once_with(
-            prompt_id="prompt-123",
+            prompt_id=_PROMPT_ID,
             version_id=None,
             label="production",
         )
@@ -245,7 +272,7 @@ class TestPromptsClientGet:
         expected = Mock()
         mock_api.prompts_get.return_value = expected
 
-        result = prompts_client.get(prompt_id="prompt-123")
+        result = prompts_client.get(prompt=_PROMPT_ID)
 
         assert result is expected
 
@@ -265,7 +292,7 @@ class TestPromptsClientUpdate:
             mock_request_cls.return_value = mock_body
 
             prompts_client.update(
-                prompt_id="prompt-123",
+                prompt=_PROMPT_ID,
                 description="updated description",
             )
 
@@ -273,7 +300,7 @@ class TestPromptsClientUpdate:
             description="updated description"
         )
         mock_api.prompts_update.assert_called_once_with(
-            prompt_id="prompt-123",
+            prompt_id=_PROMPT_ID,
             prompts_update_request=mock_body,
         )
 
@@ -286,7 +313,7 @@ class TestPromptsClientUpdate:
 
         with patch("arize._generated.api_client.PromptsUpdateRequest"):
             result = prompts_client.update(
-                prompt_id="prompt-123",
+                prompt=_PROMPT_ID,
                 description="updated",
             )
 
@@ -300,10 +327,10 @@ class TestPromptsClientDelete:
     def test_delete_calls_api_with_prompt_id(
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
-        """delete() should pass prompt_id to prompts_delete."""
-        prompts_client.delete(prompt_id="prompt-123")
+        """delete() should resolve prompt and pass prompt_id to prompts_delete."""
+        prompts_client.delete(prompt=_PROMPT_ID)
 
-        mock_api.prompts_delete.assert_called_once_with(prompt_id="prompt-123")
+        mock_api.prompts_delete.assert_called_once_with(prompt_id=_PROMPT_ID)
 
     def test_delete_returns_none(
         self, prompts_client: PromptsClient, mock_api: Mock
@@ -311,7 +338,7 @@ class TestPromptsClientDelete:
         """delete() should return None on success."""
         mock_api.prompts_delete.return_value = None
 
-        result = prompts_client.delete(prompt_id="prompt-123")
+        result = prompts_client.delete(prompt=_PROMPT_ID)
 
         assert result is None
 
@@ -325,13 +352,13 @@ class TestPromptsClientListVersions:
     ) -> None:
         """list_versions() should pass prompt_id, limit, and cursor to prompt_versions_list."""
         prompts_client.list_versions(
-            prompt_id="prompt-123",
+            prompt=_PROMPT_ID,
             limit=25,
             cursor="cursor-xyz",
         )
 
         mock_api.prompt_versions_list.assert_called_once_with(
-            prompt_id="prompt-123",
+            prompt_id=_PROMPT_ID,
             limit=25,
             cursor="cursor-xyz",
         )
@@ -340,10 +367,10 @@ class TestPromptsClientListVersions:
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
         """list_versions() should default limit to 100 and cursor to None."""
-        prompts_client.list_versions(prompt_id="prompt-123")
+        prompts_client.list_versions(prompt=_PROMPT_ID)
 
         mock_api.prompt_versions_list.assert_called_once_with(
-            prompt_id="prompt-123",
+            prompt_id=_PROMPT_ID,
             limit=100,
             cursor=None,
         )
@@ -355,7 +382,7 @@ class TestPromptsClientListVersions:
         expected = Mock()
         mock_api.prompt_versions_list.return_value = expected
 
-        result = prompts_client.list_versions(prompt_id="prompt-123")
+        result = prompts_client.list_versions(prompt=_PROMPT_ID)
 
         assert result is expected
 
@@ -379,7 +406,7 @@ class TestPromptsClientCreateVersion:
             mock_request_cls.return_value = mock_body
 
             prompts_client.create_version(
-                prompt_id="prompt-123",
+                prompt=_PROMPT_ID,
                 commit_message="v2",
                 input_variable_format=mock_input_format,
                 provider=mock_provider,
@@ -397,7 +424,7 @@ class TestPromptsClientCreateVersion:
             provider_params=None,
         )
         mock_api.prompt_versions_create.assert_called_once_with(
-            prompt_id="prompt-123",
+            prompt_id=_PROMPT_ID,
             prompt_versions_create_request=mock_body,
         )
 
@@ -410,7 +437,7 @@ class TestPromptsClientCreateVersion:
 
         with patch("arize._generated.api_client.PromptVersionsCreateRequest"):
             result = prompts_client.create_version(
-                prompt_id="prompt-123",
+                prompt=_PROMPT_ID,
                 commit_message="v2",
                 input_variable_format=Mock(),
                 provider=Mock(),
@@ -427,13 +454,11 @@ class TestPromptsClientGetLabel:
     def test_get_label_calls_api_with_params(
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
-        """get_label() should pass prompt_id and label_name to prompt_labels_get."""
-        prompts_client.get_label(
-            prompt_id="prompt-123", label_name="production"
-        )
+        """get_label() should resolve prompt and pass prompt_id and label_name to prompt_labels_get."""
+        prompts_client.get_label(prompt=_PROMPT_ID, label_name="production")
 
         mock_api.prompt_labels_get.assert_called_once_with(
-            prompt_id="prompt-123",
+            prompt_id=_PROMPT_ID,
             label_name="production",
         )
 
@@ -445,7 +470,7 @@ class TestPromptsClientGetLabel:
         mock_api.prompt_labels_get.return_value = expected
 
         result = prompts_client.get_label(
-            prompt_id="prompt-123", label_name="staging"
+            prompt=_PROMPT_ID, label_name="staging"
         )
 
         assert result is expected

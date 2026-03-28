@@ -21,20 +21,21 @@ if TYPE_CHECKING:
     from arize.projects.client import ProjectsClient
     from arize.prompts.client import PromptsClient
     from arize.regions import Region
+    from arize.roles.client import RolesClient
     from arize.spaces.client import SpacesClient
     from arize.spans.client import SpansClient
     from arize.tasks.client import TasksClient
 
 logger = logging.getLogger(__name__)
 
-# TODO(Kiko): Go over headers on each logging call
-# TODO(Kiko): InvalidAdditionalHeadersError is unused. Have we handled extra headers?
+# TODO: Go over headers on each logging call
+# TODO: InvalidAdditionalHeadersError is unused. Have we handled extra headers?
 
-# TODO(Kiko): Need to implement 'Update existing examples in a dataset'
+# TODO: Need to implement 'Update existing examples in a dataset'
 
-# TODO(Kiko): Protobuf versioning is too old
-# TODO(Kiko): Go through main APIs and add CtxAdapter where missing
-# TODO(Kiko): Search and handle other TODOs
+# TODO: Protobuf versioning is too old
+# TODO: Go through main APIs and add CtxAdapter where missing
+# TODO: Search and handle other TODOs
 
 
 class ArizeClient(LazySubclientsMixin):
@@ -116,6 +117,10 @@ class ArizeClient(LazySubclientsMixin):
         "evaluators": (
             "arize.evaluators.client",
             "EvaluatorsClient",
+        ),
+        "roles": (
+            "arize.roles.client",
+            "RolesClient",
         ),
         "tasks": (
             "arize.tasks.client",
@@ -337,6 +342,11 @@ class ArizeClient(LazySubclientsMixin):
     def evaluators(self) -> EvaluatorsClient:
         """Access the evaluators client for evaluator operations (lazy-loaded)."""
         return cast("EvaluatorsClient", self.__getattr__("evaluators"))
+
+    @property
+    def roles(self) -> RolesClient:
+        """Access the roles client for role management operations (lazy-loaded)."""
+        return cast("RolesClient", self.__getattr__("roles"))
 
     @property
     def tasks(self) -> TasksClient:

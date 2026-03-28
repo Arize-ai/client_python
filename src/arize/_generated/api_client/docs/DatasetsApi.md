@@ -179,7 +179,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.DatasetsApi(api_client)
-    dataset_id = 'dataset_id_example' # str | The unique identifier of the dataset
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique identifier of the dataset
 
     try:
         # Delete a dataset
@@ -299,9 +299,9 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.DatasetsApi(api_client)
-    dataset_id = 'dataset_id_example' # str | The unique identifier of the dataset
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique identifier of the dataset
     datasets_examples_insert_request = {"examples":[{"question":"What is 2 + 2?","answer":"4","topic":"arithmetic"},{"question":"What is the square root of 16?","answer":"4","topic":"geometry"},{"question":"If 3x = 12, what is x?","answer":"4","topic":"algebra"}]} # DatasetsExamplesInsertRequest | Body containing dataset examples for insert (append) operation with auto-generated IDs
-    dataset_version_id = 'dataset_version_id_example' # str | The unique identifier of the dataset version (optional)
+    dataset_version_id = 'RGF0YXNldFZlcnNpb246MTIzNDU=' # str | The unique identifier of the dataset version (optional)
 
     try:
         # Add new examples to a dataset
@@ -399,8 +399,8 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.DatasetsApi(api_client)
-    dataset_id = 'dataset_id_example' # str | The unique identifier of the dataset
-    dataset_version_id = 'dataset_version_id_example' # str | The unique identifier of the dataset version (optional)
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique identifier of the dataset
+    dataset_version_id = 'RGF0YXNldFZlcnNpb246MTIzNDU=' # str | The unique identifier of the dataset version (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
 
     try:
@@ -538,9 +538,9 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.DatasetsApi(api_client)
-    dataset_id = 'dataset_id_example' # str | The unique identifier of the dataset
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique identifier of the dataset
     datasets_examples_update_request = {"examples":[{"id":"example_001","question":"What is 2 * 2?"},{"id":"example_002","question":"What is the square root of 64?","answer":"8"},{"id":"example_003","question":"If 9x = 36, what is x?","topic":"algebra"}]} # DatasetsExamplesUpdateRequest | Body containing dataset examples for update operation by ID matching
-    dataset_version_id = 'dataset_version_id_example' # str | The unique identifier of the dataset version (optional)
+    dataset_version_id = 'RGF0YXNldFZlcnNpb246MTIzNDU=' # str | The unique identifier of the dataset version (optional)
 
     try:
         # Update existing examples in a dataset
@@ -636,7 +636,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.DatasetsApi(api_client)
-    dataset_id = 'dataset_id_example' # str | The unique identifier of the dataset
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique identifier of the dataset
 
     try:
         # Get a dataset
@@ -729,9 +729,9 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.DatasetsApi(api_client)
-    space_id = 'space_id_example' # str | Filter search results to a particular space ID (optional)
-    space_name = 'space_name_example' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
-    name = 'name_example' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
+    space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
+    space_name = 'my-space' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
+    name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 

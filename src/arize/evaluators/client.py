@@ -6,6 +6,11 @@ import logging
 from typing import TYPE_CHECKING, Literal
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
+from arize.utils.resolve import (
+    find_evaluator_id,
+    find_space_id,
+    resolve_resource,
+)
 
 if TYPE_CHECKING:
     from arize._generated.api_client import models
@@ -42,6 +47,7 @@ class EvaluatorsClient:
         from arize._generated import api_client as gen
 
         self._api = gen.EvaluatorsApi(generated_client)
+        self._spaces_api = gen.SpacesApi(generated_client)
 
     # -------------------------------------------------------------------------
     # Evaluators
@@ -51,19 +57,23 @@ class EvaluatorsClient:
     def list(
         self,
         *,
-        space_id: str | None = None,
+        name: str | None = None,
+        space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
     ) -> models.EvaluatorsList200Response:
         """List evaluators the user has access to.
 
         Results are sorted by update date (most recent first). This endpoint
-        supports cursor-based pagination. When ``space_id`` is provided, results
+        supports cursor-based pagination. When ``space`` is provided, results
         are limited to that space; otherwise evaluators from all permitted spaces
         are returned.
 
         Args:
-            space_id: Optional space ID to filter results.
+            name: Optional case-insensitive substring filter on the evaluator name.
+            space: Optional space filter. If the value is a base64-encoded resource ID it is
+                treated as a space ID; otherwise it is used as a case-insensitive
+                substring filter on the space name.
             limit: Maximum number of evaluators to return (1-100).
             cursor: Opaque pagination cursor from a previous response.
 
@@ -73,8 +83,11 @@ class EvaluatorsClient:
         Raises:
             ApiException: If the API request fails.
         """
+        resolved_space = resolve_resource(space)
         return self._api.evaluators_list(
-            space_id=space_id,
+            space_id=resolved_space.id,
+            space_name=resolved_space.name,
+            name=name,
             limit=limit,
             cursor=cursor,
         )
@@ -83,16 +96,19 @@ class EvaluatorsClient:
     def get(
         self,
         *,
-        evaluator_id: str,
+        evaluator: str,
+        space: str | None = None,
         version_id: str | None = None,
     ) -> models.EvaluatorWithVersion:
-        """Get an evaluator by ID, with its resolved version.
+        """Get an evaluator by name or ID, with its resolved version.
 
         By default, the latest version is returned. Pass ``version_id`` to
         resolve a specific version instead.
 
         Args:
-            evaluator_id: Evaluator global ID (base64) to retrieve.
+            evaluator: Evaluator name or global ID (base64) to retrieve.
+            space: Optional space name or ID. Required when ``evaluator`` is a
+                name rather than an ID.
             version_id: Optional version global ID (base64). If omitted, the
                 latest version is returned.
 
@@ -103,6 +119,11 @@ class EvaluatorsClient:
             ApiException: If the API request fails
                 (for example, evaluator not found).
         """
+        evaluator_id = find_evaluator_id(
+            api=self._api,
+            evaluator=evaluator,
+            space=space,
+        )
         return self._api.evaluators_get(
             evaluator_id=evaluator_id,
             version_id=version_id,
@@ -113,7 +134,7 @@ class EvaluatorsClient:
         self,
         *,
         name: str,
-        space_id: str,
+        space: str,
         evaluator_type: Literal["template", "code"] = "template",
         commit_message: str,
         template_config: models.TemplateConfig,
@@ -128,8 +149,8 @@ class EvaluatorsClient:
         ``ValueError`` if set to anything other than ``"template"``.
 
         Args:
-            name: Evaluator name (must be unique within ``space_id``).
-            space_id: Space global ID (base64) to create the evaluator in.
+            name: Evaluator name (must be unique within the space).
+            space: Space name or ID to create the evaluator in.
             evaluator_type: Evaluator type. Only ``"template"`` is supported;
                 the parameter is accepted for forward-compatibility.
             commit_message: Commit message for the initial version.
@@ -176,6 +197,8 @@ class EvaluatorsClient:
                 f"Evaluator type {evaluator_type} is not supported"
             )
 
+        space_id = find_space_id(self._spaces_api, space)
+
         version = gen.EvaluatorsCreateRequestVersion(
             commit_message=commit_message,
             template_config=template_config,
@@ -193,14 +216,17 @@ class EvaluatorsClient:
     def update(
         self,
         *,
-        evaluator_id: str,
+        evaluator: str,
+        space: str | None = None,
         name: str | None = None,
         description: str | None = None,
     ) -> models.Evaluator:
         """Update an evaluator's metadata.
 
         Args:
-            evaluator_id: Evaluator global ID (base64) to update.
+            evaluator: Evaluator name or global ID (base64) to update.
+            space: Optional space name or ID. Required when ``evaluator`` is a
+                name rather than an ID.
             name: New evaluator name (must be unique within its space).
             description: New description for the evaluator.
 
@@ -210,6 +236,12 @@ class EvaluatorsClient:
         Raises:
             ApiException: If the API request fails.
         """
+        evaluator_id = find_evaluator_id(
+            api=self._api,
+            evaluator=evaluator,
+            space=space,
+        )
+
         from arize._generated import api_client as gen
 
         body = gen.EvaluatorsUpdateRequest(name=name, description=description)
@@ -219,13 +251,15 @@ class EvaluatorsClient:
         )
 
     @prerelease_endpoint(key="evaluators.delete", stage=ReleaseStage.ALPHA)
-    def delete(self, *, evaluator_id: str) -> None:
+    def delete(self, *, evaluator: str, space: str | None = None) -> None:
         """Delete an evaluator and all its versions.
 
         This operation is irreversible.
 
         Args:
-            evaluator_id: Evaluator global ID (base64) to delete.
+            evaluator: Evaluator name or global ID (base64) to delete.
+            space: Optional space name or ID. Required when ``evaluator`` is a
+                name rather than an ID.
 
         Returns:
             None.
@@ -234,6 +268,11 @@ class EvaluatorsClient:
             ApiException: If the API request fails
                 (for example, evaluator not found).
         """
+        evaluator_id = find_evaluator_id(
+            api=self._api,
+            evaluator=evaluator,
+            space=space,
+        )
         self._api.evaluators_delete(evaluator_id=evaluator_id)
 
     # -------------------------------------------------------------------------
@@ -246,7 +285,8 @@ class EvaluatorsClient:
     def list_versions(
         self,
         *,
-        evaluator_id: str,
+        evaluator: str,
+        space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
     ) -> models.EvaluatorVersionsList200Response:
@@ -255,7 +295,9 @@ class EvaluatorsClient:
         Results are returned with cursor-based pagination.
 
         Args:
-            evaluator_id: Evaluator global ID (base64) to list versions for.
+            evaluator: Evaluator name or global ID (base64) to list versions for.
+            space: Optional space name or ID. Required when ``evaluator`` is a
+                name rather than an ID.
             limit: Maximum number of versions to return (1-100).
             cursor: Opaque pagination cursor from a previous response.
 
@@ -265,6 +307,11 @@ class EvaluatorsClient:
         Raises:
             ApiException: If the API request fails.
         """
+        evaluator_id = find_evaluator_id(
+            api=self._api,
+            evaluator=evaluator,
+            space=space,
+        )
         return self._api.evaluator_versions_list(
             evaluator_id=evaluator_id,
             limit=limit,
@@ -293,7 +340,8 @@ class EvaluatorsClient:
     def create_version(
         self,
         *,
-        evaluator_id: str,
+        evaluator: str,
+        space: str | None = None,
         commit_message: str,
         template_config: models.TemplateConfig,
     ) -> models.EvaluatorVersion:
@@ -305,7 +353,9 @@ class EvaluatorsClient:
         Versions are immutable once created. To change the configuration, create a new version.
 
         Args:
-            evaluator_id: Evaluator global ID (base64) to add a version to.
+            evaluator: Evaluator name or global ID (base64) to add a version to.
+            space: Optional space name or ID. Required when ``evaluator`` is a
+                name rather than an ID.
             commit_message: Commit message describing the changes in this version.
             template_config: Updated template configuration for this version.
                 Build this with :class:`arize.TemplateConfig` (or
@@ -341,6 +391,12 @@ class EvaluatorsClient:
         Raises:
             ApiException: If the API request fails.
         """
+        evaluator_id = find_evaluator_id(
+            api=self._api,
+            evaluator=evaluator,
+            space=space,
+        )
+
         from arize._generated import api_client as gen
 
         body = gen.EvaluatorVersionsCreateRequest(

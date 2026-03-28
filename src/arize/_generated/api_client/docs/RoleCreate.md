@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Human-readable name for the role. Must be unique within the account. | 
 **description** | **str** | Optional description of the role&#39;s purpose. Omitted from the response if empty. | [optional] 
-**permissions** | **List[str]** | List of permissions to grant. At least one permission is required. Each value must be a valid permission identifier (e.g. &#x60;PROJECT_READ&#x60;, &#x60;DATASET_CREATE&#x60;).  | 
+**permissions** | [**List[Permission]**](Permission.md) | List of permissions to grant. At least one permission is required. Each value must be a valid permission identifier (e.g. &#x60;PROJECT_READ&#x60;, &#x60;DATASET_CREATE&#x60;).  | 
 
 ## Example
 

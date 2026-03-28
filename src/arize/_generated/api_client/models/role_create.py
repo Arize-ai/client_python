@@ -17,9 +17,10 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.permission import Permission
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,7 +30,7 @@ class RoleCreate(BaseModel):
     """ # noqa: E501
     name: Annotated[str, Field(strict=True, max_length=255)] = Field(description="Human-readable name for the role. Must be unique within the account.")
     description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="Optional description of the role's purpose. Omitted from the response if empty.")
-    permissions: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="List of permissions to grant. At least one permission is required. Each value must be a valid permission identifier (e.g. `PROJECT_READ`, `DATASET_CREATE`). ")
+    permissions: Annotated[List[Permission], Field(min_length=1)] = Field(description="List of permissions to grant. At least one permission is required. Each value must be a valid permission identifier (e.g. `PROJECT_READ`, `DATASET_CREATE`). ")
     __properties: ClassVar[List[str]] = ["name", "description", "permissions"]
 
     model_config = ConfigDict(

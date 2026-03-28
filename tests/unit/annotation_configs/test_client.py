@@ -33,6 +33,134 @@ def annotation_configs_client(
 
 
 @pytest.mark.unit
+class TestAnnotationConfigsClientInit:
+    """Tests for AnnotationConfigsClient.__init__()."""
+
+    def test_stores_sdk_config(
+        self, mock_sdk_config: Mock, mock_api: Mock
+    ) -> None:
+        """Constructor should store sdk_config on the instance."""
+        with patch(
+            "arize._generated.api_client.AnnotationConfigsApi",
+            return_value=mock_api,
+        ):
+            client = AnnotationConfigsClient(
+                sdk_config=mock_sdk_config,
+                generated_client=Mock(),
+            )
+        assert client._sdk_config is mock_sdk_config
+
+    def test_creates_annotation_configs_api_with_generated_client(
+        self, mock_sdk_config: Mock
+    ) -> None:
+        """Constructor should pass generated_client to AnnotationConfigsApi."""
+        mock_generated_client = Mock()
+        with patch(
+            "arize._generated.api_client.AnnotationConfigsApi"
+        ) as mock_api_cls:
+            AnnotationConfigsClient(
+                sdk_config=mock_sdk_config,
+                generated_client=mock_generated_client,
+            )
+        mock_api_cls.assert_called_once_with(mock_generated_client)
+
+
+@pytest.mark.unit
+class TestAnnotationConfigsClientList:
+    """Tests for AnnotationConfigsClient.list()."""
+
+    def test_list_with_space_id(
+        self,
+        annotation_configs_client: AnnotationConfigsClient,
+        mock_api: Mock,
+    ) -> None:
+        """list() should resolve a base64 resource ID space value to space_id."""
+        annotation_configs_client.list(
+            name="my-config",
+            space="U3BhY2U6OTA1MDoxSmtS",
+            limit=25,
+            cursor="cursor-xyz",
+        )
+
+        mock_api.annotation_configs_list.assert_called_once_with(
+            space_id="U3BhY2U6OTA1MDoxSmtS",
+            space_name=None,
+            name="my-config",
+            limit=25,
+            cursor="cursor-xyz",
+        )
+
+    def test_list_with_space_name(
+        self,
+        annotation_configs_client: AnnotationConfigsClient,
+        mock_api: Mock,
+    ) -> None:
+        """list() should resolve a non-prefixed space value to space_name."""
+        annotation_configs_client.list(
+            name="my-config",
+            space="my-space",
+            limit=25,
+            cursor="cursor-xyz",
+        )
+
+        mock_api.annotation_configs_list.assert_called_once_with(
+            space_id=None,
+            space_name="my-space",
+            name="my-config",
+            limit=25,
+            cursor="cursor-xyz",
+        )
+
+    def test_list_defaults(
+        self,
+        annotation_configs_client: AnnotationConfigsClient,
+        mock_api: Mock,
+    ) -> None:
+        """list() should default space/name/cursor to None and limit to 100."""
+        annotation_configs_client.list()
+
+        mock_api.annotation_configs_list.assert_called_once_with(
+            space_id=None,
+            space_name=None,
+            name=None,
+            limit=100,
+            cursor=None,
+        )
+
+    def test_list_returns_api_response(
+        self,
+        annotation_configs_client: AnnotationConfigsClient,
+        mock_api: Mock,
+    ) -> None:
+        """list() should propagate the return value from annotation_configs_list."""
+        expected = Mock()
+        mock_api.annotation_configs_list.return_value = expected
+
+        result = annotation_configs_client.list()
+
+        assert result is expected
+
+    def test_list_emits_beta_prerelease_warning(
+        self,
+        annotation_configs_client: AnnotationConfigsClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the BETA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        annotation_configs_client.list()
+
+        assert any(
+            "BETA" in record.message
+            and "annotation_configs.list" in record.message
+            for record in caplog.records
+        )
+
+
+@pytest.mark.unit
 class TestAnnotationConfigsClientCreate:
     """Tests for AnnotationConfigsClient.create() — covers the enum comparison bug fix."""
 
@@ -56,7 +184,7 @@ class TestAnnotationConfigsClientCreate:
         ):
             annotation_configs_client.create(
                 name="my-config",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 config_type=AnnotationConfigType.CONTINUOUS,
                 minimum_score=0.0,
                 maximum_score=1.0,
@@ -87,7 +215,7 @@ class TestAnnotationConfigsClientCreate:
         ):
             annotation_configs_client.create(
                 name="my-config",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 config_type=AnnotationConfigType.CATEGORICAL,
                 values=mock_values,
             )
@@ -116,7 +244,7 @@ class TestAnnotationConfigsClientCreate:
         ):
             annotation_configs_client.create(
                 name="my-config",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 config_type=AnnotationConfigType.FREEFORM,
             )
 
@@ -138,7 +266,7 @@ class TestAnnotationConfigsClientCreate:
         ):
             annotation_configs_client.create(
                 name="score-config",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 config_type=AnnotationConfigType.CONTINUOUS,
                 minimum_score=0.5,
                 maximum_score=10.0,
@@ -146,7 +274,7 @@ class TestAnnotationConfigsClientCreate:
 
         mock_continuous_cls.assert_called_once_with(
             name="score-config",
-            space_id="space-abc",
+            space_id="U3BhY2U6OTA1MDoxSmtS",
             annotation_config_type=AnnotationConfigType.CONTINUOUS.value,
             minimum_score=0.5,
             maximum_score=10.0,
@@ -168,14 +296,14 @@ class TestAnnotationConfigsClientCreate:
         ):
             annotation_configs_client.create(
                 name="cat-config",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 config_type=AnnotationConfigType.CATEGORICAL,
                 values=mock_values,
             )
 
         mock_categorical_cls.assert_called_once_with(
             name="cat-config",
-            space_id="space-abc",
+            space_id="U3BhY2U6OTA1MDoxSmtS",
             annotation_config_type=AnnotationConfigType.CATEGORICAL.value,
             values=mock_values,
             optimization_direction=None,
@@ -190,7 +318,7 @@ class TestAnnotationConfigsClientCreate:
         ):
             annotation_configs_client.create(
                 name="my-config",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 config_type=AnnotationConfigType.CONTINUOUS,
                 maximum_score=1.0,
             )
@@ -204,7 +332,7 @@ class TestAnnotationConfigsClientCreate:
         ):
             annotation_configs_client.create(
                 name="my-config",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 config_type=AnnotationConfigType.CONTINUOUS,
                 minimum_score=0.0,
             )
@@ -218,7 +346,7 @@ class TestAnnotationConfigsClientCreate:
         ):
             annotation_configs_client.create(
                 name="my-config",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 config_type=AnnotationConfigType.CONTINUOUS,
             )
 
@@ -231,7 +359,7 @@ class TestAnnotationConfigsClientCreate:
         ):
             annotation_configs_client.create(
                 name="my-config",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 config_type=AnnotationConfigType.CATEGORICAL,
             )
 
@@ -250,7 +378,7 @@ class TestAnnotationConfigsClientCreate:
 
             annotation_configs_client.create(
                 name="my-config",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 config_type=AnnotationConfigType.FREEFORM,
             )
 
@@ -273,7 +401,7 @@ class TestAnnotationConfigsClientCreate:
         ):
             result = annotation_configs_client.create(
                 name="my-config",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 config_type=AnnotationConfigType.FREEFORM,
             )
 
@@ -298,7 +426,7 @@ class TestAnnotationConfigsClientCreate:
         ):
             annotation_configs_client.create(
                 name="my-config",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 config_type=AnnotationConfigType.FREEFORM,
             )
 

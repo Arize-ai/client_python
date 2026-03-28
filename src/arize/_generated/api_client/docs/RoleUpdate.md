@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Updated name for the role. Must be unique within the account. | [optional] 
 **description** | **str** | Updated description of the role. | [optional] 
-**permissions** | **List[str]** | Replacement set of permissions. When provided, the existing permissions are fully replaced. Each value must be a valid permission identifier.  | [optional] 
+**permissions** | [**List[Permission]**](Permission.md) | Replacement set of permissions. When provided, the existing permissions are fully replaced. Each value must be a valid permission identifier.  | [optional] 
 
 ## Example
 

@@ -181,12 +181,14 @@ class TestDeprecatedDecorator:
 
         caplog.set_level(logging.WARNING)
 
-        func_one()
+        with pytest.warns(DeprecationWarning):
+            func_one()
         assert "key_one" in caplog.text
         assert "new_one" in caplog.text
 
         caplog.clear()
-        func_two()
+        with pytest.warns(DeprecationWarning):
+            func_two()
         assert "key_two" in caplog.text
         assert "obsolete" in caplog.text
 
@@ -200,7 +202,8 @@ class TestDeprecatedDecorator:
         def test_func() -> str:
             return "expected_result"
 
-        result = test_func()
+        with pytest.warns(DeprecationWarning):
+            result = test_func()
         assert result == "expected_result"
 
     def test_function_args_passed_through(self) -> None:
@@ -213,7 +216,8 @@ class TestDeprecatedDecorator:
         def test_func(a: int, b: int) -> int:
             return a + b
 
-        result = test_func(5, 3)
+        with pytest.warns(DeprecationWarning):
+            result = test_func(5, 3)
         assert result == 8
 
     def test_function_kwargs_passed_through(self) -> None:
@@ -226,7 +230,8 @@ class TestDeprecatedDecorator:
         def test_func(*, name: str, value: int) -> str:
             return f"{name}:{value}"
 
-        result = test_func(name="test", value=42)
+        with pytest.warns(DeprecationWarning):
+            result = test_func(name="test", value=42)
         assert result == "test:42"
 
     def test_message_with_reason_in_log(
@@ -242,7 +247,8 @@ class TestDeprecatedDecorator:
             pass
 
         caplog.set_level(logging.WARNING)
-        test_func()
+        with pytest.warns(DeprecationWarning):
+            test_func()
 
         assert "no longer maintained" in caplog.text
         assert f"v{__version__}" in caplog.text
@@ -260,7 +266,8 @@ class TestDeprecatedDecorator:
             pass
 
         caplog.set_level(logging.WARNING)
-        test_func()
+        with pytest.warns(DeprecationWarning):
+            test_func()
 
         assert "Use shiny_new_method instead" in caplog.text
         assert f"v{__version__}" in caplog.text

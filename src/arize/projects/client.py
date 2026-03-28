@@ -6,6 +6,11 @@ import logging
 from typing import TYPE_CHECKING
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
+from arize.utils.resolve import (
+    find_project_id,
+    find_space_id,
+    resolve_resource,
+)
 
 if TYPE_CHECKING:
     from arize._generated.api_client import models
@@ -42,22 +47,27 @@ class ProjectsClient:
 
         # Use the provided client directly
         self._api = gen.ProjectsApi(generated_client)
+        self._spaces_api = gen.SpacesApi(generated_client)
 
     @prerelease_endpoint(key="projects.list", stage=ReleaseStage.BETA)
     def list(
         self,
         *,
-        space_id: str | None = None,
+        name: str | None = None,
+        space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
     ) -> models.ProjectsList200Response:
         """List projects the user has access to.
 
-        This endpoint supports cursor-based pagination. When provided, `space_id`
-        filters results to a particular space.
+        This endpoint supports cursor-based pagination. When ``space`` is provided,
+        results are filtered to that space.
 
         Args:
-            space_id: Optional space ID to filter results.
+            name: Optional case-insensitive substring filter on the project name.
+            space: Optional space filter. If the value is a base64-encoded resource ID it is
+                treated as a space ID; otherwise it is used as a case-insensitive
+                substring filter on the space name.
             limit: Maximum number of projects to return. The server may enforce
                 an upper bound.
             cursor: Opaque pagination cursor from a previous response.
@@ -68,8 +78,11 @@ class ProjectsClient:
         Raises:
             ApiException: If the API request fails.
         """
+        resolved_space = resolve_resource(space)
         return self._api.projects_list(
-            space_id=space_id,
+            space_id=resolved_space.id,
+            space_name=resolved_space.name,
+            name=name,
             limit=limit,
             cursor=cursor,
         )
@@ -79,15 +92,15 @@ class ProjectsClient:
         self,
         *,
         name: str,
-        space_id: str,
+        space: str,
     ) -> models.Project:
         """Create a new project.
 
         Project names must be unique within the target space.
 
         Args:
-            name: Project name (must be unique within `space_id`).
-            space_id: Space ID to create the project in.
+            name: Project name (must be unique within the target space).
+            space: Space ID or name to create the project in.
 
         Returns:
             The created project object.
@@ -96,6 +109,8 @@ class ProjectsClient:
             ApiException: If the API request fails
                 (for example, due to invalid input or a uniqueness conflict).
         """
+        space_id = find_space_id(self._spaces_api, space)
+
         from arize._generated import api_client as gen
 
         body = gen.ProjectsCreateRequest(
@@ -105,11 +120,12 @@ class ProjectsClient:
         return self._api.projects_create(projects_create_request=body)
 
     @prerelease_endpoint(key="projects.get", stage=ReleaseStage.BETA)
-    def get(self, *, project_id: str) -> models.Project:
-        """Get a project by ID.
+    def get(self, *, project: str, space: str | None = None) -> models.Project:
+        """Get a project by ID or name.
 
         Args:
-            project_id: Project ID.
+            project: Project ID or name.
+            space: Space ID or name. Required when *project* is a name.
 
         Returns:
             The project object.
@@ -118,16 +134,22 @@ class ProjectsClient:
             ApiException: If the API request fails
                 (for example, project not found).
         """
+        project_id = find_project_id(
+            api=self._api,
+            project=project,
+            space=space,
+        )
         return self._api.projects_get(project_id=project_id)
 
     @prerelease_endpoint(key="projects.delete", stage=ReleaseStage.BETA)
-    def delete(self, *, project_id: str) -> None:
-        """Delete a project by ID.
+    def delete(self, *, project: str, space: str | None = None) -> None:
+        """Delete a project by ID or name.
 
         This operation is irreversible.
 
         Args:
-            project_id: Project ID.
+            project: Project ID or name.
+            space: Space ID or name. Required when *project* is a name.
 
         Returns:
             This method returns None on success (common empty 204 response).
@@ -136,4 +158,9 @@ class ProjectsClient:
             ApiException: If the API request fails
                 (for example, project not found or insufficient permissions).
         """
+        project_id = find_project_id(
+            api=self._api,
+            project=project,
+            space=space,
+        )
         return self._api.projects_delete(project_id=project_id)

@@ -64,7 +64,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
-    annotation_queue_id = 'annotation_queue_id_example' # str | The unique identifier of the annotation queue
+    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique identifier of the annotation queue
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
 
@@ -280,7 +280,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
-    annotation_queue_id = 'annotation_queue_id_example' # str | The unique identifier of the annotation queue
+    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique identifier of the annotation queue
 
     try:
         # Delete an annotation queue
@@ -370,7 +370,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
-    annotation_queue_id = 'annotation_queue_id_example' # str | The unique identifier of the annotation queue
+    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique identifier of the annotation queue
 
     try:
         # Get an annotation queue
@@ -456,9 +456,9 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
-    space_id = 'space_id_example' # str | Filter search results to a particular space ID (optional)
-    space_name = 'space_name_example' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
-    name = 'name_example' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
+    space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
+    space_name = 'my-space' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
+    name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
@@ -560,7 +560,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
-    annotation_queue_id = 'annotation_queue_id_example' # str | The unique identifier of the annotation queue
+    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique identifier of the annotation queue
     add_annotation_queue_records_request_body = {"record_sources":[{"record_type":"span","project_id":"proj_abc123","start_time":"2024-01-15T00:00:00Z","end_time":"2024-01-15T23:59:59Z","span_ids":["span_abc123","span_def456"]}]} # AddAnnotationQueueRecordsRequestBody | Body containing records to add to an annotation queue
 
     try:
@@ -655,7 +655,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
-    annotation_queue_id = 'annotation_queue_id_example' # str | The unique identifier of the annotation queue
+    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique identifier of the annotation queue
     delete_annotation_queue_records_request_body = {"record_ids":["aqr_abc123","aqr_def456"]} # DeleteAnnotationQueueRecordsRequestBody | Body containing the IDs of annotation queue records to delete
 
     try:
@@ -748,7 +748,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
-    annotation_queue_id = 'annotation_queue_id_example' # str | The unique identifier of the annotation queue
+    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique identifier of the annotation queue
     update_annotation_queue_request_body = {"name":"Updated Queue Name","instructions":"Review each response for accuracy and helpfulness","annotation_config_ids":["ac_abc123"],"annotator_emails":["reviewer@example.com"]} # UpdateAnnotationQueueRequestBody | Body containing annotation queue update parameters. At least one field must be provided.
 
     try:

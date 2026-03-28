@@ -1172,6 +1172,8 @@ class TasksApi:
     def tasks_list(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 global ID)")] = None,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific dataset (base64 global ID)")] = None,
         type: Annotated[Optional[StrictStr], Field(description="Filter by task type: template_evaluation or code_evaluation")] = None,
@@ -1196,6 +1198,10 @@ class TasksApi:
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
+        :param space_name: Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. 
+        :type space_name: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
+        :type name: str
         :param project_id: Filter to tasks for a specific project (base64 global ID)
         :type project_id: str
         :param dataset_id: Filter to tasks for a specific dataset (base64 global ID)
@@ -1230,6 +1236,8 @@ class TasksApi:
 
         _param = self._tasks_list_serialize(
             space_id=space_id,
+            space_name=space_name,
+            name=name,
             project_id=project_id,
             dataset_id=dataset_id,
             type=type,
@@ -1264,6 +1272,8 @@ class TasksApi:
     def tasks_list_with_http_info(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 global ID)")] = None,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific dataset (base64 global ID)")] = None,
         type: Annotated[Optional[StrictStr], Field(description="Filter by task type: template_evaluation or code_evaluation")] = None,
@@ -1288,6 +1298,10 @@ class TasksApi:
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
+        :param space_name: Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. 
+        :type space_name: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
+        :type name: str
         :param project_id: Filter to tasks for a specific project (base64 global ID)
         :type project_id: str
         :param dataset_id: Filter to tasks for a specific dataset (base64 global ID)
@@ -1322,6 +1336,8 @@ class TasksApi:
 
         _param = self._tasks_list_serialize(
             space_id=space_id,
+            space_name=space_name,
+            name=name,
             project_id=project_id,
             dataset_id=dataset_id,
             type=type,
@@ -1356,6 +1372,8 @@ class TasksApi:
     def tasks_list_without_preload_content(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 global ID)")] = None,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific dataset (base64 global ID)")] = None,
         type: Annotated[Optional[StrictStr], Field(description="Filter by task type: template_evaluation or code_evaluation")] = None,
@@ -1380,6 +1398,10 @@ class TasksApi:
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
+        :param space_name: Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. 
+        :type space_name: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
+        :type name: str
         :param project_id: Filter to tasks for a specific project (base64 global ID)
         :type project_id: str
         :param dataset_id: Filter to tasks for a specific dataset (base64 global ID)
@@ -1414,6 +1436,8 @@ class TasksApi:
 
         _param = self._tasks_list_serialize(
             space_id=space_id,
+            space_name=space_name,
+            name=name,
             project_id=project_id,
             dataset_id=dataset_id,
             type=type,
@@ -1443,6 +1467,8 @@ class TasksApi:
     def _tasks_list_serialize(
         self,
         space_id,
+        space_name,
+        name,
         project_id,
         dataset_id,
         type,
@@ -1473,6 +1499,14 @@ class TasksApi:
         if space_id is not None:
             
             _query_params.append(('space_id', space_id))
+            
+        if space_name is not None:
+            
+            _query_params.append(('space_name', space_name))
+            
+        if name is not None:
+            
+            _query_params.append(('name', name))
             
         if project_id is not None:
             

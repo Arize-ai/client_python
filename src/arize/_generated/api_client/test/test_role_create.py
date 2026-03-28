@@ -35,13 +35,13 @@ class TestRoleCreate(unittest.TestCase):
         model = RoleCreate()
         if include_optional:
             return RoleCreate(
-                name = 'Data Scientist',
+                name = 'AI Engineer',
                 description = 'Can read and create datasets and experiments but cannot manage spaces.',
                 permissions = ["PROJECT_READ","DATASET_READ","DATASET_CREATE","EXPERIMENT_READ","EXPERIMENT_CREATE"]
             )
         else:
             return RoleCreate(
-                name = 'Data Scientist',
+                name = 'AI Engineer',
                 permissions = ["PROJECT_READ","DATASET_READ","DATASET_CREATE","EXPERIMENT_READ","EXPERIMENT_CREATE"],
         )
         """

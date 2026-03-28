@@ -152,7 +152,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.APIKeysApi(api_client)
-    api_key_id = 'api_key_id_example' # str | The unique identifier of the API key
+    api_key_id = 'QXBpS2V5OjEyMzQ1' # str | The unique identifier of the API key
 
     try:
         # Delete an API key
@@ -243,7 +243,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.APIKeysApi(api_client)
-    key_type = 'key_type_example' # str | Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication.  (optional)
+    key_type = 'user' # str | Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication.  (optional)
     status = arize._generated.api_client.ApiKeyStatus() # ApiKeyStatus | Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`.  (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
@@ -346,7 +346,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.APIKeysApi(api_client)
-    api_key_id = 'api_key_id_example' # str | The unique identifier of the API key
+    api_key_id = 'QXBpS2V5OjEyMzQ1' # str | The unique identifier of the API key
     api_key_refresh = {} # ApiKeyRefresh | Optional body for overriding expiry on a refreshed API key. (optional)
 
     try:

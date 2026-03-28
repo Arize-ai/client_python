@@ -39,7 +39,7 @@ class TestRole(unittest.TestCase):
                 name = '',
                 description = '',
                 permissions = [
-                    ''
+                    'AI_PROVIDER_READ'
                     ],
                 is_predefined = True,
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
@@ -50,7 +50,7 @@ class TestRole(unittest.TestCase):
                 id = '',
                 name = '',
                 permissions = [
-                    ''
+                    'AI_PROVIDER_READ'
                     ],
                 is_predefined = True,
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),

@@ -22,6 +22,7 @@ experiments
 ml
 projects
 prompts
+roles
 spaces
 spans
 tasks

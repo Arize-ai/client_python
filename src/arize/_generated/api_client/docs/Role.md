@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **id** | **str** | Unique identifier for the role. | 
 **name** | **str** | Human-readable name of the role. | 
 **description** | **str** | A brief description of the role&#39;s purpose. | [optional] 
-**permissions** | **List[str]** | List of permissions granted by this role. Each value corresponds to a permission identifier (e.g. &#x60;PROJECT_READ&#x60;, &#x60;DATASET_CREATE&#x60;).  | 
+**permissions** | [**List[Permission]**](Permission.md) | List of permissions granted by this role. Each value corresponds to a permission identifier (e.g. &#x60;PROJECT_READ&#x60;, &#x60;DATASET_CREATE&#x60;).  | 
 **is_predefined** | **bool** | Whether this role is a system-defined predefined role. Predefined roles cannot be updated or deleted.  | 
 **created_at** | **datetime** | Timestamp when the role was created. | 
 **updated_at** | **datetime** | Timestamp when the role was last updated. | 

@@ -1,5 +1,22 @@
 # Changelog
 
+## [8.9.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.8.1...arize-python-sdk/v8.9.0) (2026-03-28)
+
+
+### 🎁 New Features
+
+* enable using names and IDs for resource location ([#66416](https://github.com/Arize-ai/arize/issues/66416)) ([fff3bf0](https://github.com/Arize-ai/arize/commit/fff3bf0bc317bab4f56ee00415f68a3df957c9f5))
+* add RolesClient ([#66239](https://github.com/Arize-ai/arize/issues/66239)) ([e69b1e1](https://github.com/Arize-ai/arize/commit/e69b1e16764809f7624f8ac4fc07d491a1d78c77)), closes [#66232](https://github.com/Arize-ai/arize/issues/66232)
+
+### 💫 Code Refactoring
+
+* replace Permission enum with auto-generated one ([#66564](https://github.com/Arize-ai/arize/issues/66564)) ([1b3b3b6](https://github.com/Arize-ai/arize/commit/1b3b3b62933fc1c79266c6f1d2fcac05d0d8451d))
+
+
+### ❔ Miscellaneous Chores
+
+* Add upgrade suggestion to SDK pre-release warnings ([#66879](https://github.com/Arize-ai/arize/issues/66879)) ([8c47f31](https://github.com/Arize-ai/arize/commit/8c47f31f1cac29121da13c9a9161a8493af4070d))
+
 ## [8.8.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.8.0...arize-python-sdk/v8.8.1) (2026-03-23)
 
 

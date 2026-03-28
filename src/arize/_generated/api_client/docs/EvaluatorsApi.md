@@ -60,7 +60,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    evaluator_id = 'evaluator_id_example' # str | The evaluator global ID (base64)
+    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The evaluator global ID (base64)
     evaluator_versions_create_request = {"commit_message":"Improve template wording","template_config":{"name":"hallucination","template":"Evaluate whether the output is factually grounded.\n\nInput: {{input}}\nOutput: {{output}}","include_explanations":true,"use_function_calling_if_available":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"maximize","data_granularity":"span","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}} # EvaluatorVersionsCreateRequest | Body containing evaluator version creation parameters
 
     try:
@@ -148,7 +148,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    version_id = 'version_id_example' # str | The evaluator version global ID (base64)
+    version_id = 'RXZhbHVhdG9yVmVyc2lvbjoxMjM0NQ==' # str | The evaluator version global ID (base64)
 
     try:
         # Get evaluator version
@@ -234,7 +234,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    evaluator_id = 'evaluator_id_example' # str | The evaluator global ID (base64)
+    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The evaluator global ID (base64)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
@@ -419,7 +419,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    evaluator_id = 'evaluator_id_example' # str | The evaluator global ID (base64)
+    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The evaluator global ID (base64)
 
     try:
         # Delete evaluator
@@ -504,8 +504,8 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    evaluator_id = 'evaluator_id_example' # str | The evaluator global ID (base64)
-    version_id = 'version_id_example' # str | Return the evaluator with this specific version (base64 global ID). If omitted, returns the latest version. (optional)
+    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The evaluator global ID (base64)
+    version_id = 'RXZhbHVhdG9yVmVyc2lvbjoxMjM0NQ==' # str | Return the evaluator with this specific version (base64 global ID). If omitted, returns the latest version. (optional)
 
     try:
         # Get evaluator
@@ -595,9 +595,9 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    space_id = 'space_id_example' # str | Filter search results to a particular space ID (optional)
-    space_name = 'space_name_example' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
-    name = 'name_example' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
+    space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
+    space_name = 'my-space' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
+    name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
@@ -690,7 +690,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    evaluator_id = 'evaluator_id_example' # str | The evaluator global ID (base64)
+    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The evaluator global ID (base64)
     evaluators_update_request = {"name":"Updated Evaluator Name","description":"Updated description"} # EvaluatorsUpdateRequest | Body containing evaluator update parameters
 
     try:

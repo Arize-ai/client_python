@@ -68,7 +68,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.RolesApi(api_client)
-    role_create = {"name":"Data Scientist","permissions":["PROJECT_READ","DATASET_READ","DATASET_CREATE"]} # RoleCreate | Body containing role creation parameters.
+    role_create = {"name":"AI Engineer","permissions":["PROJECT_READ","DATASET_READ","DATASET_CREATE"]} # RoleCreate | Body containing role creation parameters.
 
     try:
         # Create a role
@@ -419,7 +419,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.RolesApi(api_client)
     role_id = 'Rol001' # str | The unique identifier of the role.
-    role_update = {"name":"Senior Data Scientist"} # RoleUpdate | Body containing role update parameters. At least one field must be provided.
+    role_update = {"name":"Senior AI Engineer"} # RoleUpdate | Body containing role update parameters. At least one field must be provided.
 
     try:
         # Update a role

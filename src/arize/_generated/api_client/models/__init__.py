@@ -88,6 +88,7 @@ from arize._generated.api_client.models.llm_provider import LlmProvider
 from arize._generated.api_client.models.message_role import MessageRole
 from arize._generated.api_client.models.optimization_direction import OptimizationDirection
 from arize._generated.api_client.models.pagination_metadata import PaginationMetadata
+from arize._generated.api_client.models.permission import Permission
 from arize._generated.api_client.models.problem import Problem
 from arize._generated.api_client.models.project import Project
 from arize._generated.api_client.models.projects_create_request import ProjectsCreateRequest
@@ -107,10 +108,17 @@ from arize._generated.api_client.models.provider_params import ProviderParams
 from arize._generated.api_client.models.provider_params_anthropic_headers import ProviderParamsAnthropicHeaders
 from arize._generated.api_client.models.provider_params_azure_params import ProviderParamsAzureParams
 from arize._generated.api_client.models.provider_params_bedrock_options import ProviderParamsBedrockOptions
+from arize._generated.api_client.models.resource_restriction import ResourceRestriction
+from arize._generated.api_client.models.resource_restrictions_create200_response import ResourceRestrictionsCreate200Response
+from arize._generated.api_client.models.resource_restrictions_create_request import ResourceRestrictionsCreateRequest
 from arize._generated.api_client.models.response_format import ResponseFormat
 from arize._generated.api_client.models.response_format_json_schema import ResponseFormatJsonSchema
 from arize._generated.api_client.models.response_format_type import ResponseFormatType
 from arize._generated.api_client.models.role import Role
+from arize._generated.api_client.models.role_binding import RoleBinding
+from arize._generated.api_client.models.role_binding_create import RoleBindingCreate
+from arize._generated.api_client.models.role_binding_resource_type import RoleBindingResourceType
+from arize._generated.api_client.models.role_binding_update import RoleBindingUpdate
 from arize._generated.api_client.models.role_create import RoleCreate
 from arize._generated.api_client.models.role_update import RoleUpdate
 from arize._generated.api_client.models.roles_list200_response import RolesList200Response

@@ -9,6 +9,9 @@ import pytest
 
 from arize.evaluators.client import EvaluatorsClient
 
+# Base64 ID that decodes to "Evaluator:123" — passes _is_resource_id()
+_EVALUATOR_ID = "RXZhbHVhdG9yOjEyMw=="
+
 
 @pytest.fixture
 def mock_api() -> Mock:
@@ -66,18 +69,40 @@ class TestEvaluatorsClientInit:
 class TestEvaluatorsClientList:
     """Tests for EvaluatorsClient.list()."""
 
-    def test_list_calls_api_with_all_params(
+    def test_list_with_space_id(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """list() should forward all parameters to evaluators_list."""
+        """list() should resolve a base64 resource ID space value to space_id."""
         evaluators_client.list(
-            space_id="space-abc",
+            name="my-evaluator",
+            space="U3BhY2U6OTA1MDoxSmtS",
             limit=25,
             cursor="cursor-xyz",
         )
 
         mock_api.evaluators_list.assert_called_once_with(
-            space_id="space-abc",
+            space_id="U3BhY2U6OTA1MDoxSmtS",
+            space_name=None,
+            name="my-evaluator",
+            limit=25,
+            cursor="cursor-xyz",
+        )
+
+    def test_list_with_space_name(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """list() should resolve a non-prefixed space value to space_name."""
+        evaluators_client.list(
+            name="my-evaluator",
+            space="my-space",
+            limit=25,
+            cursor="cursor-xyz",
+        )
+
+        mock_api.evaluators_list.assert_called_once_with(
+            space_id=None,
+            space_name="my-space",
+            name="my-evaluator",
             limit=25,
             cursor="cursor-xyz",
         )
@@ -85,11 +110,13 @@ class TestEvaluatorsClientList:
     def test_list_defaults(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """list() should default space_id/cursor to None and limit to 100."""
+        """list() should default space/name/cursor to None and limit to 100."""
         evaluators_client.list()
 
         mock_api.evaluators_list.assert_called_once_with(
             space_id=None,
+            space_name=None,
+            name=None,
             limit=100,
             cursor=None,
         )
@@ -131,11 +158,11 @@ class TestEvaluatorsClientGet:
     def test_get_calls_api_with_evaluator_id(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """get() should forward evaluator_id to evaluators_get."""
-        evaluators_client.get(evaluator_id="eval-123")
+        """get() should resolve evaluator and forward evaluator_id to evaluators_get."""
+        evaluators_client.get(evaluator=_EVALUATOR_ID)
 
         mock_api.evaluators_get.assert_called_once_with(
-            evaluator_id="eval-123",
+            evaluator_id=_EVALUATOR_ID,
             version_id=None,
         )
 
@@ -143,10 +170,10 @@ class TestEvaluatorsClientGet:
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
         """get() should forward version_id when provided."""
-        evaluators_client.get(evaluator_id="eval-123", version_id="ver-456")
+        evaluators_client.get(evaluator=_EVALUATOR_ID, version_id="ver-456")
 
         mock_api.evaluators_get.assert_called_once_with(
-            evaluator_id="eval-123",
+            evaluator_id=_EVALUATOR_ID,
             version_id="ver-456",
         )
 
@@ -157,7 +184,7 @@ class TestEvaluatorsClientGet:
         expected = Mock()
         mock_api.evaluators_get.return_value = expected
 
-        result = evaluators_client.get(evaluator_id="eval-123")
+        result = evaluators_client.get(evaluator=_EVALUATOR_ID)
 
         assert result is expected
 
@@ -172,7 +199,7 @@ class TestEvaluatorsClientGet:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        evaluators_client.get(evaluator_id="eval-123")
+        evaluators_client.get(evaluator=_EVALUATOR_ID)
 
         assert any(
             "ALPHA" in record.message and "evaluators.get" in record.message
@@ -205,7 +232,7 @@ class TestEvaluatorsClientCreate:
 
             evaluators_client.create(
                 name="my-evaluator",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 commit_message="initial version",
                 template_config=mock_template_config,
             )
@@ -216,7 +243,7 @@ class TestEvaluatorsClientCreate:
         )
         mock_request_cls.assert_called_once_with(
             name="my-evaluator",
-            space_id="space-abc",
+            space_id="U3BhY2U6OTA1MDoxSmtS",
             type="template",
             description=None,
             version=mock_version,
@@ -239,7 +266,7 @@ class TestEvaluatorsClientCreate:
 
             evaluators_client.create(
                 name="my-evaluator",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 evaluator_type="template",
                 commit_message="initial",
                 template_config=Mock(),
@@ -264,7 +291,7 @@ class TestEvaluatorsClientCreate:
 
             evaluators_client.create(
                 name="my-evaluator",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 commit_message="initial",
                 template_config=mock_template_config,
                 description="An evaluator for relevance",
@@ -286,7 +313,7 @@ class TestEvaluatorsClientCreate:
         ):
             result = evaluators_client.create(
                 name="my-evaluator",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 commit_message="initial",
                 template_config=Mock(),
             )
@@ -310,7 +337,7 @@ class TestEvaluatorsClientCreate:
         ):
             evaluators_client.create(
                 name="my-evaluator",
-                space_id="space-abc",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 commit_message="initial",
                 template_config=Mock(),
             )
@@ -335,13 +362,13 @@ class TestEvaluatorsClientUpdate:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
 
-            evaluators_client.update(evaluator_id="eval-123", name="new-name")
+            evaluators_client.update(evaluator=_EVALUATOR_ID, name="new-name")
 
         mock_request_cls.assert_called_once_with(
             name="new-name", description=None
         )
         mock_api.evaluators_update.assert_called_once_with(
-            evaluator_id="eval-123",
+            evaluator_id=_EVALUATOR_ID,
             evaluators_update_request=mock_body,
         )
 
@@ -355,7 +382,7 @@ class TestEvaluatorsClientUpdate:
             mock_request_cls.return_value = Mock()
 
             evaluators_client.update(
-                evaluator_id="eval-123", description="Updated description"
+                evaluator=_EVALUATOR_ID, description="Updated description"
             )
 
         mock_request_cls.assert_called_once_with(
@@ -372,7 +399,7 @@ class TestEvaluatorsClientUpdate:
             mock_request_cls.return_value = Mock()
 
             evaluators_client.update(
-                evaluator_id="eval-123",
+                evaluator=_EVALUATOR_ID,
                 name="new-name",
                 description="new description",
             )
@@ -389,7 +416,7 @@ class TestEvaluatorsClientUpdate:
         mock_api.evaluators_update.return_value = expected
 
         with patch("arize._generated.api_client.EvaluatorsUpdateRequest"):
-            result = evaluators_client.update(evaluator_id="eval-123", name="x")
+            result = evaluators_client.update(evaluator=_EVALUATOR_ID, name="x")
 
         assert result is expected
 
@@ -405,7 +432,7 @@ class TestEvaluatorsClientUpdate:
         caplog.set_level(logging.WARNING)
 
         with patch("arize._generated.api_client.EvaluatorsUpdateRequest"):
-            evaluators_client.update(evaluator_id="eval-123", name="x")
+            evaluators_client.update(evaluator=_EVALUATOR_ID, name="x")
 
         assert any(
             "ALPHA" in record.message and "evaluators.update" in record.message
@@ -420,11 +447,11 @@ class TestEvaluatorsClientDelete:
     def test_delete_calls_api_with_evaluator_id(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """delete() should pass evaluator_id to evaluators_delete."""
-        evaluators_client.delete(evaluator_id="eval-123")
+        """delete() should resolve evaluator and pass evaluator_id to evaluators_delete."""
+        evaluators_client.delete(evaluator=_EVALUATOR_ID)
 
         mock_api.evaluators_delete.assert_called_once_with(
-            evaluator_id="eval-123"
+            evaluator_id=_EVALUATOR_ID
         )
 
     def test_delete_returns_none(
@@ -433,7 +460,7 @@ class TestEvaluatorsClientDelete:
         """delete() should always return None (204 No Content) regardless of API return."""
         mock_api.evaluators_delete.return_value = "unexpected"
 
-        result = evaluators_client.delete(evaluator_id="eval-123")
+        result = evaluators_client.delete(evaluator=_EVALUATOR_ID)
 
         assert result is None
 
@@ -448,7 +475,7 @@ class TestEvaluatorsClientDelete:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        evaluators_client.delete(evaluator_id="eval-123")
+        evaluators_client.delete(evaluator=_EVALUATOR_ID)
 
         assert any(
             "ALPHA" in record.message and "evaluators.delete" in record.message
@@ -465,13 +492,13 @@ class TestEvaluatorsClientListVersions:
     ) -> None:
         """list_versions() should forward all parameters to evaluator_versions_list."""
         evaluators_client.list_versions(
-            evaluator_id="eval-123",
+            evaluator=_EVALUATOR_ID,
             limit=50,
             cursor="cursor-abc",
         )
 
         mock_api.evaluator_versions_list.assert_called_once_with(
-            evaluator_id="eval-123",
+            evaluator_id=_EVALUATOR_ID,
             limit=50,
             cursor="cursor-abc",
         )
@@ -480,10 +507,10 @@ class TestEvaluatorsClientListVersions:
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
         """list_versions() should default limit to 100 and cursor to None."""
-        evaluators_client.list_versions(evaluator_id="eval-123")
+        evaluators_client.list_versions(evaluator=_EVALUATOR_ID)
 
         mock_api.evaluator_versions_list.assert_called_once_with(
-            evaluator_id="eval-123",
+            evaluator_id=_EVALUATOR_ID,
             limit=100,
             cursor=None,
         )
@@ -495,7 +522,7 @@ class TestEvaluatorsClientListVersions:
         expected = Mock()
         mock_api.evaluator_versions_list.return_value = expected
 
-        result = evaluators_client.list_versions(evaluator_id="eval-123")
+        result = evaluators_client.list_versions(evaluator=_EVALUATOR_ID)
 
         assert result is expected
 
@@ -510,7 +537,7 @@ class TestEvaluatorsClientListVersions:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        evaluators_client.list_versions(evaluator_id="eval-123")
+        evaluators_client.list_versions(evaluator=_EVALUATOR_ID)
 
         assert any(
             "ALPHA" in record.message
@@ -581,7 +608,7 @@ class TestEvaluatorsClientCreateVersion:
             mock_request_cls.return_value = mock_body
 
             evaluators_client.create_version(
-                evaluator_id="eval-123",
+                evaluator=_EVALUATOR_ID,
                 commit_message="fix prompt wording",
                 template_config=mock_template_config,
             )
@@ -591,7 +618,7 @@ class TestEvaluatorsClientCreateVersion:
             template_config=mock_template_config,
         )
         mock_api.evaluator_versions_create.assert_called_once_with(
-            evaluator_id="eval-123",
+            evaluator_id=_EVALUATOR_ID,
             evaluator_versions_create_request=mock_body,
         )
 
@@ -606,7 +633,7 @@ class TestEvaluatorsClientCreateVersion:
             "arize._generated.api_client.EvaluatorVersionsCreateRequest"
         ):
             result = evaluators_client.create_version(
-                evaluator_id="eval-123",
+                evaluator=_EVALUATOR_ID,
                 commit_message="v2",
                 template_config=Mock(),
             )
@@ -628,7 +655,7 @@ class TestEvaluatorsClientCreateVersion:
             "arize._generated.api_client.EvaluatorVersionsCreateRequest"
         ):
             evaluators_client.create_version(
-                evaluator_id="eval-123",
+                evaluator=_EVALUATOR_ID,
                 commit_message="v2",
                 template_config=Mock(),
             )

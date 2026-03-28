@@ -33,6 +33,10 @@ from arize.utils.openinference_conversion import (
     convert_boolean_columns_to_str,
     convert_default_columns_to_json_str,
 )
+from arize.utils.resolve import (
+    find_dataset_id,
+    find_experiment_id,
+)
 from arize.utils.size import get_payload_size_mb
 
 if TYPE_CHECKING:
@@ -87,16 +91,18 @@ class ExperimentsClient:
     def list(
         self,
         *,
-        dataset_id: str | None = None,
+        dataset: str | None = None,
+        space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
     ) -> models.ExperimentsList200Response:
         """List experiments the user has access to.
 
-        To filter experiments by the dataset they were run on, provide `dataset_id`.
+        To filter experiments by the dataset they were run on, provide `dataset`.
 
         Args:
-            dataset_id: Optional dataset ID to filter experiments.
+            dataset: Optional dataset name or ID to filter experiments.
+            space: Optional space name or ID used to resolve ``dataset`` by name.
             limit: Maximum number of experiments to return. The server enforces an
                 upper bound.
             cursor: Opaque pagination cursor returned from a previous response.
@@ -108,6 +114,15 @@ class ExperimentsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/429).
         """
+        dataset_id = (
+            find_dataset_id(
+                api=self._datasets_api,
+                dataset=dataset,
+                space=space,
+            )
+            if dataset
+            else None
+        )
         return self._api.experiments_list(
             dataset_id=dataset_id,
             limit=limit,
@@ -119,7 +134,8 @@ class ExperimentsClient:
         self,
         *,
         name: str,
-        dataset_id: str,
+        dataset: str,
+        space: str | None = None,
         experiment_runs: builtins.list[dict[str, object]] | pd.DataFrame,
         task_fields: ExperimentTaskFieldNames,
         evaluator_columns: dict[str, EvaluationResultFieldNames] | None = None,
@@ -145,7 +161,8 @@ class ExperimentsClient:
 
         Args:
             name: Experiment name. Must be unique within the target dataset.
-            dataset_id: Dataset ID to attach the experiment to.
+            dataset: Dataset name or ID to attach the experiment to.
+            space: Optional space name or ID used to resolve ``dataset`` by name.
             experiment_runs: Experiment runs either as:
                 - a list of JSON-like dicts, or
                 - a :class:`pandas.DataFrame`.
@@ -165,6 +182,11 @@ class ExperimentsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 400/401/403/409/429).
         """
+        dataset_id = find_dataset_id(
+            api=self._datasets_api,
+            dataset=dataset,
+            space=space,
+        )
         if not isinstance(experiment_runs, list | pd.DataFrame):
             raise TypeError(
                 "Experiment runs must be a list of dicts or a pandas DataFrame"
@@ -208,8 +230,8 @@ class ExperimentsClient:
 
         # TODO(Kiko): Space ID should not be needed,
         # should work on server tech debt to remove this
-        dataset = self._datasets_api.datasets_get(dataset_id=dataset_id)
-        space_id = dataset.space_id
+        dataset_obj = self._datasets_api.datasets_get(dataset_id=dataset_id)
+        space_id = dataset_obj.space_id
 
         return self._create_experiment_via_flight(
             name=name,
@@ -219,14 +241,22 @@ class ExperimentsClient:
         )
 
     @prerelease_endpoint(key="experiments.get", stage=ReleaseStage.BETA)
-    def get(self, *, experiment_id: str) -> models.Experiment:
-        """Get an experiment by ID.
+    def get(
+        self,
+        *,
+        experiment: str,
+        dataset: str | None = None,
+        space: str | None = None,
+    ) -> models.Experiment:
+        """Get an experiment by name or ID.
 
         The response does not include the experiment's runs. Use `list_runs()` to
         retrieve runs for an experiment.
 
         Args:
-            experiment_id: Experiment ID to retrieve.
+            experiment: Experiment name or ID to retrieve.
+            dataset: Optional dataset name or ID used to resolve ``experiment`` by name.
+            space: Optional space name or ID used to resolve ``dataset`` by name.
 
         Returns:
             The experiment object.
@@ -235,16 +265,31 @@ class ExperimentsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
+        experiment_id = find_experiment_id(
+            api=self._api,
+            datasets_api=self._datasets_api,
+            experiment=experiment,
+            dataset=dataset,
+            space=space,
+        )
         return self._api.experiments_get(experiment_id=experiment_id)
 
     @prerelease_endpoint(key="experiments.delete", stage=ReleaseStage.BETA)
-    def delete(self, *, experiment_id: str) -> None:
-        """Delete an experiment by ID.
+    def delete(
+        self,
+        *,
+        experiment: str,
+        dataset: str | None = None,
+        space: str | None = None,
+    ) -> None:
+        """Delete an experiment by name or ID.
 
         This operation is irreversible.
 
         Args:
-            experiment_id: Experiment ID to delete.
+            experiment: Experiment name or ID to delete.
+            dataset: Optional dataset name or ID used to resolve ``experiment`` by name.
+            space: Optional space name or ID used to resolve ``dataset`` by name.
 
         Returns:
             This method returns None on success (common empty 204 response).
@@ -253,6 +298,14 @@ class ExperimentsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
+        experiment_id = find_experiment_id(
+            api=self._api,
+            datasets_api=self._datasets_api,
+            experiment=experiment,
+            dataset=dataset,
+            space=space,
+        )
+
         return self._api.experiments_delete(
             experiment_id=experiment_id,
         )
@@ -261,7 +314,9 @@ class ExperimentsClient:
     def list_runs(
         self,
         *,
-        experiment_id: str,
+        experiment: str,
+        dataset: str | None = None,
+        space: str | None = None,
         limit: int = 100,
         all: bool = False,
     ) -> models.ExperimentsRunsList200Response:
@@ -276,7 +331,9 @@ class ExperimentsClient:
               returns them in a single response with `has_more=False`.
 
         Args:
-            experiment_id: Experiment ID to list runs for.
+            experiment: Experiment name or ID to list runs for.
+            dataset: Optional dataset name or ID used to resolve ``experiment`` by name.
+            space: Optional space name or ID used to resolve ``dataset`` by name.
             limit: Maximum number of runs to return when `all=False`. The server
                 enforces an upper bound.
             all: If True, fetch all runs (ignores `limit`) via Flight and return a
@@ -291,20 +348,27 @@ class ExperimentsClient:
             ApiException: If the REST API
                 returns an error response when `all=False` (e.g. 401/403/404/429).
         """
+        experiment_id = find_experiment_id(
+            api=self._api,
+            datasets_api=self._datasets_api,
+            experiment=experiment,
+            dataset=dataset,
+            space=space,
+        )
         if not all:
             return self._api.experiments_runs_list(
                 experiment_id=experiment_id,
                 limit=limit,
             )
 
-        experiment = self.get(experiment_id=experiment_id)
-        experiment_updated_at = getattr(experiment, "updated_at", None)
+        experiment_obj = self.get(experiment=experiment_id)
+        experiment_updated_at = getattr(experiment_obj, "updated_at", None)
         # TODO(Kiko): Space ID should not be needed,
         # should work on server tech debt to remove this
-        dataset = self._datasets_api.datasets_get(
-            dataset_id=experiment.dataset_id
+        dataset_obj = self._datasets_api.datasets_get(
+            dataset_id=experiment_obj.dataset_id
         )
-        space_id = dataset.space_id
+        space_id = dataset_obj.space_id
 
         experiment_df = None
         # try to load dataset from cache
@@ -387,7 +451,8 @@ class ExperimentsClient:
         self,
         *,
         name: str,
-        dataset_id: str,
+        dataset: str,
+        space: str | None = None,
         task: ExperimentTask,
         evaluators: Evaluators | None = None,
         dry_run: bool = False,
@@ -416,7 +481,8 @@ class ExperimentsClient:
 
         Args:
             name: Experiment name.
-            dataset_id: Dataset ID to run the experiment against.
+            dataset: Dataset name or ID to run the experiment against.
+            space: Optional space name or ID used to resolve ``dataset`` by name.
             task: The task to execute for each dataset example.
             evaluators: Optional evaluators used to score outputs.
             dry_run: If True, do not upload results to Arize.
@@ -438,11 +504,16 @@ class ExperimentsClient:
             pa.ArrowInvalid: If converting results to Arrow fails.
             Exception: For unexpected errors during Arrow conversion.
         """
+        dataset_id = find_dataset_id(
+            api=self._datasets_api,
+            dataset=dataset,
+            space=space,
+        )
         # TODO(Kiko): Space ID should not be needed,
         # should work on server tech debt to remove this
-        dataset = self._datasets_api.datasets_get(dataset_id=dataset_id)
-        space_id = dataset.space_id
-        dataset_updated_at = getattr(dataset, "updated_at", None)
+        dataset_obj = self._datasets_api.datasets_get(dataset_id=dataset_id)
+        space_id = dataset_obj.space_id
+        dataset_updated_at = getattr(dataset_obj, "updated_at", None)
 
         with ArizeFlightClient(
             api_key=self._sdk_config.api_key,
@@ -587,7 +658,7 @@ class ExperimentsClient:
                 logger.error(msg)
                 raise RuntimeError(msg)
 
-            experiment = self.get(experiment_id=str(post_resp.experiment_id))
+            experiment = self.get(experiment=str(post_resp.experiment_id))
             return experiment, output_df
 
     def _create_experiment_via_flight(
@@ -668,7 +739,7 @@ class ExperimentsClient:
                 logger.error(msg)
                 raise RuntimeError(msg)
 
-        return self.get(experiment_id=str(post_resp.experiment_id))
+        return self.get(experiment=str(post_resp.experiment_id))
 
 
 def _get_tracer_resource(

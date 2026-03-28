@@ -7,6 +7,12 @@ import time
 from typing import TYPE_CHECKING, Literal
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
+from arize.utils.resolve import (
+    find_dataset_id,
+    find_project_id,
+    find_task_id,
+    resolve_resource,
+)
 
 if TYPE_CHECKING:
     import builtins
@@ -54,6 +60,8 @@ class TasksClient:
         from arize._generated import api_client as gen
 
         self._api = gen.TasksApi(generated_client)
+        self._projects_api = gen.ProjectsApi(generated_client)
+        self._datasets_api = gen.DatasetsApi(generated_client)
 
     # -------------------------------------------------------------------------
     # Tasks
@@ -63,7 +71,8 @@ class TasksClient:
     def list(
         self,
         *,
-        space_id: str | None = None,
+        name: str | None = None,
+        space: str | None = None,
         project_id: str | None = None,
         dataset_id: str | None = None,
         task_type: TaskType | None = None,
@@ -76,7 +85,10 @@ class TasksClient:
         project, dataset, or task type.
 
         Args:
-            space_id: Optional space ID to filter results.
+            name: Optional case-insensitive substring filter on the task name.
+            space: Optional space filter. If the value is a base64-encoded resource ID it is
+                treated as a space ID; otherwise it is used as a case-insensitive
+                substring filter on the space name.
             project_id: Optional project global ID (base64) to filter results.
             dataset_id: Optional dataset global ID (base64) to filter results.
             task_type: Optional task type filter. One of
@@ -90,8 +102,11 @@ class TasksClient:
         Raises:
             ApiException: If the API request fails.
         """
+        resolved_space = resolve_resource(space)
         return self._api.tasks_list(
-            space_id=space_id,
+            space_id=resolved_space.id,
+            space_name=resolved_space.name,
+            name=name,
             project_id=project_id,
             dataset_id=dataset_id,
             type=task_type,
@@ -100,11 +115,14 @@ class TasksClient:
         )
 
     @prerelease_endpoint(key="tasks.get", stage=ReleaseStage.ALPHA)
-    def get(self, *, task_id: str) -> models.Task:
-        """Get a task by its global ID.
+    def get(self, *, task: str, space: str | None = None) -> models.Task:
+        """Get a task by name or ID.
 
         Args:
-            task_id: Task global ID (base64) to retrieve.
+            task: Task name or global ID (base64). If the value looks like an
+                ID it is used directly; otherwise it is resolved by name.
+            space: Optional space name or ID used to disambiguate the task
+                lookup. Recommended when resolving by name.
 
         Returns:
             The task with its full configuration.
@@ -113,6 +131,11 @@ class TasksClient:
             ApiException: If the API request fails
                 (for example, task not found).
         """
+        task_id = find_task_id(
+            api=self._api,
+            task=task,
+            space=space,
+        )
         return self._api.tasks_get(task_id=task_id)
 
     @prerelease_endpoint(key="tasks.create", stage=ReleaseStage.ALPHA)
@@ -122,8 +145,9 @@ class TasksClient:
         name: str,
         task_type: TaskType,
         evaluators: builtins.list[models.TasksCreateRequestEvaluatorsInner],
-        project_id: str | None = None,
-        dataset_id: str | None = None,
+        project: str | None = None,
+        dataset: str | None = None,
+        space: str | None = None,
         experiment_ids: builtins.list[str] | None = None,
         sampling_rate: float | None = None,
         is_continuous: bool | None = None,
@@ -131,8 +155,8 @@ class TasksClient:
     ) -> models.Task:
         """Create a new evaluation task.
 
-        Either ``project_id`` or ``dataset_id`` must be provided, but not both.
-        When ``dataset_id`` is provided, at least one ``experiment_ids`` entry
+        Either ``project`` or ``dataset`` must be provided, but not both.
+        When ``dataset`` is provided, at least one ``experiment_ids`` entry
         is required.
 
         Args:
@@ -150,12 +174,14 @@ class TasksClient:
                 - ``column_mappings`` — Maps template variable names to column
                   names. Optional.
 
-            project_id: Project global ID (base64). Required when
-                ``dataset_id`` is not provided.
-            dataset_id: Dataset global ID (base64). Required when
-                ``project_id`` is not provided.
+            project: Project name or global ID (base64). Required when
+                ``dataset`` is not provided.
+            dataset: Dataset name or global ID (base64). Required when
+                ``project`` is not provided.
+            space: Optional space name or ID used to disambiguate name-based
+                resolution for ``project`` and ``dataset``.
             experiment_ids: Experiment global IDs (base64). Required (at least
-                one) when ``dataset_id`` is provided. Must be omitted or empty
+                one) when ``dataset`` is provided. Must be omitted or empty
                 for project-based tasks.
             sampling_rate: Fraction of data to evaluate (0-1). Only valid for
                 project-based tasks.
@@ -171,6 +197,25 @@ class TasksClient:
             ApiException: If the API request fails
                 (for example, invalid payload or name conflict).
         """
+        project_id = (
+            find_project_id(
+                api=self._projects_api,
+                project=project,
+                space=space,
+            )
+            if project
+            else None
+        )
+        dataset_id = (
+            find_dataset_id(
+                api=self._datasets_api,
+                dataset=dataset,
+                space=space,
+            )
+            if dataset
+            else None
+        )
+
         from arize._generated import api_client as gen
 
         body = gen.TasksCreateRequest(
@@ -194,7 +239,8 @@ class TasksClient:
     def trigger_run(
         self,
         *,
-        task_id: str,
+        task: str,
+        space: str | None = None,
         data_start_time: datetime | None = None,
         data_end_time: datetime | None = None,
         max_spans: int | None = None,
@@ -204,7 +250,9 @@ class TasksClient:
         """Trigger an on-demand run for a task.
 
         Args:
-            task_id: Task global ID (base64) to trigger a run for.
+            task: Task name or global ID (base64) to trigger a run for.
+            space: Optional space name or ID used to disambiguate the task
+                lookup. Recommended when resolving by name.
             data_start_time: Optional ISO 8601 start of the data window to
                 evaluate.
             data_end_time: Optional ISO 8601 end of the data window to
@@ -221,6 +269,12 @@ class TasksClient:
         Raises:
             ApiException: If the API request fails.
         """
+        task_id = find_task_id(
+            api=self._api,
+            task=task,
+            space=space,
+        )
+
         from arize._generated import api_client as gen
 
         body = gen.TasksTriggerRunRequest(
@@ -239,7 +293,8 @@ class TasksClient:
     def list_runs(
         self,
         *,
-        task_id: str,
+        task: str,
+        space: str | None = None,
         status: RunStatus | None = None,
         limit: int = 100,
         cursor: str | None = None,
@@ -250,7 +305,9 @@ class TasksClient:
         status.
 
         Args:
-            task_id: Task global ID (base64) to list runs for.
+            task: Task name or global ID (base64) to list runs for.
+            space: Optional space name or ID used to disambiguate the task
+                lookup. Recommended when resolving by name.
             status: Optional run status filter. One of ``"pending"``,
                 ``"running"``, ``"completed"``, ``"failed"``, or
                 ``"cancelled"``.
@@ -263,6 +320,11 @@ class TasksClient:
         Raises:
             ApiException: If the API request fails.
         """
+        task_id = find_task_id(
+            api=self._api,
+            task=task,
+            space=space,
+        )
         return self._api.tasks_list_runs(
             task_id=task_id,
             status=status,

@@ -7,6 +7,11 @@ from typing import TYPE_CHECKING
 
 from arize.annotation_configs.types import AnnotationConfigType
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
+from arize.utils.resolve import (
+    find_annotation_config_id,
+    find_space_id,
+    resolve_resource,
+)
 
 if TYPE_CHECKING:
     import builtins
@@ -45,12 +50,14 @@ class AnnotationConfigsClient:
 
         # Use the provided client directly
         self._api = gen.AnnotationConfigsApi(generated_client)
+        self._spaces_api = gen.SpacesApi(generated_client)
 
     @prerelease_endpoint(key="annotation_configs.list", stage=ReleaseStage.BETA)
     def list(
         self,
         *,
-        space_id: str | None = None,
+        name: str | None = None,
+        space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
     ) -> models.AnnotationConfigsList200Response:
@@ -60,7 +67,10 @@ class AnnotationConfigsClient:
         first).
 
         Args:
-            space_id: Optional space ID to scope results to a single space.
+            name: Optional case-insensitive substring filter on the annotation config name.
+            space: Optional space filter. If the value is a base64-encoded resource ID it is
+                treated as a space ID; otherwise it is used as a case-insensitive
+                substring filter on the space name.
             limit: Maximum number of annotation configs to return. The server enforces an
                 upper bound.
             cursor: Opaque pagination cursor returned from a previous response.
@@ -72,8 +82,11 @@ class AnnotationConfigsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/429).
         """
+        resolved_space = resolve_resource(space)
         return self._api.annotation_configs_list(
-            space_id=space_id,
+            space_id=resolved_space.id,
+            space_name=resolved_space.name,
+            name=name,
             limit=limit,
             cursor=cursor,
         )
@@ -85,7 +98,7 @@ class AnnotationConfigsClient:
         self,
         *,
         name: str,
-        space_id: str,
+        space: str,
         config_type: AnnotationConfigType,
         minimum_score: float | int | None = None,
         maximum_score: float | int | None = None,
@@ -101,7 +114,7 @@ class AnnotationConfigsClient:
 
         Args:
             name: Annotation config name (must be unique within the target space).
-            space_id: Space ID to create the annotation config in.
+            space: Space ID or name to create the annotation config in.
             config_type: Type of annotation config to create.
             minimum_score: Minimum score for continuous configs.
             maximum_score: Maximum score for continuous configs.
@@ -118,6 +131,8 @@ class AnnotationConfigsClient:
                 returns an error response (e.g. 400/401/403/409/429).
         """
         from arize._generated import api_client as gen
+
+        space_id = find_space_id(self._spaces_api, space)
 
         if config_type == AnnotationConfigType.CONTINUOUS:
             if minimum_score is None or maximum_score is None:
@@ -159,11 +174,16 @@ class AnnotationConfigsClient:
         )
 
     @prerelease_endpoint(key="annotation_configs.get", stage=ReleaseStage.BETA)
-    def get(self, *, id: str) -> models.AnnotationConfig:
-        """Get an annotation config by ID.
+    def get(
+        self, *, annotation_config: str, space: str | None = None
+    ) -> models.AnnotationConfig:
+        """Get an annotation config by ID or name.
 
         Args:
-            id: Annotation config ID to retrieve.
+            annotation_config: Annotation config ID or name. If a name is
+                provided, *space* is required for resolution.
+            space: Space ID or name. Required when *annotation_config* is a
+                name so it can be resolved to an ID.
 
         Returns:
             The annotation config object.
@@ -172,18 +192,30 @@ class AnnotationConfigsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
-        return self._api.annotation_configs_get(annotation_config_id=id)
+        annotation_config_id = find_annotation_config_id(
+            api=self._api,
+            annotation_config=annotation_config,
+            space=space,
+        )
+        return self._api.annotation_configs_get(
+            annotation_config_id=annotation_config_id
+        )
 
     @prerelease_endpoint(
         key="annotation_configs.delete", stage=ReleaseStage.BETA
     )
-    def delete(self, *, id: str) -> None:
-        """Delete an annotation config by ID.
+    def delete(
+        self, *, annotation_config: str, space: str | None = None
+    ) -> None:
+        """Delete an annotation config by ID or name.
 
         This operation is irreversible.
 
         Args:
-            id: Annotation config ID to delete.
+            annotation_config: Annotation config ID or name. If a name is
+                provided, *space* is required for resolution.
+            space: Space ID or name. Required when *annotation_config* is a
+                name so it can be resolved to an ID.
 
         Returns:
             This method returns None on success (common empty 204 response).
@@ -192,4 +224,11 @@ class AnnotationConfigsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
-        return self._api.annotation_configs_delete(annotation_config_id=id)
+        annotation_config_id = find_annotation_config_id(
+            api=self._api,
+            annotation_config=annotation_config,
+            space=space,
+        )
+        return self._api.annotation_configs_delete(
+            annotation_config_id=annotation_config_id
+        )

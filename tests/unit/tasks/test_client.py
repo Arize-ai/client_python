@@ -13,6 +13,11 @@ from arize.tasks.client import (
     TasksClient,
 )
 
+# Base64 IDs that pass _is_resource_id() — decode to "Type:123"
+_TASK_ID = "VGFzazoxMjM="  # Task:123
+_PROJECT_ID = "UHJvamVjdDoxMjM="  # Project:123
+_DATASET_ID = "RGF0YXNldDoxMjM="  # Dataset:123
+
 
 @pytest.fixture
 def mock_api() -> Mock:
@@ -66,12 +71,13 @@ class TestTasksClientInit:
 class TestTasksClientList:
     """Tests for TasksClient.list()."""
 
-    def test_list_calls_api_with_all_params(
+    def test_list_with_space_id(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """list() should forward all parameters to tasks_list."""
+        """list() should resolve a base64 resource ID space value to space_id."""
         tasks_client.list(
-            space_id="space-abc",
+            name="my-task",
+            space="U3BhY2U6OTA1MDoxSmtS",
             project_id="proj-123",
             dataset_id="ds-456",
             task_type="template_evaluation",
@@ -80,12 +86,34 @@ class TestTasksClientList:
         )
 
         mock_api.tasks_list.assert_called_once_with(
-            space_id="space-abc",
+            space_id="U3BhY2U6OTA1MDoxSmtS",
+            space_name=None,
+            name="my-task",
             project_id="proj-123",
             dataset_id="ds-456",
             type="template_evaluation",
             limit=50,
             cursor="cursor-xyz",
+        )
+
+    def test_list_with_space_name(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """list() should resolve a non-prefixed space value to space_name."""
+        tasks_client.list(
+            name="my-task",
+            space="my-space",
+        )
+
+        mock_api.tasks_list.assert_called_once_with(
+            space_id=None,
+            space_name="my-space",
+            name="my-task",
+            project_id=None,
+            dataset_id=None,
+            type=None,
+            limit=100,
+            cursor=None,
         )
 
     def test_list_defaults(
@@ -96,6 +124,8 @@ class TestTasksClientList:
 
         mock_api.tasks_list.assert_called_once_with(
             space_id=None,
+            space_name=None,
+            name=None,
             project_id=None,
             dataset_id=None,
             type=None,
@@ -140,10 +170,10 @@ class TestTasksClientGet:
     def test_get_calls_api_with_task_id(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """get() should forward task_id to tasks_get."""
-        tasks_client.get(task_id="task-123")
+        """get() should resolve task and forward task_id to tasks_get."""
+        tasks_client.get(task=_TASK_ID)
 
-        mock_api.tasks_get.assert_called_once_with(task_id="task-123")
+        mock_api.tasks_get.assert_called_once_with(task_id=_TASK_ID)
 
     def test_get_returns_api_response(
         self, tasks_client: TasksClient, mock_api: Mock
@@ -152,7 +182,7 @@ class TestTasksClientGet:
         expected = Mock()
         mock_api.tasks_get.return_value = expected
 
-        result = tasks_client.get(task_id="task-123")
+        result = tasks_client.get(task=_TASK_ID)
 
         assert result is expected
 
@@ -167,7 +197,7 @@ class TestTasksClientGet:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        tasks_client.get(task_id="task-123")
+        tasks_client.get(task=_TASK_ID)
 
         assert any(
             "ALPHA" in record.message and "tasks.get" in record.message
@@ -195,14 +225,14 @@ class TestTasksClientCreate:
                 name="my-task",
                 task_type="template_evaluation",
                 evaluators=[mock_evaluator],
-                project_id="proj-123",
+                project=_PROJECT_ID,
             )
 
         mock_request_cls.assert_called_once_with(
             name="my-task",
             type="template_evaluation",
             evaluators=[mock_evaluator],
-            project_id="proj-123",
+            project_id=_PROJECT_ID,
             dataset_id=None,
             experiment_ids=None,
             sampling_rate=None,
@@ -216,7 +246,7 @@ class TestTasksClientCreate:
     def test_create_with_dataset_and_experiments(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """create() should forward dataset_id and experiment_ids."""
+        """create() should forward dataset and experiment_ids."""
         with patch(
             "arize._generated.api_client.TasksCreateRequest"
         ) as mock_request_cls:
@@ -226,12 +256,12 @@ class TestTasksClientCreate:
                 name="ds-task",
                 task_type="code_evaluation",
                 evaluators=[Mock()],
-                dataset_id="ds-456",
+                dataset=_DATASET_ID,
                 experiment_ids=["exp-1", "exp-2"],
             )
 
         _, kwargs = mock_request_cls.call_args
-        assert kwargs["dataset_id"] == "ds-456"
+        assert kwargs["dataset_id"] == _DATASET_ID
         assert kwargs["experiment_ids"] == ["exp-1", "exp-2"]
         assert kwargs["project_id"] is None
 
@@ -248,7 +278,7 @@ class TestTasksClientCreate:
                 name="my-task",
                 task_type="template_evaluation",
                 evaluators=[Mock()],
-                project_id="proj-123",
+                project=_PROJECT_ID,
                 sampling_rate=0.5,
                 is_continuous=True,
                 query_filter="span_kind == 'LLM'",
@@ -271,7 +301,7 @@ class TestTasksClientCreate:
                 name="my-task",
                 task_type="template_evaluation",
                 evaluators=[Mock()],
-                project_id="proj-123",
+                project=_PROJECT_ID,
             )
 
         assert result is expected
@@ -292,7 +322,7 @@ class TestTasksClientCreate:
                 name="my-task",
                 task_type="template_evaluation",
                 evaluators=[Mock()],
-                project_id="proj-123",
+                project=_PROJECT_ID,
             )
 
         assert any(
@@ -315,7 +345,7 @@ class TestTasksClientTriggerRun:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
 
-            tasks_client.trigger_run(task_id="task-123")
+            tasks_client.trigger_run(task=_TASK_ID)
 
         mock_request_cls.assert_called_once_with(
             data_start_time=None,
@@ -325,7 +355,7 @@ class TestTasksClientTriggerRun:
             experiment_ids=None,
         )
         mock_api.tasks_trigger_run.assert_called_once_with(
-            task_id="task-123",
+            task_id=_TASK_ID,
             tasks_trigger_run_request=mock_body,
         )
 
@@ -344,7 +374,7 @@ class TestTasksClientTriggerRun:
             mock_request_cls.return_value = Mock()
 
             tasks_client.trigger_run(
-                task_id="task-123",
+                task=_TASK_ID,
                 data_start_time=start,
                 data_end_time=end,
                 max_spans=500,
@@ -367,7 +397,7 @@ class TestTasksClientTriggerRun:
         mock_api.tasks_trigger_run.return_value = expected
 
         with patch("arize._generated.api_client.TasksTriggerRunRequest"):
-            result = tasks_client.trigger_run(task_id="task-123")
+            result = tasks_client.trigger_run(task=_TASK_ID)
 
         assert result is expected
 
@@ -383,7 +413,7 @@ class TestTasksClientTriggerRun:
         caplog.set_level(logging.WARNING)
 
         with patch("arize._generated.api_client.TasksTriggerRunRequest"):
-            tasks_client.trigger_run(task_id="task-123")
+            tasks_client.trigger_run(task=_TASK_ID)
 
         assert any(
             "ALPHA" in record.message and "tasks.trigger_run" in record.message
@@ -400,14 +430,14 @@ class TestTasksClientListRuns:
     ) -> None:
         """list_runs() should forward all parameters to tasks_list_runs."""
         tasks_client.list_runs(
-            task_id="task-123",
+            task=_TASK_ID,
             status="completed",
             limit=25,
             cursor="cursor-abc",
         )
 
         mock_api.tasks_list_runs.assert_called_once_with(
-            task_id="task-123",
+            task_id=_TASK_ID,
             status="completed",
             limit=25,
             cursor="cursor-abc",
@@ -417,10 +447,10 @@ class TestTasksClientListRuns:
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
         """list_runs() should default status/cursor to None and limit to 100."""
-        tasks_client.list_runs(task_id="task-123")
+        tasks_client.list_runs(task=_TASK_ID)
 
         mock_api.tasks_list_runs.assert_called_once_with(
-            task_id="task-123",
+            task_id=_TASK_ID,
             status=None,
             limit=100,
             cursor=None,
@@ -433,7 +463,7 @@ class TestTasksClientListRuns:
         expected = Mock()
         mock_api.tasks_list_runs.return_value = expected
 
-        result = tasks_client.list_runs(task_id="task-123")
+        result = tasks_client.list_runs(task=_TASK_ID)
 
         assert result is expected
 
@@ -448,7 +478,7 @@ class TestTasksClientListRuns:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        tasks_client.list_runs(task_id="task-123")
+        tasks_client.list_runs(task=_TASK_ID)
 
         assert any(
             "ALPHA" in record.message and "tasks.list_runs" in record.message

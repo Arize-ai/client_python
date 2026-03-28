@@ -54,7 +54,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
-    run_id = 'run_id_example' # str | The task run global ID (base64)
+    run_id = 'VGFza1J1bjoxMjM0NQ==' # str | The task run global ID (base64)
 
     try:
         # Cancel task run
@@ -140,7 +140,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
-    run_id = 'run_id_example' # str | The task run global ID (base64)
+    run_id = 'VGFza1J1bjoxMjM0NQ==' # str | The task run global ID (base64)
 
     try:
         # Get task run
@@ -323,7 +323,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
-    task_id = 'task_id_example' # str | The task global ID (base64)
+    task_id = 'VGFzazoxMjM0NQ==' # str | The task global ID (base64)
 
     try:
         # Get task
@@ -370,7 +370,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **tasks_list**
-> TasksList200Response tasks_list(space_id=space_id, project_id=project_id, dataset_id=dataset_id, type=type, limit=limit, cursor=cursor)
+> TasksList200Response tasks_list(space_id=space_id, space_name=space_name, name=name, project_id=project_id, dataset_id=dataset_id, type=type, limit=limit, cursor=cursor)
 
 List tasks
 
@@ -411,16 +411,18 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
-    space_id = 'space_id_example' # str | Filter search results to a particular space ID (optional)
-    project_id = 'project_id_example' # str | Filter to tasks for a specific project (base64 global ID) (optional)
-    dataset_id = 'dataset_id_example' # str | Filter to tasks for a specific dataset (base64 global ID) (optional)
-    type = 'type_example' # str | Filter by task type: template_evaluation or code_evaluation (optional)
+    space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
+    space_name = 'my-space' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
+    name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
+    project_id = 'UHJvamVjdDoxMjM0NQ==' # str | Filter to tasks for a specific project (base64 global ID) (optional)
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | Filter to tasks for a specific dataset (base64 global ID) (optional)
+    type = 'template_evaluation' # str | Filter by task type: template_evaluation or code_evaluation (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
         # List tasks
-        api_response = api_instance.tasks_list(space_id=space_id, project_id=project_id, dataset_id=dataset_id, type=type, limit=limit, cursor=cursor)
+        api_response = api_instance.tasks_list(space_id=space_id, space_name=space_name, name=name, project_id=project_id, dataset_id=dataset_id, type=type, limit=limit, cursor=cursor)
         print("The response of TasksApi->tasks_list:\n")
         pprint(api_response)
     except Exception as e:
@@ -435,6 +437,8 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **space_id** | **str**| Filter search results to a particular space ID | [optional] 
+ **space_name** | **str**| Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  | [optional] 
+ **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
  **project_id** | **str**| Filter to tasks for a specific project (base64 global ID) | [optional] 
  **dataset_id** | **str**| Filter to tasks for a specific dataset (base64 global ID) | [optional] 
  **type** | **str**| Filter by task type: template_evaluation or code_evaluation | [optional] 
@@ -507,8 +511,8 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
-    task_id = 'task_id_example' # str | The task global ID (base64)
-    status = 'status_example' # str | Filter by run status: pending, running, completed, failed, cancelled (optional)
+    task_id = 'VGFzazoxMjM0NQ==' # str | The task global ID (base64)
+    status = 'completed' # str | Filter by run status: pending, running, completed, failed, cancelled (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
@@ -601,7 +605,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
-    task_id = 'task_id_example' # str | The task global ID (base64)
+    task_id = 'VGFzazoxMjM0NQ==' # str | The task global ID (base64)
     tasks_trigger_run_request = {"data_start_time":"2026-03-01T00:00:00Z","data_end_time":"2026-03-07T00:00:00Z","max_spans":5000,"override_evaluations":false} # TasksTriggerRunRequest | Body containing task run trigger parameters (optional)
 
     try:

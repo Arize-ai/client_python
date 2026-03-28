@@ -6,6 +6,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
+from arize.utils.resolve import find_space_id
 
 if TYPE_CHECKING:
     from arize._generated.api_client import models
@@ -75,11 +76,11 @@ class SpacesClient:
         )
 
     @prerelease_endpoint(key="spaces.get", stage=ReleaseStage.BETA)
-    def get(self, *, space_id: str) -> models.Space:
-        """Get a space by ID.
+    def get(self, *, space: str) -> models.Space:
+        """Get a space by ID or name.
 
         Args:
-            space_id: Space ID to retrieve.
+            space: Space ID or name to retrieve.
 
         Returns:
             The space object.
@@ -88,6 +89,7 @@ class SpacesClient:
             ApiException: If the API request fails
                 (for example, space not found).
         """
+        space_id = find_space_id(self._api, space)
         return self._api.spaces_get(space_id=space_id)
 
     @prerelease_endpoint(key="spaces.create", stage=ReleaseStage.BETA)
@@ -126,14 +128,14 @@ class SpacesClient:
     def update(
         self,
         *,
-        space_id: str,
+        space: str,
         name: str | None = None,
         description: str | None = None,
     ) -> models.Space:
-        """Update a space by ID.
+        """Update a space by ID or name.
 
         Args:
-            space_id: Space ID to update.
+            space: Space ID or name to update.
             name: Updated name for the space.
             description: Updated description for the space.
 
@@ -149,6 +151,8 @@ class SpacesClient:
             raise ValueError(
                 "At least one of 'name' or 'description' must be provided"
             )
+
+        space_id = find_space_id(self._api, space)
 
         from arize._generated import api_client as gen
 

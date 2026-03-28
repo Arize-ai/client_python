@@ -43,3 +43,5 @@ output/
 .workon
 .coverage.*
 uv.lock
+
+.envrc

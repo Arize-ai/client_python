@@ -167,6 +167,10 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
+    "ANN001",  # Missing type annotation in public function
+    "ANN401",  # Dynamically typed return
+    "D101",   # Missing docstring in public class (test classes are self-describing)
+    "D102",   # Missing docstring in public method (test names document behavior)
     "D104",   # Missing docstring in public package
     "DTZ001", # Allow naive datetime usage in tests
     "S101",   # Allow assert statements in tests
@@ -293,7 +297,8 @@ directory = "htmlcov"
 [tool.taskipy.tasks]
 lint = { cmd = "ruff format . && ruff check --fix .", cwd = ".", help = "Run ruff to format and lint the package." }
 type-check = {cmd = "mypy --no-incremental --show-traceback --config-file pyproject.toml .", cwd = ".", help = "Run mypy for type checking."}
-test = {cmd = "pytest --cov --cov-report=term-missing .", cwd = ".", help = "Run the test suite with coverage."}
+test = {cmd = "pytest --cov --cov-report=term-missing -v tests/unit/", cwd = ".", help = "Run the test suite with coverage."}
+test-integration = {cmd = "pytest -m integration -v tests/integration/", cwd = ".", help = "Run integration tests (requires ARIZE_API_KEY and ARIZE_TEST_SPACE_NAME)."}
 # Exclusive for CI
 ci-format = { cmd = "ruff format --check .", cwd = ".", help = "Run ruff to check formatting of the package during CI." }
 ci-lint = { cmd = "ruff check .", cwd = ".", help = "Run ruff to check linting rules of the package during CI." }

@@ -127,10 +127,12 @@ class TestSpacesClientGet:
     def test_get_calls_api_with_space_id(
         self, spaces_client: SpacesClient, mock_api: Mock
     ) -> None:
-        """get() should pass space_id to spaces_get."""
-        spaces_client.get(space_id="space-123")
+        """get() should resolve space and pass space_id to spaces_get."""
+        spaces_client.get(space="U3BhY2U6OTA1MDoxSmtS")
 
-        mock_api.spaces_get.assert_called_once_with(space_id="space-123")
+        mock_api.spaces_get.assert_called_once_with(
+            space_id="U3BhY2U6OTA1MDoxSmtS"
+        )
 
     def test_get_returns_api_response(
         self, spaces_client: SpacesClient, mock_api: Mock
@@ -139,7 +141,7 @@ class TestSpacesClientGet:
         expected = Mock()
         mock_api.spaces_get.return_value = expected
 
-        result = spaces_client.get(space_id="space-123")
+        result = spaces_client.get(space="U3BhY2U6OTA1MDoxSmtS")
 
         assert result is expected
 
@@ -201,7 +203,7 @@ class TestSpacesClientUpdate:
             ValueError,
             match="At least one of 'name' or 'description' must be provided",
         ):
-            spaces_client.update(space_id="space-123")
+            spaces_client.update(space="U3BhY2U6OTA1MDoxSmtS")
 
     def test_update_builds_request_and_calls_api(
         self, spaces_client: SpacesClient, mock_api: Mock
@@ -214,7 +216,7 @@ class TestSpacesClientUpdate:
             mock_request_cls.return_value = mock_body
 
             spaces_client.update(
-                space_id="space-123",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 name="updated-space",
                 description="updated description",
             )
@@ -224,7 +226,7 @@ class TestSpacesClientUpdate:
             description="updated description",
         )
         mock_api.spaces_update.assert_called_once_with(
-            space_id="space-123",
+            space_id="U3BhY2U6OTA1MDoxSmtS",
             spaces_update_request=mock_body,
         )
 
@@ -237,7 +239,7 @@ class TestSpacesClientUpdate:
 
         with patch("arize._generated.api_client.SpacesUpdateRequest"):
             result = spaces_client.update(
-                space_id="space-123",
+                space="U3BhY2U6OTA1MDoxSmtS",
                 name="updated-space",
             )
 
