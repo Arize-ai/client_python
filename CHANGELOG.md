@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.9.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.9.1...arize-python-sdk/v8.9.2) (2026-03-30)
+
+
+### 🐛 Bug Fixes
+
+* **data:** exclude list and ndarray from missing-value detection in is_missing_value ([#67324](https://github.com/Arize-ai/arize/issues/67324)) ([3041036](https://github.com/Arize-ai/arize/commit/30410361d88402cf6e5b08662deed43ffd162450))
+
 ## [8.9.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.9.0...arize-python-sdk/v8.9.1) (2026-03-30)
 
 

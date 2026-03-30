@@ -120,7 +120,9 @@ def is_missing_value(value: object) -> bool:
         np.inf,
         -np.inf,
     )
-    return value in assumed_missing_values or pd.isna(value)  # type: ignore[call-overload]
+    if isinstance(value, (list, np.ndarray)):
+        return False
+    return value in assumed_missing_values or bool(pd.isna(value))  # type: ignore[call-overload]
 
 
 def _jsonify_list_of_dicts(
