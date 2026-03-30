@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING, Any
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
-    find_ai_integration_id,
-    resolve_resource,
+    _find_ai_integration_id,
+    _resolve_resource,
 )
 
 if TYPE_CHECKING:
@@ -98,7 +98,7 @@ class AiIntegrationsClient:
         Raises:
             ApiException: If the API request fails.
         """
-        resolved_space = resolve_resource(space)
+        resolved_space = _resolve_resource(space)
         return self._api.ai_integrations_list(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
@@ -125,7 +125,7 @@ class AiIntegrationsClient:
             ApiException: If the API request fails
                 (for example, integration not found).
         """
-        integration_id = find_ai_integration_id(
+        integration_id = _find_ai_integration_id(
             api=self._api,
             integration=integration,
             space=space,
@@ -270,7 +270,7 @@ class AiIntegrationsClient:
             if v is not _UNSET
         }
 
-        integration_id = find_ai_integration_id(
+        integration_id = _find_ai_integration_id(
             api=self._api,
             integration=integration,
             space=space,
@@ -297,7 +297,7 @@ class AiIntegrationsClient:
             ApiException: If the API request fails
                 (for example, integration not found or insufficient permissions).
         """
-        integration_id = find_ai_integration_id(
+        integration_id = _find_ai_integration_id(
             api=self._api,
             integration=integration,
             space=space,

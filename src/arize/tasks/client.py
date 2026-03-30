@@ -8,10 +8,10 @@ from typing import TYPE_CHECKING, Literal
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
-    find_dataset_id,
-    find_project_id,
-    find_task_id,
-    resolve_resource,
+    _find_dataset_id,
+    _find_project_id,
+    _find_task_id,
+    _resolve_resource,
 )
 
 if TYPE_CHECKING:
@@ -72,9 +72,9 @@ class TasksClient:
         self,
         *,
         name: str | None = None,
+        project: str | None = None,
+        dataset: str | None = None,
         space: str | None = None,
-        project_id: str | None = None,
-        dataset_id: str | None = None,
         task_type: TaskType | None = None,
         limit: int = 100,
         cursor: str | None = None,
@@ -86,11 +86,17 @@ class TasksClient:
 
         Args:
             name: Optional case-insensitive substring filter on the task name.
-            space: Optional space filter. If the value is a base64-encoded resource ID it is
-                treated as a space ID; otherwise it is used as a case-insensitive
-                substring filter on the space name.
-            project_id: Optional project global ID (base64) to filter results.
-            dataset_id: Optional dataset global ID (base64) to filter results.
+            project: Optional project name or global ID (base64) to filter
+                results. If the value is a name, ``space`` must also be
+                provided.
+            dataset: Optional dataset name or global ID (base64) to filter
+                results. If the value is a name, ``space`` must also be
+                provided.
+            space: Optional space name or ID used to disambiguate name-based
+                resolution for ``project`` and ``dataset``. If the value is a
+                base64-encoded resource ID it is treated as a space ID;
+                otherwise it is used as a case-insensitive substring filter on
+                the space name.
             task_type: Optional task type filter. One of
                 ``"template_evaluation"`` or ``"code_evaluation"``.
             limit: Maximum number of tasks to return (1-100).
@@ -102,7 +108,25 @@ class TasksClient:
         Raises:
             ApiException: If the API request fails.
         """
-        resolved_space = resolve_resource(space)
+        project_id = (
+            _find_project_id(
+                api=self._projects_api,
+                project=project,
+                space=space,
+            )
+            if project
+            else None
+        )
+        dataset_id = (
+            _find_dataset_id(
+                api=self._datasets_api,
+                dataset=dataset,
+                space=space,
+            )
+            if dataset
+            else None
+        )
+        resolved_space = _resolve_resource(space)
         return self._api.tasks_list(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
@@ -131,7 +155,7 @@ class TasksClient:
             ApiException: If the API request fails
                 (for example, task not found).
         """
-        task_id = find_task_id(
+        task_id = _find_task_id(
             api=self._api,
             task=task,
             space=space,
@@ -198,7 +222,7 @@ class TasksClient:
                 (for example, invalid payload or name conflict).
         """
         project_id = (
-            find_project_id(
+            _find_project_id(
                 api=self._projects_api,
                 project=project,
                 space=space,
@@ -207,7 +231,7 @@ class TasksClient:
             else None
         )
         dataset_id = (
-            find_dataset_id(
+            _find_dataset_id(
                 api=self._datasets_api,
                 dataset=dataset,
                 space=space,
@@ -269,7 +293,7 @@ class TasksClient:
         Raises:
             ApiException: If the API request fails.
         """
-        task_id = find_task_id(
+        task_id = _find_task_id(
             api=self._api,
             task=task,
             space=space,
@@ -320,7 +344,7 @@ class TasksClient:
         Raises:
             ApiException: If the API request fails.
         """
-        task_id = find_task_id(
+        task_id = _find_task_id(
             api=self._api,
             task=task,
             space=space,

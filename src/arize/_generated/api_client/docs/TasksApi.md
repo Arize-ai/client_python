@@ -376,7 +376,7 @@ List tasks
 
 List tasks the user has access to, with cursor-based pagination.
 
-Filter by space, project, dataset, or task type using query parameters.
+Filter by space, space name, task name, project, dataset, or task type using query parameters.
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 

@@ -10,6 +10,9 @@ import pytest
 
 from arize.spans.client import SpansClient
 
+# Base64 ID that passes is_resource_id() — decodes to "Project:123"
+_PROJECT_ID = "UHJvamVjdDoxMjM="
+
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -100,7 +103,7 @@ class TestSpansClientList:
             mock_request_cls.return_value = mock_body
 
             spans_client.list(
-                project_id="proj-123",
+                project=_PROJECT_ID,
                 start_time=start,
                 end_time=end,
                 filter="status_code = 'ERROR'",
@@ -109,7 +112,7 @@ class TestSpansClientList:
             )
 
         mock_request_cls.assert_called_once_with(
-            project_id="proj-123",
+            project_id=_PROJECT_ID,
             start_time=start,
             end_time=end,
             filter="status_code = 'ERROR'",
@@ -130,7 +133,7 @@ class TestSpansClientList:
             mock_request_cls.return_value = mock_body
 
             spans_client.list(
-                project_id="proj-123",
+                project=_PROJECT_ID,
                 limit=50,
                 cursor="cursor-abc",
             )
@@ -154,10 +157,10 @@ class TestSpansClientList:
         ) as mock_request_cls:
             mock_request_cls.return_value = Mock()
 
-            spans_client.list(project_id="proj-123")
+            spans_client.list(project=_PROJECT_ID)
 
         mock_request_cls.assert_called_once_with(
-            project_id="proj-123",
+            project_id=_PROJECT_ID,
             start_time=None,
             end_time=None,
             filter=None,
@@ -180,7 +183,7 @@ class TestSpansClientList:
         mock_api.spans_list.return_value = expected
 
         with patch("arize._generated.api_client.SpansListRequest"):
-            result = spans_client.list(project_id="proj-123")
+            result = spans_client.list(project=_PROJECT_ID)
 
         assert result is expected
 
@@ -194,7 +197,7 @@ class TestSpansClientList:
 
         with patch("arize._generated.api_client.SpansListRequest"):
             caplog.set_level(logging.WARNING)
-            spans_client.list(project_id="proj-123")
+            spans_client.list(project=_PROJECT_ID)
 
         assert any(
             "ALPHA" in r.message and "spans.list" in r.message
@@ -211,7 +214,7 @@ class TestSpansClientList:
 
         with patch("arize._generated.api_client.SpansListRequest"):
             caplog.set_level(logging.WARNING)
-            spans_client.list(project_id="proj-123")
+            spans_client.list(project=_PROJECT_ID)
 
         assert any("active development" in r.message for r in caplog.records)
 
@@ -226,19 +229,52 @@ class TestSpansClientList:
         with patch("arize._generated.api_client.SpansListRequest"):
             caplog.set_level(logging.WARNING)
 
-            spans_client.list(project_id="proj-123")
+            spans_client.list(project=_PROJECT_ID)
             alpha_count_first = sum(
                 1 for r in caplog.records if "ALPHA" in r.message
             )
             caplog.clear()
 
-            spans_client.list(project_id="proj-123")
+            spans_client.list(project=_PROJECT_ID)
             alpha_count_second = sum(
                 1 for r in caplog.records if "ALPHA" in r.message
             )
 
         assert alpha_count_first == 1
         assert alpha_count_second == 0
+
+    def test_list_with_project_name_resolves_id(
+        self, spans_client: SpansClient, mock_api: Mock
+    ) -> None:
+        """list() should resolve a project name to an ID via ProjectsApi."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+
+        mock_project = Mock()
+        mock_project.id = _PROJECT_ID
+        mock_project.name = "my-project"
+        mock_projects_api = Mock()
+        mock_projects_api.projects_list.return_value = Mock(
+            projects=[mock_project],
+            pagination=Mock(next_cursor=None),
+        )
+        spans_client._projects_api = mock_projects_api
+
+        with patch(
+            "arize._generated.api_client.SpansListRequest"
+        ) as mock_request_cls:
+            mock_request_cls.return_value = Mock()
+            spans_client.list(
+                project="my-project", space="U3BhY2U6OTA1MDoxSmtS"
+            )
+
+        mock_request_cls.assert_called_once_with(
+            project_id=_PROJECT_ID,
+            start_time=None,
+            end_time=None,
+            filter=None,
+        )
 
 
 @pytest.mark.unit

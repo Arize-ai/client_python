@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.9.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.9.0...arize-python-sdk/v8.9.1) (2026-03-30)
+
+
+### 🐛 Bug Fixes
+
+* consistent name/ID resolution for tasks.list and spans.list ([#67231](https://github.com/Arize-ai/arize/issues/67231)) ([d70aa4c](https://github.com/Arize-ai/arize/commit/d70aa4c4e533d133cf3c69818e98ff57f1d73a23))
+
 ## [8.9.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.8.1...arize-python-sdk/v8.9.0) (2026-03-28)
 
 

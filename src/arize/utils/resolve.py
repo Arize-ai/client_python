@@ -79,7 +79,7 @@ def is_resource_id(value: str) -> bool:
     return ":" in decoded
 
 
-def resolve_resource(value: str | None) -> ResolvedIdentifier:
+def _resolve_resource(value: str | None) -> ResolvedIdentifier:
     """Split a name-or-ID string into a :class:`ResolvedIdentifier`.
 
     - ``None`` → both fields ``None``
@@ -99,7 +99,7 @@ def resolve_resource(value: str | None) -> ResolvedIdentifier:
     return ResolvedIdentifier(name=value)
 
 
-def find_space_id(api: SpacesApi, space: str) -> str:
+def _find_space_id(api: SpacesApi, space: str) -> str:
     """Resolve a space ID or name to a space ID.
 
     If *space* is a base64-encoded global ID it is returned as-is. Otherwise,
@@ -139,7 +139,7 @@ def find_space_id(api: SpacesApi, space: str) -> str:
     raise ResolutionError("space", space, available)
 
 
-def find_project_id(
+def _find_project_id(
     api: ProjectsApi,
     project: str,
     space: str | None,
@@ -161,7 +161,7 @@ def find_project_id(
     if is_resource_id(project):
         return project
 
-    resolved_space = resolve_resource(space)
+    resolved_space = _resolve_resource(space)
     if not resolved_space.is_set():
         raise ResolutionError(
             "project",
@@ -195,7 +195,7 @@ def find_project_id(
     raise ResolutionError("project", project, available)
 
 
-def find_dataset_id(
+def _find_dataset_id(
     api: DatasetsApi,
     dataset: str,
     space: str | None,
@@ -216,7 +216,7 @@ def find_dataset_id(
     if is_resource_id(dataset):
         return dataset
 
-    resolved_space = resolve_resource(space)
+    resolved_space = _resolve_resource(space)
     if not resolved_space.is_set():
         raise ResolutionError(
             "dataset",
@@ -250,7 +250,7 @@ def find_dataset_id(
     raise ResolutionError("dataset", dataset, available)
 
 
-def find_experiment_id(
+def _find_experiment_id(
     api: ExperimentsApi,
     datasets_api: DatasetsApi,
     experiment: str,
@@ -275,8 +275,8 @@ def find_experiment_id(
     if is_resource_id(experiment):
         return experiment
 
-    resolved_dataset = resolve_resource(dataset)
-    resolved_space = resolve_resource(space)
+    resolved_dataset = _resolve_resource(dataset)
+    resolved_space = _resolve_resource(space)
 
     if not resolved_dataset.is_set():
         raise ResolutionError(
@@ -302,7 +302,7 @@ def find_experiment_id(
     dataset_id = (
         resolved_dataset.id
         if resolved_dataset.is_id()
-        else find_dataset_id(datasets_api, resolved_dataset.name, space)  # type:ignore
+        else _find_dataset_id(datasets_api, resolved_dataset.name, space)  # type:ignore
     )
 
     available: list[str] = []
@@ -326,7 +326,7 @@ def find_experiment_id(
     raise ResolutionError("experiment", experiment, available)
 
 
-def find_prompt_id(
+def _find_prompt_id(
     api: PromptsApi,
     prompt: str,
     space: str | None,
@@ -347,7 +347,7 @@ def find_prompt_id(
     if is_resource_id(prompt):
         return prompt
 
-    resolved_space = resolve_resource(space)
+    resolved_space = _resolve_resource(space)
     if not resolved_space.is_set():
         raise ResolutionError(
             "prompt",
@@ -381,7 +381,7 @@ def find_prompt_id(
     raise ResolutionError("prompt", prompt, available)
 
 
-def find_evaluator_id(
+def _find_evaluator_id(
     api: EvaluatorsApi,
     evaluator: str,
     space: str | None,
@@ -402,7 +402,7 @@ def find_evaluator_id(
     if is_resource_id(evaluator):
         return evaluator
 
-    resolved_space = resolve_resource(space)
+    resolved_space = _resolve_resource(space)
     if not resolved_space.is_set():
         raise ResolutionError(
             "evaluator",
@@ -436,7 +436,7 @@ def find_evaluator_id(
     raise ResolutionError("evaluator", evaluator, available)
 
 
-def find_annotation_config_id(
+def _find_annotation_config_id(
     api: AnnotationConfigsApi,
     annotation_config: str,
     space: str | None,
@@ -457,7 +457,7 @@ def find_annotation_config_id(
     if is_resource_id(annotation_config):
         return annotation_config
 
-    resolved_space = resolve_resource(space)
+    resolved_space = _resolve_resource(space)
     if not resolved_space.is_set():
         raise ResolutionError(
             "annotation config",
@@ -498,7 +498,7 @@ def find_annotation_config_id(
     raise ResolutionError("annotation config", annotation_config, available)
 
 
-def find_ai_integration_id(
+def _find_ai_integration_id(
     api: AIIntegrationsApi,
     integration: str,
     space: str | None,
@@ -519,7 +519,7 @@ def find_ai_integration_id(
     if is_resource_id(integration):
         return integration
 
-    resolved_space = resolve_resource(space)
+    resolved_space = _resolve_resource(space)
     if not resolved_space.is_set():
         raise ResolutionError(
             "AI integration",
@@ -555,7 +555,7 @@ def find_ai_integration_id(
     raise ResolutionError("AI integration", integration, available)
 
 
-def find_task_id(
+def _find_task_id(
     api: TasksApi,
     task: str,
     space: str | None,
@@ -576,7 +576,7 @@ def find_task_id(
     if is_resource_id(task):
         return task
 
-    resolved_space = resolve_resource(space)
+    resolved_space = _resolve_resource(space)
     if not resolved_space.is_set():
         raise ResolutionError(
             "task",

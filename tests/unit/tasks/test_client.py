@@ -74,12 +74,12 @@ class TestTasksClientList:
     def test_list_with_space_id(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """list() should resolve a base64 resource ID space value to space_id."""
+        """list() should resolve project/dataset IDs and space ID correctly."""
         tasks_client.list(
             name="my-task",
             space="U3BhY2U6OTA1MDoxSmtS",
-            project_id="proj-123",
-            dataset_id="ds-456",
+            project=_PROJECT_ID,
+            dataset=_DATASET_ID,
             task_type="template_evaluation",
             limit=50,
             cursor="cursor-xyz",
@@ -89,8 +89,8 @@ class TestTasksClientList:
             space_id="U3BhY2U6OTA1MDoxSmtS",
             space_name=None,
             name="my-task",
-            project_id="proj-123",
-            dataset_id="ds-456",
+            project_id=_PROJECT_ID,
+            dataset_id=_DATASET_ID,
             type="template_evaluation",
             limit=50,
             cursor="cursor-xyz",
@@ -110,6 +110,33 @@ class TestTasksClientList:
             space_name="my-space",
             name="my-task",
             project_id=None,
+            dataset_id=None,
+            type=None,
+            limit=100,
+            cursor=None,
+        )
+
+    def test_list_with_project_name_resolves_id(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """list() should resolve a project name to an ID via ProjectsApi."""
+        mock_project = Mock()
+        mock_project.id = _PROJECT_ID
+        mock_project.name = "my-project"
+        mock_projects_api = Mock()
+        mock_projects_api.projects_list.return_value = Mock(
+            projects=[mock_project],
+            pagination=Mock(next_cursor=None),
+        )
+        tasks_client._projects_api = mock_projects_api
+
+        tasks_client.list(project="my-project", space="U3BhY2U6OTA1MDoxSmtS")
+
+        mock_api.tasks_list.assert_called_once_with(
+            space_id="U3BhY2U6OTA1MDoxSmtS",
+            space_name=None,
+            name=None,
+            project_id=_PROJECT_ID,
             dataset_id=None,
             type=None,
             limit=100,

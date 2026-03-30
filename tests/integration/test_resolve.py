@@ -5,9 +5,8 @@ environment variables are set. They verify that every find/resolve function can
 look up real resources by name and that ID passthrough works correctly.
 
 ``ARIZE_TEST_SPACE_NAME`` may be a space **name** or a base64 GraphQL space
-global ID. List endpoints filter by ``space_name`` (substring on the
-human-readable name only); when the env value is an ID, tests use ``space_id``
-instead so resources are found.
+global ID. The find functions accept either format — a base64-encoded value is
+treated as a space ID, any other string is treated as a name.
 
 Run with:
     ARIZE_API_KEY=<key> ARIZE_TEST_SPACE_NAME=<space> \
@@ -23,18 +22,17 @@ import pytest
 
 from arize.utils.resolve import (
     ResolutionError,
-    ResolvedIdentifier,
-    find_ai_integration_id,
-    find_annotation_config_id,
-    find_dataset_id,
-    find_evaluator_id,
-    find_experiment_id,
-    find_project_id,
-    find_prompt_id,
-    find_space_id,
-    find_task_id,
+    _find_ai_integration_id,
+    _find_annotation_config_id,
+    _find_dataset_id,
+    _find_evaluator_id,
+    _find_experiment_id,
+    _find_project_id,
+    _find_prompt_id,
+    _find_space_id,
+    _find_task_id,
+    _resolve_resource,
     is_resource_id,
-    resolve_resource,
 )
 
 if TYPE_CHECKING:
@@ -58,15 +56,8 @@ pytestmark = [
 def _space_filter_kwargs(spaces_api: SpacesApi) -> dict[str, Any]:
     """``space_id`` or ``space_name`` for list/find APIs from ``SPACE_NAME``."""
     if is_resource_id(SPACE_NAME):
-        return {"space_id": find_space_id(spaces_api, SPACE_NAME)}
+        return {"space_id": _find_space_id(spaces_api, SPACE_NAME)}
     return {"space_name": SPACE_NAME}
-
-
-def _resolve_space(spaces_api: SpacesApi) -> ResolvedIdentifier:
-    """Return a ResolvedIdentifier for the test space from ``SPACE_NAME``."""
-    if is_resource_id(SPACE_NAME):
-        return ResolvedIdentifier(id=find_space_id(spaces_api, SPACE_NAME))
-    return ResolvedIdentifier(name=SPACE_NAME)
 
 
 # ---------------------------------------------------------------------------
@@ -96,14 +87,14 @@ def spaces_api(generated_client) -> SpacesApi:
 
 
 # ---------------------------------------------------------------------------
-# resolve_resource / find_space_id
+# _resolve_resource / _find_space_id
 # ---------------------------------------------------------------------------
 class TestResolveResource:
-    """Tests for resolve_resource() and find_space_id()."""
+    """Tests for _resolve_resource() and _find_space_id()."""
 
     def test_resolve_resource_by_name(self) -> None:
-        """resolve_resource maps IDs to ResourceIDOrName(id=...) and names to ResourceIDOrName(name=...)."""
-        r = resolve_resource(SPACE_NAME)
+        """_resolve_resource maps IDs to ResourceIDOrName(id=...) and names to ResourceIDOrName(name=...)."""
+        r = _resolve_resource(SPACE_NAME)
         if is_resource_id(SPACE_NAME):
             assert r.id == SPACE_NAME
             assert r.name is None
@@ -112,26 +103,26 @@ class TestResolveResource:
             assert r.name == SPACE_NAME
 
     def test_find_space_id_by_name(self, spaces_api) -> None:
-        """find_space_id resolves a name to an ID or returns an ID as-is."""
-        space_id = find_space_id(spaces_api, SPACE_NAME)
+        """_find_space_id resolves a name to an ID or returns an ID as-is."""
+        space_id = _find_space_id(spaces_api, SPACE_NAME)
         assert is_resource_id(space_id)
 
     def test_find_space_id_passthrough(self, spaces_api) -> None:
-        """find_space_id returns a base64 ID as-is."""
-        real_id = find_space_id(spaces_api, SPACE_NAME)
-        assert find_space_id(spaces_api, real_id) == real_id
+        """_find_space_id returns a base64 ID as-is."""
+        real_id = _find_space_id(spaces_api, SPACE_NAME)
+        assert _find_space_id(spaces_api, real_id) == real_id
 
     def test_find_space_id_not_found(self, spaces_api) -> None:
-        """find_space_id raises ResolutionError for unknown names."""
+        """_find_space_id raises ResolutionError for unknown names."""
         with pytest.raises(ResolutionError, match="space"):
-            find_space_id(spaces_api, "nonexistent-space-abc-xyz-12345")
+            _find_space_id(spaces_api, "nonexistent-space-abc-xyz-12345")
 
 
 # ---------------------------------------------------------------------------
-# find_project_id
+# _find_project_id
 # ---------------------------------------------------------------------------
 class TestFindProjectId:
-    """Tests for find_project_id with space_name passthrough."""
+    """Tests for _find_project_id with space_name passthrough."""
 
     @pytest.fixture(scope="class")
     def projects_api(self, generated_client) -> Any:
@@ -151,26 +142,26 @@ class TestFindProjectId:
         p = resp.projects[0]
         return {"id": p.id, "name": p.name}
 
-    def test_resolve_by_name_with_space_name(
+    def test_resolve_by_name(
         self, projects_api, spaces_api, project_info: dict[str, Any]
     ) -> None:
-        """Resolves project name using space_name or space_id from the env."""
-        result = find_project_id(
+        """Resolves project name using SPACE_NAME (name or ID string)."""
+        result = _find_project_id(
             projects_api,
             project_info["name"],
-            _resolve_space(spaces_api),
+            SPACE_NAME,
         )
         assert result == project_info["id"]
 
     def test_resolve_by_name_with_space_id(
         self, projects_api, spaces_api, project_info: dict[str, Any]
     ) -> None:
-        """Resolves project name using space_id."""
-        space_id = find_space_id(spaces_api, SPACE_NAME)
-        result = find_project_id(
+        """Resolves project name when space is given as an ID string."""
+        space_id = _find_space_id(spaces_api, SPACE_NAME)
+        result = _find_project_id(
             projects_api,
             project_info["name"],
-            ResolvedIdentifier(id=space_id),
+            space_id,
         )
         assert result == project_info["id"]
 
@@ -178,24 +169,24 @@ class TestFindProjectId:
         self, projects_api, project_info: dict[str, Any]
     ) -> None:
         """A base64 ID is returned as-is without any API call."""
-        result = find_project_id(projects_api, project_info["id"])
+        result = _find_project_id(projects_api, project_info["id"], None)
         assert result == project_info["id"]
 
     def test_not_found(self, projects_api, spaces_api) -> None:
         """Raises ResolutionError for unknown project name."""
         with pytest.raises(ResolutionError, match="project"):
-            find_project_id(
+            _find_project_id(
                 projects_api,
                 "nonexistent-project-abc-xyz-12345",
-                _resolve_space(spaces_api),
+                SPACE_NAME,
             )
 
 
 # ---------------------------------------------------------------------------
-# find_dataset_id
+# _find_dataset_id
 # ---------------------------------------------------------------------------
 class TestFindDatasetId:
-    """Tests for find_dataset_id with space_name passthrough."""
+    """Tests for _find_dataset_id with space_name passthrough."""
 
     @pytest.fixture(scope="class")
     def datasets_api(self, generated_client) -> Any:
@@ -215,14 +206,14 @@ class TestFindDatasetId:
         d = resp.datasets[0]
         return {"id": d.id, "name": d.name}
 
-    def test_resolve_by_name_with_space_name(
+    def test_resolve_by_name(
         self, datasets_api, spaces_api, dataset_info: dict[str, Any]
     ) -> None:
-        """Resolves dataset name using space_name or space_id from the env."""
-        result = find_dataset_id(
+        """Resolves dataset name using SPACE_NAME (name or ID string)."""
+        result = _find_dataset_id(
             datasets_api,
             dataset_info["name"],
-            _resolve_space(spaces_api),
+            SPACE_NAME,
         )
         assert result == dataset_info["id"]
 
@@ -230,24 +221,24 @@ class TestFindDatasetId:
         self, datasets_api, dataset_info: dict[str, Any]
     ) -> None:
         """A base64 ID is returned as-is."""
-        result = find_dataset_id(datasets_api, dataset_info["id"])
+        result = _find_dataset_id(datasets_api, dataset_info["id"], None)
         assert result == dataset_info["id"]
 
     def test_not_found(self, datasets_api, spaces_api) -> None:
         """Raises ResolutionError for unknown dataset name."""
         with pytest.raises(ResolutionError, match="dataset"):
-            find_dataset_id(
+            _find_dataset_id(
                 datasets_api,
                 "nonexistent-dataset-abc-xyz-12345",
-                _resolve_space(spaces_api),
+                SPACE_NAME,
             )
 
 
 # ---------------------------------------------------------------------------
-# find_prompt_id
+# _find_prompt_id
 # ---------------------------------------------------------------------------
 class TestFindPromptId:
-    """Tests for find_prompt_id with space_name passthrough."""
+    """Tests for _find_prompt_id with space_name passthrough."""
 
     @pytest.fixture(scope="class")
     def prompts_api(self, generated_client) -> Any:
@@ -267,14 +258,14 @@ class TestFindPromptId:
         p = resp.prompts[0]
         return {"id": p.id, "name": p.name}
 
-    def test_resolve_by_name_with_space_name(
+    def test_resolve_by_name(
         self, prompts_api, spaces_api, prompt_info: dict[str, Any]
     ) -> None:
-        """Resolves prompt name using space_name or space_id from the env."""
-        result = find_prompt_id(
+        """Resolves prompt name using SPACE_NAME (name or ID string)."""
+        result = _find_prompt_id(
             prompts_api,
             prompt_info["name"],
-            _resolve_space(spaces_api),
+            SPACE_NAME,
         )
         assert result == prompt_info["id"]
 
@@ -282,15 +273,15 @@ class TestFindPromptId:
         self, prompts_api, prompt_info: dict[str, Any]
     ) -> None:
         """A base64 ID is returned as-is."""
-        result = find_prompt_id(prompts_api, prompt_info["id"])
+        result = _find_prompt_id(prompts_api, prompt_info["id"], None)
         assert result == prompt_info["id"]
 
 
 # ---------------------------------------------------------------------------
-# find_evaluator_id
+# _find_evaluator_id
 # ---------------------------------------------------------------------------
 class TestFindEvaluatorId:
-    """Tests for find_evaluator_id with space_name passthrough."""
+    """Tests for _find_evaluator_id with space_name passthrough."""
 
     @pytest.fixture(scope="class")
     def evaluators_api(self, generated_client) -> Any:
@@ -310,14 +301,14 @@ class TestFindEvaluatorId:
         e = resp.evaluators[0]
         return {"id": e.id, "name": e.name}
 
-    def test_resolve_by_name_with_space_name(
+    def test_resolve_by_name(
         self, evaluators_api, spaces_api, evaluator_info: dict[str, Any]
     ) -> None:
-        """Resolves evaluator name using space_name or space_id from the env."""
-        result = find_evaluator_id(
+        """Resolves evaluator name using SPACE_NAME (name or ID string)."""
+        result = _find_evaluator_id(
             evaluators_api,
             evaluator_info["name"],
-            _resolve_space(spaces_api),
+            SPACE_NAME,
         )
         assert result == evaluator_info["id"]
 
@@ -325,15 +316,15 @@ class TestFindEvaluatorId:
         self, evaluators_api, evaluator_info: dict[str, Any]
     ) -> None:
         """A base64 ID is returned as-is."""
-        result = find_evaluator_id(evaluators_api, evaluator_info["id"])
+        result = _find_evaluator_id(evaluators_api, evaluator_info["id"], None)
         assert result == evaluator_info["id"]
 
 
 # ---------------------------------------------------------------------------
-# find_annotation_config_id
+# _find_annotation_config_id
 # ---------------------------------------------------------------------------
 class TestFindAnnotationConfigId:
-    """Tests for find_annotation_config_id with space_name passthrough."""
+    """Tests for _find_annotation_config_id with space_name passthrough."""
 
     @pytest.fixture(scope="class")
     def annotation_configs_api(self, generated_client) -> Any:
@@ -359,17 +350,17 @@ class TestFindAnnotationConfigId:
         assert inner is not None
         return {"id": inner.id, "name": inner.name}
 
-    def test_resolve_by_name_with_space_name(
+    def test_resolve_by_name(
         self,
         annotation_configs_api,
         spaces_api,
         annotation_config_info: dict[str, Any],
     ) -> None:
-        """Resolves annotation config name using space_name or space_id."""
-        result = find_annotation_config_id(
+        """Resolves annotation config name using SPACE_NAME (name or ID string)."""
+        result = _find_annotation_config_id(
             annotation_configs_api,
             annotation_config_info["name"],
-            _resolve_space(spaces_api),
+            SPACE_NAME,
         )
         assert result == annotation_config_info["id"]
 
@@ -379,23 +370,29 @@ class TestFindAnnotationConfigId:
         annotation_config_info: dict[str, Any],
     ) -> None:
         """A base64 ID is returned as-is."""
-        result = find_annotation_config_id(
-            annotation_configs_api, annotation_config_info["id"]
+        result = _find_annotation_config_id(
+            annotation_configs_api, annotation_config_info["id"], None
         )
         assert result == annotation_config_info["id"]
 
 
 # ---------------------------------------------------------------------------
-# find_experiment_id
+# _find_experiment_id
 # ---------------------------------------------------------------------------
 class TestFindExperimentId:
-    """Tests for find_experiment_id (requires dataset_id, not space)."""
+    """Tests for _find_experiment_id (requires dataset and datasets_api)."""
 
     @pytest.fixture(scope="class")
     def experiments_api(self, generated_client) -> Any:
         from arize._generated import api_client as gen
 
         return gen.ExperimentsApi(generated_client)
+
+    @pytest.fixture(scope="class")
+    def datasets_api(self, generated_client) -> Any:
+        from arize._generated import api_client as gen
+
+        return gen.DatasetsApi(generated_client)
 
     @pytest.fixture(scope="class")
     def experiment_info(self, generated_client, spaces_api) -> dict[str, Any]:
@@ -424,29 +421,43 @@ class TestFindExperimentId:
         pytest.skip("No experiments found in test space datasets")
 
     def test_resolve_by_name(
-        self, experiments_api, experiment_info: dict[str, Any]
+        self,
+        experiments_api,
+        datasets_api,
+        experiment_info: dict[str, Any],
     ) -> None:
-        """Resolves experiment name using dataset_id."""
-        result = find_experiment_id(
+        """Resolves experiment name using dataset_id (already an ID, no space needed)."""
+        result = _find_experiment_id(
             experiments_api,
+            datasets_api,
             experiment_info["name"],
-            dataset_id=experiment_info["dataset_id"],
+            experiment_info["dataset_id"],
+            None,
         )
         assert result == experiment_info["id"]
 
     def test_id_passthrough(
-        self, experiments_api, experiment_info: dict[str, Any]
+        self,
+        experiments_api,
+        datasets_api,
+        experiment_info: dict[str, Any],
     ) -> None:
         """A base64 ID is returned as-is."""
-        result = find_experiment_id(experiments_api, experiment_info["id"])
+        result = _find_experiment_id(
+            experiments_api,
+            datasets_api,
+            experiment_info["id"],
+            None,
+            None,
+        )
         assert result == experiment_info["id"]
 
 
 # ---------------------------------------------------------------------------
-# find_task_id
+# _find_task_id
 # ---------------------------------------------------------------------------
 class TestFindTaskId:
-    """Tests for find_task_id with space_name passthrough."""
+    """Tests for _find_task_id with space_name passthrough."""
 
     @pytest.fixture(scope="class")
     def tasks_api(self, generated_client) -> Any:
@@ -466,28 +477,28 @@ class TestFindTaskId:
         t = resp.tasks[0]
         return {"id": t.id, "name": t.name}
 
-    def test_resolve_by_name_with_space_name(
+    def test_resolve_by_name(
         self, tasks_api, spaces_api, task_info: dict[str, Any]
     ) -> None:
-        """Resolves task name using space_name or space_id from the env."""
-        result = find_task_id(
+        """Resolves task name using SPACE_NAME (name or ID string)."""
+        result = _find_task_id(
             tasks_api,
             task_info["name"],
-            _resolve_space(spaces_api),
+            SPACE_NAME,
         )
         assert result == task_info["id"]
 
     def test_id_passthrough(self, tasks_api, task_info: dict[str, Any]) -> None:
         """A base64 ID is returned as-is."""
-        result = find_task_id(tasks_api, task_info["id"])
+        result = _find_task_id(tasks_api, task_info["id"], None)
         assert result == task_info["id"]
 
 
 # ---------------------------------------------------------------------------
-# find_ai_integration_id
+# _find_ai_integration_id
 # ---------------------------------------------------------------------------
 class TestFindAiIntegrationId:
-    """Tests for find_ai_integration_id with space_name passthrough."""
+    """Tests for _find_ai_integration_id with space_name passthrough."""
 
     @pytest.fixture(scope="class")
     def ai_integrations_api(self, generated_client) -> Any:
@@ -511,17 +522,17 @@ class TestFindAiIntegrationId:
         ai = resp.ai_integrations[0]
         return {"id": ai.id, "name": ai.name}
 
-    def test_resolve_by_name_with_space_name(
+    def test_resolve_by_name(
         self,
         ai_integrations_api,
         spaces_api,
         ai_integration_info: dict[str, Any],
     ) -> None:
-        """Resolves AI integration name using space_name or space_id."""
-        result = find_ai_integration_id(
+        """Resolves AI integration name using SPACE_NAME (name or ID string)."""
+        result = _find_ai_integration_id(
             ai_integrations_api,
             ai_integration_info["name"],
-            _resolve_space(spaces_api),
+            SPACE_NAME,
         )
         assert result == ai_integration_info["id"]
 
@@ -531,7 +542,7 @@ class TestFindAiIntegrationId:
         ai_integration_info: dict[str, Any],
     ) -> None:
         """A base64 ID is returned as-is."""
-        result = find_ai_integration_id(
-            ai_integrations_api, ai_integration_info["id"]
+        result = _find_ai_integration_id(
+            ai_integrations_api, ai_integration_info["id"], None
         )
         assert result == ai_integration_info["id"]

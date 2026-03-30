@@ -34,8 +34,8 @@ from arize.utils.openinference_conversion import (
     convert_default_columns_to_json_str,
 )
 from arize.utils.resolve import (
-    find_dataset_id,
-    find_experiment_id,
+    _find_dataset_id,
+    _find_experiment_id,
 )
 from arize.utils.size import get_payload_size_mb
 
@@ -115,7 +115,7 @@ class ExperimentsClient:
                 returns an error response (e.g. 401/403/429).
         """
         dataset_id = (
-            find_dataset_id(
+            _find_dataset_id(
                 api=self._datasets_api,
                 dataset=dataset,
                 space=space,
@@ -182,7 +182,7 @@ class ExperimentsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 400/401/403/409/429).
         """
-        dataset_id = find_dataset_id(
+        dataset_id = _find_dataset_id(
             api=self._datasets_api,
             dataset=dataset,
             space=space,
@@ -265,7 +265,7 @@ class ExperimentsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
-        experiment_id = find_experiment_id(
+        experiment_id = _find_experiment_id(
             api=self._api,
             datasets_api=self._datasets_api,
             experiment=experiment,
@@ -298,7 +298,7 @@ class ExperimentsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
-        experiment_id = find_experiment_id(
+        experiment_id = _find_experiment_id(
             api=self._api,
             datasets_api=self._datasets_api,
             experiment=experiment,
@@ -348,7 +348,7 @@ class ExperimentsClient:
             ApiException: If the REST API
                 returns an error response when `all=False` (e.g. 401/403/404/429).
         """
-        experiment_id = find_experiment_id(
+        experiment_id = _find_experiment_id(
             api=self._api,
             datasets_api=self._datasets_api,
             experiment=experiment,
@@ -504,7 +504,7 @@ class ExperimentsClient:
             pa.ArrowInvalid: If converting results to Arrow fails.
             Exception: For unexpected errors during Arrow conversion.
         """
-        dataset_id = find_dataset_id(
+        dataset_id = _find_dataset_id(
             api=self._datasets_api,
             dataset=dataset,
             space=space,

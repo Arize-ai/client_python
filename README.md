@@ -871,8 +871,8 @@ Use `client.tasks` to manage online evaluation tasks that run continuously or on
 resp = client.tasks.list(
     name=..., # Optional, case-insensitive substring filter on task name
     space=..., # Optional, space ID or name
-    project_id=..., # Optional, filter by project
-    dataset_id=..., # Optional, filter by dataset
+    project=..., # Optional, filter by project (name or ID)
+    dataset=..., # Optional, filter by dataset (name or ID)
     task_type=..., # Optional, "template_evaluation" or "code_evaluation"
     limit=..., # Optional, defaults to 100
 )

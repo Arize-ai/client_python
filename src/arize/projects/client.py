@@ -7,9 +7,9 @@ from typing import TYPE_CHECKING
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
-    find_project_id,
-    find_space_id,
-    resolve_resource,
+    _find_project_id,
+    _find_space_id,
+    _resolve_resource,
 )
 
 if TYPE_CHECKING:
@@ -78,7 +78,7 @@ class ProjectsClient:
         Raises:
             ApiException: If the API request fails.
         """
-        resolved_space = resolve_resource(space)
+        resolved_space = _resolve_resource(space)
         return self._api.projects_list(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
@@ -109,7 +109,7 @@ class ProjectsClient:
             ApiException: If the API request fails
                 (for example, due to invalid input or a uniqueness conflict).
         """
-        space_id = find_space_id(self._spaces_api, space)
+        space_id = _find_space_id(self._spaces_api, space)
 
         from arize._generated import api_client as gen
 
@@ -134,7 +134,7 @@ class ProjectsClient:
             ApiException: If the API request fails
                 (for example, project not found).
         """
-        project_id = find_project_id(
+        project_id = _find_project_id(
             api=self._api,
             project=project,
             space=space,
@@ -158,7 +158,7 @@ class ProjectsClient:
             ApiException: If the API request fails
                 (for example, project not found or insufficient permissions).
         """
-        project_id = find_project_id(
+        project_id = _find_project_id(
             api=self._api,
             project=project,
             space=space,

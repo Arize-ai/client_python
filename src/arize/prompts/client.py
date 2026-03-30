@@ -7,9 +7,9 @@ from typing import TYPE_CHECKING
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
-    find_prompt_id,
-    find_space_id,
-    resolve_resource,
+    _find_prompt_id,
+    _find_space_id,
+    _resolve_resource,
 )
 
 if TYPE_CHECKING:
@@ -89,7 +89,7 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/429).
         """
-        resolved_space = resolve_resource(space)
+        resolved_space = _resolve_resource(space)
         return self._api.prompts_list(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
@@ -138,7 +138,7 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 400/401/403/409/429).
         """
-        space_id = find_space_id(self._spaces_api, space)
+        space_id = _find_space_id(self._spaces_api, space)
 
         from arize._generated import api_client as gen
 
@@ -187,7 +187,7 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
-        prompt_id = find_prompt_id(
+        prompt_id = _find_prompt_id(
             api=self._api,
             prompt=prompt,
             space=space,
@@ -222,7 +222,7 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
-        prompt_id = find_prompt_id(
+        prompt_id = _find_prompt_id(
             api=self._api,
             prompt=prompt,
             space=space,
@@ -253,7 +253,7 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
-        prompt_id = find_prompt_id(
+        prompt_id = _find_prompt_id(
             api=self._api,
             prompt=prompt,
             space=space,
@@ -286,7 +286,7 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
-        prompt_id = find_prompt_id(
+        prompt_id = _find_prompt_id(
             api=self._api,
             prompt=prompt,
             space=space,
@@ -335,7 +335,7 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 400/401/403/404/429).
         """
-        prompt_id = find_prompt_id(
+        prompt_id = _find_prompt_id(
             api=self._api,
             prompt=prompt,
             space=space,
@@ -375,7 +375,7 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
-        prompt_id = find_prompt_id(
+        prompt_id = _find_prompt_id(
             api=self._api,
             prompt=prompt,
             space=space,

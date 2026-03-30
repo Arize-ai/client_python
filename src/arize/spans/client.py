@@ -37,6 +37,7 @@ from arize.utils.dataframe import (
     reset_dataframe_index,
 )
 from arize.utils.proto import get_pb_schema_tracing
+from arize.utils.resolve import _find_project_id
 
 if TYPE_CHECKING:
     # builtins is needed to use builtins.list in type annotations because
@@ -76,12 +77,14 @@ class SpansClient:
 
         # Use the provided client directly
         self._api = gen.SpansApi(generated_client)
+        self._projects_api = gen.ProjectsApi(generated_client)
 
     @prerelease_endpoint(key="spans.list", stage=ReleaseStage.ALPHA)
     def list(
         self,
         *,
-        project_id: str,
+        project: str,
+        space: str | None = None,
         start_time: datetime | None = None,
         end_time: datetime | None = None,
         filter: str | None = None,
@@ -95,7 +98,10 @@ class SpansClient:
         last seven days relative to the time of the request.
 
         Args:
-            project_id: ID of the project to list spans for.
+            project: Project name or global ID (base64) to list spans for.
+                If the value is a name, ``space`` must also be provided.
+            space: Optional space name or ID used to disambiguate the project
+                lookup. Required when ``project`` is a name.
             start_time: Inclusive lower bound of the time window. Defaults to
                 seven days before the request time.
             end_time: Exclusive upper bound of the time window. Defaults to the
@@ -121,6 +127,11 @@ class SpansClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/429).
         """
+        project_id = _find_project_id(
+            api=self._projects_api,
+            project=project,
+            space=space,
+        )
         logger.warning(
             "The spans.list endpoint is currently in active development and may "
             "not be suitable to download large amounts of spans. Use `export_to_df` instead."

@@ -7,9 +7,9 @@ from typing import TYPE_CHECKING, Literal
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
-    find_evaluator_id,
-    find_space_id,
-    resolve_resource,
+    _find_evaluator_id,
+    _find_space_id,
+    _resolve_resource,
 )
 
 if TYPE_CHECKING:
@@ -83,7 +83,7 @@ class EvaluatorsClient:
         Raises:
             ApiException: If the API request fails.
         """
-        resolved_space = resolve_resource(space)
+        resolved_space = _resolve_resource(space)
         return self._api.evaluators_list(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
@@ -119,7 +119,7 @@ class EvaluatorsClient:
             ApiException: If the API request fails
                 (for example, evaluator not found).
         """
-        evaluator_id = find_evaluator_id(
+        evaluator_id = _find_evaluator_id(
             api=self._api,
             evaluator=evaluator,
             space=space,
@@ -197,7 +197,7 @@ class EvaluatorsClient:
                 f"Evaluator type {evaluator_type} is not supported"
             )
 
-        space_id = find_space_id(self._spaces_api, space)
+        space_id = _find_space_id(self._spaces_api, space)
 
         version = gen.EvaluatorsCreateRequestVersion(
             commit_message=commit_message,
@@ -236,7 +236,7 @@ class EvaluatorsClient:
         Raises:
             ApiException: If the API request fails.
         """
-        evaluator_id = find_evaluator_id(
+        evaluator_id = _find_evaluator_id(
             api=self._api,
             evaluator=evaluator,
             space=space,
@@ -268,7 +268,7 @@ class EvaluatorsClient:
             ApiException: If the API request fails
                 (for example, evaluator not found).
         """
-        evaluator_id = find_evaluator_id(
+        evaluator_id = _find_evaluator_id(
             api=self._api,
             evaluator=evaluator,
             space=space,
@@ -307,7 +307,7 @@ class EvaluatorsClient:
         Raises:
             ApiException: If the API request fails.
         """
-        evaluator_id = find_evaluator_id(
+        evaluator_id = _find_evaluator_id(
             api=self._api,
             evaluator=evaluator,
             space=space,
@@ -391,7 +391,7 @@ class EvaluatorsClient:
         Raises:
             ApiException: If the API request fails.
         """
-        evaluator_id = find_evaluator_id(
+        evaluator_id = _find_evaluator_id(
             api=self._api,
             evaluator=evaluator,
             space=space,

@@ -22,9 +22,9 @@ from arize.utils.openinference_conversion import (
     convert_default_columns_to_json_str,
 )
 from arize.utils.resolve import (
-    find_dataset_id,
-    find_space_id,
-    resolve_resource,
+    _find_dataset_id,
+    _find_space_id,
+    _resolve_resource,
 )
 from arize.utils.size import get_payload_size_mb
 
@@ -99,7 +99,7 @@ class DatasetsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/429).
         """
-        resolved_space = resolve_resource(space)
+        resolved_space = _resolve_resource(space)
         return self._api.datasets_list(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
@@ -152,7 +152,7 @@ class DatasetsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 400/401/403/409/429).
         """
-        space_id = find_space_id(self._spaces_api, space)
+        space_id = _find_space_id(self._spaces_api, space)
         if not isinstance(examples, list | pd.DataFrame):
             raise TypeError(
                 "Examples must be a list of dicts or a pandas DataFrame"
@@ -215,7 +215,7 @@ class DatasetsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
-        dataset_id = find_dataset_id(
+        dataset_id = _find_dataset_id(
             api=self._api,
             dataset=dataset,
             space=space,
@@ -239,7 +239,7 @@ class DatasetsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
-        dataset_id = find_dataset_id(
+        dataset_id = _find_dataset_id(
             api=self._api,
             dataset=dataset,
             space=space,
@@ -286,7 +286,7 @@ class DatasetsClient:
             ApiException: If the REST API
                 returns an error response when `all=False` (e.g. 401/403/404/429).
         """
-        dataset_id = find_dataset_id(
+        dataset_id = _find_dataset_id(
             api=self._api,
             dataset=dataset,
             space=space,
@@ -426,7 +426,7 @@ class DatasetsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 400/401/403/404/429).
         """
-        dataset_id = find_dataset_id(
+        dataset_id = _find_dataset_id(
             api=self._api,
             dataset=dataset,
             space=space,

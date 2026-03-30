@@ -6,7 +6,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
-from arize.utils.resolve import find_space_id
+from arize.utils.resolve import _find_space_id
 
 if TYPE_CHECKING:
     from arize._generated.api_client import models
@@ -89,7 +89,7 @@ class SpacesClient:
             ApiException: If the API request fails
                 (for example, space not found).
         """
-        space_id = find_space_id(self._api, space)
+        space_id = _find_space_id(self._api, space)
         return self._api.spaces_get(space_id=space_id)
 
     @prerelease_endpoint(key="spaces.create", stage=ReleaseStage.BETA)
@@ -152,7 +152,7 @@ class SpacesClient:
                 "At least one of 'name' or 'description' must be provided"
             )
 
-        space_id = find_space_id(self._api, space)
+        space_id = _find_space_id(self._api, space)
 
         from arize._generated import api_client as gen
 

@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING
 from arize.annotation_configs.types import AnnotationConfigType
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
-    find_annotation_config_id,
-    find_space_id,
-    resolve_resource,
+    _find_annotation_config_id,
+    _find_space_id,
+    _resolve_resource,
 )
 
 if TYPE_CHECKING:
@@ -82,7 +82,7 @@ class AnnotationConfigsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/429).
         """
-        resolved_space = resolve_resource(space)
+        resolved_space = _resolve_resource(space)
         return self._api.annotation_configs_list(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
@@ -132,7 +132,7 @@ class AnnotationConfigsClient:
         """
         from arize._generated import api_client as gen
 
-        space_id = find_space_id(self._spaces_api, space)
+        space_id = _find_space_id(self._spaces_api, space)
 
         if config_type == AnnotationConfigType.CONTINUOUS:
             if minimum_score is None or maximum_score is None:
@@ -192,7 +192,7 @@ class AnnotationConfigsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
-        annotation_config_id = find_annotation_config_id(
+        annotation_config_id = _find_annotation_config_id(
             api=self._api,
             annotation_config=annotation_config,
             space=space,
@@ -224,7 +224,7 @@ class AnnotationConfigsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
-        annotation_config_id = find_annotation_config_id(
+        annotation_config_id = _find_annotation_config_id(
             api=self._api,
             annotation_config=annotation_config,
             space=space,
