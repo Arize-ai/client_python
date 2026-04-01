@@ -45,6 +45,8 @@ task type-check   # mypy static type analysis
 task test         # pytest with branch coverage (90% minimum enforced)
 ```
 
+Integration tests, environment variables, and CI task variants are documented in [DEVELOPMENT.md](DEVELOPMENT.md).
+
 **Always run `task lint`, `task type-check`, and `task test` after completing a significant feature or refactor.**
 
 After making significant changes, run the `arize-code-review` subagent (`.agents/agents/arize-code-review.md`) for a staff-level review before presenting results.

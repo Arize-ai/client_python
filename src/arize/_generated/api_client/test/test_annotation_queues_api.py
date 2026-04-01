@@ -75,6 +75,13 @@ class TestAnnotationQueuesApi(unittest.TestCase):
         """
         pass
 
+    def test_annotation_queues_records_update(self) -> None:
+        """Test case for annotation_queues_records_update
+
+        Update an annotation queue record
+        """
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()

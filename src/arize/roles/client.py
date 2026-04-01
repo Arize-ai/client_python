@@ -6,6 +6,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
+from arize.utils.resolve import _find_role_id
 
 if TYPE_CHECKING:
     # builtins is needed for builtins.list in annotations because this class
@@ -82,19 +83,22 @@ class RolesClient:
         )
 
     @prerelease_endpoint(key="roles.get", stage=ReleaseStage.ALPHA)
-    def get(self, *, role_id: str) -> models.Role:
-        """Get a role by ID.
+    def get(self, *, role: str) -> models.Role:
+        """Get a role by name or ID.
 
         Args:
-            role_id: Role ID to retrieve.
+            role: Role name or global ID (base64). If the value looks like an
+                ID it is used directly; otherwise it is resolved by name.
 
         Returns:
             The role object.
 
         Raises:
+            ResolutionError: If the role name cannot be found.
             ApiException: If the API request fails
                 (for example, role not found).
         """
+        role_id = _find_role_id(self._api, role)
         return self._api.roles_get(role_id=role_id)
 
     @prerelease_endpoint(key="roles.create", stage=ReleaseStage.ALPHA)
@@ -179,17 +183,22 @@ class RolesClient:
         return self._api.roles_update(role_id=role_id, role_update=body)
 
     @prerelease_endpoint(key="roles.delete", stage=ReleaseStage.ALPHA)
-    def delete(self, *, role_id: str) -> None:
-        """Delete a custom role by ID.
+    def delete(self, *, role: str) -> None:
+        """Delete a custom role by name or ID.
 
         Predefined (system-managed) roles cannot be deleted.
 
         Args:
-            role_id: Role ID to delete.
+            role: Role name or global ID (base64). If the value looks like an
+                ID it is used directly; otherwise it is resolved by name.
 
         Raises:
+            ResolutionError: If the role name cannot be found.
             ApiException: If the API request fails
                 (for example, role not found, insufficient permissions, or
                 attempting to delete a predefined role).
         """
+        from arize.utils.resolve import _find_role_id
+
+        role_id = _find_role_id(self._api, role)
         return self._api.roles_delete(role_id=role_id)

@@ -17,18 +17,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing import Optional, Set
 from typing_extensions import Self
 
-class User(BaseModel):
+class AnnotationInput(BaseModel):
     """
-    A reference to a user by their ID and optionally their email address.
+    An annotation value to set on a record, identified by its annotation config name. Omitting a field leaves the existing value unchanged.
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for the user")
-    email: Optional[StrictStr] = Field(default=None, description="An email address")
-    __properties: ClassVar[List[str]] = ["id", "email"]
+    name: StrictStr = Field(description="The annotation config name")
+    score: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Numeric score for the annotation. Omit to leave unchanged.")
+    label: Optional[StrictStr] = Field(default=None, description="Categorical label for the annotation. Omit to leave unchanged.")
+    text: Optional[StrictStr] = Field(default=None, description="Free-form text note for the annotation. Omit to leave unchanged.")
+    __properties: ClassVar[List[str]] = ["name", "score", "label", "text"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -48,7 +50,7 @@ class User(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of User from a JSON string"""
+        """Create an instance of AnnotationInput from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,7 +75,7 @@ class User(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of User from a dict"""
+        """Create an instance of AnnotationInput from a dict"""
         if obj is None:
             return None
 
@@ -83,11 +85,13 @@ class User(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in User) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in AnnotationInput) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "id": obj.get("id"),
-            "email": obj.get("email")
+            "name": obj.get("name"),
+            "score": obj.get("score"),
+            "label": obj.get("label"),
+            "text": obj.get("text")
         })
         return _obj
 

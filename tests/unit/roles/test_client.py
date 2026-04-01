@@ -9,6 +9,9 @@ import pytest
 
 from arize.roles.client import RolesClient
 
+# Base64 ID that passes is_resource_id() — decodes to "Role:123"
+_ROLE_ID = "Um9sZToxMjM="
+
 
 @pytest.fixture
 def mock_api() -> Mock:
@@ -124,13 +127,45 @@ class TestRolesClientList:
 class TestRolesClientGet:
     """Tests for RolesClient.get()."""
 
-    def test_get_calls_api_with_role_id(
+    def test_get_with_id_calls_api_directly(
         self, roles_client: RolesClient, mock_api: Mock
     ) -> None:
-        """get() should pass role_id to roles_get."""
-        roles_client.get(role_id="role-123")
+        """get() with a base64 ID should pass it directly to roles_get (no list call)."""
+        roles_client.get(role=_ROLE_ID)
 
-        mock_api.roles_get.assert_called_once_with(role_id="role-123")
+        mock_api.roles_get.assert_called_once_with(role_id=_ROLE_ID)
+        mock_api.roles_list.assert_not_called()
+
+    def test_get_with_name_resolves_via_roles_list(
+        self, roles_client: RolesClient, mock_api: Mock
+    ) -> None:
+        """get() with a name should paginate roles_list to find the matching ID."""
+        mock_role = Mock()
+        mock_role.id = _ROLE_ID
+        mock_role.name = "My Role"
+        mock_api.roles_list.return_value = Mock(
+            roles=[mock_role],
+            pagination=Mock(next_cursor=None),
+        )
+
+        roles_client.get(role="My Role")
+
+        mock_api.roles_list.assert_called_once_with(limit=100, cursor=None)
+        mock_api.roles_get.assert_called_once_with(role_id=_ROLE_ID)
+
+    def test_get_with_name_not_found_raises(
+        self, roles_client: RolesClient, mock_api: Mock
+    ) -> None:
+        """get() should raise ResolutionError when the role name is not found."""
+        from arize.utils.resolve import ResolutionError
+
+        mock_api.roles_list.return_value = Mock(
+            roles=[],
+            pagination=Mock(next_cursor=None),
+        )
+
+        with pytest.raises(ResolutionError, match="role"):
+            roles_client.get(role="nonexistent-role")
 
     def test_get_returns_api_response(
         self, roles_client: RolesClient, mock_api: Mock
@@ -139,9 +174,27 @@ class TestRolesClientGet:
         expected = Mock()
         mock_api.roles_get.return_value = expected
 
-        result = roles_client.get(role_id="role-123")
+        result = roles_client.get(role=_ROLE_ID)
 
         assert result is expected
+
+    def test_get_emits_alpha_prerelease_warning(
+        self,
+        roles_client: RolesClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the ALPHA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        roles_client.get(role=_ROLE_ID)
+
+        assert any(
+            "ALPHA" in record.message and "roles.get" in record.message
+            for record in caplog.records
+        )
 
 
 @pytest.mark.unit
@@ -285,13 +338,45 @@ class TestRolesClientUpdate:
 class TestRolesClientDelete:
     """Tests for RolesClient.delete()."""
 
-    def test_delete_calls_api_with_role_id(
+    def test_delete_with_id_calls_api_directly(
         self, roles_client: RolesClient, mock_api: Mock
     ) -> None:
-        """delete() should pass role_id to roles_delete."""
-        roles_client.delete(role_id="role-123")
+        """delete() with a base64 ID should pass it directly to roles_delete (no list call)."""
+        roles_client.delete(role=_ROLE_ID)
 
-        mock_api.roles_delete.assert_called_once_with(role_id="role-123")
+        mock_api.roles_delete.assert_called_once_with(role_id=_ROLE_ID)
+        mock_api.roles_list.assert_not_called()
+
+    def test_delete_with_name_resolves_via_roles_list(
+        self, roles_client: RolesClient, mock_api: Mock
+    ) -> None:
+        """delete() with a name should paginate roles_list to find the matching ID."""
+        mock_role = Mock()
+        mock_role.id = _ROLE_ID
+        mock_role.name = "My Role"
+        mock_api.roles_list.return_value = Mock(
+            roles=[mock_role],
+            pagination=Mock(next_cursor=None),
+        )
+
+        roles_client.delete(role="My Role")
+
+        mock_api.roles_list.assert_called_once_with(limit=100, cursor=None)
+        mock_api.roles_delete.assert_called_once_with(role_id=_ROLE_ID)
+
+    def test_delete_with_name_not_found_raises(
+        self, roles_client: RolesClient, mock_api: Mock
+    ) -> None:
+        """delete() should raise ResolutionError when the role name is not found."""
+        from arize.utils.resolve import ResolutionError
+
+        mock_api.roles_list.return_value = Mock(
+            roles=[],
+            pagination=Mock(next_cursor=None),
+        )
+
+        with pytest.raises(ResolutionError, match="role"):
+            roles_client.delete(role="nonexistent-role")
 
     def test_delete_returns_none(
         self, roles_client: RolesClient, mock_api: Mock
@@ -299,6 +384,6 @@ class TestRolesClientDelete:
         """delete() should return None (204 No Content)."""
         mock_api.roles_delete.return_value = None
 
-        result = roles_client.delete(role_id="role-123")
+        result = roles_client.delete(role=_ROLE_ID)
 
         assert result is None

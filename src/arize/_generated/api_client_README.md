@@ -91,6 +91,8 @@ Class | Method | HTTP request | Description
 *AnnotationQueuesApi* | [**annotation_queues_delete**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_delete) | **DELETE** /v2/annotation-queues/{annotation_queue_id} | Delete an annotation queue
 *AnnotationQueuesApi* | [**annotation_queues_get**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_get) | **GET** /v2/annotation-queues/{annotation_queue_id} | Get an annotation queue
 *AnnotationQueuesApi* | [**annotation_queues_list**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_list) | **GET** /v2/annotation-queues | List annotation queues
+*AnnotationQueuesApi* | [**annotation_queues_records_annotate**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_records_annotate) | **POST** /v2/annotation-queues/{annotation_queue_id}/records/{annotation_queue_record_id}/annotate | Annotate a record
+*AnnotationQueuesApi* | [**annotation_queues_records_assign**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_records_assign) | **POST** /v2/annotation-queues/{annotation_queue_id}/records/{annotation_queue_record_id}/assign | Assign users to a record
 *AnnotationQueuesApi* | [**annotation_queues_records_create**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_records_create) | **POST** /v2/annotation-queues/{annotation_queue_id}/records | Create annotation queue records
 *AnnotationQueuesApi* | [**annotation_queues_records_delete**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_records_delete) | **DELETE** /v2/annotation-queues/{annotation_queue_id}/records | Delete annotation queue records
 *AnnotationQueuesApi* | [**annotation_queues_update**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_update) | **PATCH** /v2/annotation-queues/{annotation_queue_id} | Update an annotation queue
@@ -164,20 +166,24 @@ Class | Method | HTTP request | Description
  - [AiIntegrationsCreateRequest](arize/_generated/api_client/docs/AiIntegrationsCreateRequest.md)
  - [AiIntegrationsList200Response](arize/_generated/api_client/docs/AiIntegrationsList200Response.md)
  - [AiIntegrationsUpdateRequest](arize/_generated/api_client/docs/AiIntegrationsUpdateRequest.md)
+ - [AnnotateAnnotationQueueRecordRequestBody](arize/_generated/api_client/docs/AnnotateAnnotationQueueRecordRequestBody.md)
  - [Annotation](arize/_generated/api_client/docs/Annotation.md)
  - [AnnotationConfig](arize/_generated/api_client/docs/AnnotationConfig.md)
  - [AnnotationConfigBase](arize/_generated/api_client/docs/AnnotationConfigBase.md)
  - [AnnotationConfigCreateBase](arize/_generated/api_client/docs/AnnotationConfigCreateBase.md)
  - [AnnotationConfigsList200Response](arize/_generated/api_client/docs/AnnotationConfigsList200Response.md)
+ - [AnnotationInput](arize/_generated/api_client/docs/AnnotationInput.md)
  - [AnnotationQueue](arize/_generated/api_client/docs/AnnotationQueue.md)
  - [AnnotationQueueAssignedUser](arize/_generated/api_client/docs/AnnotationQueueAssignedUser.md)
  - [AnnotationQueueExampleRecordInput](arize/_generated/api_client/docs/AnnotationQueueExampleRecordInput.md)
  - [AnnotationQueueRecord](arize/_generated/api_client/docs/AnnotationQueueRecord.md)
+ - [AnnotationQueueRecordAnnotateResult](arize/_generated/api_client/docs/AnnotationQueueRecordAnnotateResult.md)
+ - [AnnotationQueueRecordAssignResult](arize/_generated/api_client/docs/AnnotationQueueRecordAssignResult.md)
  - [AnnotationQueueRecordInput](arize/_generated/api_client/docs/AnnotationQueueRecordInput.md)
  - [AnnotationQueueRecordsList200Response](arize/_generated/api_client/docs/AnnotationQueueRecordsList200Response.md)
  - [AnnotationQueueSpanRecordInput](arize/_generated/api_client/docs/AnnotationQueueSpanRecordInput.md)
  - [AnnotationQueuesList200Response](arize/_generated/api_client/docs/AnnotationQueuesList200Response.md)
- - [AnnotationQueuesRecordsCreate201Response](arize/_generated/api_client/docs/AnnotationQueuesRecordsCreate201Response.md)
+ - [AnnotationQueuesRecordsCreate200Response](arize/_generated/api_client/docs/AnnotationQueuesRecordsCreate200Response.md)
  - [AnnotatorUser](arize/_generated/api_client/docs/AnnotatorUser.md)
  - [ApiKey](arize/_generated/api_client/docs/ApiKey.md)
  - [ApiKeyCreate](arize/_generated/api_client/docs/ApiKeyCreate.md)
@@ -186,6 +192,7 @@ Class | Method | HTTP request | Description
  - [ApiKeyRoles](arize/_generated/api_client/docs/ApiKeyRoles.md)
  - [ApiKeyStatus](arize/_generated/api_client/docs/ApiKeyStatus.md)
  - [ApiKeysList200Response](arize/_generated/api_client/docs/ApiKeysList200Response.md)
+ - [AssignAnnotationQueueRecordRequestBody](arize/_generated/api_client/docs/AssignAnnotationQueueRecordRequestBody.md)
  - [AwsProviderMetadata](arize/_generated/api_client/docs/AwsProviderMetadata.md)
  - [CategoricalAnnotationConfig](arize/_generated/api_client/docs/CategoricalAnnotationConfig.md)
  - [CategoricalAnnotationConfigCreate](arize/_generated/api_client/docs/CategoricalAnnotationConfigCreate.md)

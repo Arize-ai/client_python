@@ -171,6 +171,7 @@ ignore = [
     "ANN401",  # Dynamically typed return
     "D101",   # Missing docstring in public class (test classes are self-describing)
     "D102",   # Missing docstring in public method (test names document behavior)
+    "D103",   # Missing docstring in public function (fixtures are named by convention)
     "D104",   # Missing docstring in public package
     "DTZ001", # Allow naive datetime usage in tests
     "S101",   # Allow assert statements in tests

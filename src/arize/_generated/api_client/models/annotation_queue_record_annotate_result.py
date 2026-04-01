@@ -17,18 +17,28 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, List
+from arize._generated.api_client.models.annotation import Annotation
 from typing import Optional, Set
 from typing_extensions import Self
 
-class User(BaseModel):
+class AnnotationQueueRecordAnnotateResult(BaseModel):
     """
-    A reference to a user by their ID and optionally their email address.
+    A snapshot of the annotation queue record fields that were modified by an annotate operation. Only the record identity fields and the submitted annotations are returned. Evaluations and user assignments are not fetched and are not included in this response for performance reasons; use the list records endpoint to retrieve the full record state.
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for the user")
-    email: Optional[StrictStr] = Field(default=None, description="An email address")
-    __properties: ClassVar[List[str]] = ["id", "email"]
+    id: StrictStr = Field(description="The unique identifier for the record")
+    annotation_queue_id: StrictStr = Field(description="The annotation queue this record belongs to")
+    source_type: StrictStr = Field(description="The source type of the record (spans or dataset)")
+    annotations: List[Annotation] = Field(description="The annotations that were submitted in this request")
+    __properties: ClassVar[List[str]] = ["id", "annotation_queue_id", "source_type", "annotations"]
+
+    @field_validator('source_type')
+    def source_type_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['spans', 'dataset']):
+            raise ValueError("must be one of enum values ('spans', 'dataset')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -48,7 +58,7 @@ class User(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of User from a JSON string"""
+        """Create an instance of AnnotationQueueRecordAnnotateResult from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -69,11 +79,18 @@ class User(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in annotations (list)
+        _items = []
+        if self.annotations:
+            for _item_annotations in self.annotations:
+                if _item_annotations:
+                    _items.append(_item_annotations.to_dict())
+            _dict['annotations'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of User from a dict"""
+        """Create an instance of AnnotationQueueRecordAnnotateResult from a dict"""
         if obj is None:
             return None
 
@@ -83,11 +100,13 @@ class User(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in User) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in AnnotationQueueRecordAnnotateResult) in the input: " + _key)
 
         _obj = cls.model_validate({
             "id": obj.get("id"),
-            "email": obj.get("email")
+            "annotation_queue_id": obj.get("annotation_queue_id"),
+            "source_type": obj.get("source_type"),
+            "annotations": [Annotation.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None
         })
         return _obj
 

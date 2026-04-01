@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.annotator_user import AnnotatorUser
+from arize._generated.api_client.models.annotation_input import AnnotationInput
 
-class TestAnnotatorUser(unittest.TestCase):
-    """AnnotatorUser unit test stubs"""
+class TestAnnotationInput(unittest.TestCase):
+    """AnnotationInput unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,28 +25,29 @@ class TestAnnotatorUser(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> AnnotatorUser:
-        """Test AnnotatorUser
+    def make_instance(self, include_optional) -> AnnotationInput:
+        """Test AnnotationInput
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `AnnotatorUser`
+        # uncomment below to create an instance of `AnnotationInput`
         """
-        model = AnnotatorUser()
+        model = AnnotationInput()
         if include_optional:
-            return AnnotatorUser(
-                id = '',
-                email = 'user@example.com'
+            return AnnotationInput(
+                name = 'accuracy',
+                score = 1.337,
+                label = '',
+                text = ''
             )
         else:
-            return AnnotatorUser(
-                id = '',
-                email = 'user@example.com',
+            return AnnotationInput(
+                name = 'accuracy',
         )
         """
 
-    def testAnnotatorUser(self):
-        """Test AnnotatorUser"""
+    def testAnnotationInput(self):
+        """Test AnnotationInput"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

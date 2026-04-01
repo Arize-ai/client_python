@@ -20,10 +20,14 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.add_annotation_queue_records_request_body import AddAnnotationQueueRecordsRequestBody
+from arize._generated.api_client.models.annotate_annotation_queue_record_request_body import AnnotateAnnotationQueueRecordRequestBody
 from arize._generated.api_client.models.annotation_queue import AnnotationQueue
+from arize._generated.api_client.models.annotation_queue_record_annotate_result import AnnotationQueueRecordAnnotateResult
+from arize._generated.api_client.models.annotation_queue_record_assign_result import AnnotationQueueRecordAssignResult
 from arize._generated.api_client.models.annotation_queue_records_list200_response import AnnotationQueueRecordsList200Response
 from arize._generated.api_client.models.annotation_queues_list200_response import AnnotationQueuesList200Response
-from arize._generated.api_client.models.annotation_queues_records_create201_response import AnnotationQueuesRecordsCreate201Response
+from arize._generated.api_client.models.annotation_queues_records_create200_response import AnnotationQueuesRecordsCreate200Response
+from arize._generated.api_client.models.assign_annotation_queue_record_request_body import AssignAnnotationQueueRecordRequestBody
 from arize._generated.api_client.models.create_annotation_queue_request_body import CreateAnnotationQueueRequestBody
 from arize._generated.api_client.models.delete_annotation_queue_records_request_body import DeleteAnnotationQueueRecordsRequestBody
 from arize._generated.api_client.models.update_annotation_queue_request_body import UpdateAnnotationQueueRequestBody
@@ -1548,6 +1552,646 @@ class AnnotationQueuesApi:
 
 
     @validate_call
+    def annotation_queues_records_annotate(
+        self,
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue record")],
+        annotate_annotation_queue_record_request_body: Annotated[AnnotateAnnotationQueueRecordRequestBody, Field(description="Body containing annotations to submit for an annotation queue record")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> AnnotationQueueRecordAnnotateResult:
+        """Annotate a record
+
+        Submit annotations for an annotation queue record.  Annotations are upserted into the underlying data source by annotation config name. Omitted annotation configs are left unchanged.  **Payload Requirements** - `annotations` must contain at least one entry. - There is no maximum limit on the number of annotations — you may submit one annotation per annotation config associated with the queue. - Each annotation `name` must match an annotation config associated with the queue. - Omit `label`, `score`, or `text` to leave the existing value unchanged. Individual fields cannot be set to null; annotations cannot be removed once written.  **Response** Returns a snapshot of the fields updated by this operation: the record identity and the submitted annotations only. Evaluations and user assignments are not included for performance reasons. Use the list records endpoint to retrieve the full record state.  **Valid example** ```json {   \"annotations\": [     {\"name\": \"accuracy\", \"label\": \"correct\", \"score\": 1.0},     {\"name\": \"quality\", \"text\": \"Well-structured response\"}   ] } ```  **Invalid example** (annotation name not in queue) ```json {   \"annotations\": [     {\"name\": \"unknown_config\", \"label\": \"good\"}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :type annotation_queue_id: str
+        :param annotation_queue_record_id: The unique identifier of the annotation queue record (required)
+        :type annotation_queue_record_id: str
+        :param annotate_annotation_queue_record_request_body: Body containing annotations to submit for an annotation queue record (required)
+        :type annotate_annotation_queue_record_request_body: AnnotateAnnotationQueueRecordRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._annotation_queues_records_annotate_serialize(
+            annotation_queue_id=annotation_queue_id,
+            annotation_queue_record_id=annotation_queue_record_id,
+            annotate_annotation_queue_record_request_body=annotate_annotation_queue_record_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AnnotationQueueRecordAnnotateResult",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def annotation_queues_records_annotate_with_http_info(
+        self,
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue record")],
+        annotate_annotation_queue_record_request_body: Annotated[AnnotateAnnotationQueueRecordRequestBody, Field(description="Body containing annotations to submit for an annotation queue record")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[AnnotationQueueRecordAnnotateResult]:
+        """Annotate a record
+
+        Submit annotations for an annotation queue record.  Annotations are upserted into the underlying data source by annotation config name. Omitted annotation configs are left unchanged.  **Payload Requirements** - `annotations` must contain at least one entry. - There is no maximum limit on the number of annotations — you may submit one annotation per annotation config associated with the queue. - Each annotation `name` must match an annotation config associated with the queue. - Omit `label`, `score`, or `text` to leave the existing value unchanged. Individual fields cannot be set to null; annotations cannot be removed once written.  **Response** Returns a snapshot of the fields updated by this operation: the record identity and the submitted annotations only. Evaluations and user assignments are not included for performance reasons. Use the list records endpoint to retrieve the full record state.  **Valid example** ```json {   \"annotations\": [     {\"name\": \"accuracy\", \"label\": \"correct\", \"score\": 1.0},     {\"name\": \"quality\", \"text\": \"Well-structured response\"}   ] } ```  **Invalid example** (annotation name not in queue) ```json {   \"annotations\": [     {\"name\": \"unknown_config\", \"label\": \"good\"}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :type annotation_queue_id: str
+        :param annotation_queue_record_id: The unique identifier of the annotation queue record (required)
+        :type annotation_queue_record_id: str
+        :param annotate_annotation_queue_record_request_body: Body containing annotations to submit for an annotation queue record (required)
+        :type annotate_annotation_queue_record_request_body: AnnotateAnnotationQueueRecordRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._annotation_queues_records_annotate_serialize(
+            annotation_queue_id=annotation_queue_id,
+            annotation_queue_record_id=annotation_queue_record_id,
+            annotate_annotation_queue_record_request_body=annotate_annotation_queue_record_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AnnotationQueueRecordAnnotateResult",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def annotation_queues_records_annotate_without_preload_content(
+        self,
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue record")],
+        annotate_annotation_queue_record_request_body: Annotated[AnnotateAnnotationQueueRecordRequestBody, Field(description="Body containing annotations to submit for an annotation queue record")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Annotate a record
+
+        Submit annotations for an annotation queue record.  Annotations are upserted into the underlying data source by annotation config name. Omitted annotation configs are left unchanged.  **Payload Requirements** - `annotations` must contain at least one entry. - There is no maximum limit on the number of annotations — you may submit one annotation per annotation config associated with the queue. - Each annotation `name` must match an annotation config associated with the queue. - Omit `label`, `score`, or `text` to leave the existing value unchanged. Individual fields cannot be set to null; annotations cannot be removed once written.  **Response** Returns a snapshot of the fields updated by this operation: the record identity and the submitted annotations only. Evaluations and user assignments are not included for performance reasons. Use the list records endpoint to retrieve the full record state.  **Valid example** ```json {   \"annotations\": [     {\"name\": \"accuracy\", \"label\": \"correct\", \"score\": 1.0},     {\"name\": \"quality\", \"text\": \"Well-structured response\"}   ] } ```  **Invalid example** (annotation name not in queue) ```json {   \"annotations\": [     {\"name\": \"unknown_config\", \"label\": \"good\"}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :type annotation_queue_id: str
+        :param annotation_queue_record_id: The unique identifier of the annotation queue record (required)
+        :type annotation_queue_record_id: str
+        :param annotate_annotation_queue_record_request_body: Body containing annotations to submit for an annotation queue record (required)
+        :type annotate_annotation_queue_record_request_body: AnnotateAnnotationQueueRecordRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._annotation_queues_records_annotate_serialize(
+            annotation_queue_id=annotation_queue_id,
+            annotation_queue_record_id=annotation_queue_record_id,
+            annotate_annotation_queue_record_request_body=annotate_annotation_queue_record_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AnnotationQueueRecordAnnotateResult",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _annotation_queues_records_annotate_serialize(
+        self,
+        annotation_queue_id,
+        annotation_queue_record_id,
+        annotate_annotation_queue_record_request_body,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if annotation_queue_id is not None:
+            _path_params['annotation_queue_id'] = annotation_queue_id
+        if annotation_queue_record_id is not None:
+            _path_params['annotation_queue_record_id'] = annotation_queue_record_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if annotate_annotation_queue_record_request_body is not None:
+            _body_params = annotate_annotation_queue_record_request_body
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/annotation-queues/{annotation_queue_id}/records/{annotation_queue_record_id}/annotate',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def annotation_queues_records_assign(
+        self,
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue record")],
+        assign_annotation_queue_record_request_body: Annotated[AssignAnnotationQueueRecordRequestBody, Field(description="Body containing the user assignment for an annotation queue record")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> AnnotationQueueRecordAssignResult:
+        """Assign users to a record
+
+        Assign users to an annotation queue record.  Fully replaces the current record-level user assignment. Re-assigning a user who has already completed their annotation resets their completion status to pending.  **Payload Requirements** - `assigned_user_emails` fully replaces the existing record-level user assignment. - Pass an empty array to remove all record-level assignments. - At most 100 emails may be provided per request. - All emails must resolve to existing users with access to the queue's space.  **Response** Returns a snapshot of the fields updated by this operation: the record identity and the resulting user assignments only. Annotations and evaluations are not included for performance reasons. Use the list records endpoint to retrieve the full record state.  **Valid example** ```json {   \"assigned_user_emails\": [\"reviewer@example.com\", \"annotator@example.com\"] } ```  **Invalid example** (email does not belong to the space) ```json {   \"assigned_user_emails\": [\"outsider@other.com\"] } ```  **Invalid example** (exceeds 100-email limit) ```json {   \"assigned_user_emails\": [\"user1@example.com\", \"user2@example.com\", \"...101 total emails\"] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :type annotation_queue_id: str
+        :param annotation_queue_record_id: The unique identifier of the annotation queue record (required)
+        :type annotation_queue_record_id: str
+        :param assign_annotation_queue_record_request_body: Body containing the user assignment for an annotation queue record (required)
+        :type assign_annotation_queue_record_request_body: AssignAnnotationQueueRecordRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._annotation_queues_records_assign_serialize(
+            annotation_queue_id=annotation_queue_id,
+            annotation_queue_record_id=annotation_queue_record_id,
+            assign_annotation_queue_record_request_body=assign_annotation_queue_record_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AnnotationQueueRecordAssignResult",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def annotation_queues_records_assign_with_http_info(
+        self,
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue record")],
+        assign_annotation_queue_record_request_body: Annotated[AssignAnnotationQueueRecordRequestBody, Field(description="Body containing the user assignment for an annotation queue record")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[AnnotationQueueRecordAssignResult]:
+        """Assign users to a record
+
+        Assign users to an annotation queue record.  Fully replaces the current record-level user assignment. Re-assigning a user who has already completed their annotation resets their completion status to pending.  **Payload Requirements** - `assigned_user_emails` fully replaces the existing record-level user assignment. - Pass an empty array to remove all record-level assignments. - At most 100 emails may be provided per request. - All emails must resolve to existing users with access to the queue's space.  **Response** Returns a snapshot of the fields updated by this operation: the record identity and the resulting user assignments only. Annotations and evaluations are not included for performance reasons. Use the list records endpoint to retrieve the full record state.  **Valid example** ```json {   \"assigned_user_emails\": [\"reviewer@example.com\", \"annotator@example.com\"] } ```  **Invalid example** (email does not belong to the space) ```json {   \"assigned_user_emails\": [\"outsider@other.com\"] } ```  **Invalid example** (exceeds 100-email limit) ```json {   \"assigned_user_emails\": [\"user1@example.com\", \"user2@example.com\", \"...101 total emails\"] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :type annotation_queue_id: str
+        :param annotation_queue_record_id: The unique identifier of the annotation queue record (required)
+        :type annotation_queue_record_id: str
+        :param assign_annotation_queue_record_request_body: Body containing the user assignment for an annotation queue record (required)
+        :type assign_annotation_queue_record_request_body: AssignAnnotationQueueRecordRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._annotation_queues_records_assign_serialize(
+            annotation_queue_id=annotation_queue_id,
+            annotation_queue_record_id=annotation_queue_record_id,
+            assign_annotation_queue_record_request_body=assign_annotation_queue_record_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AnnotationQueueRecordAssignResult",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def annotation_queues_records_assign_without_preload_content(
+        self,
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue record")],
+        assign_annotation_queue_record_request_body: Annotated[AssignAnnotationQueueRecordRequestBody, Field(description="Body containing the user assignment for an annotation queue record")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Assign users to a record
+
+        Assign users to an annotation queue record.  Fully replaces the current record-level user assignment. Re-assigning a user who has already completed their annotation resets their completion status to pending.  **Payload Requirements** - `assigned_user_emails` fully replaces the existing record-level user assignment. - Pass an empty array to remove all record-level assignments. - At most 100 emails may be provided per request. - All emails must resolve to existing users with access to the queue's space.  **Response** Returns a snapshot of the fields updated by this operation: the record identity and the resulting user assignments only. Annotations and evaluations are not included for performance reasons. Use the list records endpoint to retrieve the full record state.  **Valid example** ```json {   \"assigned_user_emails\": [\"reviewer@example.com\", \"annotator@example.com\"] } ```  **Invalid example** (email does not belong to the space) ```json {   \"assigned_user_emails\": [\"outsider@other.com\"] } ```  **Invalid example** (exceeds 100-email limit) ```json {   \"assigned_user_emails\": [\"user1@example.com\", \"user2@example.com\", \"...101 total emails\"] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :type annotation_queue_id: str
+        :param annotation_queue_record_id: The unique identifier of the annotation queue record (required)
+        :type annotation_queue_record_id: str
+        :param assign_annotation_queue_record_request_body: Body containing the user assignment for an annotation queue record (required)
+        :type assign_annotation_queue_record_request_body: AssignAnnotationQueueRecordRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._annotation_queues_records_assign_serialize(
+            annotation_queue_id=annotation_queue_id,
+            annotation_queue_record_id=annotation_queue_record_id,
+            assign_annotation_queue_record_request_body=assign_annotation_queue_record_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AnnotationQueueRecordAssignResult",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _annotation_queues_records_assign_serialize(
+        self,
+        annotation_queue_id,
+        annotation_queue_record_id,
+        assign_annotation_queue_record_request_body,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if annotation_queue_id is not None:
+            _path_params['annotation_queue_id'] = annotation_queue_id
+        if annotation_queue_record_id is not None:
+            _path_params['annotation_queue_record_id'] = annotation_queue_record_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if assign_annotation_queue_record_request_body is not None:
+            _body_params = assign_annotation_queue_record_request_body
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/annotation-queues/{annotation_queue_id}/records/{annotation_queue_record_id}/assign',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def annotation_queues_records_create(
         self,
         annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
@@ -1564,7 +2208,7 @@ class AnnotationQueuesApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AnnotationQueuesRecordsCreate201Response:
+    ) -> AnnotationQueuesRecordsCreate200Response:
         """Create annotation queue records
 
         Add new records from either spans (a project) or from dataset examples to an existing annotation queue.  **Payload Requirements**   - At least one record source is required.   - At most 2 record sources are allowed per request   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.   - For dataset record source: all `example_ids` must be non-empty strings.   - For spans record source: all `span_ids` must be non-empty strings.   - At most 500 records total may be added in one request  <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue.</Note>  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1605,7 +2249,8 @@ class AnnotationQueuesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "AnnotationQueuesRecordsCreate201Response",
+            '200': "AnnotationQueuesRecordsCreate200Response",
+            '201': "AnnotationQueuesRecordsCreate200Response",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1640,7 +2285,7 @@ class AnnotationQueuesApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AnnotationQueuesRecordsCreate201Response]:
+    ) -> ApiResponse[AnnotationQueuesRecordsCreate200Response]:
         """Create annotation queue records
 
         Add new records from either spans (a project) or from dataset examples to an existing annotation queue.  **Payload Requirements**   - At least one record source is required.   - At most 2 record sources are allowed per request   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.   - For dataset record source: all `example_ids` must be non-empty strings.   - For spans record source: all `span_ids` must be non-empty strings.   - At most 500 records total may be added in one request  <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue.</Note>  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1681,7 +2326,8 @@ class AnnotationQueuesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "AnnotationQueuesRecordsCreate201Response",
+            '200': "AnnotationQueuesRecordsCreate200Response",
+            '201': "AnnotationQueuesRecordsCreate200Response",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1757,7 +2403,8 @@ class AnnotationQueuesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "AnnotationQueuesRecordsCreate201Response",
+            '200': "AnnotationQueuesRecordsCreate200Response",
+            '201': "AnnotationQueuesRecordsCreate200Response",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

@@ -16,11 +16,14 @@ if TYPE_CHECKING:
         ExperimentsApi,
         ProjectsApi,
         PromptsApi,
+        RolesApi,
         SpacesApi,
         TasksApi,
     )
 
 logger = logging.getLogger(__name__)
+
+_LIST_PAGE_SIZE = 100
 
 
 class ResolutionError(Exception):
@@ -124,7 +127,7 @@ def _find_space_id(api: SpacesApi, space: str) -> str:
     while True:
         response = api.spaces_list(
             name=space,
-            limit=100,
+            limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
         for s in response.spaces:
@@ -180,7 +183,7 @@ def _find_project_id(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=project,
-            limit=100,
+            limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
         for p in response.projects:
@@ -235,7 +238,7 @@ def _find_dataset_id(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=dataset,
-            limit=100,
+            limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
         for d in response.datasets:
@@ -311,7 +314,7 @@ def _find_experiment_id(
     while True:
         response = api.experiments_list(
             dataset_id=dataset_id,
-            limit=100,
+            limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
         for e in response.experiments:
@@ -366,7 +369,7 @@ def _find_prompt_id(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=prompt,
-            limit=100,
+            limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
         for p in response.prompts:
@@ -421,7 +424,7 @@ def _find_evaluator_id(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=evaluator,
-            limit=100,
+            limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
         for ev in response.evaluators:
@@ -476,7 +479,7 @@ def _find_annotation_config_id(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=annotation_config,
-            limit=100,
+            limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
         for ac in response.annotation_configs:
@@ -538,7 +541,7 @@ def _find_ai_integration_id(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=integration,
-            limit=100,
+            limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
         for ai in response.ai_integrations:
@@ -595,7 +598,7 @@ def _find_task_id(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=task,
-            limit=100,
+            limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
         for t in response.tasks:
@@ -608,3 +611,36 @@ def _find_task_id(
             break
 
     raise ResolutionError("task", task, available)
+
+
+def _find_role_id(api: RolesApi, role: str) -> str:
+    """Resolve a role ID or name to a role ID.
+
+    Args:
+        api: RolesApi instance.
+        role: Role ID or name.
+
+    Returns:
+        The resolved role ID.
+
+    Raises:
+        ResolutionError: If the role name cannot be found.
+    """
+    if is_resource_id(role):
+        return role
+
+    available: list[str] = []
+    cursor: str | None = None
+
+    while True:
+        response = api.roles_list(limit=_LIST_PAGE_SIZE, cursor=cursor)
+        for r in response.roles:
+            if r.name == role:
+                logger.debug("Resolved role '%s' → %s", role, r.id)
+                return r.id
+            available.append(r.name)
+        cursor = getattr(response.pagination, "next_cursor", None)
+        if not cursor:
+            break
+
+    raise ResolutionError("role", role, available)

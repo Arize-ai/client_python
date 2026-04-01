@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.10.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.9.2...arize-python-sdk/v8.10.0) (2026-04-01)
+
+
+### 🎁 New Features
+
+* **roles:** support name_or_id in RolesClient.get() and .delete() ([#67391](https://github.com/Arize-ai/arize/issues/67391)) ([c9a89f1](https://github.com/Arize-ai/arize/commit/c9a89f15eeb863ac753356dbda3e5de8a6ea2af8))
+
 ## [8.9.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.9.1...arize-python-sdk/v8.9.2) (2026-03-30)
 
 

@@ -42,7 +42,7 @@ class TestAnnotation(unittest.TestCase):
                 updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 annotator = arize._generated.api_client.models.annotator_user.AnnotatorUser(
                     id = '', 
-                    email = '', )
+                    email = 'user@example.com', )
             )
         else:
             return Annotation(

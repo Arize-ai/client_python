@@ -45,7 +45,7 @@ class TestAnnotationQueue(unittest.TestCase):
                 annotators = [
                     arize._generated.api_client.models.annotator_user.AnnotatorUser(
                         id = '', 
-                        email = '', )
+                        email = 'user@example.com', )
                     ],
                 created_at = '2024-01-15T10:30Z',
                 updated_at = '2024-01-20T14:45Z'
@@ -58,7 +58,7 @@ class TestAnnotationQueue(unittest.TestCase):
                 annotators = [
                     arize._generated.api_client.models.annotator_user.AnnotatorUser(
                         id = '', 
-                        email = '', )
+                        email = 'user@example.com', )
                     ],
                 created_at = '2024-01-15T10:30Z',
                 updated_at = '2024-01-20T14:45Z',

@@ -27,7 +27,7 @@ class AnnotatorUser(BaseModel):
     A user assigned as an annotator, identified by ID and email.
     """ # noqa: E501
     id: StrictStr = Field(description="The unique identifier for the user")
-    email: StrictStr = Field(description="The email address of the user")
+    email: StrictStr = Field(description="An email address")
     __properties: ClassVar[List[str]] = ["id", "email"]
 
     model_config = ConfigDict(

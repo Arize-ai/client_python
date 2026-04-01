@@ -7,7 +7,7 @@ A user assigned as an annotator, identified by ID and email.
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | The unique identifier for the user | 
-**email** | **str** | The email address of the user | 
+**email** | **str** | An email address | 
 
 ## Example
 

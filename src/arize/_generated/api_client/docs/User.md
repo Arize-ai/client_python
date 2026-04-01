@@ -7,7 +7,7 @@ A reference to a user by their ID and optionally their email address.
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | The unique identifier for the user | 
-**email** | **str** | The email address of the user | [optional] 
+**email** | **str** | An email address | [optional] 
 
 ## Example
 

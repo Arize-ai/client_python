@@ -17,18 +17,18 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
-from arize._generated.api_client.models.annotation_queue_record import AnnotationQueueRecord
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class AnnotationQueuesRecordsCreate201Response(BaseModel):
+class AssignAnnotationQueueRecordRequestBody(BaseModel):
     """
-    AnnotationQueuesRecordsCreate201Response
+    User assignment for an annotation queue record. Fully replaces the current record-level user assignment. Pass an empty array to remove all assignments.
     """ # noqa: E501
-    record_sources: List[AnnotationQueueRecord] = Field(description="The created annotation queue records")
-    __properties: ClassVar[List[str]] = ["record_sources"]
+    assigned_user_emails: Annotated[List[StrictStr], Field(max_length=100)] = Field(description="Emails of users to assign to this record. Replaces the current record-level user assignment entirely. At most 100 emails may be provided per request.")
+    __properties: ClassVar[List[str]] = ["assigned_user_emails"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -48,7 +48,7 @@ class AnnotationQueuesRecordsCreate201Response(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of AnnotationQueuesRecordsCreate201Response from a JSON string"""
+        """Create an instance of AssignAnnotationQueueRecordRequestBody from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -69,18 +69,11 @@ class AnnotationQueuesRecordsCreate201Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in record_sources (list)
-        _items = []
-        if self.record_sources:
-            for _item_record_sources in self.record_sources:
-                if _item_record_sources:
-                    _items.append(_item_record_sources.to_dict())
-            _dict['record_sources'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of AnnotationQueuesRecordsCreate201Response from a dict"""
+        """Create an instance of AssignAnnotationQueueRecordRequestBody from a dict"""
         if obj is None:
             return None
 
@@ -90,10 +83,10 @@ class AnnotationQueuesRecordsCreate201Response(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in AnnotationQueuesRecordsCreate201Response) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in AssignAnnotationQueueRecordRequestBody) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "record_sources": [AnnotationQueueRecord.from_dict(_item) for _item in obj["record_sources"]] if obj.get("record_sources") is not None else None
+            "assigned_user_emails": obj.get("assigned_user_emails")
         })
         return _obj
 

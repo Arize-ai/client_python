@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.annotation_queues_records_create201_response import AnnotationQueuesRecordsCreate201Response
+from arize._generated.api_client.models.annotation_queues_records_create200_response import AnnotationQueuesRecordsCreate200Response
 
-class TestAnnotationQueuesRecordsCreate201Response(unittest.TestCase):
-    """AnnotationQueuesRecordsCreate201Response unit test stubs"""
+class TestAnnotationQueuesRecordsCreate200Response(unittest.TestCase):
+    """AnnotationQueuesRecordsCreate200Response unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,16 +25,16 @@ class TestAnnotationQueuesRecordsCreate201Response(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> AnnotationQueuesRecordsCreate201Response:
-        """Test AnnotationQueuesRecordsCreate201Response
+    def make_instance(self, include_optional) -> AnnotationQueuesRecordsCreate200Response:
+        """Test AnnotationQueuesRecordsCreate200Response
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `AnnotationQueuesRecordsCreate201Response`
+        # uncomment below to create an instance of `AnnotationQueuesRecordsCreate200Response`
         """
-        model = AnnotationQueuesRecordsCreate201Response()
+        model = AnnotationQueuesRecordsCreate200Response()
         if include_optional:
-            return AnnotationQueuesRecordsCreate201Response(
+            return AnnotationQueuesRecordsCreate200Response(
                 record_sources = [
                     arize._generated.api_client.models.annotation_queue_record.AnnotationQueueRecord(
                         id = '', 
@@ -61,13 +61,13 @@ class TestAnnotationQueuesRecordsCreate201Response(unittest.TestCase):
                             arize._generated.api_client.models.annotation_queue_assigned_user.AnnotationQueueAssignedUser(
                                 user = arize._generated.api_client.models.annotator_user.AnnotatorUser(
                                     id = '', 
-                                    email = '', ), 
+                                    email = 'user@example.com', ), 
                                 completion_status = 'pending', )
                             ], )
                     ]
             )
         else:
-            return AnnotationQueuesRecordsCreate201Response(
+            return AnnotationQueuesRecordsCreate200Response(
                 record_sources = [
                     arize._generated.api_client.models.annotation_queue_record.AnnotationQueueRecord(
                         id = '', 
@@ -94,15 +94,15 @@ class TestAnnotationQueuesRecordsCreate201Response(unittest.TestCase):
                             arize._generated.api_client.models.annotation_queue_assigned_user.AnnotationQueueAssignedUser(
                                 user = arize._generated.api_client.models.annotator_user.AnnotatorUser(
                                     id = '', 
-                                    email = '', ), 
+                                    email = 'user@example.com', ), 
                                 completion_status = 'pending', )
                             ], )
                     ],
         )
         """
 
-    def testAnnotationQueuesRecordsCreate201Response(self):
-        """Test AnnotationQueuesRecordsCreate201Response"""
+    def testAnnotationQueuesRecordsCreate200Response(self):
+        """Test AnnotationQueuesRecordsCreate200Response"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

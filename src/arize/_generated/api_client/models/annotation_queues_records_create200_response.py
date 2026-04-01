@@ -17,18 +17,18 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Any, ClassVar, Dict, List
+from arize._generated.api_client.models.annotation_queue_record import AnnotationQueueRecord
 from typing import Optional, Set
 from typing_extensions import Self
 
-class User(BaseModel):
+class AnnotationQueuesRecordsCreate200Response(BaseModel):
     """
-    A reference to a user by their ID and optionally their email address.
+    AnnotationQueuesRecordsCreate200Response
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for the user")
-    email: Optional[StrictStr] = Field(default=None, description="An email address")
-    __properties: ClassVar[List[str]] = ["id", "email"]
+    record_sources: List[AnnotationQueueRecord] = Field(description="The created annotation queue records")
+    __properties: ClassVar[List[str]] = ["record_sources"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -48,7 +48,7 @@ class User(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of User from a JSON string"""
+        """Create an instance of AnnotationQueuesRecordsCreate200Response from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -69,11 +69,18 @@ class User(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in record_sources (list)
+        _items = []
+        if self.record_sources:
+            for _item_record_sources in self.record_sources:
+                if _item_record_sources:
+                    _items.append(_item_record_sources.to_dict())
+            _dict['record_sources'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of User from a dict"""
+        """Create an instance of AnnotationQueuesRecordsCreate200Response from a dict"""
         if obj is None:
             return None
 
@@ -83,11 +90,10 @@ class User(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in User) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in AnnotationQueuesRecordsCreate200Response) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "id": obj.get("id"),
-            "email": obj.get("email")
+            "record_sources": [AnnotationQueueRecord.from_dict(_item) for _item in obj["record_sources"]] if obj.get("record_sources") is not None else None
         })
         return _obj
 

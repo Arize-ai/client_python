@@ -36,7 +36,7 @@ class TestUser(unittest.TestCase):
         if include_optional:
             return User(
                 id = '',
-                email = ''
+                email = 'user@example.com'
             )
         else:
             return User(

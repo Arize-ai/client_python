@@ -50,20 +50,24 @@ __all__ = [
     "AiIntegrationsCreateRequest",
     "AiIntegrationsList200Response",
     "AiIntegrationsUpdateRequest",
+    "AnnotateAnnotationQueueRecordRequestBody",
     "Annotation",
     "AnnotationConfig",
     "AnnotationConfigBase",
     "AnnotationConfigCreateBase",
     "AnnotationConfigsList200Response",
+    "AnnotationInput",
     "AnnotationQueue",
     "AnnotationQueueAssignedUser",
     "AnnotationQueueExampleRecordInput",
     "AnnotationQueueRecord",
+    "AnnotationQueueRecordAnnotateResult",
+    "AnnotationQueueRecordAssignResult",
     "AnnotationQueueRecordInput",
     "AnnotationQueueRecordsList200Response",
     "AnnotationQueueSpanRecordInput",
     "AnnotationQueuesList200Response",
-    "AnnotationQueuesRecordsCreate201Response",
+    "AnnotationQueuesRecordsCreate200Response",
     "AnnotatorUser",
     "ApiKey",
     "ApiKeyCreate",
@@ -72,6 +76,7 @@ __all__ = [
     "ApiKeyRoles",
     "ApiKeyStatus",
     "ApiKeysList200Response",
+    "AssignAnnotationQueueRecordRequestBody",
     "AwsProviderMetadata",
     "CategoricalAnnotationConfig",
     "CategoricalAnnotationConfigCreate",
@@ -214,20 +219,24 @@ from arize._generated.api_client.models.ai_integration_scoping import AiIntegrat
 from arize._generated.api_client.models.ai_integrations_create_request import AiIntegrationsCreateRequest as AiIntegrationsCreateRequest
 from arize._generated.api_client.models.ai_integrations_list200_response import AiIntegrationsList200Response as AiIntegrationsList200Response
 from arize._generated.api_client.models.ai_integrations_update_request import AiIntegrationsUpdateRequest as AiIntegrationsUpdateRequest
+from arize._generated.api_client.models.annotate_annotation_queue_record_request_body import AnnotateAnnotationQueueRecordRequestBody as AnnotateAnnotationQueueRecordRequestBody
 from arize._generated.api_client.models.annotation import Annotation as Annotation
 from arize._generated.api_client.models.annotation_config import AnnotationConfig as AnnotationConfig
 from arize._generated.api_client.models.annotation_config_base import AnnotationConfigBase as AnnotationConfigBase
 from arize._generated.api_client.models.annotation_config_create_base import AnnotationConfigCreateBase as AnnotationConfigCreateBase
 from arize._generated.api_client.models.annotation_configs_list200_response import AnnotationConfigsList200Response as AnnotationConfigsList200Response
+from arize._generated.api_client.models.annotation_input import AnnotationInput as AnnotationInput
 from arize._generated.api_client.models.annotation_queue import AnnotationQueue as AnnotationQueue
 from arize._generated.api_client.models.annotation_queue_assigned_user import AnnotationQueueAssignedUser as AnnotationQueueAssignedUser
 from arize._generated.api_client.models.annotation_queue_example_record_input import AnnotationQueueExampleRecordInput as AnnotationQueueExampleRecordInput
 from arize._generated.api_client.models.annotation_queue_record import AnnotationQueueRecord as AnnotationQueueRecord
+from arize._generated.api_client.models.annotation_queue_record_annotate_result import AnnotationQueueRecordAnnotateResult as AnnotationQueueRecordAnnotateResult
+from arize._generated.api_client.models.annotation_queue_record_assign_result import AnnotationQueueRecordAssignResult as AnnotationQueueRecordAssignResult
 from arize._generated.api_client.models.annotation_queue_record_input import AnnotationQueueRecordInput as AnnotationQueueRecordInput
 from arize._generated.api_client.models.annotation_queue_records_list200_response import AnnotationQueueRecordsList200Response as AnnotationQueueRecordsList200Response
 from arize._generated.api_client.models.annotation_queue_span_record_input import AnnotationQueueSpanRecordInput as AnnotationQueueSpanRecordInput
 from arize._generated.api_client.models.annotation_queues_list200_response import AnnotationQueuesList200Response as AnnotationQueuesList200Response
-from arize._generated.api_client.models.annotation_queues_records_create201_response import AnnotationQueuesRecordsCreate201Response as AnnotationQueuesRecordsCreate201Response
+from arize._generated.api_client.models.annotation_queues_records_create200_response import AnnotationQueuesRecordsCreate200Response as AnnotationQueuesRecordsCreate200Response
 from arize._generated.api_client.models.annotator_user import AnnotatorUser as AnnotatorUser
 from arize._generated.api_client.models.api_key import ApiKey as ApiKey
 from arize._generated.api_client.models.api_key_create import ApiKeyCreate as ApiKeyCreate
@@ -236,6 +245,7 @@ from arize._generated.api_client.models.api_key_refresh import ApiKeyRefresh as 
 from arize._generated.api_client.models.api_key_roles import ApiKeyRoles as ApiKeyRoles
 from arize._generated.api_client.models.api_key_status import ApiKeyStatus as ApiKeyStatus
 from arize._generated.api_client.models.api_keys_list200_response import ApiKeysList200Response as ApiKeysList200Response
+from arize._generated.api_client.models.assign_annotation_queue_record_request_body import AssignAnnotationQueueRecordRequestBody as AssignAnnotationQueueRecordRequestBody
 from arize._generated.api_client.models.aws_provider_metadata import AwsProviderMetadata as AwsProviderMetadata
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig as CategoricalAnnotationConfig
 from arize._generated.api_client.models.categorical_annotation_config_create import CategoricalAnnotationConfigCreate as CategoricalAnnotationConfigCreate

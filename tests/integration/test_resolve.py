@@ -29,6 +29,7 @@ from arize.utils.resolve import (
     _find_experiment_id,
     _find_project_id,
     _find_prompt_id,
+    _find_role_id,
     _find_space_id,
     _find_task_id,
     _resolve_resource,
@@ -546,3 +547,45 @@ class TestFindAiIntegrationId:
             ai_integrations_api, ai_integration_info["id"], None
         )
         assert result == ai_integration_info["id"]
+
+
+# ---------------------------------------------------------------------------
+# _find_role_id
+# ---------------------------------------------------------------------------
+class TestFindRoleId:
+    """Tests for _find_role_id."""
+
+    @pytest.fixture(scope="class")
+    def roles_api(self, generated_client) -> Any:
+        from arize._generated import api_client as gen
+
+        return gen.RolesApi(generated_client)
+
+    @pytest.fixture(scope="class")
+    def role_info(self, generated_client) -> dict[str, Any]:
+        """Fetch a real role (any type) from the account."""
+        from arize._generated import api_client as gen
+
+        api = gen.RolesApi(generated_client)
+        resp = api.roles_list(limit=1)
+        if not resp.roles:
+            pytest.skip("No roles in account")
+        r = resp.roles[0]
+        return {"id": r.id, "name": r.name}
+
+    def test_resolve_by_name(
+        self, roles_api, role_info: dict[str, Any]
+    ) -> None:
+        """Resolves a role name to its ID."""
+        result = _find_role_id(roles_api, role_info["name"])
+        assert result == role_info["id"]
+
+    def test_id_passthrough(self, roles_api, role_info: dict[str, Any]) -> None:
+        """A base64 ID is returned as-is without calling roles_list."""
+        result = _find_role_id(roles_api, role_info["id"])
+        assert result == role_info["id"]
+
+    def test_not_found_raises(self, roles_api) -> None:
+        """Raises ResolutionError for an unknown role name."""
+        with pytest.raises(ResolutionError, match="role"):
+            _find_role_id(roles_api, "nonexistent-role-abc-xyz-12345")
