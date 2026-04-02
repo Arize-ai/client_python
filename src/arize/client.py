@@ -13,6 +13,7 @@ from arize.config import SDKConfiguration
 if TYPE_CHECKING:
     from arize.ai_integrations.client import AiIntegrationsClient
     from arize.annotation_configs.client import AnnotationConfigsClient
+    from arize.annotation_queues.client import AnnotationQueuesClient
     from arize.api_keys.client import ApiKeysClient
     from arize.datasets.client import DatasetsClient
     from arize.evaluators.client import EvaluatorsClient
@@ -102,6 +103,10 @@ class ArizeClient(LazySubclientsMixin):
             "arize.annotation_configs.client",
             "AnnotationConfigsClient",
         ),
+        "annotation_queues": (
+            "arize.annotation_queues.client",
+            "AnnotationQueuesClient",
+        ),
         "spaces": (
             "arize.spaces.client",
             "SpacesClient",
@@ -160,6 +165,7 @@ class ArizeClient(LazySubclientsMixin):
         single_host: str | None = None,
         single_port: int | None = None,
         base_domain: str | None = None,
+        max_past_years: int | None = None,
     ) -> None:
         """Initialize the Arize client with configuration parameters.
 
@@ -229,6 +235,10 @@ class ArizeClient(LazySubclientsMixin):
                 When specified, overrides individual hosts.
                 ENV: ARIZE_BASE_DOMAIN.
                 Default: None.
+            max_past_years: Maximum number of years in the past allowed for prediction timestamps.
+                For on-prem deployments with custom retention policies, this can be increased.
+                ENV: ARIZE_MAX_PAST_YEARS.
+                Default: 5.
 
         Raises:
             MissingAPIKeyError: If api_key is not provided via argument or environment variable.
@@ -279,6 +289,8 @@ class ArizeClient(LazySubclientsMixin):
             cfg_kwargs["single_port"] = single_port
         if base_domain is not None:
             cfg_kwargs["base_domain"] = base_domain
+        if max_past_years is not None:
+            cfg_kwargs["max_past_years"] = max_past_years
 
         # Only the explicitly provided fields are passed; the rest use
         # SDKConfiguration's default factories / defaults.
@@ -321,6 +333,14 @@ class ArizeClient(LazySubclientsMixin):
         return cast(
             "AnnotationConfigsClient",
             self.__getattr__("annotation_configs"),
+        )
+
+    @property
+    def annotation_queues(self) -> AnnotationQueuesClient:
+        """Access the annotation queues client for queue and record operations."""
+        return cast(
+            "AnnotationQueuesClient",
+            self.__getattr__("annotation_queues"),
         )
 
     @property

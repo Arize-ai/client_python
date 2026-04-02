@@ -17,10 +17,11 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.annotation_queue_record_input import AnnotationQueueRecordInput
+from arize._generated.api_client.models.assignment_method import AssignmentMethod
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -33,19 +34,9 @@ class CreateAnnotationQueueRequestBody(BaseModel):
     instructions: Optional[Annotated[str, Field(strict=True, max_length=5000)]] = Field(default=None, description="Instructions for annotators working on this queue")
     annotation_config_ids: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="IDs of annotation configs to associate with this queue. All configs must belong to the same space.")
     annotator_emails: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="Email addresses of annotators to assign to the queue. Emails are resolved to user IDs server-side.")
-    assignment_method: Optional[StrictStr] = Field(default='all', description="How records are assigned to annotators. Defaults to \"all\". - `all`: Every annotator is assigned to every record. - `random`: Each record is randomly assigned to one annotator. ")
+    assignment_method: Optional[AssignmentMethod] = AssignmentMethod.ALL
     record_sources: Optional[Annotated[List[AnnotationQueueRecordInput], Field(max_length=2)]] = Field(default=None, description="Record sources to add to the annotation queue on creation. At most 2 record sources (projects or datasets) may be provided in a single create request. Additional records from other sources can be added after creation.")
     __properties: ClassVar[List[str]] = ["name", "space_id", "instructions", "annotation_config_ids", "annotator_emails", "assignment_method", "record_sources"]
-
-    @field_validator('assignment_method')
-    def assignment_method_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['all', 'random']):
-            raise ValueError("must be one of enum values ('all', 'random')")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -115,7 +106,7 @@ class CreateAnnotationQueueRequestBody(BaseModel):
             "instructions": obj.get("instructions"),
             "annotation_config_ids": obj.get("annotation_config_ids"),
             "annotator_emails": obj.get("annotator_emails"),
-            "assignment_method": obj.get("assignment_method") if obj.get("assignment_method") is not None else 'all',
+            "assignment_method": obj.get("assignment_method") if obj.get("assignment_method") is not None else AssignmentMethod.ALL,
             "record_sources": [AnnotationQueueRecordInput.from_dict(_item) for _item in obj["record_sources"]] if obj.get("record_sources") is not None else None
         })
         return _obj

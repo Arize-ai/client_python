@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from arize.utils.resolve import (
-    ResolutionError,
+    NotFoundError,
     _find_ai_integration_id,
     _find_annotation_config_id,
     _find_dataset_id,
@@ -45,30 +45,30 @@ def _item(name: str, id: str = "some-id") -> MagicMock:
 
 
 # ---------------------------------------------------------------------------
-# ResolutionError
+# NotFoundError
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.unit
-class TestResolutionError:
+class TestNotFoundError:
     def test_message_without_available_or_hint(self) -> None:
-        err = ResolutionError("space", "my-space")
+        err = NotFoundError("space", "my-space")
         assert "space 'my-space' not found" in str(err)
         assert err.resource_type == "space"
         assert err.resource_name == "my-space"
         assert err.available_names == []
 
     def test_message_with_available_names(self) -> None:
-        err = ResolutionError("space", "x", available_names=["a", "b"])
+        err = NotFoundError("space", "x", available_names=["a", "b"])
         assert "Available spaces: a, b" in str(err)
         assert err.available_names == ["a", "b"]
 
     def test_message_with_hint(self) -> None:
-        err = ResolutionError("project", "x", hint="Try providing a space.")
+        err = NotFoundError("project", "x", hint="Try providing a space.")
         assert "Try providing a space." in str(err)
 
     def test_empty_available_names_not_shown(self) -> None:
-        err = ResolutionError("space", "x", available_names=[])
+        err = NotFoundError("space", "x", available_names=[])
         assert "Available" not in str(err)
 
 
@@ -145,7 +145,7 @@ class TestFindSpaceId:
         resp.spaces = [_item("other-space", "other-id")]
         mock_api = MagicMock()
         mock_api.spaces_list.return_value = resp
-        with pytest.raises(ResolutionError, match="space"):
+        with pytest.raises(NotFoundError, match="space"):
             _find_space_id(mock_api, "my-space")
 
     def test_pagination_fetches_next_page(self) -> None:
@@ -171,7 +171,7 @@ class TestFindProjectId:
         assert _find_project_id(MagicMock(), B64_ID, None) == B64_ID
 
     def test_no_space_raises(self) -> None:
-        with pytest.raises(ResolutionError, match="project"):
+        with pytest.raises(NotFoundError, match="project"):
             _find_project_id(MagicMock(), "my-project", None)
 
     def test_name_resolved_with_space_id(self) -> None:
@@ -195,7 +195,7 @@ class TestFindProjectId:
         resp.projects = [_item("other-project")]
         mock_api = MagicMock()
         mock_api.projects_list.return_value = resp
-        with pytest.raises(ResolutionError, match="project"):
+        with pytest.raises(NotFoundError, match="project"):
             _find_project_id(mock_api, "missing", B64_ID)
 
     def test_pagination(self) -> None:
@@ -219,7 +219,7 @@ class TestFindDatasetId:
         assert _find_dataset_id(MagicMock(), B64_ID, None) == B64_ID
 
     def test_no_space_raises(self) -> None:
-        with pytest.raises(ResolutionError, match="dataset"):
+        with pytest.raises(NotFoundError, match="dataset"):
             _find_dataset_id(MagicMock(), "my-dataset", None)
 
     def test_name_resolved(self) -> None:
@@ -235,7 +235,7 @@ class TestFindDatasetId:
         resp.datasets = [_item("other-dataset")]
         mock_api = MagicMock()
         mock_api.datasets_list.return_value = resp
-        with pytest.raises(ResolutionError, match="dataset"):
+        with pytest.raises(NotFoundError, match="dataset"):
             _find_dataset_id(mock_api, "missing", B64_ID)
 
     def test_pagination(self) -> None:
@@ -262,7 +262,7 @@ class TestFindExperimentId:
         )
 
     def test_no_dataset_id_raises(self) -> None:
-        with pytest.raises(ResolutionError, match="experiment"):
+        with pytest.raises(NotFoundError, match="experiment"):
             _find_experiment_id(
                 MagicMock(), MagicMock(), "my-experiment", None, None
             )
@@ -283,7 +283,7 @@ class TestFindExperimentId:
         resp.experiments = [_item("other-experiment")]
         mock_api = MagicMock()
         mock_api.experiments_list.return_value = resp
-        with pytest.raises(ResolutionError, match="experiment"):
+        with pytest.raises(NotFoundError, match="experiment"):
             _find_experiment_id(mock_api, MagicMock(), "missing", B64_ID, None)
 
     def test_pagination(self) -> None:
@@ -310,7 +310,7 @@ class TestFindPromptId:
         assert _find_prompt_id(MagicMock(), B64_ID, None) == B64_ID
 
     def test_no_space_raises(self) -> None:
-        with pytest.raises(ResolutionError, match="prompt"):
+        with pytest.raises(NotFoundError, match="prompt"):
             _find_prompt_id(MagicMock(), "my-prompt", None)
 
     def test_name_resolved(self) -> None:
@@ -326,7 +326,7 @@ class TestFindPromptId:
         resp.prompts = [_item("other-prompt")]
         mock_api = MagicMock()
         mock_api.prompts_list.return_value = resp
-        with pytest.raises(ResolutionError, match="prompt"):
+        with pytest.raises(NotFoundError, match="prompt"):
             _find_prompt_id(mock_api, "missing", B64_ID)
 
     def test_pagination(self) -> None:
@@ -350,7 +350,7 @@ class TestFindEvaluatorId:
         assert _find_evaluator_id(MagicMock(), B64_ID, None) == B64_ID
 
     def test_no_space_raises(self) -> None:
-        with pytest.raises(ResolutionError, match="evaluator"):
+        with pytest.raises(NotFoundError, match="evaluator"):
             _find_evaluator_id(MagicMock(), "my-evaluator", None)
 
     def test_name_resolved(self) -> None:
@@ -366,7 +366,7 @@ class TestFindEvaluatorId:
         resp.evaluators = [_item("other-evaluator")]
         mock_api = MagicMock()
         mock_api.evaluators_list.return_value = resp
-        with pytest.raises(ResolutionError, match="evaluator"):
+        with pytest.raises(NotFoundError, match="evaluator"):
             _find_evaluator_id(mock_api, "missing", B64_ID)
 
     def test_pagination(self) -> None:
@@ -390,7 +390,7 @@ class TestFindAnnotationConfigId:
         assert _find_annotation_config_id(MagicMock(), B64_ID, None) == B64_ID
 
     def test_no_space_raises(self) -> None:
-        with pytest.raises(ResolutionError, match="annotation config"):
+        with pytest.raises(NotFoundError, match="annotation config"):
             _find_annotation_config_id(MagicMock(), "my-config", None)
 
     def test_name_resolved(self) -> None:
@@ -433,7 +433,7 @@ class TestFindAnnotationConfigId:
         resp.annotation_configs = [ac]
         mock_api = MagicMock()
         mock_api.annotation_configs_list.return_value = resp
-        with pytest.raises(ResolutionError, match="annotation config"):
+        with pytest.raises(NotFoundError, match="annotation config"):
             _find_annotation_config_id(mock_api, "missing", B64_ID)
 
     def test_pagination(self) -> None:
@@ -469,7 +469,7 @@ class TestFindAiIntegrationId:
         assert _find_ai_integration_id(MagicMock(), B64_ID, None) == B64_ID
 
     def test_no_space_raises(self) -> None:
-        with pytest.raises(ResolutionError, match="AI integration"):
+        with pytest.raises(NotFoundError, match="AI integration"):
             _find_ai_integration_id(MagicMock(), "my-integration", None)
 
     def test_name_resolved(self) -> None:
@@ -485,7 +485,7 @@ class TestFindAiIntegrationId:
         resp.ai_integrations = [_item("other-integration")]
         mock_api = MagicMock()
         mock_api.ai_integrations_list.return_value = resp
-        with pytest.raises(ResolutionError, match="AI integration"):
+        with pytest.raises(NotFoundError, match="AI integration"):
             _find_ai_integration_id(mock_api, "missing", B64_ID)
 
     def test_pagination(self) -> None:
@@ -512,7 +512,7 @@ class TestFindTaskId:
         assert _find_task_id(MagicMock(), B64_ID, None) == B64_ID
 
     def test_no_space_raises(self) -> None:
-        with pytest.raises(ResolutionError, match="task"):
+        with pytest.raises(NotFoundError, match="task"):
             _find_task_id(MagicMock(), "my-task", None)
 
     def test_name_resolved(self) -> None:
@@ -528,7 +528,7 @@ class TestFindTaskId:
         resp.tasks = [_item("other-task")]
         mock_api = MagicMock()
         mock_api.tasks_list.return_value = resp
-        with pytest.raises(ResolutionError, match="task"):
+        with pytest.raises(NotFoundError, match="task"):
             _find_task_id(mock_api, "missing", B64_ID)
 
     def test_pagination(self) -> None:

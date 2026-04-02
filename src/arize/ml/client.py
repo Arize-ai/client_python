@@ -756,6 +756,7 @@ class MLModelsClient:
                 environment=environment,
                 schema=schema,
                 model_type=model_type,
+                max_past_years=self._sdk_config.max_past_years,
             )
             if errors:
                 for error in errors:

@@ -156,15 +156,15 @@ class TestRolesClientGet:
     def test_get_with_name_not_found_raises(
         self, roles_client: RolesClient, mock_api: Mock
     ) -> None:
-        """get() should raise ResolutionError when the role name is not found."""
-        from arize.utils.resolve import ResolutionError
+        """get() should raise NotFoundError when the role name is not found."""
+        from arize.utils.resolve import NotFoundError
 
         mock_api.roles_list.return_value = Mock(
             roles=[],
             pagination=Mock(next_cursor=None),
         )
 
-        with pytest.raises(ResolutionError, match="role"):
+        with pytest.raises(NotFoundError, match="role"):
             roles_client.get(role="nonexistent-role")
 
     def test_get_returns_api_response(
@@ -367,15 +367,15 @@ class TestRolesClientDelete:
     def test_delete_with_name_not_found_raises(
         self, roles_client: RolesClient, mock_api: Mock
     ) -> None:
-        """delete() should raise ResolutionError when the role name is not found."""
-        from arize.utils.resolve import ResolutionError
+        """delete() should raise NotFoundError when the role name is not found."""
+        from arize.utils.resolve import NotFoundError
 
         mock_api.roles_list.return_value = Mock(
             roles=[],
             pagination=Mock(next_cursor=None),
         )
 
-        with pytest.raises(ResolutionError, match="role"):
+        with pytest.raises(NotFoundError, match="role"):
             roles_client.delete(role="nonexistent-role")
 
     def test_delete_returns_none(

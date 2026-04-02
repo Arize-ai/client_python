@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from arize._generated.api_client import (
         AIIntegrationsApi,
         AnnotationConfigsApi,
+        AnnotationQueuesApi,
         DatasetsApi,
         EvaluatorsApi,
         ExperimentsApi,
@@ -26,8 +27,8 @@ logger = logging.getLogger(__name__)
 _LIST_PAGE_SIZE = 100
 
 
-class ResolutionError(Exception):
-    """Raised when a resource name cannot be resolved to an ID."""
+class NotFoundError(Exception):
+    """Raised when a resource cannot be found by the given ID or name."""
 
     def __init__(  # noqa:D107
         self,
@@ -116,7 +117,7 @@ def _find_space_id(api: SpacesApi, space: str) -> str:
         The resolved space ID.
 
     Raises:
-        ResolutionError: If the space name cannot be found.
+        NotFoundError: If the space name cannot be found.
     """
     if is_resource_id(space):
         return space
@@ -139,7 +140,7 @@ def _find_space_id(api: SpacesApi, space: str) -> str:
         if not cursor:
             break
 
-    raise ResolutionError("space", space, available)
+    raise NotFoundError("space", space, available)
 
 
 def _find_project_id(
@@ -158,7 +159,7 @@ def _find_project_id(
         The resolved project ID.
 
     Raises:
-        ResolutionError: If the project name cannot be found or *space* is not
+        NotFoundError: If the project name cannot be found or *space* is not
             provided when needed.
     """
     if is_resource_id(project):
@@ -166,7 +167,7 @@ def _find_project_id(
 
     resolved_space = _resolve_resource(space)
     if not resolved_space.is_set():
-        raise ResolutionError(
+        raise NotFoundError(
             "project",
             project,
             hint=(
@@ -195,7 +196,7 @@ def _find_project_id(
         if not cursor:
             break
 
-    raise ResolutionError("project", project, available)
+    raise NotFoundError("project", project, available)
 
 
 def _find_dataset_id(
@@ -214,14 +215,14 @@ def _find_dataset_id(
         The resolved dataset ID.
 
     Raises:
-        ResolutionError: If the dataset name cannot be found.
+        NotFoundError: If the dataset name cannot be found.
     """
     if is_resource_id(dataset):
         return dataset
 
     resolved_space = _resolve_resource(space)
     if not resolved_space.is_set():
-        raise ResolutionError(
+        raise NotFoundError(
             "dataset",
             dataset,
             hint=(
@@ -250,7 +251,7 @@ def _find_dataset_id(
         if not cursor:
             break
 
-    raise ResolutionError("dataset", dataset, available)
+    raise NotFoundError("dataset", dataset, available)
 
 
 def _find_experiment_id(
@@ -273,7 +274,7 @@ def _find_experiment_id(
         The resolved experiment ID.
 
     Raises:
-        ResolutionError: If the experiment name cannot be found.
+        NotFoundError: If the experiment name cannot be found.
     """
     if is_resource_id(experiment):
         return experiment
@@ -282,7 +283,7 @@ def _find_experiment_id(
     resolved_space = _resolve_resource(space)
 
     if not resolved_dataset.is_set():
-        raise ResolutionError(
+        raise NotFoundError(
             "experiment",
             experiment,
             hint=(
@@ -292,7 +293,7 @@ def _find_experiment_id(
         )
 
     if resolved_dataset.is_name() and not resolved_space.is_set():
-        raise ResolutionError(
+        raise NotFoundError(
             "experiment",
             experiment,
             hint=(
@@ -326,7 +327,7 @@ def _find_experiment_id(
         if not cursor:
             break
 
-    raise ResolutionError("experiment", experiment, available)
+    raise NotFoundError("experiment", experiment, available)
 
 
 def _find_prompt_id(
@@ -345,14 +346,14 @@ def _find_prompt_id(
         The resolved prompt ID.
 
     Raises:
-        ResolutionError: If the prompt name cannot be found.
+        NotFoundError: If the prompt name cannot be found.
     """
     if is_resource_id(prompt):
         return prompt
 
     resolved_space = _resolve_resource(space)
     if not resolved_space.is_set():
-        raise ResolutionError(
+        raise NotFoundError(
             "prompt",
             prompt,
             hint=(
@@ -381,7 +382,7 @@ def _find_prompt_id(
         if not cursor:
             break
 
-    raise ResolutionError("prompt", prompt, available)
+    raise NotFoundError("prompt", prompt, available)
 
 
 def _find_evaluator_id(
@@ -400,14 +401,14 @@ def _find_evaluator_id(
         The resolved evaluator ID.
 
     Raises:
-        ResolutionError: If the evaluator name cannot be found.
+        NotFoundError: If the evaluator name cannot be found.
     """
     if is_resource_id(evaluator):
         return evaluator
 
     resolved_space = _resolve_resource(space)
     if not resolved_space.is_set():
-        raise ResolutionError(
+        raise NotFoundError(
             "evaluator",
             evaluator,
             hint=(
@@ -436,7 +437,7 @@ def _find_evaluator_id(
         if not cursor:
             break
 
-    raise ResolutionError("evaluator", evaluator, available)
+    raise NotFoundError("evaluator", evaluator, available)
 
 
 def _find_annotation_config_id(
@@ -455,14 +456,14 @@ def _find_annotation_config_id(
         The resolved annotation config ID.
 
     Raises:
-        ResolutionError: If the annotation config name cannot be found.
+        NotFoundError: If the annotation config name cannot be found.
     """
     if is_resource_id(annotation_config):
         return annotation_config
 
     resolved_space = _resolve_resource(space)
     if not resolved_space.is_set():
-        raise ResolutionError(
+        raise NotFoundError(
             "annotation config",
             annotation_config,
             hint=(
@@ -498,7 +499,7 @@ def _find_annotation_config_id(
         if not cursor:
             break
 
-    raise ResolutionError("annotation config", annotation_config, available)
+    raise NotFoundError("annotation config", annotation_config, available)
 
 
 def _find_ai_integration_id(
@@ -517,14 +518,14 @@ def _find_ai_integration_id(
         The resolved AI integration ID.
 
     Raises:
-        ResolutionError: If the AI integration name cannot be found.
+        NotFoundError: If the AI integration name cannot be found.
     """
     if is_resource_id(integration):
         return integration
 
     resolved_space = _resolve_resource(space)
     if not resolved_space.is_set():
-        raise ResolutionError(
+        raise NotFoundError(
             "AI integration",
             integration,
             hint=(
@@ -555,7 +556,66 @@ def _find_ai_integration_id(
         if not cursor:
             break
 
-    raise ResolutionError("AI integration", integration, available)
+    raise NotFoundError("AI integration", integration, available)
+
+
+def _find_annotation_queue_id(
+    api: AnnotationQueuesApi,
+    annotation_queue: str,
+    space: str | None,
+) -> str:
+    """Resolve an annotation queue by ID or name and return its unique ID.
+
+    Args:
+        api: AnnotationQueuesApi instance.
+        annotation_queue: Annotation queue ID or name.
+        space: Space ID or name used to filter the lookup.
+
+    Returns:
+        The resolved annotation queue ID.
+
+    Raises:
+        NotFoundError: If the annotation queue name or ID cannot be found.
+    """
+    if is_resource_id(annotation_queue):
+        return annotation_queue
+
+    resolved_space = _resolve_resource(space)
+    if not resolved_space.is_set():
+        raise NotFoundError(
+            "annotation queue",
+            annotation_queue,
+            hint=(
+                "Provide 'space' so the annotation queue name can be resolved, "
+                "or provide the annotation queue ID instead of the name."
+            ),
+        )
+
+    available: list[str] = []
+    cursor: str | None = None
+
+    while True:
+        response = api.annotation_queues_list(
+            space_id=resolved_space.id,
+            space_name=resolved_space.name,
+            name=annotation_queue,
+            limit=100,
+            cursor=cursor,
+        )
+        for q in response.annotation_queues:
+            if q.name == annotation_queue:
+                logger.debug(
+                    "Resolved annotation queue '%s' → %s",
+                    annotation_queue,
+                    q.id,
+                )
+                return q.id
+            available.append(q.name)
+        cursor = getattr(response.pagination, "next_cursor", None)
+        if not cursor:
+            break
+
+    raise NotFoundError("annotation queue", annotation_queue, available)
 
 
 def _find_task_id(
@@ -574,14 +634,14 @@ def _find_task_id(
         The resolved task ID.
 
     Raises:
-        ResolutionError: If the task name cannot be found.
+        NotFoundError: If the task name cannot be found.
     """
     if is_resource_id(task):
         return task
 
     resolved_space = _resolve_resource(space)
     if not resolved_space.is_set():
-        raise ResolutionError(
+        raise NotFoundError(
             "task",
             task,
             hint=(
@@ -610,7 +670,7 @@ def _find_task_id(
         if not cursor:
             break
 
-    raise ResolutionError("task", task, available)
+    raise NotFoundError("task", task, available)
 
 
 def _find_role_id(api: RolesApi, role: str) -> str:
@@ -624,7 +684,7 @@ def _find_role_id(api: RolesApi, role: str) -> str:
         The resolved role ID.
 
     Raises:
-        ResolutionError: If the role name cannot be found.
+        NotFoundError: If the role name cannot be found.
     """
     if is_resource_id(role):
         return role
@@ -643,4 +703,4 @@ def _find_role_id(api: RolesApi, role: str) -> str:
         if not cursor:
             break
 
-    raise ResolutionError("role", role, available)
+    raise NotFoundError("role", role, available)

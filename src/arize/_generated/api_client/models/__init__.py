@@ -48,6 +48,7 @@ from arize._generated.api_client.models.api_key_roles import ApiKeyRoles
 from arize._generated.api_client.models.api_key_status import ApiKeyStatus
 from arize._generated.api_client.models.api_keys_list200_response import ApiKeysList200Response
 from arize._generated.api_client.models.assign_annotation_queue_record_request_body import AssignAnnotationQueueRecordRequestBody
+from arize._generated.api_client.models.assignment_method import AssignmentMethod
 from arize._generated.api_client.models.aws_provider_metadata import AwsProviderMetadata
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig
 from arize._generated.api_client.models.categorical_annotation_config_create import CategoricalAnnotationConfigCreate

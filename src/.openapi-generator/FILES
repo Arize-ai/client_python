@@ -58,6 +58,7 @@ arize/_generated/api_client/docs/ApiKeyRoles.md
 arize/_generated/api_client/docs/ApiKeyStatus.md
 arize/_generated/api_client/docs/ApiKeysList200Response.md
 arize/_generated/api_client/docs/AssignAnnotationQueueRecordRequestBody.md
+arize/_generated/api_client/docs/AssignmentMethod.md
 arize/_generated/api_client/docs/AwsProviderMetadata.md
 arize/_generated/api_client/docs/CategoricalAnnotationConfig.md
 arize/_generated/api_client/docs/CategoricalAnnotationConfigCreate.md
@@ -209,6 +210,7 @@ arize/_generated/api_client/models/api_key_roles.py
 arize/_generated/api_client/models/api_key_status.py
 arize/_generated/api_client/models/api_keys_list200_response.py
 arize/_generated/api_client/models/assign_annotation_queue_record_request_body.py
+arize/_generated/api_client/models/assignment_method.py
 arize/_generated/api_client/models/aws_provider_metadata.py
 arize/_generated/api_client/models/categorical_annotation_config.py
 arize/_generated/api_client/models/categorical_annotation_config_create.py
@@ -345,6 +347,7 @@ arize/_generated/api_client/test/test_api_key_created.py
 arize/_generated/api_client/test/test_api_key_refresh.py
 arize/_generated/api_client/test/test_api_key_status.py
 arize/_generated/api_client/test/test_assign_annotation_queue_record_request_body.py
+arize/_generated/api_client/test/test_assignment_method.py
 arize/_generated/api_client/test/test_categorical_annotation_config.py
 arize/_generated/api_client/test/test_categorical_annotation_config_create.py
 arize/_generated/api_client/test/test_categorical_annotation_value.py

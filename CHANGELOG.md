@@ -1,5 +1,15 @@
 # Changelog
 
+## [8.11.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.10.0...arize-python-sdk/v8.11.0) (2026-04-02)
+
+
+### 🎁 New Features
+
+* Add annotation queue module ([#66427](https://github.com/Arize-ai/arize/issues/66427)) ([b7e6686](https://github.com/Arize-ai/arize/commit/b7e668642bc2bf42e8a604115795326c8da5e1ad))
+* add max_past_years config  ([#67713](https://github.com/Arize-ai/arize/issues/67713)) ([a565ad0](https://github.com/Arize-ai/arize/commit/a565ad0113d56345a6ae8a486862b2e8cbbd1095))
+* support custom max past years for timestamp validation ([#67484](https://github.com/Arize-ai/arize/issues/67484)) ([c278a77](https://github.com/Arize-ai/arize/commit/c278a7734905ae51caed33b4435fdf5b92952966))
+
+
 ## [8.10.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.9.2...arize-python-sdk/v8.10.0) (2026-04-01)
 
 

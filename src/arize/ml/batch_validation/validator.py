@@ -28,7 +28,6 @@ from arize.constants.ml import (
     MAX_MULTI_CLASS_NAME_LENGTH,
     MAX_NUMBER_OF_EMBEDDINGS,
     MAX_NUMBER_OF_MULTI_CLASS_CLASSES,
-    MAX_PAST_YEARS_FROM_CURRENT_TIME,
     MAX_PREDICTION_ID_LEN,
     MAX_PROMPT_TEMPLATE_LENGTH,
     MAX_PROMPT_TEMPLATE_LENGTH_TRUNCATION,
@@ -389,6 +388,7 @@ class Validator:
         environment: Environments,
         schema: BaseSchema,
         model_type: ModelTypes,
+        max_past_years: int,
     ) -> list[ValidationError]:
         """Validate data values including ranges, formats, and consistency checks."""
         # ASSUMPTION: at this point the param and type checks should have passed.
@@ -416,7 +416,9 @@ class Validator:
         if isinstance(schema, Schema):
             general_checks = chain(
                 general_checks,
-                Validator._check_value_timestamp(dataframe, schema),  # type: ignore[arg-type]
+                Validator._check_value_timestamp(
+                    dataframe, schema, max_past_years
+                ),  # type: ignore[arg-type]
                 Validator._check_id_field_str_length(  # type: ignore[arg-type]
                     dataframe,
                     "prediction_id_column_name",
@@ -2755,6 +2757,7 @@ class Validator:
     def _check_value_timestamp(
         dataframe: pd.DataFrame,
         schema: Schema,
+        max_past_years: int,
     ) -> list[InvalidValueMissingValue | InvalidValueTimestamp]:
         # Due to the timing difference between checking this here and the data finally
         # hitting the same check on server side, there's a some chance for a false
@@ -2771,10 +2774,7 @@ class Validator:
 
             now_t = datetime.now(tz=timezone.utc)
             lbound, ubound = (
-                (
-                    now_t
-                    - timedelta(days=MAX_PAST_YEARS_FROM_CURRENT_TIME * 365)
-                ).timestamp(),
+                (now_t - timedelta(days=max_past_years * 365)).timestamp(),
                 (
                     now_t
                     + timedelta(days=MAX_FUTURE_YEARS_FROM_CURRENT_TIME * 365)
@@ -2850,7 +2850,11 @@ class Validator:
                     )
                 )
             ):
-                return [InvalidValueTimestamp(timestamp_col_name=col)]
+                return [
+                    InvalidValueTimestamp(
+                        timestamp_col_name=col, max_past_years=max_past_years
+                    )
+                ]
 
         return []
 

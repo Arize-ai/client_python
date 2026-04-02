@@ -15,6 +15,8 @@ config
 :caption: Resource Operations
 
 ai_integrations
+annotation_configs
+annotation_queues
 api_keys
 datasets
 evaluators

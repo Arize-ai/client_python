@@ -77,6 +77,7 @@ __all__ = [
     "ApiKeyStatus",
     "ApiKeysList200Response",
     "AssignAnnotationQueueRecordRequestBody",
+    "AssignmentMethod",
     "AwsProviderMetadata",
     "CategoricalAnnotationConfig",
     "CategoricalAnnotationConfigCreate",
@@ -246,6 +247,7 @@ from arize._generated.api_client.models.api_key_roles import ApiKeyRoles as ApiK
 from arize._generated.api_client.models.api_key_status import ApiKeyStatus as ApiKeyStatus
 from arize._generated.api_client.models.api_keys_list200_response import ApiKeysList200Response as ApiKeysList200Response
 from arize._generated.api_client.models.assign_annotation_queue_record_request_body import AssignAnnotationQueueRecordRequestBody as AssignAnnotationQueueRecordRequestBody
+from arize._generated.api_client.models.assignment_method import AssignmentMethod as AssignmentMethod
 from arize._generated.api_client.models.aws_provider_metadata import AwsProviderMetadata as AwsProviderMetadata
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig as CategoricalAnnotationConfig
 from arize._generated.api_client.models.categorical_annotation_config_create import CategoricalAnnotationConfigCreate as CategoricalAnnotationConfigCreate

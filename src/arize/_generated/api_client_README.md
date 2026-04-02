@@ -193,6 +193,7 @@ Class | Method | HTTP request | Description
  - [ApiKeyStatus](arize/_generated/api_client/docs/ApiKeyStatus.md)
  - [ApiKeysList200Response](arize/_generated/api_client/docs/ApiKeysList200Response.md)
  - [AssignAnnotationQueueRecordRequestBody](arize/_generated/api_client/docs/AssignAnnotationQueueRecordRequestBody.md)
+ - [AssignmentMethod](arize/_generated/api_client/docs/AssignmentMethod.md)
  - [AwsProviderMetadata](arize/_generated/api_client/docs/AwsProviderMetadata.md)
  - [CategoricalAnnotationConfig](arize/_generated/api_client/docs/CategoricalAnnotationConfig.md)
  - [CategoricalAnnotationConfigCreate](arize/_generated/api_client/docs/CategoricalAnnotationConfigCreate.md)

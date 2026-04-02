@@ -94,7 +94,7 @@ class RolesClient:
             The role object.
 
         Raises:
-            ResolutionError: If the role name cannot be found.
+            NotFoundError: If the role name cannot be found.
             ApiException: If the API request fails
                 (for example, role not found).
         """
@@ -193,7 +193,7 @@ class RolesClient:
                 ID it is used directly; otherwise it is resolved by name.
 
         Raises:
-            ResolutionError: If the role name cannot be found.
+            NotFoundError: If the role name cannot be found.
             ApiException: If the API request fails
                 (for example, role not found, insufficient permissions, or
                 attempting to delete a predefined role).

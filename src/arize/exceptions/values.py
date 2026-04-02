@@ -6,7 +6,6 @@ from arize.constants.ml import (
     MAX_FUTURE_YEARS_FROM_CURRENT_TIME,
     MAX_MULTI_CLASS_NAME_LENGTH,
     MAX_NUMBER_OF_MULTI_CLASS_CLASSES,
-    MAX_PAST_YEARS_FROM_CURRENT_TIME,
     MAX_TAG_LENGTH,
 )
 from arize.exceptions.base import ValidationError
@@ -20,20 +19,22 @@ class InvalidValueTimestamp(ValidationError):
         """Return a string representation for debugging and logging."""
         return "Invalid_Timestamp_Value"
 
-    def __init__(self, timestamp_col_name: str) -> None:
+    def __init__(self, timestamp_col_name: str, max_past_years: int) -> None:
         """Initialize the exception with timestamp validation context.
 
         Args:
             timestamp_col_name: Name of the column containing invalid timestamp values.
+            max_past_years: Maximum years in the past allowed for timestamps.
         """
         self.timestamp_col_name = timestamp_col_name
+        self._max_past_years = max_past_years
 
     def error_message(self) -> str:
         """Return the error message for this exception."""
         return (
             f"Prediction timestamp in {self.timestamp_col_name} is out of range. "
             f"Prediction timestamps must be within {MAX_FUTURE_YEARS_FROM_CURRENT_TIME} year "
-            f"in the future and {MAX_PAST_YEARS_FROM_CURRENT_TIME} years in the past from "
+            f"in the future and {self._max_past_years} years in the past from "
             "the current time. If this is your pre-production data, you could also just "
             "remove the timestamp column from the Schema."
         )

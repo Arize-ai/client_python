@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from arize.utils.resolve import (
-    ResolutionError,
+    NotFoundError,
     _find_ai_integration_id,
     _find_annotation_config_id,
     _find_dataset_id,
@@ -114,8 +114,8 @@ class TestResolveResource:
         assert _find_space_id(spaces_api, real_id) == real_id
 
     def test_find_space_id_not_found(self, spaces_api) -> None:
-        """_find_space_id raises ResolutionError for unknown names."""
-        with pytest.raises(ResolutionError, match="space"):
+        """_find_space_id raises NotFoundError for unknown names."""
+        with pytest.raises(NotFoundError, match="space"):
             _find_space_id(spaces_api, "nonexistent-space-abc-xyz-12345")
 
 
@@ -174,8 +174,8 @@ class TestFindProjectId:
         assert result == project_info["id"]
 
     def test_not_found(self, projects_api, spaces_api) -> None:
-        """Raises ResolutionError for unknown project name."""
-        with pytest.raises(ResolutionError, match="project"):
+        """Raises NotFoundError for unknown project name."""
+        with pytest.raises(NotFoundError, match="project"):
             _find_project_id(
                 projects_api,
                 "nonexistent-project-abc-xyz-12345",
@@ -226,8 +226,8 @@ class TestFindDatasetId:
         assert result == dataset_info["id"]
 
     def test_not_found(self, datasets_api, spaces_api) -> None:
-        """Raises ResolutionError for unknown dataset name."""
-        with pytest.raises(ResolutionError, match="dataset"):
+        """Raises NotFoundError for unknown dataset name."""
+        with pytest.raises(NotFoundError, match="dataset"):
             _find_dataset_id(
                 datasets_api,
                 "nonexistent-dataset-abc-xyz-12345",
@@ -586,6 +586,6 @@ class TestFindRoleId:
         assert result == role_info["id"]
 
     def test_not_found_raises(self, roles_api) -> None:
-        """Raises ResolutionError for an unknown role name."""
-        with pytest.raises(ResolutionError, match="role"):
+        """Raises NotFoundError for an unknown role name."""
+        with pytest.raises(NotFoundError, match="role"):
             _find_role_id(roles_api, "nonexistent-role-abc-xyz-12345")

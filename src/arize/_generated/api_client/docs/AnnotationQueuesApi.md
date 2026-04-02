@@ -128,7 +128,6 @@ Create a new annotation queue.
 - At least one `annotation_config_id` is required, and all configs must belong to the specified space.
 - Do not include system-managed fields on input: `id`, `created_at`, `updated_at`.
 - If `assignment_method` is not provided, it defaults to `"all"`.
-- If `annotator_emails` are provided, all emails must resolve to existing users with access to the space.
 
 **Valid example**
 ```json
@@ -136,6 +135,7 @@ Create a new annotation queue.
   "name": "Quality Review Queue",
   "space_id": "spc_xyz789",
   "annotation_config_ids": ["ac_abc123"],
+  "annotator_emails": ["reviewer@example.com"],
   "assignment_method": "all"
 }
 ```

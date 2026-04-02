@@ -15,6 +15,7 @@ from arize.constants.config import (
     DEFAULT_FLIGHT_PORT,
     DEFAULT_FLIGHT_SCHEME,
     DEFAULT_MAX_HTTP_PAYLOAD_SIZE_MB,
+    DEFAULT_MAX_PAST_YEARS,
     DEFAULT_OTLP_HOST,
     DEFAULT_OTLP_SCHEME,
     DEFAULT_PYARROW_MAX_CHUNKSIZE,
@@ -31,6 +32,7 @@ from arize.constants.config import (
     ENV_FLIGHT_PORT,
     ENV_FLIGHT_SCHEME,
     ENV_MAX_HTTP_PAYLOAD_SIZE_MB,
+    ENV_MAX_PAST_YEARS,
     ENV_OTLP_HOST,
     ENV_OTLP_SCHEME,
     ENV_PYARROW_MAX_CHUNKSIZE,
@@ -340,6 +342,12 @@ class SDKConfiguration:
             flight.<base_domain>. When specified, overrides individual host settings.
             Environment variable: ARIZE_BASE_DOMAIN.
             Default: "" (not set).
+        max_past_years: Maximum number of years in the past allowed for prediction timestamps.
+            For on-prem deployments with custom retention policies, this can be increased.
+            When set to a value other than the default, a warning will be issued advising
+            to contact Arize support.
+            Environment variable: ARIZE_MAX_PAST_YEARS.
+            Default: 5.
 
     Note:
         The endpoint override options (region, single_host/single_port, base_domain) are
@@ -444,6 +452,11 @@ class SDKConfiguration:
     base_domain: str = field(
         default_factory=lambda: _env_str(ENV_BASE_DOMAIN, "")
     )
+    max_past_years: int = field(
+        default_factory=lambda: _env_int(
+            ENV_MAX_PAST_YEARS, DEFAULT_MAX_PAST_YEARS, min_val=1
+        )
+    )
 
     def __post_init__(self) -> None:
         """Validate and configure SDK endpoints after initialization.
@@ -534,6 +547,13 @@ class SDKConfiguration:
             object.__setattr__(self, "otlp_host", endpoints.otlp_host)
             object.__setattr__(self, "flight_host", endpoints.flight_host)
             object.__setattr__(self, "flight_port", endpoints.flight_port)
+
+        if self.max_past_years != DEFAULT_MAX_PAST_YEARS:
+            logger.warning(
+                f"max_past_years is set to {self.max_past_years} (default: {DEFAULT_MAX_PAST_YEARS}). "
+                "This setting allows timestamps older than the default limit. "
+                "Please contact Arize support to enable custom timestamp limits for your account."
+            )
 
     @property
     def cache_dir(self) -> str:

@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **instructions** | **str** | Instructions for annotators working on this queue | [optional] 
 **annotation_config_ids** | **List[str]** | IDs of annotation configs to associate with this queue. All configs must belong to the same space. | 
 **annotator_emails** | **List[str]** | Email addresses of annotators to assign to the queue. Emails are resolved to user IDs server-side. | 
-**assignment_method** | **str** | How records are assigned to annotators. Defaults to \&quot;all\&quot;. - &#x60;all&#x60;: Every annotator is assigned to every record. - &#x60;random&#x60;: Each record is randomly assigned to one annotator.  | [optional] [default to 'all']
+**assignment_method** | [**AssignmentMethod**](AssignmentMethod.md) |  | [optional] [default to AssignmentMethod.ALL]
 **record_sources** | [**List[AnnotationQueueRecordInput]**](AnnotationQueueRecordInput.md) | Record sources to add to the annotation queue on creation. At most 2 record sources (projects or datasets) may be provided in a single create request. Additional records from other sources can be added after creation. | [optional] 
 
 ## Example
