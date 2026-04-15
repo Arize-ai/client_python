@@ -8,6 +8,7 @@ from arize._generated.api_client.api.annotation_queues_api import AnnotationQueu
 from arize._generated.api_client.api.datasets_api import DatasetsApi
 from arize._generated.api_client.api.evaluators_api import EvaluatorsApi
 from arize._generated.api_client.api.experiments_api import ExperimentsApi
+from arize._generated.api_client.api.organizations_api import OrganizationsApi
 from arize._generated.api_client.api.projects_api import ProjectsApi
 from arize._generated.api_client.api.prompts_api import PromptsApi
 from arize._generated.api_client.api.resource_restrictions_api import ResourceRestrictionsApi

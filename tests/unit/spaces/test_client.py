@@ -192,6 +192,49 @@ class TestSpacesClientCreate:
 
 
 @pytest.mark.unit
+class TestSpacesClientDelete:
+    """Tests for SpacesClient.delete()."""
+
+    def test_delete_calls_api_with_space_id(
+        self, spaces_client: SpacesClient, mock_api: Mock
+    ) -> None:
+        """delete() should resolve space and pass space_id to spaces_delete."""
+        spaces_client.delete(space="U3BhY2U6OTA1MDoxSmtS")
+
+        mock_api.spaces_delete.assert_called_once_with(
+            space_id="U3BhY2U6OTA1MDoxSmtS"
+        )
+
+    def test_delete_returns_none(
+        self, spaces_client: SpacesClient, mock_api: Mock
+    ) -> None:
+        """delete() should return None on success (204 response)."""
+        mock_api.spaces_delete.return_value = None
+
+        result = spaces_client.delete(space="U3BhY2U6OTA1MDoxSmtS")
+
+        assert result is None
+
+    def test_delete_emits_alpha_prerelease_warning(
+        self,
+        spaces_client: SpacesClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the ALPHA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        spaces_client.delete(space="U3BhY2U6OTA1MDoxSmtS")
+
+        assert any(
+            "ALPHA" in record.message and "spaces.delete" in record.message
+            for record in caplog.records
+        )
+
+
+@pytest.mark.unit
 class TestSpacesClientUpdate:
     """Tests for SpacesClient.update()."""
 

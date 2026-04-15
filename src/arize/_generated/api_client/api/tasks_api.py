@@ -1175,7 +1175,7 @@ class TasksApi:
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 global ID)")] = None,
-        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific dataset (base64 global ID)")] = None,
+        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 global ID)")] = None,
         type: Annotated[Optional[StrictStr], Field(description="Filter by task type: template_evaluation or code_evaluation")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
@@ -1204,7 +1204,7 @@ class TasksApi:
         :type name: str
         :param project_id: Filter to tasks for a specific project (base64 global ID)
         :type project_id: str
-        :param dataset_id: Filter to tasks for a specific dataset (base64 global ID)
+        :param dataset_id: Filter to a specific dataset (base64 global ID)
         :type dataset_id: str
         :param type: Filter by task type: template_evaluation or code_evaluation
         :type type: str
@@ -1275,7 +1275,7 @@ class TasksApi:
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 global ID)")] = None,
-        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific dataset (base64 global ID)")] = None,
+        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 global ID)")] = None,
         type: Annotated[Optional[StrictStr], Field(description="Filter by task type: template_evaluation or code_evaluation")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
@@ -1304,7 +1304,7 @@ class TasksApi:
         :type name: str
         :param project_id: Filter to tasks for a specific project (base64 global ID)
         :type project_id: str
-        :param dataset_id: Filter to tasks for a specific dataset (base64 global ID)
+        :param dataset_id: Filter to a specific dataset (base64 global ID)
         :type dataset_id: str
         :param type: Filter by task type: template_evaluation or code_evaluation
         :type type: str
@@ -1375,7 +1375,7 @@ class TasksApi:
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 global ID)")] = None,
-        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific dataset (base64 global ID)")] = None,
+        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 global ID)")] = None,
         type: Annotated[Optional[StrictStr], Field(description="Filter by task type: template_evaluation or code_evaluation")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
@@ -1404,7 +1404,7 @@ class TasksApi:
         :type name: str
         :param project_id: Filter to tasks for a specific project (base64 global ID)
         :type project_id: str
-        :param dataset_id: Filter to tasks for a specific dataset (base64 global ID)
+        :param dataset_id: Filter to a specific dataset (base64 global ID)
         :type dataset_id: str
         :param type: Filter by task type: template_evaluation or code_evaluation
         :type type: str

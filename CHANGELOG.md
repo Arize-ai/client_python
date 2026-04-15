@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.13.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.12.0...arize-python-sdk/v8.13.0) (2026-04-15)
+
+
+### 🎁 New Features
+
+* **spaces:** add delete space support ([#68714](https://github.com/Arize-ai/arize/issues/68714)) ([9f09df0](https://github.com/Arize-ai/arize/commit/9f09df05753178b93acf91eedc065223733a2cb7))
+
 ## [8.12.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.11.0...arize-python-sdk/v8.12.0) (2026-04-14)
 
 

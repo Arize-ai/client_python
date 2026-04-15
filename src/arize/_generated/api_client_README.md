@@ -116,6 +116,10 @@ Class | Method | HTTP request | Description
 *ExperimentsApi* | [**experiments_get**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_get) | **GET** /v2/experiments/{experiment_id} | Get an experiment
 *ExperimentsApi* | [**experiments_list**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_list) | **GET** /v2/experiments | List experiments
 *ExperimentsApi* | [**experiments_runs_list**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_runs_list) | **GET** /v2/experiments/{experiment_id}/runs | List experiment runs
+*OrganizationsApi* | [**organizations_create**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_create) | **POST** /v2/organizations | Create an organization
+*OrganizationsApi* | [**organizations_get**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_get) | **GET** /v2/organizations/{org_id} | Get an organization
+*OrganizationsApi* | [**organizations_list**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_list) | **GET** /v2/organizations | List organizations
+*OrganizationsApi* | [**organizations_update**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_update) | **PATCH** /v2/organizations/{org_id} | Update an organization
 *ProjectsApi* | [**projects_create**](arize/_generated/api_client/docs/ProjectsApi.md#projects_create) | **POST** /v2/projects | Create a project
 *ProjectsApi* | [**projects_delete**](arize/_generated/api_client/docs/ProjectsApi.md#projects_delete) | **DELETE** /v2/projects/{project_id} | Delete a project
 *ProjectsApi* | [**projects_get**](arize/_generated/api_client/docs/ProjectsApi.md#projects_get) | **GET** /v2/projects/{project_id} | Get a project
@@ -143,6 +147,7 @@ Class | Method | HTTP request | Description
 *RolesApi* | [**roles_list**](arize/_generated/api_client/docs/RolesApi.md#roles_list) | **GET** /v2/roles | List roles
 *RolesApi* | [**roles_update**](arize/_generated/api_client/docs/RolesApi.md#roles_update) | **PATCH** /v2/roles/{role_id} | Update a role
 *SpacesApi* | [**spaces_create**](arize/_generated/api_client/docs/SpacesApi.md#spaces_create) | **POST** /v2/spaces | Create a space
+*SpacesApi* | [**spaces_delete**](arize/_generated/api_client/docs/SpacesApi.md#spaces_delete) | **DELETE** /v2/spaces/{space_id} | Delete a space
 *SpacesApi* | [**spaces_get**](arize/_generated/api_client/docs/SpacesApi.md#spaces_get) | **GET** /v2/spaces/{space_id} | Get a space
 *SpacesApi* | [**spaces_list**](arize/_generated/api_client/docs/SpacesApi.md#spaces_list) | **GET** /v2/spaces | List spaces
 *SpacesApi* | [**spaces_update**](arize/_generated/api_client/docs/SpacesApi.md#spaces_update) | **PATCH** /v2/spaces/{space_id} | Update a space
@@ -239,6 +244,10 @@ Class | Method | HTTP request | Description
  - [LlmProvider](arize/_generated/api_client/docs/LlmProvider.md)
  - [MessageRole](arize/_generated/api_client/docs/MessageRole.md)
  - [OptimizationDirection](arize/_generated/api_client/docs/OptimizationDirection.md)
+ - [Organization](arize/_generated/api_client/docs/Organization.md)
+ - [OrganizationsCreateRequest](arize/_generated/api_client/docs/OrganizationsCreateRequest.md)
+ - [OrganizationsList200Response](arize/_generated/api_client/docs/OrganizationsList200Response.md)
+ - [OrganizationsUpdateRequest](arize/_generated/api_client/docs/OrganizationsUpdateRequest.md)
  - [PaginationMetadata](arize/_generated/api_client/docs/PaginationMetadata.md)
  - [Permission](arize/_generated/api_client/docs/Permission.md)
  - [Problem](arize/_generated/api_client/docs/Problem.md)

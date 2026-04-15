@@ -124,6 +124,27 @@ class SpacesClient:
         )
         return self._api.spaces_create(spaces_create_request=body)
 
+    @prerelease_endpoint(key="spaces.delete", stage=ReleaseStage.ALPHA)
+    def delete(self, *, space: str) -> None:
+        """Delete a space by ID or name.
+
+        This operation is irreversible. It deletes the space and all resources
+        that belong to it (models, monitors, dashboards, datasets, custom
+        metrics, etc).
+
+        Args:
+            space: Space ID or name to delete.
+
+        Returns:
+            This method returns None on success (204 No Content response).
+
+        Raises:
+            ApiException: If the API request fails
+                (for example, space not found or insufficient permissions).
+        """
+        space_id = _find_space_id(self._api, space)
+        return self._api.spaces_delete(space_id=space_id)
+
     @prerelease_endpoint(key="spaces.update", stage=ReleaseStage.BETA)
     def update(
         self,

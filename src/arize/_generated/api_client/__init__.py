@@ -25,6 +25,7 @@ __all__ = [
     "DatasetsApi",
     "EvaluatorsApi",
     "ExperimentsApi",
+    "OrganizationsApi",
     "ProjectsApi",
     "PromptsApi",
     "ResourceRestrictionsApi",
@@ -122,6 +123,10 @@ __all__ = [
     "LlmProvider",
     "MessageRole",
     "OptimizationDirection",
+    "Organization",
+    "OrganizationsCreateRequest",
+    "OrganizationsList200Response",
+    "OrganizationsUpdateRequest",
     "PaginationMetadata",
     "Permission",
     "Problem",
@@ -192,6 +197,7 @@ from arize._generated.api_client.api.annotation_queues_api import AnnotationQueu
 from arize._generated.api_client.api.datasets_api import DatasetsApi as DatasetsApi
 from arize._generated.api_client.api.evaluators_api import EvaluatorsApi as EvaluatorsApi
 from arize._generated.api_client.api.experiments_api import ExperimentsApi as ExperimentsApi
+from arize._generated.api_client.api.organizations_api import OrganizationsApi as OrganizationsApi
 from arize._generated.api_client.api.projects_api import ProjectsApi as ProjectsApi
 from arize._generated.api_client.api.prompts_api import PromptsApi as PromptsApi
 from arize._generated.api_client.api.resource_restrictions_api import ResourceRestrictionsApi as ResourceRestrictionsApi
@@ -293,6 +299,10 @@ from arize._generated.api_client.models.llm_message import LLMMessage as LLMMess
 from arize._generated.api_client.models.llm_provider import LlmProvider as LlmProvider
 from arize._generated.api_client.models.message_role import MessageRole as MessageRole
 from arize._generated.api_client.models.optimization_direction import OptimizationDirection as OptimizationDirection
+from arize._generated.api_client.models.organization import Organization as Organization
+from arize._generated.api_client.models.organizations_create_request import OrganizationsCreateRequest as OrganizationsCreateRequest
+from arize._generated.api_client.models.organizations_list200_response import OrganizationsList200Response as OrganizationsList200Response
+from arize._generated.api_client.models.organizations_update_request import OrganizationsUpdateRequest as OrganizationsUpdateRequest
 from arize._generated.api_client.models.pagination_metadata import PaginationMetadata as PaginationMetadata
 from arize._generated.api_client.models.permission import Permission as Permission
 from arize._generated.api_client.models.problem import Problem as Problem

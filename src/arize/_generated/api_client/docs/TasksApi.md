@@ -415,7 +415,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     space_name = 'my-space' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
     project_id = 'UHJvamVjdDoxMjM0NQ==' # str | Filter to tasks for a specific project (base64 global ID) (optional)
-    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | Filter to tasks for a specific dataset (base64 global ID) (optional)
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | Filter to a specific dataset (base64 global ID) (optional)
     type = 'template_evaluation' # str | Filter by task type: template_evaluation or code_evaluation (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
@@ -440,7 +440,7 @@ Name | Type | Description  | Notes
  **space_name** | **str**| Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  | [optional] 
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
  **project_id** | **str**| Filter to tasks for a specific project (base64 global ID) | [optional] 
- **dataset_id** | **str**| Filter to tasks for a specific dataset (base64 global ID) | [optional] 
+ **dataset_id** | **str**| Filter to a specific dataset (base64 global ID) | [optional] 
  **type** | **str**| Filter by task type: template_evaluation or code_evaluation | [optional] 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
