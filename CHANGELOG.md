@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.12.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.11.0...arize-python-sdk/v8.12.0) (2026-04-14)
+
+
+### 🎁 New Features
+
+* **resource-restrictions-and-role-bindings:** add ResourceRestrictionsClient and RoleBindingsClient subclients ([#67232](https://github.com/Arize-ai/arize/issues/67232)) ([437617f](https://github.com/Arize-ai/arize/commit/437617f6bb082bf27ff5f0ad1260ea5a84a4c41b))
+
+
+### ❔ Miscellaneous Chores
+
+* add pre-commit hooks for Python v8 SDK, arize-ax-cli, and JS ax-client ([#67671](https://github.com/Arize-ai/arize/issues/67671)) ([8ac0c83](https://github.com/Arize-ai/arize/commit/8ac0c835441ae65bdcc7ec84161f7f76174f7a44))
+
 ## [8.11.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.10.0...arize-python-sdk/v8.11.0) (2026-04-02)
 
 

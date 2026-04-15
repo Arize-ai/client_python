@@ -146,6 +146,7 @@ Class | Method | HTTP request | Description
 *SpacesApi* | [**spaces_get**](arize/_generated/api_client/docs/SpacesApi.md#spaces_get) | **GET** /v2/spaces/{space_id} | Get a space
 *SpacesApi* | [**spaces_list**](arize/_generated/api_client/docs/SpacesApi.md#spaces_list) | **GET** /v2/spaces | List spaces
 *SpacesApi* | [**spaces_update**](arize/_generated/api_client/docs/SpacesApi.md#spaces_update) | **PATCH** /v2/spaces/{space_id} | Update a space
+*SpansApi* | [**spans_delete**](arize/_generated/api_client/docs/SpansApi.md#spans_delete) | **DELETE** /v2/spans | Delete spans
 *SpansApi* | [**spans_list**](arize/_generated/api_client/docs/SpansApi.md#spans_list) | **POST** /v2/spans | List spans
 *TasksApi* | [**task_runs_cancel**](arize/_generated/api_client/docs/TasksApi.md#task_runs_cancel) | **POST** /v2/task-runs/{run_id}/cancel | Cancel task run
 *TasksApi* | [**task_runs_get**](arize/_generated/api_client/docs/TasksApi.md#task_runs_get) | **GET** /v2/task-runs/{run_id} | Get task run
@@ -280,6 +281,7 @@ Class | Method | HTTP request | Description
  - [Span](arize/_generated/api_client/docs/Span.md)
  - [SpanContext](arize/_generated/api_client/docs/SpanContext.md)
  - [SpanEvent](arize/_generated/api_client/docs/SpanEvent.md)
+ - [SpansDeleteRequest](arize/_generated/api_client/docs/SpansDeleteRequest.md)
  - [SpansList200Response](arize/_generated/api_client/docs/SpansList200Response.md)
  - [SpansListRequest](arize/_generated/api_client/docs/SpansListRequest.md)
  - [Task](arize/_generated/api_client/docs/Task.md)

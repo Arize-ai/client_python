@@ -164,6 +164,7 @@ __all__ = [
     "Span",
     "SpanContext",
     "SpanEvent",
+    "SpansDeleteRequest",
     "SpansList200Response",
     "SpansListRequest",
     "Task",
@@ -334,6 +335,7 @@ from arize._generated.api_client.models.spaces_update_request import SpacesUpdat
 from arize._generated.api_client.models.span import Span as Span
 from arize._generated.api_client.models.span_context import SpanContext as SpanContext
 from arize._generated.api_client.models.span_event import SpanEvent as SpanEvent
+from arize._generated.api_client.models.spans_delete_request import SpansDeleteRequest as SpansDeleteRequest
 from arize._generated.api_client.models.spans_list200_response import SpansList200Response as SpansList200Response
 from arize._generated.api_client.models.spans_list_request import SpansListRequest as SpansListRequest
 from arize._generated.api_client.models.task import Task as Task

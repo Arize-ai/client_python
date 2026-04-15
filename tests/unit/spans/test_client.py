@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
 from arize.spans.client import SpansClient
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 # Base64 ID that passes is_resource_id() — decodes to "Project:123"
 _PROJECT_ID = "UHJvamVjdDoxMjM="
@@ -332,3 +336,69 @@ class TestSpansClientExportToDfDeprecated:
             start_time=datetime(2024, 1, 1, tzinfo=timezone.utc),
             end_time=datetime(2024, 1, 8, tzinfo=timezone.utc),
         )
+
+
+@pytest.mark.unit
+class TestSpansClientLogWithEvals:
+    """Tests for SpansClient.log() with an evals_dataframe."""
+
+    @pytest.fixture
+    def spans_client(
+        self, mock_sdk_config: Mock, mock_api: Mock
+    ) -> SpansClient:
+        """Provide a SpansClient with mocked internals and required config attrs."""
+        mock_sdk_config.files_url = "https://files.arize.com"
+        mock_sdk_config.request_verify = True
+        mock_sdk_config.pyarrow_max_chunksize = 1000
+        mock_sdk_config.headers = {"Authorization": "Bearer test_api_key"}
+        with patch(
+            "arize._generated.api_client.SpansApi", return_value=mock_api
+        ):
+            return SpansClient(
+                sdk_config=mock_sdk_config,
+                generated_client=Mock(),
+            )
+
+    @staticmethod
+    def _make_spans_df() -> pd.DataFrame:
+        import pandas as pd
+
+        return pd.DataFrame(
+            [
+                {
+                    "context.span_id": "span-000000001",
+                    "context.trace_id": "trace-00000001",
+                    "name": "llm_call",
+                    "span_kind": "LLM",
+                    "start_time": "2024-01-15T10:00:00.000000+00:00",
+                    "end_time": "2024-01-15T10:00:02.000000+00:00",
+                    "attributes.llm.model_name": "gpt-4",
+                },
+            ]
+        )
+
+    @staticmethod
+    def _make_evals_df() -> pd.DataFrame:
+        import pandas as pd
+
+        return pd.DataFrame(
+            [
+                {
+                    "context.span_id": "span-000000001",
+                    "eval.Correctness.label": "correct",
+                    "eval.Correctness.score": 1.0,
+                },
+            ]
+        )
+
+    def test_log_with_evals_does_not_raise_value_error(
+        self, spans_client: SpansClient
+    ) -> None:
+        """log() with evals_dataframe should not raise ValueError from DataFrame truth checks."""
+        with patch("arize.spans.client.post_arrow_table", return_value=Mock()):
+            spans_client.log(
+                space_id="space-1",
+                project_name="my-project",
+                dataframe=self._make_spans_df(),
+                evals_dataframe=self._make_evals_df(),
+            )

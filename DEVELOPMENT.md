@@ -15,6 +15,15 @@ For repository layout and conventions, see [AGENTS.md](AGENTS.md).
 
 - Run tooling via **`task`** ([taskipy](https://github.com/iamgodoy/taskipy)), e.g. `uv run task lint`, or invoke commands from `pyproject.toml` directly.
 
+- **Optional:** install pre-commit hooks so that ruff and mypy run automatically on every commit:
+
+  ```bash
+  # From the repo root
+  pre-commit install
+  ```
+
+  For manual checks outside of a commit, use the task commands (`task lint`, `task type-check`).
+
 ## Daily workflow
 
 Run from `sdk/python/arize/v8/`:

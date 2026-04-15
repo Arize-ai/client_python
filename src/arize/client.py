@@ -22,6 +22,8 @@ if TYPE_CHECKING:
     from arize.projects.client import ProjectsClient
     from arize.prompts.client import PromptsClient
     from arize.regions import Region
+    from arize.resource_restrictions.client import ResourceRestrictionsClient
+    from arize.role_bindings.client import RoleBindingsClient
     from arize.roles.client import RolesClient
     from arize.spaces.client import SpacesClient
     from arize.spans.client import SpansClient
@@ -122,6 +124,14 @@ class ArizeClient(LazySubclientsMixin):
         "evaluators": (
             "arize.evaluators.client",
             "EvaluatorsClient",
+        ),
+        "resource_restrictions": (
+            "arize.resource_restrictions.client",
+            "ResourceRestrictionsClient",
+        ),
+        "role_bindings": (
+            "arize.role_bindings.client",
+            "RoleBindingsClient",
         ),
         "roles": (
             "arize.roles.client",
@@ -362,6 +372,19 @@ class ArizeClient(LazySubclientsMixin):
     def evaluators(self) -> EvaluatorsClient:
         """Access the evaluators client for evaluator operations (lazy-loaded)."""
         return cast("EvaluatorsClient", self.__getattr__("evaluators"))
+
+    @property
+    def resource_restrictions(self) -> ResourceRestrictionsClient:
+        """Access the resource restrictions client for restricting resources (lazy-loaded)."""
+        return cast(
+            "ResourceRestrictionsClient",
+            self.__getattr__("resource_restrictions"),
+        )
+
+    @property
+    def role_bindings(self) -> RoleBindingsClient:
+        """Access the role bindings client for role binding operations (lazy-loaded)."""
+        return cast("RoleBindingsClient", self.__getattr__("role_bindings"))
 
     @property
     def roles(self) -> RolesClient:
