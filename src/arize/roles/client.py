@@ -140,19 +140,20 @@ class RolesClient:
     def update(
         self,
         *,
-        role_id: str,
+        role: str,
         name: str | None = None,
         description: str | None = None,
         permissions: builtins.list[Permission] | None = None,
     ) -> models.Role:
-        """Update a custom role by ID.
+        """Update a custom role by name or ID.
 
         At least one field must be provided. Predefined roles cannot be updated.
         When ``permissions`` is provided, the existing permissions are fully
         replaced with the new set.
 
         Args:
-            role_id: Role ID to update.
+            role: Role name or global ID (base64). If the value looks like an
+                ID it is used directly; otherwise it is resolved by name.
             name: Updated name for the role (max 255 chars).
             description: Updated description of the role (max 1000 chars).
             permissions: Replacement set of permissions. When provided, fully
@@ -162,6 +163,7 @@ class RolesClient:
             The updated role object.
 
         Raises:
+            NotFoundError: If the role name cannot be found.
             ValueError: If none of ``name``, ``description``, or ``permissions``
                 is provided.
             ApiException: If the API request fails
@@ -172,6 +174,8 @@ class RolesClient:
             raise ValueError(
                 "At least one of 'name', 'description', or 'permissions' must be provided"
             )
+
+        role_id = _find_role_id(self._api, role)
 
         from arize._generated import api_client as gen
 

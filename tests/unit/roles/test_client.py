@@ -272,7 +272,7 @@ class TestRolesClientUpdate:
             ValueError,
             match="At least one of 'name', 'description', or 'permissions' must be provided",
         ):
-            roles_client.update(role_id="role-123")
+            roles_client.update(role=_ROLE_ID)
 
     def test_update_builds_request_and_calls_api(
         self, roles_client: RolesClient, mock_api: Mock
@@ -285,7 +285,7 @@ class TestRolesClientUpdate:
             mock_request_cls.return_value = mock_body
 
             roles_client.update(
-                role_id="role-123",
+                role=_ROLE_ID,
                 name="Senior Analyst",
                 description="Updated description",
                 permissions=["PROJECT_READ", "DATASET_READ"],
@@ -297,7 +297,7 @@ class TestRolesClientUpdate:
             permissions=["PROJECT_READ", "DATASET_READ"],
         )
         mock_api.roles_update.assert_called_once_with(
-            role_id="role-123",
+            role_id=_ROLE_ID,
             role_update=mock_body,
         )
 
@@ -310,7 +310,7 @@ class TestRolesClientUpdate:
         ) as mock_request_cls:
             mock_request_cls.return_value = Mock()
 
-            roles_client.update(role_id="role-123", name="New Name")
+            roles_client.update(role=_ROLE_ID, name="New Name")
 
         mock_request_cls.assert_called_once_with(
             name="New Name",
@@ -327,7 +327,7 @@ class TestRolesClientUpdate:
 
         with patch("arize._generated.api_client.RoleUpdate"):
             result = roles_client.update(
-                role_id="role-123",
+                role=_ROLE_ID,
                 name="Updated Name",
             )
 

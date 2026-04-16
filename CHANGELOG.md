@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.14.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.13.0...arize-python-sdk/v8.14.0) (2026-04-16)
+
+
+### 🎁 New Features
+
+* **roles:** support name or ID in RolesClient.update() ([#68641](https://github.com/Arize-ai/arize/issues/68641)) ([46a6f68](https://github.com/Arize-ai/arize/commit/46a6f68371b9b16db5c0433d819915d5f4317183))
+
 ## [8.13.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.12.0...arize-python-sdk/v8.13.0) (2026-04-15)
 
 

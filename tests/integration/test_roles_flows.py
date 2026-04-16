@@ -84,8 +84,8 @@ class TestRolesCRUD:
         finally:
             roles_client.delete(role=name)
 
-    def test_create_update_delete(self, roles_client) -> None:
-        """Create a role, update its name and description, then delete it."""
+    def test_create_update_delete_by_id(self, roles_client) -> None:
+        """Create a role, update it by ID, then delete it."""
         from arize._generated.api_client.models.permission import Permission
 
         original_name = _unique("sdk-test-role")
@@ -96,7 +96,7 @@ class TestRolesCRUD:
         updated_name = _unique("sdk-test-role-upd")
         try:
             updated = roles_client.update(
-                role_id=role.id,
+                role=role.id,
                 name=updated_name,
                 description="Updated by SDK integration test",
             )
@@ -105,6 +105,26 @@ class TestRolesCRUD:
 
             fetched = roles_client.get(role=role.id)
             assert fetched.name == updated_name
+        finally:
+            roles_client.delete(role=role.id)
+
+    def test_create_update_delete_by_name(self, roles_client) -> None:
+        """Create a role, update it by name, then delete it."""
+        from arize._generated.api_client.models.permission import Permission
+
+        original_name = _unique("sdk-test-role")
+        role = roles_client.create(
+            name=original_name,
+            permissions=[Permission.PROJECT_READ],
+        )
+        updated_name = _unique("sdk-test-role-upd")
+        try:
+            updated = roles_client.update(
+                role=original_name,
+                name=updated_name,
+            )
+            assert updated.id == role.id
+            assert updated.name == updated_name
         finally:
             roles_client.delete(role=role.id)
 
@@ -135,7 +155,7 @@ class TestRolesCRUD:
         )
         try:
             updated = roles_client.update(
-                role_id=role.id,
+                role=role.id,
                 permissions=[
                     Permission.PROJECT_READ,
                     Permission.DATASET_CREATE,

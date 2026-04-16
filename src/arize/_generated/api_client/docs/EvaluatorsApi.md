@@ -61,7 +61,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
     evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The evaluator global ID (base64)
-    evaluator_versions_create_request = {"commit_message":"Improve template wording","template_config":{"name":"hallucination","template":"Evaluate whether the output is factually grounded.\n\nInput: {{input}}\nOutput: {{output}}","include_explanations":true,"use_function_calling_if_available":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"maximize","data_granularity":"span","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}} # EvaluatorVersionsCreateRequest | Body containing evaluator version creation parameters
+    evaluator_versions_create_request = {"commit_message":"Improve template wording","template_config":{"name":"hallucination","template":"Evaluate whether the output is factually grounded.\n\nInput: {input}\nOutput: {output}","include_explanations":true,"use_function_calling_if_available":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"maximize","data_granularity":"span","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}} # EvaluatorVersionsCreateRequest | Body containing evaluator version creation parameters
 
     try:
         # Create evaluator version
@@ -295,7 +295,7 @@ Creates a new evaluator with an initial version.
 - The evaluator `name` must be unique within the given space.
 - `type` must be `template` (the only supported type in this iteration).
 - `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\s\-&()]+$`.
-- `version.template_config.template` is the prompt template; use `{{variable}}` for placeholders.
+- `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`).
 - `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{"relevant": 1, "irrelevant": 0}`). When omitted, the evaluator produces freeform output.
 - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.
 
@@ -333,7 +333,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    evaluators_create_request = {"space_id":"U3BhY2U6NDkzOkJaSkc=","name":"Hallucination Eval","description":"Detects hallucinated content in LLM responses","type":"template","version":{"commit_message":"Initial version","template_config":{"name":"hallucination","template":"You are an evaluation assistant. Given the following input and output, determine if the output contains hallucinated content.\n\nInput: {{input}}\nOutput: {{output}}\nReference: {{reference}}","include_explanations":true,"use_function_calling_if_available":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"maximize","data_granularity":"span","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}}} # EvaluatorsCreateRequest | Body containing evaluator creation parameters with an initial version
+    evaluators_create_request = {"space_id":"U3BhY2U6NDkzOkJaSkc=","name":"Hallucination Eval","description":"Detects hallucinated content in LLM responses","type":"template","version":{"commit_message":"Initial version","template_config":{"name":"hallucination","template":"You are an evaluation assistant. Given the following input and output, determine if the output contains hallucinated content.\n\nInput: {input}\nOutput: {output}\nReference: {reference}","include_explanations":true,"use_function_calling_if_available":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"maximize","data_granularity":"span","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}}} # EvaluatorsCreateRequest | Body containing evaluator creation parameters with an initial version
 
     try:
         # Create evaluator
