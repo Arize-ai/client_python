@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.16.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.15.0...arize-python-sdk/v8.16.0) (2026-04-17)
+
+
+### 🎁 New Features
+
+* add space name/ID resolution to api_keys.create() ([#68888](https://github.com/Arize-ai/arize/issues/68888)) ([59c9847](https://github.com/Arize-ai/arize/commit/59c984763ae891ef9e0db00401db3ebf16061949))
+
 ## [8.15.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.14.0...arize-python-sdk/v8.15.0) (2026-04-16)
 
 

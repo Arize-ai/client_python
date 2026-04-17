@@ -6,6 +6,7 @@ import logging
 from typing import TYPE_CHECKING, Literal
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
+from arize.utils.resolve import _find_space_id
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -43,6 +44,7 @@ class ApiKeysClient:
         from arize._generated import api_client as gen
 
         self._api = gen.APIKeysApi(generated_client)
+        self._spaces_api = gen.SpacesApi(generated_client)
 
     @prerelease_endpoint(key="api_keys.list", stage=ReleaseStage.ALPHA)
     def list(
@@ -87,16 +89,16 @@ class ApiKeysClient:
         description: str | None = None,
         key_type: Literal["user", "service"] = "user",
         expires_at: datetime | None = None,
-        space_id: str | None = None,
+        space: str | None = None,
     ) -> models.ApiKeyCreated:
         """Create a new API key.
 
         Two key types are supported:
 
         - ``"user"``: authenticates as the creating user with their full
-          permissions. ``space_id`` must not be set.
+          permissions. ``space`` must not be set.
         - ``"service"``: scoped to a specific space, backed by a dedicated
-          bot user with limited roles. ``space_id`` is required.
+          bot user with limited roles. ``space`` is required.
 
         The returned :class:`~arize._generated.api_client.models.ApiKeyCreated`
         object contains the full raw key value in its ``key`` field. **This is
@@ -109,8 +111,9 @@ class ApiKeysClient:
                 ``"service"``.
             expires_at: Optional expiration timestamp. If omitted the key
                 never expires. Must be a future timestamp.
-            space_id: Space ID the service key is scoped to. Required when
-                ``key_type`` is ``"service"``; must not be set for user keys.
+            space: Space name or ID the service key is scoped to. Required
+                when ``key_type`` is ``"service"``; must not be set for user
+                keys.
 
         Returns:
             The created API key, including the one-time raw key value.
@@ -121,6 +124,12 @@ class ApiKeysClient:
                 permissions).
         """
         from arize._generated import api_client as gen
+
+        space_id = (
+            _find_space_id(self._spaces_api, space)
+            if space is not None
+            else None
+        )
 
         body = gen.ApiKeyCreate(
             name=name,

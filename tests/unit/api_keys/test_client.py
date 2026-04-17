@@ -128,6 +128,9 @@ class TestApiKeysClientList:
 class TestApiKeysClientCreate:
     """Tests for ApiKeysClient.create()."""
 
+    # Base64 ID that decodes to "Space:905:abc" — passes is_resource_id()
+    _SPACE_ID = "U3BhY2U6OTA1MDoxSmtS"
+
     def test_create_user_key_builds_request_and_calls_api(
         self, api_keys_client: ApiKeysClient, mock_api: Mock
     ) -> None:
@@ -168,7 +171,7 @@ class TestApiKeysClientCreate:
                 description="A service key",
                 key_type="service",
                 expires_at=expires,
-                space_id="space-123",
+                space=self._SPACE_ID,
             )
 
         mock_request_cls.assert_called_once_with(
@@ -176,10 +179,42 @@ class TestApiKeysClientCreate:
             description="A service key",
             key_type="service",
             expires_at=expires,
-            space_id="space-123",
+            space_id=self._SPACE_ID,
         )
         mock_api.api_keys_create.assert_called_once_with(
             api_key_create=mock_body
+        )
+
+    def test_create_with_space_name_resolves_to_id(
+        self, api_keys_client: ApiKeysClient, mock_api: Mock
+    ) -> None:
+        """create() should resolve a space name to an ID via _find_space_id."""
+        with (
+            patch(
+                "arize.api_keys.client._find_space_id",
+                return_value="resolved-space-id",
+            ) as mock_resolve,
+            patch(
+                "arize._generated.api_client.ApiKeyCreate"
+            ) as mock_request_cls,
+        ):
+            mock_request_cls.return_value = Mock()
+
+            api_keys_client.create(
+                name="svc-key",
+                key_type="service",
+                space="my-space",
+            )
+
+        mock_resolve.assert_called_once_with(
+            api_keys_client._spaces_api, "my-space"
+        )
+        mock_request_cls.assert_called_once_with(
+            name="svc-key",
+            description=None,
+            key_type="service",
+            expires_at=None,
+            space_id="resolved-space-id",
         )
 
     def test_create_returns_api_response(
