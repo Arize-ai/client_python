@@ -59,12 +59,11 @@ class RoleBindingsClient:
         role_id: str,
         resource_type: RoleBindingResourceType,
         resource_id: str,
-    ) -> models.RoleBinding | None:
+    ) -> models.RoleBinding:
         """Create a new role binding.
 
         Assigns a role to a user on the specified resource. Only one binding per
-        user per resource is allowed — if the user already has a binding on the
-        resource, the call is a no-op and returns ``None``.
+        user per resource is allowed.
 
         # Example:
         # >>> client = arize.role_bindings.Client(...)
@@ -87,15 +86,15 @@ class RoleBindingsClient:
                 the type specified by ``resource_type``.
 
         Returns:
-            The created role binding object, or ``None`` if a binding already
-            exists for the user on the specified resource.
+            The created role binding object.
 
         Raises:
+            ConflictException: If a binding already exists for the user on the
+                specified resource.
             ApiException: If the API request fails (for example, invalid
                 resource type/ID combination or insufficient permissions).
         """
         from arize._generated import api_client as gen
-        from arize._generated.api_client.exceptions import ConflictException
 
         body = gen.RoleBindingCreate(
             user_id=user_id,
@@ -103,15 +102,7 @@ class RoleBindingsClient:
             resource_type=resource_type,
             resource_id=resource_id,
         )
-        try:
-            return self._api.role_bindings_create(body)
-        except ConflictException:
-            logger.debug(
-                "Role binding already exists for user %s on resource %s — skipping.",
-                user_id,
-                resource_id,
-            )
-            return None
+        return self._api.role_bindings_create(body)
 
     @prerelease_endpoint(key="role_bindings.get", stage=ReleaseStage.ALPHA)
     def get(self, *, binding_id: str) -> models.RoleBinding:

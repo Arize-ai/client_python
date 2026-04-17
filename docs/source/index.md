@@ -22,6 +22,7 @@ datasets
 evaluators
 experiments
 ml
+organizations
 projects
 prompts
 roles

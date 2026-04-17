@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.15.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.14.0...arize-python-sdk/v8.15.0) (2026-04-16)
+
+
+### 🎁 New Features
+
+* **organizations:** add OrganizationsClient with list/get/create/update support ([#68643](https://github.com/Arize-ai/arize/issues/68643)) ([212370c](https://github.com/Arize-ai/arize/commit/212370cbd9f3e9b981c8c05135eea9a0ac9582eb))
+
+
+### 🐛 Bug Fixes
+
+* **role-bindings:** propagate ConflictException instead of swallowing it ([#68766](https://github.com/Arize-ai/arize/issues/68766)) ([b23a5f9](https://github.com/Arize-ai/arize/commit/b23a5f957ca5cba59d7446ddd2d7d96a2900e886))
+
 ## [8.14.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.13.0...arize-python-sdk/v8.14.0) (2026-04-16)
 
 

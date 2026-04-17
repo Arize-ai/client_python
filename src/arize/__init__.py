@@ -167,3 +167,4 @@ models.RolesList200Response.to_df = make_to_df("roles")  # type: ignore[attr-def
 models.TasksList200Response.to_df = make_to_df("tasks")  # type: ignore[attr-defined]
 models.TasksListRuns200Response.to_df = make_to_df("task_runs")  # type: ignore[attr-defined]
 models.AiIntegrationsList200Response.to_df = make_to_df("ai_integrations")  # type: ignore[attr-defined]
+models.OrganizationsList200Response.to_df = make_to_df("organizations")  # type: ignore[attr-defined]

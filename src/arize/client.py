@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from arize.evaluators.client import EvaluatorsClient
     from arize.experiments.client import ExperimentsClient
     from arize.ml.client import MLModelsClient
+    from arize.organizations.client import OrganizationsClient
     from arize.projects.client import ProjectsClient
     from arize.prompts.client import PromptsClient
     from arize.regions import Region
@@ -96,6 +97,10 @@ class ArizeClient(LazySubclientsMixin):
         "ml": (
             "arize.ml.client",
             "MLModelsClient",
+        ),
+        "organizations": (
+            "arize.organizations.client",
+            "OrganizationsClient",
         ),
         "spans": (
             "arize.spans.client",
@@ -326,6 +331,11 @@ class ArizeClient(LazySubclientsMixin):
     def ml(self) -> MLModelsClient:
         """Access the ML models client for ML model operations (lazy-loaded)."""
         return cast("MLModelsClient", self.__getattr__("ml"))
+
+    @property
+    def organizations(self) -> OrganizationsClient:
+        """Access the organizations client for organization operations (lazy-loaded)."""
+        return cast("OrganizationsClient", self.__getattr__("organizations"))
 
     @property
     def projects(self) -> ProjectsClient:

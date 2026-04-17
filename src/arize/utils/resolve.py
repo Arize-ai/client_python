@@ -15,6 +15,7 @@ if TYPE_CHECKING:
         DatasetsApi,
         EvaluatorsApi,
         ExperimentsApi,
+        OrganizationsApi,
         ProjectsApi,
         PromptsApi,
         RolesApi,
@@ -671,6 +672,49 @@ def _find_task_id(
             break
 
     raise NotFoundError("task", task, available)
+
+
+def _find_organization_id(api: OrganizationsApi, organization: str) -> str:
+    """Resolve an organization ID or name to an organization ID.
+
+    If *organization* is a base64-encoded global ID it is returned as-is.
+    Otherwise, the list organizations endpoint is called to find an exact name
+    match.
+
+    Args:
+        api: OrganizationsApi instance.
+        organization: Organization ID or name.
+
+    Returns:
+        The resolved organization ID.
+
+    Raises:
+        NotFoundError: If the organization name cannot be found.
+    """
+    if is_resource_id(organization):
+        return organization
+
+    available: list[str] = []
+    cursor: str | None = None
+
+    while True:
+        response = api.organizations_list(
+            name=organization,
+            limit=_LIST_PAGE_SIZE,
+            cursor=cursor,
+        )
+        for org in response.organizations:
+            if org.name == organization:
+                logger.debug(
+                    "Resolved organization '%s' → %s", organization, org.id
+                )
+                return org.id
+            available.append(org.name)
+        cursor = getattr(response.pagination, "next_cursor", None)
+        if not cursor:
+            break
+
+    raise NotFoundError("organization", organization, available)
 
 
 def _find_role_id(api: RolesApi, role: str) -> str:

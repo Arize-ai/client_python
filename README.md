@@ -990,6 +990,48 @@ client.projects.delete(
 )
 ```
 
+## Operations on Organizations
+
+Use `client.organizations` to manage organizations in the Arize platform.
+
+### List Organizations
+
+```python
+resp = client.organizations.list(
+    name=...,   # Optional, case-insensitive substring filter on organization name
+    limit=...,  # Optional, defaults to 50 (max 100)
+    cursor=..., # Optional, pagination cursor from a previous response
+)
+org_list = resp.organizations
+```
+
+### Get an Organization
+
+```python
+org = client.organizations.get(
+    organization="<organization-id-or-name>",
+)
+```
+
+### Create an Organization
+
+```python
+org = client.organizations.create(
+    name="<your-org-name>",  # Must be unique within the account
+    description=...,         # Optional
+)
+```
+
+### Update an Organization
+
+```python
+org = client.organizations.update(
+    organization="<organization-id-or-name>",
+    name=...,        # Optional updated name
+    description=..., # Optional updated description (pass "" to clear)
+)
+```
+
 ## Operations on Annotation Configs
 
 Use `client.annotation_configs` to manage annotation configurations that define scoring schemas for human feedback.

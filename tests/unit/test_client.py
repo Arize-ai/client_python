@@ -243,6 +243,7 @@ class TestArizeClientProperties:
             "projects",
             "spans",
             "annotation_configs",
+            "organizations",
             "spaces",
         ],
     )
