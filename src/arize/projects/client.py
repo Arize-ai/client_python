@@ -13,9 +13,9 @@ from arize.utils.resolve import (
 )
 
 if TYPE_CHECKING:
-    from arize._generated.api_client import models
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
+    from arize.projects.types import Project, ProjectsList200Response
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class ProjectsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> models.ProjectsList200Response:
+    ) -> ProjectsList200Response:
         """List projects the user has access to.
 
         This endpoint supports cursor-based pagination. When ``space`` is provided,
@@ -93,7 +93,7 @@ class ProjectsClient:
         *,
         name: str,
         space: str,
-    ) -> models.Project:
+    ) -> Project:
         """Create a new project.
 
         Project names must be unique within the target space.
@@ -120,7 +120,7 @@ class ProjectsClient:
         return self._api.projects_create(projects_create_request=body)
 
     @prerelease_endpoint(key="projects.get", stage=ReleaseStage.BETA)
-    def get(self, *, project: str, space: str | None = None) -> models.Project:
+    def get(self, *, project: str, space: str | None = None) -> Project:
         """Get a project by ID or name.
 
         Args:

@@ -35,6 +35,11 @@ if TYPE_CHECKING:
 
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
+    from arize.datasets.types import (
+        Dataset,
+        DatasetsExamplesList200Response,
+        DatasetsList200Response,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +81,7 @@ class DatasetsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> models.DatasetsList200Response:
+    ) -> DatasetsList200Response:
         """List datasets the user has access to.
 
         Datasets are returned in descending creation order (most recently created
@@ -116,7 +121,7 @@ class DatasetsClient:
         space: str,
         examples: builtins.list[dict[str, object]] | pd.DataFrame,
         force_http: bool = False,
-    ) -> models.Dataset:
+    ) -> Dataset:
         """Create a dataset with JSON examples.
 
         Empty datasets are not allowed.
@@ -153,10 +158,6 @@ class DatasetsClient:
                 returns an error response (e.g. 400/401/403/409/429).
         """
         space_id = _find_space_id(self._spaces_api, space)
-        if not isinstance(examples, list | pd.DataFrame):
-            raise TypeError(
-                "Examples must be a list of dicts or a pandas DataFrame"
-            )
         if len(examples) == 0:
             raise ValueError("Cannot create an empty dataset")
 
@@ -197,7 +198,7 @@ class DatasetsClient:
         )
 
     @prerelease_endpoint(key="datasets.get", stage=ReleaseStage.BETA)
-    def get(self, *, dataset: str, space: str | None = None) -> models.Dataset:
+    def get(self, *, dataset: str, space: str | None = None) -> Dataset:
         """Get a dataset by ID or name.
 
         The returned dataset includes its dataset versions (sorted by creation time,
@@ -255,7 +256,7 @@ class DatasetsClient:
         dataset_version_id: str | None = None,
         limit: int = 100,
         all: bool = False,
-    ) -> models.DatasetsExamplesList200Response:
+    ) -> DatasetsExamplesList200Response:
         """List examples for a dataset (optionally for a specific version).
 
         If `dataset_version_id` is not provided (empty string), the server selects
@@ -393,7 +394,7 @@ class DatasetsClient:
         space: str | None = None,
         dataset_version_id: str = "",
         examples: builtins.list[dict[str, object]] | pd.DataFrame,
-    ) -> models.Dataset:
+    ) -> models.DatasetVersionWithExampleIds:
         """Append new examples to an existing dataset.
 
         This method adds examples to an existing dataset version. If
@@ -401,6 +402,8 @@ class DatasetsClient:
         the examples to the latest dataset version.
 
         The inserted examples are assigned system-generated IDs by the server.
+        The response includes those IDs in `example_ids` and the version they
+        were written to in `dataset_version_id`.
 
         Payload requirements (server-enforced):
             - Each example may contain arbitrary user-defined fields.
@@ -419,7 +422,9 @@ class DatasetsClient:
                 - a :class:`pandas.DataFrame` (converted to records before upload).
 
         Returns:
-            The updated dataset object. To see the examples, use `list_examples()`.
+            A :class:`DatasetVersionWithExampleIds` containing the dataset attributes,
+            the version the examples were written to (``dataset_version_id``),
+            and the IDs of the inserted examples (``example_ids``).
 
         Raises:
             AssertionError: If `examples` is not a list of dicts or a :class:`pandas.DataFrame`.
@@ -432,11 +437,6 @@ class DatasetsClient:
             space=space,
         )
         from arize._generated import api_client as gen
-
-        if not isinstance(examples, list | pd.DataFrame):
-            raise TypeError(
-                "Examples must be a list of dicts or a pandas DataFrame"
-            )
 
         data = (
             examples.to_dict(orient="records")
@@ -459,7 +459,7 @@ class DatasetsClient:
         name: str,
         space_id: str,
         examples: pd.DataFrame,
-    ) -> models.Dataset:
+    ) -> Dataset:
         """Internal method to create a dataset using Flight protocol for large example sets."""
         data = examples.copy()
         # Convert datetime columns to int64 (ms since epoch)

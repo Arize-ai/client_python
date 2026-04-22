@@ -9,9 +9,9 @@ from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import _find_space_id
 
 if TYPE_CHECKING:
-    from arize._generated.api_client import models
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
+    from arize.spaces.types import Space, SpacesList200Response
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ class SpacesClient:
         organization_id: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> models.SpacesList200Response:
+    ) -> SpacesList200Response:
         """List spaces the user has access to.
 
         This endpoint supports cursor-based pagination. When provided,
@@ -76,7 +76,7 @@ class SpacesClient:
         )
 
     @prerelease_endpoint(key="spaces.get", stage=ReleaseStage.BETA)
-    def get(self, *, space: str) -> models.Space:
+    def get(self, *, space: str) -> Space:
         """Get a space by ID or name.
 
         Args:
@@ -99,7 +99,7 @@ class SpacesClient:
         name: str,
         organization_id: str,
         description: str | None = None,
-    ) -> models.Space:
+    ) -> Space:
         """Create a new space.
 
         Space names must be unique within the target organization.
@@ -152,7 +152,7 @@ class SpacesClient:
         space: str,
         name: str | None = None,
         description: str | None = None,
-    ) -> models.Space:
+    ) -> Space:
         """Update a space by ID or name.
 
         Args:

@@ -13,10 +13,9 @@ if TYPE_CHECKING:
     # defines list() which shadows the built-in list type.
     import builtins
 
-    from arize._generated.api_client import models
     from arize._generated.api_client.api_client import ApiClient
-    from arize._generated.api_client.models.permission import Permission
     from arize.config import SDKConfiguration
+    from arize.roles.types import Permission, Role, RolesList200Response
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +55,7 @@ class RolesClient:
         limit: int = 100,
         cursor: str | None = None,
         is_predefined: bool | None = None,
-    ) -> models.RolesList200Response:
+    ) -> RolesList200Response:
         """List roles for the authenticated user's account.
 
         This endpoint supports cursor-based pagination. When provided,
@@ -83,7 +82,7 @@ class RolesClient:
         )
 
     @prerelease_endpoint(key="roles.get", stage=ReleaseStage.ALPHA)
-    def get(self, *, role: str) -> models.Role:
+    def get(self, *, role: str) -> Role:
         """Get a role by name or ID.
 
         Args:
@@ -108,7 +107,7 @@ class RolesClient:
         name: str,
         permissions: builtins.list[Permission],
         description: str | None = None,
-    ) -> models.Role:
+    ) -> Role:
         """Create a new custom role.
 
         Role names must be unique within the account. At least one permission
@@ -144,7 +143,7 @@ class RolesClient:
         name: str | None = None,
         description: str | None = None,
         permissions: builtins.list[Permission] | None = None,
-    ) -> models.Role:
+    ) -> Role:
         """Update a custom role by name or ID.
 
         At least one field must be provided. Predefined roles cannot be updated.

@@ -91,5 +91,8 @@ def _should_convert_json(col_name: str) -> bool:
         ".metadata"
     )
     is_json_str = col_name in OPEN_INFERENCE_JSON_STR_TYPES
-    is_task_result = col_name == "result"
+    # Both "result" (legacy Druid column name) and "output" (canonical name) are JSON-encoded
+    # strings containing the experiment task output. The flight server emits both column names
+    # for backward compatibility with the v7 SDK, so we must parse either.
+    is_task_result = col_name in ("result", "output")
     return is_eval_metadata or is_json_str or is_task_result

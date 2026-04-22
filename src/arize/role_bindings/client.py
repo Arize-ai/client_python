@@ -8,12 +8,9 @@ from typing import TYPE_CHECKING
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 
 if TYPE_CHECKING:
-    from arize._generated.api_client import models
     from arize._generated.api_client.api_client import ApiClient
-    from arize._generated.api_client.models.role_binding_resource_type import (
-        RoleBindingResourceType,
-    )
     from arize.config import SDKConfiguration
+    from arize.role_bindings.types import RoleBinding, RoleBindingResourceType
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +56,7 @@ class RoleBindingsClient:
         role_id: str,
         resource_type: RoleBindingResourceType,
         resource_id: str,
-    ) -> models.RoleBinding:
+    ) -> RoleBinding:
         """Create a new role binding.
 
         Assigns a role to a user on the specified resource. Only one binding per
@@ -105,7 +102,7 @@ class RoleBindingsClient:
         return self._api.role_bindings_create(body)
 
     @prerelease_endpoint(key="role_bindings.get", stage=ReleaseStage.ALPHA)
-    def get(self, *, binding_id: str) -> models.RoleBinding:
+    def get(self, *, binding_id: str) -> RoleBinding:
         """Get a role binding by ID.
 
         Args:
@@ -121,7 +118,7 @@ class RoleBindingsClient:
         return self._api.role_bindings_get(binding_id)
 
     @prerelease_endpoint(key="role_bindings.update", stage=ReleaseStage.ALPHA)
-    def update(self, *, binding_id: str, role_id: str) -> models.RoleBinding:
+    def update(self, *, binding_id: str, role_id: str) -> RoleBinding:
         """Update an existing role binding by replacing its assigned role.
 
         Only the ``role_id`` can be changed on an existing binding. The user,

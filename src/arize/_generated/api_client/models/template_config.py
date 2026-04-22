@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictFloat, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from arize._generated.api_client.models.evaluator_llm_config import EvaluatorLlmConfig
+from arize._generated.api_client.models.optimization_direction import OptimizationDirection
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -32,20 +33,10 @@ class TemplateConfig(BaseModel):
     include_explanations: StrictBool = Field(description="Whether to include explanations in the evaluation output")
     use_function_calling_if_available: StrictBool = Field(description="Whether to use function calling if the model supports it")
     classification_choices: Optional[Dict[str, Union[StrictFloat, StrictInt]]] = Field(default=None, description="Map of choice label to numeric score (e.g. {\"relevant\": 1, \"irrelevant\": 0}). When omitted, the evaluator produces freeform (non-classification) output.")
-    direction: Optional[StrictStr] = Field(default=None, description="Optimization direction for annotation scores. When omitted, no optimization preference is set.")
+    direction: Optional[OptimizationDirection] = None
     data_granularity: Optional[StrictStr] = Field(default=None, description="Data granularity level. Defaults to null when omitted.")
     llm_config: EvaluatorLlmConfig
     __properties: ClassVar[List[str]] = ["name", "template", "include_explanations", "use_function_calling_if_available", "classification_choices", "direction", "data_granularity", "llm_config"]
-
-    @field_validator('direction')
-    def direction_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['maximize', 'minimize']):
-            raise ValueError("must be one of enum values ('maximize', 'minimize')")
-        return value
 
     @field_validator('data_granularity')
     def data_granularity_validate_enum(cls, value):
@@ -103,11 +94,6 @@ class TemplateConfig(BaseModel):
         # and model_fields_set contains the field
         if self.classification_choices is None and "classification_choices" in self.model_fields_set:
             _dict['classification_choices'] = None
-
-        # set to None if direction (nullable) is None
-        # and model_fields_set contains the field
-        if self.direction is None and "direction" in self.model_fields_set:
-            _dict['direction'] = None
 
         # set to None if data_granularity (nullable) is None
         # and model_fields_set contains the field

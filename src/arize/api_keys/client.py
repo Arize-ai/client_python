@@ -11,9 +11,12 @@ from arize.utils.resolve import _find_space_id
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from arize._generated.api_client import models
     from arize._generated.api_client.api_client import ApiClient
-    from arize._generated.api_client.models.api_key_status import ApiKeyStatus
+    from arize.api_keys.types import (
+        ApiKeyCreated,
+        ApiKeysList200Response,
+        ApiKeyStatus,
+    )
     from arize.config import SDKConfiguration
 
 logger = logging.getLogger(__name__)
@@ -54,7 +57,7 @@ class ApiKeysClient:
         status: ApiKeyStatus | None = None,
         limit: int = 50,
         cursor: str | None = None,
-    ) -> models.ApiKeysList200Response:
+    ) -> ApiKeysList200Response:
         """List API keys for the authenticated user.
 
         This endpoint supports cursor-based pagination. Optionally filter by
@@ -90,7 +93,7 @@ class ApiKeysClient:
         key_type: Literal["user", "service"] = "user",
         expires_at: datetime | None = None,
         space: str | None = None,
-    ) -> models.ApiKeyCreated:
+    ) -> ApiKeyCreated:
         """Create a new API key.
 
         Two key types are supported:
@@ -100,7 +103,7 @@ class ApiKeysClient:
         - ``"service"``: scoped to a specific space, backed by a dedicated
           bot user with limited roles. ``space`` is required.
 
-        The returned :class:`~arize._generated.api_client.models.ApiKeyCreated`
+        The returned :class:`~arize.api_keys.types.ApiKeyCreated`
         object contains the full raw key value in its ``key`` field. **This is
         the only time the raw key is returned.** Store it securely.
 
@@ -165,7 +168,7 @@ class ApiKeysClient:
         *,
         api_key_id: str,
         expires_at: datetime | None = None,
-    ) -> models.ApiKeyCreated:
+    ) -> ApiKeyCreated:
         """Refresh an existing API key.
 
         Atomically revokes the old key and issues a replacement with the same

@@ -35,9 +35,9 @@ class TestCreateAnnotationConfigRequestBody(unittest.TestCase):
         model = CreateAnnotationConfigRequestBody()
         if include_optional:
             return CreateAnnotationConfigRequestBody(
+                annotation_config_type = 'continuous',
                 name = '',
                 space_id = '',
-                annotation_config_type = 'freeform',
                 minimum_score = 1.337,
                 maximum_score = 1.337,
                 optimization_direction = 'maximize',
@@ -49,9 +49,9 @@ class TestCreateAnnotationConfigRequestBody(unittest.TestCase):
             )
         else:
             return CreateAnnotationConfigRequestBody(
+                annotation_config_type = 'continuous',
                 name = '',
                 space_id = '',
-                annotation_config_type = 'freeform',
                 minimum_score = 1.337,
                 maximum_score = 1.337,
                 values = [

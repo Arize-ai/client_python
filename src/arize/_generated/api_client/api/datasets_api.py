@@ -19,7 +19,10 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.annotate_dataset_examples_request_body import AnnotateDatasetExamplesRequestBody
+from arize._generated.api_client.models.annotation_batch_result import AnnotationBatchResult
 from arize._generated.api_client.models.dataset import Dataset
+from arize._generated.api_client.models.dataset_version_with_example_ids import DatasetVersionWithExampleIds
 from arize._generated.api_client.models.datasets_create_request import DatasetsCreateRequest
 from arize._generated.api_client.models.datasets_examples_insert_request import DatasetsExamplesInsertRequest
 from arize._generated.api_client.models.datasets_examples_list200_response import DatasetsExamplesList200Response
@@ -611,6 +614,311 @@ class DatasetsApi:
 
 
     @validate_call
+    def datasets_examples_annotate(
+        self,
+        dataset_id: Annotated[StrictStr, Field(description="The unique identifier of the dataset")],
+        annotate_dataset_examples_request_body: Annotated[AnnotateDatasetExamplesRequestBody, Field(description="Body containing dataset example annotation batch")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> AnnotationBatchResult:
+        """Annotate a batch of dataset examples
+
+        Write human annotations to a batch of examples in a dataset.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same example overwrites the previous value. Retrying on network failure will not create duplicates.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing example in the dataset, the annotation for that record is silently ignored. The response will still include an entry for it. No error is returned.  **Payload Requirements** - `dataset_id` is the path parameter for the target dataset. - `annotations` is a list of per-example annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the dataset's space. - Up to 500 examples may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"quality\", \"score\": 0.8}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param dataset_id: The unique identifier of the dataset (required)
+        :type dataset_id: str
+        :param annotate_dataset_examples_request_body: Body containing dataset example annotation batch (required)
+        :type annotate_dataset_examples_request_body: AnnotateDatasetExamplesRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._datasets_examples_annotate_serialize(
+            dataset_id=dataset_id,
+            annotate_dataset_examples_request_body=annotate_dataset_examples_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AnnotationBatchResult",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def datasets_examples_annotate_with_http_info(
+        self,
+        dataset_id: Annotated[StrictStr, Field(description="The unique identifier of the dataset")],
+        annotate_dataset_examples_request_body: Annotated[AnnotateDatasetExamplesRequestBody, Field(description="Body containing dataset example annotation batch")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[AnnotationBatchResult]:
+        """Annotate a batch of dataset examples
+
+        Write human annotations to a batch of examples in a dataset.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same example overwrites the previous value. Retrying on network failure will not create duplicates.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing example in the dataset, the annotation for that record is silently ignored. The response will still include an entry for it. No error is returned.  **Payload Requirements** - `dataset_id` is the path parameter for the target dataset. - `annotations` is a list of per-example annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the dataset's space. - Up to 500 examples may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"quality\", \"score\": 0.8}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param dataset_id: The unique identifier of the dataset (required)
+        :type dataset_id: str
+        :param annotate_dataset_examples_request_body: Body containing dataset example annotation batch (required)
+        :type annotate_dataset_examples_request_body: AnnotateDatasetExamplesRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._datasets_examples_annotate_serialize(
+            dataset_id=dataset_id,
+            annotate_dataset_examples_request_body=annotate_dataset_examples_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AnnotationBatchResult",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def datasets_examples_annotate_without_preload_content(
+        self,
+        dataset_id: Annotated[StrictStr, Field(description="The unique identifier of the dataset")],
+        annotate_dataset_examples_request_body: Annotated[AnnotateDatasetExamplesRequestBody, Field(description="Body containing dataset example annotation batch")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Annotate a batch of dataset examples
+
+        Write human annotations to a batch of examples in a dataset.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same example overwrites the previous value. Retrying on network failure will not create duplicates.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing example in the dataset, the annotation for that record is silently ignored. The response will still include an entry for it. No error is returned.  **Payload Requirements** - `dataset_id` is the path parameter for the target dataset. - `annotations` is a list of per-example annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the dataset's space. - Up to 500 examples may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"quality\", \"score\": 0.8}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param dataset_id: The unique identifier of the dataset (required)
+        :type dataset_id: str
+        :param annotate_dataset_examples_request_body: Body containing dataset example annotation batch (required)
+        :type annotate_dataset_examples_request_body: AnnotateDatasetExamplesRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._datasets_examples_annotate_serialize(
+            dataset_id=dataset_id,
+            annotate_dataset_examples_request_body=annotate_dataset_examples_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AnnotationBatchResult",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _datasets_examples_annotate_serialize(
+        self,
+        dataset_id,
+        annotate_dataset_examples_request_body,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if dataset_id is not None:
+            _path_params['dataset_id'] = dataset_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if annotate_dataset_examples_request_body is not None:
+            _body_params = annotate_dataset_examples_request_body
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/datasets/{dataset_id}/examples/annotate',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def datasets_examples_insert(
         self,
         dataset_id: Annotated[StrictStr, Field(description="The unique identifier of the dataset")],
@@ -628,7 +936,7 @@ class DatasetsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Dataset:
+    ) -> DatasetVersionWithExampleIds:
         """Add new examples to a dataset
 
         Appends new examples to an existing dataset.  If the dataset version is not passed, the latest version is selected. The inserted examples will be assigned autogenerated, unique IDs.  **Payload Requirements** - Each item in `examples[]` may contain any user-defined fields. - Do not include system-managed fields on input: `id`, `created_at`, `updated_at`. Requests that contain these fields in any example will be rejected. - Each example must contain at least one property (i.e., `{}` is invalid).  **Valid example** (create) ```json {   \"examples\": [     { \"question\": \"What is 2+2?\",       \"answer\": \"4\",       \"topic\": \"math\"     }   ] } ```  **Invalid example** ('id' not allowed on create) ```json {   \"examples\": [     {       \"id\": \"ex_1\",       \"input\": \"Hello\"     }   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -672,7 +980,7 @@ class DatasetsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Dataset",
+            '201': "DatasetVersionWithExampleIds",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -709,7 +1017,7 @@ class DatasetsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Dataset]:
+    ) -> ApiResponse[DatasetVersionWithExampleIds]:
         """Add new examples to a dataset
 
         Appends new examples to an existing dataset.  If the dataset version is not passed, the latest version is selected. The inserted examples will be assigned autogenerated, unique IDs.  **Payload Requirements** - Each item in `examples[]` may contain any user-defined fields. - Do not include system-managed fields on input: `id`, `created_at`, `updated_at`. Requests that contain these fields in any example will be rejected. - Each example must contain at least one property (i.e., `{}` is invalid).  **Valid example** (create) ```json {   \"examples\": [     { \"question\": \"What is 2+2?\",       \"answer\": \"4\",       \"topic\": \"math\"     }   ] } ```  **Invalid example** ('id' not allowed on create) ```json {   \"examples\": [     {       \"id\": \"ex_1\",       \"input\": \"Hello\"     }   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -753,7 +1061,7 @@ class DatasetsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Dataset",
+            '201': "DatasetVersionWithExampleIds",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -834,7 +1142,7 @@ class DatasetsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Dataset",
+            '201': "DatasetVersionWithExampleIds",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1267,7 +1575,7 @@ class DatasetsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Dataset:
+    ) -> DatasetVersionWithExampleIds:
         """Update existing examples in a dataset
 
         Updates existing dataset examples by matching their `id` field.  an example ID does not match any existing example in the dataset version, it will be ignored. In other words, only examples with IDs that already exist will be updated. To add new examples, use the Insert Dataset Examples endpoint.  Adding columns that do not exist in the dataset schema is allowed, but removing existing columns is not.  Optionally, the update can create a new version of the dataset. In this case, the outcome of the update will be reflected only in the new version, while the previous version remains unchanged. If a new version is not created, the updates will be applied directly (in place) to the specified version.  **Payload Requirements** - Each item in `examples[]` may contain any user-defined fields. - Each item in `examples[]` must include the `id` field to identify the example to update. - Do not include system-managed fields on input: `created_at`, `updated_at`. Requests that contain these fields in any example will be rejected. - Each example must contain at least one property (i.e., `{}` is invalid).  **Valid example** (create) ```json {   \"examples\": [     {       \"id\": \"ex_001\",       \"question\": \"What is 2+2?\",       \"answer\": \"4\",       \"topic\": \"math\"     }   ] } ```  **Invalid example** ('id' missing for update) ```json {   \"examples\": [     {       \"input\": \"Hello\"     }   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1311,7 +1619,7 @@ class DatasetsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Dataset",
+            '200': "DatasetVersionWithExampleIds",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1349,7 +1657,7 @@ class DatasetsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Dataset]:
+    ) -> ApiResponse[DatasetVersionWithExampleIds]:
         """Update existing examples in a dataset
 
         Updates existing dataset examples by matching their `id` field.  an example ID does not match any existing example in the dataset version, it will be ignored. In other words, only examples with IDs that already exist will be updated. To add new examples, use the Insert Dataset Examples endpoint.  Adding columns that do not exist in the dataset schema is allowed, but removing existing columns is not.  Optionally, the update can create a new version of the dataset. In this case, the outcome of the update will be reflected only in the new version, while the previous version remains unchanged. If a new version is not created, the updates will be applied directly (in place) to the specified version.  **Payload Requirements** - Each item in `examples[]` may contain any user-defined fields. - Each item in `examples[]` must include the `id` field to identify the example to update. - Do not include system-managed fields on input: `created_at`, `updated_at`. Requests that contain these fields in any example will be rejected. - Each example must contain at least one property (i.e., `{}` is invalid).  **Valid example** (create) ```json {   \"examples\": [     {       \"id\": \"ex_001\",       \"question\": \"What is 2+2?\",       \"answer\": \"4\",       \"topic\": \"math\"     }   ] } ```  **Invalid example** ('id' missing for update) ```json {   \"examples\": [     {       \"input\": \"Hello\"     }   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1393,7 +1701,7 @@ class DatasetsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Dataset",
+            '200': "DatasetVersionWithExampleIds",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1475,7 +1783,7 @@ class DatasetsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Dataset",
+            '200': "DatasetVersionWithExampleIds",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

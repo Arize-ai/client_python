@@ -51,6 +51,9 @@ if TYPE_CHECKING:
     from arize.experiments.evaluators.base import Evaluators
     from arize.experiments.evaluators.types import EvaluationResultFieldNames
     from arize.experiments.types import (
+        Experiment,
+        ExperimentsList200Response,
+        ExperimentsRunsList200Response,
         ExperimentTask,
         ExperimentTaskFieldNames,
     )
@@ -95,7 +98,7 @@ class ExperimentsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> models.ExperimentsList200Response:
+    ) -> ExperimentsList200Response:
         """List experiments the user has access to.
 
         To filter experiments by the dataset they were run on, provide `dataset`.
@@ -140,7 +143,7 @@ class ExperimentsClient:
         task_fields: ExperimentTaskFieldNames,
         evaluator_columns: dict[str, EvaluationResultFieldNames] | None = None,
         force_http: bool = False,
-    ) -> models.Experiment:
+    ) -> Experiment:
         """Create an experiment with one or more experiment runs.
 
         Experiments are composed of runs. Each run must include:
@@ -247,7 +250,7 @@ class ExperimentsClient:
         experiment: str,
         dataset: str | None = None,
         space: str | None = None,
-    ) -> models.Experiment:
+    ) -> Experiment:
         """Get an experiment by name or ID.
 
         The response does not include the experiment's runs. Use `list_runs()` to
@@ -319,7 +322,7 @@ class ExperimentsClient:
         space: str | None = None,
         limit: int = 100,
         all: bool = False,
-    ) -> models.ExperimentsRunsList200Response:
+    ) -> ExperimentsRunsList200Response:
         """List runs for an experiment.
 
         Runs are returned in insertion order.
@@ -461,7 +464,7 @@ class ExperimentsClient:
         set_global_tracer_provider: bool = False,
         exit_on_error: bool = False,
         timeout: int = 120,
-    ) -> tuple[models.Experiment | None, pd.DataFrame]:
+    ) -> tuple[Experiment | None, pd.DataFrame]:
         """Run an experiment on a dataset and optionally upload results.
 
         This method executes a task against dataset examples, optionally evaluates
@@ -667,7 +670,7 @@ class ExperimentsClient:
         dataset_id: str,
         space_id: str,
         experiment_df: pd.DataFrame,
-    ) -> models.Experiment:
+    ) -> Experiment:
         """Internal method to create an experiment using Flight protocol for large datasets."""
         # Convert to Arrow table
         try:

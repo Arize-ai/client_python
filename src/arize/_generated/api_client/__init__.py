@@ -52,10 +52,16 @@ __all__ = [
     "AiIntegrationsList200Response",
     "AiIntegrationsUpdateRequest",
     "AnnotateAnnotationQueueRecordRequestBody",
+    "AnnotateDatasetExamplesRequestBody",
+    "AnnotateExperimentRunsRequestBody",
+    "AnnotateRecordInput",
+    "AnnotateRecordResult",
     "Annotation",
+    "AnnotationBatchResult",
     "AnnotationConfig",
     "AnnotationConfigBase",
     "AnnotationConfigCreateBase",
+    "AnnotationConfigType",
     "AnnotationConfigsList200Response",
     "AnnotationInput",
     "AnnotationQueue",
@@ -91,6 +97,7 @@ __all__ = [
     "DatasetExample",
     "DatasetExampleUpdate",
     "DatasetVersion",
+    "DatasetVersionWithExampleIds",
     "DatasetsCreateRequest",
     "DatasetsExamplesInsertRequest",
     "DatasetsExamplesList200Response",
@@ -180,6 +187,7 @@ __all__ = [
     "TasksList200Response",
     "TasksListRuns200Response",
     "TasksTriggerRunRequest",
+    "TasksUpdateRequest",
     "TemplateConfig",
     "ToolCall",
     "ToolCallFunction",
@@ -228,10 +236,16 @@ from arize._generated.api_client.models.ai_integrations_create_request import Ai
 from arize._generated.api_client.models.ai_integrations_list200_response import AiIntegrationsList200Response as AiIntegrationsList200Response
 from arize._generated.api_client.models.ai_integrations_update_request import AiIntegrationsUpdateRequest as AiIntegrationsUpdateRequest
 from arize._generated.api_client.models.annotate_annotation_queue_record_request_body import AnnotateAnnotationQueueRecordRequestBody as AnnotateAnnotationQueueRecordRequestBody
+from arize._generated.api_client.models.annotate_dataset_examples_request_body import AnnotateDatasetExamplesRequestBody as AnnotateDatasetExamplesRequestBody
+from arize._generated.api_client.models.annotate_experiment_runs_request_body import AnnotateExperimentRunsRequestBody as AnnotateExperimentRunsRequestBody
+from arize._generated.api_client.models.annotate_record_input import AnnotateRecordInput as AnnotateRecordInput
+from arize._generated.api_client.models.annotate_record_result import AnnotateRecordResult as AnnotateRecordResult
 from arize._generated.api_client.models.annotation import Annotation as Annotation
+from arize._generated.api_client.models.annotation_batch_result import AnnotationBatchResult as AnnotationBatchResult
 from arize._generated.api_client.models.annotation_config import AnnotationConfig as AnnotationConfig
 from arize._generated.api_client.models.annotation_config_base import AnnotationConfigBase as AnnotationConfigBase
 from arize._generated.api_client.models.annotation_config_create_base import AnnotationConfigCreateBase as AnnotationConfigCreateBase
+from arize._generated.api_client.models.annotation_config_type import AnnotationConfigType as AnnotationConfigType
 from arize._generated.api_client.models.annotation_configs_list200_response import AnnotationConfigsList200Response as AnnotationConfigsList200Response
 from arize._generated.api_client.models.annotation_input import AnnotationInput as AnnotationInput
 from arize._generated.api_client.models.annotation_queue import AnnotationQueue as AnnotationQueue
@@ -267,6 +281,7 @@ from arize._generated.api_client.models.dataset import Dataset as Dataset
 from arize._generated.api_client.models.dataset_example import DatasetExample as DatasetExample
 from arize._generated.api_client.models.dataset_example_update import DatasetExampleUpdate as DatasetExampleUpdate
 from arize._generated.api_client.models.dataset_version import DatasetVersion as DatasetVersion
+from arize._generated.api_client.models.dataset_version_with_example_ids import DatasetVersionWithExampleIds as DatasetVersionWithExampleIds
 from arize._generated.api_client.models.datasets_create_request import DatasetsCreateRequest as DatasetsCreateRequest
 from arize._generated.api_client.models.datasets_examples_insert_request import DatasetsExamplesInsertRequest as DatasetsExamplesInsertRequest
 from arize._generated.api_client.models.datasets_examples_list200_response import DatasetsExamplesList200Response as DatasetsExamplesList200Response
@@ -356,6 +371,7 @@ from arize._generated.api_client.models.tasks_create_request_evaluators_inner im
 from arize._generated.api_client.models.tasks_list200_response import TasksList200Response as TasksList200Response
 from arize._generated.api_client.models.tasks_list_runs200_response import TasksListRuns200Response as TasksListRuns200Response
 from arize._generated.api_client.models.tasks_trigger_run_request import TasksTriggerRunRequest as TasksTriggerRunRequest
+from arize._generated.api_client.models.tasks_update_request import TasksUpdateRequest as TasksUpdateRequest
 from arize._generated.api_client.models.template_config import TemplateConfig as TemplateConfig
 from arize._generated.api_client.models.tool_call import ToolCall as ToolCall
 from arize._generated.api_client.models.tool_call_function import ToolCallFunction as ToolCallFunction

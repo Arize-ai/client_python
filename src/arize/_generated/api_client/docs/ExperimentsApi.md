@@ -8,6 +8,7 @@ Method | HTTP request | Description
 [**experiments_delete**](ExperimentsApi.md#experiments_delete) | **DELETE** /v2/experiments/{experiment_id} | Delete an experiment
 [**experiments_get**](ExperimentsApi.md#experiments_get) | **GET** /v2/experiments/{experiment_id} | Get an experiment
 [**experiments_list**](ExperimentsApi.md#experiments_list) | **GET** /v2/experiments | List experiments
+[**experiments_runs_annotate**](ExperimentsApi.md#experiments_runs_annotate) | **POST** /v2/experiments/{experiment_id}/runs/annotate | Annotate a batch of experiment runs
 [**experiments_runs_list**](ExperimentsApi.md#experiments_runs_list) | **GET** /v2/experiments/{experiment_id}/runs | List experiment runs
 
 
@@ -379,6 +380,126 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **422** | Invalid request |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **experiments_runs_annotate**
+> AnnotationBatchResult experiments_runs_annotate(experiment_id, annotate_experiment_runs_request_body)
+
+Annotate a batch of experiment runs
+
+Write human annotations to a batch of runs in an experiment.
+
+**Idempotency**: Writes use upsert semantics — submitting the same annotation
+config name for the same run overwrites the previous value. Retrying on
+network failure will not create duplicates.
+
+**Unmatched record IDs**: If a `record_id` does not correspond to an existing
+run in the experiment, the annotation for that record is silently ignored.
+The response will still include an entry for it. No error is returned.
+
+**Payload Requirements**
+- `experiment_id` is the path parameter for the target experiment.
+- `annotations` is a list of per-run annotation inputs, each identified by `record_id`.
+- Annotation names must match existing annotation configs in the experiment's space.
+- Up to 500 runs may be annotated per request.
+
+**Valid example**
+```json
+{
+  "annotations": [
+    {"record_id": "run_abc", "values": [{"name": "quality", "label": "good"}]}
+  ]
+}
+```
+
+**Invalid example** (annotation name not found in space)
+```json
+{
+  "annotations": [
+    {"record_id": "run_abc", "values": [{"name": "nonexistent_config"}]}
+  ]
+}
+```
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.annotate_experiment_runs_request_body import AnnotateExperimentRunsRequestBody
+from arize._generated.api_client.models.annotation_batch_result import AnnotationBatchResult
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.ExperimentsApi(api_client)
+    experiment_id = 'RXhwZXJpbWVudDoxMjM0NQ==' # str | The unique identifier of the experiment
+    annotate_experiment_runs_request_body = {"annotations":[{"record_id":"run_abc","values":[{"name":"quality","label":"good"}]}]} # AnnotateExperimentRunsRequestBody | Body containing experiment run annotation batch
+
+    try:
+        # Annotate a batch of experiment runs
+        api_response = api_instance.experiments_runs_annotate(experiment_id, annotate_experiment_runs_request_body)
+        print("The response of ExperimentsApi->experiments_runs_annotate:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling ExperimentsApi->experiments_runs_annotate: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **experiment_id** | **str**| The unique identifier of the experiment | 
+ **annotate_experiment_runs_request_body** | [**AnnotateExperimentRunsRequestBody**](AnnotateExperimentRunsRequestBody.md)| Body containing experiment run annotation batch | 
+
+### Return type
+
+[**AnnotationBatchResult**](AnnotationBatchResult.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Annotations successfully written to experiment runs |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

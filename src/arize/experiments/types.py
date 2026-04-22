@@ -420,3 +420,35 @@ ExampleInput = Mapping[str, JSONSerializable]
 ExperimentTask = (
     Callable[[Example], TaskOutput] | Callable[[Example], Awaitable[TaskOutput]]
 )
+
+# Public re-exports of generated API response types for this subdomain.
+from arize._generated.api_client.models.experiment import (  # noqa: E402
+    Experiment,
+)
+from arize._generated.api_client.models.experiments_list200_response import (  # noqa: E402
+    ExperimentsList200Response,
+)
+from arize._generated.api_client.models.experiments_runs_list200_response import (  # noqa: E402
+    ExperimentsRunsList200Response,
+)
+
+__all__ = [
+    "Example",
+    "ExampleId",
+    "ExampleInput",
+    "ExampleMetadata",
+    "ExampleOutput",
+    "Experiment",
+    "ExperimentEvaluationRun",
+    "ExperimentId",
+    "ExperimentRun",
+    "ExperimentRunId",
+    "ExperimentTask",
+    "ExperimentTaskFieldNames",
+    "ExperimentsList200Response",
+    "ExperimentsRunsList200Response",
+    "RepetitionNumber",
+    "TaskOutput",
+    "TestCase",
+    "TraceId",
+]

@@ -46,10 +46,10 @@ if TYPE_CHECKING:
 
     import requests
 
-    from arize._generated.api_client import models
     from arize._generated.api_client.api_client import ApiClient
     from arize._generated.protocol.flight import flight_pb2
     from arize.config import SDKConfiguration
+    from arize.spans.types import SpansList200Response
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ class SpansClient:
         filter: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> models.SpansList200Response:
+    ) -> SpansList200Response:
         """List spans for a project within a time range.
 
         Spans are returned in descending start-time order (most recent first).

@@ -15,20 +15,21 @@ from arize.utils.resolve import (
 if TYPE_CHECKING:
     import builtins
 
-    from arize._generated.api_client import models
     from arize._generated.api_client.api_client import ApiClient
-    from arize._generated.api_client.models.input_variable_format import (
+    from arize.config import SDKConfiguration
+    from arize.prompts.types import (
         InputVariableFormat,
-    )
-    from arize._generated.api_client.models.invocation_params import (
         InvocationParams,
-    )
-    from arize._generated.api_client.models.llm_message import LLMMessage
-    from arize._generated.api_client.models.llm_provider import LlmProvider
-    from arize._generated.api_client.models.provider_params import (
+        LLMMessage,
+        LlmProvider,
+        Prompt,
+        PromptsList200Response,
+        PromptVersion,
+        PromptVersionLabelsSet200Response,
+        PromptVersionsList200Response,
+        PromptWithVersion,
         ProviderParams,
     )
-    from arize.config import SDKConfiguration
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +71,7 @@ class PromptsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> models.PromptsList200Response:
+    ) -> PromptsList200Response:
         """List prompts in a space.
 
         Args:
@@ -112,7 +113,7 @@ class PromptsClient:
         model: str | None = None,
         invocation_params: InvocationParams | None = None,
         provider_params: ProviderParams | None = None,
-    ) -> models.PromptWithVersion:
+    ) -> PromptWithVersion:
         """Create a prompt with an initial version.
 
         Args:
@@ -167,7 +168,7 @@ class PromptsClient:
         space: str | None = None,
         version_id: str | None = None,
         label: str | None = None,
-    ) -> models.PromptWithVersion:
+    ) -> PromptWithVersion:
         """Get a prompt by ID or name.
 
         Optionally resolves a specific version by ``version_id`` or a ``label``.
@@ -205,7 +206,7 @@ class PromptsClient:
         prompt: str,
         space: str | None = None,
         description: str,
-    ) -> models.Prompt:
+    ) -> Prompt:
         """Update a prompt's metadata.
 
         Args:
@@ -268,7 +269,7 @@ class PromptsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> models.PromptVersionsList200Response:
+    ) -> PromptVersionsList200Response:
         """List versions for a prompt.
 
         Args:
@@ -310,7 +311,7 @@ class PromptsClient:
         model: str | None = None,
         invocation_params: InvocationParams | None = None,
         provider_params: ProviderParams | None = None,
-    ) -> models.PromptVersion:
+    ) -> PromptVersion:
         """Create a new version for an existing prompt.
 
         Args:
@@ -359,7 +360,7 @@ class PromptsClient:
     @prerelease_endpoint(key="prompts.get_label", stage=ReleaseStage.ALPHA)
     def get_label(
         self, *, prompt: str, space: str | None = None, label_name: str
-    ) -> models.PromptVersion:
+    ) -> PromptVersion:
         """Resolve a label to a prompt version.
 
         Args:
@@ -390,7 +391,7 @@ class PromptsClient:
         *,
         version_id: str,
         labels: builtins.list[str],
-    ) -> models.PromptVersionLabelsSet200Response:
+    ) -> PromptVersionLabelsSet200Response:
         """Set labels on a prompt version.
 
         Replaces all existing labels on the version with the provided list.

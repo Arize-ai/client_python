@@ -16,8 +16,13 @@ from arize.utils.resolve import (
 if TYPE_CHECKING:
     import builtins
 
-    from arize._generated.api_client import models
     from arize._generated.api_client.api_client import ApiClient
+    from arize.annotation_configs.types import (
+        AnnotationConfig,
+        AnnotationConfigsList200Response,
+        CategoricalAnnotationValue,
+        OptimizationDirection,
+    )
     from arize.config import SDKConfiguration
 
 logger = logging.getLogger(__name__)
@@ -60,7 +65,7 @@ class AnnotationConfigsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> models.AnnotationConfigsList200Response:
+    ) -> AnnotationConfigsList200Response:
         """List annotation configs the user has access to.
 
         Annotation configs are returned in descending creation order (most recently created
@@ -102,9 +107,9 @@ class AnnotationConfigsClient:
         config_type: AnnotationConfigType,
         minimum_score: float | int | None = None,
         maximum_score: float | int | None = None,
-        values: builtins.list[models.CategoricalAnnotationValue] | None = None,
-        optimization_direction: models.OptimizationDirection | None = None,
-    ) -> models.AnnotationConfig:
+        values: builtins.list[CategoricalAnnotationValue] | None = None,
+        optimization_direction: OptimizationDirection | None = None,
+    ) -> AnnotationConfig:
         """Create an annotation config.
 
         Supported config types:
@@ -143,7 +148,7 @@ class AnnotationConfigsClient:
                 actual_instance=gen.ContinuousAnnotationConfigCreate(
                     name=name,
                     space_id=space_id,
-                    annotation_config_type=AnnotationConfigType.CONTINUOUS.value,
+                    annotation_config_type=AnnotationConfigType.CONTINUOUS,
                     minimum_score=minimum_score,
                     maximum_score=maximum_score,
                     optimization_direction=optimization_direction,
@@ -156,7 +161,7 @@ class AnnotationConfigsClient:
                 actual_instance=gen.CategoricalAnnotationConfigCreate(
                     name=name,
                     space_id=space_id,
-                    annotation_config_type=AnnotationConfigType.CATEGORICAL.value,
+                    annotation_config_type=AnnotationConfigType.CATEGORICAL,
                     values=values,
                     optimization_direction=optimization_direction,
                 )
@@ -166,7 +171,7 @@ class AnnotationConfigsClient:
                 actual_instance=gen.FreeformAnnotationConfigCreate(
                     name=name,
                     space_id=space_id,
-                    annotation_config_type=AnnotationConfigType.FREEFORM.value,
+                    annotation_config_type=AnnotationConfigType.FREEFORM,
                 )
             )
         return self._api.annotation_configs_create(
@@ -176,7 +181,7 @@ class AnnotationConfigsClient:
     @prerelease_endpoint(key="annotation_configs.get", stage=ReleaseStage.BETA)
     def get(
         self, *, annotation_config: str, space: str | None = None
-    ) -> models.AnnotationConfig:
+    ) -> AnnotationConfig:
         """Get an annotation config by ID or name.
 
         Args:

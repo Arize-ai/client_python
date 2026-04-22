@@ -9,9 +9,12 @@ from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import _find_organization_id
 
 if TYPE_CHECKING:
-    from arize._generated.api_client import models
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
+    from arize.organizations.types import (
+        Organization,
+        OrganizationsList200Response,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +54,7 @@ class OrganizationsClient:
         name: str | None = None,
         limit: int = 50,
         cursor: str | None = None,
-    ) -> models.OrganizationsList200Response:
+    ) -> OrganizationsList200Response:
         """List organizations the user has access to.
 
         This endpoint supports cursor-based pagination. When provided,
@@ -77,7 +80,7 @@ class OrganizationsClient:
         )
 
     @prerelease_endpoint(key="organizations.get", stage=ReleaseStage.ALPHA)
-    def get(self, *, organization: str) -> models.Organization:
+    def get(self, *, organization: str) -> Organization:
         """Get an organization by ID or name.
 
         Args:
@@ -99,7 +102,7 @@ class OrganizationsClient:
         *,
         name: str,
         description: str | None = None,
-    ) -> models.Organization:
+    ) -> Organization:
         """Create a new organization.
 
         Organization names must be unique within the account.
@@ -129,7 +132,7 @@ class OrganizationsClient:
         organization: str,
         name: str | None = None,
         description: str | None = None,
-    ) -> models.Organization:
+    ) -> Organization:
         """Update an organization's metadata by ID or name.
 
         Args:

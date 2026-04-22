@@ -1,0 +1,19 @@
+"""Public type re-exports for the datasets subdomain."""
+
+from arize._generated.api_client.models.dataset import Dataset
+from arize._generated.api_client.models.dataset_version_with_example_ids import (
+    DatasetVersionWithExampleIds,
+)
+from arize._generated.api_client.models.datasets_examples_list200_response import (
+    DatasetsExamplesList200Response,
+)
+from arize._generated.api_client.models.datasets_list200_response import (
+    DatasetsList200Response,
+)
+
+__all__ = [
+    "Dataset",
+    "DatasetVersionWithExampleIds",
+    "DatasetsExamplesList200Response",
+    "DatasetsList200Response",
+]

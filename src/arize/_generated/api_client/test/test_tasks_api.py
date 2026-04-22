@@ -47,6 +47,13 @@ class TestTasksApi(unittest.TestCase):
         """
         pass
 
+    def test_tasks_delete(self) -> None:
+        """Test case for tasks_delete
+
+        Delete task
+        """
+        pass
+
     def test_tasks_get(self) -> None:
         """Test case for tasks_get
 
@@ -72,6 +79,13 @@ class TestTasksApi(unittest.TestCase):
         """Test case for tasks_trigger_run
 
         Trigger a task run
+        """
+        pass
+
+    def test_tasks_update(self) -> None:
+        """Test case for tasks_update
+
+        Update task
         """
         pass
 

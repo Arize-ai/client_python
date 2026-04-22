@@ -200,6 +200,10 @@ A permission identifier following the pattern {RESOURCE}_{ACTION}. Auto-generate
 
 * `SERVICE_KEY_CREATE` (value: `'SERVICE_KEY_CREATE'`)
 
+* `SERVICE_KEY_DELETE` (value: `'SERVICE_KEY_DELETE'`)
+
+* `SERVICE_KEY_READ` (value: `'SERVICE_KEY_READ'`)
+
 * `SPACE_CREATE` (value: `'SPACE_CREATE'`)
 
 * `SPACE_DELETE` (value: `'SPACE_DELETE'`)

@@ -6,6 +6,7 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**datasets_create**](DatasetsApi.md#datasets_create) | **POST** /v2/datasets | Create a dataset
 [**datasets_delete**](DatasetsApi.md#datasets_delete) | **DELETE** /v2/datasets/{dataset_id} | Delete a dataset
+[**datasets_examples_annotate**](DatasetsApi.md#datasets_examples_annotate) | **POST** /v2/datasets/{dataset_id}/examples/annotate | Annotate a batch of dataset examples
 [**datasets_examples_insert**](DatasetsApi.md#datasets_examples_insert) | **POST** /v2/datasets/{dataset_id}/examples | Add new examples to a dataset
 [**datasets_examples_list**](DatasetsApi.md#datasets_examples_list) | **GET** /v2/datasets/{dataset_id}/examples | List dataset examples
 [**datasets_examples_update**](DatasetsApi.md#datasets_examples_update) | **PATCH** /v2/datasets/{dataset_id}/examples | Update existing examples in a dataset
@@ -224,8 +225,129 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **datasets_examples_annotate**
+> AnnotationBatchResult datasets_examples_annotate(dataset_id, annotate_dataset_examples_request_body)
+
+Annotate a batch of dataset examples
+
+Write human annotations to a batch of examples in a dataset.
+
+**Idempotency**: Writes use upsert semantics — submitting the same annotation
+config name for the same example overwrites the previous value. Retrying on
+network failure will not create duplicates.
+
+**Unmatched record IDs**: If a `record_id` does not correspond to an existing
+example in the dataset, the annotation for that record is silently ignored.
+The response will still include an entry for it. No error is returned.
+
+**Payload Requirements**
+- `dataset_id` is the path parameter for the target dataset.
+- `annotations` is a list of per-example annotation inputs, each identified by `record_id`.
+- Annotation names must match existing annotation configs in the dataset's space.
+- Up to 500 examples may be annotated per request.
+
+**Valid example**
+```json
+{
+  "annotations": [
+    {"record_id": "ex_abc", "values": [{"name": "quality", "score": 0.8}]}
+  ]
+}
+```
+
+**Invalid example** (annotation name not found in space)
+```json
+{
+  "annotations": [
+    {"record_id": "ex_abc", "values": [{"name": "nonexistent_config"}]}
+  ]
+}
+```
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.annotate_dataset_examples_request_body import AnnotateDatasetExamplesRequestBody
+from arize._generated.api_client.models.annotation_batch_result import AnnotationBatchResult
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.DatasetsApi(api_client)
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique identifier of the dataset
+    annotate_dataset_examples_request_body = {"annotations":[{"record_id":"ex_abc","values":[{"name":"quality","score":0.8}]}]} # AnnotateDatasetExamplesRequestBody | Body containing dataset example annotation batch
+
+    try:
+        # Annotate a batch of dataset examples
+        api_response = api_instance.datasets_examples_annotate(dataset_id, annotate_dataset_examples_request_body)
+        print("The response of DatasetsApi->datasets_examples_annotate:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling DatasetsApi->datasets_examples_annotate: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **dataset_id** | **str**| The unique identifier of the dataset | 
+ **annotate_dataset_examples_request_body** | [**AnnotateDatasetExamplesRequestBody**](AnnotateDatasetExamplesRequestBody.md)| Body containing dataset example annotation batch | 
+
+### Return type
+
+[**AnnotationBatchResult**](AnnotationBatchResult.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Annotations successfully written to dataset examples |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **datasets_examples_insert**
-> Dataset datasets_examples_insert(dataset_id, datasets_examples_insert_request, dataset_version_id=dataset_version_id)
+> DatasetVersionWithExampleIds datasets_examples_insert(dataset_id, datasets_examples_insert_request, dataset_version_id=dataset_version_id)
 
 Add new examples to a dataset
 
@@ -274,7 +396,7 @@ be rejected.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.dataset import Dataset
+from arize._generated.api_client.models.dataset_version_with_example_ids import DatasetVersionWithExampleIds
 from arize._generated.api_client.models.datasets_examples_insert_request import DatasetsExamplesInsertRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
@@ -325,7 +447,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Dataset**](Dataset.md)
+[**DatasetVersionWithExampleIds**](DatasetVersionWithExampleIds.md)
 
 ### Authorization
 
@@ -340,7 +462,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**200** | A dataset object |  -  |
+**201** | Examples successfully added to the dataset. |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
@@ -451,7 +573,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **datasets_examples_update**
-> Dataset datasets_examples_update(dataset_id, datasets_examples_update_request, dataset_version_id=dataset_version_id)
+> DatasetVersionWithExampleIds datasets_examples_update(dataset_id, datasets_examples_update_request, dataset_version_id=dataset_version_id)
 
 Update existing examples in a dataset
 
@@ -513,7 +635,7 @@ Requests that contain these fields in any example will be rejected.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.dataset import Dataset
+from arize._generated.api_client.models.dataset_version_with_example_ids import DatasetVersionWithExampleIds
 from arize._generated.api_client.models.datasets_examples_update_request import DatasetsExamplesUpdateRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
@@ -564,7 +686,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Dataset**](Dataset.md)
+[**DatasetVersionWithExampleIds**](DatasetVersionWithExampleIds.md)
 
 ### Authorization
 
@@ -579,7 +701,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**200** | A dataset object |  -  |
+**200** | Examples successfully updated in the dataset. |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |

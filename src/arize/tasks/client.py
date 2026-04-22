@@ -18,9 +18,15 @@ if TYPE_CHECKING:
     import builtins
     from datetime import datetime
 
-    from arize._generated.api_client import models
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
+    from arize.tasks.types import (
+        Task,
+        TaskRun,
+        TasksCreateRequestEvaluatorsInner,
+        TasksList200Response,
+        TasksListRuns200Response,
+    )
 
 # Shared type aliases — kept here so method signatures and _TERMINAL_STATUSES
 # stay in sync with a single source of truth.
@@ -78,7 +84,7 @@ class TasksClient:
         task_type: TaskType | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> models.TasksList200Response:
+    ) -> TasksList200Response:
         """List tasks the user has access to.
 
         Results support cursor-based pagination. Optionally filter by space,
@@ -139,7 +145,7 @@ class TasksClient:
         )
 
     @prerelease_endpoint(key="tasks.get", stage=ReleaseStage.ALPHA)
-    def get(self, *, task: str, space: str | None = None) -> models.Task:
+    def get(self, *, task: str, space: str | None = None) -> Task:
         """Get a task by name or ID.
 
         Args:
@@ -168,7 +174,7 @@ class TasksClient:
         *,
         name: str,
         task_type: TaskType,
-        evaluators: builtins.list[models.TasksCreateRequestEvaluatorsInner],
+        evaluators: builtins.list[TasksCreateRequestEvaluatorsInner],
         project: str | None = None,
         dataset: str | None = None,
         space: str | None = None,
@@ -176,7 +182,7 @@ class TasksClient:
         sampling_rate: float | None = None,
         is_continuous: bool | None = None,
         query_filter: str | None = None,
-    ) -> models.Task:
+    ) -> Task:
         """Create a new evaluation task.
 
         Either ``project`` or ``dataset`` must be provided, but not both.
@@ -189,7 +195,7 @@ class TasksClient:
                 ``"code_evaluation"``.
             evaluators: List of evaluators to attach. At least one is required.
                 Each evaluator is a
-                :class:`arize._generated.api_client.models.TasksCreateRequestEvaluatorsInner`
+                :class:`arize.tasks.types.TasksCreateRequestEvaluatorsInner`
                 with the following fields:
 
                 - ``evaluator_id`` — Evaluator global ID (base64). Required.
@@ -270,7 +276,7 @@ class TasksClient:
         max_spans: int | None = None,
         override_evaluations: bool | None = None,
         experiment_ids: builtins.list[str] | None = None,
-    ) -> models.TaskRun:
+    ) -> TaskRun:
         """Trigger an on-demand run for a task.
 
         Args:
@@ -322,7 +328,7 @@ class TasksClient:
         status: RunStatus | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> models.TasksListRuns200Response:
+    ) -> TasksListRuns200Response:
         """List runs for a task.
 
         Results support cursor-based pagination. Optionally filter by run
@@ -357,7 +363,7 @@ class TasksClient:
         )
 
     @prerelease_endpoint(key="tasks.get_run", stage=ReleaseStage.ALPHA)
-    def get_run(self, *, run_id: str) -> models.TaskRun:
+    def get_run(self, *, run_id: str) -> TaskRun:
         """Get a task run by its global ID.
 
         Args:
@@ -373,7 +379,7 @@ class TasksClient:
         return self._api.task_runs_get(run_id=run_id)
 
     @prerelease_endpoint(key="tasks.cancel_run", stage=ReleaseStage.ALPHA)
-    def cancel_run(self, *, run_id: str) -> models.TaskRun:
+    def cancel_run(self, *, run_id: str) -> TaskRun:
         """Cancel a task run.
 
         Only valid when the run's current status is ``"pending"`` or
@@ -398,7 +404,7 @@ class TasksClient:
         run_id: str,
         poll_interval: float = _DEFAULT_POLL_INTERVAL,
         timeout: float = _DEFAULT_TIMEOUT,
-    ) -> models.TaskRun:
+    ) -> TaskRun:
         """Poll a task run until it reaches a terminal state.
 
         Repeatedly calls :meth:`get_run` at ``poll_interval``-second intervals

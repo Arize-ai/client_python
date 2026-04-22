@@ -217,6 +217,11 @@ module = [
 ]
 ignore_missing_imports = true
 
+# Suppress errors in auto-generated code imported by public type aliases
+[[tool.mypy.overrides]]
+module = ["arize._generated.*"]
+ignore_errors = true
+
 [tool.pytest.ini_options]
 # Directory where pytest will search for tests
 testpaths = ["tests"]

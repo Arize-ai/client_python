@@ -98,6 +98,7 @@ Class | Method | HTTP request | Description
 *AnnotationQueuesApi* | [**annotation_queues_update**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_update) | **PATCH** /v2/annotation-queues/{annotation_queue_id} | Update an annotation queue
 *DatasetsApi* | [**datasets_create**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_create) | **POST** /v2/datasets | Create a dataset
 *DatasetsApi* | [**datasets_delete**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_delete) | **DELETE** /v2/datasets/{dataset_id} | Delete a dataset
+*DatasetsApi* | [**datasets_examples_annotate**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_examples_annotate) | **POST** /v2/datasets/{dataset_id}/examples/annotate | Annotate a batch of dataset examples
 *DatasetsApi* | [**datasets_examples_insert**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_examples_insert) | **POST** /v2/datasets/{dataset_id}/examples | Add new examples to a dataset
 *DatasetsApi* | [**datasets_examples_list**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_examples_list) | **GET** /v2/datasets/{dataset_id}/examples | List dataset examples
 *DatasetsApi* | [**datasets_examples_update**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_examples_update) | **PATCH** /v2/datasets/{dataset_id}/examples | Update existing examples in a dataset
@@ -115,6 +116,7 @@ Class | Method | HTTP request | Description
 *ExperimentsApi* | [**experiments_delete**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_delete) | **DELETE** /v2/experiments/{experiment_id} | Delete an experiment
 *ExperimentsApi* | [**experiments_get**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_get) | **GET** /v2/experiments/{experiment_id} | Get an experiment
 *ExperimentsApi* | [**experiments_list**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_list) | **GET** /v2/experiments | List experiments
+*ExperimentsApi* | [**experiments_runs_annotate**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_runs_annotate) | **POST** /v2/experiments/{experiment_id}/runs/annotate | Annotate a batch of experiment runs
 *ExperimentsApi* | [**experiments_runs_list**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_runs_list) | **GET** /v2/experiments/{experiment_id}/runs | List experiment runs
 *OrganizationsApi* | [**organizations_create**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_create) | **POST** /v2/organizations | Create an organization
 *OrganizationsApi* | [**organizations_get**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_get) | **GET** /v2/organizations/{org_id} | Get an organization
@@ -156,10 +158,12 @@ Class | Method | HTTP request | Description
 *TasksApi* | [**task_runs_cancel**](arize/_generated/api_client/docs/TasksApi.md#task_runs_cancel) | **POST** /v2/task-runs/{run_id}/cancel | Cancel task run
 *TasksApi* | [**task_runs_get**](arize/_generated/api_client/docs/TasksApi.md#task_runs_get) | **GET** /v2/task-runs/{run_id} | Get task run
 *TasksApi* | [**tasks_create**](arize/_generated/api_client/docs/TasksApi.md#tasks_create) | **POST** /v2/tasks | Create task
+*TasksApi* | [**tasks_delete**](arize/_generated/api_client/docs/TasksApi.md#tasks_delete) | **DELETE** /v2/tasks/{task_id} | Delete task
 *TasksApi* | [**tasks_get**](arize/_generated/api_client/docs/TasksApi.md#tasks_get) | **GET** /v2/tasks/{task_id} | Get task
 *TasksApi* | [**tasks_list**](arize/_generated/api_client/docs/TasksApi.md#tasks_list) | **GET** /v2/tasks | List tasks
 *TasksApi* | [**tasks_list_runs**](arize/_generated/api_client/docs/TasksApi.md#tasks_list_runs) | **GET** /v2/tasks/{task_id}/runs | List task runs
 *TasksApi* | [**tasks_trigger_run**](arize/_generated/api_client/docs/TasksApi.md#tasks_trigger_run) | **POST** /v2/tasks/{task_id}/trigger | Trigger a task run
+*TasksApi* | [**tasks_update**](arize/_generated/api_client/docs/TasksApi.md#tasks_update) | **PATCH** /v2/tasks/{task_id} | Update task
 
 
 ## Documentation For Models
@@ -173,10 +177,16 @@ Class | Method | HTTP request | Description
  - [AiIntegrationsList200Response](arize/_generated/api_client/docs/AiIntegrationsList200Response.md)
  - [AiIntegrationsUpdateRequest](arize/_generated/api_client/docs/AiIntegrationsUpdateRequest.md)
  - [AnnotateAnnotationQueueRecordRequestBody](arize/_generated/api_client/docs/AnnotateAnnotationQueueRecordRequestBody.md)
+ - [AnnotateDatasetExamplesRequestBody](arize/_generated/api_client/docs/AnnotateDatasetExamplesRequestBody.md)
+ - [AnnotateExperimentRunsRequestBody](arize/_generated/api_client/docs/AnnotateExperimentRunsRequestBody.md)
+ - [AnnotateRecordInput](arize/_generated/api_client/docs/AnnotateRecordInput.md)
+ - [AnnotateRecordResult](arize/_generated/api_client/docs/AnnotateRecordResult.md)
  - [Annotation](arize/_generated/api_client/docs/Annotation.md)
+ - [AnnotationBatchResult](arize/_generated/api_client/docs/AnnotationBatchResult.md)
  - [AnnotationConfig](arize/_generated/api_client/docs/AnnotationConfig.md)
  - [AnnotationConfigBase](arize/_generated/api_client/docs/AnnotationConfigBase.md)
  - [AnnotationConfigCreateBase](arize/_generated/api_client/docs/AnnotationConfigCreateBase.md)
+ - [AnnotationConfigType](arize/_generated/api_client/docs/AnnotationConfigType.md)
  - [AnnotationConfigsList200Response](arize/_generated/api_client/docs/AnnotationConfigsList200Response.md)
  - [AnnotationInput](arize/_generated/api_client/docs/AnnotationInput.md)
  - [AnnotationQueue](arize/_generated/api_client/docs/AnnotationQueue.md)
@@ -212,6 +222,7 @@ Class | Method | HTTP request | Description
  - [DatasetExample](arize/_generated/api_client/docs/DatasetExample.md)
  - [DatasetExampleUpdate](arize/_generated/api_client/docs/DatasetExampleUpdate.md)
  - [DatasetVersion](arize/_generated/api_client/docs/DatasetVersion.md)
+ - [DatasetVersionWithExampleIds](arize/_generated/api_client/docs/DatasetVersionWithExampleIds.md)
  - [DatasetsCreateRequest](arize/_generated/api_client/docs/DatasetsCreateRequest.md)
  - [DatasetsExamplesInsertRequest](arize/_generated/api_client/docs/DatasetsExamplesInsertRequest.md)
  - [DatasetsExamplesList200Response](arize/_generated/api_client/docs/DatasetsExamplesList200Response.md)
@@ -301,6 +312,7 @@ Class | Method | HTTP request | Description
  - [TasksList200Response](arize/_generated/api_client/docs/TasksList200Response.md)
  - [TasksListRuns200Response](arize/_generated/api_client/docs/TasksListRuns200Response.md)
  - [TasksTriggerRunRequest](arize/_generated/api_client/docs/TasksTriggerRunRequest.md)
+ - [TasksUpdateRequest](arize/_generated/api_client/docs/TasksUpdateRequest.md)
  - [TemplateConfig](arize/_generated/api_client/docs/TemplateConfig.md)
  - [ToolCall](arize/_generated/api_client/docs/ToolCall.md)
  - [ToolCallFunction](arize/_generated/api_client/docs/ToolCallFunction.md)

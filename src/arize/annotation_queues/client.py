@@ -15,9 +15,16 @@ from arize.utils.resolve import (
 if TYPE_CHECKING:
     import builtins
 
-    from arize._generated.api_client import models
     from arize._generated.api_client.api_client import ApiClient
-    from arize._generated.api_client.models.assignment_method import (
+    from arize.annotation_queues.types import (
+        AnnotationInput,
+        AnnotationQueue,
+        AnnotationQueueRecordAnnotateResult,
+        AnnotationQueueRecordAssignResult,
+        AnnotationQueueRecordInput,
+        AnnotationQueueRecordsList200Response,
+        AnnotationQueuesList200Response,
+        AnnotationQueuesRecordsCreate200Response,
         AssignmentMethod,
     )
     from arize.config import SDKConfiguration
@@ -67,7 +74,7 @@ class AnnotationQueuesClient:
         name: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> models.AnnotationQueuesList200Response:
+    ) -> AnnotationQueuesList200Response:
         """List annotation queues the user has access to.
 
         Annotation queues are returned in descending creation order (most recently
@@ -101,7 +108,7 @@ class AnnotationQueuesClient:
     @prerelease_endpoint(key="annotation_queues.get", stage=ReleaseStage.ALPHA)
     def get(
         self, *, annotation_queue: str, space: str | None = None
-    ) -> models.AnnotationQueue:
+    ) -> AnnotationQueue:
         """Get an annotation queue by ID or name.
 
         Args:
@@ -139,9 +146,8 @@ class AnnotationQueuesClient:
         annotator_emails: builtins.list[str],
         instructions: str | None = None,
         assignment_method: AssignmentMethod | None = None,
-        record_sources: builtins.list[models.AnnotationQueueRecordInput]
-        | None = None,
-    ) -> models.AnnotationQueue:
+        record_sources: builtins.list[AnnotationQueueRecordInput] | None = None,
+    ) -> AnnotationQueue:
         """Create an annotation queue.
 
         Args:
@@ -196,7 +202,7 @@ class AnnotationQueuesClient:
         instructions: str | None = None,
         annotation_config_ids: builtins.list[str] | None = None,
         annotator_emails: builtins.list[str] | None = None,
-    ) -> models.AnnotationQueue:
+    ) -> AnnotationQueue:
         """Update an annotation queue.
 
         At least one field must be provided. List fields (``annotation_config_ids``,
@@ -286,7 +292,7 @@ class AnnotationQueuesClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> models.AnnotationQueueRecordsList200Response:
+    ) -> AnnotationQueueRecordsList200Response:
         """List records in an annotation queue.
 
         Each record includes its data as flat key-value pairs, any annotations
@@ -328,8 +334,8 @@ class AnnotationQueuesClient:
         *,
         annotation_queue: str,
         space: str | None = None,
-        record_sources: builtins.list[models.AnnotationQueueRecordInput],
-    ) -> models.AnnotationQueuesRecordsCreate200Response:
+        record_sources: builtins.list[AnnotationQueueRecordInput],
+    ) -> AnnotationQueuesRecordsCreate200Response:
         """Add records to an annotation queue.
 
         Records may come from spans (a project time range) or dataset examples.
@@ -341,11 +347,11 @@ class AnnotationQueuesClient:
             space: Space ID or name. Required when *annotation_queue* is a
                 name so it can be resolved to an ID.
             record_sources: List of record sources (1-2 sources). Each source is
-                an :class:`~arize._generated.api_client.models.AnnotationQueueRecordInput`
+                an :class:`~arize.annotation_queues.types.AnnotationQueueRecordInput`
                 wrapping either an
-                :class:`~arize._generated.api_client.models.AnnotationQueueSpanRecordInput`
+                :class:`~arize.annotation_queues.types.AnnotationQueueSpanRecordInput`
                 or
-                :class:`~arize._generated.api_client.models.AnnotationQueueExampleRecordInput`.
+                :class:`~arize.annotation_queues.types.AnnotationQueueExampleRecordInput`.
 
         Returns:
             A response object containing the created record sources.
@@ -425,8 +431,8 @@ class AnnotationQueuesClient:
         annotation_queue: str,
         space: str | None = None,
         record_id: str,
-        annotations: builtins.list[models.AnnotationInput],
-    ) -> models.AnnotationQueueRecordAnnotateResult:
+        annotations: builtins.list[AnnotationInput],
+    ) -> AnnotationQueueRecordAnnotateResult:
         """Submit annotations for an annotation queue record.
 
         Annotations are upserted by annotation config name; omitted configs are
@@ -476,7 +482,7 @@ class AnnotationQueuesClient:
         space: str | None = None,
         record_id: str,
         assigned_user_emails: builtins.list[str],
-    ) -> models.AnnotationQueueRecordAssignResult:
+    ) -> AnnotationQueueRecordAssignResult:
         """Assign users to an annotation queue record.
 
         Fully replaces the current record-level user assignment. Pass an empty

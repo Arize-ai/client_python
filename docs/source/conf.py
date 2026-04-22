@@ -192,3 +192,22 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "pyarrow": ("https://arrow.apache.org/docs/", None),
 }
+
+
+# -- Safety net: strip _generated paths from rendered signatures -------------
+
+
+def _strip_generated_prefix(
+    app, what, name, obj, options, signature, return_annotation
+):
+    """Strip arize._generated.api_client.models. prefix from Sphinx signatures."""
+    prefix = "arize._generated.api_client.models."
+    if signature and prefix in signature:
+        signature = signature.replace(prefix, "")
+    if return_annotation and prefix in return_annotation:
+        return_annotation = return_annotation.replace(prefix, "")
+    return signature, return_annotation
+
+
+def setup(app):
+    app.connect("autodoc-process-signature", _strip_generated_prefix)

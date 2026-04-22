@@ -16,16 +16,13 @@ if TYPE_CHECKING:
     # the class has a list() method that shadows the built-in list type
     import builtins
 
-    from arize._generated.api_client import models
     from arize._generated.api_client.api_client import ApiClient
-    from arize._generated.api_client.models.ai_integration_auth_type import (
+    from arize.ai_integrations.types import (
+        AiIntegration,
         AiIntegrationAuthType,
-    )
-    from arize._generated.api_client.models.ai_integration_provider import (
         AiIntegrationProvider,
-    )
-    from arize._generated.api_client.models.ai_integration_scoping import (
         AiIntegrationScoping,
+        AiIntegrationsList200Response,
     )
     from arize.config import SDKConfiguration
 
@@ -77,7 +74,7 @@ class AiIntegrationsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> models.AiIntegrationsList200Response:
+    ) -> AiIntegrationsList200Response:
         """List AI integrations the user has access to.
 
         This endpoint supports cursor-based pagination. When provided,
@@ -110,7 +107,7 @@ class AiIntegrationsClient:
     @prerelease_endpoint(key="ai_integrations.get", stage=ReleaseStage.ALPHA)
     def get(
         self, *, integration: str, space: str | None = None
-    ) -> models.AiIntegration:
+    ) -> AiIntegration:
         """Get an AI integration by name or ID.
 
         Args:
@@ -147,7 +144,7 @@ class AiIntegrationsClient:
         auth_type: AiIntegrationAuthType | None = None,
         provider_metadata: dict[str, Any] | None = None,
         scopings: builtins.list[AiIntegrationScoping] | None = None,
-    ) -> models.AiIntegration:
+    ) -> AiIntegration:
         """Create a new AI integration.
 
         Integration names must be unique within the account.
@@ -214,7 +211,7 @@ class AiIntegrationsClient:
         auth_type: AiIntegrationAuthType | None = _UNSET,
         provider_metadata: dict[str, Any] | None = _UNSET,
         scopings: builtins.list[AiIntegrationScoping] | None = _UNSET,
-    ) -> models.AiIntegration:
+    ) -> AiIntegration:
         """Update an AI integration by name or ID.
 
         Only the fields you pass are sent to the server. Omitted fields are

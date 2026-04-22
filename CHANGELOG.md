@@ -1,5 +1,14 @@
 # Changelog
 
+## [8.17.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.16.0...arize-python-sdk/v8.17.0) (2026-04-22)
+
+
+### 🎁 New Features
+
+* add DatasetWithExampleIds response for dataset examples endpoints ([#68638](https://github.com/Arize-ai/arize/issues/68638)) ([8fb25bc](https://github.com/Arize-ai/arize/commit/8fb25bc1d72453f3fa2b804c528d9a1b02500862))
+* **types:** add and expose public type aliases for all SDK subdomains ([#69021](https://github.com/Arize-ai/arize/issues/69021), [#69143](https://github.com/Arize-ai/arize/issues/69143)) ([19344d2](https://github.com/Arize-ai/arize/commit/19344d2ec3c15cda8506810f1a854dccd6005d5e)), ([d8c7a27](https://github.com/Arize-ai/arize/commit/d8c7a2717eeafd19e7e5492faa7803392cb95e99))
+
+
 ## [8.16.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.15.0...arize-python-sdk/v8.16.0) (2026-04-17)
 
 

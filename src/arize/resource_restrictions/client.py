@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 
 if TYPE_CHECKING:
-    from arize._generated.api_client import models
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
+    from arize.resource_restrictions.types import ResourceRestriction
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ class ResourceRestrictionsClient:
     @prerelease_endpoint(
         key="resource_restrictions.restrict", stage=ReleaseStage.ALPHA
     )
-    def restrict(self, *, resource_id: str) -> models.ResourceRestriction:
+    def restrict(self, *, resource_id: str) -> ResourceRestriction:
         """Mark a resource as restricted.
 
         Restricting a resource prevents roles bound at higher hierarchy levels

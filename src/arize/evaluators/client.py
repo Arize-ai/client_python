@@ -13,9 +13,16 @@ from arize.utils.resolve import (
 )
 
 if TYPE_CHECKING:
-    from arize._generated.api_client import models
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
+    from arize.evaluators.types import (
+        Evaluator,
+        EvaluatorsList200Response,
+        EvaluatorVersion,
+        EvaluatorVersionsList200Response,
+        EvaluatorWithVersion,
+        TemplateConfig,
+    )
 
 
 logger = logging.getLogger(__name__)
@@ -61,7 +68,7 @@ class EvaluatorsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> models.EvaluatorsList200Response:
+    ) -> EvaluatorsList200Response:
         """List evaluators the user has access to.
 
         Results are sorted by update date (most recent first). This endpoint
@@ -99,7 +106,7 @@ class EvaluatorsClient:
         evaluator: str,
         space: str | None = None,
         version_id: str | None = None,
-    ) -> models.EvaluatorWithVersion:
+    ) -> EvaluatorWithVersion:
         """Get an evaluator by name or ID, with its resolved version.
 
         By default, the latest version is returned. Pass ``version_id`` to
@@ -137,9 +144,9 @@ class EvaluatorsClient:
         space: str,
         evaluator_type: Literal["template", "code"] = "template",
         commit_message: str,
-        template_config: models.TemplateConfig,
+        template_config: TemplateConfig,
         description: str | None = None,
-    ) -> models.EvaluatorWithVersion:
+    ) -> EvaluatorWithVersion:
         r"""Create a new evaluator with an initial version.
 
         The evaluator ``name`` must be unique within the given space.
@@ -155,8 +162,7 @@ class EvaluatorsClient:
                 the parameter is accepted for forward-compatibility.
             commit_message: Commit message for the initial version.
             template_config: Template configuration for the initial version.
-                Build this with :class:`arize.TemplateConfig` (or
-                :class:`arize._generated.api_client.models.TemplateConfig`).
+                Build this with :class:`arize.evaluators.types.TemplateConfig`.
                 Required fields:
 
                 - ``name`` — eval column name; must match
@@ -168,7 +174,7 @@ class EvaluatorsClient:
                 - ``use_function_calling_if_available`` — prefer structured
                   function-call output over free-text parsing when the model
                   supports it.
-                - ``llm_config`` — :class:`arize.EvaluatorLlmConfig`
+                - ``llm_config`` — :class:`arize.evaluators.types.EvaluatorLlmConfig`
                   specifying the model provider, model name, and API key.
 
                 Optional fields:
@@ -220,7 +226,7 @@ class EvaluatorsClient:
         space: str | None = None,
         name: str | None = None,
         description: str | None = None,
-    ) -> models.Evaluator:
+    ) -> Evaluator:
         """Update an evaluator's metadata.
 
         Args:
@@ -289,7 +295,7 @@ class EvaluatorsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> models.EvaluatorVersionsList200Response:
+    ) -> EvaluatorVersionsList200Response:
         """List all versions of an evaluator.
 
         Results are returned with cursor-based pagination.
@@ -319,7 +325,7 @@ class EvaluatorsClient:
         )
 
     @prerelease_endpoint(key="evaluators.get_version", stage=ReleaseStage.ALPHA)
-    def get_version(self, *, version_id: str) -> models.EvaluatorVersion:
+    def get_version(self, *, version_id: str) -> EvaluatorVersion:
         """Get a specific evaluator version by its global ID.
 
         Args:
@@ -343,8 +349,8 @@ class EvaluatorsClient:
         evaluator: str,
         space: str | None = None,
         commit_message: str,
-        template_config: models.TemplateConfig,
-    ) -> models.EvaluatorVersion:
+        template_config: TemplateConfig,
+    ) -> EvaluatorVersion:
         r"""Create a new version of an existing evaluator.
 
         The new version becomes the latest version immediately (versioning is
@@ -358,8 +364,7 @@ class EvaluatorsClient:
                 name rather than an ID.
             commit_message: Commit message describing the changes in this version.
             template_config: Updated template configuration for this version.
-                Build this with :class:`arize.TemplateConfig` (or
-                :class:`arize._generated.api_client.models.TemplateConfig`).
+                Build this with :class:`arize.evaluators.types.TemplateConfig`.
                 Required fields:
 
                 - ``name`` — eval column name; must match
@@ -371,7 +376,7 @@ class EvaluatorsClient:
                 - ``use_function_calling_if_available`` — prefer structured
                   function-call output over free-text parsing when the model
                   supports it.
-                - ``llm_config`` — :class:`arize.EvaluatorLlmConfig`
+                - ``llm_config`` — :class:`arize.evaluators.types.EvaluatorLlmConfig`
                   specifying the model provider, model name, and API key.
 
                 Optional fields:

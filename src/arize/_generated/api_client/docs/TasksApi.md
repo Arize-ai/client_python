@@ -7,10 +7,12 @@ Method | HTTP request | Description
 [**task_runs_cancel**](TasksApi.md#task_runs_cancel) | **POST** /v2/task-runs/{run_id}/cancel | Cancel task run
 [**task_runs_get**](TasksApi.md#task_runs_get) | **GET** /v2/task-runs/{run_id} | Get task run
 [**tasks_create**](TasksApi.md#tasks_create) | **POST** /v2/tasks | Create task
+[**tasks_delete**](TasksApi.md#tasks_delete) | **DELETE** /v2/tasks/{task_id} | Delete task
 [**tasks_get**](TasksApi.md#tasks_get) | **GET** /v2/tasks/{task_id} | Get task
 [**tasks_list**](TasksApi.md#tasks_list) | **GET** /v2/tasks | List tasks
 [**tasks_list_runs**](TasksApi.md#tasks_list_runs) | **GET** /v2/tasks/{task_id}/runs | List task runs
 [**tasks_trigger_run**](TasksApi.md#tasks_trigger_run) | **POST** /v2/tasks/{task_id}/trigger | Trigger a task run
+[**tasks_update**](TasksApi.md#tasks_update) | **PATCH** /v2/tasks/{task_id} | Update task
 
 
 # **task_runs_cancel**
@@ -279,6 +281,90 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **422** | Invalid request |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **tasks_delete**
+> tasks_delete(task_id)
+
+Delete task
+
+Deletes a task and all its associated resources (evaluator configs, runs, etc.).
+This operation is irreversible.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.TasksApi(api_client)
+    task_id = 'VGFzazoxMjM0NQ==' # str | The task global ID (base64)
+
+    try:
+        # Delete task
+        api_instance.tasks_delete(task_id)
+    except Exception as e:
+        print("Exception when calling TasksApi->tasks_delete: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **task_id** | **str**| The task global ID (base64) | 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**204** | Task deleted successfully |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -645,6 +731,100 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **201** | Returns the created task run |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **tasks_update**
+> Task tasks_update(task_id, tasks_update_request)
+
+Update task
+
+Update a task's mutable fields. At least one field must be provided.
+Omitted fields are left unchanged.
+
+When `evaluators` is provided, the entire evaluator list is replaced.
+
+`sampling_rate` and `is_continuous` are only applicable for project-based tasks.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.task import Task
+from arize._generated.api_client.models.tasks_update_request import TasksUpdateRequest
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.TasksApi(api_client)
+    task_id = 'VGFzazoxMjM0NQ==' # str | The task global ID (base64)
+    tasks_update_request = {"name":"Updated Task Name","sampling_rate":0.5,"query_filter":"metadata.environment = 'staging'"} # TasksUpdateRequest | Body containing task update parameters
+
+    try:
+        # Update task
+        api_response = api_instance.tasks_update(task_id, tasks_update_request)
+        print("The response of TasksApi->tasks_update:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling TasksApi->tasks_update: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **task_id** | **str**| The task global ID (base64) | 
+ **tasks_update_request** | [**TasksUpdateRequest**](TasksUpdateRequest.md)| Body containing task update parameters | 
+
+### Return type
+
+[**Task**](Task.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns the updated task |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
