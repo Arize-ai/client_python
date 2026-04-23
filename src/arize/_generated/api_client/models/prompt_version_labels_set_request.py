@@ -27,7 +27,7 @@ class PromptVersionLabelsSetRequest(BaseModel):
     """
     PromptVersionLabelsSetRequest
     """ # noqa: E501
-    labels: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="Array of label names to set on the version (replaces all existing labels)")
+    labels: Annotated[List[StrictStr], Field(min_length=0)] = Field(description="Array of label names to set on the version. Replaces all existing labels on this version. Pass an empty array to remove all labels from this version. Labels are unique per prompt — a label can only be assigned to one version at a time. If a label in this array is currently assigned to a different version of the same prompt, it will be moved to this version automatically (no error is raised). ")
     __properties: ClassVar[List[str]] = ["labels"]
 
     model_config = ConfigDict(

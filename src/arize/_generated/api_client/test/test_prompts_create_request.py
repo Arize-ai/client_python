@@ -41,7 +41,7 @@ class TestPromptsCreateRequest(unittest.TestCase):
                 version = arize._generated.api_client.models.prompt_version_create_request.PromptVersionCreateRequest(
                     commit_message = '', 
                     input_variable_format = 'f_string', 
-                    provider = 'openAI', 
+                    provider = 'open_ai', 
                     model = '', 
                     messages = [
                         arize._generated.api_client.models.llm_message.LLMMessage(
@@ -100,7 +100,7 @@ class TestPromptsCreateRequest(unittest.TestCase):
                 version = arize._generated.api_client.models.prompt_version_create_request.PromptVersionCreateRequest(
                     commit_message = '', 
                     input_variable_format = 'f_string', 
-                    provider = 'openAI', 
+                    provider = 'open_ai', 
                     model = '', 
                     messages = [
                         arize._generated.api_client.models.llm_message.LLMMessage(

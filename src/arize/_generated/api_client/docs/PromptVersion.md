@@ -16,10 +16,9 @@ Name | Type | Description | Notes
 **model** | **str** | The model to use for the call | 
 **invocation_params** | [**InvocationParams**](InvocationParams.md) |  | [optional] 
 **provider_params** | [**ProviderParams**](ProviderParams.md) |  | [optional] 
-**tool_config** | [**ToolConfig**](ToolConfig.md) |  | [optional] 
 **created_at** | **datetime** | When the version was created | 
 **created_by_user_id** | **str** | The user ID of the user who created this version | 
-**labels** | **List[str]** | Label names currently pointing to this version (e.g., \&quot;production\&quot;, \&quot;staging\&quot;) | [optional] 
+**labels** | **List[str]** | Label names currently pointing to this version (e.g., \&quot;production\&quot;, \&quot;staging\&quot;). Labels are case-sensitive. | [optional] 
 
 ## Example
 

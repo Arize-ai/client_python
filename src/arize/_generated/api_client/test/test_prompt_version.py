@@ -54,7 +54,7 @@ class TestPromptVersion(unittest.TestCase):
                             ], )
                     ],
                 input_variable_format = 'f_string',
-                provider = 'openAI',
+                provider = 'open_ai',
                 model = '',
                 invocation_params = arize._generated.api_client.models.invocation_params.InvocationParams(
                     temperature = 1.337, 
@@ -92,11 +92,6 @@ class TestPromptVersion(unittest.TestCase):
                         use_converse_endpoint = True, ), 
                     custom_provider_params = arize._generated.api_client.models.custom_provider_params.custom_provider_params(), 
                     region = '', ),
-                tool_config = arize._generated.api_client.models.tool_config.ToolConfig(
-                    tools = [
-                        None
-                        ], 
-                    tool_choice = null, ),
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = '',
                 labels = [
@@ -124,7 +119,7 @@ class TestPromptVersion(unittest.TestCase):
                             ], )
                     ],
                 input_variable_format = 'f_string',
-                provider = 'openAI',
+                provider = 'open_ai',
                 model = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = '',

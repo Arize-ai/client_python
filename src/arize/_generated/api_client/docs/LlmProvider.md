@@ -4,13 +4,15 @@ The LLM provider to use
 
 ## Enum
 
-* `OPENAI` (value: `'openAI'`)
+* `OPEN_AI` (value: `'open_ai'`)
 
-* `AZUREOPENAI` (value: `'azureOpenAI'`)
+* `AZURE_OPEN_AI` (value: `'azure_open_ai'`)
 
-* `AWSBEDROCK` (value: `'awsBedrock'`)
+* `AWS_BEDROCK` (value: `'aws_bedrock'`)
 
-* `VERTEXAI` (value: `'vertexAI'`)
+* `VERTEX_AI` (value: `'vertex_ai'`)
+
+* `ANTHROPIC` (value: `'anthropic'`)
 
 * `CUSTOM` (value: `'custom'`)
 

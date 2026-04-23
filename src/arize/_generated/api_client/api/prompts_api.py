@@ -956,7 +956,7 @@ class PromptsApi:
     ) -> PromptVersion:
         """Create a prompt version
 
-        Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `input_variable_format` and `provider` are required.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"openAI\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"openAI\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `input_variable_format` and `provider` are required.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param prompt_id: The unique identifier of the prompt (required)
         :type prompt_id: str
@@ -1032,7 +1032,7 @@ class PromptsApi:
     ) -> ApiResponse[PromptVersion]:
         """Create a prompt version
 
-        Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `input_variable_format` and `provider` are required.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"openAI\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"openAI\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `input_variable_format` and `provider` are required.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param prompt_id: The unique identifier of the prompt (required)
         :type prompt_id: str
@@ -1108,7 +1108,7 @@ class PromptsApi:
     ) -> RESTResponseType:
         """Create a prompt version
 
-        Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `input_variable_format` and `provider` are required.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"openAI\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"openAI\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `input_variable_format` and `provider` are required.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param prompt_id: The unique identifier of the prompt (required)
         :type prompt_id: str
@@ -3070,7 +3070,7 @@ class PromptsApi:
     ) -> Prompt:
         """Update a prompt
 
-        Update a prompt's metadata by its ID. Currently supports updating the description.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a prompt's metadata by its ID. Currently supports updating the description. The prompt name is immutable after creation; to rename a prompt, delete it and create a new one (note: this loses version history).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param prompt_id: The unique identifier of the prompt (required)
         :type prompt_id: str
@@ -3146,7 +3146,7 @@ class PromptsApi:
     ) -> ApiResponse[Prompt]:
         """Update a prompt
 
-        Update a prompt's metadata by its ID. Currently supports updating the description.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a prompt's metadata by its ID. Currently supports updating the description. The prompt name is immutable after creation; to rename a prompt, delete it and create a new one (note: this loses version history).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param prompt_id: The unique identifier of the prompt (required)
         :type prompt_id: str
@@ -3222,7 +3222,7 @@ class PromptsApi:
     ) -> RESTResponseType:
         """Update a prompt
 
-        Update a prompt's metadata by its ID. Currently supports updating the description.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a prompt's metadata by its ID. Currently supports updating the description. The prompt name is immutable after creation; to rename a prompt, delete it and create a new one (note: this loses version history).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param prompt_id: The unique identifier of the prompt (required)
         :type prompt_id: str

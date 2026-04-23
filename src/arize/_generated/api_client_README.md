@@ -119,6 +119,7 @@ Class | Method | HTTP request | Description
 *ExperimentsApi* | [**experiments_runs_annotate**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_runs_annotate) | **POST** /v2/experiments/{experiment_id}/runs/annotate | Annotate a batch of experiment runs
 *ExperimentsApi* | [**experiments_runs_list**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_runs_list) | **GET** /v2/experiments/{experiment_id}/runs | List experiment runs
 *OrganizationsApi* | [**organizations_create**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_create) | **POST** /v2/organizations | Create an organization
+*OrganizationsApi* | [**organizations_delete**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_delete) | **DELETE** /v2/organizations/{org_id} | Delete an organization
 *OrganizationsApi* | [**organizations_get**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_get) | **GET** /v2/organizations/{org_id} | Get an organization
 *OrganizationsApi* | [**organizations_list**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_list) | **GET** /v2/organizations | List organizations
 *OrganizationsApi* | [**organizations_update**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_update) | **PATCH** /v2/organizations/{org_id} | Update an organization

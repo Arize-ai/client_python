@@ -33,6 +33,13 @@ class TestOrganizationsApi(unittest.TestCase):
         """
         pass
 
+    def test_organizations_delete(self) -> None:
+        """Test case for organizations_delete
+
+        Delete an organization
+        """
+        pass
+
     def test_organizations_get(self) -> None:
         """Test case for organizations_get
 

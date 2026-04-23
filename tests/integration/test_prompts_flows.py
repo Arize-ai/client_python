@@ -43,7 +43,7 @@ def _make_prompt_args(name: str) -> dict:
         "name": name,
         "commit_message": "initial version",
         "input_variable_format": gen.InputVariableFormat.F_STRING,
-        "provider": gen.LlmProvider.OPENAI,
+        "provider": gen.LlmProvider.OPEN_AI,
         "model": "gpt-4o-mini",
         "messages": [
             gen.LLMMessage(
@@ -117,7 +117,7 @@ class TestPromptsCRUD:
                 prompt=prompt.id,
                 commit_message="second version",
                 input_variable_format=gen.InputVariableFormat.F_STRING,
-                provider=gen.LlmProvider.OPENAI,
+                provider=gen.LlmProvider.OPEN_AI,
                 model="gpt-4o-mini",
                 messages=[
                     gen.LLMMessage(

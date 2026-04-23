@@ -36,6 +36,7 @@ if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
     from arize.datasets.types import (
+        AnnotationBatchResult,
         Dataset,
         DatasetsExamplesList200Response,
         DatasetsList200Response,
@@ -452,6 +453,53 @@ class DatasetsClient:
             dataset_id=dataset_id,
             dataset_version_id=dataset_version_id,
             datasets_examples_insert_request=body,
+        )
+
+    @prerelease_endpoint(
+        key="datasets.annotate_examples", stage=ReleaseStage.ALPHA
+    )
+    def annotate_examples(
+        self,
+        *,
+        dataset: str,
+        space: str | None = None,
+        annotations: builtins.list[models.AnnotateRecordInput],
+    ) -> AnnotationBatchResult:
+        """Write human annotations to a batch of examples in a dataset.
+
+        Annotations are upserted by annotation config name for each example.
+        Submitting the same annotation config name for the same example
+        overwrites the previous value. Retrying on network failure will
+        not create duplicates.
+
+        Up to 500 examples may be annotated per request.
+
+        Args:
+            dataset: Dataset ID or name.
+            space: Space ID or name. Required when *dataset* is a name.
+            annotations: A list of :class:`AnnotateRecordInput` items. Each item
+                must include a ``record_id`` (the dataset example ID) and ``values``
+                (a list of :class:`AnnotationInput` items with ``name``, and
+                optionally ``score``, ``label``, or ``text``).
+
+        Returns:
+            An :class:`AnnotationBatchResult` containing per-record results.
+
+        Raises:
+            ApiException: If the REST API returns an error response
+                (e.g. 400/401/403/404/429).
+        """
+        dataset_id = _find_dataset_id(
+            api=self._api,
+            dataset=dataset,
+            space=space,
+        )
+        from arize._generated import api_client as gen
+
+        body = gen.AnnotateDatasetExamplesRequestBody(annotations=annotations)
+        return self._api.datasets_examples_annotate(
+            dataset_id=dataset_id,
+            annotate_dataset_examples_request_body=body,
         )
 
     def _create_dataset_via_flight(

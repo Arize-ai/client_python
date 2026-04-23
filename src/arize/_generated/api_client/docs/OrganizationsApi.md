@@ -5,6 +5,7 @@ All URIs are relative to *https://api.arize.com*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**organizations_create**](OrganizationsApi.md#organizations_create) | **POST** /v2/organizations | Create an organization
+[**organizations_delete**](OrganizationsApi.md#organizations_delete) | **DELETE** /v2/organizations/{org_id} | Delete an organization
 [**organizations_get**](OrganizationsApi.md#organizations_get) | **GET** /v2/organizations/{org_id} | Get an organization
 [**organizations_list**](OrganizationsApi.md#organizations_list) | **GET** /v2/organizations | List organizations
 [**organizations_update**](OrganizationsApi.md#organizations_update) | **PATCH** /v2/organizations/{org_id} | Update an organization
@@ -109,6 +110,96 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **409** | Resource conflict |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **organizations_delete**
+> organizations_delete(org_id)
+
+Delete an organization
+
+Delete an organization by its ID. This deletes the organization and all
+resources that belong to it, including all spaces and their contents
+(projects, experiments, evaluators, models, monitors, dashboards, datasets, 
+annotation configs, annotation queues, custom metrics, etc.) as well
+as organization-level resources such as integrations, cost configurations,
+SAML identity providers, and API keys.
+
+This operation is irreversible.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.OrganizationsApi(api_client)
+    org_id = 'org_12345' # str | The unique identifier of the organization
+
+    try:
+        # Delete an organization
+        api_instance.organizations_delete(org_id)
+    except Exception as e:
+        print("Exception when calling OrganizationsApi->organizations_delete: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **org_id** | **str**| The unique identifier of the organization | 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**204** | Organization successfully deleted |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

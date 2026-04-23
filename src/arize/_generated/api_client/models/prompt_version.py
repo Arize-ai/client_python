@@ -25,7 +25,6 @@ from arize._generated.api_client.models.invocation_params import InvocationParam
 from arize._generated.api_client.models.llm_message import LLMMessage
 from arize._generated.api_client.models.llm_provider import LlmProvider
 from arize._generated.api_client.models.provider_params import ProviderParams
-from arize._generated.api_client.models.tool_config import ToolConfig
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -43,11 +42,10 @@ class PromptVersion(BaseModel):
     model: StrictStr = Field(description="The model to use for the call")
     invocation_params: Optional[InvocationParams] = None
     provider_params: Optional[ProviderParams] = None
-    tool_config: Optional[ToolConfig] = None
     created_at: datetime = Field(description="When the version was created")
     created_by_user_id: StrictStr = Field(description="The user ID of the user who created this version")
-    labels: Optional[List[StrictStr]] = Field(default=None, description="Label names currently pointing to this version (e.g., \"production\", \"staging\")")
-    __properties: ClassVar[List[str]] = ["id", "prompt_id", "commit_hash", "commit_message", "messages", "input_variable_format", "provider", "model", "invocation_params", "provider_params", "tool_config", "created_at", "created_by_user_id", "labels"]
+    labels: Optional[List[StrictStr]] = Field(default=None, description="Label names currently pointing to this version (e.g., \"production\", \"staging\"). Labels are case-sensitive.")
+    __properties: ClassVar[List[str]] = ["id", "prompt_id", "commit_hash", "commit_message", "messages", "input_variable_format", "provider", "model", "invocation_params", "provider_params", "created_at", "created_by_user_id", "labels"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -101,9 +99,6 @@ class PromptVersion(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of provider_params
         if self.provider_params:
             _dict['provider_params'] = self.provider_params.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of tool_config
-        if self.tool_config:
-            _dict['tool_config'] = self.tool_config.to_dict()
         return _dict
 
     @classmethod
@@ -131,7 +126,6 @@ class PromptVersion(BaseModel):
             "model": obj.get("model"),
             "invocation_params": InvocationParams.from_dict(obj["invocation_params"]) if obj.get("invocation_params") is not None else None,
             "provider_params": ProviderParams.from_dict(obj["provider_params"]) if obj.get("provider_params") is not None else None,
-            "tool_config": ToolConfig.from_dict(obj["tool_config"]) if obj.get("tool_config") is not None else None,
             "created_at": obj.get("created_at"),
             "created_by_user_id": obj.get("created_by_user_id"),
             "labels": obj.get("labels")

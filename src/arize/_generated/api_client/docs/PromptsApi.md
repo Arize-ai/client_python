@@ -303,7 +303,7 @@ Create a new version of an existing prompt.
 {
   "commit_message": "Updated system prompt for better responses",
   "input_variable_format": "f_string",
-  "provider": "openAI",
+  "provider": "open_ai",
   "model": "gpt-4",
   "messages": [
     {
@@ -322,7 +322,7 @@ Create a new version of an existing prompt.
 ```json
 {
   "input_variable_format": "f_string",
-  "provider": "openAI",
+  "provider": "open_ai",
   "messages": [
     {
       "role": "user",
@@ -636,7 +636,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.PromptsApi(api_client)
-    prompts_create_request = {"space_id":"U3BhY2U6MTIzOmFiY2Q=","name":"My Prompt","description":"A helpful assistant prompt","version":{"commit_message":"Initial version","input_variable_format":"f_string","provider":"openAI","model":"gpt-4","messages":[{"role":"system","content":"You are a helpful assistant."},{"role":"user","content":"Hello, {name}!"}]}} # PromptsCreateRequest | Body containing prompt creation parameters with an initial version
+    prompts_create_request = {"space_id":"U3BhY2U6MTIzOmFiY2Q=","name":"My Prompt","description":"A helpful assistant prompt","version":{"commit_message":"Initial version","input_variable_format":"f_string","provider":"open_ai","model":"gpt-4","messages":[{"role":"system","content":"You are a helpful assistant."},{"role":"user","content":"Hello, {name}!"}]}} # PromptsCreateRequest | Body containing prompt creation parameters with an initial version
 
     try:
         # Create a prompt
@@ -960,7 +960,8 @@ Name | Type | Description  | Notes
 Update a prompt
 
 Update a prompt's metadata by its ID. Currently supports updating the
-description.
+description. The prompt name is immutable after creation; to rename a
+prompt, delete it and create a new one (note: this loses version history).
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 

@@ -359,6 +359,150 @@ class TestTasksClientCreate:
 
 
 @pytest.mark.unit
+class TestTasksClientUpdate:
+    """Tests for TasksClient.update()."""
+
+    def test_update_builds_request_and_calls_api(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """update() should build TasksUpdateRequest and call tasks_update."""
+        with patch(
+            "arize._generated.api_client.TasksUpdateRequest"
+        ) as mock_request_cls:
+            mock_body = Mock()
+            mock_request_cls.return_value = mock_body
+
+            tasks_client.update(task=_TASK_ID, name="new-name")
+
+        mock_request_cls.assert_called_once_with(name="new-name")
+        mock_api.tasks_update.assert_called_once_with(
+            task_id=_TASK_ID,
+            tasks_update_request=mock_body,
+        )
+
+    def test_update_with_all_optional_fields(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """update() should forward all mutable fields."""
+        mock_ev = Mock()
+        with patch(
+            "arize._generated.api_client.TasksUpdateRequest"
+        ) as mock_request_cls:
+            mock_request_cls.return_value = Mock()
+
+            tasks_client.update(
+                task=_TASK_ID,
+                space="my-space",
+                name="x",
+                sampling_rate=0.25,
+                is_continuous=True,
+                query_filter="span_kind == 'LLM'",
+                evaluators=[mock_ev],
+            )
+
+        _, kwargs = mock_request_cls.call_args
+        assert kwargs["name"] == "x"
+        assert kwargs["sampling_rate"] == 0.25
+        assert kwargs["is_continuous"] is True
+        assert kwargs["query_filter"] == "span_kind == 'LLM'"
+        assert kwargs["evaluators"] == [mock_ev]
+
+    def test_update_with_query_filter_none(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """Passing query_filter=None should clear the filter on the API."""
+        with patch(
+            "arize._generated.api_client.TasksUpdateRequest"
+        ) as mock_request_cls:
+            mock_request_cls.return_value = Mock()
+
+            tasks_client.update(task=_TASK_ID, query_filter=None)
+
+        mock_request_cls.assert_called_once_with(query_filter=None)
+
+    def test_update_raises_when_no_fields(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """update() should reject an empty patch."""
+        with pytest.raises(ValueError, match="At least one update field"):
+            tasks_client.update(task=_TASK_ID)
+
+        mock_api.tasks_update.assert_not_called()
+
+    def test_update_returns_api_response(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """update() should propagate the return value from tasks_update."""
+        expected = Mock()
+        mock_api.tasks_update.return_value = expected
+
+        with patch("arize._generated.api_client.TasksUpdateRequest"):
+            result = tasks_client.update(task=_TASK_ID, name="y")
+
+        assert result is expected
+
+    def test_update_emits_alpha_prerelease_warning(
+        self,
+        tasks_client: TasksClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call to update() should emit the ALPHA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        with patch("arize._generated.api_client.TasksUpdateRequest"):
+            tasks_client.update(task=_TASK_ID, name="z")
+
+        assert any(
+            "ALPHA" in record.message and "tasks.update" in record.message
+            for record in caplog.records
+        )
+
+
+@pytest.mark.unit
+class TestTasksClientDelete:
+    """Tests for TasksClient.delete()."""
+
+    def test_delete_calls_api_with_task_id(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """delete() should resolve task and forward task_id to tasks_delete."""
+        tasks_client.delete(task=_TASK_ID)
+
+        mock_api.tasks_delete.assert_called_once_with(task_id=_TASK_ID)
+
+    def test_delete_returns_none(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """delete() should return None when the API succeeds."""
+        mock_api.tasks_delete.return_value = None
+
+        result = tasks_client.delete(task=_TASK_ID)
+
+        assert result is None
+
+    def test_delete_emits_alpha_prerelease_warning(
+        self,
+        tasks_client: TasksClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call to delete() should emit the ALPHA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        tasks_client.delete(task=_TASK_ID)
+
+        assert any(
+            "ALPHA" in record.message and "tasks.delete" in record.message
+            for record in caplog.records
+        )
+
+
+@pytest.mark.unit
 class TestTasksClientTriggerRun:
     """Tests for TasksClient.trigger_run()."""
 

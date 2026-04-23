@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Final, Literal
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
@@ -38,6 +38,16 @@ logger = logging.getLogger(__name__)
 _TERMINAL_STATUSES = frozenset({"completed", "failed", "cancelled"})
 _DEFAULT_POLL_INTERVAL = 5.0  # seconds
 _DEFAULT_TIMEOUT = 600.0  # seconds
+
+
+# Sentinel for TasksClient.update — omit field from PATCH body vs explicit values.
+# Defined as a class (rather than `object()`) so method signatures can spell
+# out `str | _Missing` instead of the looser `str | object`.
+class _Missing:
+    """Sentinel type used to distinguish "omitted" from explicit ``None``."""
+
+
+_MISSING: Final[_Missing] = _Missing()
 
 
 class TasksClient:
@@ -260,6 +270,95 @@ class TasksClient:
             query_filter=query_filter,
         )
         return self._api.tasks_create(tasks_create_request=body)
+
+    @prerelease_endpoint(key="tasks.update", stage=ReleaseStage.ALPHA)
+    def update(
+        self,
+        *,
+        task: str,
+        space: str | None = None,
+        name: str | _Missing = _MISSING,
+        sampling_rate: float | _Missing = _MISSING,
+        is_continuous: bool | _Missing = _MISSING,
+        query_filter: str | None | _Missing = _MISSING,
+        evaluators: builtins.list[TasksCreateRequestEvaluatorsInner]
+        | _Missing = _MISSING,
+    ) -> Task:
+        """Update mutable fields on an existing task.
+
+        At least one mutable field must be provided. Pass ``None`` to
+        ``query_filter`` to clear the existing filter; omit the argument to
+        leave it unchanged.
+
+        Args:
+            task: Task name or global ID (base64). Names are resolved within
+                the space when ``space`` is provided.
+            space: Optional space name or ID used to disambiguate task name
+                resolution.
+            name: New display name for the task.
+            sampling_rate: Fraction of data to evaluate (0-1). Project-based
+                tasks only.
+            is_continuous: Whether the task runs continuously.
+            query_filter: Task-level query filter, or ``None`` to clear the
+                filter.
+            evaluators: Full replacement list of evaluators (at least one when
+                provided).
+
+        Returns:
+            The updated task.
+
+        Raises:
+            ValueError: If no update fields were provided.
+            ApiException: If the API request fails.
+        """
+        payload: dict[str, Any] = {}
+        if name is not _MISSING:
+            payload["name"] = name
+        if sampling_rate is not _MISSING:
+            payload["sampling_rate"] = sampling_rate
+        if is_continuous is not _MISSING:
+            payload["is_continuous"] = is_continuous
+        if query_filter is not _MISSING:
+            payload["query_filter"] = query_filter
+        if evaluators is not _MISSING:
+            payload["evaluators"] = evaluators
+
+        if not payload:
+            raise ValueError(
+                "At least one update field must be provided "
+                "(name, sampling_rate, is_continuous, query_filter, or evaluators).",
+            )
+
+        from arize._generated import api_client as gen
+
+        task_id = _find_task_id(
+            api=self._api,
+            task=task,
+            space=space,
+        )
+        body = gen.TasksUpdateRequest(**payload)
+        return self._api.tasks_update(
+            task_id=task_id,
+            tasks_update_request=body,
+        )
+
+    @prerelease_endpoint(key="tasks.delete", stage=ReleaseStage.ALPHA)
+    def delete(self, *, task: str, space: str | None = None) -> None:
+        """Delete a task and its associated configuration.
+
+        Args:
+            task: Task name or global ID (base64).
+            space: Optional space name or ID used when resolving by task name.
+
+        Raises:
+            ApiException: If the API request fails.
+        """
+        task_id = _find_task_id(
+            api=self._api,
+            task=task,
+            space=space,
+        )
+        self._api.tasks_delete(task_id=task_id)
 
     # -------------------------------------------------------------------------
     # Task runs

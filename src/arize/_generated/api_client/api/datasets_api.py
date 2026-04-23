@@ -105,6 +105,7 @@ class DatasetsApi:
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '409': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -176,6 +177,7 @@ class DatasetsApi:
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '409': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -247,6 +249,7 @@ class DatasetsApi:
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '409': "Problem",
         }
         response_data = self.api_client.call_api(

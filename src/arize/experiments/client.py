@@ -51,6 +51,7 @@ if TYPE_CHECKING:
     from arize.experiments.evaluators.base import Evaluators
     from arize.experiments.evaluators.types import EvaluationResultFieldNames
     from arize.experiments.types import (
+        AnnotationBatchResult,
         Experiment,
         ExperimentsList200Response,
         ExperimentsRunsList200Response,
@@ -448,6 +449,58 @@ class ExperimentsClient:
             pagination=models.PaginationMetadata(
                 has_more=False,  # Note that all=True
             ),
+        )
+
+    @prerelease_endpoint(
+        key="experiments.annotate_runs", stage=ReleaseStage.ALPHA
+    )
+    def annotate_runs(
+        self,
+        *,
+        experiment: str,
+        dataset: str | None = None,
+        space: str | None = None,
+        annotations: builtins.list[models.AnnotateRecordInput],
+    ) -> AnnotationBatchResult:
+        """Write human annotations to a batch of runs in an experiment.
+
+        Annotations are upserted by annotation config name for each run.
+        Submitting the same annotation config name for the same run
+        overwrites the previous value. Retrying on network failure will
+        not create duplicates.
+
+        Up to 500 runs may be annotated per request.
+
+        Args:
+            experiment: Experiment ID or name.
+            dataset: Optional dataset ID or name used to resolve ``experiment``
+                by name.
+            space: Optional space ID or name used to resolve ``dataset`` by name.
+            annotations: A list of :class:`AnnotateRecordInput` items. Each item
+                must include a ``record_id`` (the experiment run ID) and ``values``
+                (a list of :class:`AnnotationInput` items with ``name``, and
+                optionally ``score``, ``label``, or ``text``).
+
+        Returns:
+            An :class:`AnnotationBatchResult` containing per-record results.
+
+        Raises:
+            ApiException: If the REST API returns an error response
+                (e.g. 400/401/404/429).
+        """
+        experiment_id = _find_experiment_id(
+            api=self._api,
+            datasets_api=self._datasets_api,
+            experiment=experiment,
+            dataset=dataset,
+            space=space,
+        )
+        from arize._generated import api_client as gen
+
+        body = gen.AnnotateExperimentRunsRequestBody(annotations=annotations)
+        return self._api.experiments_runs_annotate(
+            experiment_id=experiment_id,
+            annotate_experiment_runs_request_body=body,
         )
 
     def run(

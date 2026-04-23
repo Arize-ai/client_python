@@ -70,4 +70,16 @@
 .. autoclass:: ExperimentsRunsList200Response
    :members:
    :member-order: bysource
+
+.. autoclass:: AnnotationBatchResult
+   :members:
+   :member-order: bysource
+
+.. autoclass:: AnnotateRecordInput
+   :members:
+   :member-order: bysource
+
+.. autoclass:: AnnotationInput
+   :members:
+   :member-order: bysource
 ```

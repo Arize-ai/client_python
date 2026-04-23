@@ -26,10 +26,11 @@ class LlmProvider(str, Enum):
     """
     allowed enum values
     """
-    OPENAI = 'openAI'
-    AZUREOPENAI = 'azureOpenAI'
-    AWSBEDROCK = 'awsBedrock'
-    VERTEXAI = 'vertexAI'
+    OPEN_AI = 'open_ai'
+    AZURE_OPEN_AI = 'azure_open_ai'
+    AWS_BEDROCK = 'aws_bedrock'
+    VERTEX_AI = 'vertex_ai'
+    ANTHROPIC = 'anthropic'
     CUSTOM = 'custom'
 
     @classmethod

@@ -109,6 +109,7 @@ Name | Type | Description  | Notes
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
 **409** | Resource conflict |  -  |
 **422** | Invalid request |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
