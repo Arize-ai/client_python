@@ -367,7 +367,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.PromptsApi(api_client)
     prompt_id = 'prompt_12345' # str | The unique identifier of the prompt
-    prompt_versions_create_request = {"commit_message":"Updated system prompt for better responses","input_variable_format":"f_string","provider":"openAI","model":"gpt-4","messages":[{"role":"system","content":"You are a helpful assistant."},{"role":"user","content":"Hello, {name}!"}]} # PromptVersionsCreateRequest | Body containing prompt version creation parameters
+    prompt_versions_create_request = {"commit_message":"Updated system prompt for better responses","input_variable_format":"f_string","provider":"open_ai","model":"gpt-4","messages":[{"role":"system","content":"You are a helpful assistant."},{"role":"user","content":"Hello, {name}!"}]} # PromptVersionsCreateRequest | Body containing prompt version creation parameters
 
     try:
         # Create a prompt version

@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
+from arize._generated.api_client.models.gcp_provider_metadata_kind import GcpProviderMetadataKind
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -26,10 +27,11 @@ class GcpProviderMetadata(BaseModel):
     """
     Vertex AI (GCP) provider metadata
     """ # noqa: E501
+    kind: GcpProviderMetadataKind
     project_id: StrictStr = Field(description="GCP project ID")
     location: StrictStr = Field(description="GCP region (e.g. us-central1)")
     project_access_label: StrictStr = Field(description="Display label for the project")
-    __properties: ClassVar[List[str]] = ["project_id", "location", "project_access_label"]
+    __properties: ClassVar[List[str]] = ["kind", "project_id", "location", "project_access_label"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -87,6 +89,7 @@ class GcpProviderMetadata(BaseModel):
                 raise ValueError("Error due to additional fields (not defined in GcpProviderMetadata) in the input: " + _key)
 
         _obj = cls.model_validate({
+            "kind": obj.get("kind"),
             "project_id": obj.get("project_id"),
             "location": obj.get("location"),
             "project_access_label": obj.get("project_access_label")

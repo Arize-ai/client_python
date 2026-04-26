@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.gcp_provider_metadata import GcpProviderMetadata
+from arize._generated.api_client.models.ai_integrations_update_request_provider_metadata import AiIntegrationsUpdateRequestProviderMetadata
 
-class TestGcpProviderMetadata(unittest.TestCase):
-    """GcpProviderMetadata unit test stubs"""
+class TestAiIntegrationsUpdateRequestProviderMetadata(unittest.TestCase):
+    """AiIntegrationsUpdateRequestProviderMetadata unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,32 +25,35 @@ class TestGcpProviderMetadata(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> GcpProviderMetadata:
-        """Test GcpProviderMetadata
+    def make_instance(self, include_optional) -> AiIntegrationsUpdateRequestProviderMetadata:
+        """Test AiIntegrationsUpdateRequestProviderMetadata
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `GcpProviderMetadata`
+        # uncomment below to create an instance of `AiIntegrationsUpdateRequestProviderMetadata`
         """
-        model = GcpProviderMetadata()
+        model = AiIntegrationsUpdateRequestProviderMetadata()
         if include_optional:
-            return GcpProviderMetadata(
+            return AiIntegrationsUpdateRequestProviderMetadata(
                 kind = 'gcp',
+                role_arn = '',
+                external_id = '',
                 project_id = '',
                 location = '',
                 project_access_label = ''
             )
         else:
-            return GcpProviderMetadata(
+            return AiIntegrationsUpdateRequestProviderMetadata(
                 kind = 'gcp',
+                role_arn = '',
                 project_id = '',
                 location = '',
                 project_access_label = '',
         )
         """
 
-    def testGcpProviderMetadata(self):
-        """Test GcpProviderMetadata"""
+    def testAiIntegrationsUpdateRequestProviderMetadata(self):
+        """Test AiIntegrationsUpdateRequestProviderMetadata"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

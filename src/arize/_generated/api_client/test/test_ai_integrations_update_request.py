@@ -48,7 +48,7 @@ class TestAiIntegrationsUpdateRequest(unittest.TestCase):
                 enable_default_models = True,
                 function_calling_enabled = True,
                 auth_type = 'default',
-                provider_metadata = { },
+                provider_metadata = arize._generated.api_client.models.ai_integrations_update_request_provider_metadata.ai_integrations_update_request_provider_metadata(),
                 scopings = [
                     arize._generated.api_client.models.ai_integration_scoping.AiIntegrationScoping(
                         organization_id = '', 

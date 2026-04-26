@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.aws_provider_metadata_kind import AwsProviderMetadataKind
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -26,9 +27,10 @@ class AwsProviderMetadata(BaseModel):
     """
     AWS Bedrock provider metadata
     """ # noqa: E501
+    kind: AwsProviderMetadataKind
     role_arn: StrictStr = Field(description="AWS IAM role ARN for cross-account access")
     external_id: Optional[StrictStr] = Field(default=None, description="External ID for the assume-role policy")
-    __properties: ClassVar[List[str]] = ["role_arn", "external_id"]
+    __properties: ClassVar[List[str]] = ["kind", "role_arn", "external_id"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -91,6 +93,7 @@ class AwsProviderMetadata(BaseModel):
                 raise ValueError("Error due to additional fields (not defined in AwsProviderMetadata) in the input: " + _key)
 
         _obj = cls.model_validate({
+            "kind": obj.get("kind"),
             "role_arn": obj.get("role_arn"),
             "external_id": obj.get("external_id")
         })

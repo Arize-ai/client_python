@@ -16,7 +16,7 @@ Name | Type | Description | Notes
 **enable_default_models** | **bool** | Whether the provider&#39;s default model list is enabled | 
 **function_calling_enabled** | **bool** | Whether function/tool calling is enabled | 
 **auth_type** | [**AiIntegrationAuthType**](AiIntegrationAuthType.md) |  | 
-**provider_metadata** | **Dict[str, object]** | Provider-specific configuration (AWS or GCP metadata) | [optional] 
+**provider_metadata** | [**AiIntegrationProviderMetadata**](AiIntegrationProviderMetadata.md) |  | [optional] 
 **scopings** | [**List[AiIntegrationScoping]**](AiIntegrationScoping.md) | Visibility scoping rules | 
 **created_at** | **datetime** | When the integration was created | 
 **updated_at** | **datetime** | When the integration was last updated | 

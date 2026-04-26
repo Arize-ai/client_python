@@ -10,7 +10,6 @@ Name | Type | Description | Notes
 **anthropic_headers** | [**ProviderParamsAnthropicHeaders**](ProviderParamsAnthropicHeaders.md) |  | [optional] 
 **anthropic_version** | **str** | Anthropic API version | [optional] 
 **bedrock_options** | [**ProviderParamsBedrockOptions**](ProviderParamsBedrockOptions.md) |  | [optional] 
-**custom_provider_params** | **object** | Custom provider parameters | [optional] 
 **region** | **str** | Region for the model deployment | [optional] 
 
 ## Example

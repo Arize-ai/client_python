@@ -51,7 +51,7 @@ class TestAiIntegrationsList200Response(unittest.TestCase):
                         enable_default_models = True, 
                         function_calling_enabled = True, 
                         auth_type = 'default', 
-                        provider_metadata = { }, 
+                        provider_metadata = arize._generated.api_client.models.ai_integration_provider_metadata.AiIntegration_provider_metadata(), 
                         scopings = [
                             arize._generated.api_client.models.ai_integration_scoping.AiIntegrationScoping(
                                 organization_id = '', 
@@ -83,7 +83,7 @@ class TestAiIntegrationsList200Response(unittest.TestCase):
                         enable_default_models = True, 
                         function_calling_enabled = True, 
                         auth_type = 'default', 
-                        provider_metadata = { }, 
+                        provider_metadata = arize._generated.api_client.models.ai_integration_provider_metadata.AiIntegration_provider_metadata(), 
                         scopings = [
                             arize._generated.api_client.models.ai_integration_scoping.AiIntegrationScoping(
                                 organization_id = '', 

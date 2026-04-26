@@ -571,19 +571,19 @@ class ExperimentsClient:
         space_id = dataset_obj.space_id
         dataset_updated_at = getattr(dataset_obj, "updated_at", None)
 
-        with ArizeFlightClient(
-            api_key=self._sdk_config.api_key,
-            host=self._sdk_config.flight_host,
-            port=self._sdk_config.flight_port,
-            scheme=self._sdk_config.flight_scheme,
-            request_verify=self._sdk_config.request_verify,
-            max_chunksize=self._sdk_config.pyarrow_max_chunksize,
-        ) as flight_client:
-            # set up initial experiment and trace model
-            if dry_run:
-                trace_model_name = "traces_for_dry_run"
-                experiment_id = "experiment_id_for_dry_run"
-            else:
+        # --- Phase 1: init experiment + download dataset, then close ---
+        if dry_run:
+            trace_model_name = "traces_for_dry_run"
+            experiment_id = "experiment_id_for_dry_run"
+        else:
+            with ArizeFlightClient(
+                api_key=self._sdk_config.api_key,
+                host=self._sdk_config.flight_host,
+                port=self._sdk_config.flight_port,
+                scheme=self._sdk_config.flight_scheme,
+                request_verify=self._sdk_config.request_verify,
+                max_chunksize=self._sdk_config.pyarrow_max_chunksize,
+            ) as flight_client:
                 response = None
                 try:
                     response = flight_client.init_experiment(
@@ -606,18 +606,25 @@ class ExperimentsClient:
                     raise RuntimeError(msg)
                 experiment_id, trace_model_name = response
 
-            dataset_df = None
-            # try to load dataset from cache
-            if self._sdk_config.enable_caching:
-                dataset_df = load_cached_resource(
-                    cache_dir=self._sdk_config.cache_dir,
-                    resource="dataset",
-                    resource_id=dataset_id,
-                    resource_updated_at=dataset_updated_at,
-                )
+        dataset_df = None
+        if self._sdk_config.enable_caching:
+            dataset_df = load_cached_resource(
+                cache_dir=self._sdk_config.cache_dir,
+                resource="dataset",
+                resource_id=dataset_id,
+                resource_updated_at=dataset_updated_at,
+            )
 
-            if dataset_df is None:
-                # download dataset
+        if dataset_df is None:
+            # download dataset
+            with ArizeFlightClient(
+                api_key=self._sdk_config.api_key,
+                host=self._sdk_config.flight_host,
+                port=self._sdk_config.flight_port,
+                scheme=self._sdk_config.flight_scheme,
+                request_verify=self._sdk_config.request_verify,
+                max_chunksize=self._sdk_config.pyarrow_max_chunksize,
+            ) as flight_client:
                 try:
                     dataset_df = flight_client.get_dataset_examples(
                         space_id=space_id,
@@ -636,64 +643,71 @@ class ExperimentsClient:
                     logger.error(msg)
                     raise RuntimeError(msg)
 
-            if dataset_df.empty:
-                raise ValueError(f"Dataset {dataset_id} is empty")
+        if dataset_df.empty:
+            raise ValueError(f"Dataset {dataset_id} is empty")
 
-            # cache dataset for future use
-            cache_resource(
-                cache_dir=self._sdk_config.cache_dir,
-                resource="dataset",
-                resource_id=dataset_id,
-                resource_updated_at=dataset_updated_at,
-                resource_data=dataset_df,
-            )
+        cache_resource(
+            cache_dir=self._sdk_config.cache_dir,
+            resource="dataset",
+            resource_id=dataset_id,
+            resource_updated_at=dataset_updated_at,
+            resource_data=dataset_df,
+        )
 
-            if dry_run:
-                # only dry_run experiment on a subset (first N rows) of the dataset
-                dataset_df = dataset_df.head(dry_run_count)
+        if dry_run:
+            # only dry_run experiment on a subset (first N rows) of the dataset
+            dataset_df = dataset_df.head(dry_run_count)
 
-            # trace model and resource for the experiment
-            tracer, resource = _get_tracer_resource(
-                project_name=trace_model_name,
-                space_id=space_id,
-                api_key=self._sdk_config.api_key,
-                endpoint=self._sdk_config.otlp_url,
-                dry_run=dry_run,
-                set_global_tracer_provider=set_global_tracer_provider,
-            )
+        # --- Phase 2: run experiment (no Flight connection held) ---
+        tracer, resource = _get_tracer_resource(
+            project_name=trace_model_name,
+            space_id=space_id,
+            api_key=self._sdk_config.api_key,
+            endpoint=self._sdk_config.otlp_url,
+            dry_run=dry_run,
+            set_global_tracer_provider=set_global_tracer_provider,
+        )
 
-            output_df = run_experiment(
-                experiment_name=name,
-                experiment_id=experiment_id,
-                dataset=dataset_df,
-                task=task,
-                tracer=tracer,
-                resource=resource,
-                evaluators=evaluators,
-                concurrency=concurrency,
-                exit_on_error=exit_on_error,
-                timeout=timeout,
-            )
-            output_df = convert_default_columns_to_json_str(output_df)
-            output_df = convert_boolean_columns_to_str(output_df)
-            if dry_run:
-                return None, output_df
+        output_df = run_experiment(
+            experiment_name=name,
+            experiment_id=experiment_id,
+            dataset=dataset_df,
+            task=task,
+            tracer=tracer,
+            resource=resource,
+            evaluators=evaluators,
+            concurrency=concurrency,
+            exit_on_error=exit_on_error,
+            timeout=timeout,
+        )
+        output_df = convert_default_columns_to_json_str(output_df)
+        output_df = convert_boolean_columns_to_str(output_df)
+        if dry_run:
+            return None, output_df
 
-            # Convert to Arrow table
-            try:
-                logger.debug("Converting data to Arrow format")
-                pa_table = pa.Table.from_pandas(output_df, preserve_index=False)
-            except pa.ArrowInvalid as e:
-                logger.exception(INVALID_ARROW_CONVERSION_MSG)
-                raise pa.ArrowInvalid(
-                    f"Error converting to Arrow format: {e!s}"
-                ) from e
-            except Exception:
-                logger.exception("Unexpected error creating Arrow table")
-                raise
+        # --- Phase 3: upload results with a fresh connection ---
+        try:
+            logger.debug("Converting data to Arrow format")
+            pa_table = pa.Table.from_pandas(output_df, preserve_index=False)
+        except pa.ArrowInvalid as e:
+            logger.exception(INVALID_ARROW_CONVERSION_MSG)
+            raise pa.ArrowInvalid(
+                f"Error converting to Arrow format: {e!s}"
+            ) from e
+        except Exception:
+            logger.exception("Unexpected error creating Arrow table")
+            raise
 
-            request_type = FlightRequestType.LOG_EXPERIMENT_DATA
-            post_resp = None
+        request_type = FlightRequestType.LOG_EXPERIMENT_DATA
+        post_resp = None
+        with ArizeFlightClient(
+            api_key=self._sdk_config.api_key,
+            host=self._sdk_config.flight_host,
+            port=self._sdk_config.flight_port,
+            scheme=self._sdk_config.flight_scheme,
+            request_verify=self._sdk_config.request_verify,
+            max_chunksize=self._sdk_config.pyarrow_max_chunksize,
+        ) as flight_client:
             try:
                 post_resp = flight_client.log_arrow_table(
                     space_id=space_id,
@@ -707,15 +721,15 @@ class ExperimentsClient:
                 logger.exception(msg)
                 raise RuntimeError(msg) from e
 
-            if post_resp is None:
-                # This should not happen with proper Flight client implementation,
-                # but we handle it defensively
-                msg = "No response received from flight server during request"
-                logger.error(msg)
-                raise RuntimeError(msg)
+        if post_resp is None:
+            # This should not happen with proper Flight client implementation,
+            # but we handle it defensively
+            msg = "No response received from flight server during request"
+            logger.error(msg)
+            raise RuntimeError(msg)
 
-            experiment = self.get(experiment=str(post_resp.experiment_id))
-            return experiment, output_df
+        experiment = self.get(experiment=str(post_resp.experiment_id))
+        return experiment, output_df
 
     def _create_experiment_via_flight(
         self,

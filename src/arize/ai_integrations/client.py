@@ -23,6 +23,8 @@ if TYPE_CHECKING:
         AiIntegrationProvider,
         AiIntegrationScoping,
         AiIntegrationsList200Response,
+        AwsProviderMetadata,
+        GcpProviderMetadata,
     )
     from arize.config import SDKConfiguration
 
@@ -142,7 +144,9 @@ class AiIntegrationsClient:
         enable_default_models: bool | None = None,
         function_calling_enabled: bool | None = None,
         auth_type: AiIntegrationAuthType | None = None,
-        provider_metadata: dict[str, Any] | None = None,
+        provider_metadata: AwsProviderMetadata
+        | GcpProviderMetadata
+        | None = None,
         scopings: builtins.list[AiIntegrationScoping] | None = None,
     ) -> AiIntegration:
         """Create a new AI integration.
@@ -166,7 +170,8 @@ class AiIntegrationsClient:
             function_calling_enabled: Enable function/tool calling.
                 Defaults to ``True`` if not provided.
             auth_type: Authentication type. Defaults to ``default`` if not provided.
-            provider_metadata: Provider-specific configuration (AWS or GCP metadata).
+            provider_metadata: Typed provider metadata (``AwsProviderMetadata`` or
+                ``GcpProviderMetadata``), including the required ``kind`` discriminator.
             scopings: Visibility scoping rules. Defaults to account-wide if omitted.
 
         Returns:
@@ -177,6 +182,13 @@ class AiIntegrationsClient:
         """
         from arize._generated import api_client as gen
 
+        wrapped_metadata = (
+            gen.AiIntegrationsCreateRequestProviderMetadata(
+                actual_instance=provider_metadata
+            )
+            if provider_metadata is not None
+            else None
+        )
         body = gen.AiIntegrationsCreateRequest(
             name=name,
             provider=provider,
@@ -187,7 +199,7 @@ class AiIntegrationsClient:
             enable_default_models=enable_default_models,
             function_calling_enabled=function_calling_enabled,
             auth_type=auth_type,
-            provider_metadata=provider_metadata,
+            provider_metadata=wrapped_metadata,
             scopings=scopings,
         )
         return self._api.ai_integrations_create(
@@ -209,7 +221,9 @@ class AiIntegrationsClient:
         enable_default_models: bool | None = _UNSET,
         function_calling_enabled: bool | None = _UNSET,
         auth_type: AiIntegrationAuthType | None = _UNSET,
-        provider_metadata: dict[str, Any] | None = _UNSET,
+        provider_metadata: AwsProviderMetadata
+        | GcpProviderMetadata
+        | None = _UNSET,
         scopings: builtins.list[AiIntegrationScoping] | None = _UNSET,
     ) -> AiIntegration:
         """Update an AI integration by name or ID.
@@ -231,7 +245,8 @@ class AiIntegrationsClient:
             enable_default_models: Updated default models flag.
             function_calling_enabled: Updated function calling flag.
             auth_type: Updated authentication type.
-            provider_metadata: Updated provider-specific configuration.
+            provider_metadata: Updated typed provider metadata
+                (``AwsProviderMetadata`` or ``GcpProviderMetadata``).
                 Pass ``None`` to clear.
             scopings: Updated visibility scoping rules (replaces all existing).
 
@@ -243,6 +258,16 @@ class AiIntegrationsClient:
                 (for example, integration not found or insufficient permissions).
         """
         from arize._generated import api_client as gen
+
+        wrapped_metadata: Any = _UNSET
+        if provider_metadata is not _UNSET:
+            wrapped_metadata = (
+                gen.AiIntegrationsUpdateRequestProviderMetadata(
+                    actual_instance=provider_metadata
+                )
+                if provider_metadata is not None
+                else None
+            )
 
         # Build kwargs with only the fields the caller actually provided so
         # that pydantic's model_fields_set accurately reflects intent.  This
@@ -261,7 +286,7 @@ class AiIntegrationsClient:
                 ("enable_default_models", enable_default_models),
                 ("function_calling_enabled", function_calling_enabled),
                 ("auth_type", auth_type),
-                ("provider_metadata", provider_metadata),
+                ("provider_metadata", wrapped_metadata),
                 ("scopings", scopings),
             )
             if v is not _UNSET

@@ -33,9 +33,8 @@ class ProviderParams(BaseModel):
     anthropic_headers: Optional[ProviderParamsAnthropicHeaders] = None
     anthropic_version: Optional[StrictStr] = Field(default=None, description="Anthropic API version")
     bedrock_options: Optional[ProviderParamsBedrockOptions] = None
-    custom_provider_params: Optional[Dict[str, Any]] = Field(default=None, description="Custom provider parameters")
     region: Optional[StrictStr] = Field(default=None, description="Region for the model deployment")
-    __properties: ClassVar[List[str]] = ["azure_params", "anthropic_headers", "anthropic_version", "bedrock_options", "custom_provider_params", "region"]
+    __properties: ClassVar[List[str]] = ["azure_params", "anthropic_headers", "anthropic_version", "bedrock_options", "region"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -106,7 +105,6 @@ class ProviderParams(BaseModel):
             "anthropic_headers": ProviderParamsAnthropicHeaders.from_dict(obj["anthropic_headers"]) if obj.get("anthropic_headers") is not None else None,
             "anthropic_version": obj.get("anthropic_version"),
             "bedrock_options": ProviderParamsBedrockOptions.from_dict(obj["bedrock_options"]) if obj.get("bedrock_options") is not None else None,
-            "custom_provider_params": obj.get("custom_provider_params"),
             "region": obj.get("region")
         })
         return _obj

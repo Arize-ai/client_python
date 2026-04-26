@@ -13,6 +13,18 @@ from arize._generated.api_client.models.ai_integration_scoping import (
 from arize._generated.api_client.models.ai_integrations_list200_response import (
     AiIntegrationsList200Response,
 )
+from arize._generated.api_client.models.aws_provider_metadata import (
+    AwsProviderMetadata,
+)
+from arize._generated.api_client.models.aws_provider_metadata_kind import (
+    AwsProviderMetadataKind,
+)
+from arize._generated.api_client.models.gcp_provider_metadata import (
+    GcpProviderMetadata,
+)
+from arize._generated.api_client.models.gcp_provider_metadata_kind import (
+    GcpProviderMetadataKind,
+)
 
 __all__ = [
     "AiIntegration",
@@ -20,4 +32,8 @@ __all__ = [
     "AiIntegrationProvider",
     "AiIntegrationScoping",
     "AiIntegrationsList200Response",
+    "AwsProviderMetadata",
+    "AwsProviderMetadataKind",
+    "GcpProviderMetadata",
+    "GcpProviderMetadataKind",
 ]

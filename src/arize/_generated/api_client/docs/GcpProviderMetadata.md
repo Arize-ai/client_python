@@ -6,6 +6,7 @@ Vertex AI (GCP) provider metadata
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**kind** | [**GcpProviderMetadataKind**](GcpProviderMetadataKind.md) |  | 
 **project_id** | **str** | GCP project ID | 
 **location** | **str** | GCP region (e.g. us-central1) | 
 **project_access_label** | **str** | Display label for the project | 

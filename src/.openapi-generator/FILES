@@ -26,10 +26,13 @@ arize/_generated/api_client/docs/AddAnnotationQueueRecordsRequestBody.md
 arize/_generated/api_client/docs/AiIntegration.md
 arize/_generated/api_client/docs/AiIntegrationAuthType.md
 arize/_generated/api_client/docs/AiIntegrationProvider.md
+arize/_generated/api_client/docs/AiIntegrationProviderMetadata.md
 arize/_generated/api_client/docs/AiIntegrationScoping.md
 arize/_generated/api_client/docs/AiIntegrationsCreateRequest.md
+arize/_generated/api_client/docs/AiIntegrationsCreateRequestProviderMetadata.md
 arize/_generated/api_client/docs/AiIntegrationsList200Response.md
 arize/_generated/api_client/docs/AiIntegrationsUpdateRequest.md
+arize/_generated/api_client/docs/AiIntegrationsUpdateRequestProviderMetadata.md
 arize/_generated/api_client/docs/AnnotateAnnotationQueueRecordRequestBody.md
 arize/_generated/api_client/docs/AnnotateDatasetExamplesRequestBody.md
 arize/_generated/api_client/docs/AnnotateExperimentRunsRequestBody.md
@@ -67,6 +70,7 @@ arize/_generated/api_client/docs/ApiKeysList200Response.md
 arize/_generated/api_client/docs/AssignAnnotationQueueRecordRequestBody.md
 arize/_generated/api_client/docs/AssignmentMethod.md
 arize/_generated/api_client/docs/AwsProviderMetadata.md
+arize/_generated/api_client/docs/AwsProviderMetadataKind.md
 arize/_generated/api_client/docs/CategoricalAnnotationConfig.md
 arize/_generated/api_client/docs/CategoricalAnnotationConfigCreate.md
 arize/_generated/api_client/docs/CategoricalAnnotationValue.md
@@ -108,6 +112,7 @@ arize/_generated/api_client/docs/ExperimentsRunsList200Response.md
 arize/_generated/api_client/docs/FreeformAnnotationConfig.md
 arize/_generated/api_client/docs/FreeformAnnotationConfigCreate.md
 arize/_generated/api_client/docs/GcpProviderMetadata.md
+arize/_generated/api_client/docs/GcpProviderMetadataKind.md
 arize/_generated/api_client/docs/InputVariableFormat.md
 arize/_generated/api_client/docs/InvocationParams.md
 arize/_generated/api_client/docs/LLMMessage.md
@@ -194,10 +199,13 @@ arize/_generated/api_client/models/add_annotation_queue_records_request_body.py
 arize/_generated/api_client/models/ai_integration.py
 arize/_generated/api_client/models/ai_integration_auth_type.py
 arize/_generated/api_client/models/ai_integration_provider.py
+arize/_generated/api_client/models/ai_integration_provider_metadata.py
 arize/_generated/api_client/models/ai_integration_scoping.py
 arize/_generated/api_client/models/ai_integrations_create_request.py
+arize/_generated/api_client/models/ai_integrations_create_request_provider_metadata.py
 arize/_generated/api_client/models/ai_integrations_list200_response.py
 arize/_generated/api_client/models/ai_integrations_update_request.py
+arize/_generated/api_client/models/ai_integrations_update_request_provider_metadata.py
 arize/_generated/api_client/models/annotate_annotation_queue_record_request_body.py
 arize/_generated/api_client/models/annotate_dataset_examples_request_body.py
 arize/_generated/api_client/models/annotate_experiment_runs_request_body.py
@@ -233,6 +241,7 @@ arize/_generated/api_client/models/api_keys_list200_response.py
 arize/_generated/api_client/models/assign_annotation_queue_record_request_body.py
 arize/_generated/api_client/models/assignment_method.py
 arize/_generated/api_client/models/aws_provider_metadata.py
+arize/_generated/api_client/models/aws_provider_metadata_kind.py
 arize/_generated/api_client/models/categorical_annotation_config.py
 arize/_generated/api_client/models/categorical_annotation_config_create.py
 arize/_generated/api_client/models/categorical_annotation_value.py
@@ -271,6 +280,7 @@ arize/_generated/api_client/models/experiments_runs_list200_response.py
 arize/_generated/api_client/models/freeform_annotation_config.py
 arize/_generated/api_client/models/freeform_annotation_config_create.py
 arize/_generated/api_client/models/gcp_provider_metadata.py
+arize/_generated/api_client/models/gcp_provider_metadata_kind.py
 arize/_generated/api_client/models/input_variable_format.py
 arize/_generated/api_client/models/invocation_params.py
 arize/_generated/api_client/models/llm_message.py
@@ -348,11 +358,14 @@ arize/_generated/api_client/test/test_add_annotation_queue_records_request_body.
 arize/_generated/api_client/test/test_ai_integration.py
 arize/_generated/api_client/test/test_ai_integration_auth_type.py
 arize/_generated/api_client/test/test_ai_integration_provider.py
+arize/_generated/api_client/test/test_ai_integration_provider_metadata.py
 arize/_generated/api_client/test/test_ai_integration_scoping.py
 arize/_generated/api_client/test/test_ai_integrations_api.py
 arize/_generated/api_client/test/test_ai_integrations_create_request.py
+arize/_generated/api_client/test/test_ai_integrations_create_request_provider_metadata.py
 arize/_generated/api_client/test/test_ai_integrations_list200_response.py
 arize/_generated/api_client/test/test_ai_integrations_update_request.py
+arize/_generated/api_client/test/test_ai_integrations_update_request_provider_metadata.py
 arize/_generated/api_client/test/test_annotate_annotation_queue_record_request_body.py
 arize/_generated/api_client/test/test_annotate_dataset_examples_request_body.py
 arize/_generated/api_client/test/test_annotate_experiment_runs_request_body.py
@@ -382,6 +395,7 @@ arize/_generated/api_client/test/test_api_key_refresh.py
 arize/_generated/api_client/test/test_api_key_status.py
 arize/_generated/api_client/test/test_assign_annotation_queue_record_request_body.py
 arize/_generated/api_client/test/test_assignment_method.py
+arize/_generated/api_client/test/test_aws_provider_metadata_kind.py
 arize/_generated/api_client/test/test_categorical_annotation_config.py
 arize/_generated/api_client/test/test_categorical_annotation_config_create.py
 arize/_generated/api_client/test/test_categorical_annotation_value.py
@@ -414,6 +428,7 @@ arize/_generated/api_client/test/test_experiments_runs_list200_response.py
 arize/_generated/api_client/test/test_freeform_annotation_config.py
 arize/_generated/api_client/test/test_freeform_annotation_config_create.py
 arize/_generated/api_client/test/test_gcp_provider_metadata.py
+arize/_generated/api_client/test/test_gcp_provider_metadata_kind.py
 arize/_generated/api_client/test/test_input_variable_format.py
 arize/_generated/api_client/test/test_invocation_params.py
 arize/_generated/api_client/test/test_llm_message.py

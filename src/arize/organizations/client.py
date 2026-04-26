@@ -125,6 +125,32 @@ class OrganizationsClient:
         )
         return self._api.organizations_create(organizations_create_request=body)
 
+    @prerelease_endpoint(key="organizations.delete", stage=ReleaseStage.ALPHA)
+    def delete(self, *, organization: str) -> None:
+        """Delete an organization by ID or name.
+
+        This operation is irreversible. It permanently deletes the
+        organization and all resources that belong to it, including all
+        spaces and their contents (projects, experiments, evaluators,
+        models, monitors, dashboards, datasets, annotation configs,
+        annotation queues, custom metrics, etc.) as well as
+        organization-level resources (integrations, cost configurations,
+        SAML identity providers, and API keys).
+
+        Args:
+            organization: Organization ID or name to delete.
+
+        Returns:
+            This method returns None on success (204 No Content response).
+
+        Raises:
+            ApiException: If the API request fails
+                (for example, organization not found or insufficient
+                permissions).
+        """
+        org_id = _find_organization_id(self._api, organization)
+        return self._api.organizations_delete(org_id=org_id)
+
     @prerelease_endpoint(key="organizations.update", stage=ReleaseStage.ALPHA)
     def update(
         self,

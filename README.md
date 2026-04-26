@@ -1032,6 +1032,18 @@ org = client.organizations.update(
 )
 ```
 
+### Delete an Organization
+
+> **Warning:** This operation is irreversible. It permanently deletes the
+> organization and all resources that belong to it, including all spaces
+> and their contents.
+
+```python
+client.organizations.delete(
+    organization="<organization-id-or-name>",
+)
+```
+
 ## Operations on Annotation Configs
 
 Use `client.annotation_configs` to manage annotation configurations that define scoring schemas for human feedback.

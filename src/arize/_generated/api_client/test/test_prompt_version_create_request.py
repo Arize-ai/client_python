@@ -87,7 +87,6 @@ class TestPromptVersionCreateRequest(unittest.TestCase):
                     anthropic_version = '', 
                     bedrock_options = arize._generated.api_client.models.provider_params_bedrock_options.ProviderParams_bedrock_options(
                         use_converse_endpoint = True, ), 
-                    custom_provider_params = arize._generated.api_client.models.custom_provider_params.custom_provider_params(), 
                     region = '', )
             )
         else:

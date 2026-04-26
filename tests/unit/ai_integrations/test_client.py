@@ -231,6 +231,42 @@ class TestAiIntegrationsClientCreate:
 
         assert result is expected
 
+    def test_create_wraps_typed_provider_metadata(
+        self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
+    ) -> None:
+        """create() should wrap typed provider metadata in oneOf wrapper."""
+        from arize._generated.api_client.models.aws_provider_metadata import (
+            AwsProviderMetadata,
+        )
+
+        aws_meta = AwsProviderMetadata(
+            kind="aws",
+            role_arn="arn:aws:iam::role/x",
+            external_id=None,
+        )
+        mock_wrapped = Mock()
+        with (
+            patch(
+                "arize._generated.api_client.AiIntegrationsCreateRequest"
+            ) as mock_request_cls,
+            patch(
+                "arize._generated.api_client"
+                ".AiIntegrationsCreateRequestProviderMetadata"
+            ) as mock_meta_cls,
+        ):
+            mock_meta_cls.return_value = mock_wrapped
+            mock_request_cls.return_value = Mock()
+
+            ai_integrations_client.create(
+                name="AWS Bedrock",
+                provider="awsBedrock",
+                provider_metadata=aws_meta,
+            )
+
+        mock_meta_cls.assert_called_once_with(actual_instance=aws_meta)
+        call_kwargs = mock_request_cls.call_args[1]
+        assert call_kwargs["provider_metadata"] is mock_wrapped
+
     def test_create_emits_alpha_prerelease_warning(
         self,
         ai_integrations_client: AiIntegrationsClient,
@@ -331,6 +367,59 @@ class TestAiIntegrationsClientUpdate:
 
         mock_request_cls.assert_called_once_with(
             enable_default_models=False,
+        )
+
+    def test_update_wraps_typed_provider_metadata(
+        self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
+    ) -> None:
+        """update() should wrap typed provider metadata in oneOf wrapper."""
+        from arize._generated.api_client.models.aws_provider_metadata import (
+            AwsProviderMetadata,
+        )
+
+        aws_meta = AwsProviderMetadata(
+            kind="aws",
+            role_arn="arn:aws:iam::role/x",
+            external_id=None,
+        )
+        mock_wrapped = Mock()
+        with (
+            patch(
+                "arize._generated.api_client.AiIntegrationsUpdateRequest"
+            ) as mock_request_cls,
+            patch(
+                "arize._generated.api_client"
+                ".AiIntegrationsUpdateRequestProviderMetadata"
+            ) as mock_meta_cls,
+        ):
+            mock_meta_cls.return_value = mock_wrapped
+            mock_request_cls.return_value = Mock()
+
+            ai_integrations_client.update(
+                integration=_INTEGRATION_ID,
+                provider_metadata=aws_meta,
+            )
+
+        mock_meta_cls.assert_called_once_with(actual_instance=aws_meta)
+        call_kwargs = mock_request_cls.call_args[1]
+        assert call_kwargs["provider_metadata"] is mock_wrapped
+
+    def test_update_explicit_none_provider_metadata_is_forwarded(
+        self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
+    ) -> None:
+        """update() should forward explicit None for provider_metadata without wrapping."""
+        with patch(
+            "arize._generated.api_client.AiIntegrationsUpdateRequest"
+        ) as mock_request_cls:
+            mock_request_cls.return_value = Mock()
+
+            ai_integrations_client.update(
+                integration=_INTEGRATION_ID,
+                provider_metadata=None,
+            )
+
+        mock_request_cls.assert_called_once_with(
+            provider_metadata=None,
         )
 
     def test_update_returns_api_response(

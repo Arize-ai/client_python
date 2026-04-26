@@ -14,7 +14,7 @@ Name | Type | Description | Notes
 **enable_default_models** | **bool** | Enable provider&#39;s default model list (default false) | [optional] 
 **function_calling_enabled** | **bool** | Enable function/tool calling (default true) | [optional] 
 **auth_type** | [**AiIntegrationAuthType**](AiIntegrationAuthType.md) |  | [optional] 
-**provider_metadata** | **Dict[str, object]** | Provider-specific configuration (AWS or GCP metadata) | [optional] 
+**provider_metadata** | [**AiIntegrationsCreateRequestProviderMetadata**](AiIntegrationsCreateRequestProviderMetadata.md) |  | [optional] 
 **scopings** | [**List[AiIntegrationScoping]**](AiIntegrationScoping.md) | Visibility scoping rules. Defaults to account-wide. | [optional] 
 
 ## Example

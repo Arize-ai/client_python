@@ -47,10 +47,13 @@ __all__ = [
     "AiIntegration",
     "AiIntegrationAuthType",
     "AiIntegrationProvider",
+    "AiIntegrationProviderMetadata",
     "AiIntegrationScoping",
     "AiIntegrationsCreateRequest",
+    "AiIntegrationsCreateRequestProviderMetadata",
     "AiIntegrationsList200Response",
     "AiIntegrationsUpdateRequest",
+    "AiIntegrationsUpdateRequestProviderMetadata",
     "AnnotateAnnotationQueueRecordRequestBody",
     "AnnotateDatasetExamplesRequestBody",
     "AnnotateExperimentRunsRequestBody",
@@ -86,6 +89,7 @@ __all__ = [
     "AssignAnnotationQueueRecordRequestBody",
     "AssignmentMethod",
     "AwsProviderMetadata",
+    "AwsProviderMetadataKind",
     "CategoricalAnnotationConfig",
     "CategoricalAnnotationConfigCreate",
     "CategoricalAnnotationValue",
@@ -124,6 +128,7 @@ __all__ = [
     "FreeformAnnotationConfig",
     "FreeformAnnotationConfigCreate",
     "GcpProviderMetadata",
+    "GcpProviderMetadataKind",
     "InputVariableFormat",
     "InvocationParams",
     "LLMMessage",
@@ -231,10 +236,13 @@ from arize._generated.api_client.models.add_annotation_queue_records_request_bod
 from arize._generated.api_client.models.ai_integration import AiIntegration as AiIntegration
 from arize._generated.api_client.models.ai_integration_auth_type import AiIntegrationAuthType as AiIntegrationAuthType
 from arize._generated.api_client.models.ai_integration_provider import AiIntegrationProvider as AiIntegrationProvider
+from arize._generated.api_client.models.ai_integration_provider_metadata import AiIntegrationProviderMetadata as AiIntegrationProviderMetadata
 from arize._generated.api_client.models.ai_integration_scoping import AiIntegrationScoping as AiIntegrationScoping
 from arize._generated.api_client.models.ai_integrations_create_request import AiIntegrationsCreateRequest as AiIntegrationsCreateRequest
+from arize._generated.api_client.models.ai_integrations_create_request_provider_metadata import AiIntegrationsCreateRequestProviderMetadata as AiIntegrationsCreateRequestProviderMetadata
 from arize._generated.api_client.models.ai_integrations_list200_response import AiIntegrationsList200Response as AiIntegrationsList200Response
 from arize._generated.api_client.models.ai_integrations_update_request import AiIntegrationsUpdateRequest as AiIntegrationsUpdateRequest
+from arize._generated.api_client.models.ai_integrations_update_request_provider_metadata import AiIntegrationsUpdateRequestProviderMetadata as AiIntegrationsUpdateRequestProviderMetadata
 from arize._generated.api_client.models.annotate_annotation_queue_record_request_body import AnnotateAnnotationQueueRecordRequestBody as AnnotateAnnotationQueueRecordRequestBody
 from arize._generated.api_client.models.annotate_dataset_examples_request_body import AnnotateDatasetExamplesRequestBody as AnnotateDatasetExamplesRequestBody
 from arize._generated.api_client.models.annotate_experiment_runs_request_body import AnnotateExperimentRunsRequestBody as AnnotateExperimentRunsRequestBody
@@ -270,6 +278,7 @@ from arize._generated.api_client.models.api_keys_list200_response import ApiKeys
 from arize._generated.api_client.models.assign_annotation_queue_record_request_body import AssignAnnotationQueueRecordRequestBody as AssignAnnotationQueueRecordRequestBody
 from arize._generated.api_client.models.assignment_method import AssignmentMethod as AssignmentMethod
 from arize._generated.api_client.models.aws_provider_metadata import AwsProviderMetadata as AwsProviderMetadata
+from arize._generated.api_client.models.aws_provider_metadata_kind import AwsProviderMetadataKind as AwsProviderMetadataKind
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig as CategoricalAnnotationConfig
 from arize._generated.api_client.models.categorical_annotation_config_create import CategoricalAnnotationConfigCreate as CategoricalAnnotationConfigCreate
 from arize._generated.api_client.models.categorical_annotation_value import CategoricalAnnotationValue as CategoricalAnnotationValue
@@ -308,6 +317,7 @@ from arize._generated.api_client.models.experiments_runs_list200_response import
 from arize._generated.api_client.models.freeform_annotation_config import FreeformAnnotationConfig as FreeformAnnotationConfig
 from arize._generated.api_client.models.freeform_annotation_config_create import FreeformAnnotationConfigCreate as FreeformAnnotationConfigCreate
 from arize._generated.api_client.models.gcp_provider_metadata import GcpProviderMetadata as GcpProviderMetadata
+from arize._generated.api_client.models.gcp_provider_metadata_kind import GcpProviderMetadataKind as GcpProviderMetadataKind
 from arize._generated.api_client.models.input_variable_format import InputVariableFormat as InputVariableFormat
 from arize._generated.api_client.models.invocation_params import InvocationParams as InvocationParams
 from arize._generated.api_client.models.llm_message import LLMMessage as LLMMessage

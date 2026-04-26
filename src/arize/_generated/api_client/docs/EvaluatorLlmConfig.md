@@ -7,8 +7,8 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **ai_integration_id** | **str** | AI integration global ID (base64) | 
 **model_name** | **str** | Model name (e.g. gpt-4o) | 
-**invocation_parameters** | **Dict[str, object]** | Parameters for the LLM call (e.g. temperature, max_tokens) | 
-**provider_parameters** | **Dict[str, object]** | Provider-specific parameters | 
+**invocation_parameters** | [**InvocationParams**](InvocationParams.md) |  | 
+**provider_parameters** | [**ProviderParams**](ProviderParams.md) |  | 
 
 ## Example
 

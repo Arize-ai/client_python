@@ -6,6 +6,7 @@ AWS Bedrock provider metadata
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**kind** | [**AwsProviderMetadataKind**](AwsProviderMetadataKind.md) |  | 
 **role_arn** | **str** | AWS IAM role ARN for cross-account access | 
 **external_id** | **str** | External ID for the assume-role policy | [optional] 
 

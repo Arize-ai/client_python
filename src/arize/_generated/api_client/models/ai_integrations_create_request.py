@@ -22,6 +22,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.ai_integration_auth_type import AiIntegrationAuthType
 from arize._generated.api_client.models.ai_integration_provider import AiIntegrationProvider
 from arize._generated.api_client.models.ai_integration_scoping import AiIntegrationScoping
+from arize._generated.api_client.models.ai_integrations_create_request_provider_metadata import AiIntegrationsCreateRequestProviderMetadata
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -38,7 +39,7 @@ class AiIntegrationsCreateRequest(BaseModel):
     enable_default_models: Optional[StrictBool] = Field(default=None, description="Enable provider's default model list (default false)")
     function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Enable function/tool calling (default true)")
     auth_type: Optional[AiIntegrationAuthType] = None
-    provider_metadata: Optional[Dict[str, Any]] = Field(default=None, description="Provider-specific configuration (AWS or GCP metadata)")
+    provider_metadata: Optional[AiIntegrationsCreateRequestProviderMetadata] = None
     scopings: Optional[List[AiIntegrationScoping]] = Field(default=None, description="Visibility scoping rules. Defaults to account-wide.")
     __properties: ClassVar[List[str]] = ["name", "provider", "api_key", "base_url", "model_names", "headers", "enable_default_models", "function_calling_enabled", "auth_type", "provider_metadata", "scopings"]
 
@@ -81,6 +82,9 @@ class AiIntegrationsCreateRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of provider_metadata
+        if self.provider_metadata:
+            _dict['provider_metadata'] = self.provider_metadata.to_dict()
         # override the default output from pydantic by calling `to_dict()` of each item in scopings (list)
         _items = []
         if self.scopings:
@@ -114,7 +118,7 @@ class AiIntegrationsCreateRequest(BaseModel):
             "enable_default_models": obj.get("enable_default_models"),
             "function_calling_enabled": obj.get("function_calling_enabled"),
             "auth_type": obj.get("auth_type"),
-            "provider_metadata": obj.get("provider_metadata"),
+            "provider_metadata": AiIntegrationsCreateRequestProviderMetadata.from_dict(obj["provider_metadata"]) if obj.get("provider_metadata") is not None else None,
             "scopings": [AiIntegrationScoping.from_dict(_item) for _item in obj["scopings"]] if obj.get("scopings") is not None else None
         })
         return _obj

@@ -246,3 +246,49 @@ class TestOrganizationsClientUpdate:
             )
 
         assert result is expected
+
+
+@pytest.mark.unit
+class TestOrganizationsClientDelete:
+    """Tests for OrganizationsClient.delete()."""
+
+    def test_delete_calls_api_with_org_id(
+        self, organizations_client: OrganizationsClient, mock_api: Mock
+    ) -> None:
+        """delete() should resolve organization and pass org_id to organizations_delete."""
+        organizations_client.delete(organization="T3JnYW5pemF0aW9uOjEyMzQ1")
+
+        mock_api.organizations_delete.assert_called_once_with(
+            org_id="T3JnYW5pemF0aW9uOjEyMzQ1"
+        )
+
+    def test_delete_returns_none(
+        self, organizations_client: OrganizationsClient, mock_api: Mock
+    ) -> None:
+        """delete() should return None on success (204 response)."""
+        mock_api.organizations_delete.return_value = None
+
+        result = organizations_client.delete(
+            organization="T3JnYW5pemF0aW9uOjEyMzQ1"
+        )
+
+        assert result is None
+
+    def test_delete_emits_alpha_prerelease_warning(
+        self,
+        organizations_client: OrganizationsClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the ALPHA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        organizations_client.delete(organization="T3JnYW5pemF0aW9uOjEyMzQ1")
+
+        assert any(
+            "ALPHA" in record.message
+            and "organizations.delete" in record.message
+            for record in caplog.records
+        )

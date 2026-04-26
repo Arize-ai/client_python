@@ -1,5 +1,18 @@
 # Changelog
 
+## [8.19.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.18.0...arize-python-sdk/v8.19.0) (2026-04-24)
+
+
+### 🎁 New Features
+
+* **organizations:** add organizations.delete ([#69535](https://github.com/Arize-ai/arize/issues/69535)) ([06677b5](https://github.com/Arize-ai/arize/commit/06677b538eaf6cf8f438873d12b3c84fd91a925c))
+
+
+### 🐛 Bug Fixes
+
+* **experiments:** split Flight connection lifecycle in experiments.run() ([#69489](https://github.com/Arize-ai/arize/issues/69489)) ([fae2302](https://github.com/Arize-ai/arize/commit/fae2302ce5250ba5289003de49dc50cc68794a1d))
+* **rest_api:** proper schema for provider params ([#67787](https://github.com/Arize-ai/arize/issues/67787)) ([63108e4](https://github.com/Arize-ai/arize/commit/63108e4413681cfb702e51f2f6cdf65c52dbaa99))
+
 ## [8.18.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.17.0...arize-python-sdk/v8.18.0) (2026-04-23)
 
 

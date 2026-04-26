@@ -19,6 +19,8 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
+from arize._generated.api_client.models.invocation_params import InvocationParams
+from arize._generated.api_client.models.provider_params import ProviderParams
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,8 +30,8 @@ class EvaluatorLlmConfig(BaseModel):
     """ # noqa: E501
     ai_integration_id: StrictStr = Field(description="AI integration global ID (base64)")
     model_name: StrictStr = Field(description="Model name (e.g. gpt-4o)")
-    invocation_parameters: Dict[str, Any] = Field(description="Parameters for the LLM call (e.g. temperature, max_tokens)")
-    provider_parameters: Dict[str, Any] = Field(description="Provider-specific parameters")
+    invocation_parameters: InvocationParams
+    provider_parameters: ProviderParams
     __properties: ClassVar[List[str]] = ["ai_integration_id", "model_name", "invocation_parameters", "provider_parameters"]
 
     model_config = ConfigDict(
@@ -71,6 +73,12 @@ class EvaluatorLlmConfig(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of invocation_parameters
+        if self.invocation_parameters:
+            _dict['invocation_parameters'] = self.invocation_parameters.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of provider_parameters
+        if self.provider_parameters:
+            _dict['provider_parameters'] = self.provider_parameters.to_dict()
         return _dict
 
     @classmethod
@@ -90,8 +98,8 @@ class EvaluatorLlmConfig(BaseModel):
         _obj = cls.model_validate({
             "ai_integration_id": obj.get("ai_integration_id"),
             "model_name": obj.get("model_name"),
-            "invocation_parameters": obj.get("invocation_parameters"),
-            "provider_parameters": obj.get("provider_parameters")
+            "invocation_parameters": InvocationParams.from_dict(obj["invocation_parameters"]) if obj.get("invocation_parameters") is not None else None,
+            "provider_parameters": ProviderParams.from_dict(obj["provider_parameters"]) if obj.get("provider_parameters") is not None else None
         })
         return _obj
 

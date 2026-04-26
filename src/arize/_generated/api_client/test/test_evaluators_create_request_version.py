@@ -49,8 +49,41 @@ class TestEvaluatorsCreateRequestVersion(unittest.TestCase):
                     llm_config = arize._generated.api_client.models.evaluator_llm_config.EvaluatorLlmConfig(
                         ai_integration_id = '', 
                         model_name = '', 
-                        invocation_parameters = { }, 
-                        provider_parameters = { }, ), )
+                        invocation_parameters = arize._generated.api_client.models.invocation_params.InvocationParams(
+                            temperature = 1.337, 
+                            max_tokens = 56, 
+                            max_completion_tokens = 56, 
+                            top_p = 1.337, 
+                            frequency_penalty = 1.337, 
+                            presence_penalty = 1.337, 
+                            stop = [
+                                ''
+                                ], 
+                            response_format = arize._generated.api_client.models.response_format.ResponseFormat(
+                                type = 'text', 
+                                json_schema = arize._generated.api_client.models.response_format_json_schema.ResponseFormat_json_schema(
+                                    name = '', 
+                                    description = '', 
+                                    schema = arize._generated.api_client.models.schema.schema(), 
+                                    strict = True, ), ), 
+                            tool_config = arize._generated.api_client.models.tool_config.ToolConfig(
+                                tools = [
+                                    None
+                                    ], 
+                                tool_choice = null, ), ), 
+                        provider_parameters = arize._generated.api_client.models.provider_params.ProviderParams(
+                            azure_params = arize._generated.api_client.models.provider_params_azure_params.ProviderParams_azure_params(
+                                azure_deployment_name = '', 
+                                azure_openai_endpoint = '', 
+                                azure_openai_version = '', ), 
+                            anthropic_headers = arize._generated.api_client.models.provider_params_anthropic_headers.ProviderParams_anthropic_headers(
+                                anthropic_beta = [
+                                    ''
+                                    ], ), 
+                            anthropic_version = '', 
+                            bedrock_options = arize._generated.api_client.models.provider_params_bedrock_options.ProviderParams_bedrock_options(
+                                use_converse_endpoint = True, ), 
+                            region = '', ), ), )
             )
         else:
             return EvaluatorsCreateRequestVersion(
@@ -68,8 +101,41 @@ class TestEvaluatorsCreateRequestVersion(unittest.TestCase):
                     llm_config = arize._generated.api_client.models.evaluator_llm_config.EvaluatorLlmConfig(
                         ai_integration_id = '', 
                         model_name = '', 
-                        invocation_parameters = { }, 
-                        provider_parameters = { }, ), ),
+                        invocation_parameters = arize._generated.api_client.models.invocation_params.InvocationParams(
+                            temperature = 1.337, 
+                            max_tokens = 56, 
+                            max_completion_tokens = 56, 
+                            top_p = 1.337, 
+                            frequency_penalty = 1.337, 
+                            presence_penalty = 1.337, 
+                            stop = [
+                                ''
+                                ], 
+                            response_format = arize._generated.api_client.models.response_format.ResponseFormat(
+                                type = 'text', 
+                                json_schema = arize._generated.api_client.models.response_format_json_schema.ResponseFormat_json_schema(
+                                    name = '', 
+                                    description = '', 
+                                    schema = arize._generated.api_client.models.schema.schema(), 
+                                    strict = True, ), ), 
+                            tool_config = arize._generated.api_client.models.tool_config.ToolConfig(
+                                tools = [
+                                    None
+                                    ], 
+                                tool_choice = null, ), ), 
+                        provider_parameters = arize._generated.api_client.models.provider_params.ProviderParams(
+                            azure_params = arize._generated.api_client.models.provider_params_azure_params.ProviderParams_azure_params(
+                                azure_deployment_name = '', 
+                                azure_openai_endpoint = '', 
+                                azure_openai_version = '', ), 
+                            anthropic_headers = arize._generated.api_client.models.provider_params_anthropic_headers.ProviderParams_anthropic_headers(
+                                anthropic_beta = [
+                                    ''
+                                    ], ), 
+                            anthropic_version = '', 
+                            bedrock_options = arize._generated.api_client.models.provider_params_bedrock_options.ProviderParams_bedrock_options(
+                                use_converse_endpoint = True, ), 
+                            region = '', ), ), ),
         )
         """
 
