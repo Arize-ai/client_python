@@ -8,7 +8,8 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | System-assigned unique ID for the example | [readonly] 
 **example_id** | **str** | ID of the dataset example associated with this experiment run | [readonly] 
-**output** | **str** | output of the task for the matching example | 
+**output** | **str** | Output of the task for the matching example. Null when the task errored. | [optional] 
+**error** | **str** | Error message when the task failed. Null on success. | [optional] 
 
 ## Example
 

@@ -37,13 +37,13 @@ class TestExperimentRun(unittest.TestCase):
             return ExperimentRun(
                 id = '',
                 example_id = '',
-                output = ''
+                output = '',
+                error = ''
             )
         else:
             return ExperimentRun(
                 id = '',
                 example_id = '',
-                output = '',
         )
         """
 

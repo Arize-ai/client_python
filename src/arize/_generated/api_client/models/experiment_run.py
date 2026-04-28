@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,9 +28,10 @@ class ExperimentRun(BaseModel):
     """ # noqa: E501
     id: StrictStr = Field(description="System-assigned unique ID for the example")
     example_id: StrictStr = Field(description="ID of the dataset example associated with this experiment run")
-    output: StrictStr = Field(description="output of the task for the matching example")
+    output: Optional[StrictStr] = Field(default=None, description="Output of the task for the matching example. Null when the task errored.")
+    error: Optional[StrictStr] = Field(default=None, description="Error message when the task failed. Null on success.")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "example_id", "output"]
+    __properties: ClassVar[List[str]] = ["id", "example_id", "output", "error"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -82,6 +83,16 @@ class ExperimentRun(BaseModel):
             for _key, _value in self.additional_properties.items():
                 _dict[_key] = _value
 
+        # set to None if output (nullable) is None
+        # and model_fields_set contains the field
+        if self.output is None and "output" in self.model_fields_set:
+            _dict['output'] = None
+
+        # set to None if error (nullable) is None
+        # and model_fields_set contains the field
+        if self.error is None and "error" in self.model_fields_set:
+            _dict['error'] = None
+
         return _dict
 
     @classmethod
@@ -96,7 +107,8 @@ class ExperimentRun(BaseModel):
         _obj = cls.model_validate({
             "id": obj.get("id"),
             "example_id": obj.get("example_id"),
-            "output": obj.get("output")
+            "output": obj.get("output"),
+            "error": obj.get("error")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

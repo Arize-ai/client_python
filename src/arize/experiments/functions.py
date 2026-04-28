@@ -337,6 +337,7 @@ def run_experiment(
     out_df["id"] = [run.id for run in runs_filtered]
     out_df["example_id"] = [run.dataset_example_id for run in runs_filtered]
     out_df["result"] = [run.output for run in runs_filtered]  # type: ignore[assignment]
+    out_df["error"] = [run.error for run in runs_filtered]
     out_df["result.trace.id"] = [run.trace_id for run in runs_filtered]
     out_df["result.trace.timestamp"] = [
         int(run.start_time.timestamp() * 1e3) for run in runs_filtered

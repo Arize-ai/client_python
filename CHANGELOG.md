@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.20.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.19.0...arize-python-sdk/v8.20.0) (2026-04-28)
+
+
+### 🎁 New Features
+
+* **types:** add missing public type re-exports to types.py files ([#69709](https://github.com/Arize-ai/arize/issues/69709)) ([59a8a90](https://github.com/Arize-ai/arize/commit/59a8a90f30698b29bb3fd40344ea7f6fa464e654))
+
+
+### 🐛 Bug Fixes
+
+* **experiments:** make ExperimentRun.output nullable, surface error field ([#67390](https://github.com/Arize-ai/arize/issues/67390)) ([#69695](https://github.com/Arize-ai/arize/issues/69695)) ([26ab10b](https://github.com/Arize-ai/arize/commit/26ab10b7bdfb57f2c18697675587e462ccbddfe6))
+
 ## [8.19.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.18.0...arize-python-sdk/v8.19.0) (2026-04-24)
 
 

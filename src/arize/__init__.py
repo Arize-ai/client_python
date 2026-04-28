@@ -5,6 +5,8 @@ from collections.abc import Callable, Mapping
 from typing import TYPE_CHECKING, Literal, cast
 
 from arize._generated.api_client import models
+from arize._generated.api_client.exceptions import ApiException
+from arize._generated.api_client.models.problem import Problem
 from arize.client import ArizeClient
 from arize.config import SDKConfiguration
 from arize.regions import Region
@@ -27,7 +29,9 @@ except Exception:  # noqa: S110
     pass
 
 __all__ = [
+    "ApiException",
     "ArizeClient",
+    "Problem",
     "Region",
     "SDKConfiguration",
 ]
