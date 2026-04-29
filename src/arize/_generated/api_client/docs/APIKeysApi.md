@@ -27,6 +27,11 @@ Create a new API key for the authenticated user.
 - All roles default to the minimum privilege when omitted: `space_role` → `member`,
   `org_role` → `read-only`, `account_role` → `member`.
 
+**Authorization:**
+- **User keys:** Requires the `developer` user permission flag. Returns `403` when this flag is absent.
+- **Service keys:** Requires the `SERVICE_KEY_CREATE` permission in the target space (space
+  member or above).
+
 The full API key value (`key`) is **only returned once** in the creation response.
 Store it securely — it cannot be retrieved again. Use the `redacted_key` field on
 subsequent reads.
@@ -121,7 +126,8 @@ Delete an API key by its ID (soft-delete). This operation is irreversible. The k
 immediately stop working for authentication.
 
 **Authorization:**
-- **User keys:** only the user who created the key may delete it.
+- **User keys:** the creator or an account admin may delete the key. Requires the
+  `developer` user permission flag. Returns `403` when this flag is absent.
 - **Service keys:** space admins (and higher) may delete any service key in their space.
   Non-admins require the `SERVICE_KEY_DELETE` permission and must be the creator of the key.
 
@@ -213,6 +219,8 @@ secret is never returned after creation.
 Results can be filtered by key type, status, and created-by user ID. Responses are
 paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for
 subsequent pages.
+
+**Authorization:** Requires the `developer` user permission flag. Returns `403` when this flag is absent.
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -313,7 +321,8 @@ there is no window where neither key is valid. The full new key value (`key`) is
 **only returned once** in the response. Store it securely.
 
 **Authorization:**
-- **User keys:** only the user who created the key may refresh it.
+- **User keys:** the creator or an account admin may refresh the key. Requires the
+  `developer` user permission flag. Returns `403` when this flag is absent.
 - **Service keys:** space admins (and higher) may refresh any service key in their space.
   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.21.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.20.0...arize-python-sdk/v8.21.0) (2026-04-29)
+
+
+### 🎁 New Features
+
+* **experiments:** add force_http fallback ([#69748](https://github.com/Arize-ai/arize/issues/69748)) ([9f15a55](https://github.com/Arize-ai/arize/commit/9f15a55821920bd5c7869f2db1cd6eb2e3444a56))
+
 ## [8.20.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.19.0...arize-python-sdk/v8.20.0) (2026-04-28)
 
 

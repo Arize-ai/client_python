@@ -237,7 +237,12 @@ class ExperimentsClient:
         dataset_obj = self._datasets_api.datasets_get(dataset_id=dataset_id)
         space_id = dataset_obj.space_id
 
-        return self._create_experiment_via_flight(
+        self._init_experiment_via_flight(
+            space_id=space_id,
+            dataset_id=dataset_id,
+            experiment_name=name,
+        )
+        return self._post_experiment_runs_via_flight(
             name=name,
             dataset_id=dataset_id,
             space_id=space_id,
@@ -517,6 +522,7 @@ class ExperimentsClient:
         set_global_tracer_provider: bool = False,
         exit_on_error: bool = False,
         timeout: int = 120,
+        force_http: bool = False,
     ) -> tuple[Experiment | None, pd.DataFrame]:
         """Run an experiment on a dataset and optionally upload results.
 
@@ -534,6 +540,10 @@ class ExperimentsClient:
             - If `dry_run=True`, no data is uploaded and the returned experiment is
               `None`.
             - When `enable_caching=True`, dataset examples may be cached and reused.
+            - When `force_http=True`, all gRPC/Flight calls are bypassed and pure
+              REST is used instead. Given that the Flight protocol allows to handle
+              more rows, the number of rows to run an experiment on is limited to
+              500 when using `force_http=True`.
 
         Args:
             name: Experiment name.
@@ -549,6 +559,9 @@ class ExperimentsClient:
             exit_on_error: If True, stop on the first error encountered during
                 execution.
             timeout: The timeout in seconds for each task execution. Defaults to 120.
+            force_http: If True, bypass gRPC/Flight and use REST only. This is not
+                recommended for large datasets since it limits the number of rows to 500
+                and may be slower than the Flight path.
 
         Returns:
             If `dry_run=True`, returns `(None, results_df)`.
@@ -571,96 +584,75 @@ class ExperimentsClient:
         space_id = dataset_obj.space_id
         dataset_updated_at = getattr(dataset_obj, "updated_at", None)
 
-        # --- Phase 1: init experiment + download dataset, then close ---
+        # --- Phase 1: init experiment ---
         if dry_run:
-            trace_model_name = "traces_for_dry_run"
             experiment_id = "experiment_id_for_dry_run"
+            trace_project_name = "traces_for_dry_run"
+        elif force_http:
+            # We need an experiment ID to enable tracing
+            # TODO(Kiko): This is not needed for now since experiment tracing
+            # is not enabled yet for the REST path
+            # experiment = self._init_experiment_via_http(
+            #     dataset_id,
+            #     name,
+            # )
+            # experiment_id = experiment.id
+            # trace_project_name_prefix = "experiment_traces_for_dataset_"
+            # trace_project_name = f"{trace_project_name_prefix}{dataset_id}"
+            experiment_id = "experiment_id_for_http_run"
+            trace_project_name = "traces_for_http_run"
         else:
-            with ArizeFlightClient(
-                api_key=self._sdk_config.api_key,
-                host=self._sdk_config.flight_host,
-                port=self._sdk_config.flight_port,
-                scheme=self._sdk_config.flight_scheme,
-                request_verify=self._sdk_config.request_verify,
-                max_chunksize=self._sdk_config.pyarrow_max_chunksize,
-            ) as flight_client:
-                response = None
-                try:
-                    response = flight_client.init_experiment(
-                        space_id=space_id,
-                        dataset_id=dataset_id,
-                        experiment_name=name,
-                    )
-                except Exception as e:
-                    msg = f"Error during request: {e!s}"
-                    logger.exception(msg)
-                    raise RuntimeError(msg) from e
+            experiment_id, trace_project_name = (
+                self._init_experiment_via_flight(
+                    space_id=space_id,
+                    dataset_id=dataset_id,
+                    experiment_name=name,
+                )
+            )
 
-                if response is None:
-                    # This should not happen with proper Flight client implementation,
-                    # but we handle it defensively
-                    msg = (
-                        "No response received from flight server during request"
-                    )
-                    logger.error(msg)
-                    raise RuntimeError(msg)
-                experiment_id, trace_model_name = response
-
-        dataset_df = None
-        if self._sdk_config.enable_caching:
-            dataset_df = load_cached_resource(
+        # --- Phase 2: obtain dataset (download or from cache) ---
+        # Don't cache force_http fetches — row count is limited to 500
+        use_cache = self._sdk_config.enable_caching and not force_http
+        dataset_df = (
+            load_cached_resource(
                 cache_dir=self._sdk_config.cache_dir,
                 resource="dataset",
                 resource_id=dataset_id,
                 resource_updated_at=dataset_updated_at,
             )
+            if use_cache
+            else None
+        )
+        if dataset_df is None or dataset_df.empty:
+            if force_http:
+                dataset_df = self._get_dataset_examples_via_http(
+                    dataset_id=dataset_id,
+                )
+            else:
+                dataset_df = self._get_dataset_examples_via_flight(
+                    space_id=space_id,
+                    dataset_id=dataset_id,
+                )
 
-        if dataset_df is None:
-            # download dataset
-            with ArizeFlightClient(
-                api_key=self._sdk_config.api_key,
-                host=self._sdk_config.flight_host,
-                port=self._sdk_config.flight_port,
-                scheme=self._sdk_config.flight_scheme,
-                request_verify=self._sdk_config.request_verify,
-                max_chunksize=self._sdk_config.pyarrow_max_chunksize,
-            ) as flight_client:
-                try:
-                    dataset_df = flight_client.get_dataset_examples(
-                        space_id=space_id,
-                        dataset_id=dataset_id,
-                    )
-                except Exception as e:
-                    msg = f"Error during request: {e!s}"
-                    logger.exception(msg)
-                    raise RuntimeError(msg) from e
-                if dataset_df is None:
-                    # This should not happen with proper Flight client implementation,
-                    # but we handle it defensively
-                    msg = (
-                        "No response received from flight server during request"
-                    )
-                    logger.error(msg)
-                    raise RuntimeError(msg)
-
-        if dataset_df.empty:
+        if dataset_df is None or dataset_df.empty:
             raise ValueError(f"Dataset {dataset_id} is empty")
 
-        cache_resource(
-            cache_dir=self._sdk_config.cache_dir,
-            resource="dataset",
-            resource_id=dataset_id,
-            resource_updated_at=dataset_updated_at,
-            resource_data=dataset_df,
-        )
+        if use_cache:
+            cache_resource(
+                cache_dir=self._sdk_config.cache_dir,
+                resource="dataset",
+                resource_id=dataset_id,
+                resource_updated_at=dataset_updated_at,
+                resource_data=dataset_df,
+            )
 
         if dry_run:
             # only dry_run experiment on a subset (first N rows) of the dataset
             dataset_df = dataset_df.head(dry_run_count)
 
-        # --- Phase 2: run experiment (no Flight connection held) ---
+        # --- Phase 3: run experiment locally ---
         tracer, resource = _get_tracer_resource(
-            project_name=trace_model_name,
+            project_name=trace_project_name,
             space_id=space_id,
             api_key=self._sdk_config.api_key,
             endpoint=self._sdk_config.otlp_url,
@@ -680,26 +672,105 @@ class ExperimentsClient:
             exit_on_error=exit_on_error,
             timeout=timeout,
         )
+
         output_df = convert_default_columns_to_json_str(output_df)
         output_df = convert_boolean_columns_to_str(output_df)
+
         if dry_run:
             return None, output_df
 
-        # --- Phase 3: upload results with a fresh connection ---
-        try:
-            logger.debug("Converting data to Arrow format")
-            pa_table = pa.Table.from_pandas(output_df, preserve_index=False)
-        except pa.ArrowInvalid as e:
-            logger.exception(INVALID_ARROW_CONVERSION_MSG)
-            raise pa.ArrowInvalid(
-                f"Error converting to Arrow format: {e!s}"
-            ) from e
-        except Exception:
-            logger.exception("Unexpected error creating Arrow table")
-            raise
+        # --- Phase 4: upload results ---
+        if force_http:
+            return self._post_experiment_runs_via_http(
+                name=name,
+                dataset_id=dataset_id,
+                experiment_df=output_df,
+            ), output_df
+        return self._post_experiment_runs_via_flight(
+            name=name,
+            dataset_id=dataset_id,
+            space_id=space_id,
+            experiment_df=output_df,
+        ), output_df
 
-        request_type = FlightRequestType.LOG_EXPERIMENT_DATA
-        post_resp = None
+    # def _init_experiment_via_http(
+    #     self,
+    #     dataset_id: str,
+    #     experiment_name: str,
+    # ) -> Experiment:
+    #     from arize._generated import api_client as gen
+    #
+    #     body = gen.ExperimentsCreateRequest(
+    #         name=experiment_name,
+    #         dataset_id=dataset_id,
+    #         experiment_runs=[],
+    #     )
+    #     try:
+    #         response = self._api.experiments_create(
+    #             experiments_create_request=body
+    #         )
+    #     except Exception as e:
+    #         msg = f"Error during REST request: {e!s}"
+    #         logger.exception(msg)
+    #         raise RuntimeError(msg) from e
+    #     return response
+
+    def _init_experiment_via_flight(
+        self,
+        space_id: str,
+        dataset_id: str,
+        experiment_name: str,
+    ) -> tuple[str, str]:
+        with ArizeFlightClient(
+            api_key=self._sdk_config.api_key,
+            host=self._sdk_config.flight_host,
+            port=self._sdk_config.flight_port,
+            scheme=self._sdk_config.flight_scheme,
+            request_verify=self._sdk_config.request_verify,
+            max_chunksize=self._sdk_config.pyarrow_max_chunksize,
+        ) as flight_client:
+            response = None
+            try:
+                response = flight_client.init_experiment(
+                    space_id=space_id,
+                    dataset_id=dataset_id,
+                    experiment_name=experiment_name,
+                )
+            except Exception as e:
+                msg = f"Error during request: {e!s}"
+                logger.exception(msg)
+                raise RuntimeError(msg) from e
+
+            if response is None:
+                # This should not happen with proper Flight client implementation,
+                # but we handle it defensively
+                msg = "No response received from flight server during request"
+                logger.error(msg)
+                raise RuntimeError(msg)
+            experiment_id, trace_project_name = response
+            return experiment_id, trace_project_name
+
+    def _get_dataset_examples_via_http(
+        self,
+        dataset_id: str,
+    ) -> pd.DataFrame:
+        try:
+            response = self._datasets_api.datasets_examples_list(
+                dataset_id=dataset_id,
+                limit=500,
+            )
+        except Exception as e:
+            msg = f"Error fetching dataset examples via REST: {e!s}"
+            logger.exception(msg)
+            raise RuntimeError(msg) from e
+
+        return response.to_df()  # type: ignore[attr-defined]
+
+    def _get_dataset_examples_via_flight(
+        self,
+        space_id: str,
+        dataset_id: str,
+    ) -> pd.DataFrame:
         with ArizeFlightClient(
             api_key=self._sdk_config.api_key,
             host=self._sdk_config.flight_host,
@@ -709,29 +780,51 @@ class ExperimentsClient:
             max_chunksize=self._sdk_config.pyarrow_max_chunksize,
         ) as flight_client:
             try:
-                post_resp = flight_client.log_arrow_table(
+                dataset_df = flight_client.get_dataset_examples(
                     space_id=space_id,
-                    pa_table=pa_table,
                     dataset_id=dataset_id,
-                    experiment_name=name,
-                    request_type=request_type,
                 )
             except Exception as e:
-                msg = f"Error during update request: {e!s}"
+                msg = f"Error during request: {e!s}"
                 logger.exception(msg)
                 raise RuntimeError(msg) from e
+            if dataset_df is None:
+                # This should not happen with proper Flight client implementation,
+                # but we handle it defensively
+                msg = "No response received from flight server during request"
+                logger.error(msg)
+                raise RuntimeError(msg)
+            return dataset_df
 
-        if post_resp is None:
-            # This should not happen with proper Flight client implementation,
-            # but we handle it defensively
-            msg = "No response received from flight server during request"
-            logger.error(msg)
-            raise RuntimeError(msg)
+    def _post_experiment_runs_via_http(
+        self,
+        name: str,
+        dataset_id: str,
+        experiment_df: pd.DataFrame,
+    ) -> Experiment:
+        # TODO(Kiko): Once we enable experiment tracing for the REST path,
+        # we will need to replace the create call for an append runs call
+        from arize._generated import api_client as gen
 
-        experiment = self.get(experiment=str(post_resp.experiment_id))
-        return experiment, output_df
+        data = experiment_df.to_dict(orient="records")
+        runs_create = [
+            obj
+            for run in data
+            if (
+                obj := gen.ExperimentRunCreate.from_dict(
+                    cast("dict[str, Any]", run)
+                )
+            )
+            is not None
+        ]
+        body = gen.ExperimentsCreateRequest(
+            name=name,
+            dataset_id=dataset_id,
+            experiment_runs=runs_create,
+        )
+        return self._api.experiments_create(experiments_create_request=body)
 
-    def _create_experiment_via_flight(
+    def _post_experiment_runs_via_flight(
         self,
         name: str,
         dataset_id: str,
@@ -752,7 +845,7 @@ class ExperimentsClient:
             logger.exception("Unexpected error creating Arrow table")
             raise
 
-        experiment_id = ""
+        request_type = FlightRequestType.LOG_EXPERIMENT_DATA
         with ArizeFlightClient(
             api_key=self._sdk_config.api_key,
             host=self._sdk_config.flight_host,
@@ -761,33 +854,6 @@ class ExperimentsClient:
             request_verify=self._sdk_config.request_verify,
             max_chunksize=self._sdk_config.pyarrow_max_chunksize,
         ) as flight_client:
-            # set up initial experiment and trace model
-            response = None
-            try:
-                response = flight_client.init_experiment(
-                    space_id=space_id,
-                    dataset_id=dataset_id,
-                    experiment_name=name,
-                )
-            except Exception as e:
-                msg = f"Error during request: {e!s}"
-                logger.exception(msg)
-                raise RuntimeError(msg) from e
-
-            if response is None:
-                # This should not happen with proper Flight client implementation,
-                # but we handle it defensively
-                msg = "No response received from flight server during request"
-                logger.error(msg)
-                raise RuntimeError(msg)
-
-            experiment_id, _ = response
-            if not experiment_id:
-                msg = "No experiment ID received from flight server during request"
-                logger.error(msg)
-                raise RuntimeError(msg)
-
-            request_type = FlightRequestType.LOG_EXPERIMENT_DATA
             post_resp = None
             try:
                 post_resp = flight_client.log_arrow_table(

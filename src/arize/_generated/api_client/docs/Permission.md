@@ -232,6 +232,8 @@ A permission identifier following the pattern {RESOURCE}_{ACTION}. Auto-generate
 
 * `USER_DELETE` (value: `'USER_DELETE'`)
 
+* `USER_PERMISSION_UPDATE` (value: `'USER_PERMISSION_UPDATE'`)
+
 * `USER_READ` (value: `'USER_READ'`)
 
 * `USER_UPDATE` (value: `'USER_UPDATE'`)

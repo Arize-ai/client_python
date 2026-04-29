@@ -351,7 +351,7 @@ class OrganizationsApi:
     ) -> None:
         """Delete an organization
 
-        Delete an organization by its ID. This deletes the organization and all resources that belong to it, including all spaces and their contents (projects, experiments, evaluators, models, monitors, dashboards, datasets,  annotation configs, annotation queues, custom metrics, etc.) as well as organization-level resources such as integrations, cost configurations, SAML identity providers, and API keys.  This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete an organization by its ID. This deletes the organization and all resources that belong to it, including all spaces and their contents (projects, experiments, evaluators, models, monitors, dashboards, datasets, annotation configs, annotation queues, custom metrics, etc.) as well as organization-level resources such as integrations, cost configurations, SAML identity providers, and API keys.  This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param org_id: The unique identifier of the organization (required)
         :type org_id: str
@@ -423,7 +423,7 @@ class OrganizationsApi:
     ) -> ApiResponse[None]:
         """Delete an organization
 
-        Delete an organization by its ID. This deletes the organization and all resources that belong to it, including all spaces and their contents (projects, experiments, evaluators, models, monitors, dashboards, datasets,  annotation configs, annotation queues, custom metrics, etc.) as well as organization-level resources such as integrations, cost configurations, SAML identity providers, and API keys.  This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete an organization by its ID. This deletes the organization and all resources that belong to it, including all spaces and their contents (projects, experiments, evaluators, models, monitors, dashboards, datasets, annotation configs, annotation queues, custom metrics, etc.) as well as organization-level resources such as integrations, cost configurations, SAML identity providers, and API keys.  This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param org_id: The unique identifier of the organization (required)
         :type org_id: str
@@ -495,7 +495,7 @@ class OrganizationsApi:
     ) -> RESTResponseType:
         """Delete an organization
 
-        Delete an organization by its ID. This deletes the organization and all resources that belong to it, including all spaces and their contents (projects, experiments, evaluators, models, monitors, dashboards, datasets,  annotation configs, annotation queues, custom metrics, etc.) as well as organization-level resources such as integrations, cost configurations, SAML identity providers, and API keys.  This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete an organization by its ID. This deletes the organization and all resources that belong to it, including all spaces and their contents (projects, experiments, evaluators, models, monitors, dashboards, datasets, annotation configs, annotation queues, custom metrics, etc.) as well as organization-level resources such as integrations, cost configurations, SAML identity providers, and API keys.  This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param org_id: The unique identifier of the organization (required)
         :type org_id: str
