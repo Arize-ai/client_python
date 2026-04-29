@@ -15,7 +15,7 @@ Method | HTTP request | Description
 
 
 # **evaluator_versions_create**
-> EvaluatorVersion evaluator_versions_create(evaluator_id, evaluator_versions_create_request)
+> EvaluatorVersion evaluator_versions_create(evaluator_id, evaluator_version_create)
 
 Create evaluator version
 
@@ -24,7 +24,9 @@ version immediately (versioning is append-only).
 
 **Payload Requirements**
 - `commit_message` describes the changes in this version.
-- `template_config` follows the same schema and constraints as in Create Evaluator.
+- Provide either `template_config` or `code_config` to match the evaluator's `type`.
+  `code_config.type` is a separate inner discriminator (`managed` or `custom`) and is unrelated to the top-level `type`.
+  Schema and constraints match Create Evaluator.
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -36,7 +38,7 @@ version immediately (versioning is append-only).
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.evaluator_version import EvaluatorVersion
-from arize._generated.api_client.models.evaluator_versions_create_request import EvaluatorVersionsCreateRequest
+from arize._generated.api_client.models.evaluator_version_create import EvaluatorVersionCreate
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -61,11 +63,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
     evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The evaluator global ID (base64)
-    evaluator_versions_create_request = {"commit_message":"Improve template wording","template_config":{"name":"hallucination","template":"Evaluate whether the output is factually grounded.\n\nInput: {input}\nOutput: {output}","include_explanations":true,"use_function_calling_if_available":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"maximize","data_granularity":"span","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}} # EvaluatorVersionsCreateRequest | Body containing evaluator version creation parameters
+    evaluator_version_create = {"commit_message":"Improve template wording","template_config":{"name":"hallucination","template":"Evaluate whether the output is factually grounded.\n\nInput: {input}\nOutput: {output}","include_explanations":true,"use_function_calling_if_available":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"maximize","data_granularity":"span","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}} # EvaluatorVersionCreate | Body containing evaluator version creation parameters
 
     try:
         # Create evaluator version
-        api_response = api_instance.evaluator_versions_create(evaluator_id, evaluator_versions_create_request)
+        api_response = api_instance.evaluator_versions_create(evaluator_id, evaluator_version_create)
         print("The response of EvaluatorsApi->evaluator_versions_create:\n")
         pprint(api_response)
     except Exception as e:
@@ -80,7 +82,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **evaluator_id** | **str**| The evaluator global ID (base64) | 
- **evaluator_versions_create_request** | [**EvaluatorVersionsCreateRequest**](EvaluatorVersionsCreateRequest.md)| Body containing evaluator version creation parameters | 
+ **evaluator_version_create** | [**EvaluatorVersionCreate**](EvaluatorVersionCreate.md)| Body containing evaluator version creation parameters | 
 
 ### Return type
 
@@ -293,10 +295,13 @@ Creates a new evaluator with an initial version.
 
 **Payload Requirements**
 - The evaluator `name` must be unique within the given space.
-- `type` must be `template` (the only supported type in this iteration).
-- `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\s\-&()]+$`.
-- `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`).
-- `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{"relevant": 1, "irrelevant": 0}`). When omitted, the evaluator produces freeform output.
+- `type` (top-level) selects the evaluator kind: `template` or `code`.
+  With `template`, provide `version.template_config`.
+  With `code`, provide `version.code_config` — where `code_config.type` is `managed` or `custom` (a separate discriminator *within* `code_config`, independent of the top-level `type: code`).
+- For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\s\-&()]+$`.
+- For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`).
+- For template evaluators: `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{"relevant": 1, "irrelevant": 0}`). When omitted, the evaluator produces freeform output.
+- For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: managed`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: custom`) use `code`, optional `imports`, and `variables`.
 - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>

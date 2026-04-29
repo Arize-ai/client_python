@@ -21,7 +21,7 @@ from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.evaluator import Evaluator
 from arize._generated.api_client.models.evaluator_version import EvaluatorVersion
-from arize._generated.api_client.models.evaluator_versions_create_request import EvaluatorVersionsCreateRequest
+from arize._generated.api_client.models.evaluator_version_create import EvaluatorVersionCreate
 from arize._generated.api_client.models.evaluator_versions_list200_response import EvaluatorVersionsList200Response
 from arize._generated.api_client.models.evaluator_with_version import EvaluatorWithVersion
 from arize._generated.api_client.models.evaluators_create_request import EvaluatorsCreateRequest
@@ -50,7 +50,7 @@ class EvaluatorsApi:
     def evaluator_versions_create(
         self,
         evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
-        evaluator_versions_create_request: Annotated[EvaluatorVersionsCreateRequest, Field(description="Body containing evaluator version creation parameters")],
+        evaluator_version_create: Annotated[EvaluatorVersionCreate, Field(description="Body containing evaluator version creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -66,12 +66,12 @@ class EvaluatorsApi:
     ) -> EvaluatorVersion:
         """Create evaluator version
 
-        Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - `template_config` follows the same schema and constraints as in Create Evaluator.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide either `template_config` or `code_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`managed` or `custom`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param evaluator_id: The evaluator global ID (base64) (required)
         :type evaluator_id: str
-        :param evaluator_versions_create_request: Body containing evaluator version creation parameters (required)
-        :type evaluator_versions_create_request: EvaluatorVersionsCreateRequest
+        :param evaluator_version_create: Body containing evaluator version creation parameters (required)
+        :type evaluator_version_create: EvaluatorVersionCreate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -96,7 +96,7 @@ class EvaluatorsApi:
 
         _param = self._evaluator_versions_create_serialize(
             evaluator_id=evaluator_id,
-            evaluator_versions_create_request=evaluator_versions_create_request,
+            evaluator_version_create=evaluator_version_create,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -126,7 +126,7 @@ class EvaluatorsApi:
     def evaluator_versions_create_with_http_info(
         self,
         evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
-        evaluator_versions_create_request: Annotated[EvaluatorVersionsCreateRequest, Field(description="Body containing evaluator version creation parameters")],
+        evaluator_version_create: Annotated[EvaluatorVersionCreate, Field(description="Body containing evaluator version creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -142,12 +142,12 @@ class EvaluatorsApi:
     ) -> ApiResponse[EvaluatorVersion]:
         """Create evaluator version
 
-        Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - `template_config` follows the same schema and constraints as in Create Evaluator.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide either `template_config` or `code_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`managed` or `custom`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param evaluator_id: The evaluator global ID (base64) (required)
         :type evaluator_id: str
-        :param evaluator_versions_create_request: Body containing evaluator version creation parameters (required)
-        :type evaluator_versions_create_request: EvaluatorVersionsCreateRequest
+        :param evaluator_version_create: Body containing evaluator version creation parameters (required)
+        :type evaluator_version_create: EvaluatorVersionCreate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -172,7 +172,7 @@ class EvaluatorsApi:
 
         _param = self._evaluator_versions_create_serialize(
             evaluator_id=evaluator_id,
-            evaluator_versions_create_request=evaluator_versions_create_request,
+            evaluator_version_create=evaluator_version_create,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -202,7 +202,7 @@ class EvaluatorsApi:
     def evaluator_versions_create_without_preload_content(
         self,
         evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
-        evaluator_versions_create_request: Annotated[EvaluatorVersionsCreateRequest, Field(description="Body containing evaluator version creation parameters")],
+        evaluator_version_create: Annotated[EvaluatorVersionCreate, Field(description="Body containing evaluator version creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -218,12 +218,12 @@ class EvaluatorsApi:
     ) -> RESTResponseType:
         """Create evaluator version
 
-        Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - `template_config` follows the same schema and constraints as in Create Evaluator.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide either `template_config` or `code_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`managed` or `custom`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param evaluator_id: The evaluator global ID (base64) (required)
         :type evaluator_id: str
-        :param evaluator_versions_create_request: Body containing evaluator version creation parameters (required)
-        :type evaluator_versions_create_request: EvaluatorVersionsCreateRequest
+        :param evaluator_version_create: Body containing evaluator version creation parameters (required)
+        :type evaluator_version_create: EvaluatorVersionCreate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -248,7 +248,7 @@ class EvaluatorsApi:
 
         _param = self._evaluator_versions_create_serialize(
             evaluator_id=evaluator_id,
-            evaluator_versions_create_request=evaluator_versions_create_request,
+            evaluator_version_create=evaluator_version_create,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -273,7 +273,7 @@ class EvaluatorsApi:
     def _evaluator_versions_create_serialize(
         self,
         evaluator_id,
-        evaluator_versions_create_request,
+        evaluator_version_create,
         _request_auth,
         _content_type,
         _headers,
@@ -301,8 +301,8 @@ class EvaluatorsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if evaluator_versions_create_request is not None:
-            _body_params = evaluator_versions_create_request
+        if evaluator_version_create is not None:
+            _body_params = evaluator_version_create
 
 
         # set the HTTP header `Accept`
@@ -958,7 +958,7 @@ class EvaluatorsApi:
     ) -> EvaluatorWithVersion:
         """Create evaluator
 
-        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` must be `template` (the only supported type in this iteration). - `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). When omitted, the evaluator produces freeform output. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` (top-level) selects the evaluator kind: `template` or `code`.   With `template`, provide `version.template_config`.   With `code`, provide `version.code_config` — where `code_config.type` is `managed` or `custom` (a separate discriminator *within* `code_config`, independent of the top-level `type: code`). - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - For template evaluators: `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). When omitted, the evaluator produces freeform output. - For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: managed`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: custom`) use `code`, optional `imports`, and `variables`. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param evaluators_create_request: Body containing evaluator creation parameters with an initial version (required)
         :type evaluators_create_request: EvaluatorsCreateRequest
@@ -1031,7 +1031,7 @@ class EvaluatorsApi:
     ) -> ApiResponse[EvaluatorWithVersion]:
         """Create evaluator
 
-        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` must be `template` (the only supported type in this iteration). - `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). When omitted, the evaluator produces freeform output. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` (top-level) selects the evaluator kind: `template` or `code`.   With `template`, provide `version.template_config`.   With `code`, provide `version.code_config` — where `code_config.type` is `managed` or `custom` (a separate discriminator *within* `code_config`, independent of the top-level `type: code`). - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - For template evaluators: `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). When omitted, the evaluator produces freeform output. - For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: managed`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: custom`) use `code`, optional `imports`, and `variables`. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param evaluators_create_request: Body containing evaluator creation parameters with an initial version (required)
         :type evaluators_create_request: EvaluatorsCreateRequest
@@ -1104,7 +1104,7 @@ class EvaluatorsApi:
     ) -> RESTResponseType:
         """Create evaluator
 
-        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` must be `template` (the only supported type in this iteration). - `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). When omitted, the evaluator produces freeform output. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` (top-level) selects the evaluator kind: `template` or `code`.   With `template`, provide `version.template_config`.   With `code`, provide `version.code_config` — where `code_config.type` is `managed` or `custom` (a separate discriminator *within* `code_config`, independent of the top-level `type: code`). - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - For template evaluators: `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). When omitted, the evaluator produces freeform output. - For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: managed`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: custom`) use `code`, optional `imports`, and `variables`. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param evaluators_create_request: Body containing evaluator creation parameters with an initial version (required)
         :type evaluators_create_request: EvaluatorsCreateRequest

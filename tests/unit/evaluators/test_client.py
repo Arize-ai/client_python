@@ -208,110 +208,93 @@ class TestEvaluatorsClientGet:
 
 
 @pytest.mark.unit
-class TestEvaluatorsClientCreate:
-    """Tests for EvaluatorsClient.create()."""
+class TestEvaluatorsClientCreateTemplate:
+    """Tests for EvaluatorsClient.create_template_evaluator()."""
 
-    def test_create_builds_request_and_calls_api(
+    def test_create_template_builds_template_request(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """create() should build the request objects and call evaluators_create."""
+        """create_template_evaluator() should build a template-type create request."""
         mock_template_config = Mock()
 
         with (
             patch(
-                "arize._generated.api_client.EvaluatorsCreateRequestVersion"
+                "arize._generated.api_client.EvaluatorVersionTemplateCreate"
+            ) as mock_template_cls,
+            patch(
+                "arize._generated.api_client.EvaluatorVersionCreate"
             ) as mock_version_cls,
             patch(
                 "arize._generated.api_client.EvaluatorsCreateRequest"
             ) as mock_request_cls,
         ):
-            mock_version = Mock()
-            mock_version_cls.return_value = mock_version
+            mock_template = Mock()
+            mock_template_cls.return_value = mock_template
+            mock_version_wrap = Mock()
+            mock_version_cls.return_value = mock_version_wrap
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
 
-            evaluators_client.create(
+            evaluators_client.create_template_evaluator(
                 name="my-evaluator",
                 space="U3BhY2U6OTA1MDoxSmtS",
                 commit_message="initial version",
                 template_config=mock_template_config,
             )
 
-        mock_version_cls.assert_called_once_with(
+        mock_template_cls.assert_called_once_with(
             commit_message="initial version",
             template_config=mock_template_config,
         )
+        mock_version_cls.assert_called_once_with(mock_template)
         mock_request_cls.assert_called_once_with(
             name="my-evaluator",
             space_id="U3BhY2U6OTA1MDoxSmtS",
             type="template",
             description=None,
-            version=mock_version,
+            version=mock_version_wrap,
         )
         mock_api.evaluators_create.assert_called_once_with(
             evaluators_create_request=mock_body
         )
 
-    def test_create_explicit_template_type(
+    def test_create_template_with_description(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """create() should accept evaluator_type='template' explicitly."""
+        """create_template_evaluator() should forward description to EvaluatorsCreateRequest."""
         with (
-            patch("arize._generated.api_client.EvaluatorsCreateRequestVersion"),
+            patch("arize._generated.api_client.EvaluatorVersionTemplateCreate"),
+            patch("arize._generated.api_client.EvaluatorVersionCreate"),
             patch(
                 "arize._generated.api_client.EvaluatorsCreateRequest"
             ) as mock_request_cls,
         ):
             mock_request_cls.return_value = Mock()
 
-            evaluators_client.create(
+            evaluators_client.create_template_evaluator(
                 name="my-evaluator",
                 space="U3BhY2U6OTA1MDoxSmtS",
-                evaluator_type="template",
                 commit_message="initial",
                 template_config=Mock(),
-            )
-
-        _, kwargs = mock_request_cls.call_args
-        assert kwargs["type"] == "template"
-
-    def test_create_with_description(
-        self, evaluators_client: EvaluatorsClient, mock_api: Mock
-    ) -> None:
-        """create() should forward description to EvaluatorsCreateRequest."""
-        mock_template_config = Mock()
-
-        with (
-            patch("arize._generated.api_client.EvaluatorsCreateRequestVersion"),
-            patch(
-                "arize._generated.api_client.EvaluatorsCreateRequest"
-            ) as mock_request_cls,
-        ):
-            mock_request_cls.return_value = Mock()
-
-            evaluators_client.create(
-                name="my-evaluator",
-                space="U3BhY2U6OTA1MDoxSmtS",
-                commit_message="initial",
-                template_config=mock_template_config,
                 description="An evaluator for relevance",
             )
 
         _, kwargs = mock_request_cls.call_args
         assert kwargs["description"] == "An evaluator for relevance"
 
-    def test_create_returns_api_response(
+    def test_create_template_returns_api_response(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """create() should propagate the return value from evaluators_create."""
+        """create_template_evaluator() should propagate the return value from evaluators_create."""
         expected = Mock()
         mock_api.evaluators_create.return_value = expected
 
         with (
-            patch("arize._generated.api_client.EvaluatorsCreateRequestVersion"),
+            patch("arize._generated.api_client.EvaluatorVersionTemplateCreate"),
+            patch("arize._generated.api_client.EvaluatorVersionCreate"),
             patch("arize._generated.api_client.EvaluatorsCreateRequest"),
         ):
-            result = evaluators_client.create(
+            result = evaluators_client.create_template_evaluator(
                 name="my-evaluator",
                 space="U3BhY2U6OTA1MDoxSmtS",
                 commit_message="initial",
@@ -320,22 +303,23 @@ class TestEvaluatorsClientCreate:
 
         assert result is expected
 
-    def test_create_emits_alpha_prerelease_warning(
+    def test_create_template_emits_alpha_prerelease_warning(
         self,
         evaluators_client: EvaluatorsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call to create() should emit the ALPHA prerelease warning."""
+        """First call to create_template_evaluator() should emit the ALPHA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
         with (
-            patch("arize._generated.api_client.EvaluatorsCreateRequestVersion"),
+            patch("arize._generated.api_client.EvaluatorVersionTemplateCreate"),
+            patch("arize._generated.api_client.EvaluatorVersionCreate"),
             patch("arize._generated.api_client.EvaluatorsCreateRequest"),
         ):
-            evaluators_client.create(
+            evaluators_client.create_template_evaluator(
                 name="my-evaluator",
                 space="U3BhY2U6OTA1MDoxSmtS",
                 commit_message="initial",
@@ -343,7 +327,107 @@ class TestEvaluatorsClientCreate:
             )
 
         assert any(
-            "ALPHA" in record.message and "evaluators.create" in record.message
+            "ALPHA" in record.message
+            and "evaluators.create_template" in record.message
+            for record in caplog.records
+        )
+
+
+@pytest.mark.unit
+class TestEvaluatorsClientCreateCode:
+    """Tests for EvaluatorsClient.create_code_evaluator()."""
+
+    def test_create_code_builds_code_request(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """create_code_evaluator() should build a code-type create request."""
+        mock_code_config = Mock()
+
+        with (
+            patch(
+                "arize._generated.api_client.EvaluatorVersionCodeCreate"
+            ) as mock_code_cls,
+            patch(
+                "arize._generated.api_client.EvaluatorVersionCreate"
+            ) as mock_version_cls,
+            patch(
+                "arize._generated.api_client.EvaluatorsCreateRequest"
+            ) as mock_request_cls,
+        ):
+            mock_code = Mock()
+            mock_code_cls.return_value = mock_code
+            mock_version_wrap = Mock()
+            mock_version_cls.return_value = mock_version_wrap
+            mock_body = Mock()
+            mock_request_cls.return_value = mock_body
+
+            evaluators_client.create_code_evaluator(
+                name="code-eval",
+                space="U3BhY2U6OTA1MDoxSmtS",
+                commit_message="initial",
+                code_config=mock_code_config,
+            )
+
+        mock_code_cls.assert_called_once_with(
+            commit_message="initial",
+            code_config=mock_code_config,
+        )
+        mock_version_cls.assert_called_once_with(mock_code)
+        mock_request_cls.assert_called_once_with(
+            name="code-eval",
+            space_id="U3BhY2U6OTA1MDoxSmtS",
+            type="code",
+            description=None,
+            version=mock_version_wrap,
+        )
+
+    def test_create_code_returns_api_response(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """create_code_evaluator() should propagate the return value."""
+        expected = Mock()
+        mock_api.evaluators_create.return_value = expected
+
+        with (
+            patch("arize._generated.api_client.EvaluatorVersionCodeCreate"),
+            patch("arize._generated.api_client.EvaluatorVersionCreate"),
+            patch("arize._generated.api_client.EvaluatorsCreateRequest"),
+        ):
+            result = evaluators_client.create_code_evaluator(
+                name="code-eval",
+                space="U3BhY2U6OTA1MDoxSmtS",
+                commit_message="initial",
+                code_config=Mock(),
+            )
+
+        assert result is expected
+
+    def test_create_code_emits_alpha_prerelease_warning(
+        self,
+        evaluators_client: EvaluatorsClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call to create_code_evaluator() should emit the ALPHA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        with (
+            patch("arize._generated.api_client.EvaluatorVersionCodeCreate"),
+            patch("arize._generated.api_client.EvaluatorVersionCreate"),
+            patch("arize._generated.api_client.EvaluatorsCreateRequest"),
+        ):
+            evaluators_client.create_code_evaluator(
+                name="code-eval",
+                space="U3BhY2U6OTA1MDoxSmtS",
+                commit_message="initial",
+                code_config=Mock(),
+            )
+
+        assert any(
+            "ALPHA" in record.message
+            and "evaluators.create_code" in record.message
             for record in caplog.records
         )
 
@@ -592,47 +676,56 @@ class TestEvaluatorsClientGetVersion:
 
 
 @pytest.mark.unit
-class TestEvaluatorsClientCreateVersion:
-    """Tests for EvaluatorsClient.create_version()."""
+class TestEvaluatorsClientCreateTemplateVersion:
+    """Tests for EvaluatorsClient.create_template_version()."""
 
-    def test_create_version_builds_request_and_calls_api(
+    def test_create_template_version_builds_template_version(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """create_version() should build the request and call evaluator_versions_create."""
+        """create_template_version() should build a template version."""
         mock_template_config = Mock()
 
-        with patch(
-            "arize._generated.api_client.EvaluatorVersionsCreateRequest"
-        ) as mock_request_cls:
+        with (
+            patch(
+                "arize._generated.api_client.EvaluatorVersionTemplateCreate"
+            ) as mock_template_cls,
+            patch(
+                "arize._generated.api_client.EvaluatorVersionCreate"
+            ) as mock_version_cls,
+        ):
+            mock_template = Mock()
+            mock_template_cls.return_value = mock_template
             mock_body = Mock()
-            mock_request_cls.return_value = mock_body
+            mock_version_cls.return_value = mock_body
 
-            evaluators_client.create_version(
+            evaluators_client.create_template_version(
                 evaluator=_EVALUATOR_ID,
                 commit_message="fix prompt wording",
                 template_config=mock_template_config,
             )
 
-        mock_request_cls.assert_called_once_with(
+        mock_template_cls.assert_called_once_with(
             commit_message="fix prompt wording",
             template_config=mock_template_config,
         )
+        mock_version_cls.assert_called_once_with(mock_template)
         mock_api.evaluator_versions_create.assert_called_once_with(
             evaluator_id=_EVALUATOR_ID,
-            evaluator_versions_create_request=mock_body,
+            evaluator_version_create=mock_body,
         )
 
-    def test_create_version_returns_api_response(
+    def test_create_template_version_returns_api_response(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """create_version() should propagate the return value."""
+        """create_template_version() should propagate the return value."""
         expected = Mock()
         mock_api.evaluator_versions_create.return_value = expected
 
-        with patch(
-            "arize._generated.api_client.EvaluatorVersionsCreateRequest"
+        with (
+            patch("arize._generated.api_client.EvaluatorVersionTemplateCreate"),
+            patch("arize._generated.api_client.EvaluatorVersionCreate"),
         ):
-            result = evaluators_client.create_version(
+            result = evaluators_client.create_template_version(
                 evaluator=_EVALUATOR_ID,
                 commit_message="v2",
                 template_config=Mock(),
@@ -640,7 +733,7 @@ class TestEvaluatorsClientCreateVersion:
 
         assert result is expected
 
-    def test_create_version_emits_alpha_prerelease_warning(
+    def test_create_template_version_emits_alpha_prerelease_warning(
         self,
         evaluators_client: EvaluatorsClient,
         caplog: pytest.LogCaptureFixture,
@@ -651,10 +744,11 @@ class TestEvaluatorsClientCreateVersion:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        with patch(
-            "arize._generated.api_client.EvaluatorVersionsCreateRequest"
+        with (
+            patch("arize._generated.api_client.EvaluatorVersionTemplateCreate"),
+            patch("arize._generated.api_client.EvaluatorVersionCreate"),
         ):
-            evaluators_client.create_version(
+            evaluators_client.create_template_version(
                 evaluator=_EVALUATOR_ID,
                 commit_message="v2",
                 template_config=Mock(),
@@ -662,6 +756,223 @@ class TestEvaluatorsClientCreateVersion:
 
         assert any(
             "ALPHA" in record.message
-            and "evaluators.create_version" in record.message
+            and "evaluators.create_template_version" in record.message
             for record in caplog.records
         )
+
+
+@pytest.mark.unit
+class TestEvaluatorsClientCreateCodeVersion:
+    """Tests for EvaluatorsClient.create_code_version()."""
+
+    def test_create_code_version_builds_code_version(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """create_code_version() should build a code version."""
+        mock_code_config = Mock()
+
+        with (
+            patch(
+                "arize._generated.api_client.EvaluatorVersionCodeCreate"
+            ) as mock_code_cls,
+            patch(
+                "arize._generated.api_client.EvaluatorVersionCreate"
+            ) as mock_version_cls,
+        ):
+            mock_code = Mock()
+            mock_code_cls.return_value = mock_code
+            mock_body = Mock()
+            mock_version_cls.return_value = mock_body
+
+            evaluators_client.create_code_version(
+                evaluator=_EVALUATOR_ID,
+                commit_message="tune keywords",
+                code_config=mock_code_config,
+            )
+
+        mock_code_cls.assert_called_once_with(
+            commit_message="tune keywords",
+            code_config=mock_code_config,
+        )
+        mock_version_cls.assert_called_once_with(mock_code)
+        mock_api.evaluator_versions_create.assert_called_once_with(
+            evaluator_id=_EVALUATOR_ID,
+            evaluator_version_create=mock_body,
+        )
+
+    def test_create_code_version_returns_api_response(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """create_code_version() should propagate the return value."""
+        expected = Mock()
+        mock_api.evaluator_versions_create.return_value = expected
+
+        with (
+            patch("arize._generated.api_client.EvaluatorVersionCodeCreate"),
+            patch("arize._generated.api_client.EvaluatorVersionCreate"),
+        ):
+            result = evaluators_client.create_code_version(
+                evaluator=_EVALUATOR_ID,
+                commit_message="v2",
+                code_config=Mock(),
+            )
+
+        assert result is expected
+
+    def test_create_code_version_emits_alpha_prerelease_warning(
+        self,
+        evaluators_client: EvaluatorsClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the ALPHA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        with (
+            patch("arize._generated.api_client.EvaluatorVersionCodeCreate"),
+            patch("arize._generated.api_client.EvaluatorVersionCreate"),
+        ):
+            evaluators_client.create_code_version(
+                evaluator=_EVALUATOR_ID,
+                commit_message="v2",
+                code_config=Mock(),
+            )
+
+        assert any(
+            "ALPHA" in record.message
+            and "evaluators.create_code_version" in record.message
+            for record in caplog.records
+        )
+
+
+# ---------------------------------------------------------------------------
+# Real-instance round-trip tests
+# ---------------------------------------------------------------------------
+# These tests use the actual generated Pydantic classes (no mocking of
+# EvaluatorVersionTemplateCreate, EvaluatorVersionCodeCreate, or
+# EvaluatorVersionCreate) to verify that the oneOf Pydantic validation is
+# exercised.  A refactor that passes type checks but produces an invalid
+# payload would fail here.
+# ---------------------------------------------------------------------------
+
+
+def _make_real_llm_config() -> object:
+    """Build a real gen.EvaluatorLlmConfig instance."""
+    from arize._generated import api_client as gen
+
+    return gen.EvaluatorLlmConfig(
+        ai_integration_id="TGxtSW50ZWdyYXRpb246MQ==",
+        model_name="gpt-4o",
+        invocation_parameters=gen.InvocationParams(),
+        provider_parameters=gen.ProviderParams(),
+    )
+
+
+def _make_real_template_config() -> object:
+    """Build a real gen.TemplateConfig instance."""
+    from arize._generated import api_client as gen
+
+    return gen.TemplateConfig(
+        name="relevance",
+        template="Is {{output}} relevant?",
+        include_explanations=True,
+        use_function_calling_if_available=False,
+        llm_config=_make_real_llm_config(),
+    )
+
+
+def _make_real_code_config() -> object:
+    """Build a real gen.CodeConfig(ManagedCodeConfig) instance."""
+    from arize._generated import api_client as gen
+
+    managed = gen.ManagedCodeConfig(
+        type="managed",
+        name="json_parseable",
+        managed_evaluator=gen.ManagedCodeEvaluator("JSONParseable"),
+        variables=["output"],
+    )
+    return gen.CodeConfig(managed)
+
+
+@pytest.mark.unit
+class TestEvaluatorsClientCreateTemplateRealInstance:
+    """Round-trip test using a real TemplateConfig for create_template_evaluator()."""
+
+    def test_create_template_real_instance_builds_valid_payload(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """create_template_evaluator() with a real TemplateConfig produces a valid EvaluatorVersionCreate."""
+        evaluators_client.create_template_evaluator(
+            name="my-evaluator",
+            space="U3BhY2U6OTA1MDoxSmtS",
+            commit_message="initial",
+            template_config=_make_real_template_config(),
+        )
+
+        mock_api.evaluators_create.assert_called_once()
+        _, kwargs = mock_api.evaluators_create.call_args
+        body = kwargs["evaluators_create_request"]
+        assert body.type == "template"
+        assert body.version is not None
+
+
+@pytest.mark.unit
+class TestEvaluatorsClientCreateCodeRealInstance:
+    """Round-trip test using a real CodeConfig for create_code_evaluator()."""
+
+    def test_create_code_real_instance_builds_valid_payload(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """create_code_evaluator() with a real CodeConfig produces a valid EvaluatorVersionCreate."""
+        evaluators_client.create_code_evaluator(
+            name="code-eval",
+            space="U3BhY2U6OTA1MDoxSmtS",
+            commit_message="initial",
+            code_config=_make_real_code_config(),
+        )
+
+        mock_api.evaluators_create.assert_called_once()
+        _, kwargs = mock_api.evaluators_create.call_args
+        body = kwargs["evaluators_create_request"]
+        assert body.type == "code"
+        assert body.version is not None
+
+
+@pytest.mark.unit
+class TestEvaluatorsClientCreateTemplateVersionRealInstance:
+    """Round-trip test using a real TemplateConfig for create_template_version()."""
+
+    def test_create_template_version_real_instance_builds_valid_payload(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """create_template_version() with a real TemplateConfig produces a valid payload."""
+        evaluators_client.create_template_version(
+            evaluator=_EVALUATOR_ID,
+            commit_message="fix wording",
+            template_config=_make_real_template_config(),
+        )
+
+        mock_api.evaluator_versions_create.assert_called_once()
+        _, kwargs = mock_api.evaluator_versions_create.call_args
+        assert kwargs["evaluator_version_create"] is not None
+
+
+@pytest.mark.unit
+class TestEvaluatorsClientCreateCodeVersionRealInstance:
+    """Round-trip test using a real CodeConfig for create_code_version()."""
+
+    def test_create_code_version_real_instance_builds_valid_payload(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """create_code_version() with a real CodeConfig produces a valid payload."""
+        evaluators_client.create_code_version(
+            evaluator=_EVALUATOR_ID,
+            commit_message="update code",
+            code_config=_make_real_code_config(),
+        )
+
+        mock_api.evaluator_versions_create.assert_called_once()
+        _, kwargs = mock_api.evaluator_versions_create.call_args
+        assert kwargs["evaluator_version_create"] is not None

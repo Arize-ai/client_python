@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.evaluators_create_request import EvaluatorsCreateRequest
+from arize._generated.api_client.models.static_param_default_value import StaticParamDefaultValue
 
-class TestEvaluatorsCreateRequest(unittest.TestCase):
-    """EvaluatorsCreateRequest unit test stubs"""
+class TestStaticParamDefaultValue(unittest.TestCase):
+    """StaticParamDefaultValue unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,33 +25,24 @@ class TestEvaluatorsCreateRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> EvaluatorsCreateRequest:
-        """Test EvaluatorsCreateRequest
+    def make_instance(self, include_optional) -> StaticParamDefaultValue:
+        """Test StaticParamDefaultValue
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `EvaluatorsCreateRequest`
+        # uncomment below to create an instance of `StaticParamDefaultValue`
         """
-        model = EvaluatorsCreateRequest()
+        model = StaticParamDefaultValue()
         if include_optional:
-            return EvaluatorsCreateRequest(
-                space_id = '',
-                name = '',
-                description = '',
-                type = 'template',
-                version = None
+            return StaticParamDefaultValue(
             )
         else:
-            return EvaluatorsCreateRequest(
-                space_id = '',
-                name = '',
-                type = 'template',
-                version = None,
+            return StaticParamDefaultValue(
         )
         """
 
-    def testEvaluatorsCreateRequest(self):
-        """Test EvaluatorsCreateRequest"""
+    def testStaticParamDefaultValue(self):
+        """Test StaticParamDefaultValue"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

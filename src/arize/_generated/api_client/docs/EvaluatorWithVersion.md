@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **id** | **str** | The unique identifier for the evaluator | 
 **name** | **str** | The name of the evaluator | 
 **description** | **str** | The description of the evaluator | [optional] 
-**type** | **str** | The evaluator type: template (LLM-based) or code (custom code) | 
+**type** | [**EvaluatorType**](EvaluatorType.md) |  | 
 **space_id** | **str** | The unique identifier for the space the evaluator belongs to | 
 **created_at** | **datetime** | When the evaluator was created | 
 **updated_at** | **datetime** | When the evaluator was last updated | 

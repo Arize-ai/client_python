@@ -8,8 +8,8 @@ Name | Type | Description | Notes
 **space_id** | **str** | Space global ID (base64) | 
 **name** | **str** | Evaluator name (must be unique within the space) | 
 **description** | **str** | Evaluator description | [optional] 
-**type** | **str** | Evaluator type. Only template is supported in this iteration. | 
-**version** | [**EvaluatorsCreateRequestVersion**](EvaluatorsCreateRequestVersion.md) |  | 
+**type** | **str** | Evaluator type. Use &#x60;template&#x60; with &#x60;version.template_config&#x60;, or &#x60;code&#x60; with &#x60;version.code_config&#x60;.  | 
+**version** | [**EvaluatorVersionCreate**](EvaluatorVersionCreate.md) |  | 
 
 ## Example
 

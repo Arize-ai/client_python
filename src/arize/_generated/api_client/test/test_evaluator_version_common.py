@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.evaluator_with_version import EvaluatorWithVersion
+from arize._generated.api_client.models.evaluator_version_common import EvaluatorVersionCommon
 
-class TestEvaluatorWithVersion(unittest.TestCase):
-    """EvaluatorWithVersion unit test stubs"""
+class TestEvaluatorVersionCommon(unittest.TestCase):
+    """EvaluatorVersionCommon unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,41 +25,38 @@ class TestEvaluatorWithVersion(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> EvaluatorWithVersion:
-        """Test EvaluatorWithVersion
+    def make_instance(self, include_optional) -> EvaluatorVersionCommon:
+        """Test EvaluatorVersionCommon
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `EvaluatorWithVersion`
+        # uncomment below to create an instance of `EvaluatorVersionCommon`
         """
-        model = EvaluatorWithVersion()
+        model = EvaluatorVersionCommon()
         if include_optional:
-            return EvaluatorWithVersion(
+            return EvaluatorVersionCommon(
                 id = '',
-                name = '',
-                description = '',
-                type = 'template',
-                space_id = '',
+                evaluator_id = '',
+                commit_hash = '',
+                commit_message = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
-                updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = '',
-                version = None
+                type = 'template'
             )
         else:
-            return EvaluatorWithVersion(
+            return EvaluatorVersionCommon(
                 id = '',
-                name = '',
-                type = 'template',
-                space_id = '',
+                evaluator_id = '',
+                commit_hash = '',
+                commit_message = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
-                updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = '',
-                version = None,
+                type = 'template',
         )
         """
 
-    def testEvaluatorWithVersion(self):
-        """Test EvaluatorWithVersion"""
+    def testEvaluatorVersionCommon(self):
+        """Test EvaluatorVersionCommon"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

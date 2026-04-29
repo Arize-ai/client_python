@@ -18,8 +18,9 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.evaluator_type import EvaluatorType
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -30,19 +31,12 @@ class Evaluator(BaseModel):
     id: StrictStr = Field(description="The unique identifier for the evaluator")
     name: StrictStr = Field(description="The name of the evaluator")
     description: Optional[StrictStr] = Field(default=None, description="The description of the evaluator")
-    type: StrictStr = Field(description="The evaluator type: template (LLM-based) or code (custom code)")
+    type: EvaluatorType
     space_id: StrictStr = Field(description="The unique identifier for the space the evaluator belongs to")
     created_at: datetime = Field(description="When the evaluator was created")
     updated_at: datetime = Field(description="When the evaluator was last updated")
     created_by_user_id: Optional[StrictStr] = Field(description="The unique identifier for the user who created the evaluator")
     __properties: ClassVar[List[str]] = ["id", "name", "description", "type", "space_id", "created_at", "updated_at", "created_by_user_id"]
-
-    @field_validator('type')
-    def type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['template', 'code']):
-            raise ValueError("must be one of enum values ('template', 'code')")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

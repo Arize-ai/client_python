@@ -21,24 +21,21 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.evaluator_type import EvaluatorType
-from arize._generated.api_client.models.evaluator_version import EvaluatorVersion
 from typing import Optional, Set
 from typing_extensions import Self
 
-class EvaluatorWithVersion(BaseModel):
+class EvaluatorVersionCommon(BaseModel):
     """
-    EvaluatorWithVersion
+    EvaluatorVersionCommon
     """ # noqa: E501
-    id: StrictStr = Field(description="The unique identifier for the evaluator")
-    name: StrictStr = Field(description="The name of the evaluator")
-    description: Optional[StrictStr] = Field(default=None, description="The description of the evaluator")
+    id: StrictStr = Field(description="The unique identifier for this version")
+    evaluator_id: StrictStr = Field(description="The parent evaluator ID")
+    commit_hash: StrictStr = Field(description="A unique hash identifying this version")
+    commit_message: Optional[StrictStr] = Field(description="A message describing the changes in this version")
+    created_at: datetime = Field(description="When this version was created")
+    created_by_user_id: Optional[StrictStr] = Field(description="The unique identifier for the user who created this version")
     type: EvaluatorType
-    space_id: StrictStr = Field(description="The unique identifier for the space the evaluator belongs to")
-    created_at: datetime = Field(description="When the evaluator was created")
-    updated_at: datetime = Field(description="When the evaluator was last updated")
-    created_by_user_id: Optional[StrictStr] = Field(description="The unique identifier for the user who created the evaluator")
-    version: EvaluatorVersion
-    __properties: ClassVar[List[str]] = ["id", "name", "description", "type", "space_id", "created_at", "updated_at", "created_by_user_id", "version"]
+    __properties: ClassVar[List[str]] = ["id", "evaluator_id", "commit_hash", "commit_message", "created_at", "created_by_user_id", "type"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -58,7 +55,7 @@ class EvaluatorWithVersion(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of EvaluatorWithVersion from a JSON string"""
+        """Create an instance of EvaluatorVersionCommon from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -79,13 +76,10 @@ class EvaluatorWithVersion(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of version
-        if self.version:
-            _dict['version'] = self.version.to_dict()
-        # set to None if description (nullable) is None
+        # set to None if commit_message (nullable) is None
         # and model_fields_set contains the field
-        if self.description is None and "description" in self.model_fields_set:
-            _dict['description'] = None
+        if self.commit_message is None and "commit_message" in self.model_fields_set:
+            _dict['commit_message'] = None
 
         # set to None if created_by_user_id (nullable) is None
         # and model_fields_set contains the field
@@ -96,7 +90,7 @@ class EvaluatorWithVersion(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of EvaluatorWithVersion from a dict"""
+        """Create an instance of EvaluatorVersionCommon from a dict"""
         if obj is None:
             return None
 
@@ -106,18 +100,16 @@ class EvaluatorWithVersion(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in EvaluatorWithVersion) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in EvaluatorVersionCommon) in the input: " + _key)
 
         _obj = cls.model_validate({
             "id": obj.get("id"),
-            "name": obj.get("name"),
-            "description": obj.get("description"),
-            "type": obj.get("type"),
-            "space_id": obj.get("space_id"),
+            "evaluator_id": obj.get("evaluator_id"),
+            "commit_hash": obj.get("commit_hash"),
+            "commit_message": obj.get("commit_message"),
             "created_at": obj.get("created_at"),
-            "updated_at": obj.get("updated_at"),
             "created_by_user_id": obj.get("created_by_user_id"),
-            "version": EvaluatorVersion.from_dict(obj["version"]) if obj.get("version") is not None else None
+            "type": obj.get("type")
         })
         return _obj
 

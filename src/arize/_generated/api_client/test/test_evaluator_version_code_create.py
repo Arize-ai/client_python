@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.evaluators_create_request import EvaluatorsCreateRequest
+from arize._generated.api_client.models.evaluator_version_code_create import EvaluatorVersionCodeCreate
 
-class TestEvaluatorsCreateRequest(unittest.TestCase):
-    """EvaluatorsCreateRequest unit test stubs"""
+class TestEvaluatorVersionCodeCreate(unittest.TestCase):
+    """EvaluatorVersionCodeCreate unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,33 +25,28 @@ class TestEvaluatorsCreateRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> EvaluatorsCreateRequest:
-        """Test EvaluatorsCreateRequest
+    def make_instance(self, include_optional) -> EvaluatorVersionCodeCreate:
+        """Test EvaluatorVersionCodeCreate
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `EvaluatorsCreateRequest`
+        # uncomment below to create an instance of `EvaluatorVersionCodeCreate`
         """
-        model = EvaluatorsCreateRequest()
+        model = EvaluatorVersionCodeCreate()
         if include_optional:
-            return EvaluatorsCreateRequest(
-                space_id = '',
-                name = '',
-                description = '',
-                type = 'template',
-                version = None
+            return EvaluatorVersionCodeCreate(
+                commit_message = '',
+                code_config = None
             )
         else:
-            return EvaluatorsCreateRequest(
-                space_id = '',
-                name = '',
-                type = 'template',
-                version = None,
+            return EvaluatorVersionCodeCreate(
+                commit_message = '',
+                code_config = None,
         )
         """
 
-    def testEvaluatorsCreateRequest(self):
-        """Test EvaluatorsCreateRequest"""
+    def testEvaluatorVersionCodeCreate(self):
+        """Test EvaluatorVersionCodeCreate"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

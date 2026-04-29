@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.22.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.21.0...arize-python-sdk/v8.22.0) (2026-04-29)
+
+
+### 🎁 New Features
+
+* extend evaluators API for code evaluator configs ([#69121](https://github.com/Arize-ai/arize/issues/69121)) ([1d136e4](https://github.com/Arize-ai/arize/commit/1d136e4d7eb009212dfb872d67725266d12d6c66))
+
+
+### 🐛 Bug Fixes
+
+* validate actuals for MULTI_CLASS in training/validation environments ([#69829](https://github.com/Arize-ai/arize/issues/69829)) ([b0a9455](https://github.com/Arize-ai/arize/commit/b0a9455f4a6774dce56a2e53d3f11d6f6c90a407))
+
 ## [8.21.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.20.0...arize-python-sdk/v8.21.0) (2026-04-29)
 
 

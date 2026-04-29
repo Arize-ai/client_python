@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.evaluators_create_request_version import EvaluatorsCreateRequestVersion
+from arize._generated.api_client.models.evaluator_version_template_create import EvaluatorVersionTemplateCreate
 
-class TestEvaluatorsCreateRequestVersion(unittest.TestCase):
-    """EvaluatorsCreateRequestVersion unit test stubs"""
+class TestEvaluatorVersionTemplateCreate(unittest.TestCase):
+    """EvaluatorVersionTemplateCreate unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,16 +25,16 @@ class TestEvaluatorsCreateRequestVersion(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> EvaluatorsCreateRequestVersion:
-        """Test EvaluatorsCreateRequestVersion
+    def make_instance(self, include_optional) -> EvaluatorVersionTemplateCreate:
+        """Test EvaluatorVersionTemplateCreate
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `EvaluatorsCreateRequestVersion`
+        # uncomment below to create an instance of `EvaluatorVersionTemplateCreate`
         """
-        model = EvaluatorsCreateRequestVersion()
+        model = EvaluatorVersionTemplateCreate()
         if include_optional:
-            return EvaluatorsCreateRequestVersion(
+            return EvaluatorVersionTemplateCreate(
                 commit_message = '',
                 template_config = arize._generated.api_client.models.template_config.TemplateConfig(
                     name = '', 
@@ -86,7 +86,7 @@ class TestEvaluatorsCreateRequestVersion(unittest.TestCase):
                             region = '', ), ), )
             )
         else:
-            return EvaluatorsCreateRequestVersion(
+            return EvaluatorVersionTemplateCreate(
                 commit_message = '',
                 template_config = arize._generated.api_client.models.template_config.TemplateConfig(
                     name = '', 
@@ -139,8 +139,8 @@ class TestEvaluatorsCreateRequestVersion(unittest.TestCase):
         )
         """
 
-    def testEvaluatorsCreateRequestVersion(self):
-        """Test EvaluatorsCreateRequestVersion"""
+    def testEvaluatorVersionTemplateCreate(self):
+        """Test EvaluatorVersionTemplateCreate"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

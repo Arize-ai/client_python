@@ -17,33 +17,28 @@ import json
 import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
-from arize._generated.api_client.models.evaluator_version_code import EvaluatorVersionCode
-from arize._generated.api_client.models.evaluator_version_template import EvaluatorVersionTemplate
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-EVALUATORVERSION_ONE_OF_SCHEMAS = ["EvaluatorVersionCode", "EvaluatorVersionTemplate"]
+STATICPARAMDEFAULTVALUE_ONE_OF_SCHEMAS = ["List[str]", "str"]
 
-class EvaluatorVersion(BaseModel):
+class StaticParamDefaultValue(BaseModel):
     """
-    A versioned snapshot of an evaluator's configuration. Exactly one of `template_config` or `code_config` is present. The `type` field discriminates the branch and matches the parent evaluator's `type`. 
+    Default value. Must be a string when `type` is STRING or REGEX, and a string array when `type` is STRING_ARRAY. Mismatches are rejected with 400 by the server. 
     """
-    # data type: EvaluatorVersionTemplate
-    oneof_schema_1_validator: Optional[EvaluatorVersionTemplate] = None
-    # data type: EvaluatorVersionCode
-    oneof_schema_2_validator: Optional[EvaluatorVersionCode] = None
-    actual_instance: Optional[Union[EvaluatorVersionCode, EvaluatorVersionTemplate]] = None
-    one_of_schemas: Set[str] = { "EvaluatorVersionCode", "EvaluatorVersionTemplate" }
+    # data type: str
+    oneof_schema_1_validator: Optional[StrictStr] = None
+    # data type: List[str]
+    oneof_schema_2_validator: Optional[List[StrictStr]] = None
+    actual_instance: Optional[Union[List[str], str]] = None
+    one_of_schemas: Set[str] = { "List[str]", "str" }
 
     model_config = ConfigDict(
         validate_assignment=True,
         protected_namespaces=(),
     )
 
-
-    discriminator_value_class_map: Dict[str, str] = {
-    }
 
     def __init__(self, *args, **kwargs) -> None:
         if args:
@@ -57,25 +52,27 @@ class EvaluatorVersion(BaseModel):
 
     @field_validator('actual_instance')
     def actual_instance_must_validate_oneof(cls, v):
-        instance = EvaluatorVersion.model_construct()
+        instance = StaticParamDefaultValue.model_construct()
         error_messages = []
         match = 0
-        # validate data type: EvaluatorVersionTemplate
-        if not isinstance(v, EvaluatorVersionTemplate):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `EvaluatorVersionTemplate`")
-        else:
+        # validate data type: str
+        try:
+            instance.oneof_schema_1_validator = v
             match += 1
-        # validate data type: EvaluatorVersionCode
-        if not isinstance(v, EvaluatorVersionCode):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `EvaluatorVersionCode`")
-        else:
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # validate data type: List[str]
+        try:
+            instance.oneof_schema_2_validator = v
             match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in StaticParamDefaultValue with oneOf schemas: List[str], str. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in StaticParamDefaultValue with oneOf schemas: List[str], str. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -90,25 +87,31 @@ class EvaluatorVersion(BaseModel):
         error_messages = []
         match = 0
 
-        # deserialize data into EvaluatorVersionTemplate
+        # deserialize data into str
         try:
-            instance.actual_instance = EvaluatorVersionTemplate.from_json(json_str)
+            # validation
+            instance.oneof_schema_1_validator = json.loads(json_str)
+            # assign value to actual_instance
+            instance.actual_instance = instance.oneof_schema_1_validator
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
-        # deserialize data into EvaluatorVersionCode
+        # deserialize data into List[str]
         try:
-            instance.actual_instance = EvaluatorVersionCode.from_json(json_str)
+            # validation
+            instance.oneof_schema_2_validator = json.loads(json_str)
+            # assign value to actual_instance
+            instance.actual_instance = instance.oneof_schema_2_validator
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into StaticParamDefaultValue with oneOf schemas: List[str], str. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into StaticParamDefaultValue with oneOf schemas: List[str], str. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -122,7 +125,7 @@ class EvaluatorVersion(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], EvaluatorVersionCode, EvaluatorVersionTemplate]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], List[str], str]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

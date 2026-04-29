@@ -17,19 +17,27 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
-from arize._generated.api_client.models.template_config import TemplateConfig
+from arize._generated.api_client.models.static_param_default_value import StaticParamDefaultValue
 from typing import Optional, Set
 from typing_extensions import Self
 
-class EvaluatorsCreateRequestVersion(BaseModel):
+class StaticParam(BaseModel):
     """
-    The initial version for the evaluator
+    StaticParam
     """ # noqa: E501
-    commit_message: StrictStr = Field(description="Commit message for the initial version")
-    template_config: TemplateConfig
-    __properties: ClassVar[List[str]] = ["commit_message", "template_config"]
+    name: StrictStr = Field(description="Parameter name (matches the managed evaluator's argument name)")
+    type: StrictStr = Field(description="Argument type for static parameters")
+    default_value: StaticParamDefaultValue
+    __properties: ClassVar[List[str]] = ["name", "type", "default_value"]
+
+    @field_validator('type')
+    def type_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['STRING', 'STRING_ARRAY', 'REGEX']):
+            raise ValueError("must be one of enum values ('STRING', 'STRING_ARRAY', 'REGEX')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -49,7 +57,7 @@ class EvaluatorsCreateRequestVersion(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of EvaluatorsCreateRequestVersion from a JSON string"""
+        """Create an instance of StaticParam from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,14 +78,14 @@ class EvaluatorsCreateRequestVersion(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of template_config
-        if self.template_config:
-            _dict['template_config'] = self.template_config.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of default_value
+        if self.default_value:
+            _dict['default_value'] = self.default_value.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of EvaluatorsCreateRequestVersion from a dict"""
+        """Create an instance of StaticParam from a dict"""
         if obj is None:
             return None
 
@@ -87,11 +95,12 @@ class EvaluatorsCreateRequestVersion(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in EvaluatorsCreateRequestVersion) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in StaticParam) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "commit_message": obj.get("commit_message"),
-            "template_config": TemplateConfig.from_dict(obj["template_config"]) if obj.get("template_config") is not None else None
+            "name": obj.get("name"),
+            "type": obj.get("type"),
+            "default_value": StaticParamDefaultValue.from_dict(obj["default_value"]) if obj.get("default_value") is not None else None
         })
         return _obj
 

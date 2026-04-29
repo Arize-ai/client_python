@@ -93,10 +93,13 @@ __all__ = [
     "CategoricalAnnotationConfig",
     "CategoricalAnnotationConfigCreate",
     "CategoricalAnnotationValue",
+    "CodeConfig",
+    "CodeConfigCommon",
     "ContinuousAnnotationConfig",
     "ContinuousAnnotationConfigCreate",
     "CreateAnnotationConfigRequestBody",
     "CreateAnnotationQueueRequestBody",
+    "CustomCodeConfig",
     "Dataset",
     "DatasetExample",
     "DatasetExampleUpdate",
@@ -111,12 +114,17 @@ __all__ = [
     "Evaluation",
     "Evaluator",
     "EvaluatorLlmConfig",
+    "EvaluatorType",
     "EvaluatorVersion",
-    "EvaluatorVersionsCreateRequest",
+    "EvaluatorVersionCode",
+    "EvaluatorVersionCodeCreate",
+    "EvaluatorVersionCommon",
+    "EvaluatorVersionCreate",
+    "EvaluatorVersionTemplate",
+    "EvaluatorVersionTemplateCreate",
     "EvaluatorVersionsList200Response",
     "EvaluatorWithVersion",
     "EvaluatorsCreateRequest",
-    "EvaluatorsCreateRequestVersion",
     "EvaluatorsList200Response",
     "EvaluatorsUpdateRequest",
     "Experiment",
@@ -133,6 +141,8 @@ __all__ = [
     "InvocationParams",
     "LLMMessage",
     "LlmProvider",
+    "ManagedCodeConfig",
+    "ManagedCodeEvaluator",
     "MessageRole",
     "OptimizationDirection",
     "Organization",
@@ -184,6 +194,8 @@ __all__ = [
     "SpansDeleteRequest",
     "SpansList200Response",
     "SpansListRequest",
+    "StaticParam",
+    "StaticParamDefaultValue",
     "Task",
     "TaskEvaluator",
     "TaskRun",
@@ -282,10 +294,13 @@ from arize._generated.api_client.models.aws_provider_metadata_kind import AwsPro
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig as CategoricalAnnotationConfig
 from arize._generated.api_client.models.categorical_annotation_config_create import CategoricalAnnotationConfigCreate as CategoricalAnnotationConfigCreate
 from arize._generated.api_client.models.categorical_annotation_value import CategoricalAnnotationValue as CategoricalAnnotationValue
+from arize._generated.api_client.models.code_config import CodeConfig as CodeConfig
+from arize._generated.api_client.models.code_config_common import CodeConfigCommon as CodeConfigCommon
 from arize._generated.api_client.models.continuous_annotation_config import ContinuousAnnotationConfig as ContinuousAnnotationConfig
 from arize._generated.api_client.models.continuous_annotation_config_create import ContinuousAnnotationConfigCreate as ContinuousAnnotationConfigCreate
 from arize._generated.api_client.models.create_annotation_config_request_body import CreateAnnotationConfigRequestBody as CreateAnnotationConfigRequestBody
 from arize._generated.api_client.models.create_annotation_queue_request_body import CreateAnnotationQueueRequestBody as CreateAnnotationQueueRequestBody
+from arize._generated.api_client.models.custom_code_config import CustomCodeConfig as CustomCodeConfig
 from arize._generated.api_client.models.dataset import Dataset as Dataset
 from arize._generated.api_client.models.dataset_example import DatasetExample as DatasetExample
 from arize._generated.api_client.models.dataset_example_update import DatasetExampleUpdate as DatasetExampleUpdate
@@ -300,12 +315,17 @@ from arize._generated.api_client.models.delete_annotation_queue_records_request_
 from arize._generated.api_client.models.evaluation import Evaluation as Evaluation
 from arize._generated.api_client.models.evaluator import Evaluator as Evaluator
 from arize._generated.api_client.models.evaluator_llm_config import EvaluatorLlmConfig as EvaluatorLlmConfig
+from arize._generated.api_client.models.evaluator_type import EvaluatorType as EvaluatorType
 from arize._generated.api_client.models.evaluator_version import EvaluatorVersion as EvaluatorVersion
-from arize._generated.api_client.models.evaluator_versions_create_request import EvaluatorVersionsCreateRequest as EvaluatorVersionsCreateRequest
+from arize._generated.api_client.models.evaluator_version_code import EvaluatorVersionCode as EvaluatorVersionCode
+from arize._generated.api_client.models.evaluator_version_code_create import EvaluatorVersionCodeCreate as EvaluatorVersionCodeCreate
+from arize._generated.api_client.models.evaluator_version_common import EvaluatorVersionCommon as EvaluatorVersionCommon
+from arize._generated.api_client.models.evaluator_version_create import EvaluatorVersionCreate as EvaluatorVersionCreate
+from arize._generated.api_client.models.evaluator_version_template import EvaluatorVersionTemplate as EvaluatorVersionTemplate
+from arize._generated.api_client.models.evaluator_version_template_create import EvaluatorVersionTemplateCreate as EvaluatorVersionTemplateCreate
 from arize._generated.api_client.models.evaluator_versions_list200_response import EvaluatorVersionsList200Response as EvaluatorVersionsList200Response
 from arize._generated.api_client.models.evaluator_with_version import EvaluatorWithVersion as EvaluatorWithVersion
 from arize._generated.api_client.models.evaluators_create_request import EvaluatorsCreateRequest as EvaluatorsCreateRequest
-from arize._generated.api_client.models.evaluators_create_request_version import EvaluatorsCreateRequestVersion as EvaluatorsCreateRequestVersion
 from arize._generated.api_client.models.evaluators_list200_response import EvaluatorsList200Response as EvaluatorsList200Response
 from arize._generated.api_client.models.evaluators_update_request import EvaluatorsUpdateRequest as EvaluatorsUpdateRequest
 from arize._generated.api_client.models.experiment import Experiment as Experiment
@@ -322,6 +342,8 @@ from arize._generated.api_client.models.input_variable_format import InputVariab
 from arize._generated.api_client.models.invocation_params import InvocationParams as InvocationParams
 from arize._generated.api_client.models.llm_message import LLMMessage as LLMMessage
 from arize._generated.api_client.models.llm_provider import LlmProvider as LlmProvider
+from arize._generated.api_client.models.managed_code_config import ManagedCodeConfig as ManagedCodeConfig
+from arize._generated.api_client.models.managed_code_evaluator import ManagedCodeEvaluator as ManagedCodeEvaluator
 from arize._generated.api_client.models.message_role import MessageRole as MessageRole
 from arize._generated.api_client.models.optimization_direction import OptimizationDirection as OptimizationDirection
 from arize._generated.api_client.models.organization import Organization as Organization
@@ -373,6 +395,8 @@ from arize._generated.api_client.models.span_event import SpanEvent as SpanEvent
 from arize._generated.api_client.models.spans_delete_request import SpansDeleteRequest as SpansDeleteRequest
 from arize._generated.api_client.models.spans_list200_response import SpansList200Response as SpansList200Response
 from arize._generated.api_client.models.spans_list_request import SpansListRequest as SpansListRequest
+from arize._generated.api_client.models.static_param import StaticParam as StaticParam
+from arize._generated.api_client.models.static_param_default_value import StaticParamDefaultValue as StaticParamDefaultValue
 from arize._generated.api_client.models.task import Task as Task
 from arize._generated.api_client.models.task_evaluator import TaskEvaluator as TaskEvaluator
 from arize._generated.api_client.models.task_run import TaskRun as TaskRun

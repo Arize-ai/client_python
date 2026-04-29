@@ -275,6 +275,9 @@ class Validator:
                 return list(chain(general_checks, od_checks))
             if model_type == ModelTypes.MULTI_CLASS:
                 multi_class_checks = chain(
+                    Validator._check_existence_preprod_pred_act_score_or_label(
+                        schema, environment
+                    ),
                     Validator._check_existing_multi_class_columns(schema),
                     Validator._check_missing_non_multi_class_columns(
                         schema, ModelTypes.MULTI_CLASS

@@ -19,26 +19,25 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
-from arize._generated.api_client.models.evaluator_version_create import EvaluatorVersionCreate
 from typing import Optional, Set
 from typing_extensions import Self
 
-class EvaluatorsCreateRequest(BaseModel):
+class CodeConfigCommon(BaseModel):
     """
-    EvaluatorsCreateRequest
+    CodeConfigCommon
     """ # noqa: E501
-    space_id: StrictStr = Field(description="Space global ID (base64)")
-    name: StrictStr = Field(description="Evaluator name (must be unique within the space)")
-    description: Optional[StrictStr] = Field(default=None, description="Evaluator description")
-    type: StrictStr = Field(description="Evaluator type. Use `template` with `version.template_config`, or `code` with `version.code_config`. ")
-    version: EvaluatorVersionCreate
-    __properties: ClassVar[List[str]] = ["space_id", "name", "description", "type", "version"]
+    data_granularity: Optional[StrictStr] = Field(default=None, description="Data granularity level for evaluation. When omitted or null, no granularity filter is applied (span-level evaluation is used by default on the server). ")
+    query_filter: Optional[StrictStr] = Field(default=None, description="Optional filter query over the chosen data granularity. When omitted or null, no filter is applied. ")
+    __properties: ClassVar[List[str]] = ["data_granularity", "query_filter"]
 
-    @field_validator('type')
-    def type_validate_enum(cls, value):
+    @field_validator('data_granularity')
+    def data_granularity_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['template', 'code']):
-            raise ValueError("must be one of enum values ('template', 'code')")
+        if value is None:
+            return value
+
+        if value not in set(['span', 'trace', 'session']):
+            raise ValueError("must be one of enum values ('span', 'trace', 'session')")
         return value
 
     model_config = ConfigDict(
@@ -59,7 +58,7 @@ class EvaluatorsCreateRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of EvaluatorsCreateRequest from a JSON string"""
+        """Create an instance of CodeConfigCommon from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -80,14 +79,21 @@ class EvaluatorsCreateRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of version
-        if self.version:
-            _dict['version'] = self.version.to_dict()
+        # set to None if data_granularity (nullable) is None
+        # and model_fields_set contains the field
+        if self.data_granularity is None and "data_granularity" in self.model_fields_set:
+            _dict['data_granularity'] = None
+
+        # set to None if query_filter (nullable) is None
+        # and model_fields_set contains the field
+        if self.query_filter is None and "query_filter" in self.model_fields_set:
+            _dict['query_filter'] = None
+
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of EvaluatorsCreateRequest from a dict"""
+        """Create an instance of CodeConfigCommon from a dict"""
         if obj is None:
             return None
 
@@ -97,14 +103,11 @@ class EvaluatorsCreateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in EvaluatorsCreateRequest) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in CodeConfigCommon) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "space_id": obj.get("space_id"),
-            "name": obj.get("name"),
-            "description": obj.get("description"),
-            "type": obj.get("type"),
-            "version": EvaluatorVersionCreate.from_dict(obj["version"]) if obj.get("version") is not None else None
+            "data_granularity": obj.get("data_granularity"),
+            "query_filter": obj.get("query_filter")
         })
         return _obj
 

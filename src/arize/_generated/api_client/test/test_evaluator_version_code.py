@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.evaluator_with_version import EvaluatorWithVersion
+from arize._generated.api_client.models.evaluator_version_code import EvaluatorVersionCode
 
-class TestEvaluatorWithVersion(unittest.TestCase):
-    """EvaluatorWithVersion unit test stubs"""
+class TestEvaluatorVersionCode(unittest.TestCase):
+    """EvaluatorVersionCode unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,41 +25,40 @@ class TestEvaluatorWithVersion(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> EvaluatorWithVersion:
-        """Test EvaluatorWithVersion
+    def make_instance(self, include_optional) -> EvaluatorVersionCode:
+        """Test EvaluatorVersionCode
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `EvaluatorWithVersion`
+        # uncomment below to create an instance of `EvaluatorVersionCode`
         """
-        model = EvaluatorWithVersion()
+        model = EvaluatorVersionCode()
         if include_optional:
-            return EvaluatorWithVersion(
+            return EvaluatorVersionCode(
                 id = '',
-                name = '',
-                description = '',
-                type = 'template',
-                space_id = '',
+                evaluator_id = '',
+                commit_hash = '',
+                commit_message = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
-                updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = '',
-                version = None
+                type = 'code',
+                code_config = None
             )
         else:
-            return EvaluatorWithVersion(
+            return EvaluatorVersionCode(
                 id = '',
-                name = '',
-                type = 'template',
-                space_id = '',
+                evaluator_id = '',
+                commit_hash = '',
+                commit_message = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
-                updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = '',
-                version = None,
+                type = 'code',
+                code_config = None,
         )
         """
 
-    def testEvaluatorWithVersion(self):
-        """Test EvaluatorWithVersion"""
+    def testEvaluatorVersionCode(self):
+        """Test EvaluatorVersionCode"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

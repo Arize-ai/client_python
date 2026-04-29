@@ -19,17 +19,17 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
-from arize._generated.api_client.models.template_config import TemplateConfig
+from arize._generated.api_client.models.code_config import CodeConfig
 from typing import Optional, Set
 from typing_extensions import Self
 
-class EvaluatorVersionsCreateRequest(BaseModel):
+class EvaluatorVersionCodeCreate(BaseModel):
     """
-    EvaluatorVersionsCreateRequest
+    EvaluatorVersionCodeCreate
     """ # noqa: E501
     commit_message: StrictStr = Field(description="Commit message describing the changes")
-    template_config: TemplateConfig
-    __properties: ClassVar[List[str]] = ["commit_message", "template_config"]
+    code_config: CodeConfig
+    __properties: ClassVar[List[str]] = ["commit_message", "code_config"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -49,7 +49,7 @@ class EvaluatorVersionsCreateRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of EvaluatorVersionsCreateRequest from a JSON string"""
+        """Create an instance of EvaluatorVersionCodeCreate from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,14 +70,14 @@ class EvaluatorVersionsCreateRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of template_config
-        if self.template_config:
-            _dict['template_config'] = self.template_config.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of code_config
+        if self.code_config:
+            _dict['code_config'] = self.code_config.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of EvaluatorVersionsCreateRequest from a dict"""
+        """Create an instance of EvaluatorVersionCodeCreate from a dict"""
         if obj is None:
             return None
 
@@ -87,11 +87,11 @@ class EvaluatorVersionsCreateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in EvaluatorVersionsCreateRequest) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in EvaluatorVersionCodeCreate) in the input: " + _key)
 
         _obj = cls.model_validate({
             "commit_message": obj.get("commit_message"),
-            "template_config": TemplateConfig.from_dict(obj["template_config"]) if obj.get("template_config") is not None else None
+            "code_config": CodeConfig.from_dict(obj["code_config"]) if obj.get("code_config") is not None else None
         })
         return _obj
 

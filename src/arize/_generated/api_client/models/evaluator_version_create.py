@@ -17,33 +17,30 @@ import json
 import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
-from arize._generated.api_client.models.evaluator_version_code import EvaluatorVersionCode
-from arize._generated.api_client.models.evaluator_version_template import EvaluatorVersionTemplate
+from arize._generated.api_client.models.evaluator_version_code_create import EvaluatorVersionCodeCreate
+from arize._generated.api_client.models.evaluator_version_template_create import EvaluatorVersionTemplateCreate
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-EVALUATORVERSION_ONE_OF_SCHEMAS = ["EvaluatorVersionCode", "EvaluatorVersionTemplate"]
+EVALUATORVERSIONCREATE_ONE_OF_SCHEMAS = ["EvaluatorVersionCodeCreate", "EvaluatorVersionTemplateCreate"]
 
-class EvaluatorVersion(BaseModel):
+class EvaluatorVersionCreate(BaseModel):
     """
-    A versioned snapshot of an evaluator's configuration. Exactly one of `template_config` or `code_config` is present. The `type` field discriminates the branch and matches the parent evaluator's `type`. 
+    Payload for an evaluator version: exactly one of `template_config` or `code_config`. Used both when creating an evaluator (initial `version`) and when appending a version. 
     """
-    # data type: EvaluatorVersionTemplate
-    oneof_schema_1_validator: Optional[EvaluatorVersionTemplate] = None
-    # data type: EvaluatorVersionCode
-    oneof_schema_2_validator: Optional[EvaluatorVersionCode] = None
-    actual_instance: Optional[Union[EvaluatorVersionCode, EvaluatorVersionTemplate]] = None
-    one_of_schemas: Set[str] = { "EvaluatorVersionCode", "EvaluatorVersionTemplate" }
+    # data type: EvaluatorVersionTemplateCreate
+    oneof_schema_1_validator: Optional[EvaluatorVersionTemplateCreate] = None
+    # data type: EvaluatorVersionCodeCreate
+    oneof_schema_2_validator: Optional[EvaluatorVersionCodeCreate] = None
+    actual_instance: Optional[Union[EvaluatorVersionCodeCreate, EvaluatorVersionTemplateCreate]] = None
+    one_of_schemas: Set[str] = { "EvaluatorVersionCodeCreate", "EvaluatorVersionTemplateCreate" }
 
     model_config = ConfigDict(
         validate_assignment=True,
         protected_namespaces=(),
     )
 
-
-    discriminator_value_class_map: Dict[str, str] = {
-    }
 
     def __init__(self, *args, **kwargs) -> None:
         if args:
@@ -57,25 +54,25 @@ class EvaluatorVersion(BaseModel):
 
     @field_validator('actual_instance')
     def actual_instance_must_validate_oneof(cls, v):
-        instance = EvaluatorVersion.model_construct()
+        instance = EvaluatorVersionCreate.model_construct()
         error_messages = []
         match = 0
-        # validate data type: EvaluatorVersionTemplate
-        if not isinstance(v, EvaluatorVersionTemplate):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `EvaluatorVersionTemplate`")
+        # validate data type: EvaluatorVersionTemplateCreate
+        if not isinstance(v, EvaluatorVersionTemplateCreate):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `EvaluatorVersionTemplateCreate`")
         else:
             match += 1
-        # validate data type: EvaluatorVersionCode
-        if not isinstance(v, EvaluatorVersionCode):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `EvaluatorVersionCode`")
+        # validate data type: EvaluatorVersionCodeCreate
+        if not isinstance(v, EvaluatorVersionCodeCreate):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `EvaluatorVersionCodeCreate`")
         else:
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in EvaluatorVersionCreate with oneOf schemas: EvaluatorVersionCodeCreate, EvaluatorVersionTemplateCreate. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in EvaluatorVersionCreate with oneOf schemas: EvaluatorVersionCodeCreate, EvaluatorVersionTemplateCreate. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -90,25 +87,25 @@ class EvaluatorVersion(BaseModel):
         error_messages = []
         match = 0
 
-        # deserialize data into EvaluatorVersionTemplate
+        # deserialize data into EvaluatorVersionTemplateCreate
         try:
-            instance.actual_instance = EvaluatorVersionTemplate.from_json(json_str)
+            instance.actual_instance = EvaluatorVersionTemplateCreate.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
-        # deserialize data into EvaluatorVersionCode
+        # deserialize data into EvaluatorVersionCodeCreate
         try:
-            instance.actual_instance = EvaluatorVersionCode.from_json(json_str)
+            instance.actual_instance = EvaluatorVersionCodeCreate.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into EvaluatorVersionCreate with oneOf schemas: EvaluatorVersionCodeCreate, EvaluatorVersionTemplateCreate. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into EvaluatorVersionCreate with oneOf schemas: EvaluatorVersionCodeCreate, EvaluatorVersionTemplateCreate. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -122,7 +119,7 @@ class EvaluatorVersion(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], EvaluatorVersionCode, EvaluatorVersionTemplate]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], EvaluatorVersionCodeCreate, EvaluatorVersionTemplateCreate]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

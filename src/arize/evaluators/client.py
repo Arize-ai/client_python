@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
     from arize.evaluators.types import (
+        CodeConfig,
         Evaluator,
         EvaluatorsList200Response,
         EvaluatorVersion,
@@ -136,38 +137,33 @@ class EvaluatorsClient:
             version_id=version_id,
         )
 
-    @prerelease_endpoint(key="evaluators.create", stage=ReleaseStage.ALPHA)
-    def create(
+    @prerelease_endpoint(
+        key="evaluators.create_template", stage=ReleaseStage.ALPHA
+    )
+    def create_template_evaluator(
         self,
         *,
         name: str,
         space: str,
-        evaluator_type: Literal["template", "code"] = "template",
         commit_message: str,
         template_config: TemplateConfig,
         description: str | None = None,
     ) -> EvaluatorWithVersion:
-        r"""Create a new evaluator with an initial version.
+        r"""Create a new template evaluator with an initial version.
 
         The evaluator ``name`` must be unique within the given space.
-
-        Currently, only ``"template"`` evaluators are supported. The ``evaluator_type``
-        parameter is accepted for forward-compatibility but raises
-        ``ValueError`` if set to anything other than ``"template"``.
 
         Args:
             name: Evaluator name (must be unique within the space).
             space: Space name or ID to create the evaluator in.
-            evaluator_type: Evaluator type. Only ``"template"`` is supported;
-                the parameter is accepted for forward-compatibility.
             commit_message: Commit message for the initial version.
-            template_config: Template configuration for the initial version.
-                Build this with :class:`arize.evaluators.types.TemplateConfig`.
+            template_config: Template configuration for the evaluator.
+                Build with :class:`arize.evaluators.types.TemplateConfig`.
                 Required fields:
 
                 - ``name`` — eval column name; must match
                   ``^[a-zA-Z0-9_\\s\\-&()]+$``.
-                - ``template`` — prompt template string with ``{{variable}}``
+                - ``template`` — prompt template string with ``{variable}``
                   placeholders referencing span/trace attributes.
                 - ``include_explanations`` — whether the LLM should include a
                   reasoning explanation alongside the score.
@@ -177,16 +173,9 @@ class EvaluatorsClient:
                 - ``llm_config`` — :class:`arize.evaluators.types.EvaluatorLlmConfig`
                   specifying the model provider, model name, and API key.
 
-                Optional fields:
+                Optional fields: ``classification_choices``, ``direction``,
+                ``data_granularity``.
 
-                - ``classification_choices`` — ``dict[str, float]`` mapping
-                  label → numeric score (e.g. ``{"relevant": 1,
-                  "irrelevant": 0}``). When omitted the evaluator produces
-                  freeform (non-classification) output.
-                - ``direction`` — ``"maximize"`` or ``"minimize"``, the
-                  optimization direction for annotation scores.
-                - ``data_granularity`` — ``"span"``, ``"trace"``, or
-                  ``"session"``.
             description: Optional human-readable description of the evaluator.
 
         Returns:
@@ -198,21 +187,68 @@ class EvaluatorsClient:
         """
         from arize._generated import api_client as gen
 
-        if evaluator_type != "template":
-            raise ValueError(
-                f"Evaluator type {evaluator_type} is not supported"
+        version = gen.EvaluatorVersionCreate(
+            gen.EvaluatorVersionTemplateCreate(
+                commit_message=commit_message,
+                template_config=template_config,
             )
-
-        space_id = _find_space_id(self._spaces_api, space)
-
-        version = gen.EvaluatorsCreateRequestVersion(
-            commit_message=commit_message,
-            template_config=template_config,
         )
+        space_id = _find_space_id(self._spaces_api, space)
         body = gen.EvaluatorsCreateRequest(
             name=name,
             space_id=space_id,
-            type=evaluator_type,
+            type="template",
+            description=description,
+            version=version,
+        )
+        return self._api.evaluators_create(evaluators_create_request=body)
+
+    @prerelease_endpoint(key="evaluators.create_code", stage=ReleaseStage.ALPHA)
+    def create_code_evaluator(
+        self,
+        *,
+        name: str,
+        space: str,
+        commit_message: str,
+        code_config: CodeConfig,
+        description: str | None = None,
+    ) -> EvaluatorWithVersion:
+        """Create a new code evaluator with an initial version.
+
+        The evaluator ``name`` must be unique within the given space.
+
+        Args:
+            name: Evaluator name (must be unique within the space).
+            space: Space name or ID to create the evaluator in.
+            commit_message: Commit message for the initial version.
+            code_config: Code configuration for the evaluator. Build with
+                :class:`arize.evaluators.types.ManagedCodeConfig` (for
+                built-in evaluators) or
+                :class:`arize.evaluators.types.CustomCodeConfig` (for custom
+                Python code). Wrap in
+                :class:`arize.evaluators.types.CodeConfig`.
+            description: Optional human-readable description of the evaluator.
+
+        Returns:
+            The created evaluator with its initial version.
+
+        Raises:
+            ApiException: If the API request fails
+                (for example, name conflict or invalid payload).
+        """
+        from arize._generated import api_client as gen
+
+        version = gen.EvaluatorVersionCreate(
+            gen.EvaluatorVersionCodeCreate(
+                commit_message=commit_message,
+                code_config=code_config,
+            )
+        )
+        space_id = _find_space_id(self._spaces_api, space)
+        body = gen.EvaluatorsCreateRequest(
+            name=name,
+            space_id=space_id,
+            type="code",
             description=description,
             version=version,
         )
@@ -341,9 +377,9 @@ class EvaluatorsClient:
         return self._api.evaluator_versions_get(version_id=version_id)
 
     @prerelease_endpoint(
-        key="evaluators.create_version", stage=ReleaseStage.ALPHA
+        key="evaluators.create_template_version", stage=ReleaseStage.ALPHA
     )
-    def create_version(
+    def create_template_version(
         self,
         *,
         evaluator: str,
@@ -351,12 +387,11 @@ class EvaluatorsClient:
         commit_message: str,
         template_config: TemplateConfig,
     ) -> EvaluatorVersion:
-        r"""Create a new version of an existing evaluator.
+        r"""Create a new template version of an existing evaluator.
 
         The new version becomes the latest version immediately (versioning is
-        append-only).
-
-        Versions are immutable once created. To change the configuration, create a new version.
+        append-only). Versions are immutable once created; to change the
+        configuration, create a new version.
 
         Args:
             evaluator: Evaluator name or global ID (base64) to add a version to.
@@ -364,31 +399,7 @@ class EvaluatorsClient:
                 name rather than an ID.
             commit_message: Commit message describing the changes in this version.
             template_config: Updated template configuration for this version.
-                Build this with :class:`arize.evaluators.types.TemplateConfig`.
-                Required fields:
-
-                - ``name`` — eval column name; must match
-                  ``^[a-zA-Z0-9_\\s\\-&()]+$``.
-                - ``template`` — prompt template string with ``{{variable}}``
-                  placeholders referencing span/trace attributes.
-                - ``include_explanations`` — whether the LLM should include a
-                  reasoning explanation alongside the score.
-                - ``use_function_calling_if_available`` — prefer structured
-                  function-call output over free-text parsing when the model
-                  supports it.
-                - ``llm_config`` — :class:`arize.evaluators.types.EvaluatorLlmConfig`
-                  specifying the model provider, model name, and API key.
-
-                Optional fields:
-
-                - ``classification_choices`` — ``dict[str, float]`` mapping
-                  label → numeric score (e.g. ``{"relevant": 1,
-                  "irrelevant": 0}``). When omitted the evaluator produces
-                  freeform (non-classification) output.
-                - ``direction`` — ``"maximize"`` or ``"minimize"``, the
-                  optimization direction for annotation scores.
-                - ``data_granularity`` — ``"span"``, ``"trace"``, or
-                  ``"session"``.
+                Build with :class:`arize.evaluators.types.TemplateConfig`.
 
         Returns:
             The newly created evaluator version.
@@ -396,19 +407,71 @@ class EvaluatorsClient:
         Raises:
             ApiException: If the API request fails.
         """
+        from arize._generated import api_client as gen
+
         evaluator_id = _find_evaluator_id(
             api=self._api,
             evaluator=evaluator,
             space=space,
         )
-
-        from arize._generated import api_client as gen
-
-        body = gen.EvaluatorVersionsCreateRequest(
-            commit_message=commit_message,
-            template_config=template_config,
+        body = gen.EvaluatorVersionCreate(
+            gen.EvaluatorVersionTemplateCreate(
+                commit_message=commit_message,
+                template_config=template_config,
+            )
         )
         return self._api.evaluator_versions_create(
             evaluator_id=evaluator_id,
-            evaluator_versions_create_request=body,
+            evaluator_version_create=body,
+        )
+
+    @prerelease_endpoint(
+        key="evaluators.create_code_version", stage=ReleaseStage.ALPHA
+    )
+    def create_code_version(
+        self,
+        *,
+        evaluator: str,
+        space: str | None = None,
+        commit_message: str,
+        code_config: CodeConfig,
+    ) -> EvaluatorVersion:
+        """Create a new code version of an existing evaluator.
+
+        The new version becomes the latest version immediately (versioning is
+        append-only). Versions are immutable once created; to change the
+        configuration, create a new version.
+
+        Args:
+            evaluator: Evaluator name or global ID (base64) to add a version to.
+            space: Optional space name or ID. Required when ``evaluator`` is a
+                name rather than an ID.
+            commit_message: Commit message describing the changes in this version.
+            code_config: Updated code configuration for this version. Build with
+                :class:`arize.evaluators.types.ManagedCodeConfig` or
+                :class:`arize.evaluators.types.CustomCodeConfig`. Wrap in
+                :class:`arize.evaluators.types.CodeConfig`.
+
+        Returns:
+            The newly created evaluator version.
+
+        Raises:
+            ApiException: If the API request fails.
+        """
+        from arize._generated import api_client as gen
+
+        evaluator_id = _find_evaluator_id(
+            api=self._api,
+            evaluator=evaluator,
+            space=space,
+        )
+        body = gen.EvaluatorVersionCreate(
+            gen.EvaluatorVersionCodeCreate(
+                commit_message=commit_message,
+                code_config=code_config,
+            )
+        )
+        return self._api.evaluator_versions_create(
+            evaluator_id=evaluator_id,
+            evaluator_version_create=body,
         )
