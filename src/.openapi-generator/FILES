@@ -17,6 +17,7 @@ arize/_generated/api_client/api/roles_api.py
 arize/_generated/api_client/api/spaces_api.py
 arize/_generated/api_client/api/spans_api.py
 arize/_generated/api_client/api/tasks_api.py
+arize/_generated/api_client/api/users_api.py
 arize/_generated/api_client/api_client.py
 arize/_generated/api_client/api_response.py
 arize/_generated/api_client/configuration.py
@@ -207,6 +208,11 @@ arize/_generated/api_client/docs/ToolCallType.md
 arize/_generated/api_client/docs/ToolConfig.md
 arize/_generated/api_client/docs/UpdateAnnotationQueueRequestBody.md
 arize/_generated/api_client/docs/User.md
+arize/_generated/api_client/docs/UserRole.md
+arize/_generated/api_client/docs/UserStatus.md
+arize/_generated/api_client/docs/UserUpdate.md
+arize/_generated/api_client/docs/UsersApi.md
+arize/_generated/api_client/docs/UsersList200Response.md
 arize/_generated/api_client/exceptions.py
 arize/_generated/api_client/models/__init__.py
 arize/_generated/api_client/models/add_annotation_queue_records_request_body.py
@@ -380,6 +386,10 @@ arize/_generated/api_client/models/tool_call_type.py
 arize/_generated/api_client/models/tool_config.py
 arize/_generated/api_client/models/update_annotation_queue_request_body.py
 arize/_generated/api_client/models/user.py
+arize/_generated/api_client/models/user_role.py
+arize/_generated/api_client/models/user_status.py
+arize/_generated/api_client/models/user_update.py
+arize/_generated/api_client/models/users_list200_response.py
 arize/_generated/api_client/rest.py
 arize/_generated/api_client/test/__init__.py
 arize/_generated/api_client/test/test_add_annotation_queue_records_request_body.py
@@ -538,4 +548,9 @@ arize/_generated/api_client/test/test_tool_call_function.py
 arize/_generated/api_client/test/test_tool_call_type.py
 arize/_generated/api_client/test/test_tool_config.py
 arize/_generated/api_client/test/test_user.py
+arize/_generated/api_client/test/test_user_role.py
+arize/_generated/api_client/test/test_user_status.py
+arize/_generated/api_client/test/test_user_update.py
+arize/_generated/api_client/test/test_users_api.py
+arize/_generated/api_client/test/test_users_list200_response.py
 arize/_generated/api_client_README.md

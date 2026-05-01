@@ -17,26 +17,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
-from typing import Any, ClassVar, Dict, List
-from arize._generated.api_client.models.user_role import UserRole
-from arize._generated.api_client.models.user_status import UserStatus
+from pydantic import BaseModel, ConfigDict, Field, StrictBool
+from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class User(BaseModel):
+class UserUpdate(BaseModel):
     """
-    An account user represents a member of the account. Users can be listed, updated, or removed from the account. 
+    UserUpdate
     """ # noqa: E501
-    id: StrictStr = Field(description="A universally unique identifier")
-    name: StrictStr = Field(description="Display name of the user")
-    email: StrictStr = Field(description="An email address")
-    created_at: datetime = Field(description="Timestamp for when the user was created")
-    status: UserStatus
-    role: UserRole
-    is_developer: StrictBool = Field(description="Whether the user has developer permissions (can create GraphQL API keys)")
-    __properties: ClassVar[List[str]] = ["id", "name", "email", "created_at", "status", "role", "is_developer"]
+    name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = Field(default=None, description="Updated display name for the user")
+    is_developer: Optional[StrictBool] = Field(default=None, description="Set to true to grant developer permissions, or false to revoke them.")
+    __properties: ClassVar[List[str]] = ["name", "is_developer"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -56,7 +49,7 @@ class User(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of User from a JSON string"""
+        """Create an instance of UserUpdate from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -81,7 +74,7 @@ class User(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of User from a dict"""
+        """Create an instance of UserUpdate from a dict"""
         if obj is None:
             return None
 
@@ -91,15 +84,10 @@ class User(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in User) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in UserUpdate) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "id": obj.get("id"),
             "name": obj.get("name"),
-            "email": obj.get("email"),
-            "created_at": obj.get("created_at"),
-            "status": obj.get("status"),
-            "role": obj.get("role"),
             "is_developer": obj.get("is_developer")
         })
         return _obj

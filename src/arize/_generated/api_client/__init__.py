@@ -34,6 +34,7 @@ __all__ = [
     "SpacesApi",
     "SpansApi",
     "TasksApi",
+    "UsersApi",
     "ApiResponse",
     "ApiClient",
     "Configuration",
@@ -214,6 +215,10 @@ __all__ = [
     "ToolConfig",
     "UpdateAnnotationQueueRequestBody",
     "User",
+    "UserRole",
+    "UserStatus",
+    "UserUpdate",
+    "UsersList200Response",
 ]
 
 # import apis into sdk package
@@ -233,6 +238,7 @@ from arize._generated.api_client.api.roles_api import RolesApi as RolesApi
 from arize._generated.api_client.api.spaces_api import SpacesApi as SpacesApi
 from arize._generated.api_client.api.spans_api import SpansApi as SpansApi
 from arize._generated.api_client.api.tasks_api import TasksApi as TasksApi
+from arize._generated.api_client.api.users_api import UsersApi as UsersApi
 
 # import ApiClient
 from arize._generated.api_client.api_response import ApiResponse as ApiResponse
@@ -417,4 +423,8 @@ from arize._generated.api_client.models.tool_call_type import ToolCallType as To
 from arize._generated.api_client.models.tool_config import ToolConfig as ToolConfig
 from arize._generated.api_client.models.update_annotation_queue_request_body import UpdateAnnotationQueueRequestBody as UpdateAnnotationQueueRequestBody
 from arize._generated.api_client.models.user import User as User
+from arize._generated.api_client.models.user_role import UserRole as UserRole
+from arize._generated.api_client.models.user_status import UserStatus as UserStatus
+from arize._generated.api_client.models.user_update import UserUpdate as UserUpdate
+from arize._generated.api_client.models.users_list200_response import UsersList200Response as UsersList200Response
 

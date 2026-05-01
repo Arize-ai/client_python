@@ -184,4 +184,8 @@ from arize._generated.api_client.models.tool_call_type import ToolCallType
 from arize._generated.api_client.models.tool_config import ToolConfig
 from arize._generated.api_client.models.update_annotation_queue_request_body import UpdateAnnotationQueueRequestBody
 from arize._generated.api_client.models.user import User
+from arize._generated.api_client.models.user_role import UserRole
+from arize._generated.api_client.models.user_status import UserStatus
+from arize._generated.api_client.models.user_update import UserUpdate
+from arize._generated.api_client.models.users_list200_response import UsersList200Response
 

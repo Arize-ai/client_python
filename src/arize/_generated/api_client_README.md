@@ -165,6 +165,10 @@ Class | Method | HTTP request | Description
 *TasksApi* | [**tasks_list_runs**](arize/_generated/api_client/docs/TasksApi.md#tasks_list_runs) | **GET** /v2/tasks/{task_id}/runs | List task runs
 *TasksApi* | [**tasks_trigger_run**](arize/_generated/api_client/docs/TasksApi.md#tasks_trigger_run) | **POST** /v2/tasks/{task_id}/trigger | Trigger a task run
 *TasksApi* | [**tasks_update**](arize/_generated/api_client/docs/TasksApi.md#tasks_update) | **PATCH** /v2/tasks/{task_id} | Update task
+*UsersApi* | [**users_delete**](arize/_generated/api_client/docs/UsersApi.md#users_delete) | **DELETE** /v2/users/{user_id} | Delete a user
+*UsersApi* | [**users_get**](arize/_generated/api_client/docs/UsersApi.md#users_get) | **GET** /v2/users/{user_id} | Get a user
+*UsersApi* | [**users_list**](arize/_generated/api_client/docs/UsersApi.md#users_list) | **GET** /v2/users | List users
+*UsersApi* | [**users_update**](arize/_generated/api_client/docs/UsersApi.md#users_update) | **PATCH** /v2/users/{user_id} | Update a user
 
 
 ## Documentation For Models
@@ -340,6 +344,10 @@ Class | Method | HTTP request | Description
  - [ToolConfig](arize/_generated/api_client/docs/ToolConfig.md)
  - [UpdateAnnotationQueueRequestBody](arize/_generated/api_client/docs/UpdateAnnotationQueueRequestBody.md)
  - [User](arize/_generated/api_client/docs/User.md)
+ - [UserRole](arize/_generated/api_client/docs/UserRole.md)
+ - [UserStatus](arize/_generated/api_client/docs/UserStatus.md)
+ - [UserUpdate](arize/_generated/api_client/docs/UserUpdate.md)
+ - [UsersList200Response](arize/_generated/api_client/docs/UsersList200Response.md)
 
 
 <a id="documentation-for-authorization"></a>

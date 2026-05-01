@@ -1,13 +1,18 @@
 # User
 
-A reference to a user by their ID and optionally their email address.
+An account user represents a member of the account. Users can be listed, updated, or removed from the account. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **str** | The unique identifier for the user | 
-**email** | **str** | An email address | [optional] 
+**id** | **str** | A universally unique identifier | 
+**name** | **str** | Display name of the user | 
+**email** | **str** | An email address | 
+**created_at** | **datetime** | Timestamp for when the user was created | 
+**status** | [**UserStatus**](UserStatus.md) |  | 
+**role** | [**UserRole**](UserRole.md) |  | 
+**is_developer** | **bool** | Whether the user has developer permissions (can create GraphQL API keys) | 
 
 ## Example
 
