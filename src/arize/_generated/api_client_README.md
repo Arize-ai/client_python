@@ -317,6 +317,8 @@ Class | Method | HTTP request | Description
  - [Span](arize/_generated/api_client/docs/Span.md)
  - [SpanContext](arize/_generated/api_client/docs/SpanContext.md)
  - [SpanEvent](arize/_generated/api_client/docs/SpanEvent.md)
+ - [SpansDelete200Response](arize/_generated/api_client/docs/SpansDelete200Response.md)
+ - [SpansDelete500Response](arize/_generated/api_client/docs/SpansDelete500Response.md)
  - [SpansDeleteRequest](arize/_generated/api_client/docs/SpansDeleteRequest.md)
  - [SpansList200Response](arize/_generated/api_client/docs/SpansList200Response.md)
  - [SpansListRequest](arize/_generated/api_client/docs/SpansListRequest.md)

@@ -9,16 +9,20 @@ Method | HTTP request | Description
 
 
 # **spans_delete**
-> spans_delete(spans_delete_request)
+> SpansDelete200Response spans_delete(spans_delete_request)
 
 Delete spans
 
 Permanently deletes spans by their span IDs. This operation is irreversible.
 
 Accepts between 1 and 1000 span IDs per request. Only spans from the
-last 31 days are considered; older spans are not affected. If one or more
-span IDs are not found, they are silently ignored. A 204 response does
-not guarantee that all provided IDs were deleted.
+last 31 days are considered; older spans are not affected.
+
+A `204 No Content` response indicates all extant IDs provided
+within the last 31 days were deleted.
+
+A `200 OK` response indicates one or more intervals could not be fully processed
+within the retry budget. Retry the original request for a correct result.
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -29,6 +33,7 @@ not guarantee that all provided IDs were deleted.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.spans_delete200_response import SpansDelete200Response
 from arize._generated.api_client.models.spans_delete_request import SpansDeleteRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
@@ -57,7 +62,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Delete spans
-        api_instance.spans_delete(spans_delete_request)
+        api_response = api_instance.spans_delete(spans_delete_request)
+        print("The response of SpansApi->spans_delete:\n")
+        pprint(api_response)
     except Exception as e:
         print("Exception when calling SpansApi->spans_delete: %s\n" % e)
 ```
@@ -73,7 +80,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-void (empty response body)
+[**SpansDelete200Response**](SpansDelete200Response.md)
 
 ### Authorization
 
@@ -82,18 +89,20 @@ void (empty response body)
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/problem+json
+ - **Accept**: application/json, application/problem+json
 
 ### HTTP response details
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+**200** | Some span IDs could not be confirmed deleted within the allotted retries. Retry the original request for a completed deletion result.  |  -  |
 **204** | Spans successfully deleted |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+**500** | Fatal mid-request error. Body carries any IDs already confirmed deleted. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

@@ -19,6 +19,7 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.spans_delete200_response import SpansDelete200Response
 from arize._generated.api_client.models.spans_delete_request import SpansDeleteRequest
 from arize._generated.api_client.models.spans_list200_response import SpansList200Response
 from arize._generated.api_client.models.spans_list_request import SpansListRequest
@@ -57,10 +58,10 @@ class SpansApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
+    ) -> SpansDelete200Response:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 1000 span IDs per request. Only spans from the last 31 days are considered; older spans are not affected. If one or more span IDs are not found, they are silently ignored. A 204 response does not guarantee that all provided IDs were deleted.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 1000 span IDs per request. Only spans from the last 31 days are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the last 31 days were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param spans_delete_request: Body containing span IDs to delete (required)
         :type spans_delete_request: SpansDeleteRequest
@@ -95,12 +96,14 @@ class SpansApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SpansDelete200Response",
             '204': None,
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
             '429': "Problem",
+            '500': "SpansDelete500Response",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -129,10 +132,10 @@ class SpansApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
+    ) -> ApiResponse[SpansDelete200Response]:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 1000 span IDs per request. Only spans from the last 31 days are considered; older spans are not affected. If one or more span IDs are not found, they are silently ignored. A 204 response does not guarantee that all provided IDs were deleted.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 1000 span IDs per request. Only spans from the last 31 days are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the last 31 days were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param spans_delete_request: Body containing span IDs to delete (required)
         :type spans_delete_request: SpansDeleteRequest
@@ -167,12 +170,14 @@ class SpansApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SpansDelete200Response",
             '204': None,
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
             '429': "Problem",
+            '500': "SpansDelete500Response",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -204,7 +209,7 @@ class SpansApi:
     ) -> RESTResponseType:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 1000 span IDs per request. Only spans from the last 31 days are considered; older spans are not affected. If one or more span IDs are not found, they are silently ignored. A 204 response does not guarantee that all provided IDs were deleted.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 1000 span IDs per request. Only spans from the last 31 days are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the last 31 days were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param spans_delete_request: Body containing span IDs to delete (required)
         :type spans_delete_request: SpansDeleteRequest
@@ -239,12 +244,14 @@ class SpansApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SpansDelete200Response",
             '204': None,
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
             '429': "Problem",
+            '500': "SpansDelete500Response",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -289,6 +296,7 @@ class SpansApi:
         if 'Accept' not in _header_params:
             _header_params['Accept'] = self.api_client.select_header_accept(
                 [
+                    'application/json', 
                     'application/problem+json'
                 ]
             )

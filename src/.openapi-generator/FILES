@@ -183,6 +183,8 @@ arize/_generated/api_client/docs/Span.md
 arize/_generated/api_client/docs/SpanContext.md
 arize/_generated/api_client/docs/SpanEvent.md
 arize/_generated/api_client/docs/SpansApi.md
+arize/_generated/api_client/docs/SpansDelete200Response.md
+arize/_generated/api_client/docs/SpansDelete500Response.md
 arize/_generated/api_client/docs/SpansDeleteRequest.md
 arize/_generated/api_client/docs/SpansList200Response.md
 arize/_generated/api_client/docs/SpansListRequest.md
@@ -355,6 +357,8 @@ arize/_generated/api_client/models/spaces_update_request.py
 arize/_generated/api_client/models/span.py
 arize/_generated/api_client/models/span_context.py
 arize/_generated/api_client/models/span_event.py
+arize/_generated/api_client/models/spans_delete200_response.py
+arize/_generated/api_client/models/spans_delete500_response.py
 arize/_generated/api_client/models/spans_delete_request.py
 arize/_generated/api_client/models/spans_list200_response.py
 arize/_generated/api_client/models/spans_list_request.py
@@ -513,6 +517,8 @@ arize/_generated/api_client/test/test_roles_api.py
 arize/_generated/api_client/test/test_roles_list200_response.py
 arize/_generated/api_client/test/test_spaces_create_request.py
 arize/_generated/api_client/test/test_spaces_update_request.py
+arize/_generated/api_client/test/test_spans_delete200_response.py
+arize/_generated/api_client/test/test_spans_delete500_response.py
 arize/_generated/api_client/test/test_spans_delete_request.py
 arize/_generated/api_client/test/test_static_param.py
 arize/_generated/api_client/test/test_static_param_default_value.py

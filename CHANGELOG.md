@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.22.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.22.0...arize-python-sdk/v8.22.1) (2026-05-01)
+
+
+### 🐛 Bug Fixes
+
+* **arrow:** normalize legacy 'result' column to 'output' across schemas ([#70119](https://github.com/Arize-ai/arize/issues/70119)) ([05e0f49](https://github.com/Arize-ai/arize/commit/05e0f49b536f88303ca1264940cde7682d8e13b4))
+
 ## [8.22.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.21.0...arize-python-sdk/v8.22.0) (2026-04-29)
 
 

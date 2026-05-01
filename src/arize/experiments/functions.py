@@ -336,13 +336,13 @@ def run_experiment(
     out_df = pd.DataFrame()
     out_df["id"] = [run.id for run in runs_filtered]
     out_df["example_id"] = [run.dataset_example_id for run in runs_filtered]
-    out_df["result"] = [run.output for run in runs_filtered]  # type: ignore[assignment]
+    out_df["output"] = [run.output for run in runs_filtered]  # type: ignore[assignment]
     out_df["error"] = [run.error for run in runs_filtered]
     out_df["result.trace.id"] = [run.trace_id for run in runs_filtered]
     out_df["result.trace.timestamp"] = [
         int(run.start_time.timestamp() * 1e3) for run in runs_filtered
     ]
-    out_df.set_index("id", inplace=True, drop=False)
+    out_df.set_index("id", inplace=True)
     logger.info(f"✅ Task runs completed.\n{task_summary}")
 
     if evaluators_by_name:
@@ -928,9 +928,12 @@ def _add_evaluator_columns(
             output_df.drop(md_col_name, axis=1, inplace=True)
 
             output_vals = input_df[md_col_name].apply(
-                lambda x: str(x)
-                if x is not None and not isinstance(x, (int, float, str, bool))
-                else x
+                lambda x: (
+                    str(x)
+                    if x is not None
+                    and not isinstance(x, (int, float, str, bool))
+                    else x
+                )
             )
             output_df[output_col] = output_vals
 
