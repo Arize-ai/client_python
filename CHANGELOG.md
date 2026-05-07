@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.22.3](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.22.2...arize-python-sdk/v8.22.3) (2026-05-07)
+
+
+### 🐛 Bug Fixes
+
+* **sdk:** Respect `request_verify` for REST API commands ([#69838](https://github.com/Arize-ai/arize/issues/69838)) ([31b8f3c](https://github.com/Arize-ai/arize/commit/31b8f3c4915f5b5e6fb6cd5ba695501a0ff84e63))
+
 ## [8.22.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.22.1...arize-python-sdk/v8.22.2) (2026-05-07)
 
 

@@ -46,5 +46,6 @@ class GeneratedClientFactory:
             cfg = gen.Configuration(host=self._sdk_config.api_url)
             if self._sdk_config.api_key:
                 cfg.access_token = self._sdk_config.api_key
+            cfg.verify_ssl = self._sdk_config.request_verify
             self._client = gen.ApiClient(cfg)
             return self._client

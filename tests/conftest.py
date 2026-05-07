@@ -41,6 +41,7 @@ def mock_sdk_config() -> Mock:
     config.api_key = "test_api_key_12345"
     config.api_url = "https://api.arize.com"
     config.cache_dir = "~/.arize/cache"
+    config.request_verify = True
     return config
 
 

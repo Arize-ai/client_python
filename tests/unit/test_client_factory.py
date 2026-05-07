@@ -145,6 +145,29 @@ class TestGetClient:
 
             assert mock_config_instance.access_token == mock_sdk_config.api_key
 
+    @pytest.mark.parametrize("verify", [True, False])
+    def test_verify_ssl_set_from_request_verify(
+        self,
+        mock_sdk_config: Mock,
+        verify: bool,
+    ) -> None:
+        """verify_ssl on the generated Configuration should mirror request_verify."""
+        mock_sdk_config.request_verify = verify
+        factory = GeneratedClientFactory(mock_sdk_config)
+
+        with (
+            patch(
+                "arize._generated.api_client.Configuration"
+            ) as mock_config_cls,
+            patch("arize._generated.api_client.ApiClient"),
+        ):
+            mock_config_instance = Mock()
+            mock_config_cls.return_value = mock_config_instance
+
+            factory.get_client()
+
+            assert mock_config_instance.verify_ssl == verify
+
     def test_api_key_not_set_if_none(self, mock_sdk_config: Mock) -> None:
         """API key should not be set on configuration if it's None."""
         mock_sdk_config.api_key = None
