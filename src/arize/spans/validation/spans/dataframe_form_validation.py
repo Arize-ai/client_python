@@ -29,11 +29,16 @@ def log_info_dataframe_extra_column_names(
         None.
     """
     min_col_set = [col.name for col in SPAN_OPENINFERENCE_COLUMNS]
-    extra_col_names = [col for col in df.columns if col not in min_col_set]
+    extra_col_names = [
+        col
+        for col in df.columns
+        if col not in min_col_set and not col.startswith("attributes.")
+    ]
     if extra_col_names:
         logger.info(
             "Found columns that are not part of the Open Inference Specification "
-            "and will be ignored",
+            "or are not valid span attribute columns (names beginning with "
+            "'attributes.'), so they will be ignored",
             extra={
                 "extra_columns": extra_col_names,
             },

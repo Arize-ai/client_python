@@ -402,3 +402,44 @@ class TestSpansClientLogWithEvals:
                 dataframe=self._make_spans_df(),
                 evals_dataframe=self._make_evals_df(),
             )
+
+    def test_log_preserves_custom_attribute_columns(
+        self, spans_client: SpansClient
+    ) -> None:
+        df = self._make_spans_df()
+        df["attributes.test"] = ["value_0"]
+        df["attributes.custom.numeric"] = [1.5]
+
+        with patch(
+            "arize.spans.client.post_arrow_table", return_value=Mock()
+        ) as mock_post:
+            spans_client.log(
+                space_id="space-1",
+                project_name="my-project",
+                dataframe=df,
+            )
+
+        sent_columns = mock_post.call_args.kwargs["pa_table"].column_names
+        assert "attributes.test" in sent_columns, (
+            f"Custom 'attributes.test' was dropped before send. "
+            f"Got columns: {sorted(sent_columns)}"
+        )
+        assert "attributes.custom.numeric" in sent_columns
+
+    def test_log_drops_non_attribute_extraneous_columns(
+        self, spans_client: SpansClient
+    ) -> None:
+        df = self._make_spans_df()
+        df["random_column"] = ["x"]
+
+        with patch(
+            "arize.spans.client.post_arrow_table", return_value=Mock()
+        ) as mock_post:
+            spans_client.log(
+                space_id="space-1",
+                project_name="my-project",
+                dataframe=df,
+            )
+
+        sent_columns = mock_post.call_args.kwargs["pa_table"].column_names
+        assert "random_column" not in sent_columns

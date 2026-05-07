@@ -33,7 +33,7 @@ class PromptVersionCreateRequest(BaseModel):
     Initial version configuration for a new prompt
     """ # noqa: E501
     commit_message: StrictStr = Field(description="Commit message describing this version")
-    input_variable_format: InputVariableFormat
+    input_variable_format: Optional[InputVariableFormat] = None
     provider: LlmProvider
     model: Optional[StrictStr] = Field(default=None, description="The model to use for the call. Optional. If omitted, no default model is set on the prompt version.")
     messages: Annotated[List[LLMMessage], Field(min_length=1)] = Field(description="The messages that make up the prompt template")

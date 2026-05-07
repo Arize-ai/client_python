@@ -39,6 +39,7 @@ arize/_generated/api_client/docs/AnnotateDatasetExamplesRequestBody.md
 arize/_generated/api_client/docs/AnnotateExperimentRunsRequestBody.md
 arize/_generated/api_client/docs/AnnotateRecordInput.md
 arize/_generated/api_client/docs/AnnotateRecordResult.md
+arize/_generated/api_client/docs/AnnotateSpansRequestBody.md
 arize/_generated/api_client/docs/Annotation.md
 arize/_generated/api_client/docs/AnnotationBatchResult.md
 arize/_generated/api_client/docs/AnnotationConfig.md
@@ -81,6 +82,7 @@ arize/_generated/api_client/docs/ContinuousAnnotationConfig.md
 arize/_generated/api_client/docs/ContinuousAnnotationConfigCreate.md
 arize/_generated/api_client/docs/CreateAnnotationConfigRequestBody.md
 arize/_generated/api_client/docs/CreateAnnotationQueueRequestBody.md
+arize/_generated/api_client/docs/CreateUserRequest.md
 arize/_generated/api_client/docs/CustomCodeConfig.md
 arize/_generated/api_client/docs/Dataset.md
 arize/_generated/api_client/docs/DatasetExample.md
@@ -123,6 +125,7 @@ arize/_generated/api_client/docs/FreeformAnnotationConfigCreate.md
 arize/_generated/api_client/docs/GcpProviderMetadata.md
 arize/_generated/api_client/docs/GcpProviderMetadataKind.md
 arize/_generated/api_client/docs/InputVariableFormat.md
+arize/_generated/api_client/docs/InviteMode.md
 arize/_generated/api_client/docs/InvocationParams.md
 arize/_generated/api_client/docs/LLMMessage.md
 arize/_generated/api_client/docs/LlmProvider.md
@@ -208,6 +211,7 @@ arize/_generated/api_client/docs/ToolCallType.md
 arize/_generated/api_client/docs/ToolConfig.md
 arize/_generated/api_client/docs/UpdateAnnotationQueueRequestBody.md
 arize/_generated/api_client/docs/User.md
+arize/_generated/api_client/docs/UserCreatedResponse.md
 arize/_generated/api_client/docs/UserRole.md
 arize/_generated/api_client/docs/UserStatus.md
 arize/_generated/api_client/docs/UserUpdate.md
@@ -231,6 +235,7 @@ arize/_generated/api_client/models/annotate_dataset_examples_request_body.py
 arize/_generated/api_client/models/annotate_experiment_runs_request_body.py
 arize/_generated/api_client/models/annotate_record_input.py
 arize/_generated/api_client/models/annotate_record_result.py
+arize/_generated/api_client/models/annotate_spans_request_body.py
 arize/_generated/api_client/models/annotation.py
 arize/_generated/api_client/models/annotation_batch_result.py
 arize/_generated/api_client/models/annotation_config.py
@@ -271,6 +276,7 @@ arize/_generated/api_client/models/continuous_annotation_config.py
 arize/_generated/api_client/models/continuous_annotation_config_create.py
 arize/_generated/api_client/models/create_annotation_config_request_body.py
 arize/_generated/api_client/models/create_annotation_queue_request_body.py
+arize/_generated/api_client/models/create_user_request.py
 arize/_generated/api_client/models/custom_code_config.py
 arize/_generated/api_client/models/dataset.py
 arize/_generated/api_client/models/dataset_example.py
@@ -310,6 +316,7 @@ arize/_generated/api_client/models/freeform_annotation_config_create.py
 arize/_generated/api_client/models/gcp_provider_metadata.py
 arize/_generated/api_client/models/gcp_provider_metadata_kind.py
 arize/_generated/api_client/models/input_variable_format.py
+arize/_generated/api_client/models/invite_mode.py
 arize/_generated/api_client/models/invocation_params.py
 arize/_generated/api_client/models/llm_message.py
 arize/_generated/api_client/models/llm_provider.py
@@ -386,6 +393,7 @@ arize/_generated/api_client/models/tool_call_type.py
 arize/_generated/api_client/models/tool_config.py
 arize/_generated/api_client/models/update_annotation_queue_request_body.py
 arize/_generated/api_client/models/user.py
+arize/_generated/api_client/models/user_created_response.py
 arize/_generated/api_client/models/user_role.py
 arize/_generated/api_client/models/user_status.py
 arize/_generated/api_client/models/user_update.py
@@ -409,6 +417,7 @@ arize/_generated/api_client/test/test_annotate_dataset_examples_request_body.py
 arize/_generated/api_client/test/test_annotate_experiment_runs_request_body.py
 arize/_generated/api_client/test/test_annotate_record_input.py
 arize/_generated/api_client/test/test_annotate_record_result.py
+arize/_generated/api_client/test/test_annotate_spans_request_body.py
 arize/_generated/api_client/test/test_annotation.py
 arize/_generated/api_client/test/test_annotation_batch_result.py
 arize/_generated/api_client/test/test_annotation_config.py
@@ -548,7 +557,6 @@ arize/_generated/api_client/test/test_tool_call_function.py
 arize/_generated/api_client/test/test_tool_call_type.py
 arize/_generated/api_client/test/test_tool_config.py
 arize/_generated/api_client/test/test_user.py
-arize/_generated/api_client/test/test_user_role.py
 arize/_generated/api_client/test/test_user_status.py
 arize/_generated/api_client/test/test_user_update.py
 arize/_generated/api_client/test/test_users_api.py

@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **project_id** | **str** | The project ID containing the spans to delete | 
-**span_ids** | **List[str]** | List of span IDs to delete (maximum 1000) | 
+**span_ids** | **List[str]** | List of span IDs to delete (maximum 5000) | 
 
 ## Example
 

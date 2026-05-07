@@ -26,6 +26,13 @@ class TestUsersApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
+    def test_users_create(self) -> None:
+        """Test case for users_create
+
+        Create a user
+        """
+        pass
+
     def test_users_delete(self) -> None:
         """Test case for users_delete
 
@@ -44,6 +51,20 @@ class TestUsersApi(unittest.TestCase):
         """Test case for users_list
 
         List users
+        """
+        pass
+
+    def test_users_password_reset(self) -> None:
+        """Test case for users_password_reset
+
+        Trigger a password-reset email for a user
+        """
+        pass
+
+    def test_users_resend_invitation(self) -> None:
+        """Test case for users_resend_invitation
+
+        Resend a user invitation
         """
         pass
 

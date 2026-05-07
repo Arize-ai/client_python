@@ -296,7 +296,7 @@ Create a new version of an existing prompt.
 - At least one message is required in `messages`.
 - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.
   Requests that contain these fields will be rejected.
-- `input_variable_format` and `provider` are required.
+- `provider` is required. `input_variable_format` defaults to `f_string` if not provided.
 
 **Valid example** (create)
 ```json

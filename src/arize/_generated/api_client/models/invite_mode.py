@@ -18,21 +18,21 @@ from enum import Enum
 from typing_extensions import Self
 
 
-class InputVariableFormat(str, Enum):
+class InviteMode(str, Enum):
     """
-    The format for input variables in the prompt messages. Defaults to `f_string` if not provided. - `f_string`: Single curly braces ({variable_name}) - `mustache`: Double curly braces ({{variable_name}}) - `none`: **Deprecated.** Treated as `f_string`. Will be removed in a future version. 
+    Controls how the user is invited to the account. - `none` — add the user directly with no invitation email (for SSO-only accounts). - `email_link` — send the user an email with a verification link to complete registration. - `temporary_password` — issue a temporary password delivered out-of-band; the user must reset it on first login. 
     """
 
     """
     allowed enum values
     """
-    F_STRING = 'f_string'
-    MUSTACHE = 'mustache'
     NONE = 'none'
+    EMAIL_LINK = 'email_link'
+    TEMPORARY_PASSWORD = 'temporary_password'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of InputVariableFormat from a JSON string"""
+        """Create an instance of InviteMode from a JSON string"""
         return cls(json.loads(json_str))
 
 

@@ -28,7 +28,7 @@ class SpansDeleteRequest(BaseModel):
     SpansDeleteRequest
     """ # noqa: E501
     project_id: StrictStr = Field(description="The project ID containing the spans to delete")
-    span_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=1000)] = Field(description="List of span IDs to delete (maximum 1000)")
+    span_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=5000)] = Field(description="List of span IDs to delete (maximum 5000)")
     __properties: ClassVar[List[str]] = ["project_id", "span_ids"]
 
     model_config = ConfigDict(

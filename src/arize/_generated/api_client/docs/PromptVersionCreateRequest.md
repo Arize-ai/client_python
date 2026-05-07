@@ -7,7 +7,7 @@ Initial version configuration for a new prompt
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **commit_message** | **str** | Commit message describing this version | 
-**input_variable_format** | [**InputVariableFormat**](InputVariableFormat.md) |  | 
+**input_variable_format** | [**InputVariableFormat**](InputVariableFormat.md) |  | [optional] 
 **provider** | [**LlmProvider**](LlmProvider.md) |  | 
 **model** | **str** | The model to use for the call. Optional. If omitted, no default model is set on the prompt version. | [optional] 
 **messages** | [**List[LLMMessage]**](LLMMessage.md) | The messages that make up the prompt template | 

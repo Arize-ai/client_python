@@ -282,6 +282,7 @@ class SpansClient:
         spans_df = remove_extraneous_columns(
             df=spans_df,
             column_list=[col.name for col in SPAN_OPENINFERENCE_COLUMNS],
+            regex=r"^attributes\.",
         )
         if evals_df is not None:
             evals_df = remove_extraneous_columns(

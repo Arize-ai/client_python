@@ -6,7 +6,7 @@ A single record to annotate in a batch, identified by its record ID.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**record_id** | **str** | The ID of the record to annotate (dataset example ID or experiment run ID). | 
+**record_id** | **str** | The record identifier (span ID, dataset example ID, or experiment run ID, depending on the endpoint). | 
 **values** | [**List[AnnotationInput]**](AnnotationInput.md) | One or more annotation values to set on this record. | 
 
 ## Example

@@ -29,6 +29,7 @@ from arize._generated.api_client.models.annotate_dataset_examples_request_body i
 from arize._generated.api_client.models.annotate_experiment_runs_request_body import AnnotateExperimentRunsRequestBody
 from arize._generated.api_client.models.annotate_record_input import AnnotateRecordInput
 from arize._generated.api_client.models.annotate_record_result import AnnotateRecordResult
+from arize._generated.api_client.models.annotate_spans_request_body import AnnotateSpansRequestBody
 from arize._generated.api_client.models.annotation import Annotation
 from arize._generated.api_client.models.annotation_batch_result import AnnotationBatchResult
 from arize._generated.api_client.models.annotation_config import AnnotationConfig
@@ -69,6 +70,7 @@ from arize._generated.api_client.models.continuous_annotation_config import Cont
 from arize._generated.api_client.models.continuous_annotation_config_create import ContinuousAnnotationConfigCreate
 from arize._generated.api_client.models.create_annotation_config_request_body import CreateAnnotationConfigRequestBody
 from arize._generated.api_client.models.create_annotation_queue_request_body import CreateAnnotationQueueRequestBody
+from arize._generated.api_client.models.create_user_request import CreateUserRequest
 from arize._generated.api_client.models.custom_code_config import CustomCodeConfig
 from arize._generated.api_client.models.dataset import Dataset
 from arize._generated.api_client.models.dataset_example import DatasetExample
@@ -108,6 +110,7 @@ from arize._generated.api_client.models.freeform_annotation_config_create import
 from arize._generated.api_client.models.gcp_provider_metadata import GcpProviderMetadata
 from arize._generated.api_client.models.gcp_provider_metadata_kind import GcpProviderMetadataKind
 from arize._generated.api_client.models.input_variable_format import InputVariableFormat
+from arize._generated.api_client.models.invite_mode import InviteMode
 from arize._generated.api_client.models.invocation_params import InvocationParams
 from arize._generated.api_client.models.llm_message import LLMMessage
 from arize._generated.api_client.models.llm_provider import LlmProvider
@@ -184,6 +187,7 @@ from arize._generated.api_client.models.tool_call_type import ToolCallType
 from arize._generated.api_client.models.tool_config import ToolConfig
 from arize._generated.api_client.models.update_annotation_queue_request_body import UpdateAnnotationQueueRequestBody
 from arize._generated.api_client.models.user import User
+from arize._generated.api_client.models.user_created_response import UserCreatedResponse
 from arize._generated.api_client.models.user_role import UserRole
 from arize._generated.api_client.models.user_status import UserStatus
 from arize._generated.api_client.models.user_update import UserUpdate

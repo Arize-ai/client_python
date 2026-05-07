@@ -1,6 +1,6 @@
 # InputVariableFormat
 
-The format for input variables in the prompt messages. There is no default; this field is required. - `f_string`: Single curly braces ({variable_name}) - `mustache`: Double curly braces ({{variable_name}}) - `none`: No input variable parsing 
+The format for input variables in the prompt messages. Defaults to `f_string` if not provided. - `f_string`: Single curly braces ({variable_name}) - `mustache`: Double curly braces ({{variable_name}}) - `none`: **Deprecated.** Treated as `f_string`. Will be removed in a future version. 
 
 ## Enum
 

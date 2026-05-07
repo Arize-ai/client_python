@@ -404,7 +404,7 @@ The response will still include an entry for it. No error is returned.
 - `experiment_id` is the path parameter for the target experiment.
 - `annotations` is a list of per-run annotation inputs, each identified by `record_id`.
 - Annotation names must match existing annotation configs in the experiment's space.
-- Up to 500 runs may be annotated per request.
+- Up to 1000 runs may be annotated per request.
 
 **Valid example**
 ```json

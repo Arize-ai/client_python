@@ -28,7 +28,7 @@ class AnnotateExperimentRunsRequestBody(BaseModel):
     """
     Batch annotation request for experiment runs.
     """ # noqa: E501
-    annotations: Annotated[List[AnnotateRecordInput], Field(min_length=1, max_length=500)] = Field(description="Batch of experiment run annotations to write. Up to 500 runs per request.")
+    annotations: Annotated[List[AnnotateRecordInput], Field(min_length=1, max_length=1000)] = Field(description="Batch of experiment run annotations to write. Up to 1000 runs per request.")
     __properties: ClassVar[List[str]] = ["annotations"]
 
     model_config = ConfigDict(

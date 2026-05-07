@@ -6,7 +6,7 @@ Batch annotation request for dataset examples.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**annotations** | [**List[AnnotateRecordInput]**](AnnotateRecordInput.md) | Batch of dataset example annotations to write. Up to 500 examples per request. | 
+**annotations** | [**List[AnnotateRecordInput]**](AnnotateRecordInput.md) | Batch of dataset example annotations to write. Up to 1000 examples per request. | 
 
 ## Example
 

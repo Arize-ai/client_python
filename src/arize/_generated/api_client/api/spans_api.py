@@ -19,6 +19,7 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.annotate_spans_request_body import AnnotateSpansRequestBody
 from arize._generated.api_client.models.spans_delete200_response import SpansDelete200Response
 from arize._generated.api_client.models.spans_delete_request import SpansDeleteRequest
 from arize._generated.api_client.models.spans_list200_response import SpansList200Response
@@ -43,6 +44,295 @@ class SpansApi:
 
 
     @validate_call
+    def spans_annotate(
+        self,
+        annotate_spans_request_body: Annotated[AnnotateSpansRequestBody, Field(description="Body containing span annotation batch")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> None:
+        """Annotate a batch of project spans
+
+        Write human annotations to a batch of spans in a project.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same span overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The request was validated and the writes were submitted to the database layer. Changes may not be immediately visible in queries.  **Partial failure**: This endpoint writes records in day-bucket batches. A non-2xx response means the request failed partway through — some records may already be saved and some may not. It is safe to retry the full request; re-submitting a record that was already saved will overwrite it with the same value (no duplicates).  **Payload Requirements** - `project_id` is required and must identify a project the caller has span annotation access to. - `annotations` is a list of per-span annotation inputs. Each entry identifies   one span by its `record_id` and provides one or more annotation values. - `start_time` / `end_time` constrain the Druid time range for span lookup.   If omitted, `start_time` defaults to 7 days ago and `end_time` to now.   The window may not exceed 31 days and `end_time` may not be in the future.   If ANY span ID cannot be located within the given range, the entire   request is rejected with 404 and no annotations are written (all-or-nothing   pre-validation). - Annotation names must match existing annotation configs in the project's space. - Up to 1000 span records may be annotated per request.  **Valid example** ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\", \"score\": 1.0}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  **Invalid example** (time window exceeds 31 days) ```json {   \"project_id\": \"proj_abc123\",   \"start_time\": \"2025-01-01T00:00:00Z\",   \"end_time\": \"2025-03-01T00:00:00Z\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param annotate_spans_request_body: Body containing span annotation batch (required)
+        :type annotate_spans_request_body: AnnotateSpansRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._spans_annotate_serialize(
+            annotate_spans_request_body=annotate_spans_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '202': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def spans_annotate_with_http_info(
+        self,
+        annotate_spans_request_body: Annotated[AnnotateSpansRequestBody, Field(description="Body containing span annotation batch")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[None]:
+        """Annotate a batch of project spans
+
+        Write human annotations to a batch of spans in a project.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same span overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The request was validated and the writes were submitted to the database layer. Changes may not be immediately visible in queries.  **Partial failure**: This endpoint writes records in day-bucket batches. A non-2xx response means the request failed partway through — some records may already be saved and some may not. It is safe to retry the full request; re-submitting a record that was already saved will overwrite it with the same value (no duplicates).  **Payload Requirements** - `project_id` is required and must identify a project the caller has span annotation access to. - `annotations` is a list of per-span annotation inputs. Each entry identifies   one span by its `record_id` and provides one or more annotation values. - `start_time` / `end_time` constrain the Druid time range for span lookup.   If omitted, `start_time` defaults to 7 days ago and `end_time` to now.   The window may not exceed 31 days and `end_time` may not be in the future.   If ANY span ID cannot be located within the given range, the entire   request is rejected with 404 and no annotations are written (all-or-nothing   pre-validation). - Annotation names must match existing annotation configs in the project's space. - Up to 1000 span records may be annotated per request.  **Valid example** ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\", \"score\": 1.0}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  **Invalid example** (time window exceeds 31 days) ```json {   \"project_id\": \"proj_abc123\",   \"start_time\": \"2025-01-01T00:00:00Z\",   \"end_time\": \"2025-03-01T00:00:00Z\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param annotate_spans_request_body: Body containing span annotation batch (required)
+        :type annotate_spans_request_body: AnnotateSpansRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._spans_annotate_serialize(
+            annotate_spans_request_body=annotate_spans_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '202': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def spans_annotate_without_preload_content(
+        self,
+        annotate_spans_request_body: Annotated[AnnotateSpansRequestBody, Field(description="Body containing span annotation batch")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Annotate a batch of project spans
+
+        Write human annotations to a batch of spans in a project.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same span overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The request was validated and the writes were submitted to the database layer. Changes may not be immediately visible in queries.  **Partial failure**: This endpoint writes records in day-bucket batches. A non-2xx response means the request failed partway through — some records may already be saved and some may not. It is safe to retry the full request; re-submitting a record that was already saved will overwrite it with the same value (no duplicates).  **Payload Requirements** - `project_id` is required and must identify a project the caller has span annotation access to. - `annotations` is a list of per-span annotation inputs. Each entry identifies   one span by its `record_id` and provides one or more annotation values. - `start_time` / `end_time` constrain the Druid time range for span lookup.   If omitted, `start_time` defaults to 7 days ago and `end_time` to now.   The window may not exceed 31 days and `end_time` may not be in the future.   If ANY span ID cannot be located within the given range, the entire   request is rejected with 404 and no annotations are written (all-or-nothing   pre-validation). - Annotation names must match existing annotation configs in the project's space. - Up to 1000 span records may be annotated per request.  **Valid example** ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\", \"score\": 1.0}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  **Invalid example** (time window exceeds 31 days) ```json {   \"project_id\": \"proj_abc123\",   \"start_time\": \"2025-01-01T00:00:00Z\",   \"end_time\": \"2025-03-01T00:00:00Z\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param annotate_spans_request_body: Body containing span annotation batch (required)
+        :type annotate_spans_request_body: AnnotateSpansRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._spans_annotate_serialize(
+            annotate_spans_request_body=annotate_spans_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '202': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _spans_annotate_serialize(
+        self,
+        annotate_spans_request_body,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if annotate_spans_request_body is not None:
+            _body_params = annotate_spans_request_body
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/spans/annotate',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def spans_delete(
         self,
         spans_delete_request: Annotated[SpansDeleteRequest, Field(description="Body containing span IDs to delete")],
@@ -61,7 +351,7 @@ class SpansApi:
     ) -> SpansDelete200Response:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 1000 span IDs per request. Only spans from the last 31 days are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the last 31 days were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the supported lookback window were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param spans_delete_request: Body containing span IDs to delete (required)
         :type spans_delete_request: SpansDeleteRequest
@@ -135,7 +425,7 @@ class SpansApi:
     ) -> ApiResponse[SpansDelete200Response]:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 1000 span IDs per request. Only spans from the last 31 days are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the last 31 days were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the supported lookback window were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param spans_delete_request: Body containing span IDs to delete (required)
         :type spans_delete_request: SpansDeleteRequest
@@ -209,7 +499,7 @@ class SpansApi:
     ) -> RESTResponseType:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 1000 span IDs per request. Only spans from the last 31 days are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the last 31 days were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the supported lookback window were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param spans_delete_request: Body containing span IDs to delete (required)
         :type spans_delete_request: SpansDeleteRequest

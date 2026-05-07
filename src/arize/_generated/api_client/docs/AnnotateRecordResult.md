@@ -6,7 +6,7 @@ The annotation result for a single annotated record.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**record_id** | **str** | The ID of the record that was annotated, which is either the dataset example ID or the experiment run ID. | 
+**record_id** | **str** | The record identifier (span ID, dataset example ID, or experiment run ID, depending on the endpoint). | 
 **annotations** | [**List[Annotation]**](Annotation.md) | The annotations that were written to this record. | 
 
 ## Example

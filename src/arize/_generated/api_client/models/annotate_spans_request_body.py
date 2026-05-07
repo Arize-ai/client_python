@@ -17,19 +17,23 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.annotate_record_input import AnnotateRecordInput
 from typing import Optional, Set
 from typing_extensions import Self
 
-class AnnotateDatasetExamplesRequestBody(BaseModel):
+class AnnotateSpansRequestBody(BaseModel):
     """
-    Batch annotation request for dataset examples.
+    Batch annotation request for project spans.
     """ # noqa: E501
-    annotations: Annotated[List[AnnotateRecordInput], Field(min_length=1, max_length=1000)] = Field(description="Batch of dataset example annotations to write. Up to 1000 examples per request.")
-    __properties: ClassVar[List[str]] = ["annotations"]
+    project_id: StrictStr = Field(description="The project (model) ID whose spans are being annotated.")
+    start_time: Optional[datetime] = Field(default=None, description="Start of the time range for span lookup. Optional; defaults to 7 days ago.")
+    end_time: Optional[datetime] = Field(default=None, description="End of the time range for span lookup. Optional; defaults to now.")
+    annotations: Annotated[List[AnnotateRecordInput], Field(min_length=1, max_length=1000)] = Field(description="Batch of span annotations to write. Up to 1000 spans per request.")
+    __properties: ClassVar[List[str]] = ["project_id", "start_time", "end_time", "annotations"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -49,7 +53,7 @@ class AnnotateDatasetExamplesRequestBody(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of AnnotateDatasetExamplesRequestBody from a JSON string"""
+        """Create an instance of AnnotateSpansRequestBody from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -81,7 +85,7 @@ class AnnotateDatasetExamplesRequestBody(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of AnnotateDatasetExamplesRequestBody from a dict"""
+        """Create an instance of AnnotateSpansRequestBody from a dict"""
         if obj is None:
             return None
 
@@ -91,9 +95,12 @@ class AnnotateDatasetExamplesRequestBody(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in AnnotateDatasetExamplesRequestBody) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in AnnotateSpansRequestBody) in the input: " + _key)
 
         _obj = cls.model_validate({
+            "project_id": obj.get("project_id"),
+            "start_time": obj.get("start_time"),
+            "end_time": obj.get("end_time"),
             "annotations": [AnnotateRecordInput.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None
         })
         return _obj

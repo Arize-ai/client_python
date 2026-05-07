@@ -313,7 +313,7 @@ class TestAnnotationQueuesClientUpdate:
     def test_builds_request_body(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
     ) -> None:
-        """update() must build UpdateAnnotationQueueRequestBody with the given fields."""
+        """update() must only include the fields that were explicitly provided."""
         with patch(
             "arize._generated.api_client.UpdateAnnotationQueueRequestBody"
         ) as mock_body_cls:
@@ -326,31 +326,38 @@ class TestAnnotationQueuesClientUpdate:
                 instructions="Please review carefully.",
             )
 
+        # annotation_config_ids and annotator_emails were not provided — must be absent
         mock_body_cls.assert_called_once_with(
             name="New Name",
             instructions="Please review carefully.",
-            annotation_config_ids=None,
-            annotator_emails=None,
         )
         mock_api.annotation_queues_update.assert_called_once_with(
             annotation_queue_id=_QUEUE_ID,
             update_annotation_queue_request_body=mock_body,
         )
 
-    def test_optional_fields_default_to_none(
+    def test_raises_when_no_fields_provided(
+        self, annotation_queues_client: AnnotationQueuesClient
+    ) -> None:
+        """update() must raise ValueError when no fields are provided."""
+        with pytest.raises(ValueError, match="At least one of"):
+            annotation_queues_client.update(annotation_queue=_QUEUE_ID)
+
+    def test_empty_string_instructions_sends_through(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
     ) -> None:
-        """update() must pass None for omitted optional fields."""
+        """update() should send instructions='' as-is to clear it on the server."""
         with patch(
             "arize._generated.api_client.UpdateAnnotationQueueRequestBody"
         ) as mock_body_cls:
-            annotation_queues_client.update(annotation_queue=_QUEUE_ID)
+            mock_body_cls.return_value = Mock()
 
-        _, kwargs = mock_body_cls.call_args
-        assert kwargs["name"] is None
-        assert kwargs["instructions"] is None
-        assert kwargs["annotation_config_ids"] is None
-        assert kwargs["annotator_emails"] is None
+            annotation_queues_client.update(
+                annotation_queue=_QUEUE_ID,
+                instructions="",
+            )
+
+        mock_body_cls.assert_called_once_with(instructions="")
 
     def test_returns_api_response(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock

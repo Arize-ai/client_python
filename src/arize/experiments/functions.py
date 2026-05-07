@@ -894,23 +894,27 @@ def _add_evaluator_columns(
     """Helper function to add evaluator columns to output :class:`pandas.DataFrame`."""
     # Add score if specified
     if column_names.score and column_names.score in input_df.columns:
-        output_df[f"eval.{evaluator_name}.score"] = input_df[column_names.score]
-        output_df.drop(column_names.score, axis=1, inplace=True)
+        target_col = f"eval.{evaluator_name}.score"
+        output_df[target_col] = input_df[column_names.score]
+        if column_names.score != target_col:
+            output_df.drop(column_names.score, axis=1, inplace=True)
 
     # Add label if specified
     if column_names.label and column_names.label in input_df.columns:
-        output_df[f"eval.{evaluator_name}.label"] = input_df[column_names.label]
-        output_df.drop(column_names.label, axis=1, inplace=True)
+        target_col = f"eval.{evaluator_name}.label"
+        output_df[target_col] = input_df[column_names.label]
+        if column_names.label != target_col:
+            output_df.drop(column_names.label, axis=1, inplace=True)
 
     # Add explanation if specified
     if (
         column_names.explanation
         and column_names.explanation in input_df.columns
     ):
-        output_df[f"eval.{evaluator_name}.explanation"] = input_df[
-            column_names.explanation
-        ]
-        output_df.drop(column_names.explanation, axis=1, inplace=True)
+        target_col = f"eval.{evaluator_name}.explanation"
+        output_df[target_col] = input_df[column_names.explanation]
+        if column_names.explanation != target_col:
+            output_df.drop(column_names.explanation, axis=1, inplace=True)
 
     # Add metadata columns if specified
     if column_names.metadata:
@@ -925,8 +929,6 @@ def _add_evaluator_columns(
                 )
 
             output_col = f"eval.{evaluator_name}.metadata.{metadata_key}"
-            output_df.drop(md_col_name, axis=1, inplace=True)
-
             output_vals = input_df[md_col_name].apply(
                 lambda x: (
                     str(x)
@@ -936,6 +938,8 @@ def _add_evaluator_columns(
                 )
             )
             output_df[output_col] = output_vals
+            if md_col_name != output_col:
+                output_df.drop(md_col_name, axis=1, inplace=True)
 
 
 def jsonify(obj: object) -> object:

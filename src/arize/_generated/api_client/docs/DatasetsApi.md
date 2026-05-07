@@ -245,7 +245,7 @@ The response will still include an entry for it. No error is returned.
 - `dataset_id` is the path parameter for the target dataset.
 - `annotations` is a list of per-example annotation inputs, each identified by `record_id`.
 - Annotation names must match existing annotation configs in the dataset's space.
-- Up to 500 examples may be annotated per request.
+- Up to 1000 examples may be annotated per request.
 
 **Valid example**
 ```json

@@ -60,6 +60,7 @@ __all__ = [
     "AnnotateExperimentRunsRequestBody",
     "AnnotateRecordInput",
     "AnnotateRecordResult",
+    "AnnotateSpansRequestBody",
     "Annotation",
     "AnnotationBatchResult",
     "AnnotationConfig",
@@ -100,6 +101,7 @@ __all__ = [
     "ContinuousAnnotationConfigCreate",
     "CreateAnnotationConfigRequestBody",
     "CreateAnnotationQueueRequestBody",
+    "CreateUserRequest",
     "CustomCodeConfig",
     "Dataset",
     "DatasetExample",
@@ -139,6 +141,7 @@ __all__ = [
     "GcpProviderMetadata",
     "GcpProviderMetadataKind",
     "InputVariableFormat",
+    "InviteMode",
     "InvocationParams",
     "LLMMessage",
     "LlmProvider",
@@ -215,6 +218,7 @@ __all__ = [
     "ToolConfig",
     "UpdateAnnotationQueueRequestBody",
     "User",
+    "UserCreatedResponse",
     "UserRole",
     "UserStatus",
     "UserUpdate",
@@ -268,6 +272,7 @@ from arize._generated.api_client.models.annotate_dataset_examples_request_body i
 from arize._generated.api_client.models.annotate_experiment_runs_request_body import AnnotateExperimentRunsRequestBody as AnnotateExperimentRunsRequestBody
 from arize._generated.api_client.models.annotate_record_input import AnnotateRecordInput as AnnotateRecordInput
 from arize._generated.api_client.models.annotate_record_result import AnnotateRecordResult as AnnotateRecordResult
+from arize._generated.api_client.models.annotate_spans_request_body import AnnotateSpansRequestBody as AnnotateSpansRequestBody
 from arize._generated.api_client.models.annotation import Annotation as Annotation
 from arize._generated.api_client.models.annotation_batch_result import AnnotationBatchResult as AnnotationBatchResult
 from arize._generated.api_client.models.annotation_config import AnnotationConfig as AnnotationConfig
@@ -308,6 +313,7 @@ from arize._generated.api_client.models.continuous_annotation_config import Cont
 from arize._generated.api_client.models.continuous_annotation_config_create import ContinuousAnnotationConfigCreate as ContinuousAnnotationConfigCreate
 from arize._generated.api_client.models.create_annotation_config_request_body import CreateAnnotationConfigRequestBody as CreateAnnotationConfigRequestBody
 from arize._generated.api_client.models.create_annotation_queue_request_body import CreateAnnotationQueueRequestBody as CreateAnnotationQueueRequestBody
+from arize._generated.api_client.models.create_user_request import CreateUserRequest as CreateUserRequest
 from arize._generated.api_client.models.custom_code_config import CustomCodeConfig as CustomCodeConfig
 from arize._generated.api_client.models.dataset import Dataset as Dataset
 from arize._generated.api_client.models.dataset_example import DatasetExample as DatasetExample
@@ -347,6 +353,7 @@ from arize._generated.api_client.models.freeform_annotation_config_create import
 from arize._generated.api_client.models.gcp_provider_metadata import GcpProviderMetadata as GcpProviderMetadata
 from arize._generated.api_client.models.gcp_provider_metadata_kind import GcpProviderMetadataKind as GcpProviderMetadataKind
 from arize._generated.api_client.models.input_variable_format import InputVariableFormat as InputVariableFormat
+from arize._generated.api_client.models.invite_mode import InviteMode as InviteMode
 from arize._generated.api_client.models.invocation_params import InvocationParams as InvocationParams
 from arize._generated.api_client.models.llm_message import LLMMessage as LLMMessage
 from arize._generated.api_client.models.llm_provider import LlmProvider as LlmProvider
@@ -423,6 +430,7 @@ from arize._generated.api_client.models.tool_call_type import ToolCallType as To
 from arize._generated.api_client.models.tool_config import ToolConfig as ToolConfig
 from arize._generated.api_client.models.update_annotation_queue_request_body import UpdateAnnotationQueueRequestBody as UpdateAnnotationQueueRequestBody
 from arize._generated.api_client.models.user import User as User
+from arize._generated.api_client.models.user_created_response import UserCreatedResponse as UserCreatedResponse
 from arize._generated.api_client.models.user_role import UserRole as UserRole
 from arize._generated.api_client.models.user_status import UserStatus as UserStatus
 from arize._generated.api_client.models.user_update import UserUpdate as UserUpdate

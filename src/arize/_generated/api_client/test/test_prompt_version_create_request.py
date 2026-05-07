@@ -92,7 +92,6 @@ class TestPromptVersionCreateRequest(unittest.TestCase):
         else:
             return PromptVersionCreateRequest(
                 commit_message = '',
-                input_variable_format = 'f_string',
                 provider = 'open_ai',
                 messages = [
                     arize._generated.api_client.models.llm_message.LLMMessage(

@@ -1,5 +1,14 @@
 # Changelog
 
+## [8.22.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.22.1...arize-python-sdk/v8.22.2) (2026-05-07)
+
+
+### 🐛 Bug Fixes
+
+* **annotation-queues:** Update how "unset" behaviour works for annotation queues. ([#69699](https://github.com/Arize-ai/arize/issues/69699)) ([5c82539](https://github.com/Arize-ai/arize/commit/5c82539815c7f727fc6ee8b82a752fd2931ea5b9))
+* eval columns dropped when provided in eval.&lt;name&gt;.&lt;field&gt; format (which is the same format AX generates for experiments) ([#70650](https://github.com/Arize-ai/arize/issues/70650)) ([c752a6f](https://github.com/Arize-ai/arize/commit/c752a6fdafcfdb3c1f21ddcaeaf493661ced12c5))
+* **spans:** preserve user-defined attributes through log_spans round-trip ([#70464](https://github.com/Arize-ai/arize/issues/70464)) ([6ff0e2f](https://github.com/Arize-ai/arize/commit/6ff0e2f4cefc1470031cba7f6891c95c367616dd))
+
 ## [8.22.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.22.0...arize-python-sdk/v8.22.1) (2026-05-01)
 
 

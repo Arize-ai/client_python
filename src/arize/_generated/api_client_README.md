@@ -154,6 +154,7 @@ Class | Method | HTTP request | Description
 *SpacesApi* | [**spaces_get**](arize/_generated/api_client/docs/SpacesApi.md#spaces_get) | **GET** /v2/spaces/{space_id} | Get a space
 *SpacesApi* | [**spaces_list**](arize/_generated/api_client/docs/SpacesApi.md#spaces_list) | **GET** /v2/spaces | List spaces
 *SpacesApi* | [**spaces_update**](arize/_generated/api_client/docs/SpacesApi.md#spaces_update) | **PATCH** /v2/spaces/{space_id} | Update a space
+*SpansApi* | [**spans_annotate**](arize/_generated/api_client/docs/SpansApi.md#spans_annotate) | **POST** /v2/spans/annotate | Annotate a batch of project spans
 *SpansApi* | [**spans_delete**](arize/_generated/api_client/docs/SpansApi.md#spans_delete) | **DELETE** /v2/spans | Delete spans
 *SpansApi* | [**spans_list**](arize/_generated/api_client/docs/SpansApi.md#spans_list) | **POST** /v2/spans | List spans
 *TasksApi* | [**task_runs_cancel**](arize/_generated/api_client/docs/TasksApi.md#task_runs_cancel) | **POST** /v2/task-runs/{run_id}/cancel | Cancel task run
@@ -165,9 +166,12 @@ Class | Method | HTTP request | Description
 *TasksApi* | [**tasks_list_runs**](arize/_generated/api_client/docs/TasksApi.md#tasks_list_runs) | **GET** /v2/tasks/{task_id}/runs | List task runs
 *TasksApi* | [**tasks_trigger_run**](arize/_generated/api_client/docs/TasksApi.md#tasks_trigger_run) | **POST** /v2/tasks/{task_id}/trigger | Trigger a task run
 *TasksApi* | [**tasks_update**](arize/_generated/api_client/docs/TasksApi.md#tasks_update) | **PATCH** /v2/tasks/{task_id} | Update task
+*UsersApi* | [**users_create**](arize/_generated/api_client/docs/UsersApi.md#users_create) | **POST** /v2/users | Create a user
 *UsersApi* | [**users_delete**](arize/_generated/api_client/docs/UsersApi.md#users_delete) | **DELETE** /v2/users/{user_id} | Delete a user
 *UsersApi* | [**users_get**](arize/_generated/api_client/docs/UsersApi.md#users_get) | **GET** /v2/users/{user_id} | Get a user
 *UsersApi* | [**users_list**](arize/_generated/api_client/docs/UsersApi.md#users_list) | **GET** /v2/users | List users
+*UsersApi* | [**users_password_reset**](arize/_generated/api_client/docs/UsersApi.md#users_password_reset) | **POST** /v2/users/{user_id}/reset-password | Trigger a password-reset email for a user
+*UsersApi* | [**users_resend_invitation**](arize/_generated/api_client/docs/UsersApi.md#users_resend_invitation) | **POST** /v2/users/{user_id}/resend-invitation | Resend a user invitation
 *UsersApi* | [**users_update**](arize/_generated/api_client/docs/UsersApi.md#users_update) | **PATCH** /v2/users/{user_id} | Update a user
 
 
@@ -189,6 +193,7 @@ Class | Method | HTTP request | Description
  - [AnnotateExperimentRunsRequestBody](arize/_generated/api_client/docs/AnnotateExperimentRunsRequestBody.md)
  - [AnnotateRecordInput](arize/_generated/api_client/docs/AnnotateRecordInput.md)
  - [AnnotateRecordResult](arize/_generated/api_client/docs/AnnotateRecordResult.md)
+ - [AnnotateSpansRequestBody](arize/_generated/api_client/docs/AnnotateSpansRequestBody.md)
  - [Annotation](arize/_generated/api_client/docs/Annotation.md)
  - [AnnotationBatchResult](arize/_generated/api_client/docs/AnnotationBatchResult.md)
  - [AnnotationConfig](arize/_generated/api_client/docs/AnnotationConfig.md)
@@ -229,6 +234,7 @@ Class | Method | HTTP request | Description
  - [ContinuousAnnotationConfigCreate](arize/_generated/api_client/docs/ContinuousAnnotationConfigCreate.md)
  - [CreateAnnotationConfigRequestBody](arize/_generated/api_client/docs/CreateAnnotationConfigRequestBody.md)
  - [CreateAnnotationQueueRequestBody](arize/_generated/api_client/docs/CreateAnnotationQueueRequestBody.md)
+ - [CreateUserRequest](arize/_generated/api_client/docs/CreateUserRequest.md)
  - [CustomCodeConfig](arize/_generated/api_client/docs/CustomCodeConfig.md)
  - [Dataset](arize/_generated/api_client/docs/Dataset.md)
  - [DatasetExample](arize/_generated/api_client/docs/DatasetExample.md)
@@ -268,6 +274,7 @@ Class | Method | HTTP request | Description
  - [GcpProviderMetadata](arize/_generated/api_client/docs/GcpProviderMetadata.md)
  - [GcpProviderMetadataKind](arize/_generated/api_client/docs/GcpProviderMetadataKind.md)
  - [InputVariableFormat](arize/_generated/api_client/docs/InputVariableFormat.md)
+ - [InviteMode](arize/_generated/api_client/docs/InviteMode.md)
  - [InvocationParams](arize/_generated/api_client/docs/InvocationParams.md)
  - [LLMMessage](arize/_generated/api_client/docs/LLMMessage.md)
  - [LlmProvider](arize/_generated/api_client/docs/LlmProvider.md)
@@ -344,6 +351,7 @@ Class | Method | HTTP request | Description
  - [ToolConfig](arize/_generated/api_client/docs/ToolConfig.md)
  - [UpdateAnnotationQueueRequestBody](arize/_generated/api_client/docs/UpdateAnnotationQueueRequestBody.md)
  - [User](arize/_generated/api_client/docs/User.md)
+ - [UserCreatedResponse](arize/_generated/api_client/docs/UserCreatedResponse.md)
  - [UserRole](arize/_generated/api_client/docs/UserRole.md)
  - [UserStatus](arize/_generated/api_client/docs/UserStatus.md)
  - [UserUpdate](arize/_generated/api_client/docs/UserUpdate.md)

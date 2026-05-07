@@ -28,7 +28,7 @@ class AnnotateRecordInput(BaseModel):
     """
     A single record to annotate in a batch, identified by its record ID.
     """ # noqa: E501
-    record_id: StrictStr = Field(description="The ID of the record to annotate (dataset example ID or experiment run ID).")
+    record_id: StrictStr = Field(description="The record identifier (span ID, dataset example ID, or experiment run ID, depending on the endpoint).")
     values: Annotated[List[AnnotationInput], Field(min_length=1)] = Field(description="One or more annotation values to set on this record.")
     __properties: ClassVar[List[str]] = ["record_id", "values"]
 

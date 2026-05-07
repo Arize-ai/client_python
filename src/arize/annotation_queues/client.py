@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
@@ -205,8 +205,9 @@ class AnnotationQueuesClient:
     ) -> AnnotationQueue:
         """Update an annotation queue.
 
-        At least one field must be provided. List fields (``annotation_config_ids``,
-        ``annotator_emails``) fully replace the existing values when provided.
+        Only the fields passed are updated. At least one field must be provided.
+        List fields (``annotation_config_ids``, ``annotator_emails``) fully
+        replace the existing values when provided.
 
         Args:
             annotation_queue: Annotation queue ID or name. If a name is
@@ -217,16 +218,35 @@ class AnnotationQueuesClient:
             instructions: New instructions for annotators. Pass an empty string
                 to clear existing instructions.
             annotation_config_ids: Full replacement list of annotation config IDs.
+                Pass an empty list to clear.
             annotator_emails: Full replacement list of annotator emails.
+                Pass an empty list to clear.
 
         Returns:
             The updated annotation queue object as returned by the API.
 
         Raises:
+            ValueError: If no fields to update are provided.
             NotFoundError: If the annotation queue name cannot be resolved.
             ApiException: If the REST API returns an error response
                 (e.g. 400/401/403/404/409/429).
         """
+        kwargs: dict[str, Any] = {
+            k: v
+            for k, v in {
+                "name": name,
+                "instructions": instructions,
+                "annotation_config_ids": annotation_config_ids,
+                "annotator_emails": annotator_emails,
+            }.items()
+            if v is not None
+        }
+        if not kwargs:
+            raise ValueError(
+                "At least one of 'name', 'instructions', 'annotation_config_ids',"
+                " or 'annotator_emails' must be provided"
+            )
+
         from arize._generated import api_client as gen
 
         annotation_queue_id = _find_annotation_queue_id(
@@ -234,12 +254,7 @@ class AnnotationQueuesClient:
             annotation_queue=annotation_queue,
             space=space,
         )
-        body = gen.UpdateAnnotationQueueRequestBody(
-            name=name,
-            instructions=instructions,
-            annotation_config_ids=annotation_config_ids,
-            annotator_emails=annotator_emails,
-        )
+        body = gen.UpdateAnnotationQueueRequestBody(**kwargs)
         return self._api.annotation_queues_update(
             annotation_queue_id=annotation_queue_id,
             update_annotation_queue_request_body=body,

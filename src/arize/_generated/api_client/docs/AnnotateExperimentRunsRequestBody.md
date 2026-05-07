@@ -6,7 +6,7 @@ Batch annotation request for experiment runs.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**annotations** | [**List[AnnotateRecordInput]**](AnnotateRecordInput.md) | Batch of experiment run annotations to write. Up to 500 runs per request. | 
+**annotations** | [**List[AnnotateRecordInput]**](AnnotateRecordInput.md) | Batch of experiment run annotations to write. Up to 1000 runs per request. | 
 
 ## Example
 
