@@ -61,6 +61,8 @@ from arize._generated.api_client.models.assign_annotation_queue_record_request_b
 from arize._generated.api_client.models.assignment_method import AssignmentMethod
 from arize._generated.api_client.models.aws_provider_metadata import AwsProviderMetadata
 from arize._generated.api_client.models.aws_provider_metadata_kind import AwsProviderMetadataKind
+from arize._generated.api_client.models.builtin_role_assignment import BuiltinRoleAssignment
+from arize._generated.api_client.models.builtin_user_role_assignment import BuiltinUserRoleAssignment
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig
 from arize._generated.api_client.models.categorical_annotation_config_create import CategoricalAnnotationConfigCreate
 from arize._generated.api_client.models.categorical_annotation_value import CategoricalAnnotationValue
@@ -72,6 +74,8 @@ from arize._generated.api_client.models.create_annotation_config_request_body im
 from arize._generated.api_client.models.create_annotation_queue_request_body import CreateAnnotationQueueRequestBody
 from arize._generated.api_client.models.create_user_request import CreateUserRequest
 from arize._generated.api_client.models.custom_code_config import CustomCodeConfig
+from arize._generated.api_client.models.custom_role_assignment import CustomRoleAssignment
+from arize._generated.api_client.models.custom_user_role_assignment import CustomUserRoleAssignment
 from arize._generated.api_client.models.dataset import Dataset
 from arize._generated.api_client.models.dataset_example import DatasetExample
 from arize._generated.api_client.models.dataset_example_update import DatasetExampleUpdate
@@ -158,6 +162,10 @@ from arize._generated.api_client.models.role_create import RoleCreate
 from arize._generated.api_client.models.role_update import RoleUpdate
 from arize._generated.api_client.models.roles_list200_response import RolesList200Response
 from arize._generated.api_client.models.space import Space
+from arize._generated.api_client.models.space_membership import SpaceMembership
+from arize._generated.api_client.models.space_membership_input import SpaceMembershipInput
+from arize._generated.api_client.models.space_role_assignment import SpaceRoleAssignment
+from arize._generated.api_client.models.space_role_assignment_type import SpaceRoleAssignmentType
 from arize._generated.api_client.models.spaces_create_request import SpacesCreateRequest
 from arize._generated.api_client.models.spaces_list200_response import SpacesList200Response
 from arize._generated.api_client.models.spaces_update_request import SpacesUpdateRequest
@@ -189,6 +197,9 @@ from arize._generated.api_client.models.update_annotation_queue_request_body imp
 from arize._generated.api_client.models.user import User
 from arize._generated.api_client.models.user_created_response import UserCreatedResponse
 from arize._generated.api_client.models.user_role import UserRole
+from arize._generated.api_client.models.user_role_assignment import UserRoleAssignment
+from arize._generated.api_client.models.user_role_assignment_type import UserRoleAssignmentType
+from arize._generated.api_client.models.user_space_role import UserSpaceRole
 from arize._generated.api_client.models.user_status import UserStatus
 from arize._generated.api_client.models.user_update import UserUpdate
 from arize._generated.api_client.models.users_list200_response import UsersList200Response

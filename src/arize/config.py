@@ -51,6 +51,8 @@ from arize.version import __version__
 
 logger = logging.getLogger(__name__)
 
+SDK_LANGUAGE = "python"
+SDK_PACKAGE_NAME = "arize"
 PYTHON_VERSION = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
 SENSITIVE_FIELD_MARKERS = ("key", "token", "secret")
 ALLOWED_HTTP_SCHEMES = {"http", "https"}
@@ -586,12 +588,10 @@ class SDKConfiguration:
         # Create base headers
         return {
             "authorization": self.api_key,
-            "sdk-language": "python",
+            "sdk-language": SDK_LANGUAGE,
             "language-version": PYTHON_VERSION,
             "sdk-version": __version__,
-            # "arize-space-id": self._space_id,
-            # "arize-interface": "batch",
-            # "sync": "0",  # Defaults to async logging
+            "sdk-package-name": SDK_PACKAGE_NAME,
         }
 
     @property
@@ -599,7 +599,7 @@ class SDKConfiguration:
         """Return headers for gRPC requests."""
         return {
             "authorization": self.api_key,
-            "Grpc-Metadata-sdk-language": "python",
+            "Grpc-Metadata-sdk-language": SDK_LANGUAGE,
             "Grpc-Metadata-language-version": PYTHON_VERSION,
             "Grpc-Metadata-sdk-version": __version__,
             # "Grpc-Metadata-arize-space-id": space_id,

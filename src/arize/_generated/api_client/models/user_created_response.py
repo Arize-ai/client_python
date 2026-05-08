@@ -21,7 +21,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.invite_mode import InviteMode
-from arize._generated.api_client.models.user_role import UserRole
+from arize._generated.api_client.models.user_role_assignment import UserRoleAssignment
 from arize._generated.api_client.models.user_status import UserStatus
 from typing import Optional, Set
 from typing_extensions import Self
@@ -33,7 +33,7 @@ class UserCreatedResponse(BaseModel):
     id: StrictStr = Field(description="Unique identifier for the user")
     name: StrictStr = Field(description="Full name of the user")
     email: StrictStr = Field(description="Email address of the user")
-    role: UserRole = Field(description="Account-level role assigned to the user")
+    role: UserRoleAssignment
     created_at: datetime = Field(description="Timestamp for when the user was created")
     status: UserStatus
     is_developer: StrictBool = Field(description="Whether the user has developer permissions (can create GraphQL API keys)")
@@ -80,6 +80,9 @@ class UserCreatedResponse(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of role
+        if self.role:
+            _dict['role'] = self.role.to_dict()
         return _dict
 
     @classmethod
@@ -100,7 +103,7 @@ class UserCreatedResponse(BaseModel):
             "id": obj.get("id"),
             "name": obj.get("name"),
             "email": obj.get("email"),
-            "role": obj.get("role"),
+            "role": UserRoleAssignment.from_dict(obj["role"]) if obj.get("role") is not None else None,
             "created_at": obj.get("created_at"),
             "status": obj.get("status"),
             "is_developer": obj.get("is_developer"),

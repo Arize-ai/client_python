@@ -11,7 +11,7 @@ from pyarrow import flight
 
 from arize._flight.types import FlightRequestType
 from arize._generated.protocol.flight import flight_pb2
-from arize.config import PYTHON_VERSION
+from arize.config import PYTHON_VERSION, SDK_LANGUAGE
 from arize.logging import log_a_list
 from arize.utils.openinference_conversion import convert_json_str_to_dict
 from arize.utils.proto import get_pb_schema_tracing
@@ -77,7 +77,7 @@ class ArizeFlightClient:
         return [
             (b"origin", b"arize-logging-client"),
             (b"auth-token-bin", str(self.api_key).encode("utf-8")),
-            (b"sdk-language", b"python"),
+            (b"sdk-language", SDK_LANGUAGE.encode("utf-8")),
             (b"language-version", PYTHON_VERSION.encode("utf-8")),
             (b"sdk-version", __version__.encode("utf-8")),
         ]

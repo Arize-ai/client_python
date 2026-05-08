@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Full name of the new user | 
 **email** | **str** | Email address of the user to invite | 
-**role** | [**UserRole**](UserRole.md) | Account-level role to assign to the user | 
+**role** | [**UserRoleAssignment**](UserRoleAssignment.md) |  | 
 **invite_mode** | [**InviteMode**](InviteMode.md) | Controls whether and how an invitation is sent | 
 **is_developer** | **bool** | Whether the user should have developer permissions (can create GraphQL API keys). Defaults to &#x60;true&#x60; for &#x60;admin&#x60; and &#x60;member&#x60; roles, and &#x60;false&#x60; for &#x60;annotator&#x60;.  | [optional] 
 

@@ -21,7 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.invite_mode import InviteMode
-from arize._generated.api_client.models.user_role import UserRole
+from arize._generated.api_client.models.user_role_assignment import UserRoleAssignment
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -31,7 +31,7 @@ class CreateUserRequest(BaseModel):
     """ # noqa: E501
     name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(description="Full name of the new user")
     email: StrictStr = Field(description="Email address of the user to invite")
-    role: UserRole = Field(description="Account-level role to assign to the user")
+    role: UserRoleAssignment
     invite_mode: InviteMode = Field(description="Controls whether and how an invitation is sent")
     is_developer: Optional[StrictBool] = Field(default=None, description="Whether the user should have developer permissions (can create GraphQL API keys). Defaults to `true` for `admin` and `member` roles, and `false` for `annotator`. ")
     __properties: ClassVar[List[str]] = ["name", "email", "role", "invite_mode", "is_developer"]
@@ -75,6 +75,9 @@ class CreateUserRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of role
+        if self.role:
+            _dict['role'] = self.role.to_dict()
         return _dict
 
     @classmethod
@@ -94,7 +97,7 @@ class CreateUserRequest(BaseModel):
         _obj = cls.model_validate({
             "name": obj.get("name"),
             "email": obj.get("email"),
-            "role": obj.get("role"),
+            "role": UserRoleAssignment.from_dict(obj["role"]) if obj.get("role") is not None else None,
             "invite_mode": obj.get("invite_mode"),
             "is_developer": obj.get("is_developer")
         })

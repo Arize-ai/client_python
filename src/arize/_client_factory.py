@@ -48,4 +48,9 @@ class GeneratedClientFactory:
                 cfg.access_token = self._sdk_config.api_key
             cfg.verify_ssl = self._sdk_config.request_verify
             self._client = gen.ApiClient(cfg)
+
+            for key, value in self._sdk_config.headers.items():
+                if key != "authorization":
+                    self._client.set_default_header(key, value)
+
             return self._client

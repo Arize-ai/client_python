@@ -73,6 +73,8 @@ arize/_generated/api_client/docs/AssignAnnotationQueueRecordRequestBody.md
 arize/_generated/api_client/docs/AssignmentMethod.md
 arize/_generated/api_client/docs/AwsProviderMetadata.md
 arize/_generated/api_client/docs/AwsProviderMetadataKind.md
+arize/_generated/api_client/docs/BuiltinRoleAssignment.md
+arize/_generated/api_client/docs/BuiltinUserRoleAssignment.md
 arize/_generated/api_client/docs/CategoricalAnnotationConfig.md
 arize/_generated/api_client/docs/CategoricalAnnotationConfigCreate.md
 arize/_generated/api_client/docs/CategoricalAnnotationValue.md
@@ -84,6 +86,8 @@ arize/_generated/api_client/docs/CreateAnnotationConfigRequestBody.md
 arize/_generated/api_client/docs/CreateAnnotationQueueRequestBody.md
 arize/_generated/api_client/docs/CreateUserRequest.md
 arize/_generated/api_client/docs/CustomCodeConfig.md
+arize/_generated/api_client/docs/CustomRoleAssignment.md
+arize/_generated/api_client/docs/CustomUserRoleAssignment.md
 arize/_generated/api_client/docs/Dataset.md
 arize/_generated/api_client/docs/DatasetExample.md
 arize/_generated/api_client/docs/DatasetExampleUpdate.md
@@ -179,6 +183,10 @@ arize/_generated/api_client/docs/RoleUpdate.md
 arize/_generated/api_client/docs/RolesApi.md
 arize/_generated/api_client/docs/RolesList200Response.md
 arize/_generated/api_client/docs/Space.md
+arize/_generated/api_client/docs/SpaceMembership.md
+arize/_generated/api_client/docs/SpaceMembershipInput.md
+arize/_generated/api_client/docs/SpaceRoleAssignment.md
+arize/_generated/api_client/docs/SpaceRoleAssignmentType.md
 arize/_generated/api_client/docs/SpacesApi.md
 arize/_generated/api_client/docs/SpacesCreateRequest.md
 arize/_generated/api_client/docs/SpacesList200Response.md
@@ -213,6 +221,9 @@ arize/_generated/api_client/docs/UpdateAnnotationQueueRequestBody.md
 arize/_generated/api_client/docs/User.md
 arize/_generated/api_client/docs/UserCreatedResponse.md
 arize/_generated/api_client/docs/UserRole.md
+arize/_generated/api_client/docs/UserRoleAssignment.md
+arize/_generated/api_client/docs/UserRoleAssignmentType.md
+arize/_generated/api_client/docs/UserSpaceRole.md
 arize/_generated/api_client/docs/UserStatus.md
 arize/_generated/api_client/docs/UserUpdate.md
 arize/_generated/api_client/docs/UsersApi.md
@@ -267,6 +278,8 @@ arize/_generated/api_client/models/assign_annotation_queue_record_request_body.p
 arize/_generated/api_client/models/assignment_method.py
 arize/_generated/api_client/models/aws_provider_metadata.py
 arize/_generated/api_client/models/aws_provider_metadata_kind.py
+arize/_generated/api_client/models/builtin_role_assignment.py
+arize/_generated/api_client/models/builtin_user_role_assignment.py
 arize/_generated/api_client/models/categorical_annotation_config.py
 arize/_generated/api_client/models/categorical_annotation_config_create.py
 arize/_generated/api_client/models/categorical_annotation_value.py
@@ -278,6 +291,8 @@ arize/_generated/api_client/models/create_annotation_config_request_body.py
 arize/_generated/api_client/models/create_annotation_queue_request_body.py
 arize/_generated/api_client/models/create_user_request.py
 arize/_generated/api_client/models/custom_code_config.py
+arize/_generated/api_client/models/custom_role_assignment.py
+arize/_generated/api_client/models/custom_user_role_assignment.py
 arize/_generated/api_client/models/dataset.py
 arize/_generated/api_client/models/dataset_example.py
 arize/_generated/api_client/models/dataset_example_update.py
@@ -364,6 +379,10 @@ arize/_generated/api_client/models/role_create.py
 arize/_generated/api_client/models/role_update.py
 arize/_generated/api_client/models/roles_list200_response.py
 arize/_generated/api_client/models/space.py
+arize/_generated/api_client/models/space_membership.py
+arize/_generated/api_client/models/space_membership_input.py
+arize/_generated/api_client/models/space_role_assignment.py
+arize/_generated/api_client/models/space_role_assignment_type.py
 arize/_generated/api_client/models/spaces_create_request.py
 arize/_generated/api_client/models/spaces_list200_response.py
 arize/_generated/api_client/models/spaces_update_request.py
@@ -395,6 +414,9 @@ arize/_generated/api_client/models/update_annotation_queue_request_body.py
 arize/_generated/api_client/models/user.py
 arize/_generated/api_client/models/user_created_response.py
 arize/_generated/api_client/models/user_role.py
+arize/_generated/api_client/models/user_role_assignment.py
+arize/_generated/api_client/models/user_role_assignment_type.py
+arize/_generated/api_client/models/user_space_role.py
 arize/_generated/api_client/models/user_status.py
 arize/_generated/api_client/models/user_update.py
 arize/_generated/api_client/models/users_list200_response.py
@@ -443,6 +465,8 @@ arize/_generated/api_client/test/test_api_key_status.py
 arize/_generated/api_client/test/test_assign_annotation_queue_record_request_body.py
 arize/_generated/api_client/test/test_assignment_method.py
 arize/_generated/api_client/test/test_aws_provider_metadata_kind.py
+arize/_generated/api_client/test/test_builtin_role_assignment.py
+arize/_generated/api_client/test/test_builtin_user_role_assignment.py
 arize/_generated/api_client/test/test_categorical_annotation_config.py
 arize/_generated/api_client/test/test_categorical_annotation_config_create.py
 arize/_generated/api_client/test/test_categorical_annotation_value.py
@@ -453,6 +477,8 @@ arize/_generated/api_client/test/test_continuous_annotation_config_create.py
 arize/_generated/api_client/test/test_create_annotation_config_request_body.py
 arize/_generated/api_client/test/test_create_annotation_queue_request_body.py
 arize/_generated/api_client/test/test_custom_code_config.py
+arize/_generated/api_client/test/test_custom_role_assignment.py
+arize/_generated/api_client/test/test_custom_user_role_assignment.py
 arize/_generated/api_client/test/test_dataset_example.py
 arize/_generated/api_client/test/test_dataset_example_update.py
 arize/_generated/api_client/test/test_dataset_version_with_example_ids.py
@@ -534,6 +560,10 @@ arize/_generated/api_client/test/test_role_create.py
 arize/_generated/api_client/test/test_role_update.py
 arize/_generated/api_client/test/test_roles_api.py
 arize/_generated/api_client/test/test_roles_list200_response.py
+arize/_generated/api_client/test/test_space_membership.py
+arize/_generated/api_client/test/test_space_membership_input.py
+arize/_generated/api_client/test/test_space_role_assignment.py
+arize/_generated/api_client/test/test_space_role_assignment_type.py
 arize/_generated/api_client/test/test_spaces_create_request.py
 arize/_generated/api_client/test/test_spaces_update_request.py
 arize/_generated/api_client/test/test_spans_delete200_response.py
@@ -557,6 +587,9 @@ arize/_generated/api_client/test/test_tool_call_function.py
 arize/_generated/api_client/test/test_tool_call_type.py
 arize/_generated/api_client/test/test_tool_config.py
 arize/_generated/api_client/test/test_user.py
+arize/_generated/api_client/test/test_user_role_assignment.py
+arize/_generated/api_client/test/test_user_role_assignment_type.py
+arize/_generated/api_client/test/test_user_space_role.py
 arize/_generated/api_client/test/test_user_status.py
 arize/_generated/api_client/test/test_user_update.py
 arize/_generated/api_client/test/test_users_api.py

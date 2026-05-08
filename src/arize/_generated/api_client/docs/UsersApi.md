@@ -83,7 +83,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.UsersApi(api_client)
-    create_user_request = {"name":"Jane Smith","email":"jane.smith@example.com","role":"member","invite_mode":"email_link"} # CreateUserRequest | Body containing user creation parameters and invite control.
+    create_user_request = {"name":"Jane Smith","email":"jane.smith@example.com","role":{"type":"builtin","name":"member"},"invite_mode":"email_link"} # CreateUserRequest | Body containing user creation parameters and invite control.
 
     try:
         # Create a user

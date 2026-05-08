@@ -42,7 +42,7 @@ class TestUsersList200Response(unittest.TestCase):
                         email = 'user@example.com', 
                         created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         status = 'active', 
-                        role = 'admin', 
+                        role = null, 
                         is_developer = True, )
                     ],
                 pagination = arize._generated.api_client.models.pagination_metadata.PaginationMetadata(
@@ -58,7 +58,7 @@ class TestUsersList200Response(unittest.TestCase):
                         email = 'user@example.com', 
                         created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         status = 'active', 
-                        role = 'admin', 
+                        role = null, 
                         is_developer = True, )
                     ],
                 pagination = arize._generated.api_client.models.pagination_metadata.PaginationMetadata(

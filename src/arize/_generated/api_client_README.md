@@ -149,10 +149,12 @@ Class | Method | HTTP request | Description
 *RolesApi* | [**roles_get**](arize/_generated/api_client/docs/RolesApi.md#roles_get) | **GET** /v2/roles/{role_id} | Get a role
 *RolesApi* | [**roles_list**](arize/_generated/api_client/docs/RolesApi.md#roles_list) | **GET** /v2/roles | List roles
 *RolesApi* | [**roles_update**](arize/_generated/api_client/docs/RolesApi.md#roles_update) | **PATCH** /v2/roles/{role_id} | Update a role
+*SpacesApi* | [**spaces_add_user**](arize/_generated/api_client/docs/SpacesApi.md#spaces_add_user) | **POST** /v2/spaces/{space_id}/users | Add a user to a space
 *SpacesApi* | [**spaces_create**](arize/_generated/api_client/docs/SpacesApi.md#spaces_create) | **POST** /v2/spaces | Create a space
 *SpacesApi* | [**spaces_delete**](arize/_generated/api_client/docs/SpacesApi.md#spaces_delete) | **DELETE** /v2/spaces/{space_id} | Delete a space
 *SpacesApi* | [**spaces_get**](arize/_generated/api_client/docs/SpacesApi.md#spaces_get) | **GET** /v2/spaces/{space_id} | Get a space
 *SpacesApi* | [**spaces_list**](arize/_generated/api_client/docs/SpacesApi.md#spaces_list) | **GET** /v2/spaces | List spaces
+*SpacesApi* | [**spaces_remove_user**](arize/_generated/api_client/docs/SpacesApi.md#spaces_remove_user) | **DELETE** /v2/spaces/{space_id}/users/{user_id} | Remove a user from a space
 *SpacesApi* | [**spaces_update**](arize/_generated/api_client/docs/SpacesApi.md#spaces_update) | **PATCH** /v2/spaces/{space_id} | Update a space
 *SpansApi* | [**spans_annotate**](arize/_generated/api_client/docs/SpansApi.md#spans_annotate) | **POST** /v2/spans/annotate | Annotate a batch of project spans
 *SpansApi* | [**spans_delete**](arize/_generated/api_client/docs/SpansApi.md#spans_delete) | **DELETE** /v2/spans | Delete spans
@@ -225,6 +227,8 @@ Class | Method | HTTP request | Description
  - [AssignmentMethod](arize/_generated/api_client/docs/AssignmentMethod.md)
  - [AwsProviderMetadata](arize/_generated/api_client/docs/AwsProviderMetadata.md)
  - [AwsProviderMetadataKind](arize/_generated/api_client/docs/AwsProviderMetadataKind.md)
+ - [BuiltinRoleAssignment](arize/_generated/api_client/docs/BuiltinRoleAssignment.md)
+ - [BuiltinUserRoleAssignment](arize/_generated/api_client/docs/BuiltinUserRoleAssignment.md)
  - [CategoricalAnnotationConfig](arize/_generated/api_client/docs/CategoricalAnnotationConfig.md)
  - [CategoricalAnnotationConfigCreate](arize/_generated/api_client/docs/CategoricalAnnotationConfigCreate.md)
  - [CategoricalAnnotationValue](arize/_generated/api_client/docs/CategoricalAnnotationValue.md)
@@ -236,6 +240,8 @@ Class | Method | HTTP request | Description
  - [CreateAnnotationQueueRequestBody](arize/_generated/api_client/docs/CreateAnnotationQueueRequestBody.md)
  - [CreateUserRequest](arize/_generated/api_client/docs/CreateUserRequest.md)
  - [CustomCodeConfig](arize/_generated/api_client/docs/CustomCodeConfig.md)
+ - [CustomRoleAssignment](arize/_generated/api_client/docs/CustomRoleAssignment.md)
+ - [CustomUserRoleAssignment](arize/_generated/api_client/docs/CustomUserRoleAssignment.md)
  - [Dataset](arize/_generated/api_client/docs/Dataset.md)
  - [DatasetExample](arize/_generated/api_client/docs/DatasetExample.md)
  - [DatasetExampleUpdate](arize/_generated/api_client/docs/DatasetExampleUpdate.md)
@@ -322,6 +328,10 @@ Class | Method | HTTP request | Description
  - [RoleUpdate](arize/_generated/api_client/docs/RoleUpdate.md)
  - [RolesList200Response](arize/_generated/api_client/docs/RolesList200Response.md)
  - [Space](arize/_generated/api_client/docs/Space.md)
+ - [SpaceMembership](arize/_generated/api_client/docs/SpaceMembership.md)
+ - [SpaceMembershipInput](arize/_generated/api_client/docs/SpaceMembershipInput.md)
+ - [SpaceRoleAssignment](arize/_generated/api_client/docs/SpaceRoleAssignment.md)
+ - [SpaceRoleAssignmentType](arize/_generated/api_client/docs/SpaceRoleAssignmentType.md)
  - [SpacesCreateRequest](arize/_generated/api_client/docs/SpacesCreateRequest.md)
  - [SpacesList200Response](arize/_generated/api_client/docs/SpacesList200Response.md)
  - [SpacesUpdateRequest](arize/_generated/api_client/docs/SpacesUpdateRequest.md)
@@ -353,6 +363,9 @@ Class | Method | HTTP request | Description
  - [User](arize/_generated/api_client/docs/User.md)
  - [UserCreatedResponse](arize/_generated/api_client/docs/UserCreatedResponse.md)
  - [UserRole](arize/_generated/api_client/docs/UserRole.md)
+ - [UserRoleAssignment](arize/_generated/api_client/docs/UserRoleAssignment.md)
+ - [UserRoleAssignmentType](arize/_generated/api_client/docs/UserRoleAssignmentType.md)
+ - [UserSpaceRole](arize/_generated/api_client/docs/UserSpaceRole.md)
  - [UserStatus](arize/_generated/api_client/docs/UserStatus.md)
  - [UserUpdate](arize/_generated/api_client/docs/UserUpdate.md)
  - [UsersList200Response](arize/_generated/api_client/docs/UsersList200Response.md)

@@ -17,26 +17,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
-from arize._generated.api_client.models.user_role_assignment import UserRoleAssignment
-from arize._generated.api_client.models.user_status import UserStatus
+from arize._generated.api_client.models.space_role_assignment_type import SpaceRoleAssignmentType
+from arize._generated.api_client.models.user_space_role import UserSpaceRole
 from typing import Optional, Set
 from typing_extensions import Self
 
-class User(BaseModel):
+class BuiltinRoleAssignment(BaseModel):
     """
-    An account user represents a member of the account. Users can be listed, updated, or removed from the account. 
+    A builtin (predefined) space role assignment.
     """ # noqa: E501
-    id: StrictStr = Field(description="A universally unique identifier")
-    name: StrictStr = Field(description="Display name of the user")
-    email: StrictStr = Field(description="An email address")
-    created_at: datetime = Field(description="Timestamp for when the user was created")
-    status: UserStatus
-    role: UserRoleAssignment
-    is_developer: StrictBool = Field(description="Whether the user has developer permissions (can create GraphQL API keys)")
-    __properties: ClassVar[List[str]] = ["id", "name", "email", "created_at", "status", "role", "is_developer"]
+    type: SpaceRoleAssignmentType = Field(description="Discriminator selecting the builtin variant. Must be `builtin`.")
+    name: UserSpaceRole
+    __properties: ClassVar[List[str]] = ["type", "name"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -56,7 +50,7 @@ class User(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of User from a JSON string"""
+        """Create an instance of BuiltinRoleAssignment from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -77,14 +71,11 @@ class User(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of role
-        if self.role:
-            _dict['role'] = self.role.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of User from a dict"""
+        """Create an instance of BuiltinRoleAssignment from a dict"""
         if obj is None:
             return None
 
@@ -94,16 +85,11 @@ class User(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in User) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in BuiltinRoleAssignment) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "id": obj.get("id"),
-            "name": obj.get("name"),
-            "email": obj.get("email"),
-            "created_at": obj.get("created_at"),
-            "status": obj.get("status"),
-            "role": UserRoleAssignment.from_dict(obj["role"]) if obj.get("role") is not None else None,
-            "is_developer": obj.get("is_developer")
+            "type": obj.get("type"),
+            "name": obj.get("name")
         })
         return _obj
 

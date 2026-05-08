@@ -4,12 +4,119 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**spaces_add_user**](SpacesApi.md#spaces_add_user) | **POST** /v2/spaces/{space_id}/users | Add a user to a space
 [**spaces_create**](SpacesApi.md#spaces_create) | **POST** /v2/spaces | Create a space
 [**spaces_delete**](SpacesApi.md#spaces_delete) | **DELETE** /v2/spaces/{space_id} | Delete a space
 [**spaces_get**](SpacesApi.md#spaces_get) | **GET** /v2/spaces/{space_id} | Get a space
 [**spaces_list**](SpacesApi.md#spaces_list) | **GET** /v2/spaces | List spaces
+[**spaces_remove_user**](SpacesApi.md#spaces_remove_user) | **DELETE** /v2/spaces/{space_id}/users/{user_id} | Remove a user from a space
 [**spaces_update**](SpacesApi.md#spaces_update) | **PATCH** /v2/spaces/{space_id} | Update a space
 
+
+# **spaces_add_user**
+> SpaceMembership spaces_add_user(space_id, space_membership_input)
+
+Add a user to a space
+
+Add a single existing account user to a space with a specified role.
+
+**Payload Requirements**
+- `user_id` is required and must be a valid User global ID.
+- `role` is required and must be a role assignment object with a `type` discriminator:
+  - `{ "type": "builtin", "name": "admin" }` — one of the predefined roles: `admin`, `member`, `read-only`, `annotator`.
+  - `{ "type": "custom", "id": "<role_id>" }` — a custom RBAC role identified by its global ID.
+- If the user is already a member, their role is updated to the specified value (upsert).
+- The user must already be a member of the space's parent organization; auto-enrollment is not performed (400 if not a member).
+
+**Role constraints**
+- Users with an `annotator` account role can only be assigned the `annotator` builtin space role.
+- Users with a non-annotator account role cannot be assigned the `annotator` builtin space role.
+
+**Authorization**
+Requires space admin role when using a `builtin` role, or `ROLE_BINDING_CREATE`
+permission (RBAC) when using a `custom` role.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.space_membership import SpaceMembership
+from arize._generated.api_client.models.space_membership_input import SpaceMembershipInput
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.SpacesApi(api_client)
+    space_id = 'spc_12345' # str | The unique identifier of the space
+    space_membership_input = {"user_id":"VXNlcjoxMjM0NQ==","role":{"type":"builtin","name":"member"}} # SpaceMembershipInput | Body containing the user to add to the space
+
+    try:
+        # Add a user to a space
+        api_response = api_instance.spaces_add_user(space_id, space_membership_input)
+        print("The response of SpacesApi->spaces_add_user:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling SpacesApi->spaces_add_user: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **space_id** | **str**| The unique identifier of the space | 
+ **space_membership_input** | [**SpaceMembershipInput**](SpaceMembershipInput.md)| Body containing the user to add to the space | 
+
+### Return type
+
+[**SpaceMembership**](SpaceMembership.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**201** | User successfully added to the space |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **spaces_create**
 > Space spaces_create(spaces_create_request)
@@ -364,6 +471,97 @@ Name | Type | Description  | Notes
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **spaces_remove_user**
+> spaces_remove_user(space_id, user_id)
+
+Remove a user from a space
+
+Remove a user from a space. This removes both the legacy `SpaceMembers` row
+and any RBAC role bindings for the user on this space.
+
+Returns 404 if the user is not a member of the space.
+
+**Authorization**
+Requires space admin role (legacy auth) or `ROLE_BINDING_DELETE` permission (RBAC).
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.SpacesApi(api_client)
+    space_id = 'spc_12345' # str | The unique identifier of the space
+    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique identifier of the user
+
+    try:
+        # Remove a user from a space
+        api_instance.spaces_remove_user(space_id, user_id)
+    except Exception as e:
+        print("Exception when calling SpacesApi->spaces_remove_user: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **space_id** | **str**| The unique identifier of the space | 
+ **user_id** | **str**| The unique identifier of the user | 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**204** | User successfully removed from the space |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

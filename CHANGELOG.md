@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.22.4](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.22.3...arize-python-sdk/v8.22.4) (2026-05-08)
+
+
+### ❔ Miscellaneous Chores
+
+* add missing pre-defined metadata headers ([#70404](https://github.com/Arize-ai/arize/issues/70404)) ([b8ccabb](https://github.com/Arize-ai/arize/commit/b8ccabbcb3cb042d696b6009e170a74e3ad28a8d))
+
+
+### 📚 Documentation
+
+* limit docs switcher to minor releases, cap at 10 v8 + 1 v7 ([#70860](https://github.com/Arize-ai/arize/issues/70860)) ([16345e6](https://github.com/Arize-ai/arize/commit/16345e6f52d99aaf2c8cd279154f8ea5b9df87e7))
+
 ## [8.22.3](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.22.2...arize-python-sdk/v8.22.3) (2026-05-07)
 
 

@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **id** | **str** | Unique identifier for the user | 
 **name** | **str** | Full name of the user | 
 **email** | **str** | Email address of the user | 
-**role** | [**UserRole**](UserRole.md) | Account-level role assigned to the user | 
+**role** | [**UserRoleAssignment**](UserRoleAssignment.md) |  | 
 **created_at** | **datetime** | Timestamp for when the user was created | 
 **status** | [**UserStatus**](UserStatus.md) |  | 
 **is_developer** | **bool** | Whether the user has developer permissions (can create GraphQL API keys) | 

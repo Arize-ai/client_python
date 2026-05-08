@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 **email** | **str** | An email address | 
 **created_at** | **datetime** | Timestamp for when the user was created | 
 **status** | [**UserStatus**](UserStatus.md) |  | 
-**role** | [**UserRole**](UserRole.md) |  | 
+**role** | [**UserRoleAssignment**](UserRoleAssignment.md) |  | 
 **is_developer** | **bool** | Whether the user has developer permissions (can create GraphQL API keys) | 
 
 ## Example

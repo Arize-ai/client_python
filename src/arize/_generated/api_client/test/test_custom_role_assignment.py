@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.user import User
+from arize._generated.api_client.models.custom_role_assignment import CustomRoleAssignment
 
-class TestUser(unittest.TestCase):
-    """User unit test stubs"""
+class TestCustomRoleAssignment(unittest.TestCase):
+    """CustomRoleAssignment unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,38 +25,29 @@ class TestUser(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> User:
-        """Test User
+    def make_instance(self, include_optional) -> CustomRoleAssignment:
+        """Test CustomRoleAssignment
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `User`
+        # uncomment below to create an instance of `CustomRoleAssignment`
         """
-        model = User()
+        model = CustomRoleAssignment()
         if include_optional:
-            return User(
+            return CustomRoleAssignment(
+                type = 'builtin',
                 id = 'RW50aXR5OjEyMzQ1',
-                name = '',
-                email = 'user@example.com',
-                created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
-                status = 'active',
-                role = None,
-                is_developer = True
+                name = ''
             )
         else:
-            return User(
+            return CustomRoleAssignment(
+                type = 'builtin',
                 id = 'RW50aXR5OjEyMzQ1',
-                name = '',
-                email = 'user@example.com',
-                created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
-                status = 'active',
-                role = None,
-                is_developer = True,
         )
         """
 
-    def testUser(self):
-        """Test User"""
+    def testCustomRoleAssignment(self):
+        """Test CustomRoleAssignment"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 
