@@ -6,7 +6,7 @@ A role assignment for a space membership. Discriminated by `type`: - `builtin`: 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | [**SpaceRoleAssignmentType**](SpaceRoleAssignmentType.md) | Discriminator selecting the custom variant. Must be &#x60;custom&#x60;. | 
+**type** | [**SpaceRoleAssignmentType**](SpaceRoleAssignmentType.md) |  | 
 **name** | **str** | Human-readable name of the custom role. Returned in responses only; ignored on input.  | [readonly] 
 **id** | **str** | The unique identifier of the custom RBAC role. | 
 

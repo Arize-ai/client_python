@@ -26,6 +26,13 @@ class TestOrganizationsApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
+    def test_organizations_add_user(self) -> None:
+        """Test case for organizations_add_user
+
+        Add a user to an organization
+        """
+        pass
+
     def test_organizations_create(self) -> None:
         """Test case for organizations_create
 
@@ -51,6 +58,13 @@ class TestOrganizationsApi(unittest.TestCase):
         """Test case for organizations_list
 
         List organizations
+        """
+        pass
+
+    def test_organizations_remove_user(self) -> None:
+        """Test case for organizations_remove_user
+
+        Remove a user from an organization
         """
         pass
 

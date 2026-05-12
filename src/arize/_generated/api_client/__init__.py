@@ -92,6 +92,8 @@ __all__ = [
     "AssignmentMethod",
     "AwsProviderMetadata",
     "AwsProviderMetadataKind",
+    "BaseEvaluationTaskRequest",
+    "BaseEvaluationTaskRequestEvaluatorsInner",
     "BuiltinRoleAssignment",
     "BuiltinUserRoleAssignment",
     "CategoricalAnnotationConfig",
@@ -103,6 +105,9 @@ __all__ = [
     "ContinuousAnnotationConfigCreate",
     "CreateAnnotationConfigRequestBody",
     "CreateAnnotationQueueRequestBody",
+    "CreateCodeEvaluationTaskRequest",
+    "CreateRunExperimentTaskRequest",
+    "CreateTemplateEvaluationTaskRequest",
     "CreateUserRequest",
     "CustomCodeConfig",
     "CustomRoleAssignment",
@@ -148,12 +153,20 @@ __all__ = [
     "InviteMode",
     "InvocationParams",
     "LLMMessage",
+    "LlmGenerationRunConfig",
     "LlmProvider",
     "ManagedCodeConfig",
     "ManagedCodeEvaluator",
     "MessageRole",
     "OptimizationDirection",
     "Organization",
+    "OrganizationBuiltinRoleAssignment",
+    "OrganizationCustomRoleAssignment",
+    "OrganizationMembership",
+    "OrganizationMembershipInput",
+    "OrganizationRole",
+    "OrganizationRoleAssignment",
+    "OrganizationRoleAssignmentType",
     "OrganizationsCreateRequest",
     "OrganizationsList200Response",
     "OrganizationsUpdateRequest",
@@ -192,6 +205,7 @@ __all__ = [
     "RoleCreate",
     "RoleUpdate",
     "RolesList200Response",
+    "RunConfiguration",
     "Space",
     "SpaceMembership",
     "SpaceMembershipInput",
@@ -214,17 +228,21 @@ __all__ = [
     "TaskEvaluator",
     "TaskRun",
     "TasksCreateRequest",
-    "TasksCreateRequestEvaluatorsInner",
     "TasksList200Response",
     "TasksListRuns200Response",
     "TasksTriggerRunRequest",
     "TasksUpdateRequest",
     "TemplateConfig",
+    "TemplateEvaluationRunConfig",
     "ToolCall",
     "ToolCallFunction",
     "ToolCallType",
     "ToolConfig",
+    "TriggerEvaluationTaskRunRequest",
+    "TriggerRunExperimentTaskRunRequest",
     "UpdateAnnotationQueueRequestBody",
+    "UpdateEvaluationTaskRequest",
+    "UpdateRunExperimentTaskRequest",
     "User",
     "UserCreatedResponse",
     "UserRole",
@@ -315,6 +333,8 @@ from arize._generated.api_client.models.assign_annotation_queue_record_request_b
 from arize._generated.api_client.models.assignment_method import AssignmentMethod as AssignmentMethod
 from arize._generated.api_client.models.aws_provider_metadata import AwsProviderMetadata as AwsProviderMetadata
 from arize._generated.api_client.models.aws_provider_metadata_kind import AwsProviderMetadataKind as AwsProviderMetadataKind
+from arize._generated.api_client.models.base_evaluation_task_request import BaseEvaluationTaskRequest as BaseEvaluationTaskRequest
+from arize._generated.api_client.models.base_evaluation_task_request_evaluators_inner import BaseEvaluationTaskRequestEvaluatorsInner as BaseEvaluationTaskRequestEvaluatorsInner
 from arize._generated.api_client.models.builtin_role_assignment import BuiltinRoleAssignment as BuiltinRoleAssignment
 from arize._generated.api_client.models.builtin_user_role_assignment import BuiltinUserRoleAssignment as BuiltinUserRoleAssignment
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig as CategoricalAnnotationConfig
@@ -326,6 +346,9 @@ from arize._generated.api_client.models.continuous_annotation_config import Cont
 from arize._generated.api_client.models.continuous_annotation_config_create import ContinuousAnnotationConfigCreate as ContinuousAnnotationConfigCreate
 from arize._generated.api_client.models.create_annotation_config_request_body import CreateAnnotationConfigRequestBody as CreateAnnotationConfigRequestBody
 from arize._generated.api_client.models.create_annotation_queue_request_body import CreateAnnotationQueueRequestBody as CreateAnnotationQueueRequestBody
+from arize._generated.api_client.models.create_code_evaluation_task_request import CreateCodeEvaluationTaskRequest as CreateCodeEvaluationTaskRequest
+from arize._generated.api_client.models.create_run_experiment_task_request import CreateRunExperimentTaskRequest as CreateRunExperimentTaskRequest
+from arize._generated.api_client.models.create_template_evaluation_task_request import CreateTemplateEvaluationTaskRequest as CreateTemplateEvaluationTaskRequest
 from arize._generated.api_client.models.create_user_request import CreateUserRequest as CreateUserRequest
 from arize._generated.api_client.models.custom_code_config import CustomCodeConfig as CustomCodeConfig
 from arize._generated.api_client.models.custom_role_assignment import CustomRoleAssignment as CustomRoleAssignment
@@ -371,12 +394,20 @@ from arize._generated.api_client.models.input_variable_format import InputVariab
 from arize._generated.api_client.models.invite_mode import InviteMode as InviteMode
 from arize._generated.api_client.models.invocation_params import InvocationParams as InvocationParams
 from arize._generated.api_client.models.llm_message import LLMMessage as LLMMessage
+from arize._generated.api_client.models.llm_generation_run_config import LlmGenerationRunConfig as LlmGenerationRunConfig
 from arize._generated.api_client.models.llm_provider import LlmProvider as LlmProvider
 from arize._generated.api_client.models.managed_code_config import ManagedCodeConfig as ManagedCodeConfig
 from arize._generated.api_client.models.managed_code_evaluator import ManagedCodeEvaluator as ManagedCodeEvaluator
 from arize._generated.api_client.models.message_role import MessageRole as MessageRole
 from arize._generated.api_client.models.optimization_direction import OptimizationDirection as OptimizationDirection
 from arize._generated.api_client.models.organization import Organization as Organization
+from arize._generated.api_client.models.organization_builtin_role_assignment import OrganizationBuiltinRoleAssignment as OrganizationBuiltinRoleAssignment
+from arize._generated.api_client.models.organization_custom_role_assignment import OrganizationCustomRoleAssignment as OrganizationCustomRoleAssignment
+from arize._generated.api_client.models.organization_membership import OrganizationMembership as OrganizationMembership
+from arize._generated.api_client.models.organization_membership_input import OrganizationMembershipInput as OrganizationMembershipInput
+from arize._generated.api_client.models.organization_role import OrganizationRole as OrganizationRole
+from arize._generated.api_client.models.organization_role_assignment import OrganizationRoleAssignment as OrganizationRoleAssignment
+from arize._generated.api_client.models.organization_role_assignment_type import OrganizationRoleAssignmentType as OrganizationRoleAssignmentType
 from arize._generated.api_client.models.organizations_create_request import OrganizationsCreateRequest as OrganizationsCreateRequest
 from arize._generated.api_client.models.organizations_list200_response import OrganizationsList200Response as OrganizationsList200Response
 from arize._generated.api_client.models.organizations_update_request import OrganizationsUpdateRequest as OrganizationsUpdateRequest
@@ -415,6 +446,7 @@ from arize._generated.api_client.models.role_binding_update import RoleBindingUp
 from arize._generated.api_client.models.role_create import RoleCreate as RoleCreate
 from arize._generated.api_client.models.role_update import RoleUpdate as RoleUpdate
 from arize._generated.api_client.models.roles_list200_response import RolesList200Response as RolesList200Response
+from arize._generated.api_client.models.run_configuration import RunConfiguration as RunConfiguration
 from arize._generated.api_client.models.space import Space as Space
 from arize._generated.api_client.models.space_membership import SpaceMembership as SpaceMembership
 from arize._generated.api_client.models.space_membership_input import SpaceMembershipInput as SpaceMembershipInput
@@ -437,17 +469,21 @@ from arize._generated.api_client.models.task import Task as Task
 from arize._generated.api_client.models.task_evaluator import TaskEvaluator as TaskEvaluator
 from arize._generated.api_client.models.task_run import TaskRun as TaskRun
 from arize._generated.api_client.models.tasks_create_request import TasksCreateRequest as TasksCreateRequest
-from arize._generated.api_client.models.tasks_create_request_evaluators_inner import TasksCreateRequestEvaluatorsInner as TasksCreateRequestEvaluatorsInner
 from arize._generated.api_client.models.tasks_list200_response import TasksList200Response as TasksList200Response
 from arize._generated.api_client.models.tasks_list_runs200_response import TasksListRuns200Response as TasksListRuns200Response
 from arize._generated.api_client.models.tasks_trigger_run_request import TasksTriggerRunRequest as TasksTriggerRunRequest
 from arize._generated.api_client.models.tasks_update_request import TasksUpdateRequest as TasksUpdateRequest
 from arize._generated.api_client.models.template_config import TemplateConfig as TemplateConfig
+from arize._generated.api_client.models.template_evaluation_run_config import TemplateEvaluationRunConfig as TemplateEvaluationRunConfig
 from arize._generated.api_client.models.tool_call import ToolCall as ToolCall
 from arize._generated.api_client.models.tool_call_function import ToolCallFunction as ToolCallFunction
 from arize._generated.api_client.models.tool_call_type import ToolCallType as ToolCallType
 from arize._generated.api_client.models.tool_config import ToolConfig as ToolConfig
+from arize._generated.api_client.models.trigger_evaluation_task_run_request import TriggerEvaluationTaskRunRequest as TriggerEvaluationTaskRunRequest
+from arize._generated.api_client.models.trigger_run_experiment_task_run_request import TriggerRunExperimentTaskRunRequest as TriggerRunExperimentTaskRunRequest
 from arize._generated.api_client.models.update_annotation_queue_request_body import UpdateAnnotationQueueRequestBody as UpdateAnnotationQueueRequestBody
+from arize._generated.api_client.models.update_evaluation_task_request import UpdateEvaluationTaskRequest as UpdateEvaluationTaskRequest
+from arize._generated.api_client.models.update_run_experiment_task_request import UpdateRunExperimentTaskRequest as UpdateRunExperimentTaskRequest
 from arize._generated.api_client.models.user import User as User
 from arize._generated.api_client.models.user_created_response import UserCreatedResponse as UserCreatedResponse
 from arize._generated.api_client.models.user_role import UserRole as UserRole

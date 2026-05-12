@@ -208,19 +208,29 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **api_keys_list**
-> ApiKeysList200Response api_keys_list(key_type=key_type, status=status, limit=limit, cursor=cursor)
+> ApiKeysList200Response api_keys_list(key_type=key_type, status=status, space_id=space_id, user_id=user_id, limit=limit, cursor=cursor)
 
 List API keys
 
-List API keys for the authenticated user. Returns metadata for each key (id, name, description,
+List API keys. Returns metadata for each key (id, name, description,
 key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key
 secret is never returned after creation.
 
-Results can be filtered by key type, status, and created-by user ID. Responses are
+Results can be filtered by key type, status, space, and creator. Responses are
 paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for
 subsequent pages.
 
-**Authorization:** Requires the `developer` user permission flag. Returns `403` when this flag is absent.
+**Service keys (`key_type=service`):** Provide `space_id` to return all service keys for
+that space. When `key_type` is omitted alongside `space_id`, service keys are returned
+implicitly. Requires the `SERVICE_KEY_READ` permission in the space (or account/space admin).
+Optionally combine with `user_id` to filter service keys by their creator — available to any
+caller with space access (not admin-gated).
+
+**User keys (`key_type=user`):** Returned by default (no `space_id`). Provide `user_id` to
+view keys belonging to a specific user — account admins only; non-admins receive `403`.
+
+**Authorization:** Requires the `developer` user permission flag or account admin role.
+Returns `403` when neither condition is met.
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -258,12 +268,14 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     api_instance = arize._generated.api_client.APIKeysApi(api_client)
     key_type = 'user' # str | Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication.  (optional)
     status = arize._generated.api_client.ApiKeyStatus() # ApiKeyStatus | Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`.  (optional)
+    space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
+    user_id = 'VXNlcjoxMjM0NQ==' # str | Filter API keys by the user who created them (base64 global ID). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type.  (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
         # List API keys
-        api_response = api_instance.api_keys_list(key_type=key_type, status=status, limit=limit, cursor=cursor)
+        api_response = api_instance.api_keys_list(key_type=key_type, status=status, space_id=space_id, user_id=user_id, limit=limit, cursor=cursor)
         print("The response of APIKeysApi->api_keys_list:\n")
         pprint(api_response)
     except Exception as e:
@@ -279,6 +291,8 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **key_type** | **str**| Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication.  | [optional] 
  **status** | [**ApiKeyStatus**](.md)| Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to &#x60;active&#x60;.  | [optional] 
+ **space_id** | **str**| Filter search results to a particular space ID | [optional] 
+ **user_id** | **str**| Filter API keys by the user who created them (base64 global ID). When used with &#x60;space_id&#x60;, filters service keys by creator — available to any user with space access. When used without &#x60;space_id&#x60;, filters user keys by creator — account admins only (non-admins receive &#x60;403&#x60;). Can be combined with &#x60;key_type&#x60; to further narrow results by key type.  | [optional] 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
@@ -299,10 +313,11 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**200** | Returns a list of API keys for the authenticated user. The raw key secret is never returned. |  -  |
+**200** | Returns a list of API keys matching the request filters. The raw key secret is never returned. |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
 **422** | Invalid request |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 

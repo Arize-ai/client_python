@@ -41,10 +41,23 @@ class TestTasksTriggerRunRequest(unittest.TestCase):
                 override_evaluations = True,
                 experiment_ids = [
                     ''
+                    ],
+                experiment_name = '',
+                dataset_version_id = '',
+                example_ids = [
+                    ''
+                    ],
+                max_examples = 1,
+                tracing_metadata = {
+                    'key' : ''
+                    },
+                evaluation_task_ids = [
+                    ''
                     ]
             )
         else:
             return TasksTriggerRunRequest(
+                experiment_name = '',
         )
         """
 

@@ -55,19 +55,36 @@ class ApiKeysClient:
         *,
         key_type: str | None = None,
         status: ApiKeyStatus | None = None,
+        space: str | None = None,
+        user_id: str | None = None,
         limit: int = 50,
         cursor: str | None = None,
     ) -> ApiKeysList200Response:
-        """List API keys for the authenticated user.
+        """List API keys.
 
         This endpoint supports cursor-based pagination. Optionally filter by
-        ``key_type`` (``"user"`` or ``"service"``) and ``status``
-        (``"active"`` or ``"deleted"``).
+        ``key_type``, ``status``, ``space``, and ``user_id``.
+
+        **Service keys** (``key_type="service"``): provide ``space`` to return
+        all service keys for that space. When ``key_type`` is omitted alongside
+        ``space``, service keys are returned implicitly. Optionally combine with
+        ``user_id`` to filter by creator — available to any caller with space
+        access.
+
+        **User keys** (``key_type="user"``): returned by default (no ``space``).
+        Provide ``user_id`` to view keys for a specific user — account admins
+        only; non-admins receive a ``403``.
 
         Args:
             key_type: Optional key type filter (``"user"`` or ``"service"``).
             status: Optional status filter (``"active"`` or ``"deleted"``).
                 Defaults to ``"active"`` on the server side when omitted.
+            space: Space name or ID. When provided, filters to service keys for
+                that space. Accepts a human-readable name or a base64 global ID.
+            user_id: Base64 global ID of the user whose keys to return.
+                For service keys (with ``space``), filters by creator and is
+                available to any caller with space access. For user keys
+                (without ``space``), requires account admin role.
             limit: Maximum number of keys to return (1 to 100). Defaults to 50.
             cursor: Opaque pagination cursor from a previous response.
 
@@ -77,9 +94,16 @@ class ApiKeysClient:
         Raises:
             ApiException: If the API request fails.
         """
+        space_id = (
+            _find_space_id(self._spaces_api, space)
+            if space is not None
+            else None
+        )
         return self._api.api_keys_list(
             key_type=key_type,
             status=status,
+            space_id=space_id,
+            user_id=user_id,
             limit=limit,
             cursor=cursor,
         )

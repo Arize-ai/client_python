@@ -19,17 +19,18 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.organization_role_assignment_type import OrganizationRoleAssignmentType
 from typing import Optional, Set
 from typing_extensions import Self
 
-class TasksCreateRequestEvaluatorsInner(BaseModel):
+class OrganizationCustomRoleAssignment(BaseModel):
     """
-    TasksCreateRequestEvaluatorsInner
+    A custom RBAC role assignment.
     """ # noqa: E501
-    evaluator_id: StrictStr = Field(description="Evaluator global ID (base64). Duplicates are not allowed.")
-    query_filter: Optional[StrictStr] = Field(default=None, description="Per-evaluator query filter. Combined with the task-level filter (AND).")
-    column_mappings: Optional[Dict[str, StrictStr]] = Field(default=None, description="Maps evaluator template variable names to data source column names.")
-    __properties: ClassVar[List[str]] = ["evaluator_id", "query_filter", "column_mappings"]
+    type: OrganizationRoleAssignmentType
+    id: StrictStr = Field(description="The unique identifier of the custom RBAC role.")
+    name: Optional[StrictStr] = Field(default=None, description="Human-readable name of the custom role. Returned in responses only; ignored on input. ")
+    __properties: ClassVar[List[str]] = ["type", "id", "name"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -49,7 +50,7 @@ class TasksCreateRequestEvaluatorsInner(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of TasksCreateRequestEvaluatorsInner from a JSON string"""
+        """Create an instance of OrganizationCustomRoleAssignment from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -61,8 +62,10 @@ class TasksCreateRequestEvaluatorsInner(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * OpenAPI `readOnly` fields are excluded.
         """
         excluded_fields: Set[str] = set([
+            "name",
         ])
 
         _dict = self.model_dump(
@@ -74,7 +77,7 @@ class TasksCreateRequestEvaluatorsInner(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of TasksCreateRequestEvaluatorsInner from a dict"""
+        """Create an instance of OrganizationCustomRoleAssignment from a dict"""
         if obj is None:
             return None
 
@@ -84,12 +87,12 @@ class TasksCreateRequestEvaluatorsInner(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in TasksCreateRequestEvaluatorsInner) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in OrganizationCustomRoleAssignment) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "evaluator_id": obj.get("evaluator_id"),
-            "query_filter": obj.get("query_filter"),
-            "column_mappings": obj.get("column_mappings")
+            "type": obj.get("type"),
+            "id": obj.get("id"),
+            "name": obj.get("name")
         })
         return _obj
 

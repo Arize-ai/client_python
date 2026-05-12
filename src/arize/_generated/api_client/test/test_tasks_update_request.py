@@ -40,13 +40,14 @@ class TestTasksUpdateRequest(unittest.TestCase):
                 is_continuous = True,
                 query_filter = '',
                 evaluators = [
-                    arize._generated.api_client.models.tasks_create_request_evaluators_inner.tasks_create_request_evaluators_inner(
+                    arize._generated.api_client.models.base_evaluation_task_request_evaluators_inner.BaseEvaluationTaskRequest_evaluators_inner(
                         evaluator_id = '', 
                         query_filter = '', 
                         column_mappings = {
                             'key' : ''
                             }, )
-                    ]
+                    ],
+                run_configuration = None
             )
         else:
             return TasksUpdateRequest(

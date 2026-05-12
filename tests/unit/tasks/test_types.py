@@ -6,11 +6,14 @@ import pytest
 
 import arize.tasks.types as types_module
 from arize.tasks.types import (
+    BaseEvaluationTaskRequestEvaluatorsInner,
+    LlmGenerationRunConfig,
+    RunConfiguration,
     Task,
     TaskRun,
-    TasksCreateRequestEvaluatorsInner,
     TasksList200Response,
     TasksListRuns200Response,
+    TemplateEvaluationRunConfig,
 )
 
 
@@ -27,22 +30,28 @@ class TestTasksTypes:
     def test_expected_names_in_all(self) -> None:
         """__all__ should contain the expected public type names."""
         expected = {
+            "BaseEvaluationTaskRequestEvaluatorsInner",
+            "LlmGenerationRunConfig",
+            "RunConfiguration",
             "Task",
             "TaskRun",
-            "TasksCreateRequestEvaluatorsInner",
             "TasksList200Response",
             "TasksListRuns200Response",
+            "TemplateEvaluationRunConfig",
         }
         assert expected.issubset(set(types_module.__all__))
 
     @pytest.mark.parametrize(
         "cls",
         [
+            BaseEvaluationTaskRequestEvaluatorsInner,
+            LlmGenerationRunConfig,
+            RunConfiguration,
             Task,
             TaskRun,
-            TasksCreateRequestEvaluatorsInner,
             TasksList200Response,
             TasksListRuns200Response,
+            TemplateEvaluationRunConfig,
         ],
     )
     def test_type_is_class(self, cls: type) -> None:

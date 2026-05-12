@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.tasks_create_request_evaluators_inner import TasksCreateRequestEvaluatorsInner
+from arize._generated.api_client.models.base_evaluation_task_request_evaluators_inner import BaseEvaluationTaskRequestEvaluatorsInner
 
-class TestTasksCreateRequestEvaluatorsInner(unittest.TestCase):
-    """TasksCreateRequestEvaluatorsInner unit test stubs"""
+class TestBaseEvaluationTaskRequestEvaluatorsInner(unittest.TestCase):
+    """BaseEvaluationTaskRequestEvaluatorsInner unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,16 +25,16 @@ class TestTasksCreateRequestEvaluatorsInner(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> TasksCreateRequestEvaluatorsInner:
-        """Test TasksCreateRequestEvaluatorsInner
+    def make_instance(self, include_optional) -> BaseEvaluationTaskRequestEvaluatorsInner:
+        """Test BaseEvaluationTaskRequestEvaluatorsInner
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `TasksCreateRequestEvaluatorsInner`
+        # uncomment below to create an instance of `BaseEvaluationTaskRequestEvaluatorsInner`
         """
-        model = TasksCreateRequestEvaluatorsInner()
+        model = BaseEvaluationTaskRequestEvaluatorsInner()
         if include_optional:
-            return TasksCreateRequestEvaluatorsInner(
+            return BaseEvaluationTaskRequestEvaluatorsInner(
                 evaluator_id = '',
                 query_filter = '',
                 column_mappings = {
@@ -42,13 +42,13 @@ class TestTasksCreateRequestEvaluatorsInner(unittest.TestCase):
                     }
             )
         else:
-            return TasksCreateRequestEvaluatorsInner(
+            return BaseEvaluationTaskRequestEvaluatorsInner(
                 evaluator_id = '',
         )
         """
 
-    def testTasksCreateRequestEvaluatorsInner(self):
-        """Test TasksCreateRequestEvaluatorsInner"""
+    def testBaseEvaluationTaskRequestEvaluatorsInner(self):
+        """Test BaseEvaluationTaskRequestEvaluatorsInner"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

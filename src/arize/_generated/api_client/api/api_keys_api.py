@@ -617,6 +617,8 @@ class APIKeysApi:
         self,
         key_type: Annotated[Optional[StrictStr], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
         status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
+        space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        user_id: Annotated[Optional[StrictStr], Field(description="Filter API keys by the user who created them (base64 global ID). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -634,12 +636,16 @@ class APIKeysApi:
     ) -> ApiKeysList200Response:
         """List API keys
 
-        List API keys for the authenticated user. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, and created-by user ID. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Authorization:** Requires the `developer` user permission flag. Returns `403` when this flag is absent.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List API keys. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, space, and creator. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Service keys (`key_type=service`):** Provide `space_id` to return all service keys for that space. When `key_type` is omitted alongside `space_id`, service keys are returned implicitly. Requires the `SERVICE_KEY_READ` permission in the space (or account/space admin). Optionally combine with `user_id` to filter service keys by their creator — available to any caller with space access (not admin-gated).  **User keys (`key_type=user`):** Returned by default (no `space_id`). Provide `user_id` to view keys belonging to a specific user — account admins only; non-admins receive `403`.  **Authorization:** Requires the `developer` user permission flag or account admin role. Returns `403` when neither condition is met.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param key_type: Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. 
         :type key_type: str
         :param status: Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. 
         :type status: ApiKeyStatus
+        :param space_id: Filter search results to a particular space ID
+        :type space_id: str
+        :param user_id: Filter API keys by the user who created them (base64 global ID). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. 
+        :type user_id: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -669,6 +675,8 @@ class APIKeysApi:
         _param = self._api_keys_list_serialize(
             key_type=key_type,
             status=status,
+            space_id=space_id,
+            user_id=user_id,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -682,6 +690,7 @@ class APIKeysApi:
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '422': "Problem",
             '429': "Problem",
         }
@@ -701,6 +710,8 @@ class APIKeysApi:
         self,
         key_type: Annotated[Optional[StrictStr], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
         status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
+        space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        user_id: Annotated[Optional[StrictStr], Field(description="Filter API keys by the user who created them (base64 global ID). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -718,12 +729,16 @@ class APIKeysApi:
     ) -> ApiResponse[ApiKeysList200Response]:
         """List API keys
 
-        List API keys for the authenticated user. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, and created-by user ID. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Authorization:** Requires the `developer` user permission flag. Returns `403` when this flag is absent.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List API keys. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, space, and creator. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Service keys (`key_type=service`):** Provide `space_id` to return all service keys for that space. When `key_type` is omitted alongside `space_id`, service keys are returned implicitly. Requires the `SERVICE_KEY_READ` permission in the space (or account/space admin). Optionally combine with `user_id` to filter service keys by their creator — available to any caller with space access (not admin-gated).  **User keys (`key_type=user`):** Returned by default (no `space_id`). Provide `user_id` to view keys belonging to a specific user — account admins only; non-admins receive `403`.  **Authorization:** Requires the `developer` user permission flag or account admin role. Returns `403` when neither condition is met.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param key_type: Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. 
         :type key_type: str
         :param status: Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. 
         :type status: ApiKeyStatus
+        :param space_id: Filter search results to a particular space ID
+        :type space_id: str
+        :param user_id: Filter API keys by the user who created them (base64 global ID). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. 
+        :type user_id: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -753,6 +768,8 @@ class APIKeysApi:
         _param = self._api_keys_list_serialize(
             key_type=key_type,
             status=status,
+            space_id=space_id,
+            user_id=user_id,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -766,6 +783,7 @@ class APIKeysApi:
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '422': "Problem",
             '429': "Problem",
         }
@@ -785,6 +803,8 @@ class APIKeysApi:
         self,
         key_type: Annotated[Optional[StrictStr], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
         status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
+        space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        user_id: Annotated[Optional[StrictStr], Field(description="Filter API keys by the user who created them (base64 global ID). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -802,12 +822,16 @@ class APIKeysApi:
     ) -> RESTResponseType:
         """List API keys
 
-        List API keys for the authenticated user. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, and created-by user ID. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Authorization:** Requires the `developer` user permission flag. Returns `403` when this flag is absent.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List API keys. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, space, and creator. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Service keys (`key_type=service`):** Provide `space_id` to return all service keys for that space. When `key_type` is omitted alongside `space_id`, service keys are returned implicitly. Requires the `SERVICE_KEY_READ` permission in the space (or account/space admin). Optionally combine with `user_id` to filter service keys by their creator — available to any caller with space access (not admin-gated).  **User keys (`key_type=user`):** Returned by default (no `space_id`). Provide `user_id` to view keys belonging to a specific user — account admins only; non-admins receive `403`.  **Authorization:** Requires the `developer` user permission flag or account admin role. Returns `403` when neither condition is met.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param key_type: Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. 
         :type key_type: str
         :param status: Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. 
         :type status: ApiKeyStatus
+        :param space_id: Filter search results to a particular space ID
+        :type space_id: str
+        :param user_id: Filter API keys by the user who created them (base64 global ID). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. 
+        :type user_id: str
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -837,6 +861,8 @@ class APIKeysApi:
         _param = self._api_keys_list_serialize(
             key_type=key_type,
             status=status,
+            space_id=space_id,
+            user_id=user_id,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -850,6 +876,7 @@ class APIKeysApi:
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '422': "Problem",
             '429': "Problem",
         }
@@ -864,6 +891,8 @@ class APIKeysApi:
         self,
         key_type,
         status,
+        space_id,
+        user_id,
         limit,
         cursor,
         _request_auth,
@@ -895,6 +924,14 @@ class APIKeysApi:
         if status is not None:
             
             _query_params.append(('status', status.value))
+            
+        if space_id is not None:
+            
+            _query_params.append(('space_id', space_id))
+            
+        if user_id is not None:
+            
+            _query_params.append(('user_id', user_id))
             
         if limit is not None:
             

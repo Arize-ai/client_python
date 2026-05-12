@@ -602,7 +602,7 @@ class TasksApi:
     @validate_call
     def tasks_create(
         self,
-        tasks_create_request: Annotated[TasksCreateRequest, Field(description="Body containing task creation parameters")],
+        tasks_create_request: Annotated[TasksCreateRequest, Field(description="Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `template_evaluation` | `CreateTemplateEvaluationTaskRequest` | | `code_evaluation` | `CreateCodeEvaluationTaskRequest` | | `run_experiment` | `CreateRunExperimentTaskRequest` |  `run_experiment` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `template_evaluation` / `code_evaluation` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -618,9 +618,9 @@ class TasksApi:
     ) -> Task:
         """Create task
 
-        Creates a new evaluation task. You must supply exactly one of `project_id` or `dataset_id` as the data source.  **Validation Rules** - At least one evaluator is required. - Duplicate evaluator IDs are not allowed. - When `dataset_id` is provided, `experiment_ids` must contain at least one entry. - When `project_id` is provided, `experiment_ids` must be omitted or empty. - `sampling_rate` and `is_continuous` are only supported on project-based tasks. - Dataset-based tasks always have `is_continuous = false`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Creates a new task. Supported task types:  | `type` | Data source | Notes | |---|---|---| | `template_evaluation` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `code_evaluation` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `run_experiment` | `dataset_id` only | Requires `run_configuration`. Never continuous. |  For `run_experiment` tasks the run configuration is stored on the task. Each trigger (`POST /v2/tasks/{task_id}/trigger`) supplies per-run fields (`experiment_name`, optional example subset, etc.) and starts an async run. Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.  **Validation Rules (template_evaluation / code_evaluation)** - At least one evaluator is required. - Duplicate evaluator IDs are not allowed. - When `dataset_id` is provided, `experiment_ids` must contain at least one entry. - `sampling_rate` and `is_continuous` are only supported on project-based tasks.  **Validation Rules (run_experiment)** - `dataset_id` is required; `project_id` must be omitted. - `run_configuration` is required; `evaluators`, `experiment_ids`, `sampling_rate`,   `is_continuous`, and `query_filter` must be omitted.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param tasks_create_request: Body containing task creation parameters (required)
+        :param tasks_create_request: Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `template_evaluation` | `CreateTemplateEvaluationTaskRequest` | | `code_evaluation` | `CreateCodeEvaluationTaskRequest` | | `run_experiment` | `CreateRunExperimentTaskRequest` |  `run_experiment` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `template_evaluation` / `code_evaluation` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks.  (required)
         :type tasks_create_request: TasksCreateRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -675,7 +675,7 @@ class TasksApi:
     @validate_call
     def tasks_create_with_http_info(
         self,
-        tasks_create_request: Annotated[TasksCreateRequest, Field(description="Body containing task creation parameters")],
+        tasks_create_request: Annotated[TasksCreateRequest, Field(description="Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `template_evaluation` | `CreateTemplateEvaluationTaskRequest` | | `code_evaluation` | `CreateCodeEvaluationTaskRequest` | | `run_experiment` | `CreateRunExperimentTaskRequest` |  `run_experiment` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `template_evaluation` / `code_evaluation` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -691,9 +691,9 @@ class TasksApi:
     ) -> ApiResponse[Task]:
         """Create task
 
-        Creates a new evaluation task. You must supply exactly one of `project_id` or `dataset_id` as the data source.  **Validation Rules** - At least one evaluator is required. - Duplicate evaluator IDs are not allowed. - When `dataset_id` is provided, `experiment_ids` must contain at least one entry. - When `project_id` is provided, `experiment_ids` must be omitted or empty. - `sampling_rate` and `is_continuous` are only supported on project-based tasks. - Dataset-based tasks always have `is_continuous = false`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Creates a new task. Supported task types:  | `type` | Data source | Notes | |---|---|---| | `template_evaluation` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `code_evaluation` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `run_experiment` | `dataset_id` only | Requires `run_configuration`. Never continuous. |  For `run_experiment` tasks the run configuration is stored on the task. Each trigger (`POST /v2/tasks/{task_id}/trigger`) supplies per-run fields (`experiment_name`, optional example subset, etc.) and starts an async run. Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.  **Validation Rules (template_evaluation / code_evaluation)** - At least one evaluator is required. - Duplicate evaluator IDs are not allowed. - When `dataset_id` is provided, `experiment_ids` must contain at least one entry. - `sampling_rate` and `is_continuous` are only supported on project-based tasks.  **Validation Rules (run_experiment)** - `dataset_id` is required; `project_id` must be omitted. - `run_configuration` is required; `evaluators`, `experiment_ids`, `sampling_rate`,   `is_continuous`, and `query_filter` must be omitted.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param tasks_create_request: Body containing task creation parameters (required)
+        :param tasks_create_request: Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `template_evaluation` | `CreateTemplateEvaluationTaskRequest` | | `code_evaluation` | `CreateCodeEvaluationTaskRequest` | | `run_experiment` | `CreateRunExperimentTaskRequest` |  `run_experiment` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `template_evaluation` / `code_evaluation` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks.  (required)
         :type tasks_create_request: TasksCreateRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -748,7 +748,7 @@ class TasksApi:
     @validate_call
     def tasks_create_without_preload_content(
         self,
-        tasks_create_request: Annotated[TasksCreateRequest, Field(description="Body containing task creation parameters")],
+        tasks_create_request: Annotated[TasksCreateRequest, Field(description="Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `template_evaluation` | `CreateTemplateEvaluationTaskRequest` | | `code_evaluation` | `CreateCodeEvaluationTaskRequest` | | `run_experiment` | `CreateRunExperimentTaskRequest` |  `run_experiment` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `template_evaluation` / `code_evaluation` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -764,9 +764,9 @@ class TasksApi:
     ) -> RESTResponseType:
         """Create task
 
-        Creates a new evaluation task. You must supply exactly one of `project_id` or `dataset_id` as the data source.  **Validation Rules** - At least one evaluator is required. - Duplicate evaluator IDs are not allowed. - When `dataset_id` is provided, `experiment_ids` must contain at least one entry. - When `project_id` is provided, `experiment_ids` must be omitted or empty. - `sampling_rate` and `is_continuous` are only supported on project-based tasks. - Dataset-based tasks always have `is_continuous = false`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Creates a new task. Supported task types:  | `type` | Data source | Notes | |---|---|---| | `template_evaluation` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `code_evaluation` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `run_experiment` | `dataset_id` only | Requires `run_configuration`. Never continuous. |  For `run_experiment` tasks the run configuration is stored on the task. Each trigger (`POST /v2/tasks/{task_id}/trigger`) supplies per-run fields (`experiment_name`, optional example subset, etc.) and starts an async run. Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.  **Validation Rules (template_evaluation / code_evaluation)** - At least one evaluator is required. - Duplicate evaluator IDs are not allowed. - When `dataset_id` is provided, `experiment_ids` must contain at least one entry. - `sampling_rate` and `is_continuous` are only supported on project-based tasks.  **Validation Rules (run_experiment)** - `dataset_id` is required; `project_id` must be omitted. - `run_configuration` is required; `evaluators`, `experiment_ids`, `sampling_rate`,   `is_continuous`, and `query_filter` must be omitted.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param tasks_create_request: Body containing task creation parameters (required)
+        :param tasks_create_request: Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `template_evaluation` | `CreateTemplateEvaluationTaskRequest` | | `code_evaluation` | `CreateCodeEvaluationTaskRequest` | | `run_experiment` | `CreateRunExperimentTaskRequest` |  `run_experiment` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `template_evaluation` / `code_evaluation` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks.  (required)
         :type tasks_create_request: TasksCreateRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1453,7 +1453,7 @@ class TasksApi:
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 global ID)")] = None,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 global ID)")] = None,
-        type: Annotated[Optional[StrictStr], Field(description="Filter by task type: template_evaluation or code_evaluation")] = None,
+        type: Annotated[Optional[StrictStr], Field(description="Filter by task type: template_evaluation, code_evaluation, or run_experiment")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1483,7 +1483,7 @@ class TasksApi:
         :type project_id: str
         :param dataset_id: Filter to a specific dataset (base64 global ID)
         :type dataset_id: str
-        :param type: Filter by task type: template_evaluation or code_evaluation
+        :param type: Filter by task type: template_evaluation, code_evaluation, or run_experiment
         :type type: str
         :param limit: Maximum items to return
         :type limit: int
@@ -1553,7 +1553,7 @@ class TasksApi:
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 global ID)")] = None,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 global ID)")] = None,
-        type: Annotated[Optional[StrictStr], Field(description="Filter by task type: template_evaluation or code_evaluation")] = None,
+        type: Annotated[Optional[StrictStr], Field(description="Filter by task type: template_evaluation, code_evaluation, or run_experiment")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1583,7 +1583,7 @@ class TasksApi:
         :type project_id: str
         :param dataset_id: Filter to a specific dataset (base64 global ID)
         :type dataset_id: str
-        :param type: Filter by task type: template_evaluation or code_evaluation
+        :param type: Filter by task type: template_evaluation, code_evaluation, or run_experiment
         :type type: str
         :param limit: Maximum items to return
         :type limit: int
@@ -1653,7 +1653,7 @@ class TasksApi:
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 global ID)")] = None,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 global ID)")] = None,
-        type: Annotated[Optional[StrictStr], Field(description="Filter by task type: template_evaluation or code_evaluation")] = None,
+        type: Annotated[Optional[StrictStr], Field(description="Filter by task type: template_evaluation, code_evaluation, or run_experiment")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1683,7 +1683,7 @@ class TasksApi:
         :type project_id: str
         :param dataset_id: Filter to a specific dataset (base64 global ID)
         :type dataset_id: str
-        :param type: Filter by task type: template_evaluation or code_evaluation
+        :param type: Filter by task type: template_evaluation, code_evaluation, or run_experiment
         :type type: str
         :param limit: Maximum items to return
         :type limit: int
@@ -2175,7 +2175,7 @@ class TasksApi:
     def tasks_trigger_run(
         self,
         task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
-        tasks_trigger_run_request: Annotated[Optional[TasksTriggerRunRequest], Field(description="Body containing task run trigger parameters")] = None,
+        tasks_trigger_run_request: Annotated[Optional[TasksTriggerRunRequest], Field(description="Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2191,11 +2191,11 @@ class TasksApi:
     ) -> TaskRun:
         """Trigger a task run
 
-        Triggers a new run on an existing task. The run is queued and processed asynchronously. Poll the returned run's status to track progress.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Triggers a new run on an existing task. The run is queued and processed asynchronously. Poll `GET /v2/task-runs/{run_id}` until the run reaches a terminal status (`completed`, `failed`, or `cancelled`).  **For `run_experiment` tasks**  Supply `experiment_name` (required) plus any of the optional per-run fields: `dataset_version_id`, `example_ids` (exclusive with `max_examples`), `max_examples`, `tracing_metadata`, `evaluation_task_ids`.  The fields `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and `experiment_ids` are not applicable and will return 400 if supplied.  The response includes `experiment_id` once the experiment is provisioned.  **For `template_evaluation` / `code_evaluation` tasks**  Supply `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and/or `experiment_ids` as needed. `run_experiment`-specific fields are not applicable for these task types.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param task_id: The task global ID (base64) (required)
         :type task_id: str
-        :param tasks_trigger_run_request: Body containing task run trigger parameters
+        :param tasks_trigger_run_request: Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. 
         :type tasks_trigger_run_request: TasksTriggerRunRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2251,7 +2251,7 @@ class TasksApi:
     def tasks_trigger_run_with_http_info(
         self,
         task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
-        tasks_trigger_run_request: Annotated[Optional[TasksTriggerRunRequest], Field(description="Body containing task run trigger parameters")] = None,
+        tasks_trigger_run_request: Annotated[Optional[TasksTriggerRunRequest], Field(description="Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2267,11 +2267,11 @@ class TasksApi:
     ) -> ApiResponse[TaskRun]:
         """Trigger a task run
 
-        Triggers a new run on an existing task. The run is queued and processed asynchronously. Poll the returned run's status to track progress.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Triggers a new run on an existing task. The run is queued and processed asynchronously. Poll `GET /v2/task-runs/{run_id}` until the run reaches a terminal status (`completed`, `failed`, or `cancelled`).  **For `run_experiment` tasks**  Supply `experiment_name` (required) plus any of the optional per-run fields: `dataset_version_id`, `example_ids` (exclusive with `max_examples`), `max_examples`, `tracing_metadata`, `evaluation_task_ids`.  The fields `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and `experiment_ids` are not applicable and will return 400 if supplied.  The response includes `experiment_id` once the experiment is provisioned.  **For `template_evaluation` / `code_evaluation` tasks**  Supply `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and/or `experiment_ids` as needed. `run_experiment`-specific fields are not applicable for these task types.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param task_id: The task global ID (base64) (required)
         :type task_id: str
-        :param tasks_trigger_run_request: Body containing task run trigger parameters
+        :param tasks_trigger_run_request: Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. 
         :type tasks_trigger_run_request: TasksTriggerRunRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2327,7 +2327,7 @@ class TasksApi:
     def tasks_trigger_run_without_preload_content(
         self,
         task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
-        tasks_trigger_run_request: Annotated[Optional[TasksTriggerRunRequest], Field(description="Body containing task run trigger parameters")] = None,
+        tasks_trigger_run_request: Annotated[Optional[TasksTriggerRunRequest], Field(description="Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2343,11 +2343,11 @@ class TasksApi:
     ) -> RESTResponseType:
         """Trigger a task run
 
-        Triggers a new run on an existing task. The run is queued and processed asynchronously. Poll the returned run's status to track progress.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Triggers a new run on an existing task. The run is queued and processed asynchronously. Poll `GET /v2/task-runs/{run_id}` until the run reaches a terminal status (`completed`, `failed`, or `cancelled`).  **For `run_experiment` tasks**  Supply `experiment_name` (required) plus any of the optional per-run fields: `dataset_version_id`, `example_ids` (exclusive with `max_examples`), `max_examples`, `tracing_metadata`, `evaluation_task_ids`.  The fields `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and `experiment_ids` are not applicable and will return 400 if supplied.  The response includes `experiment_id` once the experiment is provisioned.  **For `template_evaluation` / `code_evaluation` tasks**  Supply `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and/or `experiment_ids` as needed. `run_experiment`-specific fields are not applicable for these task types.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param task_id: The task global ID (base64) (required)
         :type task_id: str
-        :param tasks_trigger_run_request: Body containing task run trigger parameters
+        :param tasks_trigger_run_request: Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. 
         :type tasks_trigger_run_request: TasksTriggerRunRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2480,7 +2480,7 @@ class TasksApi:
     def tasks_update(
         self,
         task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
-        tasks_update_request: Annotated[TasksUpdateRequest, Field(description="Body containing task update parameters")],
+        tasks_update_request: Annotated[TasksUpdateRequest, Field(description="PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task). ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2500,7 +2500,7 @@ class TasksApi:
 
         :param task_id: The task global ID (base64) (required)
         :type task_id: str
-        :param tasks_update_request: Body containing task update parameters (required)
+        :param tasks_update_request: PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task).  (required)
         :type tasks_update_request: TasksUpdateRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2556,7 +2556,7 @@ class TasksApi:
     def tasks_update_with_http_info(
         self,
         task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
-        tasks_update_request: Annotated[TasksUpdateRequest, Field(description="Body containing task update parameters")],
+        tasks_update_request: Annotated[TasksUpdateRequest, Field(description="PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task). ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2576,7 +2576,7 @@ class TasksApi:
 
         :param task_id: The task global ID (base64) (required)
         :type task_id: str
-        :param tasks_update_request: Body containing task update parameters (required)
+        :param tasks_update_request: PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task).  (required)
         :type tasks_update_request: TasksUpdateRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2632,7 +2632,7 @@ class TasksApi:
     def tasks_update_without_preload_content(
         self,
         task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
-        tasks_update_request: Annotated[TasksUpdateRequest, Field(description="Body containing task update parameters")],
+        tasks_update_request: Annotated[TasksUpdateRequest, Field(description="PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task). ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2652,7 +2652,7 @@ class TasksApi:
 
         :param task_id: The task global ID (base64) (required)
         :type task_id: str
-        :param tasks_update_request: Body containing task update parameters (required)
+        :param tasks_update_request: PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task).  (required)
         :type tasks_update_request: TasksUpdateRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request

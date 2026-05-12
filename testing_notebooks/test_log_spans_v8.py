@@ -131,7 +131,7 @@ def get_dataframe():
         )
         # !pip install -q arize-phoenix-client
         # Cloud Instance
-        PHOENIX_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJBcGlLZXk6MSJ9.1wP7wKDG6HGEg254UdEGPXjNy5iCODb8L1YNf60YhQk"
+        PHOENIX_API_KEY = os.environ["PHOENIX_API_KEY"]
         PHOENIX_BASE_URL = "https://app.phoenix.arize.com/s/phoenix"
         PHOENIX_PROJECT_NAME = "playground"
 

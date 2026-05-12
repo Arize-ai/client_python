@@ -102,7 +102,7 @@ class SpacesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "SpaceMembership",
+            '200': "SpaceMembership",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -178,7 +178,7 @@ class SpacesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "SpaceMembership",
+            '200': "SpaceMembership",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -254,7 +254,7 @@ class SpacesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "SpaceMembership",
+            '200': "SpaceMembership",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

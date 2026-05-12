@@ -13,112 +13,142 @@
 
 
 from __future__ import annotations
-import pprint
-import re  # noqa: F401
 import json
+import pprint
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
+from typing import Any, List, Optional
+from arize._generated.api_client.models.create_code_evaluation_task_request import CreateCodeEvaluationTaskRequest
+from arize._generated.api_client.models.create_run_experiment_task_request import CreateRunExperimentTaskRequest
+from arize._generated.api_client.models.create_template_evaluation_task_request import CreateTemplateEvaluationTaskRequest
+from pydantic import StrictStr, Field
+from typing import Union, List, Set, Optional, Dict
+from typing_extensions import Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional, Union
-from typing_extensions import Annotated
-from arize._generated.api_client.models.tasks_create_request_evaluators_inner import TasksCreateRequestEvaluatorsInner
-from typing import Optional, Set
-from typing_extensions import Self
+TASKSCREATEREQUEST_ONE_OF_SCHEMAS = ["CreateCodeEvaluationTaskRequest", "CreateRunExperimentTaskRequest", "CreateTemplateEvaluationTaskRequest"]
 
 class TasksCreateRequest(BaseModel):
     """
     TasksCreateRequest
-    """ # noqa: E501
-    name: StrictStr = Field(description="Task name")
-    type: StrictStr = Field(description="Task type")
-    project_id: Optional[StrictStr] = Field(default=None, description="Project global ID (base64). Required if dataset_id is not provided. Mutually exclusive with dataset_id.")
-    dataset_id: Optional[StrictStr] = Field(default=None, description="Dataset global ID (base64). Required if project_id is not provided. Mutually exclusive with project_id.")
-    experiment_ids: Optional[List[StrictStr]] = Field(default=None, description="Experiment global IDs (base64). Required when dataset_id is provided (at least one). Must be omitted or empty for project-based tasks.")
-    sampling_rate: Optional[Union[Annotated[float, Field(le=1, strict=True, ge=0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = Field(default=None, description="Sampling rate between 0 and 1. Only supported on project tasks.")
-    is_continuous: Optional[StrictBool] = Field(default=None, description="Whether the task runs continuously. Must be true or false for project-based tasks. Must be false or omitted for dataset-based tasks.")
-    query_filter: Optional[StrictStr] = Field(default=None, description="Task-level query filter applied to all data.")
-    evaluators: Annotated[List[TasksCreateRequestEvaluatorsInner], Field(min_length=1)] = Field(description="Evaluators to attach (at least one required).")
-    __properties: ClassVar[List[str]] = ["name", "type", "project_id", "dataset_id", "experiment_ids", "sampling_rate", "is_continuous", "query_filter", "evaluators"]
-
-    @field_validator('type')
-    def type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['template_evaluation', 'code_evaluation']):
-            raise ValueError("must be one of enum values ('template_evaluation', 'code_evaluation')")
-        return value
+    """
+    # data type: CreateTemplateEvaluationTaskRequest
+    oneof_schema_1_validator: Optional[CreateTemplateEvaluationTaskRequest] = None
+    # data type: CreateCodeEvaluationTaskRequest
+    oneof_schema_2_validator: Optional[CreateCodeEvaluationTaskRequest] = None
+    # data type: CreateRunExperimentTaskRequest
+    oneof_schema_3_validator: Optional[CreateRunExperimentTaskRequest] = None
+    actual_instance: Optional[Union[CreateCodeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest]] = None
+    one_of_schemas: Set[str] = { "CreateCodeEvaluationTaskRequest", "CreateRunExperimentTaskRequest", "CreateTemplateEvaluationTaskRequest" }
 
     model_config = ConfigDict(
-        populate_by_name=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
 
 
-    def to_str(self) -> str:
-        """Returns the string representation of the model using alias"""
-        return pprint.pformat(self.model_dump(by_alias=True))
+    discriminator_value_class_map: Dict[str, str] = {
+    }
+
+    def __init__(self, *args, **kwargs) -> None:
+        if args:
+            if len(args) > 1:
+                raise ValueError("If a position argument is used, only 1 is allowed to set `actual_instance`")
+            if kwargs:
+                raise ValueError("If a position argument is used, keyword arguments cannot be used.")
+            super().__init__(actual_instance=args[0])
+        else:
+            super().__init__(**kwargs)
+
+    @field_validator('actual_instance')
+    def actual_instance_must_validate_oneof(cls, v):
+        instance = TasksCreateRequest.model_construct()
+        error_messages = []
+        match = 0
+        # validate data type: CreateTemplateEvaluationTaskRequest
+        if not isinstance(v, CreateTemplateEvaluationTaskRequest):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateTemplateEvaluationTaskRequest`")
+        else:
+            match += 1
+        # validate data type: CreateCodeEvaluationTaskRequest
+        if not isinstance(v, CreateCodeEvaluationTaskRequest):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateCodeEvaluationTaskRequest`")
+        else:
+            match += 1
+        # validate data type: CreateRunExperimentTaskRequest
+        if not isinstance(v, CreateRunExperimentTaskRequest):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateRunExperimentTaskRequest`")
+        else:
+            match += 1
+        if match > 1:
+            # more than 1 match
+            raise ValueError("Multiple matches found when setting `actual_instance` in TasksCreateRequest with oneOf schemas: CreateCodeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest. Details: " + ", ".join(error_messages))
+        elif match == 0:
+            # no match
+            raise ValueError("No match found when setting `actual_instance` in TasksCreateRequest with oneOf schemas: CreateCodeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest. Details: " + ", ".join(error_messages))
+        else:
+            return v
+
+    @classmethod
+    def from_dict(cls, obj: Union[str, Dict[str, Any]]) -> Self:
+        return cls.from_json(json.dumps(obj))
+
+    @classmethod
+    def from_json(cls, json_str: str) -> Self:
+        """Returns the object represented by the json string"""
+        instance = cls.model_construct()
+        error_messages = []
+        match = 0
+
+        # deserialize data into CreateTemplateEvaluationTaskRequest
+        try:
+            instance.actual_instance = CreateTemplateEvaluationTaskRequest.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # deserialize data into CreateCodeEvaluationTaskRequest
+        try:
+            instance.actual_instance = CreateCodeEvaluationTaskRequest.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # deserialize data into CreateRunExperimentTaskRequest
+        try:
+            instance.actual_instance = CreateRunExperimentTaskRequest.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+
+        if match > 1:
+            # more than 1 match
+            raise ValueError("Multiple matches found when deserializing the JSON string into TasksCreateRequest with oneOf schemas: CreateCodeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest. Details: " + ", ".join(error_messages))
+        elif match == 0:
+            # no match
+            raise ValueError("No match found when deserializing the JSON string into TasksCreateRequest with oneOf schemas: CreateCodeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest. Details: " + ", ".join(error_messages))
+        else:
+            return instance
 
     def to_json(self) -> str:
-        """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        """Returns the JSON representation of the actual instance"""
+        if self.actual_instance is None:
+            return "null"
 
-    @classmethod
-    def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of TasksCreateRequest from a JSON string"""
-        return cls.from_dict(json.loads(json_str))
+        if hasattr(self.actual_instance, "to_json") and callable(self.actual_instance.to_json):
+            return self.actual_instance.to_json()
+        else:
+            return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Return the dictionary representation of the model using alias.
-
-        This has the following differences from calling pydantic's
-        `self.model_dump(by_alias=True)`:
-
-        * `None` is only added to the output dict for nullable fields that
-          were set at model initialization. Other fields with value `None`
-          are ignored.
-        """
-        excluded_fields: Set[str] = set([
-        ])
-
-        _dict = self.model_dump(
-            by_alias=True,
-            exclude=excluded_fields,
-            exclude_none=True,
-        )
-        # override the default output from pydantic by calling `to_dict()` of each item in evaluators (list)
-        _items = []
-        if self.evaluators:
-            for _item_evaluators in self.evaluators:
-                if _item_evaluators:
-                    _items.append(_item_evaluators.to_dict())
-            _dict['evaluators'] = _items
-        return _dict
-
-    @classmethod
-    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of TasksCreateRequest from a dict"""
-        if obj is None:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], CreateCodeEvaluationTaskRequest, CreateRunExperimentTaskRequest, CreateTemplateEvaluationTaskRequest]]:
+        """Returns the dict representation of the actual instance"""
+        if self.actual_instance is None:
             return None
 
-        if not isinstance(obj, dict):
-            return cls.model_validate(obj)
+        if hasattr(self.actual_instance, "to_dict") and callable(self.actual_instance.to_dict):
+            return self.actual_instance.to_dict()
+        else:
+            # primitive type
+            return self.actual_instance
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in TasksCreateRequest) in the input: " + _key)
-
-        _obj = cls.model_validate({
-            "name": obj.get("name"),
-            "type": obj.get("type"),
-            "project_id": obj.get("project_id"),
-            "dataset_id": obj.get("dataset_id"),
-            "experiment_ids": obj.get("experiment_ids"),
-            "sampling_rate": obj.get("sampling_rate"),
-            "is_continuous": obj.get("is_continuous"),
-            "query_filter": obj.get("query_filter"),
-            "evaluators": [TasksCreateRequestEvaluatorsInner.from_dict(_item) for _item in obj["evaluators"]] if obj.get("evaluators") is not None else None
-        })
-        return _obj
+    def to_str(self) -> str:
+        """Returns the string representation of the actual instance"""
+        return pprint.pformat(self.model_dump())
 
 

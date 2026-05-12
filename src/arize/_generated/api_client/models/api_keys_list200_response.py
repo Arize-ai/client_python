@@ -28,7 +28,7 @@ class ApiKeysList200Response(BaseModel):
     """
     ApiKeysList200Response
     """ # noqa: E501
-    api_keys: List[ApiKey] = Field(description="API keys owned by the authenticated user.")
+    api_keys: List[ApiKey] = Field(description="API keys matching the request filters.")
     pagination: PaginationMetadata
     __properties: ClassVar[List[str]] = ["api_keys", "pagination"]
 

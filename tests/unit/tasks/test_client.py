@@ -239,23 +239,30 @@ class TestTasksClientCreate:
     def test_create_builds_request_and_calls_api(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """create() should build the request object and call tasks_create."""
+        """create() should build the inner request, wrap it, and call tasks_create."""
         mock_evaluator = Mock()
 
-        with patch(
-            "arize._generated.api_client.TasksCreateRequest"
-        ) as mock_request_cls:
-            mock_body = Mock()
-            mock_request_cls.return_value = mock_body
+        with (
+            patch(
+                "arize._generated.api_client.CreateTemplateEvaluationTaskRequest"
+            ) as mock_inner_cls,
+            patch(
+                "arize._generated.api_client.TasksCreateRequest"
+            ) as mock_wrapper_cls,
+        ):
+            mock_inner = Mock()
+            mock_inner_cls.return_value = mock_inner
+            mock_wrapper = Mock()
+            mock_wrapper_cls.return_value = mock_wrapper
 
-            tasks_client.create(
+            tasks_client._create(
                 name="my-task",
                 task_type="template_evaluation",
                 evaluators=[mock_evaluator],
                 project=_PROJECT_ID,
             )
 
-        mock_request_cls.assert_called_once_with(
+        mock_inner_cls.assert_called_once_with(
             name="my-task",
             type="template_evaluation",
             evaluators=[mock_evaluator],
@@ -266,20 +273,24 @@ class TestTasksClientCreate:
             is_continuous=None,
             query_filter=None,
         )
+        mock_wrapper_cls.assert_called_once_with(actual_instance=mock_inner)
         mock_api.tasks_create.assert_called_once_with(
-            tasks_create_request=mock_body
+            tasks_create_request=mock_wrapper
         )
 
-    def test_create_with_dataset_and_experiments(
+    def test_create_code_evaluation_uses_code_eval_inner(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """create() should forward dataset and experiment_ids."""
-        with patch(
-            "arize._generated.api_client.TasksCreateRequest"
-        ) as mock_request_cls:
-            mock_request_cls.return_value = Mock()
+        """code_evaluation task_type should construct CreateCodeEvaluationTaskRequest."""
+        with (
+            patch(
+                "arize._generated.api_client.CreateCodeEvaluationTaskRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.TasksCreateRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
 
-            tasks_client.create(
+            tasks_client._create(
                 name="ds-task",
                 task_type="code_evaluation",
                 evaluators=[Mock()],
@@ -287,7 +298,8 @@ class TestTasksClientCreate:
                 experiment_ids=["exp-1", "exp-2"],
             )
 
-        _, kwargs = mock_request_cls.call_args
+        _, kwargs = mock_inner_cls.call_args
+        assert kwargs["type"] == "code_evaluation"
         assert kwargs["dataset_id"] == _DATASET_ID
         assert kwargs["experiment_ids"] == ["exp-1", "exp-2"]
         assert kwargs["project_id"] is None
@@ -296,12 +308,15 @@ class TestTasksClientCreate:
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
         """create() should forward optional sampling_rate, is_continuous, query_filter."""
-        with patch(
-            "arize._generated.api_client.TasksCreateRequest"
-        ) as mock_request_cls:
-            mock_request_cls.return_value = Mock()
+        with (
+            patch(
+                "arize._generated.api_client.CreateTemplateEvaluationTaskRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.TasksCreateRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
 
-            tasks_client.create(
+            tasks_client._create(
                 name="my-task",
                 task_type="template_evaluation",
                 evaluators=[Mock()],
@@ -311,10 +326,90 @@ class TestTasksClientCreate:
                 query_filter="span_kind == 'LLM'",
             )
 
-        _, kwargs = mock_request_cls.call_args
+        _, kwargs = mock_inner_cls.call_args
         assert kwargs["sampling_rate"] == 0.5
         assert kwargs["is_continuous"] is True
         assert kwargs["query_filter"] == "span_kind == 'LLM'"
+
+    def test_create_run_experiment_builds_correct_request(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """create(task_type='run_experiment') should use CreateRunExperimentTaskRequest."""
+        mock_run_config = Mock()
+
+        with (
+            patch(
+                "arize._generated.api_client.CreateRunExperimentTaskRequest"
+            ) as mock_inner_cls,
+            patch(
+                "arize._generated.api_client.TasksCreateRequest"
+            ) as mock_wrapper_cls,
+        ):
+            mock_inner = Mock()
+            mock_inner_cls.return_value = mock_inner
+            mock_wrapper = Mock()
+            mock_wrapper_cls.return_value = mock_wrapper
+
+            tasks_client._create(
+                name="exp-task",
+                task_type="run_experiment",
+                run_configuration=mock_run_config,
+                dataset=_DATASET_ID,
+            )
+
+        mock_inner_cls.assert_called_once_with(
+            name="exp-task",
+            type="run_experiment",
+            dataset_id=_DATASET_ID,
+            run_configuration=mock_run_config,
+        )
+        mock_wrapper_cls.assert_called_once_with(actual_instance=mock_inner)
+        mock_api.tasks_create.assert_called_once_with(
+            tasks_create_request=mock_wrapper
+        )
+
+    def test_create_run_experiment_rejects_eval_only_fields(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """create(task_type='run_experiment') should raise if eval-only fields are set."""
+        with pytest.raises(ValueError, match="eval-only fields"):
+            tasks_client._create(
+                name="bad",
+                task_type="run_experiment",
+                evaluators=[Mock()],
+                run_configuration=Mock(),
+                dataset=_DATASET_ID,
+            )
+
+        mock_api.tasks_create.assert_not_called()
+
+    def test_create_run_experiment_requires_run_configuration(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """create(task_type='run_experiment') should raise when run_configuration is absent."""
+        with pytest.raises(ValueError, match="run_configuration"):
+            tasks_client._create(
+                name="bad",
+                task_type="run_experiment",
+                dataset=_DATASET_ID,
+            )
+
+        mock_api.tasks_create.assert_not_called()
+
+    def test_create_eval_rejects_run_configuration(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """create() for eval types should raise when run_configuration is provided."""
+        with pytest.raises(ValueError, match="run_configuration"):
+            tasks_client._create(
+                name="bad",
+                task_type="template_evaluation",
+                evaluators=[Mock()],
+                run_configuration=Mock(),
+                project=_PROJECT_ID,
+            )
+
+        mock_api.tasks_create.assert_not_called()
 
     def test_create_returns_api_response(
         self, tasks_client: TasksClient, mock_api: Mock
@@ -323,8 +418,13 @@ class TestTasksClientCreate:
         expected = Mock()
         mock_api.tasks_create.return_value = expected
 
-        with patch("arize._generated.api_client.TasksCreateRequest"):
-            result = tasks_client.create(
+        with (
+            patch(
+                "arize._generated.api_client.CreateTemplateEvaluationTaskRequest"
+            ),
+            patch("arize._generated.api_client.TasksCreateRequest"),
+        ):
+            result = tasks_client._create(
                 name="my-task",
                 task_type="template_evaluation",
                 evaluators=[Mock()],
@@ -333,29 +433,166 @@ class TestTasksClientCreate:
 
         assert result is expected
 
-    def test_create_emits_alpha_prerelease_warning(
-        self,
-        tasks_client: TasksClient,
-        caplog: pytest.LogCaptureFixture,
+
+@pytest.mark.unit
+class TestTasksClientCreateEvaluationTask:
+    """Tests for TasksClient.create_evaluation_task()."""
+
+    def test_delegates_template_evaluation_to_create(
+        self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """First call to create() should emit the ALPHA prerelease warning."""
-        from arize import pre_releases
+        """create_evaluation_task() with template_evaluation should call create()."""
+        mock_evaluator = Mock()
 
-        pre_releases._WARNED.clear()
-        caplog.set_level(logging.WARNING)
+        with (
+            patch(
+                "arize._generated.api_client.CreateTemplateEvaluationTaskRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.TasksCreateRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
+            tasks_client.create_evaluation_task(
+                name="my-task",
+                task_type="template_evaluation",
+                evaluators=[mock_evaluator],
+                project=_PROJECT_ID,
+            )
 
-        with patch("arize._generated.api_client.TasksCreateRequest"):
-            tasks_client.create(
+        _, kwargs = mock_inner_cls.call_args
+        assert kwargs["type"] == "template_evaluation"
+        assert kwargs["project_id"] == _PROJECT_ID
+        mock_api.tasks_create.assert_called_once()
+
+    def test_delegates_code_evaluation_to_create(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """create_evaluation_task() with code_evaluation should call create()."""
+        with (
+            patch(
+                "arize._generated.api_client.CreateCodeEvaluationTaskRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.TasksCreateRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
+            tasks_client.create_evaluation_task(
+                name="code-task",
+                task_type="code_evaluation",
+                evaluators=[Mock()],
+                dataset=_DATASET_ID,
+                experiment_ids=["exp-1"],
+            )
+
+        _, kwargs = mock_inner_cls.call_args
+        assert kwargs["type"] == "code_evaluation"
+        assert kwargs["dataset_id"] == _DATASET_ID
+        assert kwargs["experiment_ids"] == ["exp-1"]
+
+    def test_returns_api_response(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """create_evaluation_task() should return the task from the API."""
+        expected = Mock()
+        mock_api.tasks_create.return_value = expected
+
+        with (
+            patch(
+                "arize._generated.api_client.CreateTemplateEvaluationTaskRequest"
+            ),
+            patch("arize._generated.api_client.TasksCreateRequest"),
+        ):
+            result = tasks_client.create_evaluation_task(
                 name="my-task",
                 task_type="template_evaluation",
                 evaluators=[Mock()],
                 project=_PROJECT_ID,
             )
 
-        assert any(
-            "ALPHA" in record.message and "tasks.create" in record.message
-            for record in caplog.records
+        assert result is expected
+
+
+@pytest.mark.unit
+class TestTasksClientCreateRunExperimentTask:
+    """Tests for TasksClient.create_run_experiment_task()."""
+
+    def test_delegates_to_create(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """create_run_experiment_task() should call create() with run_experiment type."""
+        mock_run_config = Mock()
+
+        with (
+            patch(
+                "arize._generated.api_client.RunConfiguration"
+            ) as mock_rc_cls,
+            patch(
+                "arize._generated.api_client.CreateRunExperimentTaskRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.TasksCreateRequest"),
+        ):
+            mock_rc_cls.return_value = Mock()
+            mock_inner_cls.return_value = Mock()
+            tasks_client.create_run_experiment_task(
+                name="run-exp-task",
+                dataset=_DATASET_ID,
+                run_configuration=mock_run_config,
+            )
+
+        _, kwargs = mock_inner_cls.call_args
+        assert kwargs["type"] == "run_experiment"
+        assert kwargs["dataset_id"] == _DATASET_ID
+        mock_api.tasks_create.assert_called_once()
+
+    def test_forwards_space_for_dataset_resolution(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """create_run_experiment_task() should pass space through to create()."""
+        mock_dataset = Mock()
+        mock_dataset.id = _DATASET_ID
+        mock_dataset.name = "my-dataset"
+        mock_datasets_api = Mock()
+        mock_datasets_api.datasets_list.return_value = Mock(
+            datasets=[mock_dataset],
+            pagination=Mock(next_cursor=None),
         )
+        tasks_client._datasets_api = mock_datasets_api
+
+        with (
+            patch("arize._generated.api_client.RunConfiguration"),
+            patch(
+                "arize._generated.api_client.CreateRunExperimentTaskRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.TasksCreateRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
+            tasks_client.create_run_experiment_task(
+                name="run-exp-task",
+                dataset="my-dataset",
+                run_configuration=Mock(),
+                space="U3BhY2U6OTA1MDoxSmtS",
+            )
+
+        _, kwargs = mock_inner_cls.call_args
+        assert kwargs["dataset_id"] == _DATASET_ID
+
+    def test_returns_api_response(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """create_run_experiment_task() should return the task from the API."""
+        expected = Mock()
+        mock_api.tasks_create.return_value = expected
+
+        with (
+            patch("arize._generated.api_client.RunConfiguration"),
+            patch("arize._generated.api_client.CreateRunExperimentTaskRequest"),
+            patch("arize._generated.api_client.TasksCreateRequest"),
+        ):
+            result = tasks_client.create_run_experiment_task(
+                name="run-exp-task",
+                dataset=_DATASET_ID,
+                run_configuration=Mock(),
+            )
+
+        assert result is expected
 
 
 @pytest.mark.unit
@@ -365,19 +602,27 @@ class TestTasksClientUpdate:
     def test_update_builds_request_and_calls_api(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """update() should build TasksUpdateRequest and call tasks_update."""
-        with patch(
-            "arize._generated.api_client.TasksUpdateRequest"
-        ) as mock_request_cls:
-            mock_body = Mock()
-            mock_request_cls.return_value = mock_body
+        """update() should build the inner request, wrap it, and call tasks_update."""
+        with (
+            patch(
+                "arize._generated.api_client.UpdateEvaluationTaskRequest"
+            ) as mock_inner_cls,
+            patch(
+                "arize._generated.api_client.TasksUpdateRequest"
+            ) as mock_wrapper_cls,
+        ):
+            mock_inner = Mock()
+            mock_inner_cls.return_value = mock_inner
+            mock_wrapper = Mock()
+            mock_wrapper_cls.return_value = mock_wrapper
 
             tasks_client.update(task=_TASK_ID, name="new-name")
 
-        mock_request_cls.assert_called_once_with(name="new-name")
+        mock_inner_cls.assert_called_once_with(name="new-name")
+        mock_wrapper_cls.assert_called_once_with(actual_instance=mock_inner)
         mock_api.tasks_update.assert_called_once_with(
             task_id=_TASK_ID,
-            tasks_update_request=mock_body,
+            tasks_update_request=mock_wrapper,
         )
 
     def test_update_with_all_optional_fields(
@@ -385,10 +630,13 @@ class TestTasksClientUpdate:
     ) -> None:
         """update() should forward all mutable fields."""
         mock_ev = Mock()
-        with patch(
-            "arize._generated.api_client.TasksUpdateRequest"
-        ) as mock_request_cls:
-            mock_request_cls.return_value = Mock()
+        with (
+            patch(
+                "arize._generated.api_client.UpdateEvaluationTaskRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.TasksUpdateRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
 
             tasks_client.update(
                 task=_TASK_ID,
@@ -400,7 +648,7 @@ class TestTasksClientUpdate:
                 evaluators=[mock_ev],
             )
 
-        _, kwargs = mock_request_cls.call_args
+        _, kwargs = mock_inner_cls.call_args
         assert kwargs["name"] == "x"
         assert kwargs["sampling_rate"] == 0.25
         assert kwargs["is_continuous"] is True
@@ -411,14 +659,17 @@ class TestTasksClientUpdate:
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
         """Passing query_filter=None should clear the filter on the API."""
-        with patch(
-            "arize._generated.api_client.TasksUpdateRequest"
-        ) as mock_request_cls:
-            mock_request_cls.return_value = Mock()
+        with (
+            patch(
+                "arize._generated.api_client.UpdateEvaluationTaskRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.TasksUpdateRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
 
             tasks_client.update(task=_TASK_ID, query_filter=None)
 
-        mock_request_cls.assert_called_once_with(query_filter=None)
+        mock_inner_cls.assert_called_once_with(query_filter=None)
 
     def test_update_raises_when_no_fields(
         self, tasks_client: TasksClient, mock_api: Mock
@@ -436,7 +687,10 @@ class TestTasksClientUpdate:
         expected = Mock()
         mock_api.tasks_update.return_value = expected
 
-        with patch("arize._generated.api_client.TasksUpdateRequest"):
+        with (
+            patch("arize._generated.api_client.UpdateEvaluationTaskRequest"),
+            patch("arize._generated.api_client.TasksUpdateRequest"),
+        ):
             result = tasks_client.update(task=_TASK_ID, name="y")
 
         assert result is expected
@@ -452,7 +706,10 @@ class TestTasksClientUpdate:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        with patch("arize._generated.api_client.TasksUpdateRequest"):
+        with (
+            patch("arize._generated.api_client.UpdateEvaluationTaskRequest"),
+            patch("arize._generated.api_client.TasksUpdateRequest"),
+        ):
             tasks_client.update(task=_TASK_ID, name="z")
 
         assert any(
@@ -509,25 +766,33 @@ class TestTasksClientTriggerRun:
     def test_trigger_run_builds_request_and_calls_api(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """trigger_run() should build the request and call tasks_trigger_run."""
-        with patch(
-            "arize._generated.api_client.TasksTriggerRunRequest"
-        ) as mock_request_cls:
-            mock_body = Mock()
-            mock_request_cls.return_value = mock_body
+        """trigger_run() should build the inner request, wrap it, and call tasks_trigger_run."""
+        with (
+            patch(
+                "arize._generated.api_client.TriggerEvaluationTaskRunRequest"
+            ) as mock_inner_cls,
+            patch(
+                "arize._generated.api_client.TasksTriggerRunRequest"
+            ) as mock_wrapper_cls,
+        ):
+            mock_inner = Mock()
+            mock_inner_cls.return_value = mock_inner
+            mock_wrapper = Mock()
+            mock_wrapper_cls.return_value = mock_wrapper
 
             tasks_client.trigger_run(task=_TASK_ID)
 
-        mock_request_cls.assert_called_once_with(
+        mock_inner_cls.assert_called_once_with(
             data_start_time=None,
             data_end_time=None,
             max_spans=None,
             override_evaluations=None,
             experiment_ids=None,
         )
+        mock_wrapper_cls.assert_called_once_with(actual_instance=mock_inner)
         mock_api.tasks_trigger_run.assert_called_once_with(
             task_id=_TASK_ID,
-            tasks_trigger_run_request=mock_body,
+            tasks_trigger_run_request=mock_wrapper,
         )
 
     def test_trigger_run_with_all_params(
@@ -539,10 +804,13 @@ class TestTasksClientTriggerRun:
         start = datetime(2024, 1, 1, tzinfo=timezone.utc)
         end = datetime(2024, 1, 2, tzinfo=timezone.utc)
 
-        with patch(
-            "arize._generated.api_client.TasksTriggerRunRequest"
-        ) as mock_request_cls:
-            mock_request_cls.return_value = Mock()
+        with (
+            patch(
+                "arize._generated.api_client.TriggerEvaluationTaskRunRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.TasksTriggerRunRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
 
             tasks_client.trigger_run(
                 task=_TASK_ID,
@@ -553,7 +821,7 @@ class TestTasksClientTriggerRun:
                 experiment_ids=["exp-1"],
             )
 
-        _, kwargs = mock_request_cls.call_args
+        _, kwargs = mock_inner_cls.call_args
         assert kwargs["data_start_time"] == start
         assert kwargs["data_end_time"] == end
         assert kwargs["max_spans"] == 500
@@ -567,7 +835,12 @@ class TestTasksClientTriggerRun:
         expected = Mock()
         mock_api.tasks_trigger_run.return_value = expected
 
-        with patch("arize._generated.api_client.TasksTriggerRunRequest"):
+        with (
+            patch(
+                "arize._generated.api_client.TriggerEvaluationTaskRunRequest"
+            ),
+            patch("arize._generated.api_client.TasksTriggerRunRequest"),
+        ):
             result = tasks_client.trigger_run(task=_TASK_ID)
 
         assert result is expected
@@ -583,7 +856,12 @@ class TestTasksClientTriggerRun:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        with patch("arize._generated.api_client.TasksTriggerRunRequest"):
+        with (
+            patch(
+                "arize._generated.api_client.TriggerEvaluationTaskRunRequest"
+            ),
+            patch("arize._generated.api_client.TasksTriggerRunRequest"),
+        ):
             tasks_client.trigger_run(task=_TASK_ID)
 
         assert any(

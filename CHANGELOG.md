@@ -1,5 +1,13 @@
 # Changelog
 
+## [8.23.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.22.4...arize-python-sdk/v8.23.0) (2026-05-11)
+
+
+### 🎁 New Features
+
+* **api-keys:** extend GET /v2/api-keys with space_id and user_id filters ([#70697](https://github.com/Arize-ai/arize/issues/70697)) ([06dfc73](https://github.com/Arize-ai/arize/commit/06dfc73f9f3d7eb08c9d3c9435ff17d3462fa5e3))
+* add run_experiment task type ([#70545](https://github.com/Arize-ai/arize/issues/70545)) ([2ed75b9](https://github.com/Arize-ai/arize/commit/2ed75b998fb90298575329f4a63c95435a9a74b2))
+
 ## [8.22.4](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.22.3...arize-python-sdk/v8.22.4) (2026-05-08)
 
 

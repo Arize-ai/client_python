@@ -1515,7 +1515,7 @@ class UsersApi:
     ) -> None:
         """Resend a user invitation
 
-        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 202 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 202 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param user_id: The unique identifier of the user (required)
         :type user_id: str
@@ -1550,7 +1550,7 @@ class UsersApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '202': None,
+            '204': None,
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1587,7 +1587,7 @@ class UsersApi:
     ) -> ApiResponse[None]:
         """Resend a user invitation
 
-        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 202 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 202 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param user_id: The unique identifier of the user (required)
         :type user_id: str
@@ -1622,7 +1622,7 @@ class UsersApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '202': None,
+            '204': None,
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1659,7 +1659,7 @@ class UsersApi:
     ) -> RESTResponseType:
         """Resend a user invitation
 
-        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 202 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 202 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param user_id: The unique identifier of the user (required)
         :type user_id: str
@@ -1694,7 +1694,7 @@ class UsersApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '202': None,
+            '204': None,
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

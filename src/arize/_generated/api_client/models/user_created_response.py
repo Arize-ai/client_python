@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.invite_mode import InviteMode
 from arize._generated.api_client.models.user_role_assignment import UserRoleAssignment
@@ -38,7 +38,7 @@ class UserCreatedResponse(BaseModel):
     status: UserStatus
     is_developer: StrictBool = Field(description="Whether the user has developer permissions (can create GraphQL API keys)")
     invite_mode: InviteMode = Field(description="The invite mode used when the user was created.")
-    temporary_password: Optional[StrictStr] = Field(default=None, description="Temporary password issued when `invite_mode` is `temporary_password`. Only present in the `POST /v2/users` 201 Created response. ")
+    temporary_password: Optional[SecretStr] = Field(default=None, description="Temporary password issued when `invite_mode` is `temporary_password`. Only present in the `POST /v2/users` 201 Created response.  **Security notice:** this value is returned in the JSON response body (not out-of-band). Callers must treat it as a secret: avoid logging the full response, ensure transport is TLS-only, and instruct the user to change the password on first login. ")
     __properties: ClassVar[List[str]] = ["id", "name", "email", "role", "created_at", "status", "is_developer", "invite_mode", "temporary_password"]
 
     model_config = ConfigDict(

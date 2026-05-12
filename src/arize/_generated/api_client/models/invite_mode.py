@@ -20,7 +20,7 @@ from typing_extensions import Self
 
 class InviteMode(str, Enum):
     """
-    Controls how the user is invited to the account. - `none` — add the user directly with no invitation email (for SSO-only accounts). - `email_link` — send the user an email with a verification link to complete registration. - `temporary_password` — issue a temporary password delivered out-of-band; the user must reset it on first login. 
+    Controls how the user is invited to the account. - `none` — add the user directly with no invitation email (for SSO-only accounts). - `email_link` — send the user an email with a verification link to complete registration. - `temporary_password` — issue a temporary password returned in the `POST /v2/users` response body; the user must reset it on first login. **Treat this value as a secret** — see `UserCreatedResponse.temporary_password` for security guidance. 
     """
 
     """

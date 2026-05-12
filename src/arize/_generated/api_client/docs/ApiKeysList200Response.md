@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**api_keys** | [**List[ApiKey]**](ApiKey.md) | API keys owned by the authenticated user. | 
+**api_keys** | [**List[ApiKey]**](ApiKey.md) | API keys matching the request filters. | 
 **pagination** | [**PaginationMetadata**](PaginationMetadata.md) |  | 
 
 ## Example

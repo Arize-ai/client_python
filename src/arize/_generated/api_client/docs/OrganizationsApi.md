@@ -4,12 +4,113 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**organizations_add_user**](OrganizationsApi.md#organizations_add_user) | **POST** /v2/organizations/{org_id}/users | Add a user to an organization
 [**organizations_create**](OrganizationsApi.md#organizations_create) | **POST** /v2/organizations | Create an organization
 [**organizations_delete**](OrganizationsApi.md#organizations_delete) | **DELETE** /v2/organizations/{org_id} | Delete an organization
 [**organizations_get**](OrganizationsApi.md#organizations_get) | **GET** /v2/organizations/{org_id} | Get an organization
 [**organizations_list**](OrganizationsApi.md#organizations_list) | **GET** /v2/organizations | List organizations
+[**organizations_remove_user**](OrganizationsApi.md#organizations_remove_user) | **DELETE** /v2/organizations/{org_id}/users/{user_id} | Remove a user from an organization
 [**organizations_update**](OrganizationsApi.md#organizations_update) | **PATCH** /v2/organizations/{org_id} | Update an organization
 
+
+# **organizations_add_user**
+> OrganizationMembership organizations_add_user(org_id, organization_membership_input)
+
+Add a user to an organization
+
+Add a single existing account user to an organization with a specified role.
+
+**Payload Requirements**
+- `user_id` and `role` are both required.
+- If the user is already a member, their role is updated to the specified value (upsert).
+
+**Role constraints**
+- Users with an `annotator` account role can only be assigned the `annotator` organization role.
+- Users with a non-annotator account role cannot be assigned the `annotator` organization role.
+
+Requires organization admin.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.organization_membership import OrganizationMembership
+from arize._generated.api_client.models.organization_membership_input import OrganizationMembershipInput
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.OrganizationsApi(api_client)
+    org_id = 'org_12345' # str | The unique identifier of the organization
+    organization_membership_input = {"user_id":"VXNlcjoxMjM0NQ==","role":{"type":"builtin","name":"member"}} # OrganizationMembershipInput | Body containing the user to add to the organization
+
+    try:
+        # Add a user to an organization
+        api_response = api_instance.organizations_add_user(org_id, organization_membership_input)
+        print("The response of OrganizationsApi->organizations_add_user:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling OrganizationsApi->organizations_add_user: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **org_id** | **str**| The unique identifier of the organization | 
+ **organization_membership_input** | [**OrganizationMembershipInput**](OrganizationMembershipInput.md)| Body containing the user to add to the organization | 
+
+### Return type
+
+[**OrganizationMembership**](OrganizationMembership.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | User successfully added to the organization |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **organizations_create**
 > Organization organizations_create(organizations_create_request)
@@ -375,6 +476,93 @@ Name | Type | Description  | Notes
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **organizations_remove_user**
+> organizations_remove_user(org_id, user_id)
+
+Remove a user from an organization
+
+Remove a user from the organization and all its child spaces (membership cascade).
+
+Requires organization admin.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.OrganizationsApi(api_client)
+    org_id = 'org_12345' # str | The unique identifier of the organization
+    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique identifier of the user
+
+    try:
+        # Remove a user from an organization
+        api_instance.organizations_remove_user(org_id, user_id)
+    except Exception as e:
+        print("Exception when calling OrganizationsApi->organizations_remove_user: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **org_id** | **str**| The unique identifier of the organization | 
+ **user_id** | **str**| The unique identifier of the user | 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**204** | User successfully removed from the organization |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

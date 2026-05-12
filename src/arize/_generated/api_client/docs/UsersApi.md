@@ -510,9 +510,9 @@ The target user must be in the `invited` state (unverified and active).
 Returns 400 if the user has already verified their account, or if
 SAML/IdP login is enforced for the account.
 
-This is a fire-and-forget operation: a 202 response means the token was
+This is a fire-and-forget operation: a 204 response means the token was
 regenerated and the email dispatch was accepted. If the email fails to send,
-the endpoint still returns 202 and logs the error internally.
+the endpoint still returns 204 and logs the error internally.
 
 Requires account admin role or USER_CREATE permission.
 
@@ -583,7 +583,7 @@ void (empty response body)
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**202** | Invitation resend accepted |  -  |
+**204** | Invitation resend accepted (no content) |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |

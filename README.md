@@ -881,21 +881,59 @@ task_list = resp.tasks
 
 ### Create a Task
 
-Tasks run evaluators against spans from a project or experiments from a dataset. Either `project` or `dataset` is required (not both). At least one evaluator is required.
+There are two task types for running evaluators, and one for server-side LLM experiments. Use the appropriate typed helper:
+
+**Template or code evaluation task** — runs evaluators against spans from a project or experiments from a dataset.
 
 ```python
-from arize.tasks.types import TasksCreateRequestEvaluatorsInner
+from arize.tasks.types import BaseEvaluationTaskRequestEvaluatorsInner
 
-task = client.tasks.create(
-    name="<your-task-name>",
+# Project-based, continuous template evaluation task
+task = client.tasks.create_evaluation_task(
+    name="Production Hallucination Check",
     task_type="template_evaluation",
-    evaluators=[TasksCreateRequestEvaluatorsInner(...)],
-    project="<project-id-or-name>", # Required if not using dataset
-    # dataset="<dataset-id-or-name>", # Required if not using project
-    space=..., # Optional, space ID or name
-    sampling_rate=..., # Optional, fraction of data to evaluate (0.0–1.0)
-    is_continuous=..., # Optional, run continuously on new data
-    query_filter=..., # Optional, filter expression for spans
+    evaluators=[BaseEvaluationTaskRequestEvaluatorsInner(
+        evaluator_id="<evaluator-id>",   # Required
+        column_mappings={"input": "attributes.input.value"},  # Optional
+    )],
+    project="<project-id-or-name>",  # Required if not using dataset
+    space=...,            # Optional, space ID or name
+    sampling_rate=1.0,    # Optional, fraction of data to evaluate (0.0–1.0)
+    is_continuous=True,   # Optional, run continuously on new data
+    query_filter=...,     # Optional, filter expression for spans
+)
+
+# Dataset-based code evaluation task
+task = client.tasks.create_evaluation_task(
+    name="My Code Evaluator Task",
+    task_type="code_evaluation",
+    evaluators=[BaseEvaluationTaskRequestEvaluatorsInner(evaluator_id="<evaluator-id>")],
+    dataset="<dataset-id-or-name>",   # Required if not using project
+    experiment_ids=["<experiment-id>"],  # Required when using dataset
+)
+```
+
+**Run experiment task** — the server drives LLM calls using the configured AI integration. No local callable is required.
+
+```python
+from arize.tasks.types import LlmGenerationRunConfig, RunConfiguration
+
+task = client.tasks.create_run_experiment_task(
+    name="GPT-4o Baseline Task",
+    dataset="<dataset-id-or-name>",
+    run_configuration=RunConfiguration(
+        actual_instance=LlmGenerationRunConfig(
+            experiment_type="llm_generation",
+            ai_integration_id="<ai-integration-id>",
+            model_name="gpt-4o",
+            input_variable_format="f_string",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": "Answer: {question}"},
+            ],
+        )
+    ),
+    space=...,  # Optional, space ID or name
 )
 ```
 
@@ -910,16 +948,26 @@ task = client.tasks.get(
 
 ### Trigger a Task Run
 
-You can trigger an on-demand run of a task. The returned `TaskRun` will initially have `"pending"` status.
+You can trigger an on-demand run of a task. The returned `TaskRun` will initially have `"pending"` status. The method automatically dispatches based on the task type.
 
 ```python
+# Evaluation task (template_evaluation / code_evaluation)
 run = client.tasks.trigger_run(
     task="<task-id-or-name>",
-    space=..., # Optional
-    data_start_time=..., # Optional, start of data window
-    data_end_time=..., # Optional, end of data window
-    max_spans=..., # Optional, maximum spans to evaluate
-    override_evaluations=..., # Optional, re-evaluate already-evaluated spans
+    space=...,                  # Optional
+    data_start_time=...,        # Optional, start of data window
+    data_end_time=...,          # Optional, end of data window
+    max_spans=...,              # Optional, maximum spans to evaluate
+    override_evaluations=...,   # Optional, re-evaluate already-evaluated spans
+)
+
+# Run experiment task — experiment_name is required
+run = client.tasks.trigger_run(
+    task="<task-id-or-name>",
+    space=...,                  # Optional
+    experiment_name="GPT-4o Baseline v2",  # Required for run_experiment tasks
+    max_examples=50,            # Optional, limit number of dataset examples
+    tracing_metadata={"source": "api"},  # Optional, metadata for traces
 )
 ```
 

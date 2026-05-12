@@ -6,14 +6,15 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Task name | 
-**type** | **str** | Task type | 
-**project_id** | **str** | Project global ID (base64). Required if dataset_id is not provided. Mutually exclusive with dataset_id. | [optional] 
-**dataset_id** | **str** | Dataset global ID (base64). Required if project_id is not provided. Mutually exclusive with project_id. | [optional] 
-**experiment_ids** | **List[str]** | Experiment global IDs (base64). Required when dataset_id is provided (at least one). Must be omitted or empty for project-based tasks. | [optional] 
-**sampling_rate** | **float** | Sampling rate between 0 and 1. Only supported on project tasks. | [optional] 
-**is_continuous** | **bool** | Whether the task runs continuously. Must be true or false for project-based tasks. Must be false or omitted for dataset-based tasks. | [optional] 
-**query_filter** | **str** | Task-level query filter applied to all data. | [optional] 
-**evaluators** | [**List[TasksCreateRequestEvaluatorsInner]**](TasksCreateRequestEvaluatorsInner.md) | Evaluators to attach (at least one required). | 
+**type** | **str** | Task type discriminator. Must be &#x60;\&quot;template_evaluation\&quot;&#x60;. | 
+**project_id** | **str** | Project global ID (base64). Required when &#x60;dataset_id&#x60; is not provided. Mutually exclusive with &#x60;dataset_id&#x60;.  | [optional] 
+**dataset_id** | **str** | Dataset global ID (base64). Required for &#x60;run_experiment&#x60; tasks. | 
+**experiment_ids** | **List[str]** | Experiment global IDs (base64). Required when &#x60;dataset_id&#x60; is provided (at least one entry). Must be omitted or empty for project-based tasks.  | [optional] 
+**sampling_rate** | **float** | Sampling rate between 0 and 1. Only supported on project-based tasks.  | [optional] 
+**is_continuous** | **bool** | Whether the task runs continuously. Only supported on project-based tasks. Must be &#x60;false&#x60; or omitted for dataset-based tasks.  | [optional] 
+**query_filter** | **str** | Task-level query filter applied to all evaluated data. | [optional] 
+**evaluators** | [**List[BaseEvaluationTaskRequestEvaluatorsInner]**](BaseEvaluationTaskRequestEvaluatorsInner.md) | Evaluators to attach (at least one required). | 
+**run_configuration** | [**RunConfiguration**](RunConfiguration.md) |  | 
 
 ## Example
 

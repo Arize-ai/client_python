@@ -35,7 +35,7 @@ class TestTasksCreateRequest(unittest.TestCase):
         model = TasksCreateRequest()
         if include_optional:
             return TasksCreateRequest(
-                name = '',
+                name = '0',
                 type = 'template_evaluation',
                 project_id = '',
                 dataset_id = '',
@@ -46,26 +46,29 @@ class TestTasksCreateRequest(unittest.TestCase):
                 is_continuous = True,
                 query_filter = '',
                 evaluators = [
-                    arize._generated.api_client.models.tasks_create_request_evaluators_inner.tasks_create_request_evaluators_inner(
-                        evaluator_id = '', 
-                        query_filter = '', 
-                        column_mappings = {
-                            'key' : ''
-                            }, )
-                    ]
-            )
-        else:
-            return TasksCreateRequest(
-                name = '',
-                type = 'template_evaluation',
-                evaluators = [
-                    arize._generated.api_client.models.tasks_create_request_evaluators_inner.tasks_create_request_evaluators_inner(
+                    arize._generated.api_client.models.base_evaluation_task_request_evaluators_inner.BaseEvaluationTaskRequest_evaluators_inner(
                         evaluator_id = '', 
                         query_filter = '', 
                         column_mappings = {
                             'key' : ''
                             }, )
                     ],
+                run_configuration = None
+            )
+        else:
+            return TasksCreateRequest(
+                name = '0',
+                type = 'template_evaluation',
+                dataset_id = '',
+                evaluators = [
+                    arize._generated.api_client.models.base_evaluation_task_request_evaluators_inner.BaseEvaluationTaskRequest_evaluators_inner(
+                        evaluator_id = '', 
+                        query_filter = '', 
+                        column_mappings = {
+                            'key' : ''
+                            }, )
+                    ],
+                run_configuration = None,
         )
         """
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import TYPE_CHECKING, Any, Final, Literal
+from typing import TYPE_CHECKING, Any, Final
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
@@ -19,19 +19,19 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from arize._generated.api_client.api_client import ApiClient
+    from arize._generated.api_client.models.run_configuration import (
+        RunConfiguration,
+    )
     from arize.config import SDKConfiguration
     from arize.tasks.types import (
+        BaseEvaluationTaskRequestEvaluatorsInner,
+        RunStatus,
         Task,
         TaskRun,
-        TasksCreateRequestEvaluatorsInner,
         TasksList200Response,
         TasksListRuns200Response,
+        TaskType,
     )
-
-# Shared type aliases — kept here so method signatures and _TERMINAL_STATUSES
-# stay in sync with a single source of truth.
-TaskType = Literal["template_evaluation", "code_evaluation"]
-RunStatus = Literal["pending", "running", "completed", "failed", "cancelled"]
 
 logger = logging.getLogger(__name__)
 
@@ -178,13 +178,14 @@ class TasksClient:
         )
         return self._api.tasks_get(task_id=task_id)
 
-    @prerelease_endpoint(key="tasks.create", stage=ReleaseStage.ALPHA)
-    def create(
+    def _create(
         self,
         *,
         name: str,
         task_type: TaskType,
-        evaluators: builtins.list[TasksCreateRequestEvaluatorsInner],
+        evaluators: builtins.list[BaseEvaluationTaskRequestEvaluatorsInner]
+        | None = None,
+        run_configuration: RunConfiguration | None = None,
         project: str | None = None,
         dataset: str | None = None,
         space: str | None = None,
@@ -193,19 +194,26 @@ class TasksClient:
         is_continuous: bool | None = None,
         query_filter: str | None = None,
     ) -> Task:
-        """Create a new evaluation task.
+        """Create a new task.
 
-        Either ``project`` or ``dataset`` must be provided, but not both.
-        When ``dataset`` is provided, at least one ``experiment_ids`` entry
-        is required.
+        The required arguments depend on ``task_type``:
+
+        - ``"template_evaluation"`` / ``"code_evaluation"``: ``evaluators``
+          is required. Either ``project`` or ``dataset`` must be provided.
+          When ``dataset`` is provided, at least one entry in
+          ``experiment_ids`` is required.
+        - ``"run_experiment"``: ``run_configuration`` and ``dataset`` are
+          required. Eval-only fields (``evaluators``, ``project``,
+          ``sampling_rate``, ``is_continuous``, ``query_filter``,
+          ``experiment_ids``) must be omitted.
 
         Args:
             name: Task name (must be unique within the space).
-            task_type: Task type. One of ``"template_evaluation"`` or
-                ``"code_evaluation"``.
-            evaluators: List of evaluators to attach. At least one is required.
-                Each evaluator is a
-                :class:`arize.tasks.types.TasksCreateRequestEvaluatorsInner`
+            task_type: Task type: ``"template_evaluation"``,
+                ``"code_evaluation"``, or ``"run_experiment"``.
+            evaluators: List of evaluators to attach. Required for eval task
+                types; must be omitted for ``"run_experiment"``. Each entry is
+                a :class:`arize.tasks.types.BaseEvaluationTaskRequestEvaluatorsInner`
                 with the following fields:
 
                 - ``evaluator_id`` — Evaluator global ID (base64). Required.
@@ -214,29 +222,90 @@ class TasksClient:
                 - ``column_mappings`` — Maps template variable names to column
                   names. Optional.
 
-            project: Project name or global ID (base64). Required when
-                ``dataset`` is not provided.
-            dataset: Dataset name or global ID (base64). Required when
+            run_configuration: Experiment run configuration. Required for
+                ``"run_experiment"`` tasks; must be omitted for eval task
+                types. Use
+                :class:`arize.tasks.types.LlmGenerationRunConfig` or
+                :class:`arize.tasks.types.TemplateEvaluationRunConfig`
+                wrapped in
+                :class:`arize.tasks.types.RunConfiguration`.
+            project: Project name or global ID (base64). For eval tasks,
+                required when ``dataset`` is not provided.
+            dataset: Dataset name or global ID (base64). Required for
+                ``"run_experiment"`` tasks; for eval tasks, required when
                 ``project`` is not provided.
             space: Optional space name or ID used to disambiguate name-based
                 resolution for ``project`` and ``dataset``.
-            experiment_ids: Experiment global IDs (base64). Required (at least
-                one) when ``dataset`` is provided. Must be omitted or empty
-                for project-based tasks.
+            experiment_ids: Experiment global IDs (base64). For eval tasks:
+                required (at least one) when ``dataset`` is provided; must
+                be omitted for project-based tasks. Not applicable for
+                ``"run_experiment"`` tasks.
             sampling_rate: Fraction of data to evaluate (0-1). Only valid for
-                project-based tasks.
-            is_continuous: Whether to run the task continuously. Must be
-                ``True`` or ``False`` for project-based tasks; must be
-                ``False`` or omitted for dataset-based tasks.
+                project-based eval tasks.
+            is_continuous: Whether to run the task continuously. Only valid
+                for eval tasks.
             query_filter: Task-level query filter applied to all evaluators.
+                Only valid for eval tasks.
 
         Returns:
             The newly created task.
 
         Raises:
+            ValueError: If required fields are missing or mutually exclusive
+                fields are combined.
             ApiException: If the API request fails
                 (for example, invalid payload or name conflict).
         """
+        from arize._generated import api_client as gen
+
+        if task_type == "run_experiment":
+            eval_only = {
+                k: v
+                for k, v in {
+                    "evaluators": evaluators,
+                    "project": project,
+                    "sampling_rate": sampling_rate,
+                    "is_continuous": is_continuous,
+                    "query_filter": query_filter,
+                    "experiment_ids": experiment_ids,
+                }.items()
+                if v is not None
+            }
+            if eval_only:
+                raise ValueError(
+                    f"run_experiment tasks do not support eval-only fields: "
+                    f"{', '.join(eval_only)}. Use 'run_configuration' and 'dataset' instead.",
+                )
+            if run_configuration is None:
+                raise ValueError(
+                    "'run_configuration' is required for run_experiment tasks."
+                )
+            if not dataset:
+                raise ValueError(
+                    "'dataset' is required for run_experiment tasks."
+                )
+            run_exp_dataset_id = _find_dataset_id(
+                api=self._datasets_api,
+                dataset=dataset,
+                space=space,
+            )
+            run_exp_inner = gen.CreateRunExperimentTaskRequest(
+                name=name,
+                type="run_experiment",
+                dataset_id=run_exp_dataset_id,
+                run_configuration=run_configuration,
+            )
+            body = gen.TasksCreateRequest(actual_instance=run_exp_inner)
+            return self._api.tasks_create(tasks_create_request=body)
+        if run_configuration is not None:
+            raise ValueError(
+                f"'run_configuration' is only valid for run_experiment tasks, "
+                f"not '{task_type}'.",
+            )
+        if evaluators is None:
+            raise ValueError(
+                f"'evaluators' is required for '{task_type}' tasks."
+            )
         project_id = (
             _find_project_id(
                 api=self._projects_api,
@@ -246,7 +315,7 @@ class TasksClient:
             if project
             else None
         )
-        dataset_id = (
+        dataset_id: str | None = (
             _find_dataset_id(
                 api=self._datasets_api,
                 dataset=dataset,
@@ -255,10 +324,12 @@ class TasksClient:
             if dataset
             else None
         )
-
-        from arize._generated import api_client as gen
-
-        body = gen.TasksCreateRequest(
+        inner_cls = (
+            gen.CreateTemplateEvaluationTaskRequest
+            if task_type == "template_evaluation"
+            else gen.CreateCodeEvaluationTaskRequest
+        )
+        eval_inner = inner_cls(
             name=name,
             type=task_type,
             evaluators=evaluators,
@@ -269,7 +340,128 @@ class TasksClient:
             is_continuous=is_continuous,
             query_filter=query_filter,
         )
+        body = gen.TasksCreateRequest(actual_instance=eval_inner)
         return self._api.tasks_create(tasks_create_request=body)
+
+    @prerelease_endpoint(
+        key="tasks.create_evaluation_task", stage=ReleaseStage.ALPHA
+    )
+    def create_evaluation_task(
+        self,
+        *,
+        name: str,
+        task_type: TaskType,
+        evaluators: builtins.list[BaseEvaluationTaskRequestEvaluatorsInner],
+        project: str | None = None,
+        dataset: str | None = None,
+        space: str | None = None,
+        experiment_ids: builtins.list[str] | None = None,
+        sampling_rate: float | None = None,
+        is_continuous: bool | None = None,
+        query_filter: str | None = None,
+    ) -> Task:
+        """Create a new evaluation task.
+
+        A typed convenience wrapper around the internal task-creation logic for
+        ``"template_evaluation"`` and ``"code_evaluation"`` task types.
+        Prefer this method when creating evaluation tasks
+        for a cleaner, narrowly-typed signature.
+
+        Args:
+            name: Task name (must be unique within the space).
+            task_type: Task type: ``"template_evaluation"`` or
+                ``"code_evaluation"``.
+            evaluators: List of evaluators to attach (at least one required).
+                Each entry is a
+                :class:`arize.tasks.types.BaseEvaluationTaskRequestEvaluatorsInner`
+                with the following fields:
+
+                - ``evaluator_id`` — Evaluator global ID (base64). Required.
+                - ``query_filter`` — Per-evaluator filter. Optional.
+                - ``column_mappings`` — Template variable name mappings. Optional.
+
+            project: Project name or global ID (base64). Required when
+                ``dataset`` is not provided.
+            dataset: Dataset name or global ID (base64). Required when
+                ``project`` is not provided.
+            space: Optional space name or ID used to disambiguate name-based
+                resolution for ``project`` and ``dataset``.
+            experiment_ids: Experiment global IDs (base64). Required (at least
+                one) when ``dataset`` is provided.
+            sampling_rate: Fraction of data to evaluate (0-1). Only valid for
+                project-based tasks.
+            is_continuous: Whether to run the task continuously. Only valid
+                for project-based tasks.
+            query_filter: Task-level query filter applied to all evaluators.
+
+        Returns:
+            The newly created task.
+
+        Raises:
+            ValueError: If required fields are missing or mutually exclusive
+                fields are combined.
+            ApiException: If the API request fails.
+        """
+        return self._create(
+            name=name,
+            task_type=task_type,
+            evaluators=evaluators,
+            project=project,
+            dataset=dataset,
+            space=space,
+            experiment_ids=experiment_ids,
+            sampling_rate=sampling_rate,
+            is_continuous=is_continuous,
+            query_filter=query_filter,
+        )
+
+    @prerelease_endpoint(
+        key="tasks.create_run_experiment_task", stage=ReleaseStage.ALPHA
+    )
+    def create_run_experiment_task(
+        self,
+        *,
+        name: str,
+        dataset: str,
+        run_configuration: RunConfiguration,
+        space: str | None = None,
+    ) -> Task:
+        """Create a new ``run_experiment`` task.
+
+        A typed convenience wrapper around the internal task-creation logic for
+        ``"run_experiment"`` task types. The server drives all LLM calls
+        using the AI integration specified in ``run_configuration`` — no
+        local callable is required.
+
+        To create and immediately trigger a run in one call, use
+        ``create_and_run_experiment_task`` (available separately).
+
+        Args:
+            name: Task name (must be unique within the space).
+            dataset: Dataset name or global ID (base64) to run the
+                experiment against.
+            run_configuration: Discriminated experiment configuration. Use
+                :class:`arize.tasks.types.LlmGenerationRunConfig` or
+                :class:`arize.tasks.types.TemplateEvaluationRunConfig`
+                wrapped in :class:`arize.tasks.types.RunConfiguration`.
+            space: Optional space name or ID used to resolve ``dataset``
+                by name.
+
+        Returns:
+            The newly created task.
+
+        Raises:
+            ApiException: If the API request fails.
+        """
+        from arize.tasks.types import TaskType
+
+        return self._create(
+            name=name,
+            task_type=TaskType.RUN_EXPERIMENT,
+            run_configuration=run_configuration,
+            dataset=dataset,
+            space=space,
+        )
 
     @prerelease_endpoint(key="tasks.update", stage=ReleaseStage.ALPHA)
     def update(
@@ -278,17 +470,37 @@ class TasksClient:
         task: str,
         space: str | None = None,
         name: str | _Missing = _MISSING,
+        # Evaluation-task fields
         sampling_rate: float | _Missing = _MISSING,
         is_continuous: bool | _Missing = _MISSING,
         query_filter: str | None | _Missing = _MISSING,
-        evaluators: builtins.list[TasksCreateRequestEvaluatorsInner]
+        evaluators: builtins.list[BaseEvaluationTaskRequestEvaluatorsInner]
         | _Missing = _MISSING,
+        # run_experiment-task fields
+        run_configuration: RunConfiguration | _Missing = _MISSING,
     ) -> Task:
         """Update mutable fields on an existing task.
+
+        Dispatches based on the task's type — resolves the task by ID or name
+        first, then GETs it to determine whether it is an evaluation task or a
+        ``run_experiment`` task, and builds the appropriate PATCH body.
 
         At least one mutable field must be provided. Pass ``None`` to
         ``query_filter`` to clear the existing filter; omit the argument to
         leave it unchanged.
+
+        For **evaluation tasks** (``template_evaluation`` /
+        ``code_evaluation``):
+
+        - Valid fields: ``name``, ``sampling_rate``, ``is_continuous``,
+          ``query_filter``, ``evaluators``.
+        - ``run_configuration`` must not be provided.
+
+        For **run_experiment tasks**:
+
+        - Valid fields: ``name``, ``run_configuration``.
+        - Evaluation-only fields (``sampling_rate``, ``is_continuous``,
+          ``query_filter``, ``evaluators``) must not be provided.
 
         Args:
             task: Task name or global ID (base64). Names are resolved within
@@ -296,39 +508,26 @@ class TasksClient:
             space: Optional space name or ID used to disambiguate task name
                 resolution.
             name: New display name for the task.
-            sampling_rate: Fraction of data to evaluate (0-1). Project-based
+            sampling_rate: Fraction of data to evaluate (0-1). Evaluation
+                tasks only, project-based tasks only.
+            is_continuous: Whether the task runs continuously. Evaluation
                 tasks only.
-            is_continuous: Whether the task runs continuously.
             query_filter: Task-level query filter, or ``None`` to clear the
-                filter.
+                filter. Evaluation tasks only.
             evaluators: Full replacement list of evaluators (at least one when
-                provided).
+                provided). Evaluation tasks only.
+            run_configuration: Replacement run configuration. When provided
+                the entire stored config is atomically replaced.
+                ``run_experiment`` tasks only.
 
         Returns:
             The updated task.
 
         Raises:
-            ValueError: If no update fields were provided.
+            ValueError: If no update fields were provided, or if a field is
+                not valid for the resolved task type.
             ApiException: If the API request fails.
         """
-        payload: dict[str, Any] = {}
-        if name is not _MISSING:
-            payload["name"] = name
-        if sampling_rate is not _MISSING:
-            payload["sampling_rate"] = sampling_rate
-        if is_continuous is not _MISSING:
-            payload["is_continuous"] = is_continuous
-        if query_filter is not _MISSING:
-            payload["query_filter"] = query_filter
-        if evaluators is not _MISSING:
-            payload["evaluators"] = evaluators
-
-        if not payload:
-            raise ValueError(
-                "At least one update field must be provided "
-                "(name, sampling_rate, is_continuous, query_filter, or evaluators).",
-            )
-
         from arize._generated import api_client as gen
 
         task_id = _find_task_id(
@@ -336,7 +535,66 @@ class TasksClient:
             task=task,
             space=space,
         )
-        body = gen.TasksUpdateRequest(**payload)
+        task_obj = self._api.tasks_get(task_id=task_id)
+
+        if task_obj.type == "run_experiment":
+            # Validate that no eval-only fields were supplied.
+            eval_only_supplied = {
+                k: v
+                for k, v in {
+                    "sampling_rate": sampling_rate,
+                    "is_continuous": is_continuous,
+                    "query_filter": query_filter,
+                    "evaluators": evaluators,
+                }.items()
+                if not isinstance(v, _Missing)
+            }
+            if eval_only_supplied:
+                raise ValueError(
+                    "Fields not valid for run_experiment tasks: "
+                    f"{', '.join(eval_only_supplied)}. "
+                    "Only 'name' and 'run_configuration' may be updated.",
+                )
+            run_exp_payload: dict[str, Any] = {}
+            if not isinstance(name, _Missing):
+                run_exp_payload["name"] = name
+            if not isinstance(run_configuration, _Missing):
+                run_exp_payload["run_configuration"] = run_configuration
+            if not run_exp_payload:
+                raise ValueError(
+                    "At least one update field must be provided for "
+                    "run_experiment tasks (name or run_configuration).",
+                )
+            inner_run_exp = gen.UpdateRunExperimentTaskRequest(
+                **run_exp_payload
+            )
+            body = gen.TasksUpdateRequest(actual_instance=inner_run_exp)
+        else:
+            # Evaluation task.
+            if not isinstance(run_configuration, _Missing):
+                raise ValueError(
+                    "'run_configuration' is only valid for run_experiment tasks, "
+                    f"not '{task_obj.type}'.",
+                )
+            eval_payload: dict[str, Any] = {}
+            if not isinstance(name, _Missing):
+                eval_payload["name"] = name
+            if not isinstance(sampling_rate, _Missing):
+                eval_payload["sampling_rate"] = sampling_rate
+            if not isinstance(is_continuous, _Missing):
+                eval_payload["is_continuous"] = is_continuous
+            if not isinstance(query_filter, _Missing):
+                eval_payload["query_filter"] = query_filter
+            if not isinstance(evaluators, _Missing):
+                eval_payload["evaluators"] = evaluators
+            if not eval_payload:
+                raise ValueError(
+                    "At least one update field must be provided "
+                    "(name, sampling_rate, is_continuous, query_filter, or evaluators).",
+                )
+            inner = gen.UpdateEvaluationTaskRequest(**eval_payload)
+            body = gen.TasksUpdateRequest(actual_instance=inner)
+
         return self._api.tasks_update(
             task_id=task_id,
             tasks_update_request=body,
@@ -370,49 +628,140 @@ class TasksClient:
         *,
         task: str,
         space: str | None = None,
+        # Evaluation-task fields
         data_start_time: datetime | None = None,
         data_end_time: datetime | None = None,
         max_spans: int | None = None,
         override_evaluations: bool | None = None,
         experiment_ids: builtins.list[str] | None = None,
+        # run_experiment-task fields
+        experiment_name: str | None = None,
+        dataset_version_id: str | None = None,
+        max_examples: int | None = None,
+        tracing_metadata: dict[str, Any] | None = None,
     ) -> TaskRun:
         """Trigger an on-demand run for a task.
+
+        Dispatches based on the task's type — resolves the task by ID or name
+        first, then GETs it to determine whether it is an evaluation task or a
+        ``run_experiment`` task, and builds the appropriate trigger body.
+
+        For **evaluation tasks** (``template_evaluation`` /
+        ``code_evaluation``):
+
+        - Valid fields: ``data_start_time``, ``data_end_time``, ``max_spans``,
+          ``override_evaluations``, ``experiment_ids``.
+        - All fields are optional; an empty trigger body uses server defaults.
+
+        For **run_experiment tasks**:
+
+        - Valid fields: ``experiment_name`` (**required**),
+          ``dataset_version_id``, ``max_examples``, ``tracing_metadata``.
+        - ``experiment_name`` is the display name for the new experiment that
+          will be created for this run.
 
         Args:
             task: Task name or global ID (base64) to trigger a run for.
             space: Optional space name or ID used to disambiguate the task
                 lookup. Recommended when resolving by name.
-            data_start_time: Optional ISO 8601 start of the data window to
-                evaluate.
-            data_end_time: Optional ISO 8601 end of the data window to
-                evaluate. Defaults to now when omitted.
+            data_start_time: Start of the data window to evaluate. Evaluation
+                tasks only.
+            data_end_time: End of the data window to evaluate. Defaults to now
+                when omitted. Evaluation tasks only.
             max_spans: Maximum number of spans to process (default 10 000).
-            override_evaluations: Whether to re-evaluate data that already
-                has evaluation labels. Defaults to ``False``.
+                Evaluation tasks only.
+            override_evaluations: Whether to re-evaluate data that already has
+                evaluation labels. Defaults to ``False``. Evaluation tasks
+                only.
             experiment_ids: Experiment global IDs (base64) to run against.
-                Only applicable for dataset-based tasks.
+                Only applicable for dataset-based evaluation tasks.
+            experiment_name: Display name for the experiment to be created.
+                Must be unique within the dataset. Required for
+                ``run_experiment`` tasks.
+            dataset_version_id: Dataset version global ID (base64). Defaults
+                to the latest version when omitted. ``run_experiment`` tasks
+                only.
+            max_examples: Maximum number of examples to run. Mutually
+                exclusive with ``example_ids`` (not yet exposed). When
+                omitted, all examples are used. ``run_experiment`` tasks only.
+            tracing_metadata: Arbitrary key-value metadata attached to the
+                run's traces. ``run_experiment`` tasks only.
 
         Returns:
             The newly created task run (initially in ``"pending"`` status).
 
         Raises:
+            ValueError: If a field is not valid for the resolved task type, or
+                if ``experiment_name`` is missing for a ``run_experiment`` task.
             ApiException: If the API request fails.
         """
+        from arize._generated import api_client as gen
+
         task_id = _find_task_id(
             api=self._api,
             task=task,
             space=space,
         )
+        task_obj = self._api.tasks_get(task_id=task_id)
 
-        from arize._generated import api_client as gen
+        if task_obj.type == "run_experiment":
+            eval_only_supplied = {
+                k: v
+                for k, v in {
+                    "data_start_time": data_start_time,
+                    "data_end_time": data_end_time,
+                    "max_spans": max_spans,
+                    "override_evaluations": override_evaluations,
+                    "experiment_ids": experiment_ids,
+                }.items()
+                if v is not None
+            }
+            if eval_only_supplied:
+                raise ValueError(
+                    "Fields not valid for run_experiment tasks: "
+                    f"{', '.join(eval_only_supplied)}. "
+                    "Use 'experiment_name', 'dataset_version_id', "
+                    "'max_examples', or 'tracing_metadata' instead.",
+                )
+            if experiment_name is None:
+                raise ValueError(
+                    "'experiment_name' is required when triggering a "
+                    "run_experiment task.",
+                )
+            inner_run_exp = gen.TriggerRunExperimentTaskRunRequest(
+                experiment_name=experiment_name,
+                dataset_version_id=dataset_version_id,
+                max_examples=max_examples,
+                tracing_metadata=tracing_metadata,
+            )
+            body = gen.TasksTriggerRunRequest(actual_instance=inner_run_exp)
+        else:
+            run_exp_only_supplied = {
+                k: v
+                for k, v in {
+                    "experiment_name": experiment_name,
+                    "dataset_version_id": dataset_version_id,
+                    "max_examples": max_examples,
+                    "tracing_metadata": tracing_metadata,
+                }.items()
+                if v is not None
+            }
+            if run_exp_only_supplied:
+                raise ValueError(
+                    f"Fields not valid for '{task_obj.type}' tasks: "
+                    f"{', '.join(run_exp_only_supplied)}. "
+                    "Use 'data_start_time', 'data_end_time', 'max_spans', "
+                    "'override_evaluations', or 'experiment_ids' instead.",
+                )
+            inner = gen.TriggerEvaluationTaskRunRequest(
+                data_start_time=data_start_time,
+                data_end_time=data_end_time,
+                max_spans=max_spans,
+                override_evaluations=override_evaluations,
+                experiment_ids=experiment_ids,
+            )
+            body = gen.TasksTriggerRunRequest(actual_instance=inner)
 
-        body = gen.TasksTriggerRunRequest(
-            data_start_time=data_start_time,
-            data_end_time=data_end_time,
-            max_spans=max_spans,
-            override_evaluations=override_evaluations,
-            experiment_ids=experiment_ids,
-        )
         return self._api.tasks_trigger_run(
             task_id=task_id,
             tasks_trigger_run_request=body,

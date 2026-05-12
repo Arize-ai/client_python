@@ -28,7 +28,19 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: TasksCreateRequestEvaluatorsInner
+.. autoclass:: BaseEvaluationTaskRequestEvaluatorsInner
+   :members:
+   :member-order: bysource
+
+.. autoclass:: LlmGenerationRunConfig
+   :members:
+   :member-order: bysource
+
+.. autoclass:: TemplateEvaluationRunConfig
+   :members:
+   :member-order: bysource
+
+.. autoclass:: RunConfiguration
    :members:
    :member-order: bysource
 ```

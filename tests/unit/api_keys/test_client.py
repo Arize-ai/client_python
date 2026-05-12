@@ -63,6 +63,9 @@ class TestApiKeysClientInit:
 class TestApiKeysClientList:
     """Tests for ApiKeysClient.list()."""
 
+    # Base64 ID that decodes to "Space:905:abc" — passes is_resource_id()
+    _SPACE_ID = "U3BhY2U6OTA1MDoxSmtS"
+
     def test_list_calls_api_with_all_params(
         self, api_keys_client: ApiKeysClient, mock_api: Mock
     ) -> None:
@@ -70,6 +73,8 @@ class TestApiKeysClientList:
         api_keys_client.list(
             key_type="service",
             status="active",
+            space=self._SPACE_ID,
+            user_id="VXNlcjoxMjM0NQ==",
             limit=25,
             cursor="cursor-abc",
         )
@@ -77,6 +82,8 @@ class TestApiKeysClientList:
         mock_api.api_keys_list.assert_called_once_with(
             key_type="service",
             status="active",
+            space_id=self._SPACE_ID,
+            user_id="VXNlcjoxMjM0NQ==",
             limit=25,
             cursor="cursor-abc",
         )
@@ -84,12 +91,36 @@ class TestApiKeysClientList:
     def test_list_defaults(
         self, api_keys_client: ApiKeysClient, mock_api: Mock
     ) -> None:
-        """list() should default key_type/status/cursor to None and limit to 50."""
+        """list() should default all optional params to None and limit to 50."""
         api_keys_client.list()
 
         mock_api.api_keys_list.assert_called_once_with(
             key_type=None,
             status=None,
+            space_id=None,
+            user_id=None,
+            limit=50,
+            cursor=None,
+        )
+
+    def test_list_with_space_name_resolves_to_id(
+        self, api_keys_client: ApiKeysClient, mock_api: Mock
+    ) -> None:
+        """list() should resolve a space name to an ID via _find_space_id."""
+        with patch(
+            "arize.api_keys.client._find_space_id",
+            return_value="resolved-space-id",
+        ) as mock_resolve:
+            api_keys_client.list(space="my-space")
+
+        mock_resolve.assert_called_once_with(
+            api_keys_client._spaces_api, "my-space"
+        )
+        mock_api.api_keys_list.assert_called_once_with(
+            key_type=None,
+            status=None,
+            space_id="resolved-space-id",
+            user_id=None,
             limit=50,
             cursor=None,
         )

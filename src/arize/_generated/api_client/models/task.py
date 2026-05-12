@@ -21,35 +21,37 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
+from arize._generated.api_client.models.run_configuration import RunConfiguration
 from arize._generated.api_client.models.task_evaluator import TaskEvaluator
 from typing import Optional, Set
 from typing_extensions import Self
 
 class Task(BaseModel):
     """
-    A task is a typed, configurable unit of work that ties one or more evaluators to a data source (project or dataset). 
+    A task is a typed, configurable unit of work that ties one or more evaluators to a data source (project or dataset). `run_experiment` tasks additionally carry a `run_configuration` that defines the LLM or evaluator settings for each triggered run. 
     """ # noqa: E501
     id: StrictStr = Field(description="The unique identifier for the task")
     name: StrictStr = Field(description="The name of the task")
-    type: StrictStr = Field(description="The task type: template_evaluation or code_evaluation")
+    type: StrictStr = Field(description="The task type: template_evaluation, code_evaluation, or run_experiment")
     project_id: Optional[StrictStr] = Field(default=None, description="The project global ID (base64). Present for project-based tasks.")
     dataset_id: Optional[StrictStr] = Field(default=None, description="The dataset global ID (base64). Present for dataset-based tasks.")
     sampling_rate: Optional[Union[Annotated[float, Field(le=1, strict=True, ge=0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = Field(default=None, description="Sampling rate between 0 and 1. Only applicable for project-based tasks.")
     is_continuous: StrictBool = Field(description="Whether the task runs continuously on incoming data.")
     query_filter: Optional[StrictStr] = Field(description="Task-level query filter applied to all data.")
-    evaluators: List[TaskEvaluator] = Field(description="The evaluators attached to this task.")
+    evaluators: List[TaskEvaluator] = Field(description="The evaluators attached to this task. Empty for run_experiment tasks.")
     experiment_ids: List[StrictStr] = Field(description="Experiment global IDs (base64) for dataset-based tasks.")
+    run_configuration: Optional[RunConfiguration] = Field(default=None, description="The run configuration for a `run_experiment` task. Present only when `type` is `run_experiment`. Null for all other task types. ")
     last_run_at: Optional[datetime] = Field(description="When the task was last run.")
     created_at: datetime = Field(description="When the task was created.")
     updated_at: datetime = Field(description="When the task was last updated.")
     created_by_user_id: Optional[StrictStr] = Field(description="The unique identifier for the user who created the task.")
-    __properties: ClassVar[List[str]] = ["id", "name", "type", "project_id", "dataset_id", "sampling_rate", "is_continuous", "query_filter", "evaluators", "experiment_ids", "last_run_at", "created_at", "updated_at", "created_by_user_id"]
+    __properties: ClassVar[List[str]] = ["id", "name", "type", "project_id", "dataset_id", "sampling_rate", "is_continuous", "query_filter", "evaluators", "experiment_ids", "run_configuration", "last_run_at", "created_at", "updated_at", "created_by_user_id"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['template_evaluation', 'code_evaluation']):
-            raise ValueError("must be one of enum values ('template_evaluation', 'code_evaluation')")
+        if value not in set(['template_evaluation', 'code_evaluation', 'run_experiment']):
+            raise ValueError("must be one of enum values ('template_evaluation', 'code_evaluation', 'run_experiment')")
         return value
 
     model_config = ConfigDict(
@@ -98,6 +100,9 @@ class Task(BaseModel):
                 if _item_evaluators:
                     _items.append(_item_evaluators.to_dict())
             _dict['evaluators'] = _items
+        # override the default output from pydantic by calling `to_dict()` of run_configuration
+        if self.run_configuration:
+            _dict['run_configuration'] = self.run_configuration.to_dict()
         # set to None if project_id (nullable) is None
         # and model_fields_set contains the field
         if self.project_id is None and "project_id" in self.model_fields_set:
@@ -117,6 +122,11 @@ class Task(BaseModel):
         # and model_fields_set contains the field
         if self.query_filter is None and "query_filter" in self.model_fields_set:
             _dict['query_filter'] = None
+
+        # set to None if run_configuration (nullable) is None
+        # and model_fields_set contains the field
+        if self.run_configuration is None and "run_configuration" in self.model_fields_set:
+            _dict['run_configuration'] = None
 
         # set to None if last_run_at (nullable) is None
         # and model_fields_set contains the field
@@ -155,6 +165,7 @@ class Task(BaseModel):
             "query_filter": obj.get("query_filter"),
             "evaluators": [TaskEvaluator.from_dict(_item) for _item in obj["evaluators"]] if obj.get("evaluators") is not None else None,
             "experiment_ids": obj.get("experiment_ids"),
+            "run_configuration": RunConfiguration.from_dict(obj["run_configuration"]) if obj.get("run_configuration") is not None else None,
             "last_run_at": obj.get("last_run_at"),
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at"),

@@ -118,10 +118,12 @@ Class | Method | HTTP request | Description
 *ExperimentsApi* | [**experiments_list**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_list) | **GET** /v2/experiments | List experiments
 *ExperimentsApi* | [**experiments_runs_annotate**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_runs_annotate) | **POST** /v2/experiments/{experiment_id}/runs/annotate | Annotate a batch of experiment runs
 *ExperimentsApi* | [**experiments_runs_list**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_runs_list) | **GET** /v2/experiments/{experiment_id}/runs | List experiment runs
+*OrganizationsApi* | [**organizations_add_user**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_add_user) | **POST** /v2/organizations/{org_id}/users | Add a user to an organization
 *OrganizationsApi* | [**organizations_create**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_create) | **POST** /v2/organizations | Create an organization
 *OrganizationsApi* | [**organizations_delete**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_delete) | **DELETE** /v2/organizations/{org_id} | Delete an organization
 *OrganizationsApi* | [**organizations_get**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_get) | **GET** /v2/organizations/{org_id} | Get an organization
 *OrganizationsApi* | [**organizations_list**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_list) | **GET** /v2/organizations | List organizations
+*OrganizationsApi* | [**organizations_remove_user**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_remove_user) | **DELETE** /v2/organizations/{org_id}/users/{user_id} | Remove a user from an organization
 *OrganizationsApi* | [**organizations_update**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_update) | **PATCH** /v2/organizations/{org_id} | Update an organization
 *ProjectsApi* | [**projects_create**](arize/_generated/api_client/docs/ProjectsApi.md#projects_create) | **POST** /v2/projects | Create a project
 *ProjectsApi* | [**projects_delete**](arize/_generated/api_client/docs/ProjectsApi.md#projects_delete) | **DELETE** /v2/projects/{project_id} | Delete a project
@@ -227,6 +229,8 @@ Class | Method | HTTP request | Description
  - [AssignmentMethod](arize/_generated/api_client/docs/AssignmentMethod.md)
  - [AwsProviderMetadata](arize/_generated/api_client/docs/AwsProviderMetadata.md)
  - [AwsProviderMetadataKind](arize/_generated/api_client/docs/AwsProviderMetadataKind.md)
+ - [BaseEvaluationTaskRequest](arize/_generated/api_client/docs/BaseEvaluationTaskRequest.md)
+ - [BaseEvaluationTaskRequestEvaluatorsInner](arize/_generated/api_client/docs/BaseEvaluationTaskRequestEvaluatorsInner.md)
  - [BuiltinRoleAssignment](arize/_generated/api_client/docs/BuiltinRoleAssignment.md)
  - [BuiltinUserRoleAssignment](arize/_generated/api_client/docs/BuiltinUserRoleAssignment.md)
  - [CategoricalAnnotationConfig](arize/_generated/api_client/docs/CategoricalAnnotationConfig.md)
@@ -238,6 +242,9 @@ Class | Method | HTTP request | Description
  - [ContinuousAnnotationConfigCreate](arize/_generated/api_client/docs/ContinuousAnnotationConfigCreate.md)
  - [CreateAnnotationConfigRequestBody](arize/_generated/api_client/docs/CreateAnnotationConfigRequestBody.md)
  - [CreateAnnotationQueueRequestBody](arize/_generated/api_client/docs/CreateAnnotationQueueRequestBody.md)
+ - [CreateCodeEvaluationTaskRequest](arize/_generated/api_client/docs/CreateCodeEvaluationTaskRequest.md)
+ - [CreateRunExperimentTaskRequest](arize/_generated/api_client/docs/CreateRunExperimentTaskRequest.md)
+ - [CreateTemplateEvaluationTaskRequest](arize/_generated/api_client/docs/CreateTemplateEvaluationTaskRequest.md)
  - [CreateUserRequest](arize/_generated/api_client/docs/CreateUserRequest.md)
  - [CustomCodeConfig](arize/_generated/api_client/docs/CustomCodeConfig.md)
  - [CustomRoleAssignment](arize/_generated/api_client/docs/CustomRoleAssignment.md)
@@ -283,12 +290,20 @@ Class | Method | HTTP request | Description
  - [InviteMode](arize/_generated/api_client/docs/InviteMode.md)
  - [InvocationParams](arize/_generated/api_client/docs/InvocationParams.md)
  - [LLMMessage](arize/_generated/api_client/docs/LLMMessage.md)
+ - [LlmGenerationRunConfig](arize/_generated/api_client/docs/LlmGenerationRunConfig.md)
  - [LlmProvider](arize/_generated/api_client/docs/LlmProvider.md)
  - [ManagedCodeConfig](arize/_generated/api_client/docs/ManagedCodeConfig.md)
  - [ManagedCodeEvaluator](arize/_generated/api_client/docs/ManagedCodeEvaluator.md)
  - [MessageRole](arize/_generated/api_client/docs/MessageRole.md)
  - [OptimizationDirection](arize/_generated/api_client/docs/OptimizationDirection.md)
  - [Organization](arize/_generated/api_client/docs/Organization.md)
+ - [OrganizationBuiltinRoleAssignment](arize/_generated/api_client/docs/OrganizationBuiltinRoleAssignment.md)
+ - [OrganizationCustomRoleAssignment](arize/_generated/api_client/docs/OrganizationCustomRoleAssignment.md)
+ - [OrganizationMembership](arize/_generated/api_client/docs/OrganizationMembership.md)
+ - [OrganizationMembershipInput](arize/_generated/api_client/docs/OrganizationMembershipInput.md)
+ - [OrganizationRole](arize/_generated/api_client/docs/OrganizationRole.md)
+ - [OrganizationRoleAssignment](arize/_generated/api_client/docs/OrganizationRoleAssignment.md)
+ - [OrganizationRoleAssignmentType](arize/_generated/api_client/docs/OrganizationRoleAssignmentType.md)
  - [OrganizationsCreateRequest](arize/_generated/api_client/docs/OrganizationsCreateRequest.md)
  - [OrganizationsList200Response](arize/_generated/api_client/docs/OrganizationsList200Response.md)
  - [OrganizationsUpdateRequest](arize/_generated/api_client/docs/OrganizationsUpdateRequest.md)
@@ -327,6 +342,7 @@ Class | Method | HTTP request | Description
  - [RoleCreate](arize/_generated/api_client/docs/RoleCreate.md)
  - [RoleUpdate](arize/_generated/api_client/docs/RoleUpdate.md)
  - [RolesList200Response](arize/_generated/api_client/docs/RolesList200Response.md)
+ - [RunConfiguration](arize/_generated/api_client/docs/RunConfiguration.md)
  - [Space](arize/_generated/api_client/docs/Space.md)
  - [SpaceMembership](arize/_generated/api_client/docs/SpaceMembership.md)
  - [SpaceMembershipInput](arize/_generated/api_client/docs/SpaceMembershipInput.md)
@@ -349,17 +365,21 @@ Class | Method | HTTP request | Description
  - [TaskEvaluator](arize/_generated/api_client/docs/TaskEvaluator.md)
  - [TaskRun](arize/_generated/api_client/docs/TaskRun.md)
  - [TasksCreateRequest](arize/_generated/api_client/docs/TasksCreateRequest.md)
- - [TasksCreateRequestEvaluatorsInner](arize/_generated/api_client/docs/TasksCreateRequestEvaluatorsInner.md)
  - [TasksList200Response](arize/_generated/api_client/docs/TasksList200Response.md)
  - [TasksListRuns200Response](arize/_generated/api_client/docs/TasksListRuns200Response.md)
  - [TasksTriggerRunRequest](arize/_generated/api_client/docs/TasksTriggerRunRequest.md)
  - [TasksUpdateRequest](arize/_generated/api_client/docs/TasksUpdateRequest.md)
  - [TemplateConfig](arize/_generated/api_client/docs/TemplateConfig.md)
+ - [TemplateEvaluationRunConfig](arize/_generated/api_client/docs/TemplateEvaluationRunConfig.md)
  - [ToolCall](arize/_generated/api_client/docs/ToolCall.md)
  - [ToolCallFunction](arize/_generated/api_client/docs/ToolCallFunction.md)
  - [ToolCallType](arize/_generated/api_client/docs/ToolCallType.md)
  - [ToolConfig](arize/_generated/api_client/docs/ToolConfig.md)
+ - [TriggerEvaluationTaskRunRequest](arize/_generated/api_client/docs/TriggerEvaluationTaskRunRequest.md)
+ - [TriggerRunExperimentTaskRunRequest](arize/_generated/api_client/docs/TriggerRunExperimentTaskRunRequest.md)
  - [UpdateAnnotationQueueRequestBody](arize/_generated/api_client/docs/UpdateAnnotationQueueRequestBody.md)
+ - [UpdateEvaluationTaskRequest](arize/_generated/api_client/docs/UpdateEvaluationTaskRequest.md)
+ - [UpdateRunExperimentTaskRequest](arize/_generated/api_client/docs/UpdateRunExperimentTaskRequest.md)
  - [User](arize/_generated/api_client/docs/User.md)
  - [UserCreatedResponse](arize/_generated/api_client/docs/UserCreatedResponse.md)
  - [UserRole](arize/_generated/api_client/docs/UserRole.md)
