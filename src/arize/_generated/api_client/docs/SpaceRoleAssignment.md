@@ -1,6 +1,6 @@
 # SpaceRoleAssignment
 
-A role assignment for a space membership. Discriminated by `type`: - `builtin`: one of the predefined roles (`admin`, `member`, `read-only`, `annotator`) - `custom`: a custom RBAC role identified by its ID 
+A role assignment for a space membership. Discriminated by `type`: - `predefined`: one of the predefined roles (`admin`, `member`, `read-only`, `annotator`) - `custom`: a custom RBAC role identified by its ID 
 
 ## Properties
 

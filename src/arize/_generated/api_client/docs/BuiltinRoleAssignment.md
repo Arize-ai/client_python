@@ -6,7 +6,7 @@ A builtin (predefined) space role assignment.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | [**SpaceRoleAssignmentType**](SpaceRoleAssignmentType.md) |  | 
+**type** | [**SpaceRoleAssignmentType**](SpaceRoleAssignmentType.md) |  | [optional] 
 **name** | [**UserSpaceRole**](UserSpaceRole.md) |  | 
 
 ## Example

@@ -13,7 +13,9 @@ if TYPE_CHECKING:
     from arize.config import SDKConfiguration
     from arize.organizations.types import (
         Organization,
+        OrganizationMembership,
         OrganizationsList200Response,
+        PredefinedOrgRole,
     )
 
 logger = logging.getLogger(__name__)
@@ -190,4 +192,82 @@ class OrganizationsClient:
         )
         return self._api.organizations_update(
             org_id=org_id, organizations_update_request=body
+        )
+
+    @prerelease_endpoint(key="organizations.add_user", stage=ReleaseStage.ALPHA)
+    def add_user(
+        self,
+        *,
+        organization: str,
+        user_id: str,
+        role: PredefinedOrgRole,
+    ) -> OrganizationMembership:
+        """Add a user to an organization (or update their role if already a member).
+
+        If the user is already a member of the organization, their role is updated
+        to the specified value (upsert).
+
+        **Role constraints**
+
+        - Users with an ``annotator`` account role can only be assigned the
+          ``annotator`` organization role.
+        - Users with a non-annotator account role cannot be assigned the
+          ``annotator`` organization role.
+
+        Requires organization admin.
+
+        Args:
+            organization: Organization ID or name.
+            user_id: Global ID of the user to add.
+            role: Role assignment for the user. Use
+                ``PredefinedOrgRole(name="<role>")`` for predefined roles
+                (``admin``, ``member``, ``read-only``, ``annotator``).
+                Custom role assignments are not yet supported for organizations.
+
+        Returns:
+            The created or updated organization membership record.
+
+        Raises:
+            ApiException: If the API request fails
+                (for example, organization or user not found, role constraint
+                violation, or insufficient permissions).
+        """
+        org_id = _find_organization_id(self._api, organization)
+
+        from arize._generated import api_client as gen
+
+        body = gen.OrganizationMembershipInput(
+            user_id=user_id,
+            role=gen.OrganizationRoleAssignment(role._to_generated()),
+        )
+        return self._api.organizations_add_user(
+            org_id=org_id, organization_membership_input=body
+        )
+
+    @prerelease_endpoint(
+        key="organizations.remove_user", stage=ReleaseStage.ALPHA
+    )
+    def remove_user(self, *, organization: str, user_id: str) -> None:
+        """Remove a user from an organization.
+
+        Removes the user from the organization and all its child spaces
+        (membership cascade).
+
+        Requires organization admin.
+
+        Args:
+            organization: Organization ID or name.
+            user_id: Global ID of the user to remove.
+
+        Returns:
+            This method returns None on success (204 No Content response).
+
+        Raises:
+            ApiException: If the API request fails
+                (for example, organization or user not found, or insufficient
+                permissions).
+        """
+        org_id = _find_organization_id(self._api, organization)
+        return self._api.organizations_remove_user(
+            org_id=org_id, user_id=user_id
         )

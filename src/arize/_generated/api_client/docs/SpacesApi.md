@@ -23,17 +23,17 @@ Add a single existing account user to a space with a specified role.
 **Payload Requirements**
 - `user_id` is required and must be a valid User global ID.
 - `role` is required and must be a role assignment object with a `type` discriminator:
-  - `{ "type": "builtin", "name": "admin" }` — one of the predefined roles: `admin`, `member`, `read-only`, `annotator`.
+  - `{ "type": "predefined", "name": "admin" }` — one of the predefined roles: `admin`, `member`, `read-only`, `annotator`.
   - `{ "type": "custom", "id": "<role_id>" }` — a custom RBAC role identified by its global ID.
 - If the user is already a member, their role is updated to the specified value (upsert).
 - The user must already be a member of the space's parent organization; auto-enrollment is not performed (400 if not a member).
 
 **Role constraints**
-- Users with an `annotator` account role can only be assigned the `annotator` builtin space role.
-- Users with a non-annotator account role cannot be assigned the `annotator` builtin space role.
+- Users with an `annotator` account role can only be assigned the `annotator` predefined space role.
+- Users with a non-annotator account role cannot be assigned the `annotator` predefined space role.
 
 **Authorization**
-Requires space admin role when using a `builtin` role, or `ROLE_BINDING_CREATE`
+Requires space admin role when using a `predefined` role, or `ROLE_BINDING_CREATE`
 permission (RBAC) when using a `custom` role.
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
@@ -71,7 +71,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpacesApi(api_client)
     space_id = 'spc_12345' # str | The unique identifier of the space
-    space_membership_input = {"user_id":"VXNlcjoxMjM0NQ==","role":{"type":"builtin","name":"member"}} # SpaceMembershipInput | Body containing the user to add to the space
+    space_membership_input = {"user_id":"VXNlcjoxMjM0NQ==","role":{"type":"predefined","name":"member"}} # SpaceMembershipInput | Body containing the user to add to the space
 
     try:
         # Add a user to a space

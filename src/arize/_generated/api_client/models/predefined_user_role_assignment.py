@@ -17,19 +17,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
-from arize._generated.api_client.models.organization_role import OrganizationRole
-from arize._generated.api_client.models.organization_role_assignment_type import OrganizationRoleAssignmentType
+from arize._generated.api_client.models.user_role import UserRole
+from arize._generated.api_client.models.user_role_assignment_type import UserRoleAssignmentType
 from typing import Optional, Set
 from typing_extensions import Self
 
-class OrganizationBuiltinRoleAssignment(BaseModel):
+class PredefinedUserRoleAssignment(BaseModel):
     """
-    A builtin (predefined) organization role assignment.
+    A predefined account-level role assignment.
     """ # noqa: E501
-    type: OrganizationRoleAssignmentType
-    name: OrganizationRole
+    type: UserRoleAssignmentType = Field(description="Discriminator identifying this as a predefined role assignment. Must be `predefined`.")
+    name: UserRole
     __properties: ClassVar[List[str]] = ["type", "name"]
 
     model_config = ConfigDict(
@@ -50,7 +50,7 @@ class OrganizationBuiltinRoleAssignment(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of OrganizationBuiltinRoleAssignment from a JSON string"""
+        """Create an instance of PredefinedUserRoleAssignment from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -75,7 +75,7 @@ class OrganizationBuiltinRoleAssignment(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of OrganizationBuiltinRoleAssignment from a dict"""
+        """Create an instance of PredefinedUserRoleAssignment from a dict"""
         if obj is None:
             return None
 
@@ -85,7 +85,7 @@ class OrganizationBuiltinRoleAssignment(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in OrganizationBuiltinRoleAssignment) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in PredefinedUserRoleAssignment) in the input: " + _key)
 
         _obj = cls.model_validate({
             "type": obj.get("type"),

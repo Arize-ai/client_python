@@ -26,7 +26,7 @@ class UserRoleAssignmentType(str, Enum):
     """
     allowed enum values
     """
-    BUILTIN = 'builtin'
+    PREDEFINED = 'predefined'
     CUSTOM = 'custom'
 
     @classmethod

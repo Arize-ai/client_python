@@ -1,6 +1,6 @@
 # UserRoleAssignment
 
-An account-level role assignment. Discriminated by `type`: - `builtin`: one of the predefined roles (`admin`, `member`, `annotator`) - `custom`: a custom RBAC role identified by its ID  Note: `custom` role assignments are not yet supported and are reserved for future use. 
+An account-level role assignment. Discriminated by `type`: - `predefined`: one of the predefined roles (`admin`, `member`, `annotator`) - `custom`: a custom RBAC role identified by its ID  Note: `custom` role assignments are not yet supported and are reserved for future use. 
 
 ## Properties
 

@@ -17,24 +17,24 @@ import json
 import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
-from arize._generated.api_client.models.builtin_user_role_assignment import BuiltinUserRoleAssignment
 from arize._generated.api_client.models.custom_user_role_assignment import CustomUserRoleAssignment
+from arize._generated.api_client.models.predefined_user_role_assignment import PredefinedUserRoleAssignment
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-USERROLEASSIGNMENT_ONE_OF_SCHEMAS = ["BuiltinUserRoleAssignment", "CustomUserRoleAssignment"]
+USERROLEASSIGNMENT_ONE_OF_SCHEMAS = ["CustomUserRoleAssignment", "PredefinedUserRoleAssignment"]
 
 class UserRoleAssignment(BaseModel):
     """
-    An account-level role assignment. Discriminated by `type`: - `builtin`: one of the predefined roles (`admin`, `member`, `annotator`) - `custom`: a custom RBAC role identified by its ID  Note: `custom` role assignments are not yet supported and are reserved for future use. 
+    An account-level role assignment. Discriminated by `type`: - `predefined`: one of the predefined roles (`admin`, `member`, `annotator`) - `custom`: a custom RBAC role identified by its ID  Note: `custom` role assignments are not yet supported and are reserved for future use. 
     """
-    # data type: BuiltinUserRoleAssignment
-    oneof_schema_1_validator: Optional[BuiltinUserRoleAssignment] = None
+    # data type: PredefinedUserRoleAssignment
+    oneof_schema_1_validator: Optional[PredefinedUserRoleAssignment] = None
     # data type: CustomUserRoleAssignment
     oneof_schema_2_validator: Optional[CustomUserRoleAssignment] = None
-    actual_instance: Optional[Union[BuiltinUserRoleAssignment, CustomUserRoleAssignment]] = None
-    one_of_schemas: Set[str] = { "BuiltinUserRoleAssignment", "CustomUserRoleAssignment" }
+    actual_instance: Optional[Union[CustomUserRoleAssignment, PredefinedUserRoleAssignment]] = None
+    one_of_schemas: Set[str] = { "CustomUserRoleAssignment", "PredefinedUserRoleAssignment" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -60,9 +60,9 @@ class UserRoleAssignment(BaseModel):
         instance = UserRoleAssignment.model_construct()
         error_messages = []
         match = 0
-        # validate data type: BuiltinUserRoleAssignment
-        if not isinstance(v, BuiltinUserRoleAssignment):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `BuiltinUserRoleAssignment`")
+        # validate data type: PredefinedUserRoleAssignment
+        if not isinstance(v, PredefinedUserRoleAssignment):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `PredefinedUserRoleAssignment`")
         else:
             match += 1
         # validate data type: CustomUserRoleAssignment
@@ -72,10 +72,10 @@ class UserRoleAssignment(BaseModel):
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in UserRoleAssignment with oneOf schemas: BuiltinUserRoleAssignment, CustomUserRoleAssignment. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in UserRoleAssignment with oneOf schemas: CustomUserRoleAssignment, PredefinedUserRoleAssignment. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in UserRoleAssignment with oneOf schemas: BuiltinUserRoleAssignment, CustomUserRoleAssignment. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in UserRoleAssignment with oneOf schemas: CustomUserRoleAssignment, PredefinedUserRoleAssignment. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -90,9 +90,9 @@ class UserRoleAssignment(BaseModel):
         error_messages = []
         match = 0
 
-        # deserialize data into BuiltinUserRoleAssignment
+        # deserialize data into PredefinedUserRoleAssignment
         try:
-            instance.actual_instance = BuiltinUserRoleAssignment.from_json(json_str)
+            instance.actual_instance = PredefinedUserRoleAssignment.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
@@ -105,10 +105,10 @@ class UserRoleAssignment(BaseModel):
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into UserRoleAssignment with oneOf schemas: BuiltinUserRoleAssignment, CustomUserRoleAssignment. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into UserRoleAssignment with oneOf schemas: CustomUserRoleAssignment, PredefinedUserRoleAssignment. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into UserRoleAssignment with oneOf schemas: BuiltinUserRoleAssignment, CustomUserRoleAssignment. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into UserRoleAssignment with oneOf schemas: CustomUserRoleAssignment, PredefinedUserRoleAssignment. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -122,7 +122,7 @@ class UserRoleAssignment(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], BuiltinUserRoleAssignment, CustomUserRoleAssignment]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], CustomUserRoleAssignment, PredefinedUserRoleAssignment]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

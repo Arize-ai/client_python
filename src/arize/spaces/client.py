@@ -11,7 +11,13 @@ from arize.utils.resolve import _find_space_id
 if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
-    from arize.spaces.types import Space, SpacesList200Response
+    from arize.spaces.types import (
+        CustomSpaceRole,
+        PredefinedSpaceRole,
+        Space,
+        SpaceMembership,
+        SpacesList200Response,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +55,7 @@ class SpacesClient:
         self,
         *,
         organization_id: str | None = None,
+        name: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
     ) -> SpacesList200Response:
@@ -56,9 +63,12 @@ class SpacesClient:
 
         This endpoint supports cursor-based pagination. When provided,
         ``organization_id`` filters results to a particular organization.
+        ``name`` filters results to spaces whose name contains the given
+        substring (case-insensitive).
 
         Args:
             organization_id: Optional organization ID to filter results.
+            name: Optional case-insensitive substring filter on space name.
             limit: Maximum number of spaces to return. The server may enforce
                 an upper bound.
             cursor: Opaque pagination cursor from a previous response.
@@ -71,6 +81,7 @@ class SpacesClient:
         """
         return self._api.spaces_list(
             org_id=organization_id,
+            name=name,
             limit=limit,
             cursor=cursor,
         )
@@ -184,3 +195,87 @@ class SpacesClient:
         return self._api.spaces_update(
             space_id=space_id, spaces_update_request=body
         )
+
+    @prerelease_endpoint(key="spaces.add_user", stage=ReleaseStage.ALPHA)
+    def add_user(
+        self,
+        *,
+        space: str,
+        user_id: str,
+        role: PredefinedSpaceRole | CustomSpaceRole,
+    ) -> SpaceMembership:
+        """Add a user to a space (or update their role if already a member).
+
+        If the user is already a member of the space, their role is updated to
+        the specified value (upsert). The user must already be a member of the
+        space's parent organization — auto-enrollment is not performed.
+
+        **Role constraints**
+
+        - Users with an ``annotator`` account role can only be assigned the
+          ``annotator`` predefined space role.
+        - Users with a non-annotator account role cannot be assigned the
+          ``annotator`` predefined space role.
+
+        Requires space admin role for predefined roles, or ``ROLE_BINDING_CREATE``
+        permission for custom roles.
+
+        Args:
+            space: Space ID or name.
+            user_id: Global ID of the user to add.
+            role: Role assignment for the user. Use
+                ``PredefinedSpaceRole(name="<role>")`` for predefined roles
+                (``admin``, ``member``, ``read-only``, ``annotator``), or
+                ``CustomRoleAssignment(type="custom", id="<role_id>")`` for a
+                custom RBAC role.
+
+        Returns:
+            The created or updated space membership record.
+
+        Raises:
+            ApiException: If the API request fails
+                (for example, space or user not found, user not in the parent
+                organization, role constraint violation, or insufficient
+                permissions).
+        """
+        space_id = _find_space_id(self._api, space)
+
+        from arize._generated import api_client as gen
+        from arize.spaces.types import (
+            PredefinedSpaceRole as _PredefinedSpaceRole,
+        )
+
+        body = gen.SpaceMembershipInput(
+            user_id=user_id,
+            role=gen.SpaceRoleAssignment(role._to_generated())
+            if isinstance(role, _PredefinedSpaceRole)
+            else gen.SpaceRoleAssignment(role),
+        )
+        return self._api.spaces_add_user(
+            space_id=space_id, space_membership_input=body
+        )
+
+    @prerelease_endpoint(key="spaces.remove_user", stage=ReleaseStage.ALPHA)
+    def remove_user(self, *, space: str, user_id: str) -> None:
+        """Remove a user from a space.
+
+        Removes both the legacy space-membership row and any RBAC role bindings
+        for the user on this space.
+
+        Requires space admin role (legacy auth) or ``ROLE_BINDING_DELETE``
+        permission (RBAC).
+
+        Args:
+            space: Space ID or name.
+            user_id: Global ID of the user to remove.
+
+        Returns:
+            This method returns None on success (204 No Content response).
+
+        Raises:
+            ApiException: If the API request fails
+                (for example, space or user not found, or user is not a member
+                of the space).
+        """
+        space_id = _find_space_id(self._api, space)
+        return self._api.spaces_remove_user(space_id=space_id, user_id=user_id)

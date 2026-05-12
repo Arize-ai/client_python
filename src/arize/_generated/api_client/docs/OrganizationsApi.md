@@ -65,7 +65,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.OrganizationsApi(api_client)
     org_id = 'org_12345' # str | The unique identifier of the organization
-    organization_membership_input = {"user_id":"VXNlcjoxMjM0NQ==","role":{"type":"builtin","name":"member"}} # OrganizationMembershipInput | Body containing the user to add to the organization
+    organization_membership_input = {"user_id":"VXNlcjoxMjM0NQ==","role":{"type":"predefined","name":"member"}} # OrganizationMembershipInput | Body containing the user to add to the organization
 
     try:
         # Add a user to an organization

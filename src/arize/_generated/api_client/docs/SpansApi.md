@@ -159,7 +159,7 @@ Delete spans
 Permanently deletes spans by their span IDs. This operation is irreversible.
 
 Accepts between 1 and 5000 span IDs per request. Only spans within the
-supported lookback window are considered; older spans are not affected.
+supported lookback window (2 years) are considered; older spans are not affected.
 
 A `204 No Content` response indicates all extant IDs provided
 within the supported lookback window were deleted.

@@ -351,7 +351,7 @@ class SpansApi:
     ) -> SpansDelete200Response:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the supported lookback window were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the supported lookback window were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param spans_delete_request: Body containing span IDs to delete (required)
         :type spans_delete_request: SpansDeleteRequest
@@ -425,7 +425,7 @@ class SpansApi:
     ) -> ApiResponse[SpansDelete200Response]:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the supported lookback window were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the supported lookback window were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param spans_delete_request: Body containing span IDs to delete (required)
         :type spans_delete_request: SpansDeleteRequest
@@ -499,7 +499,7 @@ class SpansApi:
     ) -> RESTResponseType:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the supported lookback window were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the supported lookback window were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param spans_delete_request: Body containing span IDs to delete (required)
         :type spans_delete_request: SpansDeleteRequest

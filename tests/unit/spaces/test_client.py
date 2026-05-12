@@ -8,6 +8,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from arize.spaces.client import SpacesClient
+from arize.spaces.types import PredefinedSpaceRole, UserSpaceRole
 
 
 @pytest.fixture
@@ -65,15 +66,17 @@ class TestSpacesClientList:
     def test_list_calls_api_with_all_params(
         self, spaces_client: SpacesClient, mock_api: Mock
     ) -> None:
-        """list() should pass organization, limit, and cursor to spaces_list."""
+        """list() should pass organization, name, limit, and cursor to spaces_list."""
         spaces_client.list(
             organization_id="org-123",
+            name="prod-space",
             limit=50,
             cursor="cursor-abc",
         )
 
         mock_api.spaces_list.assert_called_once_with(
             org_id="org-123",
+            name="prod-space",
             limit=50,
             cursor="cursor-abc",
         )
@@ -81,11 +84,12 @@ class TestSpacesClientList:
     def test_list_defaults(
         self, spaces_client: SpacesClient, mock_api: Mock
     ) -> None:
-        """list() should default organization_id/cursor to None and limit to 100."""
+        """list() should default organization_id/name/cursor to None and limit to 100."""
         spaces_client.list()
 
         mock_api.spaces_list.assert_called_once_with(
             org_id=None,
+            name=None,
             limit=100,
             cursor=None,
         )
@@ -287,3 +291,87 @@ class TestSpacesClientUpdate:
             )
 
         assert result is expected
+
+
+@pytest.mark.unit
+class TestSpacesClientAddUser:
+    """Tests for SpacesClient.add_user()."""
+
+    def test_add_user_with_predefined_role_calls_api(
+        self, spaces_client: SpacesClient, mock_api: Mock
+    ) -> None:
+        """add_user() with PredefinedSpaceRole should call _to_generated() and wrap in SpaceRoleAssignment."""
+        role = PredefinedSpaceRole(name=UserSpaceRole.MEMBER)
+        with (
+            patch(
+                "arize._generated.api_client.SpaceMembershipInput"
+            ) as mock_input_cls,
+            patch(
+                "arize._generated.api_client.SpaceRoleAssignment"
+            ) as mock_role_cls,
+        ):
+            mock_body = Mock()
+            mock_input_cls.return_value = mock_body
+            mock_role = Mock()
+            mock_role_cls.return_value = mock_role
+
+            spaces_client.add_user(
+                space="U3BhY2U6OTA1MDoxSmtS",
+                user_id="VXNlcjoxMjM0NQ==",
+                role=role,
+            )
+
+        mock_role_cls.assert_called_once_with(role._to_generated())
+        mock_input_cls.assert_called_once_with(
+            user_id="VXNlcjoxMjM0NQ==",
+            role=mock_role,
+        )
+        mock_api.spaces_add_user.assert_called_once_with(
+            space_id="U3BhY2U6OTA1MDoxSmtS",
+            space_membership_input=mock_body,
+        )
+
+    def test_add_user_returns_api_response(
+        self, spaces_client: SpacesClient, mock_api: Mock
+    ) -> None:
+        """add_user() should propagate the return value from spaces_add_user."""
+        expected = Mock()
+        mock_api.spaces_add_user.return_value = expected
+
+        with (
+            patch("arize._generated.api_client.SpaceMembershipInput"),
+            patch("arize._generated.api_client.SpaceRoleAssignment"),
+        ):
+            result = spaces_client.add_user(
+                space="U3BhY2U6OTA1MDoxSmtS",
+                user_id="VXNlcjoxMjM0NQ==",
+                role=PredefinedSpaceRole(name=UserSpaceRole.MEMBER),
+            )
+
+        assert result is expected
+
+    def test_add_user_emits_alpha_prerelease_warning(
+        self,
+        spaces_client: SpacesClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the ALPHA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        with (
+            patch("arize._generated.api_client.SpaceMembershipInput"),
+            patch("arize._generated.api_client.SpaceRoleAssignment"),
+        ):
+            spaces_client.add_user(
+                space="U3BhY2U6OTA1MDoxSmtS",
+                user_id="VXNlcjoxMjM0NQ==",
+                role=PredefinedSpaceRole(name=UserSpaceRole.MEMBER),
+            )
+
+        assert any(
+            "ALPHA" in record.message and "spaces.add_user" in record.message
+            for record in caplog.records
+        )

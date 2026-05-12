@@ -94,8 +94,6 @@ __all__ = [
     "AwsProviderMetadataKind",
     "BaseEvaluationTaskRequest",
     "BaseEvaluationTaskRequestEvaluatorsInner",
-    "BuiltinRoleAssignment",
-    "BuiltinUserRoleAssignment",
     "CategoricalAnnotationConfig",
     "CategoricalAnnotationConfigCreate",
     "CategoricalAnnotationValue",
@@ -160,10 +158,10 @@ __all__ = [
     "MessageRole",
     "OptimizationDirection",
     "Organization",
-    "OrganizationBuiltinRoleAssignment",
     "OrganizationCustomRoleAssignment",
     "OrganizationMembership",
     "OrganizationMembershipInput",
+    "OrganizationPredefinedRoleAssignment",
     "OrganizationRole",
     "OrganizationRoleAssignment",
     "OrganizationRoleAssignmentType",
@@ -172,6 +170,8 @@ __all__ = [
     "OrganizationsUpdateRequest",
     "PaginationMetadata",
     "Permission",
+    "PredefinedRoleAssignment",
+    "PredefinedUserRoleAssignment",
     "Problem",
     "Project",
     "ProjectsCreateRequest",
@@ -335,8 +335,6 @@ from arize._generated.api_client.models.aws_provider_metadata import AwsProvider
 from arize._generated.api_client.models.aws_provider_metadata_kind import AwsProviderMetadataKind as AwsProviderMetadataKind
 from arize._generated.api_client.models.base_evaluation_task_request import BaseEvaluationTaskRequest as BaseEvaluationTaskRequest
 from arize._generated.api_client.models.base_evaluation_task_request_evaluators_inner import BaseEvaluationTaskRequestEvaluatorsInner as BaseEvaluationTaskRequestEvaluatorsInner
-from arize._generated.api_client.models.builtin_role_assignment import BuiltinRoleAssignment as BuiltinRoleAssignment
-from arize._generated.api_client.models.builtin_user_role_assignment import BuiltinUserRoleAssignment as BuiltinUserRoleAssignment
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig as CategoricalAnnotationConfig
 from arize._generated.api_client.models.categorical_annotation_config_create import CategoricalAnnotationConfigCreate as CategoricalAnnotationConfigCreate
 from arize._generated.api_client.models.categorical_annotation_value import CategoricalAnnotationValue as CategoricalAnnotationValue
@@ -401,10 +399,10 @@ from arize._generated.api_client.models.managed_code_evaluator import ManagedCod
 from arize._generated.api_client.models.message_role import MessageRole as MessageRole
 from arize._generated.api_client.models.optimization_direction import OptimizationDirection as OptimizationDirection
 from arize._generated.api_client.models.organization import Organization as Organization
-from arize._generated.api_client.models.organization_builtin_role_assignment import OrganizationBuiltinRoleAssignment as OrganizationBuiltinRoleAssignment
 from arize._generated.api_client.models.organization_custom_role_assignment import OrganizationCustomRoleAssignment as OrganizationCustomRoleAssignment
 from arize._generated.api_client.models.organization_membership import OrganizationMembership as OrganizationMembership
 from arize._generated.api_client.models.organization_membership_input import OrganizationMembershipInput as OrganizationMembershipInput
+from arize._generated.api_client.models.organization_predefined_role_assignment import OrganizationPredefinedRoleAssignment as OrganizationPredefinedRoleAssignment
 from arize._generated.api_client.models.organization_role import OrganizationRole as OrganizationRole
 from arize._generated.api_client.models.organization_role_assignment import OrganizationRoleAssignment as OrganizationRoleAssignment
 from arize._generated.api_client.models.organization_role_assignment_type import OrganizationRoleAssignmentType as OrganizationRoleAssignmentType
@@ -413,6 +411,8 @@ from arize._generated.api_client.models.organizations_list200_response import Or
 from arize._generated.api_client.models.organizations_update_request import OrganizationsUpdateRequest as OrganizationsUpdateRequest
 from arize._generated.api_client.models.pagination_metadata import PaginationMetadata as PaginationMetadata
 from arize._generated.api_client.models.permission import Permission as Permission
+from arize._generated.api_client.models.predefined_role_assignment import PredefinedRoleAssignment as PredefinedRoleAssignment
+from arize._generated.api_client.models.predefined_user_role_assignment import PredefinedUserRoleAssignment as PredefinedUserRoleAssignment
 from arize._generated.api_client.models.problem import Problem as Problem
 from arize._generated.api_client.models.project import Project as Project
 from arize._generated.api_client.models.projects_create_request import ProjectsCreateRequest as ProjectsCreateRequest

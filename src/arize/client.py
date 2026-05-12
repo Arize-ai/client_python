@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     from arize.spaces.client import SpacesClient
     from arize.spans.client import SpansClient
     from arize.tasks.client import TasksClient
+    from arize.users.client import UsersClient
 
 logger = logging.getLogger(__name__)
 
@@ -145,6 +146,10 @@ class ArizeClient(LazySubclientsMixin):
         "tasks": (
             "arize.tasks.client",
             "TasksClient",
+        ),
+        "users": (
+            "arize.users.client",
+            "UsersClient",
         ),
     }
     # DISABLED: Optional dependency gating system
@@ -405,6 +410,11 @@ class ArizeClient(LazySubclientsMixin):
     def tasks(self) -> TasksClient:
         """Access the tasks client for task and task run operations (lazy-loaded)."""
         return cast("TasksClient", self.__getattr__("tasks"))
+
+    @property
+    def users(self) -> UsersClient:
+        """Access the users client for user management operations (lazy-loaded)."""
+        return cast("UsersClient", self.__getattr__("users"))
 
     def __repr__(self) -> str:
         """Return a string representation of the Arize client configuration."""

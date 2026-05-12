@@ -17,24 +17,24 @@ import json
 import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
-from arize._generated.api_client.models.organization_builtin_role_assignment import OrganizationBuiltinRoleAssignment
 from arize._generated.api_client.models.organization_custom_role_assignment import OrganizationCustomRoleAssignment
+from arize._generated.api_client.models.organization_predefined_role_assignment import OrganizationPredefinedRoleAssignment
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-ORGANIZATIONROLEASSIGNMENT_ONE_OF_SCHEMAS = ["OrganizationBuiltinRoleAssignment", "OrganizationCustomRoleAssignment"]
+ORGANIZATIONROLEASSIGNMENT_ONE_OF_SCHEMAS = ["OrganizationCustomRoleAssignment", "OrganizationPredefinedRoleAssignment"]
 
 class OrganizationRoleAssignment(BaseModel):
     """
-    A role assignment for an organization membership. Discriminated by `type`: - `builtin`: one of the predefined roles (`admin`, `member`, `read-only`, `annotator`) - `custom`: a custom RBAC role identified by its ID 
+    A role assignment for an organization membership. Discriminated by `type`: - `predefined`: one of the predefined roles (`admin`, `member`, `read-only`, `annotator`) - `custom`: a custom RBAC role identified by its ID 
     """
-    # data type: OrganizationBuiltinRoleAssignment
-    oneof_schema_1_validator: Optional[OrganizationBuiltinRoleAssignment] = None
+    # data type: OrganizationPredefinedRoleAssignment
+    oneof_schema_1_validator: Optional[OrganizationPredefinedRoleAssignment] = None
     # data type: OrganizationCustomRoleAssignment
     oneof_schema_2_validator: Optional[OrganizationCustomRoleAssignment] = None
-    actual_instance: Optional[Union[OrganizationBuiltinRoleAssignment, OrganizationCustomRoleAssignment]] = None
-    one_of_schemas: Set[str] = { "OrganizationBuiltinRoleAssignment", "OrganizationCustomRoleAssignment" }
+    actual_instance: Optional[Union[OrganizationCustomRoleAssignment, OrganizationPredefinedRoleAssignment]] = None
+    one_of_schemas: Set[str] = { "OrganizationCustomRoleAssignment", "OrganizationPredefinedRoleAssignment" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -60,9 +60,9 @@ class OrganizationRoleAssignment(BaseModel):
         instance = OrganizationRoleAssignment.model_construct()
         error_messages = []
         match = 0
-        # validate data type: OrganizationBuiltinRoleAssignment
-        if not isinstance(v, OrganizationBuiltinRoleAssignment):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `OrganizationBuiltinRoleAssignment`")
+        # validate data type: OrganizationPredefinedRoleAssignment
+        if not isinstance(v, OrganizationPredefinedRoleAssignment):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `OrganizationPredefinedRoleAssignment`")
         else:
             match += 1
         # validate data type: OrganizationCustomRoleAssignment
@@ -72,10 +72,10 @@ class OrganizationRoleAssignment(BaseModel):
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in OrganizationRoleAssignment with oneOf schemas: OrganizationBuiltinRoleAssignment, OrganizationCustomRoleAssignment. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in OrganizationRoleAssignment with oneOf schemas: OrganizationCustomRoleAssignment, OrganizationPredefinedRoleAssignment. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in OrganizationRoleAssignment with oneOf schemas: OrganizationBuiltinRoleAssignment, OrganizationCustomRoleAssignment. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in OrganizationRoleAssignment with oneOf schemas: OrganizationCustomRoleAssignment, OrganizationPredefinedRoleAssignment. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -90,9 +90,9 @@ class OrganizationRoleAssignment(BaseModel):
         error_messages = []
         match = 0
 
-        # deserialize data into OrganizationBuiltinRoleAssignment
+        # deserialize data into OrganizationPredefinedRoleAssignment
         try:
-            instance.actual_instance = OrganizationBuiltinRoleAssignment.from_json(json_str)
+            instance.actual_instance = OrganizationPredefinedRoleAssignment.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
@@ -105,10 +105,10 @@ class OrganizationRoleAssignment(BaseModel):
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into OrganizationRoleAssignment with oneOf schemas: OrganizationBuiltinRoleAssignment, OrganizationCustomRoleAssignment. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into OrganizationRoleAssignment with oneOf schemas: OrganizationCustomRoleAssignment, OrganizationPredefinedRoleAssignment. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into OrganizationRoleAssignment with oneOf schemas: OrganizationBuiltinRoleAssignment, OrganizationCustomRoleAssignment. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into OrganizationRoleAssignment with oneOf schemas: OrganizationCustomRoleAssignment, OrganizationPredefinedRoleAssignment. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -122,7 +122,7 @@ class OrganizationRoleAssignment(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], OrganizationBuiltinRoleAssignment, OrganizationCustomRoleAssignment]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], OrganizationCustomRoleAssignment, OrganizationPredefinedRoleAssignment]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

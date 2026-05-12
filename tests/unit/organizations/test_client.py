@@ -8,6 +8,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from arize.organizations.client import OrganizationsClient
+from arize.organizations.types import OrganizationRole, PredefinedOrgRole
 
 
 @pytest.fixture
@@ -290,5 +291,144 @@ class TestOrganizationsClientDelete:
         assert any(
             "ALPHA" in record.message
             and "organizations.delete" in record.message
+            for record in caplog.records
+        )
+
+
+@pytest.mark.unit
+class TestOrganizationsClientAddUser:
+    """Tests for OrganizationsClient.add_user()."""
+
+    def test_add_user_with_predefined_role_calls_api(
+        self, organizations_client: OrganizationsClient, mock_api: Mock
+    ) -> None:
+        """add_user() with PredefinedOrgRole should call _to_generated() and wrap in OrganizationRoleAssignment."""
+        role = PredefinedOrgRole(name=OrganizationRole.MEMBER)
+        with (
+            patch(
+                "arize._generated.api_client.OrganizationMembershipInput"
+            ) as mock_input_cls,
+            patch(
+                "arize._generated.api_client.OrganizationRoleAssignment"
+            ) as mock_role_cls,
+        ):
+            mock_body = Mock()
+            mock_input_cls.return_value = mock_body
+            mock_role = Mock()
+            mock_role_cls.return_value = mock_role
+
+            organizations_client.add_user(
+                organization="T3JnYW5pemF0aW9uOjEyMzQ1",
+                user_id="VXNlcjoxMjM0NQ==",
+                role=role,
+            )
+
+        mock_role_cls.assert_called_once_with(role._to_generated())
+        mock_input_cls.assert_called_once_with(
+            user_id="VXNlcjoxMjM0NQ==",
+            role=mock_role,
+        )
+        mock_api.organizations_add_user.assert_called_once_with(
+            org_id="T3JnYW5pemF0aW9uOjEyMzQ1",
+            organization_membership_input=mock_body,
+        )
+
+    def test_add_user_returns_api_response(
+        self, organizations_client: OrganizationsClient, mock_api: Mock
+    ) -> None:
+        """add_user() should propagate the return value from organizations_add_user."""
+        expected = Mock()
+        mock_api.organizations_add_user.return_value = expected
+
+        with (
+            patch("arize._generated.api_client.OrganizationMembershipInput"),
+            patch("arize._generated.api_client.OrganizationRoleAssignment"),
+        ):
+            result = organizations_client.add_user(
+                organization="T3JnYW5pemF0aW9uOjEyMzQ1",
+                user_id="VXNlcjoxMjM0NQ==",
+                role=PredefinedOrgRole(name=OrganizationRole.MEMBER),
+            )
+
+        assert result is expected
+
+    def test_add_user_emits_alpha_prerelease_warning(
+        self,
+        organizations_client: OrganizationsClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the ALPHA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        with (
+            patch("arize._generated.api_client.OrganizationMembershipInput"),
+            patch("arize._generated.api_client.OrganizationRoleAssignment"),
+        ):
+            organizations_client.add_user(
+                organization="T3JnYW5pemF0aW9uOjEyMzQ1",
+                user_id="VXNlcjoxMjM0NQ==",
+                role=PredefinedOrgRole(name=OrganizationRole.MEMBER),
+            )
+
+        assert any(
+            "ALPHA" in record.message
+            and "organizations.add_user" in record.message
+            for record in caplog.records
+        )
+
+
+@pytest.mark.unit
+class TestOrganizationsClientRemoveUser:
+    """Tests for OrganizationsClient.remove_user()."""
+
+    def test_remove_user_calls_api_with_org_and_user_id(
+        self, organizations_client: OrganizationsClient, mock_api: Mock
+    ) -> None:
+        """remove_user() should resolve organization and pass org_id and user_id to organizations_remove_user."""
+        organizations_client.remove_user(
+            organization="T3JnYW5pemF0aW9uOjEyMzQ1",
+            user_id="VXNlcjoxMjM0NQ==",
+        )
+
+        mock_api.organizations_remove_user.assert_called_once_with(
+            org_id="T3JnYW5pemF0aW9uOjEyMzQ1",
+            user_id="VXNlcjoxMjM0NQ==",
+        )
+
+    def test_remove_user_returns_none(
+        self, organizations_client: OrganizationsClient, mock_api: Mock
+    ) -> None:
+        """remove_user() should return None on success (204 response)."""
+        mock_api.organizations_remove_user.return_value = None
+
+        result = organizations_client.remove_user(
+            organization="T3JnYW5pemF0aW9uOjEyMzQ1",
+            user_id="VXNlcjoxMjM0NQ==",
+        )
+
+        assert result is None
+
+    def test_remove_user_emits_alpha_prerelease_warning(
+        self,
+        organizations_client: OrganizationsClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the ALPHA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        organizations_client.remove_user(
+            organization="T3JnYW5pemF0aW9uOjEyMzQ1",
+            user_id="VXNlcjoxMjM0NQ==",
+        )
+
+        assert any(
+            "ALPHA" in record.message
+            and "organizations.remove_user" in record.message
             for record in caplog.records
         )

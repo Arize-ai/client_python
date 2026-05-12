@@ -86,6 +86,25 @@
     - [Get an AI Integration](#get-an-ai-integration)
     - [Update an AI Integration](#update-an-ai-integration)
     - [Delete an AI Integration](#delete-an-ai-integration)
+  - [Operations on Organizations](#operations-on-organizations)
+    - [List Organizations](#list-organizations)
+    - [Get an Organization](#get-an-organization)
+    - [Create an Organization](#create-an-organization)
+    - [Update an Organization](#update-an-organization)
+    - [Delete an Organization](#delete-an-organization)
+    - [Add a User to an Organization](#add-a-user-to-an-organization)
+    - [Remove a User from an Organization](#remove-a-user-from-an-organization)
+  - [Operations on Spaces](#operations-on-spaces)
+    - [Add a User to a Space](#add-a-user-to-a-space)
+    - [Remove a User from a Space](#remove-a-user-from-a-space)
+  - [Operations on Users](#operations-on-users)
+    - [List Users](#list-users)
+    - [Get a User](#get-a-user)
+    - [Create a User](#create-a-user)
+    - [Update a User](#update-a-user)
+    - [Delete a User](#delete-a-user)
+    - [Resend a User Invitation](#resend-a-user-invitation)
+    - [Reset a User's Password](#reset-a-users-password)
 - [SDK Configuration](#sdk-configuration)
   - [Logging](#logging)
     - [In Code](#in-code)
@@ -1089,6 +1108,154 @@ org = client.organizations.update(
 ```python
 client.organizations.delete(
     organization="<organization-id-or-name>",
+)
+```
+
+### Add a User to an Organization
+
+Add a user to an organization (or update their role if already a member). The user must already exist in the account.
+
+```python
+from arize.organizations.types import CustomOrgRole, PredefinedOrgRole
+
+# Predefined role (admin, member, read-only, or annotator)
+membership = client.organizations.add_user(
+    organization="<organization-id-or-name>",
+    user_id="<user-id>",
+    role=PredefinedOrgRole(name="member"),
+)
+
+# Custom RBAC role
+membership = client.organizations.add_user(
+    organization="<organization-id-or-name>",
+    user_id="<user-id>",
+    role=CustomOrgRole(id="<role-id>"),
+)
+```
+
+### Remove a User from an Organization
+
+Removes the user from the organization and all its child spaces.
+
+```python
+client.organizations.remove_user(
+    organization="<organization-id-or-name>",
+    user_id="<user-id>",
+)
+```
+
+## Operations on Spaces
+
+Use `client.spaces` to manage space memberships.
+
+### Add a User to a Space
+
+Add a user to a space (or update their role if already a member). The user must already be a member of the space's parent organization.
+
+```python
+from arize.spaces.types import CustomSpaceRole, PredefinedSpaceRole
+
+# Predefined role (admin, member, read-only, or annotator)
+membership = client.spaces.add_user(
+    space="<space-id-or-name>",
+    user_id="<user-id>",
+    role=PredefinedSpaceRole(name="member"),
+)
+
+# Custom RBAC role
+membership = client.spaces.add_user(
+    space="<space-id-or-name>",
+    user_id="<user-id>",
+    role=CustomSpaceRole(id="<role-id>"),
+)
+```
+
+### Remove a User from a Space
+
+```python
+client.spaces.remove_user(
+    space="<space-id-or-name>",
+    user_id="<user-id>",
+)
+```
+
+## Operations on Users
+
+Use `client.users` to manage users in the Arize platform.
+
+> **Note:** Unlike organizations, users are identified by opaque ID only — not by
+> name. User display names are not unique within an account, so all methods require
+> the user's ID.
+
+### List Users
+
+```python
+resp = client.users.list(
+    email=...,   # Optional, case-insensitive partial match on email
+    status=...,  # Optional, list of statuses: "active", "invited", "expired"
+    limit=...,   # Optional, defaults to 50 (max 100)
+    cursor=...,  # Optional, pagination cursor from a previous response
+)
+user_list = resp.users
+```
+
+### Get a User
+
+```python
+user = client.users.get(
+    user_id="<user-id>",
+)
+```
+
+### Create a User
+
+```python
+from arize.users.types import BuiltinUserRoleAssignment
+
+user = client.users.create(
+    name="Jane Smith",
+    email="jane.smith@example.com",
+    role=BuiltinUserRoleAssignment(type="builtin", name="member"),  # "admin", "member", or "annotator"
+    invite_mode="email_link",  # "none", "email_link", or "temporary_password"
+)
+```
+
+### Update a User
+
+```python
+user = client.users.update(
+    user_id="<user-id>",
+    name=...,         # Optional updated display name
+    is_developer=..., # Optional, grant or revoke developer permissions
+)
+```
+
+### Delete a User
+
+> **Warning:** This operation soft-deletes the user and cascades to
+> organization memberships, space memberships, API keys, and role bindings.
+
+```python
+client.users.delete(
+    user_id="<user-id>",
+)
+```
+
+### Resend a User Invitation
+
+```python
+client.users.resend_invitation(
+    user_id="<user-id>",  # Must be in "invited" status
+)
+```
+
+### Reset a User's Password
+
+Triggers a password-reset email. The user must authenticate via password (not SSO/SAML) and must have already verified their account.
+
+```python
+client.users.reset_password(
+    user_id="<user-id>",
 )
 ```
 

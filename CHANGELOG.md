@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.24.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.23.0...arize-python-sdk/v8.24.0) (2026-05-12)
+
+
+### 🎁 New Features
+
+* **users:** Add users management support ([#70277](https://github.com/Arize-ai/arize/issues/70277)) ([3de9171](https://github.com/Arize-ai/arize/commit/3de9171a0cb0d616d97c21f4eb0de24182226ff7))
+
+
+### ❔ Miscellaneous Chores
+
+* **deps-dev:** bump pytest from 8.4.2 to 9.0.3 in /sdk/python/arize/v8 ([#71509](https://github.com/Arize-ai/arize/issues/71509)) ([a82c1d5](https://github.com/Arize-ai/arize/commit/a82c1d5510850f53ff3d0111538688d5438b9c81))
+
 ## [8.23.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.22.4...arize-python-sdk/v8.23.0) (2026-05-11)
 
 

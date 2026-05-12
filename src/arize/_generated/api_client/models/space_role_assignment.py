@@ -17,24 +17,24 @@ import json
 import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
-from arize._generated.api_client.models.builtin_role_assignment import BuiltinRoleAssignment
 from arize._generated.api_client.models.custom_role_assignment import CustomRoleAssignment
+from arize._generated.api_client.models.predefined_role_assignment import PredefinedRoleAssignment
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-SPACEROLEASSIGNMENT_ONE_OF_SCHEMAS = ["BuiltinRoleAssignment", "CustomRoleAssignment"]
+SPACEROLEASSIGNMENT_ONE_OF_SCHEMAS = ["CustomRoleAssignment", "PredefinedRoleAssignment"]
 
 class SpaceRoleAssignment(BaseModel):
     """
-    A role assignment for a space membership. Discriminated by `type`: - `builtin`: one of the predefined roles (`admin`, `member`, `read-only`, `annotator`) - `custom`: a custom RBAC role identified by its ID 
+    A role assignment for a space membership. Discriminated by `type`: - `predefined`: one of the predefined roles (`admin`, `member`, `read-only`, `annotator`) - `custom`: a custom RBAC role identified by its ID 
     """
-    # data type: BuiltinRoleAssignment
-    oneof_schema_1_validator: Optional[BuiltinRoleAssignment] = None
+    # data type: PredefinedRoleAssignment
+    oneof_schema_1_validator: Optional[PredefinedRoleAssignment] = None
     # data type: CustomRoleAssignment
     oneof_schema_2_validator: Optional[CustomRoleAssignment] = None
-    actual_instance: Optional[Union[BuiltinRoleAssignment, CustomRoleAssignment]] = None
-    one_of_schemas: Set[str] = { "BuiltinRoleAssignment", "CustomRoleAssignment" }
+    actual_instance: Optional[Union[CustomRoleAssignment, PredefinedRoleAssignment]] = None
+    one_of_schemas: Set[str] = { "CustomRoleAssignment", "PredefinedRoleAssignment" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -60,9 +60,9 @@ class SpaceRoleAssignment(BaseModel):
         instance = SpaceRoleAssignment.model_construct()
         error_messages = []
         match = 0
-        # validate data type: BuiltinRoleAssignment
-        if not isinstance(v, BuiltinRoleAssignment):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `BuiltinRoleAssignment`")
+        # validate data type: PredefinedRoleAssignment
+        if not isinstance(v, PredefinedRoleAssignment):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `PredefinedRoleAssignment`")
         else:
             match += 1
         # validate data type: CustomRoleAssignment
@@ -72,10 +72,10 @@ class SpaceRoleAssignment(BaseModel):
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in SpaceRoleAssignment with oneOf schemas: BuiltinRoleAssignment, CustomRoleAssignment. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in SpaceRoleAssignment with oneOf schemas: CustomRoleAssignment, PredefinedRoleAssignment. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in SpaceRoleAssignment with oneOf schemas: BuiltinRoleAssignment, CustomRoleAssignment. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in SpaceRoleAssignment with oneOf schemas: CustomRoleAssignment, PredefinedRoleAssignment. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -90,9 +90,9 @@ class SpaceRoleAssignment(BaseModel):
         error_messages = []
         match = 0
 
-        # deserialize data into BuiltinRoleAssignment
+        # deserialize data into PredefinedRoleAssignment
         try:
-            instance.actual_instance = BuiltinRoleAssignment.from_json(json_str)
+            instance.actual_instance = PredefinedRoleAssignment.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
@@ -105,10 +105,10 @@ class SpaceRoleAssignment(BaseModel):
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into SpaceRoleAssignment with oneOf schemas: BuiltinRoleAssignment, CustomRoleAssignment. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into SpaceRoleAssignment with oneOf schemas: CustomRoleAssignment, PredefinedRoleAssignment. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into SpaceRoleAssignment with oneOf schemas: BuiltinRoleAssignment, CustomRoleAssignment. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into SpaceRoleAssignment with oneOf schemas: CustomRoleAssignment, PredefinedRoleAssignment. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -122,7 +122,7 @@ class SpaceRoleAssignment(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], BuiltinRoleAssignment, CustomRoleAssignment]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], CustomRoleAssignment, PredefinedRoleAssignment]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

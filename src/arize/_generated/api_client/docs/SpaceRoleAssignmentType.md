@@ -3,7 +3,7 @@
 
 ## Enum
 
-* `BUILTIN` (value: `'builtin'`)
+* `PREDEFINED` (value: `'predefined'`)
 
 * `CUSTOM` (value: `'custom'`)
 
