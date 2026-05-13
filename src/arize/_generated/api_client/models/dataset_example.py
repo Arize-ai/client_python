@@ -19,7 +19,8 @@ import json
 
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.annotation import Annotation
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -30,8 +31,9 @@ class DatasetExample(BaseModel):
     id: StrictStr = Field(description="System-assigned unique ID for the example")
     created_at: datetime = Field(description="Timestamp for when the example was created")
     updated_at: datetime = Field(description="Timestamp for the last update of the example")
+    annotations: Optional[List[Annotation]] = Field(default=None, description="List of human annotations on this dataset example")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "created_at", "updated_at"]
+    __properties: ClassVar[List[str]] = ["id", "created_at", "updated_at", "annotations"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -66,12 +68,14 @@ class DatasetExample(BaseModel):
         * OpenAPI `readOnly` fields are excluded.
         * OpenAPI `readOnly` fields are excluded.
         * OpenAPI `readOnly` fields are excluded.
+        * OpenAPI `readOnly` fields are excluded.
         * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
             "id",
             "created_at",
             "updated_at",
+            "annotations",
             "additional_properties",
         ])
 
@@ -80,6 +84,13 @@ class DatasetExample(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in annotations (list)
+        _items = []
+        if self.annotations:
+            for _item_annotations in self.annotations:
+                if _item_annotations:
+                    _items.append(_item_annotations.to_dict())
+            _dict['annotations'] = _items
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
@@ -99,7 +110,8 @@ class DatasetExample(BaseModel):
         _obj = cls.model_validate({
             "id": obj.get("id"),
             "created_at": obj.get("created_at"),
-            "updated_at": obj.get("updated_at")
+            "updated_at": obj.get("updated_at"),
+            "annotations": [Annotation.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

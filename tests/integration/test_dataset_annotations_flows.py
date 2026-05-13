@@ -106,7 +106,7 @@ class TestDatasetExamplesAnnotate:
             )
             example_id = examples_resp.examples[0].id
 
-            result = datasets_client.annotate_examples(
+            datasets_client.annotate_examples(
                 dataset=dataset.id,
                 annotations=[
                     gen.AnnotateRecordInput(
@@ -115,14 +115,6 @@ class TestDatasetExamplesAnnotate:
                     )
                 ],
             )
-
-            assert len(result.results) == 1
-            assert result.results[0].record_id == example_id
-            assert len(result.results[0].annotations) >= 1
-            result_annotation = next(
-                a for a in result.results[0].annotations if a.name == ac_name
-            )
-            assert result_annotation.score == 0.85
         finally:
             datasets_client.delete(dataset=dataset.id)
             annotation_configs_client.delete(annotation_config=ac_id)
@@ -158,7 +150,7 @@ class TestDatasetExamplesAnnotate:
             )
             example_id = examples_resp.examples[0].id
 
-            result = datasets_client.annotate_examples(
+            datasets_client.annotate_examples(
                 dataset=dataset.id,
                 annotations=[
                     gen.AnnotateRecordInput(
@@ -169,13 +161,6 @@ class TestDatasetExamplesAnnotate:
                     )
                 ],
             )
-
-            assert len(result.results) == 1
-            assert result.results[0].record_id == example_id
-            result_annotation = next(
-                a for a in result.results[0].annotations if a.name == ac_name
-            )
-            assert result_annotation.label == "correct"
         finally:
             datasets_client.delete(dataset=dataset.id)
             annotation_configs_client.delete(annotation_config=ac_id)
@@ -213,7 +198,7 @@ class TestDatasetExamplesAnnotate:
             example_ids = [e.id for e in examples_resp.examples]
             assert len(example_ids) >= 2
 
-            result = datasets_client.annotate_examples(
+            datasets_client.annotate_examples(
                 dataset=dataset.id,
                 annotations=[
                     gen.AnnotateRecordInput(
@@ -226,10 +211,6 @@ class TestDatasetExamplesAnnotate:
                     ),
                 ],
             )
-
-            assert len(result.results) == 2
-            result_ids = {r.record_id for r in result.results}
-            assert result_ids == set(example_ids[:2])
         finally:
             datasets_client.delete(dataset=dataset.id)
             annotation_configs_client.delete(annotation_config=ac_id)

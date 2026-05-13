@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.annotation import Annotation
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -30,8 +31,9 @@ class ExperimentRun(BaseModel):
     example_id: StrictStr = Field(description="ID of the dataset example associated with this experiment run")
     output: Optional[StrictStr] = Field(default=None, description="Output of the task for the matching example. Null when the task errored.")
     error: Optional[StrictStr] = Field(default=None, description="Error message when the task failed. Null on success.")
+    annotations: Optional[List[Annotation]] = Field(default=None, description="List of human annotations on this experiment run")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "example_id", "output", "error"]
+    __properties: ClassVar[List[str]] = ["id", "example_id", "output", "error", "annotations"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -65,11 +67,13 @@ class ExperimentRun(BaseModel):
           are ignored.
         * OpenAPI `readOnly` fields are excluded.
         * OpenAPI `readOnly` fields are excluded.
+        * OpenAPI `readOnly` fields are excluded.
         * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
             "id",
             "example_id",
+            "annotations",
             "additional_properties",
         ])
 
@@ -78,6 +82,13 @@ class ExperimentRun(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in annotations (list)
+        _items = []
+        if self.annotations:
+            for _item_annotations in self.annotations:
+                if _item_annotations:
+                    _items.append(_item_annotations.to_dict())
+            _dict['annotations'] = _items
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
@@ -108,7 +119,8 @@ class ExperimentRun(BaseModel):
             "id": obj.get("id"),
             "example_id": obj.get("example_id"),
             "output": obj.get("output"),
-            "error": obj.get("error")
+            "error": obj.get("error"),
+            "annotations": [Annotation.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

@@ -3,12 +3,29 @@
 from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
 
 import pytest
 
+if TYPE_CHECKING:
+    from collections.abc import Generator
+
 from arize.spaces.client import SpacesClient
-from arize.spaces.types import PredefinedSpaceRole, UserSpaceRole
+from arize.spaces.types import (
+    PredefinedSpaceRole,
+    SpaceMembership,
+    UserSpaceRole,
+)
+
+
+@pytest.fixture(autouse=True)
+def _stub_from_generated() -> Generator[None, None, None]:
+    """Stub model_validate on domain types so tests that don't explicitly
+    test conversion don't fail when the client calls it on a Mock API response.
+    """
+    with patch.object(SpaceMembership, "model_validate", return_value=Mock()):
+        yield
 
 
 @pytest.fixture
@@ -300,7 +317,7 @@ class TestSpacesClientAddUser:
     def test_add_user_with_predefined_role_calls_api(
         self, spaces_client: SpacesClient, mock_api: Mock
     ) -> None:
-        """add_user() with PredefinedSpaceRole should call _to_generated() and wrap in SpaceRoleAssignment."""
+        """add_user() with PredefinedSpaceRole should wrap it in SpaceRoleAssignment."""
         role = PredefinedSpaceRole(name=UserSpaceRole.MEMBER)
         with (
             patch(
@@ -309,11 +326,16 @@ class TestSpacesClientAddUser:
             patch(
                 "arize._generated.api_client.SpaceRoleAssignment"
             ) as mock_role_cls,
+            patch(
+                "arize._generated.api_client.PredefinedRoleAssignment"
+            ) as mock_pred_cls,
         ):
             mock_body = Mock()
             mock_input_cls.return_value = mock_body
             mock_role = Mock()
             mock_role_cls.return_value = mock_role
+            mock_gen_role = Mock()
+            mock_pred_cls.return_value = mock_gen_role
 
             spaces_client.add_user(
                 space="U3BhY2U6OTA1MDoxSmtS",
@@ -321,7 +343,8 @@ class TestSpacesClientAddUser:
                 role=role,
             )
 
-        mock_role_cls.assert_called_once_with(role._to_generated())
+        mock_pred_cls.assert_called_once()
+        mock_role_cls.assert_called_once_with(mock_gen_role)
         mock_input_cls.assert_called_once_with(
             user_id="VXNlcjoxMjM0NQ==",
             role=mock_role,
@@ -331,16 +354,20 @@ class TestSpacesClientAddUser:
             space_membership_input=mock_body,
         )
 
-    def test_add_user_returns_api_response(
+    def test_add_user_returns_domain_membership(
         self, spaces_client: SpacesClient, mock_api: Mock
     ) -> None:
-        """add_user() should propagate the return value from spaces_add_user."""
-        expected = Mock()
-        mock_api.spaces_add_user.return_value = expected
+        """add_user() should convert the raw API response to a domain SpaceMembership."""
+        raw = Mock()
+        mock_api.spaces_add_user.return_value = raw
+        domain = Mock()
 
         with (
             patch("arize._generated.api_client.SpaceMembershipInput"),
             patch("arize._generated.api_client.SpaceRoleAssignment"),
+            patch.object(
+                SpaceMembership, "model_validate", return_value=domain
+            ) as mock_conv,
         ):
             result = spaces_client.add_user(
                 space="U3BhY2U6OTA1MDoxSmtS",
@@ -348,7 +375,8 @@ class TestSpacesClientAddUser:
                 role=PredefinedSpaceRole(name=UserSpaceRole.MEMBER),
             )
 
-        assert result is expected
+        mock_conv.assert_called_once_with(raw, from_attributes=True)
+        assert result is domain
 
     def test_add_user_emits_alpha_prerelease_warning(
         self,

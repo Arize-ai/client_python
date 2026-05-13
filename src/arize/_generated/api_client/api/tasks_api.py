@@ -658,7 +658,6 @@ class TasksApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -731,7 +730,6 @@ class TasksApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -804,7 +802,6 @@ class TasksApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1225,7 +1222,6 @@ class TasksApi:
             '200': "Task",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -1297,7 +1293,6 @@ class TasksApi:
             '200': "Task",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -1369,7 +1364,6 @@ class TasksApi:
             '200': "Task",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }

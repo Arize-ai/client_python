@@ -49,7 +49,7 @@ if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
     from arize._generated.protocol.flight import flight_pb2
     from arize.config import SDKConfiguration
-    from arize.spans.types import SpansList200Response
+    from arize.spans.types import SpansDelete200Response, SpansList200Response
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +78,55 @@ class SpansClient:
         # Use the provided client directly
         self._api = gen.SpansApi(generated_client)
         self._projects_api = gen.ProjectsApi(generated_client)
+
+    @prerelease_endpoint(key="spans.delete", stage=ReleaseStage.ALPHA)
+    def delete(
+        self,
+        *,
+        project: str,
+        span_ids: builtins.list[str],
+        space: str | None = None,
+    ) -> SpansDelete200Response | None:
+        """Permanently delete spans by their IDs.
+
+        This operation is irreversible. Only spans within the supported
+        lookback window (2 years) are considered; older spans are not affected. If one
+        or more span IDs are not found, they are silently ignored.
+
+        Args:
+            project: Project name or global ID (base64) containing the spans.
+                If the value is a name, ``space`` must also be provided.
+            span_ids: List of span IDs to delete.
+            space: Optional space name or ID used to disambiguate the project
+                lookup. Required when ``project`` is a name.
+
+        Returns:
+            ``None`` when all spans were deleted (HTTP 204). A response
+            object with ``deleted_span_ids`` when the server reports a
+            partial deletion (HTTP 200) — retry the original request for
+            a complete result.
+
+        Raises:
+            ValueError: If ``span_ids`` is empty.
+            ApiException: If the REST API returns an error response
+                (e.g. 401/403/429).
+        """
+        if not span_ids:
+            raise ValueError("span_ids must not be empty")
+
+        project_id = _find_project_id(
+            api=self._projects_api,
+            project=project,
+            space=space,
+        )
+
+        from arize._generated import api_client as gen
+
+        body = gen.SpansDeleteRequest(
+            project_id=project_id,
+            span_ids=span_ids,
+        )
+        return self._api.spans_delete(spans_delete_request=body)
 
     @prerelease_endpoint(key="spans.list", stage=ReleaseStage.ALPHA)
     def list(

@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from arize._generated.api_client.models.dataset_example_update import DatasetExampleUpdate
 from typing import Optional, Set
 from typing_extensions import Self
@@ -27,7 +28,7 @@ class DatasetsExamplesUpdateRequest(BaseModel):
     """
     DatasetsExamplesUpdateRequest
     """ # noqa: E501
-    examples: List[DatasetExampleUpdate] = Field(description="Array of examples with 'id' field for matching and updating existing records")
+    examples: Annotated[List[DatasetExampleUpdate], Field(min_length=1, max_length=1000)] = Field(description="Array of examples with 'id' field for matching and updating existing records")
     new_version: Optional[StrictStr] = Field(default=None, description="Name for the new version. If provided (non-empty), creates a new version with that name.  If omitted or empty, updates the existing version in-place. ")
     __properties: ClassVar[List[str]] = ["examples", "new_version"]
 

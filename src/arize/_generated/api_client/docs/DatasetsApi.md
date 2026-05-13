@@ -221,13 +221,12 @@ void (empty response body)
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
-**422** | Invalid request |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **datasets_examples_annotate**
-> AnnotationBatchResult datasets_examples_annotate(dataset_id, annotate_dataset_examples_request_body)
+> datasets_examples_annotate(dataset_id, annotate_dataset_examples_request_body)
 
 Annotate a batch of dataset examples
 
@@ -237,9 +236,13 @@ Write human annotations to a batch of examples in a dataset.
 config name for the same example overwrites the previous value. Retrying on
 network failure will not create duplicates.
 
+**202 Accepted**: The annotations have been accepted and will be written.
+Visibility in read queries may lag by a short interval. No response body
+is returned.
+
 **Unmatched record IDs**: If a `record_id` does not correspond to an existing
 example in the dataset, the annotation for that record is silently ignored.
-The response will still include an entry for it. No error is returned.
+No error is returned.
 
 **Payload Requirements**
 - `dataset_id` is the path parameter for the target dataset.
@@ -275,7 +278,6 @@ The response will still include an entry for it. No error is returned.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.annotate_dataset_examples_request_body import AnnotateDatasetExamplesRequestBody
-from arize._generated.api_client.models.annotation_batch_result import AnnotationBatchResult
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -304,9 +306,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Annotate a batch of dataset examples
-        api_response = api_instance.datasets_examples_annotate(dataset_id, annotate_dataset_examples_request_body)
-        print("The response of DatasetsApi->datasets_examples_annotate:\n")
-        pprint(api_response)
+        api_instance.datasets_examples_annotate(dataset_id, annotate_dataset_examples_request_body)
     except Exception as e:
         print("Exception when calling DatasetsApi->datasets_examples_annotate: %s\n" % e)
 ```
@@ -323,7 +323,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AnnotationBatchResult**](AnnotationBatchResult.md)
+void (empty response body)
 
 ### Authorization
 
@@ -332,13 +332,13 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json, application/problem+json
+ - **Accept**: application/problem+json
 
 ### HTTP response details
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**200** | Annotations successfully written to dataset examples |  -  |
+**202** | Annotations written successfully. The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
@@ -468,7 +468,6 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
-**422** | Invalid request |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -482,6 +481,11 @@ List examples for a given dataset and version.
 
 If version is not passed, the latest version is selected. Examples are
 sorted by insertion order.
+
+**Human annotations**: returned in the structured `annotations` array on
+each example. Each entry includes `name`, optional `label` / `score` /
+`text` / `updated_at`, and an `annotator` (id + email) for per-user
+annotations.
 
 **Pagination**:
 - Response includes `pagination` for forward compatibility.
@@ -568,7 +572,6 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
-**422** | Invalid request |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -708,7 +711,6 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
-**422** | Invalid request |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -801,7 +803,6 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
-**422** | Invalid request |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -901,7 +902,6 @@ Name | Type | Description  | Notes
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
-**422** | Invalid request |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

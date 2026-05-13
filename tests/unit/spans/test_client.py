@@ -86,6 +86,121 @@ class TestSpansClientInit:
 
 
 @pytest.mark.unit
+class TestSpansClientDelete:
+    """Tests for SpansClient.delete()."""
+
+    @pytest.fixture(autouse=True)
+    def _clear_warned(self) -> None:
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+
+    def test_delete_raises_on_empty_span_ids(
+        self, spans_client: SpansClient
+    ) -> None:
+        """delete() should raise ValueError when span_ids is empty."""
+        with pytest.raises(ValueError, match="span_ids must not be empty"):
+            spans_client.delete(project=_PROJECT_ID, span_ids=[])
+
+    def test_delete_builds_request_and_calls_api(
+        self, spans_client: SpansClient, mock_api: Mock
+    ) -> None:
+        """delete() should build a SpansDeleteRequest and call spans_delete."""
+        with patch(
+            "arize._generated.api_client.SpansDeleteRequest"
+        ) as mock_request_cls:
+            mock_body = Mock()
+            mock_request_cls.return_value = mock_body
+
+            spans_client.delete(
+                project=_PROJECT_ID,
+                span_ids=["span-1", "span-2"],
+            )
+
+        mock_request_cls.assert_called_once_with(
+            project_id=_PROJECT_ID,
+            span_ids=["span-1", "span-2"],
+        )
+        mock_api.spans_delete.assert_called_once_with(
+            spans_delete_request=mock_body,
+        )
+
+    def test_delete_returns_api_response(
+        self, spans_client: SpansClient, mock_api: Mock
+    ) -> None:
+        """delete() should propagate the return value from spans_delete."""
+        expected = Mock()
+        mock_api.spans_delete.return_value = expected
+
+        with patch("arize._generated.api_client.SpansDeleteRequest"):
+            result = spans_client.delete(
+                project=_PROJECT_ID,
+                span_ids=["span-1"],
+            )
+
+        assert result is expected
+
+    def test_delete_returns_none_on_full_success(
+        self, spans_client: SpansClient, mock_api: Mock
+    ) -> None:
+        """delete() should return None when the API returns None (204)."""
+        mock_api.spans_delete.return_value = None
+
+        with patch("arize._generated.api_client.SpansDeleteRequest"):
+            result = spans_client.delete(
+                project=_PROJECT_ID,
+                span_ids=["span-1"],
+            )
+
+        assert result is None
+
+    def test_delete_with_project_name_resolves_id(
+        self, spans_client: SpansClient, mock_api: Mock
+    ) -> None:
+        """delete() should resolve a project name to an ID via ProjectsApi."""
+        mock_project = Mock()
+        mock_project.id = _PROJECT_ID
+        mock_project.name = "my-project"
+        mock_projects_api = Mock()
+        mock_projects_api.projects_list.return_value = Mock(
+            projects=[mock_project],
+            pagination=Mock(next_cursor=None),
+        )
+        spans_client._projects_api = mock_projects_api
+
+        with patch(
+            "arize._generated.api_client.SpansDeleteRequest"
+        ) as mock_request_cls:
+            mock_request_cls.return_value = Mock()
+            spans_client.delete(
+                project="my-project",
+                space="U3BhY2U6OTA1MDoxSmtS",
+                span_ids=["span-1"],
+            )
+
+        mock_request_cls.assert_called_once_with(
+            project_id=_PROJECT_ID,
+            span_ids=["span-1"],
+        )
+
+    def test_delete_emits_alpha_prerelease_warning(
+        self,
+        spans_client: SpansClient,
+        mock_api: Mock,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the ALPHA prerelease warning."""
+        with patch("arize._generated.api_client.SpansDeleteRequest"):
+            caplog.set_level(logging.WARNING)
+            spans_client.delete(project=_PROJECT_ID, span_ids=["span-1"])
+
+        assert any(
+            "ALPHA" in r.message and "spans.delete" in r.message
+            for r in caplog.records
+        )
+
+
+@pytest.mark.unit
 class TestSpansClientList:
     """Tests for SpansClient.list()."""
 

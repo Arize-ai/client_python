@@ -11,6 +11,9 @@
 
 ```{eval-rst}
 .. currentmodule:: arize.spans.types
+.. autoclass:: SpansDelete200Response
+   :members:
+   :member-order: bysource
 .. autoclass:: SpansList200Response
    :members:
    :member-order: bysource

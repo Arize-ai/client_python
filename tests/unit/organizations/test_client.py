@@ -3,12 +3,31 @@
 from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
 
 import pytest
 
+if TYPE_CHECKING:
+    from collections.abc import Generator
+
 from arize.organizations.client import OrganizationsClient
-from arize.organizations.types import OrganizationRole, PredefinedOrgRole
+from arize.organizations.types import (
+    OrganizationMembership,
+    OrganizationRole,
+    PredefinedOrgRole,
+)
+
+
+@pytest.fixture(autouse=True)
+def _stub_from_generated() -> Generator[None, None, None]:
+    """Stub model_validate on domain types so tests that don't explicitly
+    test conversion don't fail when the client calls it on a Mock API response.
+    """
+    with patch.object(
+        OrganizationMembership, "model_validate", return_value=Mock()
+    ):
+        yield
 
 
 @pytest.fixture
@@ -302,7 +321,7 @@ class TestOrganizationsClientAddUser:
     def test_add_user_with_predefined_role_calls_api(
         self, organizations_client: OrganizationsClient, mock_api: Mock
     ) -> None:
-        """add_user() with PredefinedOrgRole should call _to_generated() and wrap in OrganizationRoleAssignment."""
+        """add_user() with PredefinedOrgRole should wrap it in OrganizationRoleAssignment."""
         role = PredefinedOrgRole(name=OrganizationRole.MEMBER)
         with (
             patch(
@@ -311,11 +330,16 @@ class TestOrganizationsClientAddUser:
             patch(
                 "arize._generated.api_client.OrganizationRoleAssignment"
             ) as mock_role_cls,
+            patch(
+                "arize._generated.api_client.OrganizationPredefinedRoleAssignment"
+            ) as mock_pred_cls,
         ):
             mock_body = Mock()
             mock_input_cls.return_value = mock_body
             mock_role = Mock()
             mock_role_cls.return_value = mock_role
+            mock_gen_role = Mock()
+            mock_pred_cls.return_value = mock_gen_role
 
             organizations_client.add_user(
                 organization="T3JnYW5pemF0aW9uOjEyMzQ1",
@@ -323,7 +347,8 @@ class TestOrganizationsClientAddUser:
                 role=role,
             )
 
-        mock_role_cls.assert_called_once_with(role._to_generated())
+        mock_pred_cls.assert_called_once()
+        mock_role_cls.assert_called_once_with(mock_gen_role)
         mock_input_cls.assert_called_once_with(
             user_id="VXNlcjoxMjM0NQ==",
             role=mock_role,
@@ -333,16 +358,20 @@ class TestOrganizationsClientAddUser:
             organization_membership_input=mock_body,
         )
 
-    def test_add_user_returns_api_response(
+    def test_add_user_returns_domain_membership(
         self, organizations_client: OrganizationsClient, mock_api: Mock
     ) -> None:
-        """add_user() should propagate the return value from organizations_add_user."""
-        expected = Mock()
-        mock_api.organizations_add_user.return_value = expected
+        """add_user() should convert the raw API response to a domain OrganizationMembership."""
+        raw = Mock()
+        mock_api.organizations_add_user.return_value = raw
+        domain = Mock()
 
         with (
             patch("arize._generated.api_client.OrganizationMembershipInput"),
             patch("arize._generated.api_client.OrganizationRoleAssignment"),
+            patch.object(
+                OrganizationMembership, "model_validate", return_value=domain
+            ) as mock_conv,
         ):
             result = organizations_client.add_user(
                 organization="T3JnYW5pemF0aW9uOjEyMzQ1",
@@ -350,7 +379,8 @@ class TestOrganizationsClientAddUser:
                 role=PredefinedOrgRole(name=OrganizationRole.MEMBER),
             )
 
-        assert result is expected
+        mock_conv.assert_called_once_with(raw, from_attributes=True)
+        assert result is domain
 
     def test_add_user_emits_alpha_prerelease_warning(
         self,

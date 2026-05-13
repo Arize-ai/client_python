@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+from arize.organizations.types import OrganizationMembership
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import _find_organization_id
 
@@ -13,7 +14,6 @@ if TYPE_CHECKING:
     from arize.config import SDKConfiguration
     from arize.organizations.types import (
         Organization,
-        OrganizationMembership,
         OrganizationsList200Response,
         PredefinedOrgRole,
     )
@@ -238,10 +238,23 @@ class OrganizationsClient:
 
         body = gen.OrganizationMembershipInput(
             user_id=user_id,
-            role=gen.OrganizationRoleAssignment(role._to_generated()),
+            role=gen.OrganizationRoleAssignment(
+                gen.OrganizationPredefinedRoleAssignment(
+                    type=gen.OrganizationRoleAssignmentType.PREDEFINED,
+                    name=role.name,
+                )
+                if role.type == "predefined"
+                else gen.OrganizationCustomRoleAssignment(
+                    type=gen.OrganizationRoleAssignmentType.CUSTOM,
+                    id=role.id,
+                )
+            ),
         )
-        return self._api.organizations_add_user(
-            org_id=org_id, organization_membership_input=body
+        return OrganizationMembership.model_validate(
+            self._api.organizations_add_user(
+                org_id=org_id, organization_membership_input=body
+            ),
+            from_attributes=True,
         )
 
     @prerelease_endpoint(

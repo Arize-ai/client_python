@@ -20,25 +20,29 @@ Write human annotations to a batch of spans in a project.
 config name for the same span overwrites the previous value. Retrying on
 network failure will not create duplicates.
 
-**202 Accepted**: The request was validated and the writes were submitted
-to the database layer. Changes may not be immediately visible in queries.
+**202 Accepted**: The annotations have been accepted and will be written.
+Visibility in read queries may lag by a short interval.
 
-**Partial failure**: This endpoint writes records in day-bucket batches.
-A non-2xx response means the request failed partway through — some records
-may already be saved and some may not. It is safe to retry the full
-request; re-submitting a record that was already saved will overwrite it
-with the same value (no duplicates).
+**Partial failure**: Writes are grouped by calendar day and processed
+sequentially. A non-2xx response means the request failed during the write
+phase — annotations for earlier calendar-day buckets may already be saved
+while later ones are not. It is safe to retry the full request;
+re-submitting a record that was already saved will overwrite it with the
+same value (no duplicates).
 
 **Payload Requirements**
 - `project_id` is required and must identify a project the caller has span annotation access to.
 - `annotations` is a list of per-span annotation inputs. Each entry identifies
   one span by its `record_id` and provides one or more annotation values.
+- Each `record_id` must be unique within the request (duplicates return 400).
+- Each record's `values` list must not contain duplicate annotation config names (returns 400).
 - `start_time` / `end_time` constrain the Druid time range for span lookup.
-  If omitted, `start_time` defaults to 7 days ago and `end_time` to now.
-  The window may not exceed 31 days and `end_time` may not be in the future.
-  If ANY span ID cannot be located within the given range, the entire
-  request is rejected with 404 and no annotations are written (all-or-nothing
-  pre-validation).
+  If omitted, `start_time` defaults to 31 days ago and `end_time` to now.
+  Both `start_time` and `end_time` may not be in the future. The window may
+  not exceed 31 days. If ANY span ID cannot be located within the given
+  range, the entire request is rejected with 404 and no annotations are
+  written (all-or-nothing pre-validation). Only after all spans are
+  confirmed does the write phase begin.
 - Annotation names must match existing annotation configs in the project's space.
 - Up to 1000 span records may be annotated per request.
 
@@ -107,7 +111,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpansApi(api_client)
-    annotate_spans_request_body = {"project_id":"proj_abc123","start_time":"2024-01-01T00:00:00Z","end_time":"2024-01-08T00:00:00Z","annotations":[{"record_id":"span_abc","values":[{"name":"relevance","label":"good","score":1.5}]}]} # AnnotateSpansRequestBody | Body containing span annotation batch
+    annotate_spans_request_body = {"project_id":"proj_abc123","start_time":"2024-01-01T00:00:00Z","end_time":"2024-01-08T00:00:00Z","annotations":[{"record_id":"span_abc","values":[{"name":"relevance","label":"good","score":0.9}]}]} # AnnotateSpansRequestBody | Body containing span annotation batch
 
     try:
         # Annotate a batch of project spans
@@ -142,7 +146,7 @@ void (empty response body)
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**202** | Annotations submitted successfully. The request was validated and the writes were submitted to the database layer. Changes may not be immediately visible in queries. |  -  |
+**202** | Annotations accepted. Writes are idempotent; retry on failure is safe. |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |

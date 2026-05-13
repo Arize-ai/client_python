@@ -2176,7 +2176,6 @@ class PromptsApi:
             '204': None,
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -2248,7 +2247,6 @@ class PromptsApi:
             '204': None,
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -2320,7 +2318,6 @@ class PromptsApi:
             '204': None,
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -2460,7 +2457,6 @@ class PromptsApi:
             '200': "PromptWithVersion",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -2540,7 +2536,6 @@ class PromptsApi:
             '200': "PromptWithVersion",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -2620,7 +2615,6 @@ class PromptsApi:
             '200': "PromptWithVersion",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -3111,7 +3105,6 @@ class PromptsApi:
             '200': "Prompt",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -3187,7 +3180,6 @@ class PromptsApi:
             '200': "Prompt",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -3263,7 +3255,6 @@ class PromptsApi:
             '200': "Prompt",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }

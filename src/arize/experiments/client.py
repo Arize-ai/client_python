@@ -51,7 +51,6 @@ if TYPE_CHECKING:
     from arize.experiments.evaluators.base import Evaluators
     from arize.experiments.evaluators.types import EvaluationResultFieldNames
     from arize.experiments.types import (
-        AnnotationBatchResult,
         Experiment,
         ExperimentsList200Response,
         ExperimentsRunsList200Response,
@@ -466,7 +465,7 @@ class ExperimentsClient:
         dataset: str | None = None,
         space: str | None = None,
         annotations: builtins.list[models.AnnotateRecordInput],
-    ) -> AnnotationBatchResult:
+    ) -> None:
         """Write human annotations to a batch of runs in an experiment.
 
         Annotations are upserted by annotation config name for each run.
@@ -474,7 +473,10 @@ class ExperimentsClient:
         overwrites the previous value. Retrying on network failure will
         not create duplicates.
 
-        Up to 500 runs may be annotated per request.
+        Up to 1000 runs may be annotated per request.
+
+        The write completes synchronously before the function returns. Visibility
+        in read queries may lag by a short interval (HTTP 202 Accepted).
 
         Args:
             experiment: Experiment ID or name.
@@ -485,9 +487,6 @@ class ExperimentsClient:
                 must include a ``record_id`` (the experiment run ID) and ``values``
                 (a list of :class:`AnnotationInput` items with ``name``, and
                 optionally ``score``, ``label``, or ``text``).
-
-        Returns:
-            An :class:`AnnotationBatchResult` containing per-record results.
 
         Raises:
             ApiException: If the REST API returns an error response

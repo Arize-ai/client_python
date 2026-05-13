@@ -111,7 +111,6 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
-**422** | Invalid request |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -195,7 +194,6 @@ void (empty response body)
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
-**422** | Invalid request |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -283,9 +281,7 @@ Name | Type | Description  | Notes
 **200** | An experiment object |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
-**403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
-**422** | Invalid request |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -380,13 +376,12 @@ Name | Type | Description  | Notes
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
-**422** | Invalid request |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **experiments_runs_annotate**
-> AnnotationBatchResult experiments_runs_annotate(experiment_id, annotate_experiment_runs_request_body)
+> experiments_runs_annotate(experiment_id, annotate_experiment_runs_request_body)
 
 Annotate a batch of experiment runs
 
@@ -396,9 +391,13 @@ Write human annotations to a batch of runs in an experiment.
 config name for the same run overwrites the previous value. Retrying on
 network failure will not create duplicates.
 
+**202 Accepted**: The annotations have been accepted and will be written.
+Visibility in read queries may lag by a short interval. No response body
+is returned.
+
 **Unmatched record IDs**: If a `record_id` does not correspond to an existing
 run in the experiment, the annotation for that record is silently ignored.
-The response will still include an entry for it. No error is returned.
+No error is returned.
 
 **Payload Requirements**
 - `experiment_id` is the path parameter for the target experiment.
@@ -434,7 +433,6 @@ The response will still include an entry for it. No error is returned.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.annotate_experiment_runs_request_body import AnnotateExperimentRunsRequestBody
-from arize._generated.api_client.models.annotation_batch_result import AnnotationBatchResult
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -463,9 +461,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Annotate a batch of experiment runs
-        api_response = api_instance.experiments_runs_annotate(experiment_id, annotate_experiment_runs_request_body)
-        print("The response of ExperimentsApi->experiments_runs_annotate:\n")
-        pprint(api_response)
+        api_instance.experiments_runs_annotate(experiment_id, annotate_experiment_runs_request_body)
     except Exception as e:
         print("Exception when calling ExperimentsApi->experiments_runs_annotate: %s\n" % e)
 ```
@@ -482,7 +478,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AnnotationBatchResult**](AnnotationBatchResult.md)
+void (empty response body)
 
 ### Authorization
 
@@ -491,15 +487,16 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json, application/problem+json
+ - **Accept**: application/problem+json
 
 ### HTTP response details
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**200** | Annotations successfully written to experiment runs |  -  |
+**202** | Annotations written successfully. The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
@@ -513,6 +510,11 @@ List experiment runs
 List runs for a given experiment.
 
 The runs are sorted by insertion order.
+
+**Human annotations**: returned in the structured `annotations` array on
+each run. Each entry includes `name`, optional `label` / `score` /
+`text` / `updated_at`, and an `annotator` (id + email) for per-user
+annotations.
 
 **Pagination**:
 - Response includes `pagination` for forward compatibility.
@@ -597,7 +599,6 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
-**422** | Invalid request |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

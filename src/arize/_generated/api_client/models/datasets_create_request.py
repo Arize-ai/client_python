@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,7 +29,7 @@ class DatasetsCreateRequest(BaseModel):
     """ # noqa: E501
     name: StrictStr = Field(description="Name of the new dataset")
     space_id: StrictStr = Field(description="ID of the space the dataset will belong to")
-    examples: List[Dict[str, Any]] = Field(description="Array of examples for the new dataset")
+    examples: Annotated[List[Dict[str, Any]], Field(min_length=1, max_length=1000)] = Field(description="Array of examples for the new dataset")
     __properties: ClassVar[List[str]] = ["name", "space_id", "examples"]
 
     model_config = ConfigDict(

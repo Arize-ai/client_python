@@ -20,7 +20,6 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.annotate_experiment_runs_request_body import AnnotateExperimentRunsRequestBody
-from arize._generated.api_client.models.annotation_batch_result import AnnotationBatchResult
 from arize._generated.api_client.models.experiment import Experiment
 from arize._generated.api_client.models.experiments_create_request import ExperimentsCreateRequest
 from arize._generated.api_client.models.experiments_list200_response import ExperimentsList200Response
@@ -104,7 +103,6 @@ class ExperimentsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -178,7 +176,6 @@ class ExperimentsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -252,7 +249,6 @@ class ExperimentsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -399,7 +395,6 @@ class ExperimentsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -472,7 +467,6 @@ class ExperimentsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -545,7 +539,6 @@ class ExperimentsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -676,9 +669,7 @@ class ExperimentsApi:
             '200': "Experiment",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -749,9 +740,7 @@ class ExperimentsApi:
             '200': "Experiment",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -822,9 +811,7 @@ class ExperimentsApi:
             '200': "Experiment",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -969,7 +956,6 @@ class ExperimentsApi:
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1053,7 +1039,6 @@ class ExperimentsApi:
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1137,7 +1122,6 @@ class ExperimentsApi:
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1246,10 +1230,10 @@ class ExperimentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AnnotationBatchResult:
+    ) -> None:
         """Annotate a batch of experiment runs
 
-        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. The response will still include an entry for it. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param experiment_id: The unique identifier of the experiment (required)
         :type experiment_id: str
@@ -1287,9 +1271,10 @@ class ExperimentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationBatchResult",
+            '202': None,
             '400': "Problem",
             '401': "Problem",
+            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -1321,10 +1306,10 @@ class ExperimentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AnnotationBatchResult]:
+    ) -> ApiResponse[None]:
         """Annotate a batch of experiment runs
 
-        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. The response will still include an entry for it. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param experiment_id: The unique identifier of the experiment (required)
         :type experiment_id: str
@@ -1362,9 +1347,10 @@ class ExperimentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationBatchResult",
+            '202': None,
             '400': "Problem",
             '401': "Problem",
+            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -1399,7 +1385,7 @@ class ExperimentsApi:
     ) -> RESTResponseType:
         """Annotate a batch of experiment runs
 
-        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. The response will still include an entry for it. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param experiment_id: The unique identifier of the experiment (required)
         :type experiment_id: str
@@ -1437,9 +1423,10 @@ class ExperimentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationBatchResult",
+            '202': None,
             '400': "Problem",
             '401': "Problem",
+            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -1489,7 +1476,6 @@ class ExperimentsApi:
         if 'Accept' not in _header_params:
             _header_params['Accept'] = self.api_client.select_header_accept(
                 [
-                    'application/json', 
                     'application/problem+json'
                 ]
             )
@@ -1551,7 +1537,7 @@ class ExperimentsApi:
     ) -> ExperimentsRunsList200Response:
         """List experiment runs
 
-        List runs for a given experiment.  The runs are sorted by insertion order.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List runs for a given experiment.  The runs are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param experiment_id: The unique identifier of the experiment (required)
         :type experiment_id: str
@@ -1594,7 +1580,6 @@ class ExperimentsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1628,7 +1613,7 @@ class ExperimentsApi:
     ) -> ApiResponse[ExperimentsRunsList200Response]:
         """List experiment runs
 
-        List runs for a given experiment.  The runs are sorted by insertion order.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List runs for a given experiment.  The runs are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param experiment_id: The unique identifier of the experiment (required)
         :type experiment_id: str
@@ -1671,7 +1656,6 @@ class ExperimentsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1705,7 +1689,7 @@ class ExperimentsApi:
     ) -> RESTResponseType:
         """List experiment runs
 
-        List runs for a given experiment.  The runs are sorted by insertion order.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List runs for a given experiment.  The runs are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param experiment_id: The unique identifier of the experiment (required)
         :type experiment_id: str
@@ -1748,7 +1732,6 @@ class ExperimentsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(

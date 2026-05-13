@@ -7,7 +7,7 @@ Batch annotation request for project spans.
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **project_id** | **str** | The project (model) ID whose spans are being annotated. | 
-**start_time** | **datetime** | Start of the time range for span lookup. Optional; defaults to 7 days ago. | [optional] 
+**start_time** | **datetime** | Start of the time range for span lookup. Optional; defaults to 31 days ago. | [optional] 
 **end_time** | **datetime** | End of the time range for span lookup. Optional; defaults to now. | [optional] 
 **annotations** | [**List[AnnotateRecordInput]**](AnnotateRecordInput.md) | Batch of span annotations to write. Up to 1000 spans per request. | 
 

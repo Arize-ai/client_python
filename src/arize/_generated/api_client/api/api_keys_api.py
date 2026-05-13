@@ -102,7 +102,6 @@ class APIKeysApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -175,7 +174,6 @@ class APIKeysApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -248,7 +246,6 @@ class APIKeysApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -691,7 +688,6 @@ class APIKeysApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -784,7 +780,6 @@ class APIKeysApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -877,7 +872,6 @@ class APIKeysApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(

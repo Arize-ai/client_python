@@ -1,5 +1,24 @@
 # Changelog
 
+## [8.25.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.24.0...arize-python-sdk/v8.25.0) (2026-05-13)
+
+
+### 🎁 New Features
+
+* Add structured annotations to dataset examples and experiment runs responses ([#69284](https://github.com/Arize-ai/arize/issues/69284)) ([c32872e](https://github.com/Arize-ai/arize/commit/c32872e8dbcf482300e417fd2f110153c6244349))
+* Align dataset/experiment annotate endpoints to 202 empty body ([#70693](https://github.com/Arize-ai/arize/issues/70693)) ([7caad8e](https://github.com/Arize-ai/arize/commit/7caad8eba4dcf36f5c021ffd5f436cd13a9b4399))
+* Delete spans ([#69052](https://github.com/Arize-ai/arize/issues/69052)) ([9a0ef3b](https://github.com/Arize-ai/arize/commit/9a0ef3b3296d96412b779418dfaa15f245b1dacf))
+
+
+### 🐛 Bug Fixes
+
+* **users:** add to_df patch and Pydantic domain types for user/org/space roles ([#71538](https://github.com/Arize-ai/arize/issues/71538)) ([80871a9](https://github.com/Arize-ai/arize/commit/80871a9f40a8165cd341f73fa8a9a5e9a3431688))
+
+
+### 💫 Code Refactoring
+
+* **sdk:** remove _from_generated helpers, use field_validator coercion ([#71620](https://github.com/Arize-ai/arize/issues/71620)) ([98c511f](https://github.com/Arize-ai/arize/commit/98c511f0988ac2808b7d175f1a47fef7796a3da6))
+
 ## [8.24.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.23.0...arize-python-sdk/v8.24.0) (2026-05-12)
 
 

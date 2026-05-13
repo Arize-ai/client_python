@@ -6,6 +6,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
+from arize.spaces.types import SpaceMembership
 from arize.utils.resolve import _find_space_id
 
 if TYPE_CHECKING:
@@ -15,7 +16,6 @@ if TYPE_CHECKING:
         CustomSpaceRole,
         PredefinedSpaceRole,
         Space,
-        SpaceMembership,
         SpacesList200Response,
     )
 
@@ -241,18 +241,26 @@ class SpacesClient:
         space_id = _find_space_id(self._api, space)
 
         from arize._generated import api_client as gen
-        from arize.spaces.types import (
-            PredefinedSpaceRole as _PredefinedSpaceRole,
-        )
 
         body = gen.SpaceMembershipInput(
             user_id=user_id,
-            role=gen.SpaceRoleAssignment(role._to_generated())
-            if isinstance(role, _PredefinedSpaceRole)
-            else gen.SpaceRoleAssignment(role),
+            role=gen.SpaceRoleAssignment(
+                gen.PredefinedRoleAssignment(
+                    type=gen.SpaceRoleAssignmentType.PREDEFINED,
+                    name=role.name,
+                )
+                if role.type == "predefined"
+                else gen.CustomRoleAssignment(
+                    type=gen.SpaceRoleAssignmentType.CUSTOM,
+                    id=role.id,
+                )
+            ),
         )
-        return self._api.spaces_add_user(
-            space_id=space_id, space_membership_input=body
+        return SpaceMembership.model_validate(
+            self._api.spaces_add_user(
+                space_id=space_id, space_membership_input=body
+            ),
+            from_attributes=True,
         )
 
     @prerelease_endpoint(key="spaces.remove_user", stage=ReleaseStage.ALPHA)

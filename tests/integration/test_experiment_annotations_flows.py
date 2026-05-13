@@ -135,7 +135,7 @@ class TestExperimentRunsAnnotate:
             )
             run_id = runs_resp.experiment_runs[0].id
 
-            result = experiments_client.annotate_runs(
+            experiments_client.annotate_runs(
                 experiment=experiment.id,
                 annotations=[
                     gen.AnnotateRecordInput(
@@ -144,13 +144,6 @@ class TestExperimentRunsAnnotate:
                     )
                 ],
             )
-
-            assert len(result.results) == 1
-            assert result.results[0].record_id == run_id
-            result_annotation = next(
-                a for a in result.results[0].annotations if a.name == ac_name
-            )
-            assert result_annotation.score == 0.75
         finally:
             datasets_client.delete(dataset=dataset.id)
             annotation_configs_client.delete(annotation_config=ac_id)
@@ -208,7 +201,7 @@ class TestExperimentRunsAnnotate:
             )
             run_id = runs_resp.experiment_runs[0].id
 
-            result = experiments_client.annotate_runs(
+            experiments_client.annotate_runs(
                 experiment=experiment.id,
                 annotations=[
                     gen.AnnotateRecordInput(
@@ -219,13 +212,6 @@ class TestExperimentRunsAnnotate:
                     )
                 ],
             )
-
-            assert len(result.results) == 1
-            assert result.results[0].record_id == run_id
-            result_annotation = next(
-                a for a in result.results[0].annotations if a.name == ac_name
-            )
-            assert result_annotation.label == "correct"
         finally:
             datasets_client.delete(dataset=dataset.id)
             annotation_configs_client.delete(annotation_config=ac_id)
@@ -286,7 +272,7 @@ class TestExperimentRunsAnnotate:
             run_ids = [r.id for r in runs_resp.experiment_runs]
             assert len(run_ids) >= 2
 
-            result = experiments_client.annotate_runs(
+            experiments_client.annotate_runs(
                 experiment=experiment.id,
                 annotations=[
                     gen.AnnotateRecordInput(
@@ -299,10 +285,6 @@ class TestExperimentRunsAnnotate:
                     ),
                 ],
             )
-
-            assert len(result.results) == 2
-            result_ids = {r.record_id for r in result.results}
-            assert result_ids == set(run_ids[:2])
         finally:
             datasets_client.delete(dataset=dataset.id)
             annotation_configs_client.delete(annotation_config=ac_id)

@@ -6,6 +6,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
+from arize.users.types import User, UsersList200Response
 
 if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
@@ -14,8 +15,6 @@ if TYPE_CHECKING:
         CustomUserRole,
         InviteMode,
         PredefinedUserRole,
-        User,
-        UsersList200Response,
         UserStatus,
     )
 
@@ -82,11 +81,14 @@ class UsersClient:
         Raises:
             ApiException: If the API request fails.
         """
-        return self._api.users_list(
-            limit=limit,
-            cursor=cursor,
-            email=email,
-            status=status,
+        return UsersList200Response.model_validate(
+            self._api.users_list(
+                limit=limit,
+                cursor=cursor,
+                email=email,
+                status=status,
+            ),
+            from_attributes=True,
         )
 
     @prerelease_endpoint(key="users.get", stage=ReleaseStage.ALPHA)
@@ -103,7 +105,9 @@ class UsersClient:
             ApiException: If the API request fails
                 (for example, user not found).
         """
-        return self._api.users_get(user_id=user_id)
+        return User.model_validate(
+            self._api.users_get(user_id=user_id), from_attributes=True
+        )
 
     @prerelease_endpoint(key="users.create", stage=ReleaseStage.ALPHA)
     def create(
@@ -146,11 +150,24 @@ class UsersClient:
         body = gen.CreateUserRequest(
             name=name,
             email=email,
-            role=gen.UserRoleAssignment(role._to_generated()),
+            role=gen.UserRoleAssignment(
+                gen.PredefinedUserRoleAssignment(
+                    type=gen.UserRoleAssignmentType.PREDEFINED,
+                    name=role.name,
+                )
+                if role.type == "predefined"
+                else gen.CustomUserRoleAssignment(
+                    type=gen.UserRoleAssignmentType.CUSTOM,
+                    id=role.id,
+                )
+            ),
             invite_mode=invite_mode,
             **kwargs,
         )
-        return self._api.users_create(create_user_request=body)
+        return User.model_validate(
+            self._api.users_create(create_user_request=body),
+            from_attributes=True,
+        )
 
     @prerelease_endpoint(key="users.update", stage=ReleaseStage.ALPHA)
     def update(
@@ -186,7 +203,10 @@ class UsersClient:
             name=name,
             is_developer=is_developer,
         )
-        return self._api.users_update(user_id=user_id, user_update=body)
+        return User.model_validate(
+            self._api.users_update(user_id=user_id, user_update=body),
+            from_attributes=True,
+        )
 
     @prerelease_endpoint(key="users.delete", stage=ReleaseStage.ALPHA)
     def delete(self, *, user_id: str) -> None:

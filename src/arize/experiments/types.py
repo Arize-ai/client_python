@@ -425,9 +425,6 @@ ExperimentTask = (
 from arize._generated.api_client.models.annotate_record_input import (  # noqa: E402
     AnnotateRecordInput,
 )
-from arize._generated.api_client.models.annotation_batch_result import (  # noqa: E402
-    AnnotationBatchResult,
-)
 from arize._generated.api_client.models.annotation_input import (  # noqa: E402
     AnnotationInput,
 )
@@ -443,7 +440,6 @@ from arize._generated.api_client.models.experiments_runs_list200_response import
 
 __all__ = [
     "AnnotateRecordInput",
-    "AnnotationBatchResult",
     "AnnotationInput",
     "Example",
     "ExampleId",

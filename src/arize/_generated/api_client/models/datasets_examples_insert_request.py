@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -26,7 +27,7 @@ class DatasetsExamplesInsertRequest(BaseModel):
     """
     DatasetsExamplesInsertRequest
     """ # noqa: E501
-    examples: List[Dict[str, Any]] = Field(description="Array of examples to append to the dataset version")
+    examples: Annotated[List[Dict[str, Any]], Field(min_length=1, max_length=1000)] = Field(description="Array of examples to append to the dataset version")
     __properties: ClassVar[List[str]] = ["examples"]
 
     model_config = ConfigDict(

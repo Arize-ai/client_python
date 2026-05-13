@@ -30,7 +30,7 @@ class AnnotateSpansRequestBody(BaseModel):
     Batch annotation request for project spans.
     """ # noqa: E501
     project_id: StrictStr = Field(description="The project (model) ID whose spans are being annotated.")
-    start_time: Optional[datetime] = Field(default=None, description="Start of the time range for span lookup. Optional; defaults to 7 days ago.")
+    start_time: Optional[datetime] = Field(default=None, description="Start of the time range for span lookup. Optional; defaults to 31 days ago.")
     end_time: Optional[datetime] = Field(default=None, description="End of the time range for span lookup. Optional; defaults to now.")
     annotations: Annotated[List[AnnotateRecordInput], Field(min_length=1, max_length=1000)] = Field(description="Batch of span annotations to write. Up to 1000 spans per request.")
     __properties: ClassVar[List[str]] = ["project_id", "start_time", "end_time", "annotations"]

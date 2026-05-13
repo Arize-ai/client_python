@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **id** | **str** | System-assigned unique ID for the example | [readonly] 
 **created_at** | **datetime** | Timestamp for when the example was created | [readonly] 
 **updated_at** | **datetime** | Timestamp for the last update of the example | [readonly] 
+**annotations** | [**List[Annotation]**](Annotation.md) | List of human annotations on this dataset example | [optional] [readonly] 
 
 ## Example
 

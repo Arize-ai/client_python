@@ -36,7 +36,6 @@ if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
     from arize.datasets.types import (
-        AnnotationBatchResult,
         Dataset,
         DatasetsExamplesList200Response,
         DatasetsList200Response,
@@ -464,7 +463,7 @@ class DatasetsClient:
         dataset: str,
         space: str | None = None,
         annotations: builtins.list[models.AnnotateRecordInput],
-    ) -> AnnotationBatchResult:
+    ) -> None:
         """Write human annotations to a batch of examples in a dataset.
 
         Annotations are upserted by annotation config name for each example.
@@ -472,7 +471,10 @@ class DatasetsClient:
         overwrites the previous value. Retrying on network failure will
         not create duplicates.
 
-        Up to 500 examples may be annotated per request.
+        Up to 1000 examples may be annotated per request.
+
+        The write completes synchronously before the function returns. Visibility
+        in read queries may lag by a short interval (HTTP 202 Accepted).
 
         Args:
             dataset: Dataset ID or name.
@@ -481,9 +483,6 @@ class DatasetsClient:
                 must include a ``record_id`` (the dataset example ID) and ``values``
                 (a list of :class:`AnnotationInput` items with ``name``, and
                 optionally ``score``, ``label``, or ``text``).
-
-        Returns:
-            An :class:`AnnotationBatchResult` containing per-record results.
 
         Raises:
             ApiException: If the REST API returns an error response

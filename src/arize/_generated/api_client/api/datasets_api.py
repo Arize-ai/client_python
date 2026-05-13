@@ -20,7 +20,6 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.annotate_dataset_examples_request_body import AnnotateDatasetExamplesRequestBody
-from arize._generated.api_client.models.annotation_batch_result import AnnotationBatchResult
 from arize._generated.api_client.models.dataset import Dataset
 from arize._generated.api_client.models.dataset_version_with_example_ids import DatasetVersionWithExampleIds
 from arize._generated.api_client.models.datasets_create_request import DatasetsCreateRequest
@@ -396,7 +395,6 @@ class DatasetsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -469,7 +467,6 @@ class DatasetsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -542,7 +539,6 @@ class DatasetsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -633,10 +629,10 @@ class DatasetsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AnnotationBatchResult:
+    ) -> None:
         """Annotate a batch of dataset examples
 
-        Write human annotations to a batch of examples in a dataset.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same example overwrites the previous value. Retrying on network failure will not create duplicates.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing example in the dataset, the annotation for that record is silently ignored. The response will still include an entry for it. No error is returned.  **Payload Requirements** - `dataset_id` is the path parameter for the target dataset. - `annotations` is a list of per-example annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the dataset's space. - Up to 1000 examples may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"quality\", \"score\": 0.8}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Write human annotations to a batch of examples in a dataset.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same example overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing example in the dataset, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `dataset_id` is the path parameter for the target dataset. - `annotations` is a list of per-example annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the dataset's space. - Up to 1000 examples may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"quality\", \"score\": 0.8}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param dataset_id: The unique identifier of the dataset (required)
         :type dataset_id: str
@@ -674,7 +670,7 @@ class DatasetsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationBatchResult",
+            '202': None,
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -709,10 +705,10 @@ class DatasetsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AnnotationBatchResult]:
+    ) -> ApiResponse[None]:
         """Annotate a batch of dataset examples
 
-        Write human annotations to a batch of examples in a dataset.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same example overwrites the previous value. Retrying on network failure will not create duplicates.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing example in the dataset, the annotation for that record is silently ignored. The response will still include an entry for it. No error is returned.  **Payload Requirements** - `dataset_id` is the path parameter for the target dataset. - `annotations` is a list of per-example annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the dataset's space. - Up to 1000 examples may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"quality\", \"score\": 0.8}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Write human annotations to a batch of examples in a dataset.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same example overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing example in the dataset, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `dataset_id` is the path parameter for the target dataset. - `annotations` is a list of per-example annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the dataset's space. - Up to 1000 examples may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"quality\", \"score\": 0.8}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param dataset_id: The unique identifier of the dataset (required)
         :type dataset_id: str
@@ -750,7 +746,7 @@ class DatasetsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationBatchResult",
+            '202': None,
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -788,7 +784,7 @@ class DatasetsApi:
     ) -> RESTResponseType:
         """Annotate a batch of dataset examples
 
-        Write human annotations to a batch of examples in a dataset.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same example overwrites the previous value. Retrying on network failure will not create duplicates.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing example in the dataset, the annotation for that record is silently ignored. The response will still include an entry for it. No error is returned.  **Payload Requirements** - `dataset_id` is the path parameter for the target dataset. - `annotations` is a list of per-example annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the dataset's space. - Up to 1000 examples may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"quality\", \"score\": 0.8}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Write human annotations to a batch of examples in a dataset.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same example overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing example in the dataset, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `dataset_id` is the path parameter for the target dataset. - `annotations` is a list of per-example annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the dataset's space. - Up to 1000 examples may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"quality\", \"score\": 0.8}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param dataset_id: The unique identifier of the dataset (required)
         :type dataset_id: str
@@ -826,7 +822,7 @@ class DatasetsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationBatchResult",
+            '202': None,
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -879,7 +875,6 @@ class DatasetsApi:
         if 'Accept' not in _header_params:
             _header_params['Accept'] = self.api_client.select_header_accept(
                 [
-                    'application/json', 
                     'application/problem+json'
                 ]
             )
@@ -988,7 +983,6 @@ class DatasetsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1069,7 +1063,6 @@ class DatasetsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1150,7 +1143,6 @@ class DatasetsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1267,7 +1259,7 @@ class DatasetsApi:
     ) -> DatasetsExamplesList200Response:
         """List dataset examples
 
-        List examples for a given dataset and version.  If version is not passed, the latest version is selected. Examples are sorted by insertion order.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List examples for a given dataset and version.  If version is not passed, the latest version is selected. Examples are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each example. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param dataset_id: The unique identifier of the dataset (required)
         :type dataset_id: str
@@ -1313,7 +1305,6 @@ class DatasetsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1348,7 +1339,7 @@ class DatasetsApi:
     ) -> ApiResponse[DatasetsExamplesList200Response]:
         """List dataset examples
 
-        List examples for a given dataset and version.  If version is not passed, the latest version is selected. Examples are sorted by insertion order.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List examples for a given dataset and version.  If version is not passed, the latest version is selected. Examples are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each example. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param dataset_id: The unique identifier of the dataset (required)
         :type dataset_id: str
@@ -1394,7 +1385,6 @@ class DatasetsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1429,7 +1419,7 @@ class DatasetsApi:
     ) -> RESTResponseType:
         """List dataset examples
 
-        List examples for a given dataset and version.  If version is not passed, the latest version is selected. Examples are sorted by insertion order.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List examples for a given dataset and version.  If version is not passed, the latest version is selected. Examples are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each example. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param dataset_id: The unique identifier of the dataset (required)
         :type dataset_id: str
@@ -1475,7 +1465,6 @@ class DatasetsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1628,7 +1617,6 @@ class DatasetsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1710,7 +1698,6 @@ class DatasetsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1792,7 +1779,6 @@ class DatasetsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1947,7 +1933,6 @@ class DatasetsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2020,7 +2005,6 @@ class DatasetsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2093,7 +2077,6 @@ class DatasetsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2242,7 +2225,6 @@ class DatasetsApi:
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2330,7 +2312,6 @@ class DatasetsApi:
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2418,7 +2399,6 @@ class DatasetsApi:
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(

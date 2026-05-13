@@ -3,12 +3,36 @@
 from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
 
 import pytest
 
+if TYPE_CHECKING:
+    from collections.abc import Generator
+
 from arize.users.client import UsersClient
-from arize.users.types import CustomUserRole, PredefinedUserRole, UserRole
+from arize.users.types import (
+    CustomUserRole,
+    PredefinedUserRole,
+    User,
+    UserRole,
+    UsersList200Response,
+)
+
+
+@pytest.fixture(autouse=True)
+def _stub_from_generated() -> Generator[None, None, None]:
+    """Stub model_validate on all domain types so tests that don't explicitly
+    test conversion don't fail when the client calls it on a Mock API response.
+    """
+    with (
+        patch.object(User, "model_validate", return_value=Mock()),
+        patch.object(
+            UsersList200Response, "model_validate", return_value=Mock()
+        ),
+    ):
+        yield
 
 
 @pytest.fixture
@@ -95,16 +119,19 @@ class TestUsersClientList:
             status=None,
         )
 
-    def test_list_returns_api_response(
+    def test_list_returns_domain_response(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
-        """list() should propagate the return value from users_list."""
-        expected = Mock()
-        mock_api.users_list.return_value = expected
-
-        result = users_client.list()
-
-        assert result is expected
+        """list() should convert the raw API response to a domain UsersList200Response."""
+        raw = Mock()
+        mock_api.users_list.return_value = raw
+        domain = Mock()
+        with patch.object(
+            UsersList200Response, "model_validate", return_value=domain
+        ) as mock_conv:
+            result = users_client.list()
+        mock_conv.assert_called_once_with(raw, from_attributes=True)
+        assert result is domain
 
     def test_list_emits_alpha_prerelease_warning(
         self,
@@ -137,16 +164,19 @@ class TestUsersClientGet:
 
         mock_api.users_get.assert_called_once_with(user_id="user-12345")
 
-    def test_get_returns_api_response(
+    def test_get_returns_domain_user(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
-        """get() should propagate the return value from users_get."""
-        expected = Mock()
-        mock_api.users_get.return_value = expected
-
-        result = users_client.get(user_id="user-12345")
-
-        assert result is expected
+        """get() should convert the raw API response to a domain User."""
+        raw = Mock()
+        mock_api.users_get.return_value = raw
+        domain = Mock()
+        with patch.object(
+            User, "model_validate", return_value=domain
+        ) as mock_conv:
+            result = users_client.get(user_id="user-12345")
+        mock_conv.assert_called_once_with(raw, from_attributes=True)
+        assert result is domain
 
     def test_get_emits_alpha_prerelease_warning(
         self,
@@ -174,7 +204,7 @@ class TestUsersClientCreate:
     def test_create_predefined_role_builds_request_and_calls_api(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
-        """create() should convert PredefinedUserRole via _to_generated() and UserRoleAssignment."""
+        """create() should wrap a PredefinedUserRole in PredefinedUserRoleAssignment and UserRoleAssignment."""
         role = PredefinedUserRole(name=UserRole.MEMBER)
         with (
             patch(
@@ -183,11 +213,16 @@ class TestUsersClientCreate:
             patch(
                 "arize._generated.api_client.UserRoleAssignment"
             ) as mock_role_cls,
+            patch(
+                "arize._generated.api_client.PredefinedUserRoleAssignment"
+            ) as mock_pred_cls,
         ):
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
             mock_role = Mock()
             mock_role_cls.return_value = mock_role
+            mock_gen_role = Mock()
+            mock_pred_cls.return_value = mock_gen_role
 
             users_client.create(
                 name="Jane Smith",
@@ -196,7 +231,8 @@ class TestUsersClientCreate:
                 invite_mode="email_link",
             )
 
-        mock_role_cls.assert_called_once_with(role._to_generated())
+        mock_pred_cls.assert_called_once()
+        mock_role_cls.assert_called_once_with(mock_gen_role)
         mock_request_cls.assert_called_once_with(
             name="Jane Smith",
             email="jane@example.com",
@@ -210,7 +246,7 @@ class TestUsersClientCreate:
     def test_create_custom_role_builds_request_and_calls_api(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
-        """create() should convert CustomUserRole via _to_generated() and UserRoleAssignment."""
+        """create() should wrap a CustomUserRole in CustomUserRoleAssignment and UserRoleAssignment."""
         role = CustomUserRole(id="role-abc-123")
         with (
             patch(
@@ -219,11 +255,16 @@ class TestUsersClientCreate:
             patch(
                 "arize._generated.api_client.UserRoleAssignment"
             ) as mock_role_cls,
+            patch(
+                "arize._generated.api_client.CustomUserRoleAssignment"
+            ) as mock_custom_cls,
         ):
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
             mock_role = Mock()
             mock_role_cls.return_value = mock_role
+            mock_gen_role = Mock()
+            mock_custom_cls.return_value = mock_gen_role
 
             users_client.create(
                 name="Jane Smith",
@@ -232,7 +273,8 @@ class TestUsersClientCreate:
                 invite_mode="email_link",
             )
 
-        mock_role_cls.assert_called_once_with(role._to_generated())
+        mock_custom_cls.assert_called_once()
+        mock_role_cls.assert_called_once_with(mock_gen_role)
         mock_request_cls.assert_called_once_with(
             name="Jane Smith",
             email="jane@example.com",
@@ -305,16 +347,20 @@ class TestUsersClientCreate:
             invite_mode="email_link",
         )
 
-    def test_create_returns_api_response(
+    def test_create_returns_domain_user(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
-        """create() should propagate the return value from users_create."""
-        expected = Mock()
-        mock_api.users_create.return_value = expected
+        """create() should convert the raw API response to a domain User."""
+        raw = Mock()
+        mock_api.users_create.return_value = raw
+        domain = Mock()
 
         with (
             patch("arize._generated.api_client.CreateUserRequest"),
             patch("arize._generated.api_client.UserRoleAssignment"),
+            patch.object(
+                User, "model_validate", return_value=domain
+            ) as mock_conv,
         ):
             result = users_client.create(
                 name="Jane Smith",
@@ -323,7 +369,8 @@ class TestUsersClientCreate:
                 invite_mode="none",
             )
 
-        assert result is expected
+        mock_conv.assert_called_once_with(raw, from_attributes=True)
+        assert result is domain
 
     def test_create_emits_alpha_prerelease_warning(
         self,
@@ -392,20 +439,27 @@ class TestUsersClientUpdate:
             user_update=mock_body,
         )
 
-    def test_update_returns_api_response(
+    def test_update_returns_domain_user(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
-        """update() should propagate the return value from users_update."""
-        expected = Mock()
-        mock_api.users_update.return_value = expected
+        """update() should convert the raw API response to a domain User."""
+        raw = Mock()
+        mock_api.users_update.return_value = raw
+        domain = Mock()
 
-        with patch("arize._generated.api_client.UserUpdate"):
+        with (
+            patch("arize._generated.api_client.UserUpdate"),
+            patch.object(
+                User, "model_validate", return_value=domain
+            ) as mock_conv,
+        ):
             result = users_client.update(
                 user_id="user-12345",
                 name="Updated Name",
             )
 
-        assert result is expected
+        mock_conv.assert_called_once_with(raw, from_attributes=True)
+        assert result is domain
 
     def test_update_emits_alpha_prerelease_warning(
         self,

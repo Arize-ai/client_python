@@ -37,7 +37,31 @@ __all__ = [
 ]
 
 
-def make_to_df(field_name: str) -> Callable[..., "pd.DataFrame"]:
+def _pivot_annotations(row: dict, prefix: str = "annotation") -> dict:
+    """Replace the ``annotations`` list with per-annotation named columns.
+
+    Each ``Annotation`` dict ``{"name": "quality", "score": 0.9, "label": "good"}``
+    becomes columns ``annotation.quality.score`` and ``annotation.quality.label``.
+    Only non-None values for ``score``, ``label``, and ``text`` are emitted.
+    The original ``annotations`` key is removed from the row.
+    """
+    annotations = row.pop("annotations", None)
+    if not annotations:
+        return row
+    for ann in annotations:
+        name = ann.get("name")
+        if not name:
+            continue
+        for field in ("score", "label", "text"):
+            val = ann.get(field)
+            if val is not None:
+                row[f"{prefix}.{name}.{field}"] = val
+    return row
+
+
+def make_to_df(
+    field_name: str, flatten_annotations: bool = False
+) -> Callable[..., "pd.DataFrame"]:
     def to_df(
         self: object,
         by_alias: bool = False,
@@ -96,6 +120,10 @@ def make_to_df(field_name: str) -> Callable[..., "pd.DataFrame"]:
                 # nested keys win only if you want them to; swap order if not
                 row = {**row, **nested}
 
+            # --- flatten annotations list into named columns ---
+            if flatten_annotations and "annotations" in row:
+                row = _pivot_annotations(row)
+
             rows.append(row)
 
         df = (
@@ -152,10 +180,14 @@ def annotation_configs_to_df(
 
 # Monkey-patch convenience methods onto generated response models
 # Type ignore comments needed: mypy can't verify runtime attribute additions
-models.DatasetsExamplesList200Response.to_df = make_to_df("examples")  # type: ignore[attr-defined]
+models.DatasetsExamplesList200Response.to_df = make_to_df(  # type: ignore[attr-defined]
+    "examples", flatten_annotations=True
+)
 models.DatasetsList200Response.to_df = make_to_df("datasets")  # type: ignore[attr-defined]
 models.ExperimentsList200Response.to_df = make_to_df("experiments")  # type: ignore[attr-defined]
-models.ExperimentsRunsList200Response.to_df = make_to_df("experiment_runs")  # type: ignore[attr-defined]
+models.ExperimentsRunsList200Response.to_df = make_to_df(  # type: ignore[attr-defined]
+    "experiment_runs", flatten_annotations=True
+)
 models.ProjectsList200Response.to_df = make_to_df("projects")  # type: ignore[attr-defined]
 models.AnnotationConfigsList200Response.to_df = annotation_configs_to_df  # type: ignore[attr-defined]
 models.SpansList200Response.to_df = make_to_df("spans")  # type: ignore[attr-defined]
@@ -172,3 +204,4 @@ models.TasksList200Response.to_df = make_to_df("tasks")  # type: ignore[attr-def
 models.TasksListRuns200Response.to_df = make_to_df("task_runs")  # type: ignore[attr-defined]
 models.AiIntegrationsList200Response.to_df = make_to_df("ai_integrations")  # type: ignore[attr-defined]
 models.OrganizationsList200Response.to_df = make_to_df("organizations")  # type: ignore[attr-defined]
+models.UsersList200Response.to_df = make_to_df("users")  # type: ignore[attr-defined]
