@@ -35,7 +35,7 @@ class PromptWithVersion(BaseModel):
     created_at: datetime = Field(description="When the prompt was created")
     updated_at: datetime = Field(description="When the prompt was last updated")
     created_by_user_id: StrictStr = Field(description="The user ID of the user who created the prompt")
-    version: PromptVersion
+    version: Optional[PromptVersion] = None
     __properties: ClassVar[List[str]] = ["id", "name", "description", "space_id", "created_at", "updated_at", "created_by_user_id", "version"]
 
     model_config = ConfigDict(
