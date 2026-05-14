@@ -869,6 +869,173 @@ class TestTasksClientTriggerRun:
             for record in caplog.records
         )
 
+    @pytest.mark.parametrize(
+        "field, value",
+        [
+            ("example_ids", ["ex-1"]),
+            ("evaluation_task_ids", ["task-after-1"]),
+        ],
+    )
+    def test_trigger_run_eval_rejects_run_experiment_only_fields(
+        self,
+        tasks_client: TasksClient,
+        mock_api: Mock,
+        field: str,
+        value: object,
+    ) -> None:
+        """trigger_run() against an eval task should reject run_experiment-only fields."""
+        mock_api.tasks_get.return_value.type = "template_evaluation"
+
+        with pytest.raises(ValueError, match=field):
+            tasks_client.trigger_run(task=_TASK_ID, **{field: value})
+
+
+@pytest.mark.unit
+class TestTasksClientTriggerRunExperiment:
+    """Tests for TasksClient.trigger_run() against run_experiment tasks."""
+
+    @staticmethod
+    def _set_run_experiment_task(mock_api: Mock) -> None:
+        mock_api.tasks_get.return_value.type = "run_experiment"
+
+    def test_trigger_run_run_experiment_minimal(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """trigger_run() should build a TriggerRunExperimentTaskRunRequest with defaults."""
+        self._set_run_experiment_task(mock_api)
+
+        with (
+            patch(
+                "arize._generated.api_client.TriggerRunExperimentTaskRunRequest"
+            ) as mock_inner_cls,
+            patch(
+                "arize._generated.api_client.TasksTriggerRunRequest"
+            ) as mock_wrapper_cls,
+        ):
+            mock_inner = Mock()
+            mock_inner_cls.return_value = mock_inner
+            mock_wrapper = Mock()
+            mock_wrapper_cls.return_value = mock_wrapper
+
+            tasks_client.trigger_run(task=_TASK_ID, experiment_name="exp-name")
+
+        mock_inner_cls.assert_called_once_with(
+            experiment_name="exp-name",
+            dataset_version_id=None,
+            max_examples=None,
+            example_ids=None,
+            tracing_metadata=None,
+            evaluation_task_ids=None,
+        )
+        mock_wrapper_cls.assert_called_once_with(actual_instance=mock_inner)
+        mock_api.tasks_trigger_run.assert_called_once_with(
+            task_id=_TASK_ID,
+            tasks_trigger_run_request=mock_wrapper,
+        )
+
+    def test_trigger_run_run_experiment_forwards_all_fields(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """trigger_run() should forward every run_experiment-specific field."""
+        self._set_run_experiment_task(mock_api)
+
+        with (
+            patch(
+                "arize._generated.api_client.TriggerRunExperimentTaskRunRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.TasksTriggerRunRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
+
+            tasks_client.trigger_run(
+                task=_TASK_ID,
+                experiment_name="exp-name",
+                dataset_version_id="version-1",
+                example_ids=["ex-1", "ex-2"],
+                tracing_metadata={"env": "prod"},
+                evaluation_task_ids=["task-after-1"],
+            )
+
+        _, kwargs = mock_inner_cls.call_args
+        assert kwargs["experiment_name"] == "exp-name"
+        assert kwargs["dataset_version_id"] == "version-1"
+        assert kwargs["max_examples"] is None
+        assert kwargs["example_ids"] == ["ex-1", "ex-2"]
+        assert kwargs["tracing_metadata"] == {"env": "prod"}
+        assert kwargs["evaluation_task_ids"] == ["task-after-1"]
+
+    def test_trigger_run_run_experiment_with_max_examples(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """trigger_run() should accept max_examples on its own (no example_ids)."""
+        self._set_run_experiment_task(mock_api)
+
+        with (
+            patch(
+                "arize._generated.api_client.TriggerRunExperimentTaskRunRequest"
+            ) as mock_inner_cls,
+            patch("arize._generated.api_client.TasksTriggerRunRequest"),
+        ):
+            mock_inner_cls.return_value = Mock()
+
+            tasks_client.trigger_run(
+                task=_TASK_ID,
+                experiment_name="exp-name",
+                max_examples=50,
+            )
+
+        _, kwargs = mock_inner_cls.call_args
+        assert kwargs["max_examples"] == 50
+        assert kwargs["example_ids"] is None
+
+    def test_trigger_run_run_experiment_requires_experiment_name(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """trigger_run() should raise when experiment_name is missing."""
+        self._set_run_experiment_task(mock_api)
+
+        with pytest.raises(ValueError, match="experiment_name"):
+            tasks_client.trigger_run(task=_TASK_ID)
+
+    def test_trigger_run_run_experiment_example_ids_and_max_examples_mutually_exclusive(
+        self, tasks_client: TasksClient, mock_api: Mock
+    ) -> None:
+        """trigger_run() should raise when both example_ids and max_examples are provided."""
+        self._set_run_experiment_task(mock_api)
+
+        with pytest.raises(ValueError, match="mutually exclusive"):
+            tasks_client.trigger_run(
+                task=_TASK_ID,
+                experiment_name="exp-name",
+                example_ids=["ex-1"],
+                max_examples=10,
+            )
+
+    @pytest.mark.parametrize(
+        "field, value",
+        [
+            ("max_spans", 500),
+            ("override_evaluations", True),
+            ("experiment_ids", ["exp-1"]),
+        ],
+    )
+    def test_trigger_run_run_experiment_rejects_eval_only_fields(
+        self,
+        tasks_client: TasksClient,
+        mock_api: Mock,
+        field: str,
+        value: object,
+    ) -> None:
+        """trigger_run() against a run_experiment task should reject eval-only fields."""
+        self._set_run_experiment_task(mock_api)
+
+        with pytest.raises(ValueError, match=field):
+            tasks_client.trigger_run(
+                task=_TASK_ID,
+                experiment_name="exp-name",
+                **{field: value},
+            )
+
 
 @pytest.mark.unit
 class TestTasksClientListRuns:

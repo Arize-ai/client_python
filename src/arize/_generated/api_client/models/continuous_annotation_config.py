@@ -32,7 +32,7 @@ class ContinuousAnnotationConfig(BaseModel):
     name: StrictStr = Field(description="The name of the annotation config")
     created_at: datetime = Field(description="The timestamp for when the annotation config was created")
     space_id: StrictStr = Field(description="The space id the annotation config belongs to")
-    type: StrictStr = Field(description="The type of the annotation config")
+    type: StrictStr
     minimum_score: Union[StrictFloat, StrictInt] = Field(description="The minimum score value")
     maximum_score: Union[StrictFloat, StrictInt] = Field(description="The maximum score value")
     optimization_direction: Optional[OptimizationDirection] = None

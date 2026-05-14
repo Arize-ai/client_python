@@ -40,10 +40,16 @@ __all__ = [
 def _pivot_annotations(row: dict, prefix: str = "annotation") -> dict:
     """Replace the ``annotations`` list with per-annotation named columns.
 
-    Each ``Annotation`` dict ``{"name": "quality", "score": 0.9, "label": "good"}``
-    becomes columns ``annotation.quality.score`` and ``annotation.quality.label``.
-    Only non-None values for ``score``, ``label``, and ``text`` are emitted.
-    The original ``annotations`` key is removed from the row.
+    Each ``Annotation`` dict is expanded into named columns:
+      - ``annotation.<name>.score``
+      - ``annotation.<name>.label``
+      - ``annotation.<name>.text``
+      - ``annotation.<name>.updated_at``
+      - ``annotation.<name>.annotator_email``
+      - ``annotation.<name>.annotator_id``
+
+    Only non-None values are emitted. The original ``annotations`` key is
+    removed from the row.
     """
     annotations = row.pop("annotations", None)
     if not annotations:
@@ -52,10 +58,16 @@ def _pivot_annotations(row: dict, prefix: str = "annotation") -> dict:
         name = ann.get("name")
         if not name:
             continue
-        for field in ("score", "label", "text"):
+        for field in ("score", "label", "text", "updated_at"):
             val = ann.get(field)
             if val is not None:
                 row[f"{prefix}.{name}.{field}"] = val
+        annotator = ann.get("annotator")
+        if annotator:
+            if annotator.get("email") is not None:
+                row[f"{prefix}.{name}.annotator_email"] = annotator["email"]
+            if annotator.get("id") is not None:
+                row[f"{prefix}.{name}.annotator_id"] = annotator["id"]
     return row
 
 
@@ -190,7 +202,9 @@ models.ExperimentsRunsList200Response.to_df = make_to_df(  # type: ignore[attr-d
 )
 models.ProjectsList200Response.to_df = make_to_df("projects")  # type: ignore[attr-defined]
 models.AnnotationConfigsList200Response.to_df = annotation_configs_to_df  # type: ignore[attr-defined]
-models.SpansList200Response.to_df = make_to_df("spans")  # type: ignore[attr-defined]
+models.SpansList200Response.to_df = make_to_df(  # type: ignore[attr-defined]
+    "spans", flatten_annotations=True
+)
 models.SpacesList200Response.to_df = make_to_df("spaces")  # type: ignore[attr-defined]
 models.ApiKeysList200Response.to_df = make_to_df("api_keys")  # type: ignore[attr-defined]
 models.AnnotationQueueRecordsList200Response.to_df = make_to_df("records")  # type: ignore[attr-defined]

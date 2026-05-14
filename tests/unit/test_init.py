@@ -478,3 +478,100 @@ class TestMonkeyPatching:
         assert "actual_instance" not in df.columns
         assert "one_of_schemas" not in df.columns
         assert "discriminator_value_class_map" not in df.columns
+
+
+@pytest.mark.unit
+class TestPivotAnnotations:
+    """Tests for _pivot_annotations() and make_to_df flatten_annotations=True."""
+
+    def _make_obj(self, annotations: list) -> Mock:
+        obj = Mock()
+        obj.items = [{"id": "row-1", "annotations": annotations}]
+        return obj
+
+    def test_basic_score_and_label(self) -> None:
+        """Score and label should be emitted as named columns."""
+        obj = self._make_obj(
+            [{"name": "quality", "score": 0.9, "label": "good"}]
+        )
+        df = make_to_df("items", flatten_annotations=True)(obj)
+        assert "annotation.quality.score" in df.columns
+        assert "annotation.quality.label" in df.columns
+        assert df["annotation.quality.score"].iloc[0] == 0.9
+        assert df["annotation.quality.label"].iloc[0] == "good"
+        assert "annotations" not in df.columns
+
+    def test_score_zero_is_preserved(self) -> None:
+        """score=0 must not be dropped (0 is falsy but is a valid score)."""
+        obj = self._make_obj([{"name": "correctness", "score": 0}])
+        df = make_to_df("items", flatten_annotations=True)(obj)
+        assert "annotation.correctness.score" in df.columns
+        assert df["annotation.correctness.score"].iloc[0] == 0
+
+    def test_updated_at_is_emitted(self) -> None:
+        """updated_at should be emitted as annotation.<name>.updated_at."""
+        from datetime import datetime, timezone
+
+        ts = datetime(2024, 6, 1, 12, 0, 0, tzinfo=timezone.utc)
+        obj = self._make_obj([{"name": "quality", "updated_at": ts}])
+        df = make_to_df("items", flatten_annotations=True)(obj)
+        assert "annotation.quality.updated_at" in df.columns
+        assert df["annotation.quality.updated_at"].iloc[0] == ts
+
+    def test_annotator_email_and_id_are_emitted(self) -> None:
+        """annotator.email and annotator.id should be emitted as named columns."""
+        obj = self._make_obj(
+            [
+                {
+                    "name": "quality",
+                    "annotator": {
+                        "id": "user-42",
+                        "email": "alice@example.com",
+                    },
+                }
+            ]
+        )
+        df = make_to_df("items", flatten_annotations=True)(obj)
+        assert "annotation.quality.annotator_email" in df.columns
+        assert "annotation.quality.annotator_id" in df.columns
+        assert (
+            df["annotation.quality.annotator_email"].iloc[0]
+            == "alice@example.com"
+        )
+        assert df["annotation.quality.annotator_id"].iloc[0] == "user-42"
+
+    def test_multiple_annotations_produce_separate_columns(self) -> None:
+        """Multiple annotation configs should each produce their own column group."""
+        obj = self._make_obj(
+            [
+                {"name": "quality", "score": 1.0},
+                {"name": "topic", "label": "science"},
+            ]
+        )
+        df = make_to_df("items", flatten_annotations=True)(obj)
+        assert "annotation.quality.score" in df.columns
+        assert "annotation.topic.label" in df.columns
+
+    def test_empty_annotations_list_removes_key(self) -> None:
+        """An empty annotations list should remove the annotations column."""
+        obj = self._make_obj([])
+        df = make_to_df("items", flatten_annotations=True)(obj)
+        assert "annotations" not in df.columns
+
+    def test_none_fields_not_emitted(self) -> None:
+        """Fields that are None should not produce columns."""
+        obj = self._make_obj(
+            [{"name": "quality", "score": None, "label": None}]
+        )
+        df = make_to_df("items", flatten_annotations=True)(obj)
+        assert "annotation.quality.score" not in df.columns
+        assert "annotation.quality.label" not in df.columns
+
+    def test_flatten_annotations_false_leaves_list_intact(self) -> None:
+        """flatten_annotations=False should leave the annotations list as-is."""
+        annotations = [{"name": "quality", "score": 0.9}]
+        obj = self._make_obj(annotations)
+        df = make_to_df("items", flatten_annotations=False)(
+            obj, exclude_none=False
+        )
+        assert "annotations" in df.columns

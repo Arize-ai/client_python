@@ -2228,6 +2228,7 @@ class TasksApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '409': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2304,6 +2305,7 @@ class TasksApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '409': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2380,6 +2382,7 @@ class TasksApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '409': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(

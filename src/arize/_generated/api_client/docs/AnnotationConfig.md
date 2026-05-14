@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **name** | **str** | The name of the annotation config | 
 **created_at** | **datetime** | The timestamp for when the annotation config was created | 
 **space_id** | **str** | The space id the annotation config belongs to | 
-**type** | **str** | The type of the annotation config | 
+**type** | **str** |  | 
 **minimum_score** | **float** | The minimum score value | 
 **maximum_score** | **float** | The maximum score value | 
 **optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) |  | [optional] 

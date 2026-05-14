@@ -148,7 +148,7 @@ class AnnotationConfigsClient:
                 actual_instance=gen.ContinuousAnnotationConfigCreate(
                     name=name,
                     space_id=space_id,
-                    annotation_config_type=AnnotationConfigType.CONTINUOUS,
+                    annotation_config_type=AnnotationConfigType.CONTINUOUS.value,
                     minimum_score=minimum_score,
                     maximum_score=maximum_score,
                     optimization_direction=optimization_direction,
@@ -161,7 +161,7 @@ class AnnotationConfigsClient:
                 actual_instance=gen.CategoricalAnnotationConfigCreate(
                     name=name,
                     space_id=space_id,
-                    annotation_config_type=AnnotationConfigType.CATEGORICAL,
+                    annotation_config_type=AnnotationConfigType.CATEGORICAL.value,
                     values=values,
                     optimization_direction=optimization_direction,
                 )
@@ -171,7 +171,7 @@ class AnnotationConfigsClient:
                 actual_instance=gen.FreeformAnnotationConfigCreate(
                     name=name,
                     space_id=space_id,
-                    annotation_config_type=AnnotationConfigType.FREEFORM,
+                    annotation_config_type=AnnotationConfigType.FREEFORM.value,
                 )
             )
         return self._api.annotation_configs_create(

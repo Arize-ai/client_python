@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **name** | **str** | The name of the annotation config | 
 **created_at** | **datetime** | The timestamp for when the annotation config was created | 
 **space_id** | **str** | The space id the annotation config belongs to | 
-**type** | **str** | The type of the annotation config | 
+**type** | **str** |  | 
 **values** | [**List[CategoricalAnnotationValue]**](CategoricalAnnotationValue.md) | An array of categorical annotation values | 
 **optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) |  | [optional] 
 

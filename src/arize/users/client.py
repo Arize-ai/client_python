@@ -246,10 +246,7 @@ class UsersClient:
             ApiException: If the API request fails
                 (for example, user not found or user already active).
         """
-        return self._api.users_resend_invitation(
-            user_id=user_id,
-            _headers={"Content-Type": "application/json"},
-        )
+        return self._api.users_resend_invitation(user_id=user_id)
 
     @prerelease_endpoint(key="users.reset_password", stage=ReleaseStage.ALPHA)
     def reset_password(self, *, user_id: str) -> None:
@@ -272,7 +269,4 @@ class UsersClient:
                 (for example, user not found, user authenticates via SSO,
                 or user has not yet verified their account).
         """
-        return self._api.users_password_reset(
-            user_id=user_id,
-            _headers={"Content-Type": "application/json"},
-        )
+        return self._api.users_password_reset(user_id=user_id)

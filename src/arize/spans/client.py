@@ -49,7 +49,11 @@ if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
     from arize._generated.protocol.flight import flight_pb2
     from arize.config import SDKConfiguration
-    from arize.spans.types import SpansDelete200Response, SpansList200Response
+    from arize.spans.types import (
+        AnnotateRecordInput,
+        SpansDelete200Response,
+        SpansList200Response,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -198,6 +202,62 @@ class SpansClient:
             limit=limit,
             cursor=cursor,
         )
+
+    @prerelease_endpoint(key="spans.annotate", stage=ReleaseStage.ALPHA)
+    def annotate_spans(
+        self,
+        *,
+        project: str,
+        space: str | None = None,
+        annotations: builtins.list[AnnotateRecordInput],
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
+    ) -> None:
+        """Write human annotations to a batch of spans in a project.
+
+        Annotations are upserted by annotation config name for each span.
+        Submitting the same annotation config name for the same span
+        overwrites the previous value. Retrying on network failure will
+        not create duplicates.
+
+        Up to 1000 spans may be annotated per request. Spans are looked up
+        within the specified time window (defaulting to the last 31 days).
+        If any span ID in the batch is not found within the window, the
+        entire request is rejected with a 404 error.
+
+        The write completes synchronously before the function returns. Visibility
+        in read queries may lag by a short interval (HTTP 202 Accepted).
+
+        Args:
+            project: Project ID or name.
+            space: Space ID or name. Required when *project* is a name.
+            annotations: A list of :class:`AnnotateRecordInput` items. Each item
+                must include a ``record_id`` (the span ID) and ``values``
+                (a list of :class:`AnnotationInput` items with ``name``, and
+                optionally ``score``, ``label``, or ``text``).
+            start_time: Start of the time window used to look up spans.
+                Defaults to 31 days before the request time.
+            end_time: End of the time window used to look up spans.
+                Defaults to the request time.
+
+        Raises:
+            ApiException: If the REST API returns an error response
+                (e.g. 400/401/403/404/429).
+        """
+        project_id = _find_project_id(
+            api=self._projects_api,
+            project=project,
+            space=space,
+        )
+        from arize._generated import api_client as gen
+
+        body = gen.AnnotateSpansRequestBody(
+            project_id=project_id,
+            annotations=annotations,
+            start_time=start_time,
+            end_time=end_time,
+        )
+        return self._api.spans_annotate(annotate_spans_request_body=body)
 
     def log(
         self,

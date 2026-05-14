@@ -638,6 +638,8 @@ class TasksClient:
         experiment_name: str | None = None,
         dataset_version_id: str | None = None,
         max_examples: int | None = None,
+        example_ids: builtins.list[str] | None = None,
+        evaluation_task_ids: builtins.list[str] | None = None,
         tracing_metadata: dict[str, Any] | None = None,
     ) -> TaskRun:
         """Trigger an on-demand run for a task.
@@ -656,9 +658,12 @@ class TasksClient:
         For **run_experiment tasks**:
 
         - Valid fields: ``experiment_name`` (**required**),
-          ``dataset_version_id``, ``max_examples``, ``tracing_metadata``.
+          ``dataset_version_id``, ``max_examples``, ``example_ids``,
+          ``tracing_metadata``, ``evaluation_task_ids``.
         - ``experiment_name`` is the display name for the new experiment that
           will be created for this run.
+        - ``example_ids`` and ``max_examples`` are mutually exclusive; at most
+          one may be provided. When both are omitted, all examples are used.
 
         Args:
             task: Task name or global ID (base64) to trigger a run for.
@@ -681,18 +686,27 @@ class TasksClient:
             dataset_version_id: Dataset version global ID (base64). Defaults
                 to the latest version when omitted. ``run_experiment`` tasks
                 only.
-            max_examples: Maximum number of examples to run. Mutually
-                exclusive with ``example_ids`` (not yet exposed). When
+            max_examples: Maximum number of examples to run (dataset order).
+                Mutually exclusive with ``example_ids``. When both are
                 omitted, all examples are used. ``run_experiment`` tasks only.
+            example_ids: Specific dataset example global IDs (base64) to run
+                against. Mutually exclusive with ``max_examples``. When both
+                are omitted, all examples are used. ``run_experiment`` tasks
+                only.
             tracing_metadata: Arbitrary key-value metadata attached to the
                 run's traces. ``run_experiment`` tasks only.
+            evaluation_task_ids: Task global IDs (base64) of evaluation tasks
+                to trigger after the experiment run completes. Supported for
+                all ``run_experiment`` experiment types. ``run_experiment``
+                tasks only.
 
         Returns:
             The newly created task run (initially in ``"pending"`` status).
 
         Raises:
-            ValueError: If a field is not valid for the resolved task type, or
-                if ``experiment_name`` is missing for a ``run_experiment`` task.
+            ValueError: If a field is not valid for the resolved task type, if
+                ``experiment_name`` is missing for a ``run_experiment`` task,
+                or if both ``example_ids`` and ``max_examples`` are provided.
             ApiException: If the API request fails.
         """
         from arize._generated import api_client as gen
@@ -721,18 +735,26 @@ class TasksClient:
                     "Fields not valid for run_experiment tasks: "
                     f"{', '.join(eval_only_supplied)}. "
                     "Use 'experiment_name', 'dataset_version_id', "
-                    "'max_examples', or 'tracing_metadata' instead.",
+                    "'max_examples', 'example_ids', 'tracing_metadata', "
+                    "or 'evaluation_task_ids' instead.",
                 )
             if experiment_name is None:
                 raise ValueError(
                     "'experiment_name' is required when triggering a "
                     "run_experiment task.",
                 )
+            if example_ids is not None and max_examples is not None:
+                raise ValueError(
+                    "'example_ids' and 'max_examples' are mutually exclusive; "
+                    "provide at most one.",
+                )
             inner_run_exp = gen.TriggerRunExperimentTaskRunRequest(
                 experiment_name=experiment_name,
                 dataset_version_id=dataset_version_id,
                 max_examples=max_examples,
+                example_ids=example_ids,
                 tracing_metadata=tracing_metadata,
+                evaluation_task_ids=evaluation_task_ids,
             )
             body = gen.TasksTriggerRunRequest(actual_instance=inner_run_exp)
         else:
@@ -742,7 +764,9 @@ class TasksClient:
                     "experiment_name": experiment_name,
                     "dataset_version_id": dataset_version_id,
                     "max_examples": max_examples,
+                    "example_ids": example_ids,
                     "tracing_metadata": tracing_metadata,
+                    "evaluation_task_ids": evaluation_task_ids,
                 }.items()
                 if v is not None
             }

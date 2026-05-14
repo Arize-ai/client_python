@@ -529,12 +529,11 @@ class TestUsersClientResendInvitation:
     def test_resend_invitation_calls_api_with_user_id(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
-        """resend_invitation() should pass user_id and Content-Type header to users_resend_invitation."""
+        """resend_invitation() should pass user_id to users_resend_invitation."""
         users_client.resend_invitation(user_id="user-12345")
 
         mock_api.users_resend_invitation.assert_called_once_with(
             user_id="user-12345",
-            _headers={"Content-Type": "application/json"},
         )
 
     def test_resend_invitation_returns_none(
@@ -574,12 +573,11 @@ class TestUsersClientResetPassword:
     def test_reset_password_calls_api_with_user_id(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
-        """reset_password() should pass user_id and Content-Type header to users_password_reset."""
+        """reset_password() should pass user_id to users_password_reset."""
         users_client.reset_password(user_id="user-12345")
 
         mock_api.users_password_reset.assert_called_once_with(
             user_id="user-12345",
-            _headers={"Content-Type": "application/json"},
         )
 
     def test_reset_password_returns_none(

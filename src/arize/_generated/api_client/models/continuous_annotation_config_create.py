@@ -29,7 +29,7 @@ class ContinuousAnnotationConfigCreate(BaseModel):
     """ # noqa: E501
     name: StrictStr = Field(description="Name of the new annotation config")
     space_id: StrictStr = Field(description="ID of the space the annotation config will belong to")
-    annotation_config_type: StrictStr = Field(description="The type of the annotation config")
+    annotation_config_type: StrictStr
     minimum_score: Union[StrictFloat, StrictInt] = Field(description="The minimum score value")
     maximum_score: Union[StrictFloat, StrictInt] = Field(description="The maximum score value")
     optimization_direction: Optional[OptimizationDirection] = None

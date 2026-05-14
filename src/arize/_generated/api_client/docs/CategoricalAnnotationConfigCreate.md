@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Name of the new annotation config | 
 **space_id** | **str** | ID of the space the annotation config will belong to | 
-**annotation_config_type** | **str** | The type of the annotation config | 
+**annotation_config_type** | **str** |  | 
 **values** | [**List[CategoricalAnnotationValue]**](CategoricalAnnotationValue.md) | An array of categorical annotation values | 
 **optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) |  | [optional] 
 

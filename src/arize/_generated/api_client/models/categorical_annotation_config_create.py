@@ -30,7 +30,7 @@ class CategoricalAnnotationConfigCreate(BaseModel):
     """ # noqa: E501
     name: StrictStr = Field(description="Name of the new annotation config")
     space_id: StrictStr = Field(description="ID of the space the annotation config will belong to")
-    annotation_config_type: StrictStr = Field(description="The type of the annotation config")
+    annotation_config_type: StrictStr
     values: List[CategoricalAnnotationValue] = Field(description="An array of categorical annotation values")
     optimization_direction: Optional[OptimizationDirection] = None
     __properties: ClassVar[List[str]] = ["name", "space_id", "annotation_config_type", "values", "optimization_direction"]

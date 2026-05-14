@@ -1,5 +1,19 @@
 # Changelog
 
+## [8.26.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.25.0...arize-python-sdk/v8.26.0) (2026-05-14)
+
+
+### 🎁 New Features
+
+* **annoation_configs:** add inline enums ([#71638](https://github.com/Arize-ai/arize/issues/71638)) ([5a9afa9](https://github.com/Arize-ai/arize/commit/5a9afa998a622fa924a212aea3c6a83f3e0eee30))
+* **spans:** add `SpansClient.annotate_spans()` and flatten span annotations in `to_df` ([#71630](https://github.com/Arize-ai/arize/issues/71630)) ([d993c52](https://github.com/Arize-ai/arize/commit/d993c5256f0ef47e6adeba492cc80c28bc337f55))
+* **tasks:** expose `example_ids` and `evaluation_task_ids` in `trigger_run` ([#71601](https://github.com/Arize-ai/arize/issues/71601)) ([39da696](https://github.com/Arize-ai/arize/commit/39da696acfdfad917cb389c36cca11fbce55beee))
+
+
+### 🐛 Bug Fixes
+
+* send Content-Type: application/json on no-body POST requests ([#71822](https://github.com/Arize-ai/arize/issues/71822)) ([1f7aa93](https://github.com/Arize-ai/arize/commit/1f7aa937a738412b40540c3d42af85a9e85f8bd8))
+
 ## [8.25.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.24.0...arize-python-sdk/v8.25.0) (2026-05-13)
 
 
