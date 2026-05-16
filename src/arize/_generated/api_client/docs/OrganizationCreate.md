@@ -1,4 +1,4 @@
-# OrganizationsCreateRequest
+# OrganizationCreate
 
 
 ## Properties
@@ -11,19 +11,19 @@ Name | Type | Description | Notes
 ## Example
 
 ```python
-from arize._generated.api_client.models.organizations_create_request import OrganizationsCreateRequest
+from arize._generated.api_client.models.organization_create import OrganizationCreate
 
 # TODO update the JSON string below
 json = "{}"
-# create an instance of OrganizationsCreateRequest from a JSON string
-organizations_create_request_instance = OrganizationsCreateRequest.from_json(json)
+# create an instance of OrganizationCreate from a JSON string
+organization_create_instance = OrganizationCreate.from_json(json)
 # print the JSON string representation of the object
-print(OrganizationsCreateRequest.to_json())
+print(OrganizationCreate.to_json())
 
 # convert the object into a dict
-organizations_create_request_dict = organizations_create_request_instance.to_dict()
-# create an instance of OrganizationsCreateRequest from a dict
-organizations_create_request_from_dict = OrganizationsCreateRequest.from_dict(organizations_create_request_dict)
+organization_create_dict = organization_create_instance.to_dict()
+# create an instance of OrganizationCreate from a dict
+organization_create_from_dict = OrganizationCreate.from_dict(organization_create_dict)
 ```
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

@@ -121,11 +121,11 @@ class OrganizationsClient:
         """
         from arize._generated import api_client as gen
 
-        body = gen.OrganizationsCreateRequest(
+        body = gen.OrganizationCreate(
             name=name,
             description=description,
         )
-        return self._api.organizations_create(organizations_create_request=body)
+        return self._api.organizations_create(organization_create=body)
 
     @prerelease_endpoint(key="organizations.delete", stage=ReleaseStage.ALPHA)
     def delete(self, *, organization: str) -> None:
@@ -186,12 +186,12 @@ class OrganizationsClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.OrganizationsUpdateRequest(
+        body = gen.OrganizationUpdate(
             name=name,
             description=description,
         )
         return self._api.organizations_update(
-            org_id=org_id, organizations_update_request=body
+            org_id=org_id, organization_update=body
         )
 
     @prerelease_endpoint(key="organizations.add_user", stage=ReleaseStage.ALPHA)

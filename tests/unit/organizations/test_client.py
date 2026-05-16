@@ -180,9 +180,9 @@ class TestOrganizationsClientCreate:
     def test_create_builds_request_and_calls_api(
         self, organizations_client: OrganizationsClient, mock_api: Mock
     ) -> None:
-        """create() should build OrganizationsCreateRequest and pass it to organizations_create."""
+        """create() should build OrganizationCreate and pass it to organizations_create."""
         with patch(
-            "arize._generated.api_client.OrganizationsCreateRequest"
+            "arize._generated.api_client.OrganizationCreate"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -197,7 +197,7 @@ class TestOrganizationsClientCreate:
             description="my description",
         )
         mock_api.organizations_create.assert_called_once_with(
-            organizations_create_request=mock_body
+            organization_create=mock_body
         )
 
     def test_create_returns_api_response(
@@ -207,7 +207,7 @@ class TestOrganizationsClientCreate:
         expected = Mock()
         mock_api.organizations_create.return_value = expected
 
-        with patch("arize._generated.api_client.OrganizationsCreateRequest"):
+        with patch("arize._generated.api_client.OrganizationCreate"):
             result = organizations_client.create(name="my-org")
 
         assert result is expected
@@ -230,9 +230,9 @@ class TestOrganizationsClientUpdate:
     def test_update_builds_request_and_calls_api(
         self, organizations_client: OrganizationsClient, mock_api: Mock
     ) -> None:
-        """update() should build OrganizationsUpdateRequest and pass it to organizations_update."""
+        """update() should build OrganizationUpdate and pass it to organizations_update."""
         with patch(
-            "arize._generated.api_client.OrganizationsUpdateRequest"
+            "arize._generated.api_client.OrganizationUpdate"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -249,7 +249,7 @@ class TestOrganizationsClientUpdate:
         )
         mock_api.organizations_update.assert_called_once_with(
             org_id="T3JnYW5pemF0aW9uOjEyMzQ1",
-            organizations_update_request=mock_body,
+            organization_update=mock_body,
         )
 
     def test_update_returns_api_response(
@@ -259,7 +259,7 @@ class TestOrganizationsClientUpdate:
         expected = Mock()
         mock_api.organizations_update.return_value = expected
 
-        with patch("arize._generated.api_client.OrganizationsUpdateRequest"):
+        with patch("arize._generated.api_client.OrganizationUpdate"):
             result = organizations_client.update(
                 organization="T3JnYW5pemF0aW9uOjEyMzQ1",
                 name="updated-org",

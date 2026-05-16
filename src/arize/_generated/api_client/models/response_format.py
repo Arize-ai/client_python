@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.response_format_json_schema import ResponseFormatJsonSchema
 from arize._generated.api_client.models.response_format_type import ResponseFormatType
@@ -28,7 +28,7 @@ class ResponseFormat(BaseModel):
     """
     Response format configuration
     """ # noqa: E501
-    type: Optional[ResponseFormatType] = None
+    type: Optional[ResponseFormatType] = Field(default=None, description="The response format type. Defaults to `text` if not specified.")
     json_schema: Optional[ResponseFormatJsonSchema] = None
     __properties: ClassVar[List[str]] = ["type", "json_schema"]
 

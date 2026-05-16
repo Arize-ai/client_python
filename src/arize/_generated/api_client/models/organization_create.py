@@ -23,9 +23,9 @@ from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class OrganizationsCreateRequest(BaseModel):
+class OrganizationCreate(BaseModel):
     """
-    OrganizationsCreateRequest
+    OrganizationCreate
     """ # noqa: E501
     name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(description="Name of the organization (must be unique within the account)")
     description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="A brief description of the organization's purpose. Defaults to an empty string if omitted.")
@@ -49,7 +49,7 @@ class OrganizationsCreateRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of OrganizationsCreateRequest from a JSON string"""
+        """Create an instance of OrganizationCreate from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -74,7 +74,7 @@ class OrganizationsCreateRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of OrganizationsCreateRequest from a dict"""
+        """Create an instance of OrganizationCreate from a dict"""
         if obj is None:
             return None
 
@@ -84,7 +84,7 @@ class OrganizationsCreateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in OrganizationsCreateRequest) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in OrganizationCreate) in the input: " + _key)
 
         _obj = cls.model_validate({
             "name": obj.get("name"),

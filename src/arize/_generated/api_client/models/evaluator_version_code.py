@@ -34,7 +34,7 @@ class EvaluatorVersionCode(BaseModel):
     commit_message: Optional[StrictStr] = Field(description="A message describing the changes in this version")
     created_at: datetime = Field(description="When this version was created")
     created_by_user_id: Optional[StrictStr] = Field(description="The unique identifier for the user who created this version")
-    type: StrictStr
+    type: StrictStr = Field(description="Evaluator version type. Must be `code` for code evaluator versions; must match the parent evaluator's `type`.")
     code_config: CodeConfig
     __properties: ClassVar[List[str]] = ["id", "evaluator_id", "commit_hash", "commit_message", "created_at", "created_by_user_id", "type", "code_config"]
 

@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **space_id** | **str** | ID of the space the annotation config will belong to | 
 **minimum_score** | **float** | The minimum score value | 
 **maximum_score** | **float** | The maximum score value | 
-**optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) |  | [optional] 
+**optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) |  | [optional] [default to OptimizationDirection.NONE]
 **values** | [**List[CategoricalAnnotationValue]**](CategoricalAnnotationValue.md) | An array of categorical annotation values | 
 
 ## Example

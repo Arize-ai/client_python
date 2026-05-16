@@ -10,6 +10,7 @@ from arize._generated.api_client.models.problem import Problem
 from arize.client import ArizeClient
 from arize.config import SDKConfiguration
 from arize.regions import Region
+from arize.users.types import BulkUserDeletionResult
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -31,6 +32,7 @@ except Exception:  # noqa: S110
 __all__ = [
     "ApiException",
     "ArizeClient",
+    "BulkUserDeletionResult",
     "Problem",
     "Region",
     "SDKConfiguration",

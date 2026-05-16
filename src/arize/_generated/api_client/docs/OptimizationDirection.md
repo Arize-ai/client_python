@@ -1,6 +1,6 @@
 # OptimizationDirection
 
-The direction for optimization: - maximize: higher scores are better - minimize: lower scores are better - none: higher or lower scores are neither better nor worse 
+The direction for optimization. Defaults to `none` when omitted. - maximize: higher scores are better - minimize: lower scores are better - none: higher or lower scores are neither better nor worse 
 
 ## Enum
 

@@ -31,7 +31,7 @@ class FreeformAnnotationConfig(BaseModel):
     name: StrictStr = Field(description="The name of the annotation config")
     created_at: datetime = Field(description="The timestamp for when the annotation config was created")
     space_id: StrictStr = Field(description="The space id the annotation config belongs to")
-    type: StrictStr
+    type: StrictStr = Field(description="Discriminator value identifying a freeform annotation config.")
     __properties: ClassVar[List[str]] = ["id", "name", "created_at", "space_id", "type"]
 
     @field_validator('type')

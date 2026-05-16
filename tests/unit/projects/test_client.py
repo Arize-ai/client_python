@@ -144,3 +144,51 @@ class TestProjectsClientList:
             "BETA" in record.message and "projects.list" in record.message
             for record in caplog.records
         )
+
+
+@pytest.mark.unit
+class TestProjectsClientCreate:
+    """Tests for ProjectsClient.create()."""
+
+    def test_create_resolves_space_and_builds_request(
+        self, projects_client: ProjectsClient, mock_api: Mock
+    ) -> None:
+        """create() should resolve space, build ProjectCreate, and call projects_create."""
+        with (
+            patch(
+                "arize.projects.client._find_space_id",
+                return_value="resolved-space-id",
+            ) as mock_resolve,
+            patch(
+                "arize._generated.api_client.ProjectCreate"
+            ) as mock_request_cls,
+        ):
+            mock_request_cls.return_value = Mock()
+
+            projects_client.create(name="my-project", space="my-space")
+
+        mock_resolve.assert_called_once_with(
+            projects_client._spaces_api, "my-space"
+        )
+        mock_request_cls.assert_called_once_with(
+            name="my-project",
+            space_id="resolved-space-id",
+        )
+        mock_api.projects_create.assert_called_once_with(
+            project_create=mock_request_cls.return_value
+        )
+
+    def test_create_returns_api_response(
+        self, projects_client: ProjectsClient, mock_api: Mock
+    ) -> None:
+        """create() should propagate the return value from projects_create."""
+        expected = Mock()
+        mock_api.projects_create.return_value = expected
+
+        with (
+            patch("arize.projects.client._find_space_id", return_value="sid"),
+            patch("arize._generated.api_client.ProjectCreate"),
+        ):
+            result = projects_client.create(name="proj", space="space-id")
+
+        assert result is expected

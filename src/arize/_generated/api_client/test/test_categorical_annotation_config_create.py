@@ -43,7 +43,7 @@ class TestCategoricalAnnotationConfigCreate(unittest.TestCase):
                         label = '', 
                         score = 1.337, )
                     ],
-                optimization_direction = 'maximize'
+                optimization_direction = 'none'
             )
         else:
             return CategoricalAnnotationConfigCreate(

@@ -126,11 +126,11 @@ class SpansClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.SpansDeleteRequest(
+        body = gen.DeleteSpansRequest(
             project_id=project_id,
             span_ids=span_ids,
         )
-        return self._api.spans_delete(spans_delete_request=body)
+        return self._api.spans_delete(delete_spans_request=body)
 
     @prerelease_endpoint(key="spans.list", stage=ReleaseStage.ALPHA)
     def list(
@@ -191,14 +191,14 @@ class SpansClient:
         )
         from arize._generated import api_client as gen
 
-        body = gen.SpansListRequest(
+        body = gen.ListSpansRequest(
             project_id=project_id,
             start_time=start_time,
             end_time=end_time,
             filter=filter,
         )
         return self._api.spans_list(
-            spans_list_request=body,
+            list_spans_request=body,
             limit=limit,
             cursor=cursor,
         )

@@ -9,7 +9,7 @@ Method | HTTP request | Description
 
 
 # **resource_restrictions_create**
-> ResourceRestrictionsCreate200Response resource_restrictions_create(resource_restrictions_create_request)
+> ResourceRestrictionsCreate200Response resource_restrictions_create(resource_restriction_create)
 
 Restrict a resource
 
@@ -40,8 +40,8 @@ Returns 400 — only Project / Model IDs are accepted
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.resource_restriction_create import ResourceRestrictionCreate
 from arize._generated.api_client.models.resource_restrictions_create200_response import ResourceRestrictionsCreate200Response
-from arize._generated.api_client.models.resource_restrictions_create_request import ResourceRestrictionsCreateRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -65,11 +65,11 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ResourceRestrictionsApi(api_client)
-    resource_restrictions_create_request = {"resource_id":"TW9kZWw6MTIxOmFCY0Q="} # ResourceRestrictionsCreateRequest | 
+    resource_restriction_create = {"resource_id":"TW9kZWw6MTIxOmFCY0Q="} # ResourceRestrictionCreate | Body containing resource restriction creation parameters.
 
     try:
         # Restrict a resource
-        api_response = api_instance.resource_restrictions_create(resource_restrictions_create_request)
+        api_response = api_instance.resource_restrictions_create(resource_restriction_create)
         print("The response of ResourceRestrictionsApi->resource_restrictions_create:\n")
         pprint(api_response)
     except Exception as e:
@@ -83,7 +83,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **resource_restrictions_create_request** | [**ResourceRestrictionsCreateRequest**](ResourceRestrictionsCreateRequest.md)|  | 
+ **resource_restriction_create** | [**ResourceRestrictionCreate**](ResourceRestrictionCreate.md)| Body containing resource restriction creation parameters. | 
 
 ### Return type
 

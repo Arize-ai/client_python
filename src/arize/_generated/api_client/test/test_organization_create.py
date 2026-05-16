@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.projects_create_request import ProjectsCreateRequest
+from arize._generated.api_client.models.organization_create import OrganizationCreate
 
-class TestProjectsCreateRequest(unittest.TestCase):
-    """ProjectsCreateRequest unit test stubs"""
+class TestOrganizationCreate(unittest.TestCase):
+    """OrganizationCreate unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,28 +25,27 @@ class TestProjectsCreateRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> ProjectsCreateRequest:
-        """Test ProjectsCreateRequest
+    def make_instance(self, include_optional) -> OrganizationCreate:
+        """Test OrganizationCreate
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `ProjectsCreateRequest`
+        # uncomment below to create an instance of `OrganizationCreate`
         """
-        model = ProjectsCreateRequest()
+        model = OrganizationCreate()
         if include_optional:
-            return ProjectsCreateRequest(
-                name = '',
-                space_id = ''
+            return OrganizationCreate(
+                name = '0',
+                description = ''
             )
         else:
-            return ProjectsCreateRequest(
-                name = '',
-                space_id = '',
+            return OrganizationCreate(
+                name = '0',
         )
         """
 
-    def testProjectsCreateRequest(self):
-        """Test ProjectsCreateRequest"""
+    def testOrganizationCreate(self):
+        """Test OrganizationCreate"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

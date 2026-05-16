@@ -1931,7 +1931,6 @@ class DatasetsApi:
             '200': "Dataset",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -2003,7 +2002,6 @@ class DatasetsApi:
             '200': "Dataset",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -2075,7 +2073,6 @@ class DatasetsApi:
             '200': "Dataset",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }

@@ -37,7 +37,7 @@ class Span(BaseModel):
     parent_id: Optional[StrictStr] = Field(default=None, description="ID of the parent span")
     start_time: datetime = Field(description="Timestamp when the span started")
     end_time: datetime = Field(description="Timestamp when the span ended")
-    status_code: Optional[StrictStr] = Field(default=None, description="Status code of the span")
+    status_code: Optional[StrictStr] = Field(default='UNSET', description="Status code of the span. Defaults to `UNSET` if not provided.")
     status_message: Optional[StrictStr] = Field(default=None, description="Status message associated with the span")
     attributes: Optional[Dict[str, Any]] = Field(default=None, description="Key-value pairs of span attributes")
     annotations: Optional[List[Annotation]] = Field(default=None, description="List of human annotations on this span")
@@ -141,7 +141,7 @@ class Span(BaseModel):
             "parent_id": obj.get("parent_id"),
             "start_time": obj.get("start_time"),
             "end_time": obj.get("end_time"),
-            "status_code": obj.get("status_code"),
+            "status_code": obj.get("status_code") if obj.get("status_code") is not None else 'UNSET',
             "status_message": obj.get("status_message"),
             "attributes": obj.get("attributes"),
             "annotations": [Annotation.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None,

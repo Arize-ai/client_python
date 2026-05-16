@@ -9,10 +9,10 @@ Name | Type | Description | Notes
 **name** | **str** | The name of the annotation config | 
 **created_at** | **datetime** | The timestamp for when the annotation config was created | 
 **space_id** | **str** | The space id the annotation config belongs to | 
-**type** | **str** |  | 
+**type** | **str** | Discriminator value identifying a continuous annotation config. | 
 **minimum_score** | **float** | The minimum score value | 
 **maximum_score** | **float** | The maximum score value | 
-**optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) |  | [optional] 
+**optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) |  | [optional] [default to OptimizationDirection.NONE]
 **values** | [**List[CategoricalAnnotationValue]**](CategoricalAnnotationValue.md) | An array of categorical annotation values | 
 
 ## Example

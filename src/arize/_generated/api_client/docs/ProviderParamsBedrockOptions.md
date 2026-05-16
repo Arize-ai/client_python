@@ -6,7 +6,7 @@ AWS Bedrock options
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**use_converse_endpoint** | **bool** | Whether to use the AWS Bedrock Converse endpoint | [optional] 
+**use_converse_endpoint** | **bool** | Whether to use the AWS Bedrock Converse endpoint. Defaults to &#x60;false&#x60;. | [optional] [default to False]
 
 ## Example
 

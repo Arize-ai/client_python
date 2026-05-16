@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.organizations_create_request import OrganizationsCreateRequest
+from arize._generated.api_client.models.delete_spans_request import DeleteSpansRequest
 
-class TestOrganizationsCreateRequest(unittest.TestCase):
-    """OrganizationsCreateRequest unit test stubs"""
+class TestDeleteSpansRequest(unittest.TestCase):
+    """DeleteSpansRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,27 +25,32 @@ class TestOrganizationsCreateRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> OrganizationsCreateRequest:
-        """Test OrganizationsCreateRequest
+    def make_instance(self, include_optional) -> DeleteSpansRequest:
+        """Test DeleteSpansRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `OrganizationsCreateRequest`
+        # uncomment below to create an instance of `DeleteSpansRequest`
         """
-        model = OrganizationsCreateRequest()
+        model = DeleteSpansRequest()
         if include_optional:
-            return OrganizationsCreateRequest(
-                name = '0',
-                description = ''
+            return DeleteSpansRequest(
+                project_id = '',
+                span_ids = [
+                    ''
+                    ]
             )
         else:
-            return OrganizationsCreateRequest(
-                name = '0',
+            return DeleteSpansRequest(
+                project_id = '',
+                span_ids = [
+                    ''
+                    ],
         )
         """
 
-    def testOrganizationsCreateRequest(self):
-        """Test OrganizationsCreateRequest"""
+    def testDeleteSpansRequest(self):
+        """Test DeleteSpansRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

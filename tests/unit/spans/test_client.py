@@ -105,9 +105,9 @@ class TestSpansClientDelete:
     def test_delete_builds_request_and_calls_api(
         self, spans_client: SpansClient, mock_api: Mock
     ) -> None:
-        """delete() should build a SpansDeleteRequest and call spans_delete."""
+        """delete() should build a DeleteSpansRequest and call spans_delete."""
         with patch(
-            "arize._generated.api_client.SpansDeleteRequest"
+            "arize._generated.api_client.DeleteSpansRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -122,7 +122,7 @@ class TestSpansClientDelete:
             span_ids=["span-1", "span-2"],
         )
         mock_api.spans_delete.assert_called_once_with(
-            spans_delete_request=mock_body,
+            delete_spans_request=mock_body,
         )
 
     def test_delete_returns_api_response(
@@ -132,7 +132,7 @@ class TestSpansClientDelete:
         expected = Mock()
         mock_api.spans_delete.return_value = expected
 
-        with patch("arize._generated.api_client.SpansDeleteRequest"):
+        with patch("arize._generated.api_client.DeleteSpansRequest"):
             result = spans_client.delete(
                 project=_PROJECT_ID,
                 span_ids=["span-1"],
@@ -146,7 +146,7 @@ class TestSpansClientDelete:
         """delete() should return None when the API returns None (204)."""
         mock_api.spans_delete.return_value = None
 
-        with patch("arize._generated.api_client.SpansDeleteRequest"):
+        with patch("arize._generated.api_client.DeleteSpansRequest"):
             result = spans_client.delete(
                 project=_PROJECT_ID,
                 span_ids=["span-1"],
@@ -169,7 +169,7 @@ class TestSpansClientDelete:
         spans_client._projects_api = mock_projects_api
 
         with patch(
-            "arize._generated.api_client.SpansDeleteRequest"
+            "arize._generated.api_client.DeleteSpansRequest"
         ) as mock_request_cls:
             mock_request_cls.return_value = Mock()
             spans_client.delete(
@@ -190,7 +190,7 @@ class TestSpansClientDelete:
         caplog: pytest.LogCaptureFixture,
     ) -> None:
         """First call should emit the ALPHA prerelease warning."""
-        with patch("arize._generated.api_client.SpansDeleteRequest"):
+        with patch("arize._generated.api_client.DeleteSpansRequest"):
             caplog.set_level(logging.WARNING)
             spans_client.delete(project=_PROJECT_ID, span_ids=["span-1"])
 
@@ -207,7 +207,7 @@ class TestSpansClientList:
     def test_list_builds_request_with_all_params(
         self, spans_client: SpansClient, mock_api: Mock
     ) -> None:
-        """list() should forward all parameters into SpansListRequest."""
+        """list() should forward all parameters into ListSpansRequest."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -216,7 +216,7 @@ class TestSpansClientList:
         end = datetime(2024, 1, 8, tzinfo=timezone.utc)
 
         with patch(
-            "arize._generated.api_client.SpansListRequest"
+            "arize._generated.api_client.ListSpansRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -246,7 +246,7 @@ class TestSpansClientList:
         pre_releases._WARNED.clear()
 
         with patch(
-            "arize._generated.api_client.SpansListRequest"
+            "arize._generated.api_client.ListSpansRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -258,7 +258,7 @@ class TestSpansClientList:
             )
 
         mock_api.spans_list.assert_called_once_with(
-            spans_list_request=mock_body,
+            list_spans_request=mock_body,
             limit=50,
             cursor="cursor-abc",
         )
@@ -272,7 +272,7 @@ class TestSpansClientList:
         pre_releases._WARNED.clear()
 
         with patch(
-            "arize._generated.api_client.SpansListRequest"
+            "arize._generated.api_client.ListSpansRequest"
         ) as mock_request_cls:
             mock_request_cls.return_value = Mock()
 
@@ -285,7 +285,7 @@ class TestSpansClientList:
             filter=None,
         )
         mock_api.spans_list.assert_called_once_with(
-            spans_list_request=mock_request_cls.return_value,
+            list_spans_request=mock_request_cls.return_value,
             limit=100,
             cursor=None,
         )
@@ -301,7 +301,7 @@ class TestSpansClientList:
         expected = Mock()
         mock_api.spans_list.return_value = expected
 
-        with patch("arize._generated.api_client.SpansListRequest"):
+        with patch("arize._generated.api_client.ListSpansRequest"):
             result = spans_client.list(project=_PROJECT_ID)
 
         assert result is expected
@@ -314,7 +314,7 @@ class TestSpansClientList:
 
         pre_releases._WARNED.clear()
 
-        with patch("arize._generated.api_client.SpansListRequest"):
+        with patch("arize._generated.api_client.ListSpansRequest"):
             caplog.set_level(logging.WARNING)
             spans_client.list(project=_PROJECT_ID)
 
@@ -331,7 +331,7 @@ class TestSpansClientList:
 
         pre_releases._WARNED.clear()
 
-        with patch("arize._generated.api_client.SpansListRequest"):
+        with patch("arize._generated.api_client.ListSpansRequest"):
             caplog.set_level(logging.WARNING)
             spans_client.list(project=_PROJECT_ID)
 
@@ -345,7 +345,7 @@ class TestSpansClientList:
 
         pre_releases._WARNED.clear()
 
-        with patch("arize._generated.api_client.SpansListRequest"):
+        with patch("arize._generated.api_client.ListSpansRequest"):
             caplog.set_level(logging.WARNING)
 
             spans_client.list(project=_PROJECT_ID)
@@ -381,7 +381,7 @@ class TestSpansClientList:
         spans_client._projects_api = mock_projects_api
 
         with patch(
-            "arize._generated.api_client.SpansListRequest"
+            "arize._generated.api_client.ListSpansRequest"
         ) as mock_request_cls:
             mock_request_cls.return_value = Mock()
             spans_client.list(

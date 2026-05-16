@@ -7,10 +7,10 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Name of the new annotation config | 
 **space_id** | **str** | ID of the space the annotation config will belong to | 
-**annotation_config_type** | **str** |  | 
+**annotation_config_type** | **str** | Discriminator value identifying a continuous annotation config. | 
 **minimum_score** | **float** | The minimum score value | 
 **maximum_score** | **float** | The maximum score value | 
-**optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) |  | [optional] 
+**optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) |  | [optional] [default to OptimizationDirection.NONE]
 
 ## Example
 

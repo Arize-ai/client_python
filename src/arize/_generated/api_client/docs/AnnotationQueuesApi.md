@@ -412,7 +412,6 @@ Name | Type | Description  | Notes
 **200** | An annotation queue object |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
-**403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
@@ -776,6 +775,36 @@ Add new records from either spans (a project) or from dataset examples to an exi
   - For spans record source: all `span_ids` must be non-empty strings.
   - At most 500 records total may be added in one request
 
+**Valid example**
+```json
+{
+  "record_sources": [
+    {
+      "record_type": "span",
+      "project_id": "TW9kZWw6MTIzOmFCY0Q=",
+      "start_time": "2026-01-15T00:00:00Z",
+      "end_time": "2026-01-16T00:00:00Z",
+      "span_ids": ["U3BhbjoxOmFCY0Q="]
+    }
+  ]
+}
+```
+
+**Invalid example** (span record with `start_time` after `end_time`)
+```json
+{
+  "record_sources": [
+    {
+      "record_type": "span",
+      "project_id": "TW9kZWw6MTIzOmFCY0Q=",
+      "start_time": "2026-01-20T00:00:00Z",
+      "end_time": "2026-01-15T00:00:00Z",
+      "span_ids": ["U3BhbjoxOmFCY0Q="]
+    }
+  ]
+}
+```
+
 <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue.</Note>
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
@@ -961,11 +990,25 @@ Update an annotation queue
 
 Update an annotation queue by its ID. At least one field must be provided.
 
-**Payload Requirements:**
+**Payload Requirements**
 - At least one of `name`, `instructions`, `annotation_config_ids`, or `annotator_emails` must be provided
 - `name` must be unique within the space (409 Conflict if duplicate)
 - `annotation_config_ids` replaces all existing config associations; all configs must belong to the same space as the queue
 - `annotator_emails` replaces all existing user assignments; all users must have active accounts
+
+**Valid example**
+```json
+{
+  "name": "Updated Review Queue",
+  "annotation_config_ids": ["QW5ub3RhdGlvbkNvbmZpZzoxOmFCY0Q=", "QW5ub3RhdGlvbkNvbmZpZzoyOmFCY0Q="],
+  "annotator_emails": ["reviewer@example.com"]
+}
+```
+
+**Invalid example** (empty body — no fields provided)
+```json
+{}
+```
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 

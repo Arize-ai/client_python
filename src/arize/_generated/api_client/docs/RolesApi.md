@@ -34,6 +34,13 @@ Create a new custom role for the authenticated user's account.
 }
 ```
 
+**Invalid example** (missing required `permissions`)
+```json
+{
+  "name": "Data Scientist"
+}
+```
+
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
 
@@ -381,8 +388,24 @@ Update a role
 Update a custom role by its ID. At least one field must be provided.
 Predefined roles cannot be updated.
 
-When `permissions` is provided, the existing permissions are fully replaced
-with the new set.
+**Payload Requirements**
+- At least one of `name`, `description`, or `permissions` must be provided.
+- When `permissions` is provided, the existing permissions are fully replaced with the new set.
+- `name`, if provided, must be unique within the account.
+- System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`) cannot be modified.
+
+**Valid example**
+```json
+{
+  "name": "Senior Data Scientist",
+  "permissions": ["PROJECT_READ", "DATASET_READ", "DATASET_CREATE", "DATASET_DELETE"]
+}
+```
+
+**Invalid example** (no fields provided)
+```json
+{}
+```
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 

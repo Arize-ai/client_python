@@ -7,11 +7,15 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+from arize._generated.api_client.models.run_configuration import (
+    RunConfiguration,
+)
 from arize.tasks.client import (
     _DEFAULT_POLL_INTERVAL,
     _DEFAULT_TIMEOUT,
     TasksClient,
 )
+from arize.tasks.types import Task, TasksList200Response
 
 # Base64 IDs that pass _is_resource_id() — decode to "Type:123"
 _TASK_ID = "VGFzazoxMjM="  # Task:123
@@ -70,6 +74,15 @@ class TestTasksClientInit:
 @pytest.mark.unit
 class TestTasksClientList:
     """Tests for TasksClient.list()."""
+
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            TasksList200Response,
+            "model_validate",
+            side_effect=lambda v, **kw: v,
+        ):
+            yield
 
     def test_list_with_space_id(
         self, tasks_client: TasksClient, mock_api: Mock
@@ -194,6 +207,13 @@ class TestTasksClientList:
 class TestTasksClientGet:
     """Tests for TasksClient.get()."""
 
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            Task, "model_validate", side_effect=lambda v, **kw: v
+        ):
+            yield
+
     def test_get_calls_api_with_task_id(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
@@ -235,6 +255,13 @@ class TestTasksClientGet:
 @pytest.mark.unit
 class TestTasksClientCreate:
     """Tests for TasksClient.create()."""
+
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            Task, "model_validate", side_effect=lambda v, **kw: v
+        ):
+            yield
 
     def test_create_builds_request_and_calls_api(
         self, tasks_client: TasksClient, mock_api: Mock
@@ -335,7 +362,7 @@ class TestTasksClientCreate:
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
         """create(task_type='run_experiment') should use CreateRunExperimentTaskRequest."""
-        mock_run_config = Mock()
+        mock_run_config = Mock(spec=RunConfiguration)
 
         with (
             patch(
@@ -377,7 +404,7 @@ class TestTasksClientCreate:
                 name="bad",
                 task_type="run_experiment",
                 evaluators=[Mock()],
-                run_configuration=Mock(),
+                run_configuration=Mock(spec=RunConfiguration),
                 dataset=_DATASET_ID,
             )
 
@@ -405,7 +432,7 @@ class TestTasksClientCreate:
                 name="bad",
                 task_type="template_evaluation",
                 evaluators=[Mock()],
-                run_configuration=Mock(),
+                run_configuration=Mock(spec=RunConfiguration),
                 project=_PROJECT_ID,
             )
 
@@ -437,6 +464,13 @@ class TestTasksClientCreate:
 @pytest.mark.unit
 class TestTasksClientCreateEvaluationTask:
     """Tests for TasksClient.create_evaluation_task()."""
+
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            Task, "model_validate", side_effect=lambda v, **kw: v
+        ):
+            yield
 
     def test_delegates_template_evaluation_to_create(
         self, tasks_client: TasksClient, mock_api: Mock
@@ -514,11 +548,18 @@ class TestTasksClientCreateEvaluationTask:
 class TestTasksClientCreateRunExperimentTask:
     """Tests for TasksClient.create_run_experiment_task()."""
 
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            Task, "model_validate", side_effect=lambda v, **kw: v
+        ):
+            yield
+
     def test_delegates_to_create(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
         """create_run_experiment_task() should call create() with run_experiment type."""
-        mock_run_config = Mock()
+        mock_run_config = Mock(spec=RunConfiguration)
 
         with (
             patch(
@@ -567,7 +608,7 @@ class TestTasksClientCreateRunExperimentTask:
             tasks_client.create_run_experiment_task(
                 name="run-exp-task",
                 dataset="my-dataset",
-                run_configuration=Mock(),
+                run_configuration=Mock(spec=RunConfiguration),
                 space="U3BhY2U6OTA1MDoxSmtS",
             )
 
@@ -589,7 +630,7 @@ class TestTasksClientCreateRunExperimentTask:
             result = tasks_client.create_run_experiment_task(
                 name="run-exp-task",
                 dataset=_DATASET_ID,
-                run_configuration=Mock(),
+                run_configuration=Mock(spec=RunConfiguration),
             )
 
         assert result is expected
@@ -598,6 +639,13 @@ class TestTasksClientCreateRunExperimentTask:
 @pytest.mark.unit
 class TestTasksClientUpdate:
     """Tests for TasksClient.update()."""
+
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            Task, "model_validate", side_effect=lambda v, **kw: v
+        ):
+            yield
 
     def test_update_builds_request_and_calls_api(
         self, tasks_client: TasksClient, mock_api: Mock

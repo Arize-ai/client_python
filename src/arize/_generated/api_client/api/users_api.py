@@ -672,7 +672,6 @@ class UsersApi:
             '200': "User",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -744,7 +743,6 @@ class UsersApi:
             '200': "User",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -816,7 +814,6 @@ class UsersApi:
             '200': "User",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }

@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **parent_id** | **str** | ID of the parent span | [optional] 
 **start_time** | **datetime** | Timestamp when the span started | 
 **end_time** | **datetime** | Timestamp when the span ended | 
-**status_code** | **str** | Status code of the span | [optional] 
+**status_code** | **str** | Status code of the span. Defaults to &#x60;UNSET&#x60; if not provided. | [optional] [default to 'UNSET']
 **status_message** | **str** | Status message associated with the span | [optional] 
 **attributes** | **Dict[str, object]** | Key-value pairs of span attributes | [optional] 
 **annotations** | [**List[Annotation]**](Annotation.md) | List of human annotations on this span | [optional] 

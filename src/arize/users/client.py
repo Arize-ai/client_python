@@ -6,9 +6,17 @@ import logging
 from typing import TYPE_CHECKING
 
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
-from arize.users.types import User, UsersList200Response
+from arize.users.types import (
+    BulkUserDeletionResult,
+    DeletionStatus,
+    User,
+    UsersList200Response,
+)
+from arize.utils.resolve import NotFoundError, _find_user_id_by_email
 
 if TYPE_CHECKING:
+    import builtins
+
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
     from arize.users.types import (
@@ -92,21 +100,38 @@ class UsersClient:
         )
 
     @prerelease_endpoint(key="users.get", stage=ReleaseStage.ALPHA)
-    def get(self, *, user_id: str) -> User:
-        """Get a user by ID.
+    def get(self, *, user: str) -> User | None:
+        """Get a user by ID or email address.
+
+        When ``user`` contains ``@`` it is treated as an email address:
+        :meth:`list` is called with the email as a filter, and the first
+        result whose address matches exactly (case-insensitive) is
+        returned. ``None`` is returned when no such user exists.
+
+        When ``user`` does not contain ``@`` it is treated as a user ID
+        and the API is called directly. An :class:`ApiException` is raised
+        if the user is not found.
 
         Args:
-            user_id: User ID to retrieve.
+            user: User ID or exact email address to retrieve.
 
         Returns:
-            The user object.
+            The matching :class:`~arize.users.types.User`, or ``None``
+            when ``user`` is an email address and no match exists.
 
         Raises:
             ApiException: If the API request fails
-                (for example, user not found).
+                (for example, user not found when querying by ID).
         """
+        if "@" in user:
+            response = self.list(email=user)
+            needle = user.lower()
+            for u in response.users:
+                if u.email.lower() == needle:
+                    return u
+            return None
         return User.model_validate(
-            self._api.users_get(user_id=user_id), from_attributes=True
+            self._api.users_get(user_id=user), from_attributes=True
         )
 
     @prerelease_endpoint(key="users.create", stage=ReleaseStage.ALPHA)
@@ -247,6 +272,77 @@ class UsersClient:
                 (for example, user not found or user already active).
         """
         return self._api.users_resend_invitation(user_id=user_id)
+
+    @prerelease_endpoint(key="users.bulk_delete", stage=ReleaseStage.ALPHA)
+    def bulk_delete(
+        self,
+        *,
+        user_ids: builtins.list[str] | None = None,
+        emails: builtins.list[str] | None = None,
+    ) -> builtins.list[BulkUserDeletionResult]:
+        """Bulk-delete users by ID or email.
+
+        At least one of ``user_ids`` or ``emails`` must be provided.
+        When ``emails`` is given, each address is resolved to a user
+        ID via the users list endpoint (case-insensitive exact match).
+
+        Args:
+            user_ids: User IDs to delete directly.
+            emails: Email addresses to resolve and then delete.
+
+        Returns:
+            A list of :class:`~arize.users.types.BulkUserDeletionResult`
+            recording the outcome of each deletion attempt.
+
+        Raises:
+            ValueError: If neither ``user_ids`` nor ``emails`` is
+                provided.
+        """
+        if not user_ids and not emails:
+            raise ValueError(
+                "At least one of 'user_ids' or 'emails' must be provided"
+            )
+
+        results: builtins.list[BulkUserDeletionResult] = []
+        ids_to_delete: builtins.list[str] = user_ids or []
+
+        # Resolve emails to user IDs
+        email: str
+        for email in emails or []:
+            try:
+                ids_to_delete.append(_find_user_id_by_email(self._api, email))
+            except NotFoundError:  # noqa: PERF203
+                logger.warning(
+                    "No user found with email '%s' — skipping",
+                    email,
+                )
+                results.append(
+                    BulkUserDeletionResult(
+                        id=email,
+                        status=DeletionStatus.NOT_FOUND,
+                        error=f"No user found with email '{email}'",
+                    )
+                )
+
+        # Delete each user
+        for uid in ids_to_delete:
+            try:
+                self.delete(user_id=uid)
+                results.append(
+                    BulkUserDeletionResult(
+                        id=uid, status=DeletionStatus.DELETED
+                    )
+                )
+            except Exception as exc:  # noqa: PERF203
+                results.append(
+                    BulkUserDeletionResult(
+                        id=uid,
+                        status=DeletionStatus.FAILED,
+                        error=str(exc),
+                    )
+                )
+
+        return results
 
     @prerelease_endpoint(key="users.reset_password", stage=ReleaseStage.ALPHA)
     def reset_password(self, *, user_id: str) -> None:

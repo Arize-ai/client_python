@@ -1,7 +1,10 @@
 """Public type re-exports and SDK-facing role types for the users subdomain."""
 
-from datetime import datetime
-from typing import Annotated, Literal
+from __future__ import annotations
+
+from dataclasses import dataclass
+from enum import Enum
+from typing import TYPE_CHECKING, Annotated, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -12,12 +15,16 @@ from arize._generated.api_client.models.custom_user_role_assignment import (
     CustomUserRoleAssignment,
 )
 from arize._generated.api_client.models.invite_mode import InviteMode
-from arize._generated.api_client.models.pagination_metadata import (
-    PaginationMetadata,
-)
 from arize._generated.api_client.models.predefined_user_role_assignment import (
     PredefinedUserRoleAssignment,
 )
+
+if TYPE_CHECKING:
+    from datetime import datetime
+
+    from arize._generated.api_client.models.pagination_metadata import (
+        PaginationMetadata,
+    )
 from arize._generated.api_client.models.user_created_response import (
     UserCreatedResponse,
 )
@@ -101,9 +108,36 @@ class UsersList200Response(BaseModel):
     pagination: PaginationMetadata
 
 
+class DeletionStatus(str, Enum):
+    """Outcome of a single user deletion attempt."""
+
+    DELETED = "deleted"
+    FAILED = "failed"
+    NOT_FOUND = "not_found"
+
+
+@dataclass
+class BulkUserDeletionResult:
+    """Result of a single user deletion attempt.
+
+    Attributes:
+        id: User ID, or the email address if the user could not
+            be resolved.
+        status: Outcome of the deletion attempt.
+        error: Error message when ``status`` is ``"failed"`` or
+            ``"not_found"``.
+    """
+
+    id: str
+    status: DeletionStatus
+    error: str | None = None
+
+
 __all__ = [
+    "BulkUserDeletionResult",
     "CreateUserRequest",
     "CustomUserRole",
+    "DeletionStatus",
     "InviteMode",
     "PredefinedUserRole",
     "User",

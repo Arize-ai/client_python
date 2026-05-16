@@ -73,12 +73,12 @@ class TestResourceRestrictionsClientRestrict:
         resource_restrictions_client: ResourceRestrictionsClient,
         mock_api: Mock,
     ) -> None:
-        """restrict() should build ResourceRestrictionsCreateRequest and call the API."""
+        """restrict() should build ResourceRestrictionsCreate and call the API."""
         mock_response = Mock()
         mock_api.resource_restrictions_create.return_value = mock_response
 
         with patch(
-            "arize._generated.api_client.ResourceRestrictionsCreateRequest"
+            "arize._generated.api_client.ResourceRestrictionCreate"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -99,9 +99,7 @@ class TestResourceRestrictionsClientRestrict:
         mock_response.resource_restriction = mock_restriction
         mock_api.resource_restrictions_create.return_value = mock_response
 
-        with patch(
-            "arize._generated.api_client.ResourceRestrictionsCreateRequest"
-        ):
+        with patch("arize._generated.api_client.ResourceRestrictionCreate"):
             result = resource_restrictions_client.restrict(
                 resource_id="project-abc"
             )
@@ -122,9 +120,7 @@ class TestResourceRestrictionsClientRestrict:
         mock_response = Mock()
         resource_restrictions_client._api.resource_restrictions_create.return_value = mock_response
 
-        with patch(
-            "arize._generated.api_client.ResourceRestrictionsCreateRequest"
-        ):
+        with patch("arize._generated.api_client.ResourceRestrictionCreate"):
             resource_restrictions_client.restrict(resource_id="project-abc")
 
         assert any(

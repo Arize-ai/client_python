@@ -26,7 +26,7 @@ class ProviderParamsBedrockOptions(BaseModel):
     """
     AWS Bedrock options
     """ # noqa: E501
-    use_converse_endpoint: Optional[StrictBool] = Field(default=None, description="Whether to use the AWS Bedrock Converse endpoint")
+    use_converse_endpoint: Optional[StrictBool] = Field(default=False, description="Whether to use the AWS Bedrock Converse endpoint. Defaults to `false`.")
     __properties: ClassVar[List[str]] = ["use_converse_endpoint"]
 
     model_config = ConfigDict(
@@ -85,7 +85,7 @@ class ProviderParamsBedrockOptions(BaseModel):
                 raise ValueError("Error due to additional fields (not defined in ProviderParamsBedrockOptions) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "use_converse_endpoint": obj.get("use_converse_endpoint")
+            "use_converse_endpoint": obj.get("use_converse_endpoint") if obj.get("use_converse_endpoint") is not None else False
         })
         return _obj
 

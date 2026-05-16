@@ -18,7 +18,7 @@ import pytest
 
 from arize.organizations.types import PredefinedOrgRole
 from arize.spaces.types import PredefinedSpaceRole
-from arize.users.types import PredefinedUserRole
+from arize.users.types import DeletionStatus, PredefinedUserRole
 
 API_KEY = os.environ.get("ARIZE_API_KEY", "")
 ORG_ID = os.environ.get("ARIZE_TEST_ORG_ID", "")
@@ -69,7 +69,7 @@ class TestUsersCRUD:
             assert user.name == name
             assert user.id is not None
 
-            fetched = users_client.get(user_id=user.id)
+            fetched = users_client.get(user=user.id)
             assert fetched.id == user.id
             assert fetched.name == name
         finally:
@@ -88,7 +88,7 @@ class TestUsersCRUD:
         )
         try:
             assert user.is_developer is False
-            fetched = users_client.get(user_id=user.id)
+            fetched = users_client.get(user=user.id)
             assert fetched.is_developer is False
         finally:
             users_client.delete(user_id=user.id)
@@ -113,7 +113,7 @@ class TestUsersCRUD:
             assert updated.id == user.id
             assert updated.name == updated_name
 
-            fetched = users_client.get(user_id=user.id)
+            fetched = users_client.get(user=user.id)
             assert fetched.name == updated_name
         finally:
             users_client.delete(user_id=user.id)
@@ -152,6 +152,35 @@ class TestUsersCRUD:
             users_client.delete(user_id=user.id)
 
 
+class TestUsersGetByEmail:
+    """End-to-end get-by-email flows for UsersClient."""
+
+    def test_get_by_email(self, users_client) -> None:
+        """Create a user, retrieve them by exact email, then delete."""
+        name = _unique("sdk-test-user")
+        email = f"{uuid.uuid4().hex[:8]}@sdk-test.arize.com"
+        user = users_client.create(
+            name=name,
+            email=email,
+            role=_MEMBER_ROLE,
+            invite_mode="none",
+        )
+        try:
+            found = users_client.get(user=email)
+            assert found is not None
+            assert found.id == user.id
+            assert found.email.lower() == email.lower()
+        finally:
+            users_client.delete(user_id=user.id)
+
+    def test_get_by_email_returns_none_for_unknown_email(
+        self, users_client
+    ) -> None:
+        """get() returns None when no user matches the email."""
+        result = users_client.get(user="nonexistent-xyz@sdk-test.arize.com")
+        assert result is None
+
+
 class TestUsersDelete:
     """End-to-end delete flows for UsersClient."""
 
@@ -172,7 +201,7 @@ class TestUsersDelete:
 
         assert result is None
         with pytest.raises(ApiException) as exc_info:
-            users_client.get(user_id=user.id)
+            users_client.get(user=user.id)
         assert exc_info.value.status == 404
 
 
@@ -213,6 +242,88 @@ class TestUsersResetPassword:
             assert result is None
         finally:
             users_client.delete(user_id=user.id)
+
+
+class TestUsersBulkDelete:
+    """End-to-end bulk_delete flows for UsersClient."""
+
+    def test_bulk_delete_by_ids(self, users_client) -> None:
+        """Create two users, bulk-delete by ID, verify both deleted."""
+        from arize._generated.api_client.exceptions import ApiException
+
+        users = []
+        for _ in range(2):
+            name = _unique("sdk-test-user")
+            email = f"{uuid.uuid4().hex[:8]}@sdk-test.arize.com"
+            users.append(
+                users_client.create(
+                    name=name,
+                    email=email,
+                    role=_MEMBER_ROLE,
+                    invite_mode="none",
+                )
+            )
+
+        results = users_client.bulk_delete(user_ids=[u.id for u in users])
+
+        assert len(results) == 2
+        assert all(r.status == DeletionStatus.DELETED for r in results)
+
+        for u in users:
+            with pytest.raises(ApiException) as exc_info:
+                users_client.get(user_id=u.id)
+            assert exc_info.value.status == 404
+
+    def test_bulk_delete_by_email(self, users_client) -> None:
+        """Create a user, bulk-delete by email, verify deleted."""
+        from arize._generated.api_client.exceptions import ApiException
+
+        email = f"{uuid.uuid4().hex[:8]}@sdk-test.arize.com"
+        user = users_client.create(
+            name=_unique("sdk-test-user"),
+            email=email,
+            role=_MEMBER_ROLE,
+            invite_mode="none",
+        )
+
+        results = users_client.bulk_delete(emails=[email])
+
+        assert len(results) == 1
+        assert results[0].status == DeletionStatus.DELETED
+        assert results[0].id == user.id
+
+        with pytest.raises(ApiException) as exc_info:
+            users_client.get(user_id=user.id)
+        assert exc_info.value.status == 404
+
+    def test_bulk_delete_email_not_found(self, users_client) -> None:
+        """Deleting a nonexistent email produces a not_found entry."""
+        results = users_client.bulk_delete(
+            emails=["nonexistent-user@sdk-test.arize.com"]
+        )
+
+        assert len(results) == 1
+        assert results[0].status == DeletionStatus.NOT_FOUND
+        assert results[0].error is not None
+
+    def test_bulk_delete_mixed(self, users_client) -> None:
+        """Mix of valid IDs and nonexistent emails in one call."""
+        email = f"{uuid.uuid4().hex[:8]}@sdk-test.arize.com"
+        user = users_client.create(
+            name=_unique("sdk-test-user"),
+            email=email,
+            role=_MEMBER_ROLE,
+            invite_mode="none",
+        )
+
+        results = users_client.bulk_delete(
+            user_ids=[user.id],
+            emails=["nonexistent-user@sdk-test.arize.com"],
+        )
+
+        statuses = {r.status for r in results}
+        assert DeletionStatus.DELETED in statuses
+        assert DeletionStatus.NOT_FOUND in statuses
 
 
 @pytest.mark.skipif(

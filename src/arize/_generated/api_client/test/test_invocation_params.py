@@ -45,7 +45,7 @@ class TestInvocationParams(unittest.TestCase):
                     ''
                     ],
                 response_format = arize._generated.api_client.models.response_format.ResponseFormat(
-                    type = 'text', 
+                    type = null, 
                     json_schema = arize._generated.api_client.models.response_format_json_schema.ResponseFormat_json_schema(
                         name = '', 
                         description = '', 

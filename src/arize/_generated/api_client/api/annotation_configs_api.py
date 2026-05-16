@@ -391,6 +391,7 @@ class AnnotationConfigsApi:
             '204': None,
             '400': "Problem",
             '401': "Problem",
+            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -462,6 +463,7 @@ class AnnotationConfigsApi:
             '204': None,
             '400': "Problem",
             '401': "Problem",
+            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -533,6 +535,7 @@ class AnnotationConfigsApi:
             '204': None,
             '400': "Problem",
             '401': "Problem",
+            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }

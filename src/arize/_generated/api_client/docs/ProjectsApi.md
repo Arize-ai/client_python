@@ -11,7 +11,7 @@ Method | HTTP request | Description
 
 
 # **projects_create**
-> Project projects_create(projects_create_request)
+> Project projects_create(project_create)
 
 Create a project
 
@@ -30,7 +30,7 @@ Create a new project given a name and space ID.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.project import Project
-from arize._generated.api_client.models.projects_create_request import ProjectsCreateRequest
+from arize._generated.api_client.models.project_create import ProjectCreate
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -54,11 +54,11 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ProjectsApi(api_client)
-    projects_create_request = {"name":"My Project","space_id":"space_12345"} # ProjectsCreateRequest | Body containing project creation parameters
+    project_create = {"name":"My Project","space_id":"space_12345"} # ProjectCreate | Body containing project creation parameters
 
     try:
         # Create a project
-        api_response = api_instance.projects_create(projects_create_request)
+        api_response = api_instance.projects_create(project_create)
         print("The response of ProjectsApi->projects_create:\n")
         pprint(api_response)
     except Exception as e:
@@ -72,7 +72,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **projects_create_request** | [**ProjectsCreateRequest**](ProjectsCreateRequest.md)| Body containing project creation parameters | 
+ **project_create** | [**ProjectCreate**](ProjectCreate.md)| Body containing project creation parameters | 
 
 ### Return type
 

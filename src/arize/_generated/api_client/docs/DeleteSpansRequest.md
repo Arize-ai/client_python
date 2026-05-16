@@ -1,4 +1,4 @@
-# SpansDeleteRequest
+# DeleteSpansRequest
 
 
 ## Properties
@@ -11,19 +11,19 @@ Name | Type | Description | Notes
 ## Example
 
 ```python
-from arize._generated.api_client.models.spans_delete_request import SpansDeleteRequest
+from arize._generated.api_client.models.delete_spans_request import DeleteSpansRequest
 
 # TODO update the JSON string below
 json = "{}"
-# create an instance of SpansDeleteRequest from a JSON string
-spans_delete_request_instance = SpansDeleteRequest.from_json(json)
+# create an instance of DeleteSpansRequest from a JSON string
+delete_spans_request_instance = DeleteSpansRequest.from_json(json)
 # print the JSON string representation of the object
-print(SpansDeleteRequest.to_json())
+print(DeleteSpansRequest.to_json())
 
 # convert the object into a dict
-spans_delete_request_dict = spans_delete_request_instance.to_dict()
-# create an instance of SpansDeleteRequest from a dict
-spans_delete_request_from_dict = SpansDeleteRequest.from_dict(spans_delete_request_dict)
+delete_spans_request_dict = delete_spans_request_instance.to_dict()
+# create an instance of DeleteSpansRequest from a dict
+delete_spans_request_from_dict = DeleteSpansRequest.from_dict(delete_spans_request_dict)
 ```
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

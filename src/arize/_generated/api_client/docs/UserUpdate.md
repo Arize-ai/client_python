@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Updated display name for the user | [optional] 
-**is_developer** | **bool** | Set to true to grant developer permissions, or false to revoke them. | [optional] 
+**is_developer** | **bool** | Set to &#x60;true&#x60; to grant developer permissions, or &#x60;false&#x60; to revoke them. When omitted, the current value is preserved. | [optional] 
 
 ## Example
 

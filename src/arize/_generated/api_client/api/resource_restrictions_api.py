@@ -18,8 +18,8 @@ from typing_extensions import Annotated
 
 from pydantic import Field, StrictStr
 from typing_extensions import Annotated
+from arize._generated.api_client.models.resource_restriction_create import ResourceRestrictionCreate
 from arize._generated.api_client.models.resource_restrictions_create200_response import ResourceRestrictionsCreate200Response
-from arize._generated.api_client.models.resource_restrictions_create_request import ResourceRestrictionsCreateRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -42,7 +42,7 @@ class ResourceRestrictionsApi:
     @validate_call
     def resource_restrictions_create(
         self,
-        resource_restrictions_create_request: ResourceRestrictionsCreateRequest,
+        resource_restriction_create: Annotated[ResourceRestrictionCreate, Field(description="Body containing resource restriction creation parameters.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -60,8 +60,8 @@ class ResourceRestrictionsApi:
 
         Mark a resource as restricted. Only space admins or users with the RESOURCE_RESTRICT permission can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The ID for the resource.    Only `project` resources are currently supported. Other resource types are not currently supported and will return 400.  **Valid example** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a project ID\" } ``` Returns 400 — only Project / Model IDs are accepted   <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param resource_restrictions_create_request: (required)
-        :type resource_restrictions_create_request: ResourceRestrictionsCreateRequest
+        :param resource_restriction_create: Body containing resource restriction creation parameters. (required)
+        :type resource_restriction_create: ResourceRestrictionCreate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -85,7 +85,7 @@ class ResourceRestrictionsApi:
         """ # noqa: E501
 
         _param = self._resource_restrictions_create_serialize(
-            resource_restrictions_create_request=resource_restrictions_create_request,
+            resource_restriction_create=resource_restriction_create,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -114,7 +114,7 @@ class ResourceRestrictionsApi:
     @validate_call
     def resource_restrictions_create_with_http_info(
         self,
-        resource_restrictions_create_request: ResourceRestrictionsCreateRequest,
+        resource_restriction_create: Annotated[ResourceRestrictionCreate, Field(description="Body containing resource restriction creation parameters.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -132,8 +132,8 @@ class ResourceRestrictionsApi:
 
         Mark a resource as restricted. Only space admins or users with the RESOURCE_RESTRICT permission can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The ID for the resource.    Only `project` resources are currently supported. Other resource types are not currently supported and will return 400.  **Valid example** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a project ID\" } ``` Returns 400 — only Project / Model IDs are accepted   <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param resource_restrictions_create_request: (required)
-        :type resource_restrictions_create_request: ResourceRestrictionsCreateRequest
+        :param resource_restriction_create: Body containing resource restriction creation parameters. (required)
+        :type resource_restriction_create: ResourceRestrictionCreate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -157,7 +157,7 @@ class ResourceRestrictionsApi:
         """ # noqa: E501
 
         _param = self._resource_restrictions_create_serialize(
-            resource_restrictions_create_request=resource_restrictions_create_request,
+            resource_restriction_create=resource_restriction_create,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -186,7 +186,7 @@ class ResourceRestrictionsApi:
     @validate_call
     def resource_restrictions_create_without_preload_content(
         self,
-        resource_restrictions_create_request: ResourceRestrictionsCreateRequest,
+        resource_restriction_create: Annotated[ResourceRestrictionCreate, Field(description="Body containing resource restriction creation parameters.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -204,8 +204,8 @@ class ResourceRestrictionsApi:
 
         Mark a resource as restricted. Only space admins or users with the RESOURCE_RESTRICT permission can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The ID for the resource.    Only `project` resources are currently supported. Other resource types are not currently supported and will return 400.  **Valid example** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a project ID\" } ``` Returns 400 — only Project / Model IDs are accepted   <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param resource_restrictions_create_request: (required)
-        :type resource_restrictions_create_request: ResourceRestrictionsCreateRequest
+        :param resource_restriction_create: Body containing resource restriction creation parameters. (required)
+        :type resource_restriction_create: ResourceRestrictionCreate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -229,7 +229,7 @@ class ResourceRestrictionsApi:
         """ # noqa: E501
 
         _param = self._resource_restrictions_create_serialize(
-            resource_restrictions_create_request=resource_restrictions_create_request,
+            resource_restriction_create=resource_restriction_create,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -253,7 +253,7 @@ class ResourceRestrictionsApi:
 
     def _resource_restrictions_create_serialize(
         self,
-        resource_restrictions_create_request,
+        resource_restriction_create,
         _request_auth,
         _content_type,
         _headers,
@@ -279,8 +279,8 @@ class ResourceRestrictionsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if resource_restrictions_create_request is not None:
-            _body_params = resource_restrictions_create_request
+        if resource_restriction_create is not None:
+            _body_params = resource_restriction_create
 
 
         # set the HTTP header `Accept`

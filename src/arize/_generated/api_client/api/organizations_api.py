@@ -20,11 +20,11 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.organization import Organization
+from arize._generated.api_client.models.organization_create import OrganizationCreate
 from arize._generated.api_client.models.organization_membership import OrganizationMembership
 from arize._generated.api_client.models.organization_membership_input import OrganizationMembershipInput
-from arize._generated.api_client.models.organizations_create_request import OrganizationsCreateRequest
+from arize._generated.api_client.models.organization_update import OrganizationUpdate
 from arize._generated.api_client.models.organizations_list200_response import OrganizationsList200Response
-from arize._generated.api_client.models.organizations_update_request import OrganizationsUpdateRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -64,7 +64,7 @@ class OrganizationsApi:
     ) -> OrganizationMembership:
         """Add a user to an organization
 
-        Add a single existing account user to an organization with a specified role.  **Payload Requirements** - `user_id` and `role` are both required. - If the user is already a member, their role is updated to the specified value (upsert).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` organization role. - Users with a non-annotator account role cannot be assigned the `annotator` organization role.  Requires organization admin.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Add a single existing account user to an organization with a specified role.  **Payload Requirements** - `user_id` and `role` are both required. - If the user is already a member, their role is updated to the specified value (upsert).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` organization role. - Users with a non-annotator account role cannot be assigned the `annotator` organization role.  Requires organization admin.  **Valid example** ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"member\" } ```  **Invalid example** (annotator account user assigned non-annotator org role — returns 400) ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"admin\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param org_id: The unique identifier of the organization (required)
         :type org_id: str
@@ -140,7 +140,7 @@ class OrganizationsApi:
     ) -> ApiResponse[OrganizationMembership]:
         """Add a user to an organization
 
-        Add a single existing account user to an organization with a specified role.  **Payload Requirements** - `user_id` and `role` are both required. - If the user is already a member, their role is updated to the specified value (upsert).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` organization role. - Users with a non-annotator account role cannot be assigned the `annotator` organization role.  Requires organization admin.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Add a single existing account user to an organization with a specified role.  **Payload Requirements** - `user_id` and `role` are both required. - If the user is already a member, their role is updated to the specified value (upsert).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` organization role. - Users with a non-annotator account role cannot be assigned the `annotator` organization role.  Requires organization admin.  **Valid example** ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"member\" } ```  **Invalid example** (annotator account user assigned non-annotator org role — returns 400) ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"admin\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param org_id: The unique identifier of the organization (required)
         :type org_id: str
@@ -216,7 +216,7 @@ class OrganizationsApi:
     ) -> RESTResponseType:
         """Add a user to an organization
 
-        Add a single existing account user to an organization with a specified role.  **Payload Requirements** - `user_id` and `role` are both required. - If the user is already a member, their role is updated to the specified value (upsert).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` organization role. - Users with a non-annotator account role cannot be assigned the `annotator` organization role.  Requires organization admin.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Add a single existing account user to an organization with a specified role.  **Payload Requirements** - `user_id` and `role` are both required. - If the user is already a member, their role is updated to the specified value (upsert).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` organization role. - Users with a non-annotator account role cannot be assigned the `annotator` organization role.  Requires organization admin.  **Valid example** ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"member\" } ```  **Invalid example** (annotator account user assigned non-annotator org role — returns 400) ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"admin\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param org_id: The unique identifier of the organization (required)
         :type org_id: str
@@ -352,7 +352,7 @@ class OrganizationsApi:
     @validate_call
     def organizations_create(
         self,
-        organizations_create_request: Annotated[OrganizationsCreateRequest, Field(description="Body containing organization creation parameters")],
+        organization_create: Annotated[OrganizationCreate, Field(description="Body containing organization creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -368,10 +368,10 @@ class OrganizationsApi:
     ) -> Organization:
         """Create an organization
 
-        Create a new organization within the account.  **Payload Requirements** - `name` is required and must be unique within the account. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated automatically and rejected if provided.  **Example valid request:** ```json { \"name\": \"Agent Engineering Team\", \"description\": \"Organization for the Agent Engineering team\" } ```  **Example invalid request (duplicate name):** ```json { \"name\": \"Agent Engineering Team\" } ``` Fails with 409 Conflict if an organization with that name already exists in the account.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new organization within the account.  **Payload Requirements** - `name` is required and must be unique within the account. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated automatically and rejected if provided.  **Valid example** ```json {   \"name\": \"Agent Engineering Team\",   \"description\": \"Organization for the Agent Engineering team\" } ```  **Invalid example** (duplicate name) ```json {   \"name\": \"Agent Engineering Team\" } ``` Fails with 409 Conflict if an organization with that name already exists in the account.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param organizations_create_request: Body containing organization creation parameters (required)
-        :type organizations_create_request: OrganizationsCreateRequest
+        :param organization_create: Body containing organization creation parameters (required)
+        :type organization_create: OrganizationCreate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -395,7 +395,7 @@ class OrganizationsApi:
         """ # noqa: E501
 
         _param = self._organizations_create_serialize(
-            organizations_create_request=organizations_create_request,
+            organization_create=organization_create,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -424,7 +424,7 @@ class OrganizationsApi:
     @validate_call
     def organizations_create_with_http_info(
         self,
-        organizations_create_request: Annotated[OrganizationsCreateRequest, Field(description="Body containing organization creation parameters")],
+        organization_create: Annotated[OrganizationCreate, Field(description="Body containing organization creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -440,10 +440,10 @@ class OrganizationsApi:
     ) -> ApiResponse[Organization]:
         """Create an organization
 
-        Create a new organization within the account.  **Payload Requirements** - `name` is required and must be unique within the account. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated automatically and rejected if provided.  **Example valid request:** ```json { \"name\": \"Agent Engineering Team\", \"description\": \"Organization for the Agent Engineering team\" } ```  **Example invalid request (duplicate name):** ```json { \"name\": \"Agent Engineering Team\" } ``` Fails with 409 Conflict if an organization with that name already exists in the account.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new organization within the account.  **Payload Requirements** - `name` is required and must be unique within the account. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated automatically and rejected if provided.  **Valid example** ```json {   \"name\": \"Agent Engineering Team\",   \"description\": \"Organization for the Agent Engineering team\" } ```  **Invalid example** (duplicate name) ```json {   \"name\": \"Agent Engineering Team\" } ``` Fails with 409 Conflict if an organization with that name already exists in the account.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param organizations_create_request: Body containing organization creation parameters (required)
-        :type organizations_create_request: OrganizationsCreateRequest
+        :param organization_create: Body containing organization creation parameters (required)
+        :type organization_create: OrganizationCreate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -467,7 +467,7 @@ class OrganizationsApi:
         """ # noqa: E501
 
         _param = self._organizations_create_serialize(
-            organizations_create_request=organizations_create_request,
+            organization_create=organization_create,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -496,7 +496,7 @@ class OrganizationsApi:
     @validate_call
     def organizations_create_without_preload_content(
         self,
-        organizations_create_request: Annotated[OrganizationsCreateRequest, Field(description="Body containing organization creation parameters")],
+        organization_create: Annotated[OrganizationCreate, Field(description="Body containing organization creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -512,10 +512,10 @@ class OrganizationsApi:
     ) -> RESTResponseType:
         """Create an organization
 
-        Create a new organization within the account.  **Payload Requirements** - `name` is required and must be unique within the account. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated automatically and rejected if provided.  **Example valid request:** ```json { \"name\": \"Agent Engineering Team\", \"description\": \"Organization for the Agent Engineering team\" } ```  **Example invalid request (duplicate name):** ```json { \"name\": \"Agent Engineering Team\" } ``` Fails with 409 Conflict if an organization with that name already exists in the account.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new organization within the account.  **Payload Requirements** - `name` is required and must be unique within the account. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated automatically and rejected if provided.  **Valid example** ```json {   \"name\": \"Agent Engineering Team\",   \"description\": \"Organization for the Agent Engineering team\" } ```  **Invalid example** (duplicate name) ```json {   \"name\": \"Agent Engineering Team\" } ``` Fails with 409 Conflict if an organization with that name already exists in the account.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param organizations_create_request: Body containing organization creation parameters (required)
-        :type organizations_create_request: OrganizationsCreateRequest
+        :param organization_create: Body containing organization creation parameters (required)
+        :type organization_create: OrganizationCreate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -539,7 +539,7 @@ class OrganizationsApi:
         """ # noqa: E501
 
         _param = self._organizations_create_serialize(
-            organizations_create_request=organizations_create_request,
+            organization_create=organization_create,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -563,7 +563,7 @@ class OrganizationsApi:
 
     def _organizations_create_serialize(
         self,
-        organizations_create_request,
+        organization_create,
         _request_auth,
         _content_type,
         _headers,
@@ -589,8 +589,8 @@ class OrganizationsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if organizations_create_request is not None:
-            _body_params = organizations_create_request
+        if organization_create is not None:
+            _body_params = organization_create
 
 
         # set the HTTP header `Accept`
@@ -972,7 +972,6 @@ class OrganizationsApi:
             '200': "Organization",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -1044,7 +1043,6 @@ class OrganizationsApi:
             '200': "Organization",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -1116,7 +1114,6 @@ class OrganizationsApi:
             '200': "Organization",
             '400': "Problem",
             '401': "Problem",
-            '403': "Problem",
             '404': "Problem",
             '429': "Problem",
         }
@@ -1797,7 +1794,7 @@ class OrganizationsApi:
     def organizations_update(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
-        organizations_update_request: Annotated[OrganizationsUpdateRequest, Field(description="Body containing organization update parameters. At least one field must be provided.")],
+        organization_update: Annotated[OrganizationUpdate, Field(description="Body containing organization update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1813,12 +1810,12 @@ class OrganizationsApi:
     ) -> Organization:
         """Update an organization
 
-        Update an organization's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the account. - System-managed fields (`id`, `created_at`) cannot be modified.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update an organization's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the account. - System-managed fields (`id`, `created_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Platform Engineering Team\",   \"description\": \"Renamed from Agent Engineering Team\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param org_id: The unique identifier of the organization (required)
         :type org_id: str
-        :param organizations_update_request: Body containing organization update parameters. At least one field must be provided. (required)
-        :type organizations_update_request: OrganizationsUpdateRequest
+        :param organization_update: Body containing organization update parameters. At least one field must be provided. (required)
+        :type organization_update: OrganizationUpdate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1843,7 +1840,7 @@ class OrganizationsApi:
 
         _param = self._organizations_update_serialize(
             org_id=org_id,
-            organizations_update_request=organizations_update_request,
+            organization_update=organization_update,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1874,7 +1871,7 @@ class OrganizationsApi:
     def organizations_update_with_http_info(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
-        organizations_update_request: Annotated[OrganizationsUpdateRequest, Field(description="Body containing organization update parameters. At least one field must be provided.")],
+        organization_update: Annotated[OrganizationUpdate, Field(description="Body containing organization update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1890,12 +1887,12 @@ class OrganizationsApi:
     ) -> ApiResponse[Organization]:
         """Update an organization
 
-        Update an organization's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the account. - System-managed fields (`id`, `created_at`) cannot be modified.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update an organization's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the account. - System-managed fields (`id`, `created_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Platform Engineering Team\",   \"description\": \"Renamed from Agent Engineering Team\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param org_id: The unique identifier of the organization (required)
         :type org_id: str
-        :param organizations_update_request: Body containing organization update parameters. At least one field must be provided. (required)
-        :type organizations_update_request: OrganizationsUpdateRequest
+        :param organization_update: Body containing organization update parameters. At least one field must be provided. (required)
+        :type organization_update: OrganizationUpdate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1920,7 +1917,7 @@ class OrganizationsApi:
 
         _param = self._organizations_update_serialize(
             org_id=org_id,
-            organizations_update_request=organizations_update_request,
+            organization_update=organization_update,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1951,7 +1948,7 @@ class OrganizationsApi:
     def organizations_update_without_preload_content(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
-        organizations_update_request: Annotated[OrganizationsUpdateRequest, Field(description="Body containing organization update parameters. At least one field must be provided.")],
+        organization_update: Annotated[OrganizationUpdate, Field(description="Body containing organization update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1967,12 +1964,12 @@ class OrganizationsApi:
     ) -> RESTResponseType:
         """Update an organization
 
-        Update an organization's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the account. - System-managed fields (`id`, `created_at`) cannot be modified.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update an organization's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the account. - System-managed fields (`id`, `created_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Platform Engineering Team\",   \"description\": \"Renamed from Agent Engineering Team\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param org_id: The unique identifier of the organization (required)
         :type org_id: str
-        :param organizations_update_request: Body containing organization update parameters. At least one field must be provided. (required)
-        :type organizations_update_request: OrganizationsUpdateRequest
+        :param organization_update: Body containing organization update parameters. At least one field must be provided. (required)
+        :type organization_update: OrganizationUpdate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1997,7 +1994,7 @@ class OrganizationsApi:
 
         _param = self._organizations_update_serialize(
             org_id=org_id,
-            organizations_update_request=organizations_update_request,
+            organization_update=organization_update,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2023,7 +2020,7 @@ class OrganizationsApi:
     def _organizations_update_serialize(
         self,
         org_id,
-        organizations_update_request,
+        organization_update,
         _request_auth,
         _content_type,
         _headers,
@@ -2051,8 +2048,8 @@ class OrganizationsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if organizations_update_request is not None:
-            _body_params = organizations_update_request
+        if organization_update is not None:
+            _body_params = organization_update
 
 
         # set the HTTP header `Accept`

@@ -86,7 +86,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.RoleBindingsApi(api_client)
-    role_binding_create = {"role_id":"Rol001","user_id":"Usr001","resource_type":"SPACE","resource_id":"Spa001"} # RoleBindingCreate | Body containing role binding creation parameters.
+    role_binding_create = {"role_id":"Um9sZToxOmFCY0Q=","user_id":"VXNlcjo0MjphQmNE","resource_type":"SPACE","resource_id":"U3BhY2U6MTpWNEth"} # RoleBindingCreate | Body containing role binding creation parameters.
 
     try:
         # Create a role binding
@@ -366,7 +366,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.RoleBindingsApi(api_client)
     binding_id = 'Rbd001' # str | The unique identifier of the role binding.
-    role_binding_update = {"role_id":"Rol002"} # RoleBindingUpdate | Body containing role binding update parameters.
+    role_binding_update = {"role_id":"Um9sZToyOmFCY0Q="} # RoleBindingUpdate | Body containing role binding update parameters.
 
     try:
         # Update a role binding

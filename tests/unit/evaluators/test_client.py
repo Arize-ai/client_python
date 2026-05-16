@@ -8,6 +8,12 @@ from unittest.mock import Mock, patch
 import pytest
 
 from arize.evaluators.client import EvaluatorsClient
+from arize.evaluators.types import (
+    CodeConfig,
+    EvaluatorVersionCode,
+    EvaluatorVersionsList200Response,
+    EvaluatorWithVersion,
+)
 
 # Base64 ID that decodes to "Evaluator:123" — passes _is_resource_id()
 _EVALUATOR_ID = "RXZhbHVhdG9yOjEyMw=="
@@ -155,6 +161,15 @@ class TestEvaluatorsClientList:
 class TestEvaluatorsClientGet:
     """Tests for EvaluatorsClient.get()."""
 
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            EvaluatorWithVersion,
+            "model_validate",
+            side_effect=lambda v, **kw: v,
+        ):
+            yield
+
     def test_get_calls_api_with_evaluator_id(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
@@ -210,6 +225,15 @@ class TestEvaluatorsClientGet:
 @pytest.mark.unit
 class TestEvaluatorsClientCreateTemplate:
     """Tests for EvaluatorsClient.create_template_evaluator()."""
+
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            EvaluatorWithVersion,
+            "model_validate",
+            side_effect=lambda v, **kw: v,
+        ):
+            yield
 
     def test_create_template_builds_template_request(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
@@ -337,11 +361,20 @@ class TestEvaluatorsClientCreateTemplate:
 class TestEvaluatorsClientCreateCode:
     """Tests for EvaluatorsClient.create_code_evaluator()."""
 
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            EvaluatorWithVersion,
+            "model_validate",
+            side_effect=lambda v, **kw: v,
+        ):
+            yield
+
     def test_create_code_builds_code_request(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
         """create_code_evaluator() should build a code-type create request."""
-        mock_code_config = Mock()
+        mock_code_config = Mock(spec=CodeConfig)
 
         with (
             patch(
@@ -397,7 +430,7 @@ class TestEvaluatorsClientCreateCode:
                 name="code-eval",
                 space="U3BhY2U6OTA1MDoxSmtS",
                 commit_message="initial",
-                code_config=Mock(),
+                code_config=Mock(spec=CodeConfig),
             )
 
         assert result is expected
@@ -422,7 +455,7 @@ class TestEvaluatorsClientCreateCode:
                 name="code-eval",
                 space="U3BhY2U6OTA1MDoxSmtS",
                 commit_message="initial",
-                code_config=Mock(),
+                code_config=Mock(spec=CodeConfig),
             )
 
         assert any(
@@ -571,6 +604,15 @@ class TestEvaluatorsClientDelete:
 class TestEvaluatorsClientListVersions:
     """Tests for EvaluatorsClient.list_versions()."""
 
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            EvaluatorVersionsList200Response,
+            "model_validate",
+            side_effect=lambda v, **kw: v,
+        ):
+            yield
+
     def test_list_versions_calls_api_with_all_params(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
@@ -647,9 +689,9 @@ class TestEvaluatorsClientGetVersion:
     def test_get_version_returns_api_response(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """get_version() should propagate the return value."""
+        """get_version() should propagate the unwrapped return value."""
         expected = Mock()
-        mock_api.evaluator_versions_get.return_value = expected
+        mock_api.evaluator_versions_get.return_value.actual_instance = expected
 
         result = evaluators_client.get_version(version_id="ver-456")
 
@@ -717,9 +759,11 @@ class TestEvaluatorsClientCreateTemplateVersion:
     def test_create_template_version_returns_api_response(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """create_template_version() should propagate the return value."""
+        """create_template_version() should propagate the unwrapped return value."""
         expected = Mock()
-        mock_api.evaluator_versions_create.return_value = expected
+        mock_api.evaluator_versions_create.return_value.actual_instance = (
+            expected
+        )
 
         with (
             patch("arize._generated.api_client.EvaluatorVersionTemplateCreate"),
@@ -765,11 +809,20 @@ class TestEvaluatorsClientCreateTemplateVersion:
 class TestEvaluatorsClientCreateCodeVersion:
     """Tests for EvaluatorsClient.create_code_version()."""
 
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            EvaluatorVersionCode,
+            "model_validate",
+            side_effect=lambda v, **kw: v,
+        ):
+            yield
+
     def test_create_code_version_builds_code_version(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
         """create_code_version() should build a code version."""
-        mock_code_config = Mock()
+        mock_code_config = Mock(spec=CodeConfig)
 
         with (
             patch(
@@ -803,9 +856,11 @@ class TestEvaluatorsClientCreateCodeVersion:
     def test_create_code_version_returns_api_response(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """create_code_version() should propagate the return value."""
+        """create_code_version() should propagate the unwrapped return value."""
         expected = Mock()
-        mock_api.evaluator_versions_create.return_value = expected
+        mock_api.evaluator_versions_create.return_value.actual_instance = (
+            expected
+        )
 
         with (
             patch("arize._generated.api_client.EvaluatorVersionCodeCreate"),
@@ -814,7 +869,7 @@ class TestEvaluatorsClientCreateCodeVersion:
             result = evaluators_client.create_code_version(
                 evaluator=_EVALUATOR_ID,
                 commit_message="v2",
-                code_config=Mock(),
+                code_config=Mock(spec=CodeConfig),
             )
 
         assert result is expected
@@ -837,7 +892,7 @@ class TestEvaluatorsClientCreateCodeVersion:
             evaluators_client.create_code_version(
                 evaluator=_EVALUATOR_ID,
                 commit_message="v2",
-                code_config=Mock(),
+                code_config=Mock(spec=CodeConfig),
             )
 
         assert any(
@@ -900,6 +955,15 @@ def _make_real_code_config() -> object:
 class TestEvaluatorsClientCreateTemplateRealInstance:
     """Round-trip test using a real TemplateConfig for create_template_evaluator()."""
 
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            EvaluatorWithVersion,
+            "model_validate",
+            side_effect=lambda v, **kw: v,
+        ):
+            yield
+
     def test_create_template_real_instance_builds_valid_payload(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
@@ -921,6 +985,15 @@ class TestEvaluatorsClientCreateTemplateRealInstance:
 @pytest.mark.unit
 class TestEvaluatorsClientCreateCodeRealInstance:
     """Round-trip test using a real CodeConfig for create_code_evaluator()."""
+
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            EvaluatorWithVersion,
+            "model_validate",
+            side_effect=lambda v, **kw: v,
+        ):
+            yield
 
     def test_create_code_real_instance_builds_valid_payload(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
@@ -962,6 +1035,15 @@ class TestEvaluatorsClientCreateTemplateVersionRealInstance:
 @pytest.mark.unit
 class TestEvaluatorsClientCreateCodeVersionRealInstance:
     """Round-trip test using a real CodeConfig for create_code_version()."""
+
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            EvaluatorVersionCode,
+            "model_validate",
+            side_effect=lambda v, **kw: v,
+        ):
+            yield
 
     def test_create_code_version_real_instance_builds_valid_payload(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock

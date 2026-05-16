@@ -8,7 +8,10 @@ from unittest.mock import Mock, patch
 import pytest
 
 from arize.annotation_configs.client import AnnotationConfigsClient
-from arize.annotation_configs.types import AnnotationConfigType
+from arize.annotation_configs.types import (
+    AnnotationConfigsList200Response,
+    AnnotationConfigType,
+)
 
 
 @pytest.fixture
@@ -68,6 +71,15 @@ class TestAnnotationConfigsClientInit:
 @pytest.mark.unit
 class TestAnnotationConfigsClientList:
     """Tests for AnnotationConfigsClient.list()."""
+
+    @pytest.fixture(autouse=True)
+    def _bypass_model_validate(self) -> None:
+        with patch.object(
+            AnnotationConfigsList200Response,
+            "model_validate",
+            side_effect=lambda v, **kw: v,
+        ):
+            yield
 
     def test_list_with_space_id(
         self,
@@ -389,9 +401,11 @@ class TestAnnotationConfigsClientCreate:
     def test_create_returns_api_response(
         self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
     ) -> None:
-        """create() must return the response from the API."""
+        """create() must return the unwrapped actual_instance from the API response."""
         expected = Mock()
-        mock_api.annotation_configs_create.return_value = expected
+        mock_api.annotation_configs_create.return_value.actual_instance = (
+            expected
+        )
 
         with (
             patch("arize._generated.api_client.FreeformAnnotationConfigCreate"),

@@ -29,7 +29,7 @@ class ResponseFormatJsonSchema(BaseModel):
     name: Optional[StrictStr] = Field(default=None, description="The name of the JSON schema")
     description: Optional[StrictStr] = Field(default=None, description="A description of the JSON schema")
     var_schema: Optional[Dict[str, Any]] = Field(default=None, description="The JSON schema object", alias="schema")
-    strict: Optional[StrictBool] = Field(default=None, description="Whether to enforce strict schema validation")
+    strict: Optional[StrictBool] = Field(default=False, description="Whether to enforce strict schema validation. Defaults to `false`.")
     __properties: ClassVar[List[str]] = ["name", "description", "schema", "strict"]
 
     model_config = ConfigDict(
@@ -91,7 +91,7 @@ class ResponseFormatJsonSchema(BaseModel):
             "name": obj.get("name"),
             "description": obj.get("description"),
             "schema": obj.get("schema"),
-            "strict": obj.get("strict")
+            "strict": obj.get("strict") if obj.get("strict") is not None else False
         })
         return _obj
 

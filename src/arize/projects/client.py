@@ -113,11 +113,11 @@ class ProjectsClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.ProjectsCreateRequest(
+        body = gen.ProjectCreate(
             name=name,
             space_id=space_id,
         )
-        return self._api.projects_create(projects_create_request=body)
+        return self._api.projects_create(project_create=body)
 
     @prerelease_endpoint(key="projects.get", stage=ReleaseStage.BETA)
     def get(self, *, project: str, space: str | None = None) -> Project:

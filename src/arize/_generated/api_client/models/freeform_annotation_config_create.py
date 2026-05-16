@@ -28,7 +28,7 @@ class FreeformAnnotationConfigCreate(BaseModel):
     """ # noqa: E501
     name: StrictStr = Field(description="Name of the new annotation config")
     space_id: StrictStr = Field(description="ID of the space the annotation config will belong to")
-    annotation_config_type: StrictStr
+    annotation_config_type: StrictStr = Field(description="Discriminator value identifying a freeform annotation config.")
     __properties: ClassVar[List[str]] = ["name", "space_id", "annotation_config_type"]
 
     @field_validator('annotation_config_type')

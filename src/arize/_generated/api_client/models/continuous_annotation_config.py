@@ -32,10 +32,10 @@ class ContinuousAnnotationConfig(BaseModel):
     name: StrictStr = Field(description="The name of the annotation config")
     created_at: datetime = Field(description="The timestamp for when the annotation config was created")
     space_id: StrictStr = Field(description="The space id the annotation config belongs to")
-    type: StrictStr
+    type: StrictStr = Field(description="Discriminator value identifying a continuous annotation config.")
     minimum_score: Union[StrictFloat, StrictInt] = Field(description="The minimum score value")
     maximum_score: Union[StrictFloat, StrictInt] = Field(description="The maximum score value")
-    optimization_direction: Optional[OptimizationDirection] = None
+    optimization_direction: Optional[OptimizationDirection] = OptimizationDirection.NONE
     __properties: ClassVar[List[str]] = ["id", "name", "created_at", "space_id", "type", "minimum_score", "maximum_score", "optimization_direction"]
 
     @field_validator('type')
@@ -108,7 +108,7 @@ class ContinuousAnnotationConfig(BaseModel):
             "type": obj.get("type"),
             "minimum_score": obj.get("minimum_score"),
             "maximum_score": obj.get("maximum_score"),
-            "optimization_direction": obj.get("optimization_direction")
+            "optimization_direction": obj.get("optimization_direction") if obj.get("optimization_direction") is not None else OptimizationDirection.NONE
         })
         return _obj
 

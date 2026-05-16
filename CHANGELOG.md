@@ -1,5 +1,19 @@
 # Changelog
 
+## [8.27.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.26.0...arize-python-sdk/v8.27.0) (2026-05-15)
+
+
+### 🎁 New Features
+
+* **api-keys:** `ArizeClient.api_keys.create_service_key()` and full API keys docs ([#71842](https://github.com/Arize-ai/arize/issues/71842)) ([6090c4e](https://github.com/Arize-ai/arize/commit/6090c4efb9477118a7f7ba0ae5a7cb3222315114))
+* **users:** `ArizeClient.users.bulk_delete()` bulk convenience method ([#71843](https://github.com/Arize-ai/arize/issues/71843)) ([e87668a](https://github.com/Arize-ai/arize/commit/e87668a2ca22f0829f3a297b96c2d83aaf8868e9))
+* **users:** `ArizeClient.users.find(email=...)` for exact email lookup ([#71841](https://github.com/Arize-ai/arize/issues/71841)) ([d103eb7](https://github.com/Arize-ai/arize/commit/d103eb70144a3e69de86f01180b54a4459d65f62))
+
+
+### 💫 Code Refactoring
+
+* **openapi:** add OrganizationCreate and OrganizationUpdate component ([22821e1](https://github.com/Arize-ai/arize/commit/22821e1aca1c137d51bc64d0e867cd2892b44666))
+
 ## [8.26.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.25.0...arize-python-sdk/v8.26.0) (2026-05-14)
 
 

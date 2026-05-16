@@ -30,6 +30,22 @@ Add a single existing account user to an organization with a specified role.
 
 Requires organization admin.
 
+**Valid example**
+```json
+{
+  "user_id": "VXNlcjo0MjphQmNE",
+  "role": "member"
+}
+```
+
+**Invalid example** (annotator account user assigned non-annotator org role — returns 400)
+```json
+{
+  "user_id": "VXNlcjo0MjphQmNE",
+  "role": "admin"
+}
+```
+
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
 
@@ -113,7 +129,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **organizations_create**
-> Organization organizations_create(organizations_create_request)
+> Organization organizations_create(organization_create)
 
 Create an organization
 
@@ -124,14 +140,19 @@ Create a new organization within the account.
 - `description` is optional and defaults to an empty string if omitted.
 - System-managed fields (`id`, `created_at`) are generated automatically and rejected if provided.
 
-**Example valid request:**
+**Valid example**
 ```json
-{ "name": "Agent Engineering Team", "description": "Organization for the Agent Engineering team" }
+{
+  "name": "Agent Engineering Team",
+  "description": "Organization for the Agent Engineering team"
+}
 ```
 
-**Example invalid request (duplicate name):**
+**Invalid example** (duplicate name)
 ```json
-{ "name": "Agent Engineering Team" }
+{
+  "name": "Agent Engineering Team"
+}
 ```
 Fails with 409 Conflict if an organization with that name already exists in the account.
 
@@ -145,7 +166,7 @@ Fails with 409 Conflict if an organization with that name already exists in the 
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.organization import Organization
-from arize._generated.api_client.models.organizations_create_request import OrganizationsCreateRequest
+from arize._generated.api_client.models.organization_create import OrganizationCreate
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -169,11 +190,11 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.OrganizationsApi(api_client)
-    organizations_create_request = {"name":"Agent Engineering Team","description":"Organization for the Agent Engineering team"} # OrganizationsCreateRequest | Body containing organization creation parameters
+    organization_create = {"name":"Agent Engineering Team","description":"Organization for the Agent Engineering team"} # OrganizationCreate | Body containing organization creation parameters
 
     try:
         # Create an organization
-        api_response = api_instance.organizations_create(organizations_create_request)
+        api_response = api_instance.organizations_create(organization_create)
         print("The response of OrganizationsApi->organizations_create:\n")
         pprint(api_response)
     except Exception as e:
@@ -187,7 +208,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **organizations_create_request** | [**OrganizationsCreateRequest**](OrganizationsCreateRequest.md)| Body containing organization creation parameters | 
+ **organization_create** | [**OrganizationCreate**](OrganizationCreate.md)| Body containing organization creation parameters | 
 
 ### Return type
 
@@ -385,7 +406,6 @@ Name | Type | Description  | Notes
 **200** | An organization object |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
-**403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
@@ -568,7 +588,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **organizations_update**
-> Organization organizations_update(org_id, organizations_update_request)
+> Organization organizations_update(org_id, organization_update)
 
 Update an organization
 
@@ -578,6 +598,19 @@ Update an organization's metadata by its ID. At least one field must be provided
 - At least one of `name` or `description` must be provided.
 - If `name` is provided, it must be unique within the account.
 - System-managed fields (`id`, `created_at`) cannot be modified.
+
+**Valid example**
+```json
+{
+  "name": "Platform Engineering Team",
+  "description": "Renamed from Agent Engineering Team"
+}
+```
+
+**Invalid example** (no fields provided)
+```json
+{}
+```
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -589,7 +622,7 @@ Update an organization's metadata by its ID. At least one field must be provided
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.organization import Organization
-from arize._generated.api_client.models.organizations_update_request import OrganizationsUpdateRequest
+from arize._generated.api_client.models.organization_update import OrganizationUpdate
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -614,11 +647,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.OrganizationsApi(api_client)
     org_id = 'org_12345' # str | The unique identifier of the organization
-    organizations_update_request = {"name":"Updated Org Name","description":"Updated organization description"} # OrganizationsUpdateRequest | Body containing organization update parameters. At least one field must be provided.
+    organization_update = {"name":"Updated Org Name","description":"Updated organization description"} # OrganizationUpdate | Body containing organization update parameters. At least one field must be provided.
 
     try:
         # Update an organization
-        api_response = api_instance.organizations_update(org_id, organizations_update_request)
+        api_response = api_instance.organizations_update(org_id, organization_update)
         print("The response of OrganizationsApi->organizations_update:\n")
         pprint(api_response)
     except Exception as e:
@@ -633,7 +666,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **org_id** | **str**| The unique identifier of the organization | 
- **organizations_update_request** | [**OrganizationsUpdateRequest**](OrganizationsUpdateRequest.md)| Body containing organization update parameters. At least one field must be provided. | 
+ **organization_update** | [**OrganizationUpdate**](OrganizationUpdate.md)| Body containing organization update parameters. At least one field must be provided. | 
 
 ### Return type
 

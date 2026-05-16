@@ -20,10 +20,10 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.annotate_spans_request_body import AnnotateSpansRequestBody
+from arize._generated.api_client.models.delete_spans_request import DeleteSpansRequest
+from arize._generated.api_client.models.list_spans_request import ListSpansRequest
 from arize._generated.api_client.models.spans_delete200_response import SpansDelete200Response
-from arize._generated.api_client.models.spans_delete_request import SpansDeleteRequest
 from arize._generated.api_client.models.spans_list200_response import SpansList200Response
-from arize._generated.api_client.models.spans_list_request import SpansListRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -335,7 +335,7 @@ class SpansApi:
     @validate_call
     def spans_delete(
         self,
-        spans_delete_request: Annotated[SpansDeleteRequest, Field(description="Body containing span IDs to delete")],
+        delete_spans_request: Annotated[DeleteSpansRequest, Field(description="Body containing span IDs to delete")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -353,8 +353,8 @@ class SpansApi:
 
         Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the supported lookback window were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param spans_delete_request: Body containing span IDs to delete (required)
-        :type spans_delete_request: SpansDeleteRequest
+        :param delete_spans_request: Body containing span IDs to delete (required)
+        :type delete_spans_request: DeleteSpansRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -378,7 +378,7 @@ class SpansApi:
         """ # noqa: E501
 
         _param = self._spans_delete_serialize(
-            spans_delete_request=spans_delete_request,
+            delete_spans_request=delete_spans_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -409,7 +409,7 @@ class SpansApi:
     @validate_call
     def spans_delete_with_http_info(
         self,
-        spans_delete_request: Annotated[SpansDeleteRequest, Field(description="Body containing span IDs to delete")],
+        delete_spans_request: Annotated[DeleteSpansRequest, Field(description="Body containing span IDs to delete")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -427,8 +427,8 @@ class SpansApi:
 
         Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the supported lookback window were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param spans_delete_request: Body containing span IDs to delete (required)
-        :type spans_delete_request: SpansDeleteRequest
+        :param delete_spans_request: Body containing span IDs to delete (required)
+        :type delete_spans_request: DeleteSpansRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -452,7 +452,7 @@ class SpansApi:
         """ # noqa: E501
 
         _param = self._spans_delete_serialize(
-            spans_delete_request=spans_delete_request,
+            delete_spans_request=delete_spans_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -483,7 +483,7 @@ class SpansApi:
     @validate_call
     def spans_delete_without_preload_content(
         self,
-        spans_delete_request: Annotated[SpansDeleteRequest, Field(description="Body containing span IDs to delete")],
+        delete_spans_request: Annotated[DeleteSpansRequest, Field(description="Body containing span IDs to delete")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -501,8 +501,8 @@ class SpansApi:
 
         Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the supported lookback window were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param spans_delete_request: Body containing span IDs to delete (required)
-        :type spans_delete_request: SpansDeleteRequest
+        :param delete_spans_request: Body containing span IDs to delete (required)
+        :type delete_spans_request: DeleteSpansRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -526,7 +526,7 @@ class SpansApi:
         """ # noqa: E501
 
         _param = self._spans_delete_serialize(
-            spans_delete_request=spans_delete_request,
+            delete_spans_request=delete_spans_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -552,7 +552,7 @@ class SpansApi:
 
     def _spans_delete_serialize(
         self,
-        spans_delete_request,
+        delete_spans_request,
         _request_auth,
         _content_type,
         _headers,
@@ -578,8 +578,8 @@ class SpansApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if spans_delete_request is not None:
-            _body_params = spans_delete_request
+        if delete_spans_request is not None:
+            _body_params = delete_spans_request
 
 
         # set the HTTP header `Accept`
@@ -631,7 +631,7 @@ class SpansApi:
     @validate_call
     def spans_list(
         self,
-        spans_list_request: Annotated[SpansListRequest, Field(description="Body containing span query parameters")],
+        list_spans_request: Annotated[ListSpansRequest, Field(description="Body containing span query parameters")],
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -651,8 +651,8 @@ class SpansApi:
 
         Returns a paginated list of spans.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param spans_list_request: Body containing span query parameters (required)
-        :type spans_list_request: SpansListRequest
+        :param list_spans_request: Body containing span query parameters (required)
+        :type list_spans_request: ListSpansRequest
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -680,7 +680,7 @@ class SpansApi:
         """ # noqa: E501
 
         _param = self._spans_list_serialize(
-            spans_list_request=spans_list_request,
+            list_spans_request=list_spans_request,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -711,7 +711,7 @@ class SpansApi:
     @validate_call
     def spans_list_with_http_info(
         self,
-        spans_list_request: Annotated[SpansListRequest, Field(description="Body containing span query parameters")],
+        list_spans_request: Annotated[ListSpansRequest, Field(description="Body containing span query parameters")],
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -731,8 +731,8 @@ class SpansApi:
 
         Returns a paginated list of spans.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param spans_list_request: Body containing span query parameters (required)
-        :type spans_list_request: SpansListRequest
+        :param list_spans_request: Body containing span query parameters (required)
+        :type list_spans_request: ListSpansRequest
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -760,7 +760,7 @@ class SpansApi:
         """ # noqa: E501
 
         _param = self._spans_list_serialize(
-            spans_list_request=spans_list_request,
+            list_spans_request=list_spans_request,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -791,7 +791,7 @@ class SpansApi:
     @validate_call
     def spans_list_without_preload_content(
         self,
-        spans_list_request: Annotated[SpansListRequest, Field(description="Body containing span query parameters")],
+        list_spans_request: Annotated[ListSpansRequest, Field(description="Body containing span query parameters")],
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -811,8 +811,8 @@ class SpansApi:
 
         Returns a paginated list of spans.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param spans_list_request: Body containing span query parameters (required)
-        :type spans_list_request: SpansListRequest
+        :param list_spans_request: Body containing span query parameters (required)
+        :type list_spans_request: ListSpansRequest
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -840,7 +840,7 @@ class SpansApi:
         """ # noqa: E501
 
         _param = self._spans_list_serialize(
-            spans_list_request=spans_list_request,
+            list_spans_request=list_spans_request,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -866,7 +866,7 @@ class SpansApi:
 
     def _spans_list_serialize(
         self,
-        spans_list_request,
+        list_spans_request,
         limit,
         cursor,
         _request_auth,
@@ -902,8 +902,8 @@ class SpansApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if spans_list_request is not None:
-            _body_params = spans_list_request
+        if list_spans_request is not None:
+            _body_params = list_spans_request
 
 
         # set the HTTP header `Accept`

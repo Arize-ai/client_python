@@ -17,21 +17,18 @@ import pprint
 import re  # noqa: F401
 import json
 
-from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SpansListRequest(BaseModel):
+class ProjectCreate(BaseModel):
     """
-    SpansListRequest
+    ProjectCreate
     """ # noqa: E501
-    project_id: StrictStr = Field(description="The project ID to list spans for")
-    start_time: Optional[datetime] = Field(default=None, description="Filter to spans starting at or after this timestamp (inclusive). ISO 8601 format (e.g., `2024-01-01T00:00:00Z`). Defaults to 1 week ago. ")
-    end_time: Optional[datetime] = Field(default=None, description="Filter to spans starting before this timestamp (exclusive). ISO 8601 format (e.g., `2024-01-02T00:00:00Z`). Defaults to the current time. ")
-    filter: Optional[StrictStr] = Field(default=None, description="Filter expression to apply to the query. Supports SQL-like syntax for filtering spans by attributes (e.g., `status_code = 'ERROR'`). ")
-    __properties: ClassVar[List[str]] = ["project_id", "start_time", "end_time", "filter"]
+    name: StrictStr = Field(description="Name of the project (must be unique within the space)")
+    space_id: StrictStr = Field(description="ID of the space to create the project in")
+    __properties: ClassVar[List[str]] = ["name", "space_id"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -51,7 +48,7 @@ class SpansListRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SpansListRequest from a JSON string"""
+        """Create an instance of ProjectCreate from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -76,7 +73,7 @@ class SpansListRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SpansListRequest from a dict"""
+        """Create an instance of ProjectCreate from a dict"""
         if obj is None:
             return None
 
@@ -86,13 +83,11 @@ class SpansListRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in SpansListRequest) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in ProjectCreate) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "project_id": obj.get("project_id"),
-            "start_time": obj.get("start_time"),
-            "end_time": obj.get("end_time"),
-            "filter": obj.get("filter")
+            "name": obj.get("name"),
+            "space_id": obj.get("space_id")
         })
         return _obj
 

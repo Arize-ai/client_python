@@ -13,8 +13,8 @@ Name | Type | Description | Notes
 **frequency_penalty** | **float** | Frequency penalty (-2.0 to 2.0) | [optional] 
 **presence_penalty** | **float** | Presence penalty (-2.0 to 2.0) | [optional] 
 **stop** | **List[str]** | Stop sequences | [optional] 
-**response_format** | [**ResponseFormat**](ResponseFormat.md) |  | [optional] 
-**tool_config** | [**ToolConfig**](ToolConfig.md) |  | [optional] 
+**response_format** | [**ResponseFormat**](ResponseFormat.md) | Response format configuration. Optional. When omitted, no structured output constraint is applied (the provider&#39;s default plain-text behavior is used). | [optional] 
+**tool_config** | [**ToolConfig**](ToolConfig.md) | Tool configuration for the LLM invocation. Optional. When omitted, no tools are made available to the model. | [optional] 
 
 ## Example
 

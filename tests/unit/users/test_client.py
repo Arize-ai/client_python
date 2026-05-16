@@ -13,7 +13,9 @@ if TYPE_CHECKING:
 
 from arize.users.client import UsersClient
 from arize.users.types import (
+    BulkUserDeletionResult,
     CustomUserRole,
+    DeletionStatus,
     PredefinedUserRole,
     User,
     UserRole,
@@ -156,27 +158,99 @@ class TestUsersClientList:
 class TestUsersClientGet:
     """Tests for UsersClient.get()."""
 
-    def test_get_calls_api_with_user_id(
+    def test_get_by_id_calls_api(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
-        """get() should pass user_id to users_get."""
-        users_client.get(user_id="user-12345")
+        """get() with an ID should pass it directly to users_get."""
+        users_client.get(user="user-12345")
 
         mock_api.users_get.assert_called_once_with(user_id="user-12345")
 
-    def test_get_returns_domain_user(
+    def test_get_by_id_returns_domain_user(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
-        """get() should convert the raw API response to a domain User."""
+        """get() by ID should convert the raw API response to a domain User."""
         raw = Mock()
         mock_api.users_get.return_value = raw
         domain = Mock()
         with patch.object(
             User, "model_validate", return_value=domain
         ) as mock_conv:
-            result = users_client.get(user_id="user-12345")
+            result = users_client.get(user="user-12345")
         mock_conv.assert_called_once_with(raw, from_attributes=True)
         assert result is domain
+
+    def test_get_by_email_returns_matching_user(
+        self, users_client: UsersClient
+    ) -> None:
+        """get() with an email returns the user whose email matches exactly."""
+        target = Mock()
+        target.email = "alice@example.com"
+        other = Mock()
+        other.email = "bob@example.com"
+        with patch.object(
+            users_client,
+            "list",
+            return_value=Mock(users=[other, target]),
+        ):
+            result = users_client.get(user="alice@example.com")
+        assert result is target
+
+    def test_get_by_email_returns_none_when_no_match(
+        self, users_client: UsersClient
+    ) -> None:
+        """get() with an email returns None when no exact match is found."""
+        user = Mock()
+        user.email = "bob@example.com"
+        with patch.object(
+            users_client,
+            "list",
+            return_value=Mock(users=[user]),
+        ):
+            result = users_client.get(user="alice@example.com")
+        assert result is None
+
+    def test_get_by_email_case_insensitive(
+        self, users_client: UsersClient
+    ) -> None:
+        """Email comparison in get() should be case-insensitive."""
+        target = Mock()
+        target.email = "Alice@Example.COM"
+        with patch.object(
+            users_client,
+            "list",
+            return_value=Mock(users=[target]),
+        ):
+            result = users_client.get(user="alice@example.com")
+        assert result is target
+
+    def test_get_by_email_no_false_positive_on_substring(
+        self, users_client: UsersClient
+    ) -> None:
+        """get() by email must not return a user whose email is only a substring match."""
+        user = Mock()
+        user.email = "xfoo@bar.com"
+        with patch.object(
+            users_client,
+            "list",
+            return_value=Mock(users=[user]),
+        ):
+            result = users_client.get(user="foo@bar.com")
+        assert result is None
+
+    def test_get_by_email_does_not_call_users_get_api(
+        self, users_client: UsersClient, mock_api: Mock
+    ) -> None:
+        """get() with an email should resolve via list(), not users_get."""
+        target = Mock()
+        target.email = "alice@example.com"
+        with patch.object(
+            users_client,
+            "list",
+            return_value=Mock(users=[target]),
+        ):
+            users_client.get(user="alice@example.com")
+        mock_api.users_get.assert_not_called()
 
     def test_get_emits_alpha_prerelease_warning(
         self,
@@ -189,7 +263,7 @@ class TestUsersClientGet:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        users_client.get(user_id="user-12345")
+        users_client.get(user="user-12345")
 
         assert any(
             "ALPHA" in record.message and "users.get" in record.message
@@ -606,5 +680,157 @@ class TestUsersClientResetPassword:
         assert any(
             "ALPHA" in record.message
             and "users.reset_password" in record.message
+            for record in caplog.records
+        )
+
+
+# ---------------------------------------------------------------------------
+# Helpers for bulk_delete tests
+# ---------------------------------------------------------------------------
+
+
+def _make_users_list_response(
+    users: list[tuple[str, str]],
+) -> Mock:
+    """Return a mock ``users_list`` API response.
+
+    Each tuple is ``(user_id, email)``.  The response has a
+    ``pagination`` with no ``next_cursor`` so the resolver stops
+    after one page.
+    """
+    resp = Mock()
+    resp.users = []
+    for uid, em in users:
+        u = Mock()
+        u.id = uid
+        u.email = em
+        resp.users.append(u)
+    resp.pagination = Mock(spec=["next_cursor"])
+    resp.pagination.next_cursor = None
+    return resp
+
+
+@pytest.mark.unit
+class TestUsersClientBulkDelete:
+    """Tests for UsersClient.bulk_delete()."""
+
+    def test_bulk_delete_by_ids(
+        self, users_client: UsersClient, mock_api: Mock
+    ) -> None:
+        """Providing user_ids should delete each and return 'deleted'."""
+        mock_api.users_delete.return_value = None
+
+        results = users_client.bulk_delete(user_ids=["u1", "u2"])
+
+        assert len(results) == 2
+        assert all(r.status == DeletionStatus.DELETED for r in results)
+        assert [r.id for r in results] == ["u1", "u2"]
+        assert mock_api.users_delete.call_count == 2
+
+    def test_bulk_delete_by_emails(
+        self, users_client: UsersClient, mock_api: Mock
+    ) -> None:
+        """Emails should be resolved then deleted."""
+        mock_api.users_list.return_value = _make_users_list_response(
+            [("resolved-1", "alice@example.com")]
+        )
+        mock_api.users_delete.return_value = None
+
+        results = users_client.bulk_delete(emails=["alice@example.com"])
+
+        assert len(results) == 1
+        assert results[0] == BulkUserDeletionResult(
+            id="resolved-1", status=DeletionStatus.DELETED
+        )
+
+    def test_bulk_delete_email_not_found(
+        self, users_client: UsersClient, mock_api: Mock
+    ) -> None:
+        """Unresolvable emails should produce a 'not_found' entry."""
+        mock_api.users_list.return_value = _make_users_list_response([])
+
+        results = users_client.bulk_delete(emails=["ghost@example.com"])
+
+        assert len(results) == 1
+        assert results[0].id == "ghost@example.com"
+        assert results[0].status == DeletionStatus.NOT_FOUND
+        assert results[0].error is not None
+
+    def test_bulk_delete_partial_failure(
+        self, users_client: UsersClient, mock_api: Mock
+    ) -> None:
+        """One success and one failure in a single results list."""
+
+        def _side_effect(*, user_id: str) -> None:
+            if user_id == "bad":
+                raise RuntimeError("API exploded")
+
+        mock_api.users_delete.side_effect = _side_effect
+
+        results = users_client.bulk_delete(user_ids=["good", "bad"])
+
+        assert len(results) == 2
+        assert results[0] == BulkUserDeletionResult(
+            id="good", status=DeletionStatus.DELETED
+        )
+        assert results[1].id == "bad"
+        assert results[1].status == DeletionStatus.FAILED
+        assert "API exploded" in (results[1].error or "")
+
+    def test_bulk_delete_raises_if_no_args(
+        self, users_client: UsersClient
+    ) -> None:
+        """Calling with neither user_ids nor emails raises ValueError."""
+        with pytest.raises(ValueError, match="At least one"):
+            users_client.bulk_delete()
+
+    def test_bulk_delete_email_case_insensitive(
+        self, users_client: UsersClient, mock_api: Mock
+    ) -> None:
+        """Email resolution should be case-insensitive."""
+        mock_api.users_list.return_value = _make_users_list_response(
+            [("uid-1", "Alice@Example.COM")]
+        )
+        mock_api.users_delete.return_value = None
+
+        results = users_client.bulk_delete(emails=["alice@example.com"])
+
+        assert len(results) == 1
+        assert results[0].id == "uid-1"
+        assert results[0].status == "deleted"
+
+    def test_bulk_delete_logs_not_found_emails(
+        self,
+        users_client: UsersClient,
+        mock_api: Mock,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """Unresolvable emails should log a warning."""
+        mock_api.users_list.return_value = _make_users_list_response([])
+        caplog.set_level(logging.WARNING)
+
+        users_client.bulk_delete(emails=["ghost@example.com"])
+
+        assert any(
+            "ghost@example.com" in record.message for record in caplog.records
+        )
+
+    def test_bulk_delete_emits_alpha_prerelease_warning(
+        self,
+        users_client: UsersClient,
+        mock_api: Mock,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the ALPHA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        mock_api.users_delete.return_value = None
+        users_client.bulk_delete(user_ids=["u1"])
+
+        assert any(
+            "ALPHA" in record.message and "users.bulk_delete" in record.message
             for record in caplog.records
         )

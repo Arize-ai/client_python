@@ -6,7 +6,17 @@ import logging
 import time
 from typing import TYPE_CHECKING, Any, Final
 
+from arize._generated.api_client.models.run_configuration import (
+    RunConfiguration,
+)
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
+from arize.tasks.types import (
+    LlmGenerationRunConfig,
+    Task,
+    TasksList200Response,
+    TaskType,
+    TemplateEvaluationRunConfig,
+)
 from arize.utils.resolve import (
     _find_dataset_id,
     _find_project_id,
@@ -19,18 +29,12 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from arize._generated.api_client.api_client import ApiClient
-    from arize._generated.api_client.models.run_configuration import (
-        RunConfiguration,
-    )
     from arize.config import SDKConfiguration
     from arize.tasks.types import (
         BaseEvaluationTaskRequestEvaluatorsInner,
         RunStatus,
-        Task,
         TaskRun,
-        TasksList200Response,
         TasksListRuns200Response,
-        TaskType,
     )
 
 logger = logging.getLogger(__name__)
@@ -78,6 +82,39 @@ class TasksClient:
         self._api = gen.TasksApi(generated_client)
         self._projects_api = gen.ProjectsApi(generated_client)
         self._datasets_api = gen.DatasetsApi(generated_client)
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _coerce_run_configuration(
+        item: RunConfiguration
+        | LlmGenerationRunConfig
+        | TemplateEvaluationRunConfig
+        | dict,
+    ) -> RunConfiguration:
+        """Normalize a run configuration to a properly wrapped ``RunConfiguration``.
+
+        Accepts:
+        - An already-wrapped ``RunConfiguration`` (returned as-is).
+        - An unwrapped inner type (``LlmGenerationRunConfig`` or
+          ``TemplateEvaluationRunConfig``), which is wrapped automatically.
+        - A plain ``dict`` whose keys match one of the inner schemas; parsed via
+          ``RunConfiguration.from_dict``.
+        """
+        if isinstance(item, RunConfiguration):
+            return item
+        if isinstance(
+            item, (LlmGenerationRunConfig, TemplateEvaluationRunConfig)
+        ):
+            return RunConfiguration(item)
+        if isinstance(item, dict):
+            return RunConfiguration.from_dict(item)
+        raise TypeError(
+            f"run_configuration must be RunConfiguration, LlmGenerationRunConfig, "
+            f"TemplateEvaluationRunConfig, or dict; got {type(item)!r}"
+        )
 
     # -------------------------------------------------------------------------
     # Tasks
@@ -143,7 +180,7 @@ class TasksClient:
             else None
         )
         resolved_space = _resolve_resource(space)
-        return self._api.tasks_list(
+        result = self._api.tasks_list(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=name,
@@ -153,6 +190,7 @@ class TasksClient:
             limit=limit,
             cursor=cursor,
         )
+        return TasksList200Response.model_validate(result, from_attributes=True)
 
     @prerelease_endpoint(key="tasks.get", stage=ReleaseStage.ALPHA)
     def get(self, *, task: str, space: str | None = None) -> Task:
@@ -176,7 +214,8 @@ class TasksClient:
             task=task,
             space=space,
         )
-        return self._api.tasks_get(task_id=task_id)
+        result = self._api.tasks_get(task_id=task_id)
+        return Task.model_validate(result, from_attributes=True)
 
     def _create(
         self,
@@ -185,7 +224,11 @@ class TasksClient:
         task_type: TaskType,
         evaluators: builtins.list[BaseEvaluationTaskRequestEvaluatorsInner]
         | None = None,
-        run_configuration: RunConfiguration | None = None,
+        run_configuration: RunConfiguration
+        | LlmGenerationRunConfig
+        | TemplateEvaluationRunConfig
+        | dict
+        | None = None,
         project: str | None = None,
         dataset: str | None = None,
         space: str | None = None,
@@ -293,10 +336,13 @@ class TasksClient:
                 name=name,
                 type="run_experiment",
                 dataset_id=run_exp_dataset_id,
-                run_configuration=run_configuration,
+                run_configuration=self._coerce_run_configuration(
+                    run_configuration
+                ),
             )
             body = gen.TasksCreateRequest(actual_instance=run_exp_inner)
-            return self._api.tasks_create(tasks_create_request=body)
+            result = self._api.tasks_create(tasks_create_request=body)
+            return Task.model_validate(result, from_attributes=True)
         if run_configuration is not None:
             raise ValueError(
                 f"'run_configuration' is only valid for run_experiment tasks, "
@@ -341,7 +387,8 @@ class TasksClient:
             query_filter=query_filter,
         )
         body = gen.TasksCreateRequest(actual_instance=eval_inner)
-        return self._api.tasks_create(tasks_create_request=body)
+        result = self._api.tasks_create(tasks_create_request=body)
+        return Task.model_validate(result, from_attributes=True)
 
     @prerelease_endpoint(
         key="tasks.create_evaluation_task", stage=ReleaseStage.ALPHA
@@ -423,7 +470,10 @@ class TasksClient:
         *,
         name: str,
         dataset: str,
-        run_configuration: RunConfiguration,
+        run_configuration: RunConfiguration
+        | LlmGenerationRunConfig
+        | TemplateEvaluationRunConfig
+        | dict,
         space: str | None = None,
     ) -> Task:
         """Create a new ``run_experiment`` task.
@@ -453,8 +503,6 @@ class TasksClient:
         Raises:
             ApiException: If the API request fails.
         """
-        from arize.tasks.types import TaskType
-
         return self._create(
             name=name,
             task_type=TaskType.RUN_EXPERIMENT,
@@ -477,7 +525,11 @@ class TasksClient:
         evaluators: builtins.list[BaseEvaluationTaskRequestEvaluatorsInner]
         | _Missing = _MISSING,
         # run_experiment-task fields
-        run_configuration: RunConfiguration | _Missing = _MISSING,
+        run_configuration: RunConfiguration
+        | LlmGenerationRunConfig
+        | TemplateEvaluationRunConfig
+        | dict
+        | _Missing = _MISSING,
     ) -> Task:
         """Update mutable fields on an existing task.
 
@@ -559,7 +611,9 @@ class TasksClient:
             if not isinstance(name, _Missing):
                 run_exp_payload["name"] = name
             if not isinstance(run_configuration, _Missing):
-                run_exp_payload["run_configuration"] = run_configuration
+                run_exp_payload["run_configuration"] = (
+                    self._coerce_run_configuration(run_configuration)
+                )
             if not run_exp_payload:
                 raise ValueError(
                     "At least one update field must be provided for "
@@ -595,10 +649,11 @@ class TasksClient:
             inner = gen.UpdateEvaluationTaskRequest(**eval_payload)
             body = gen.TasksUpdateRequest(actual_instance=inner)
 
-        return self._api.tasks_update(
+        result = self._api.tasks_update(
             task_id=task_id,
             tasks_update_request=body,
         )
+        return Task.model_validate(result, from_attributes=True)
 
     @prerelease_endpoint(key="tasks.delete", stage=ReleaseStage.ALPHA)
     def delete(self, *, task: str, space: str | None = None) -> None:

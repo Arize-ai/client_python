@@ -66,18 +66,8 @@ class TestPromptVersion(unittest.TestCase):
                     stop = [
                         ''
                         ], 
-                    response_format = arize._generated.api_client.models.response_format.ResponseFormat(
-                        type = 'text', 
-                        json_schema = arize._generated.api_client.models.response_format_json_schema.ResponseFormat_json_schema(
-                            name = '', 
-                            description = '', 
-                            schema = arize._generated.api_client.models.schema.schema(), 
-                            strict = True, ), ), 
-                    tool_config = arize._generated.api_client.models.tool_config.ToolConfig(
-                        tools = [
-                            None
-                            ], 
-                        tool_choice = null, ), ),
+                    response_format = null, 
+                    tool_config = null, ),
                 provider_params = arize._generated.api_client.models.provider_params.ProviderParams(
                     azure_params = arize._generated.api_client.models.provider_params_azure_params.ProviderParams_azure_params(
                         azure_deployment_name = '', 

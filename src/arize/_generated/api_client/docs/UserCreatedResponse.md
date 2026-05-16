@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 **role** | [**UserRoleAssignment**](UserRoleAssignment.md) |  | 
 **created_at** | **datetime** | Timestamp for when the user was created | 
 **status** | [**UserStatus**](UserStatus.md) |  | 
-**is_developer** | **bool** | Whether the user has developer permissions (can create GraphQL API keys) | 
+**is_developer** | **bool** | Whether the user has developer permissions (can use the Arize API) | 
 **invite_mode** | [**InviteMode**](InviteMode.md) | The invite mode used when the user was created. | 
 **temporary_password** | **str** | Temporary password issued when &#x60;invite_mode&#x60; is &#x60;temporary_password&#x60;. Only present in the &#x60;POST /v2/users&#x60; 201 Created response.  **Security notice:** this value is returned in the JSON response body (not out-of-band). Callers must treat it as a secret: avoid logging the full response, ensure transport is TLS-only, and instruct the user to change the password on first login.  | [optional] 
 

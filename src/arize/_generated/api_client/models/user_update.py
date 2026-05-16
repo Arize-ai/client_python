@@ -28,7 +28,7 @@ class UserUpdate(BaseModel):
     UserUpdate
     """ # noqa: E501
     name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = Field(default=None, description="Updated display name for the user")
-    is_developer: Optional[StrictBool] = Field(default=None, description="Set to true to grant developer permissions, or false to revoke them.")
+    is_developer: Optional[StrictBool] = Field(default=None, description="Set to `true` to grant developer permissions, or `false` to revoke them. When omitted, the current value is preserved.")
     __properties: ClassVar[List[str]] = ["name", "is_developer"]
 
     model_config = ConfigDict(

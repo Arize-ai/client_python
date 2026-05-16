@@ -35,7 +35,7 @@ class User(BaseModel):
     created_at: datetime = Field(description="Timestamp for when the user was created")
     status: UserStatus
     role: UserRoleAssignment
-    is_developer: StrictBool = Field(description="Whether the user has developer permissions (can create GraphQL API keys)")
+    is_developer: StrictBool = Field(description="Whether the user has developer permissions (can use the Arize API)")
     __properties: ClassVar[List[str]] = ["id", "name", "email", "created_at", "status", "role", "is_developer"]
 
     model_config = ConfigDict(

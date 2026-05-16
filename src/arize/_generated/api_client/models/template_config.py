@@ -33,7 +33,7 @@ class TemplateConfig(BaseModel):
     include_explanations: StrictBool = Field(description="Whether to include explanations in the evaluation output")
     use_function_calling_if_available: StrictBool = Field(description="Whether to use function calling if the model supports it")
     classification_choices: Optional[Dict[str, Union[StrictFloat, StrictInt]]] = Field(default=None, description="Map of choice label to numeric score (e.g. {\"relevant\": 1, \"irrelevant\": 0}). When omitted, the evaluator produces freeform (non-classification) output.")
-    direction: Optional[OptimizationDirection] = None
+    direction: Optional[OptimizationDirection] = OptimizationDirection.NONE
     data_granularity: Optional[StrictStr] = Field(default=None, description="Data granularity level. Defaults to null when omitted.")
     llm_config: EvaluatorLlmConfig
     __properties: ClassVar[List[str]] = ["name", "template", "include_explanations", "use_function_calling_if_available", "classification_choices", "direction", "data_granularity", "llm_config"]
@@ -122,7 +122,7 @@ class TemplateConfig(BaseModel):
             "include_explanations": obj.get("include_explanations"),
             "use_function_calling_if_available": obj.get("use_function_calling_if_available"),
             "classification_choices": obj.get("classification_choices"),
-            "direction": obj.get("direction"),
+            "direction": obj.get("direction") if obj.get("direction") is not None else OptimizationDirection.NONE,
             "data_granularity": obj.get("data_granularity"),
             "llm_config": EvaluatorLlmConfig.from_dict(obj["llm_config"]) if obj.get("llm_config") is not None else None
         })

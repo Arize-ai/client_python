@@ -121,6 +121,7 @@ __all__ = [
     "DatasetsExamplesUpdateRequest",
     "DatasetsList200Response",
     "DeleteAnnotationQueueRecordsRequestBody",
+    "DeleteSpansRequest",
     "Evaluation",
     "Evaluator",
     "EvaluatorLlmConfig",
@@ -151,6 +152,7 @@ __all__ = [
     "InviteMode",
     "InvocationParams",
     "LLMMessage",
+    "ListSpansRequest",
     "LlmGenerationRunConfig",
     "LlmProvider",
     "ManagedCodeConfig",
@@ -158,6 +160,7 @@ __all__ = [
     "MessageRole",
     "OptimizationDirection",
     "Organization",
+    "OrganizationCreate",
     "OrganizationCustomRoleAssignment",
     "OrganizationMembership",
     "OrganizationMembershipInput",
@@ -165,16 +168,15 @@ __all__ = [
     "OrganizationRole",
     "OrganizationRoleAssignment",
     "OrganizationRoleAssignmentType",
-    "OrganizationsCreateRequest",
+    "OrganizationUpdate",
     "OrganizationsList200Response",
-    "OrganizationsUpdateRequest",
     "PaginationMetadata",
     "Permission",
     "PredefinedRoleAssignment",
     "PredefinedUserRoleAssignment",
     "Problem",
     "Project",
-    "ProjectsCreateRequest",
+    "ProjectCreate",
     "ProjectsList200Response",
     "Prompt",
     "PromptVersion",
@@ -192,8 +194,8 @@ __all__ = [
     "ProviderParamsAzureParams",
     "ProviderParamsBedrockOptions",
     "ResourceRestriction",
+    "ResourceRestrictionCreate",
     "ResourceRestrictionsCreate200Response",
-    "ResourceRestrictionsCreateRequest",
     "ResponseFormat",
     "ResponseFormatJsonSchema",
     "ResponseFormatType",
@@ -219,9 +221,7 @@ __all__ = [
     "SpanEvent",
     "SpansDelete200Response",
     "SpansDelete500Response",
-    "SpansDeleteRequest",
     "SpansList200Response",
-    "SpansListRequest",
     "StaticParam",
     "StaticParamDefaultValue",
     "Task",
@@ -362,6 +362,7 @@ from arize._generated.api_client.models.datasets_examples_list200_response impor
 from arize._generated.api_client.models.datasets_examples_update_request import DatasetsExamplesUpdateRequest as DatasetsExamplesUpdateRequest
 from arize._generated.api_client.models.datasets_list200_response import DatasetsList200Response as DatasetsList200Response
 from arize._generated.api_client.models.delete_annotation_queue_records_request_body import DeleteAnnotationQueueRecordsRequestBody as DeleteAnnotationQueueRecordsRequestBody
+from arize._generated.api_client.models.delete_spans_request import DeleteSpansRequest as DeleteSpansRequest
 from arize._generated.api_client.models.evaluation import Evaluation as Evaluation
 from arize._generated.api_client.models.evaluator import Evaluator as Evaluator
 from arize._generated.api_client.models.evaluator_llm_config import EvaluatorLlmConfig as EvaluatorLlmConfig
@@ -392,6 +393,7 @@ from arize._generated.api_client.models.input_variable_format import InputVariab
 from arize._generated.api_client.models.invite_mode import InviteMode as InviteMode
 from arize._generated.api_client.models.invocation_params import InvocationParams as InvocationParams
 from arize._generated.api_client.models.llm_message import LLMMessage as LLMMessage
+from arize._generated.api_client.models.list_spans_request import ListSpansRequest as ListSpansRequest
 from arize._generated.api_client.models.llm_generation_run_config import LlmGenerationRunConfig as LlmGenerationRunConfig
 from arize._generated.api_client.models.llm_provider import LlmProvider as LlmProvider
 from arize._generated.api_client.models.managed_code_config import ManagedCodeConfig as ManagedCodeConfig
@@ -399,6 +401,7 @@ from arize._generated.api_client.models.managed_code_evaluator import ManagedCod
 from arize._generated.api_client.models.message_role import MessageRole as MessageRole
 from arize._generated.api_client.models.optimization_direction import OptimizationDirection as OptimizationDirection
 from arize._generated.api_client.models.organization import Organization as Organization
+from arize._generated.api_client.models.organization_create import OrganizationCreate as OrganizationCreate
 from arize._generated.api_client.models.organization_custom_role_assignment import OrganizationCustomRoleAssignment as OrganizationCustomRoleAssignment
 from arize._generated.api_client.models.organization_membership import OrganizationMembership as OrganizationMembership
 from arize._generated.api_client.models.organization_membership_input import OrganizationMembershipInput as OrganizationMembershipInput
@@ -406,16 +409,15 @@ from arize._generated.api_client.models.organization_predefined_role_assignment 
 from arize._generated.api_client.models.organization_role import OrganizationRole as OrganizationRole
 from arize._generated.api_client.models.organization_role_assignment import OrganizationRoleAssignment as OrganizationRoleAssignment
 from arize._generated.api_client.models.organization_role_assignment_type import OrganizationRoleAssignmentType as OrganizationRoleAssignmentType
-from arize._generated.api_client.models.organizations_create_request import OrganizationsCreateRequest as OrganizationsCreateRequest
+from arize._generated.api_client.models.organization_update import OrganizationUpdate as OrganizationUpdate
 from arize._generated.api_client.models.organizations_list200_response import OrganizationsList200Response as OrganizationsList200Response
-from arize._generated.api_client.models.organizations_update_request import OrganizationsUpdateRequest as OrganizationsUpdateRequest
 from arize._generated.api_client.models.pagination_metadata import PaginationMetadata as PaginationMetadata
 from arize._generated.api_client.models.permission import Permission as Permission
 from arize._generated.api_client.models.predefined_role_assignment import PredefinedRoleAssignment as PredefinedRoleAssignment
 from arize._generated.api_client.models.predefined_user_role_assignment import PredefinedUserRoleAssignment as PredefinedUserRoleAssignment
 from arize._generated.api_client.models.problem import Problem as Problem
 from arize._generated.api_client.models.project import Project as Project
-from arize._generated.api_client.models.projects_create_request import ProjectsCreateRequest as ProjectsCreateRequest
+from arize._generated.api_client.models.project_create import ProjectCreate as ProjectCreate
 from arize._generated.api_client.models.projects_list200_response import ProjectsList200Response as ProjectsList200Response
 from arize._generated.api_client.models.prompt import Prompt as Prompt
 from arize._generated.api_client.models.prompt_version import PromptVersion as PromptVersion
@@ -433,8 +435,8 @@ from arize._generated.api_client.models.provider_params_anthropic_headers import
 from arize._generated.api_client.models.provider_params_azure_params import ProviderParamsAzureParams as ProviderParamsAzureParams
 from arize._generated.api_client.models.provider_params_bedrock_options import ProviderParamsBedrockOptions as ProviderParamsBedrockOptions
 from arize._generated.api_client.models.resource_restriction import ResourceRestriction as ResourceRestriction
+from arize._generated.api_client.models.resource_restriction_create import ResourceRestrictionCreate as ResourceRestrictionCreate
 from arize._generated.api_client.models.resource_restrictions_create200_response import ResourceRestrictionsCreate200Response as ResourceRestrictionsCreate200Response
-from arize._generated.api_client.models.resource_restrictions_create_request import ResourceRestrictionsCreateRequest as ResourceRestrictionsCreateRequest
 from arize._generated.api_client.models.response_format import ResponseFormat as ResponseFormat
 from arize._generated.api_client.models.response_format_json_schema import ResponseFormatJsonSchema as ResponseFormatJsonSchema
 from arize._generated.api_client.models.response_format_type import ResponseFormatType as ResponseFormatType
@@ -460,9 +462,7 @@ from arize._generated.api_client.models.span_context import SpanContext as SpanC
 from arize._generated.api_client.models.span_event import SpanEvent as SpanEvent
 from arize._generated.api_client.models.spans_delete200_response import SpansDelete200Response as SpansDelete200Response
 from arize._generated.api_client.models.spans_delete500_response import SpansDelete500Response as SpansDelete500Response
-from arize._generated.api_client.models.spans_delete_request import SpansDeleteRequest as SpansDeleteRequest
 from arize._generated.api_client.models.spans_list200_response import SpansList200Response as SpansList200Response
-from arize._generated.api_client.models.spans_list_request import SpansListRequest as SpansListRequest
 from arize._generated.api_client.models.static_param import StaticParam as StaticParam
 from arize._generated.api_client.models.static_param_default_value import StaticParamDefaultValue as StaticParamDefaultValue
 from arize._generated.api_client.models.task import Task as Task

@@ -36,7 +36,7 @@ class UserCreatedResponse(BaseModel):
     role: UserRoleAssignment
     created_at: datetime = Field(description="Timestamp for when the user was created")
     status: UserStatus
-    is_developer: StrictBool = Field(description="Whether the user has developer permissions (can create GraphQL API keys)")
+    is_developer: StrictBool = Field(description="Whether the user has developer permissions (can use the Arize API)")
     invite_mode: InviteMode = Field(description="The invite mode used when the user was created.")
     temporary_password: Optional[SecretStr] = Field(default=None, description="Temporary password issued when `invite_mode` is `temporary_password`. Only present in the `POST /v2/users` 201 Created response.  **Security notice:** this value is returned in the JSON response body (not out-of-band). Callers must treat it as a secret: avoid logging the full response, ensure transport is TLS-only, and instruct the user to change the password on first login. ")
     __properties: ClassVar[List[str]] = ["id", "name", "email", "role", "created_at", "status", "is_developer", "invite_mode", "temporary_password"]

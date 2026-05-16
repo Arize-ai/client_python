@@ -35,8 +35,8 @@ class InvocationParams(BaseModel):
     frequency_penalty: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Frequency penalty (-2.0 to 2.0)")
     presence_penalty: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Presence penalty (-2.0 to 2.0)")
     stop: Optional[List[StrictStr]] = Field(default=None, description="Stop sequences")
-    response_format: Optional[ResponseFormat] = None
-    tool_config: Optional[ToolConfig] = None
+    response_format: Optional[ResponseFormat] = Field(default=None, description="Response format configuration. Optional. When omitted, no structured output constraint is applied (the provider's default plain-text behavior is used).")
+    tool_config: Optional[ToolConfig] = Field(default=None, description="Tool configuration for the LLM invocation. Optional. When omitted, no tools are made available to the model.")
     __properties: ClassVar[List[str]] = ["temperature", "max_tokens", "max_completion_tokens", "top_p", "frequency_penalty", "presence_penalty", "stop", "response_format", "tool_config"]
 
     model_config = ConfigDict(

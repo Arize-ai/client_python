@@ -20,7 +20,7 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.project import Project
-from arize._generated.api_client.models.projects_create_request import ProjectsCreateRequest
+from arize._generated.api_client.models.project_create import ProjectCreate
 from arize._generated.api_client.models.projects_list200_response import ProjectsList200Response
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
@@ -44,7 +44,7 @@ class ProjectsApi:
     @validate_call
     def projects_create(
         self,
-        projects_create_request: Annotated[ProjectsCreateRequest, Field(description="Body containing project creation parameters")],
+        project_create: Annotated[ProjectCreate, Field(description="Body containing project creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -62,8 +62,8 @@ class ProjectsApi:
 
         Create a new project given a name and space ID.  **Payload Requirements** - The project name must be unique within the given space.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param projects_create_request: Body containing project creation parameters (required)
-        :type projects_create_request: ProjectsCreateRequest
+        :param project_create: Body containing project creation parameters (required)
+        :type project_create: ProjectCreate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -87,7 +87,7 @@ class ProjectsApi:
         """ # noqa: E501
 
         _param = self._projects_create_serialize(
-            projects_create_request=projects_create_request,
+            project_create=project_create,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -116,7 +116,7 @@ class ProjectsApi:
     @validate_call
     def projects_create_with_http_info(
         self,
-        projects_create_request: Annotated[ProjectsCreateRequest, Field(description="Body containing project creation parameters")],
+        project_create: Annotated[ProjectCreate, Field(description="Body containing project creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -134,8 +134,8 @@ class ProjectsApi:
 
         Create a new project given a name and space ID.  **Payload Requirements** - The project name must be unique within the given space.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param projects_create_request: Body containing project creation parameters (required)
-        :type projects_create_request: ProjectsCreateRequest
+        :param project_create: Body containing project creation parameters (required)
+        :type project_create: ProjectCreate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -159,7 +159,7 @@ class ProjectsApi:
         """ # noqa: E501
 
         _param = self._projects_create_serialize(
-            projects_create_request=projects_create_request,
+            project_create=project_create,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -188,7 +188,7 @@ class ProjectsApi:
     @validate_call
     def projects_create_without_preload_content(
         self,
-        projects_create_request: Annotated[ProjectsCreateRequest, Field(description="Body containing project creation parameters")],
+        project_create: Annotated[ProjectCreate, Field(description="Body containing project creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -206,8 +206,8 @@ class ProjectsApi:
 
         Create a new project given a name and space ID.  **Payload Requirements** - The project name must be unique within the given space.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param projects_create_request: Body containing project creation parameters (required)
-        :type projects_create_request: ProjectsCreateRequest
+        :param project_create: Body containing project creation parameters (required)
+        :type project_create: ProjectCreate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -231,7 +231,7 @@ class ProjectsApi:
         """ # noqa: E501
 
         _param = self._projects_create_serialize(
-            projects_create_request=projects_create_request,
+            project_create=project_create,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -255,7 +255,7 @@ class ProjectsApi:
 
     def _projects_create_serialize(
         self,
-        projects_create_request,
+        project_create,
         _request_auth,
         _content_type,
         _headers,
@@ -281,8 +281,8 @@ class ProjectsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if projects_create_request is not None:
-            _body_params = projects_create_request
+        if project_create is not None:
+            _body_params = project_create
 
 
         # set the HTTP header `Accept`

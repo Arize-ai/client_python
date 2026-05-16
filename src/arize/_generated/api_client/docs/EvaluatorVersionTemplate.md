@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **commit_message** | **str** | A message describing the changes in this version | 
 **created_at** | **datetime** | When this version was created | 
 **created_by_user_id** | **str** | The unique identifier for the user who created this version | 
-**type** | **str** |  | 
+**type** | **str** | Evaluator version type. Must be &#x60;template&#x60; for template evaluator versions; must match the parent evaluator&#39;s &#x60;type&#x60;. | 
 **template_config** | [**TemplateConfig**](TemplateConfig.md) |  | 
 
 ## Example

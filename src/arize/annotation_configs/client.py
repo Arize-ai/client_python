@@ -5,7 +5,11 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from arize.annotation_configs.types import AnnotationConfigType
+from arize._utils import unwrap_oneof
+from arize.annotation_configs.types import (
+    AnnotationConfigsList200Response,
+    AnnotationConfigType,
+)
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
     _find_annotation_config_id,
@@ -18,9 +22,10 @@ if TYPE_CHECKING:
 
     from arize._generated.api_client.api_client import ApiClient
     from arize.annotation_configs.types import (
-        AnnotationConfig,
-        AnnotationConfigsList200Response,
+        CategoricalAnnotationConfig,
         CategoricalAnnotationValue,
+        ContinuousAnnotationConfig,
+        FreeformAnnotationConfig,
         OptimizationDirection,
     )
     from arize.config import SDKConfiguration
@@ -88,12 +93,15 @@ class AnnotationConfigsClient:
                 returns an error response (e.g. 401/403/429).
         """
         resolved_space = _resolve_resource(space)
-        return self._api.annotation_configs_list(
+        result = self._api.annotation_configs_list(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=name,
             limit=limit,
             cursor=cursor,
+        )
+        return AnnotationConfigsList200Response.model_validate(
+            result, from_attributes=True
         )
 
     @prerelease_endpoint(
@@ -109,7 +117,11 @@ class AnnotationConfigsClient:
         maximum_score: float | int | None = None,
         values: builtins.list[CategoricalAnnotationValue] | None = None,
         optimization_direction: OptimizationDirection | None = None,
-    ) -> AnnotationConfig:
+    ) -> (
+        CategoricalAnnotationConfig
+        | ContinuousAnnotationConfig
+        | FreeformAnnotationConfig
+    ):
         """Create an annotation config.
 
         Supported config types:
@@ -174,14 +186,19 @@ class AnnotationConfigsClient:
                     annotation_config_type=AnnotationConfigType.FREEFORM.value,
                 )
             )
-        return self._api.annotation_configs_create(
+        result = self._api.annotation_configs_create(
             create_annotation_config_request_body=body
         )
+        return unwrap_oneof(result)  # type: ignore[return-value]
 
     @prerelease_endpoint(key="annotation_configs.get", stage=ReleaseStage.BETA)
     def get(
         self, *, annotation_config: str, space: str | None = None
-    ) -> AnnotationConfig:
+    ) -> (
+        CategoricalAnnotationConfig
+        | ContinuousAnnotationConfig
+        | FreeformAnnotationConfig
+    ):
         """Get an annotation config by ID or name.
 
         Args:
@@ -202,9 +219,10 @@ class AnnotationConfigsClient:
             annotation_config=annotation_config,
             space=space,
         )
-        return self._api.annotation_configs_get(
+        result = self._api.annotation_configs_get(
             annotation_config_id=annotation_config_id
         )
+        return unwrap_oneof(result)  # type: ignore[return-value]
 
     @prerelease_endpoint(
         key="annotation_configs.delete", stage=ReleaseStage.BETA

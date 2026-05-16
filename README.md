@@ -103,8 +103,15 @@
     - [Create a User](#create-a-user)
     - [Update a User](#update-a-user)
     - [Delete a User](#delete-a-user)
+    - [Bulk Delete Users](#bulk-delete-users)
     - [Resend a User Invitation](#resend-a-user-invitation)
     - [Reset a User's Password](#reset-a-users-password)
+  - [Operations on API Keys](#operations-on-api-keys)
+    - [List API Keys](#list-api-keys)
+    - [Create an API Key](#create-an-api-key)
+    - [Create a Service Key](#create-a-service-key)
+    - [Delete an API Key](#delete-an-api-key)
+    - [Refresh an API Key](#refresh-an-api-key)
 - [SDK Configuration](#sdk-configuration)
   - [Logging](#logging)
     - [In Code](#in-code)
@@ -1201,10 +1208,15 @@ user_list = resp.users
 
 ### Get a User
 
+Accepts either a user ID or an email address. When an email is provided, it
+is resolved to the matching user (returns `None` if no match is found).
+
 ```python
-user = client.users.get(
-    user_id="<user-id>",
-)
+# by ID
+user = client.users.get(user="<user-id>")
+
+# by email
+user = client.users.get(user="jane.smith@example.com")
 ```
 
 ### Create a User
@@ -1241,6 +1253,35 @@ client.users.delete(
 )
 ```
 
+### Bulk Delete Users
+
+> **Note:** This is an alpha endpoint. Enable it via the pre-release opt-in.
+
+Delete multiple users in a single call by ID, by email, or both. Returns a list of
+`BulkUserDeletionResult` objects recording the outcome of each attempt.
+
+```python
+from arize import ArizeClient, BulkUserDeletionResult
+
+client = ArizeClient(api_key=API_KEY)
+
+results = client.users.bulk_delete(
+    user_ids=["usr_abc123", "usr_def456"],   # Optional
+    emails=["alice@example.com"],             # Optional — resolved to IDs automatically
+)
+
+for result in results:
+    print(result.id, result.status, result.error)
+```
+
+Each `BulkUserDeletionResult` has:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `str` | User ID, or the email if the user could not be resolved |
+| `status` | `DeletionStatus` | `"deleted"`, `"not_found"`, or `"failed"` |
+| `error` | `str \| None` | Error message when `status` is `"not_found"` or `"failed"` |
+
 ### Resend a User Invitation
 
 ```python
@@ -1257,6 +1298,76 @@ Triggers a password-reset email. The user must authenticate via password (not SS
 client.users.reset_password(
     user_id="<user-id>",
 )
+```
+
+## Operations on API Keys
+
+Use `client.api_keys` to manage API keys in the Arize platform. Two key types are supported: **user** keys (authenticate as the creating user) and **service** keys (scoped to a specific space).
+
+> **Note:** The raw key value is only returned at creation time. Store it securely.
+
+### List API Keys
+
+```python
+resp = client.api_keys.list(
+    key_type=...,  # Optional, "user" or "service"
+    status=...,    # Optional, "active" or "deleted"
+    space=...,     # Optional, space ID or name (filters to service keys for that space)
+    user_id=...,   # Optional, filter by user (admin only for user keys)
+    limit=...,     # Optional, defaults to 50 (max 100)
+    cursor=...,    # Optional, pagination cursor from a previous response
+)
+api_key_list = resp.api_keys
+```
+
+### Create an API Key
+
+Creates a user-type key that authenticates as the creating user. For space-scoped service keys, use `create_service_key()` instead.
+
+```python
+created = client.api_keys.create(
+    name="my-api-key",
+    description=...,  # Optional
+    expires_at=...,   # Optional, must be a future timestamp
+)
+raw_key = created.key  # Store this securely — only returned once
+```
+
+### Create a Service Key
+
+Creates a service-type key scoped to a specific space, backed by a dedicated bot user. Role assignments default to `space_role="member"`, `org_role="read-only"`, `account_role="member"` when omitted. All roles must be at or below the caller's own privilege level.
+
+```python
+created = client.api_keys.create_service_key(
+    name="my-service-key",
+    space="<space-id-or-name>",
+    description=...,  # Optional
+    expires_at=...,   # Optional
+    space_role=...,   # Optional, "admin" | "member" | "read-only"
+    org_role=...,     # Optional, "admin" | "member" | "read-only"
+    account_role=..., # Optional, "admin" | "member"
+)
+raw_key = created.key  # Store this securely — only returned once
+```
+
+### Delete an API Key
+
+```python
+client.api_keys.delete(
+    api_key_id="<api-key-id>",
+)
+```
+
+### Refresh an API Key
+
+Atomically revokes the old key and issues a replacement with the same name, description, type, and scope.
+
+```python
+refreshed = client.api_keys.refresh(
+    api_key_id="<api-key-id>",
+    expires_at=...,  # Optional, new expiration for the replacement key
+)
+new_raw_key = refreshed.key  # Store securely — only returned once
 ```
 
 ## Operations on Annotation Configs

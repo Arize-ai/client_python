@@ -1,4 +1,4 @@
-# SpansListRequest
+# ListSpansRequest
 
 
 ## Properties
@@ -13,19 +13,19 @@ Name | Type | Description | Notes
 ## Example
 
 ```python
-from arize._generated.api_client.models.spans_list_request import SpansListRequest
+from arize._generated.api_client.models.list_spans_request import ListSpansRequest
 
 # TODO update the JSON string below
 json = "{}"
-# create an instance of SpansListRequest from a JSON string
-spans_list_request_instance = SpansListRequest.from_json(json)
+# create an instance of ListSpansRequest from a JSON string
+list_spans_request_instance = ListSpansRequest.from_json(json)
 # print the JSON string representation of the object
-print(SpansListRequest.to_json())
+print(ListSpansRequest.to_json())
 
 # convert the object into a dict
-spans_list_request_dict = spans_list_request_instance.to_dict()
-# create an instance of SpansListRequest from a dict
-spans_list_request_from_dict = SpansListRequest.from_dict(spans_list_request_dict)
+list_spans_request_dict = list_spans_request_instance.to_dict()
+# create an instance of ListSpansRequest from a dict
+list_spans_request_from_dict = ListSpansRequest.from_dict(list_spans_request_dict)
 ```
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

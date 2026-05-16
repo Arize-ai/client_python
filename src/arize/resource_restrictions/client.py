@@ -78,7 +78,7 @@ class ResourceRestrictionsClient:
         """
         from arize._generated import api_client as gen
 
-        body = gen.ResourceRestrictionsCreateRequest(resource_id=resource_id)
+        body = gen.ResourceRestrictionCreate(resource_id=resource_id)
         return self._api.resource_restrictions_create(body).resource_restriction
 
     @prerelease_endpoint(

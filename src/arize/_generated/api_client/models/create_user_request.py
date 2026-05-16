@@ -33,7 +33,7 @@ class CreateUserRequest(BaseModel):
     email: StrictStr = Field(description="Email address of the user to invite")
     role: UserRoleAssignment
     invite_mode: InviteMode = Field(description="Controls whether and how an invitation is sent")
-    is_developer: Optional[StrictBool] = Field(default=None, description="Whether the user should have developer permissions (can create GraphQL API keys). Defaults to `true` for `admin` and `member` roles, and `false` for `annotator`. ")
+    is_developer: Optional[StrictBool] = Field(default=None, description="Whether the user should have developer permissions (can use the Arize API). Defaults to `true` for `admin` and `member` roles, and `false` for `annotator`. ")
     __properties: ClassVar[List[str]] = ["name", "email", "role", "invite_mode", "is_developer"]
 
     model_config = ConfigDict(

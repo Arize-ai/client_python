@@ -5,6 +5,18 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+from arize._generated.api_client.models.evaluator_version_code import (
+    EvaluatorVersionCode as _GenEvaluatorVersionCode,
+)
+from arize._utils import unwrap_oneof
+from arize.evaluators.types import (
+    CodeConfig,
+    CustomCodeConfig,
+    EvaluatorVersionCode,
+    EvaluatorVersionsList200Response,
+    EvaluatorWithVersion,
+    ManagedCodeConfig,
+)
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
     _find_evaluator_id,
@@ -16,12 +28,9 @@ if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
     from arize.evaluators.types import (
-        CodeConfig,
         Evaluator,
         EvaluatorsList200Response,
-        EvaluatorVersion,
-        EvaluatorVersionsList200Response,
-        EvaluatorWithVersion,
+        EvaluatorVersionTemplate,
         TemplateConfig,
     )
 
@@ -56,6 +65,34 @@ class EvaluatorsClient:
 
         self._api = gen.EvaluatorsApi(generated_client)
         self._spaces_api = gen.SpacesApi(generated_client)
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _coerce_code_config(
+        item: CodeConfig | CustomCodeConfig | ManagedCodeConfig | dict,
+    ) -> CodeConfig:
+        """Normalize a code config to a properly wrapped ``CodeConfig``.
+
+        Accepts:
+        - An already-wrapped ``CodeConfig`` (returned as-is).
+        - An unwrapped inner type (``CustomCodeConfig`` or ``ManagedCodeConfig``),
+          which is wrapped automatically.
+        - A plain ``dict`` whose keys match one of the inner schemas; parsed via
+          ``CodeConfig.from_dict``.
+        """
+        if isinstance(item, CodeConfig):
+            return item
+        if isinstance(item, (CustomCodeConfig, ManagedCodeConfig)):
+            return CodeConfig(item)
+        if isinstance(item, dict):
+            return CodeConfig.from_dict(item)
+        raise TypeError(
+            f"code_config must be CodeConfig, CustomCodeConfig, ManagedCodeConfig, "
+            f"or dict; got {type(item)!r}"
+        )
 
     # -------------------------------------------------------------------------
     # Evaluators
@@ -132,10 +169,11 @@ class EvaluatorsClient:
             evaluator=evaluator,
             space=space,
         )
-        return self._api.evaluators_get(
+        result = self._api.evaluators_get(
             evaluator_id=evaluator_id,
             version_id=version_id,
         )
+        return EvaluatorWithVersion.model_validate(result, from_attributes=True)
 
     @prerelease_endpoint(
         key="evaluators.create_template", stage=ReleaseStage.ALPHA
@@ -201,7 +239,8 @@ class EvaluatorsClient:
             description=description,
             version=version,
         )
-        return self._api.evaluators_create(evaluators_create_request=body)
+        result = self._api.evaluators_create(evaluators_create_request=body)
+        return EvaluatorWithVersion.model_validate(result, from_attributes=True)
 
     @prerelease_endpoint(key="evaluators.create_code", stage=ReleaseStage.ALPHA)
     def create_code_evaluator(
@@ -210,7 +249,7 @@ class EvaluatorsClient:
         name: str,
         space: str,
         commit_message: str,
-        code_config: CodeConfig,
+        code_config: CodeConfig | CustomCodeConfig | ManagedCodeConfig | dict,
         description: str | None = None,
     ) -> EvaluatorWithVersion:
         """Create a new code evaluator with an initial version.
@@ -221,12 +260,11 @@ class EvaluatorsClient:
             name: Evaluator name (must be unique within the space).
             space: Space name or ID to create the evaluator in.
             commit_message: Commit message for the initial version.
-            code_config: Code configuration for the evaluator. Build with
-                :class:`arize.evaluators.types.ManagedCodeConfig` (for
-                built-in evaluators) or
-                :class:`arize.evaluators.types.CustomCodeConfig` (for custom
-                Python code). Wrap in
-                :class:`arize.evaluators.types.CodeConfig`.
+            code_config: Code configuration for the evaluator. Accepts a
+                :class:`arize.evaluators.types.CodeConfig` wrapper, an unwrapped
+                :class:`arize.evaluators.types.ManagedCodeConfig` or
+                :class:`arize.evaluators.types.CustomCodeConfig`, or a plain
+                ``dict`` matching one of those schemas.
             description: Optional human-readable description of the evaluator.
 
         Returns:
@@ -241,7 +279,7 @@ class EvaluatorsClient:
         version = gen.EvaluatorVersionCreate(
             gen.EvaluatorVersionCodeCreate(
                 commit_message=commit_message,
-                code_config=code_config,
+                code_config=self._coerce_code_config(code_config),
             )
         )
         space_id = _find_space_id(self._spaces_api, space)
@@ -252,7 +290,8 @@ class EvaluatorsClient:
             description=description,
             version=version,
         )
-        return self._api.evaluators_create(evaluators_create_request=body)
+        result = self._api.evaluators_create(evaluators_create_request=body)
+        return EvaluatorWithVersion.model_validate(result, from_attributes=True)
 
     @prerelease_endpoint(key="evaluators.update", stage=ReleaseStage.ALPHA)
     def update(
@@ -354,27 +393,38 @@ class EvaluatorsClient:
             evaluator=evaluator,
             space=space,
         )
-        return self._api.evaluator_versions_list(
+        result = self._api.evaluator_versions_list(
             evaluator_id=evaluator_id,
             limit=limit,
             cursor=cursor,
         )
+        return EvaluatorVersionsList200Response.model_validate(
+            result, from_attributes=True
+        )
 
     @prerelease_endpoint(key="evaluators.get_version", stage=ReleaseStage.ALPHA)
-    def get_version(self, *, version_id: str) -> EvaluatorVersion:
+    def get_version(
+        self, *, version_id: str
+    ) -> EvaluatorVersionCode | EvaluatorVersionTemplate:
         """Get a specific evaluator version by its global ID.
 
         Args:
             version_id: Evaluator version global ID (base64).
 
         Returns:
-            The evaluator version.
+            The evaluator version — a :class:`EvaluatorVersionCode` for code
+            evaluators (with ``code_config`` already unwrapped), or an
+            :class:`EvaluatorVersionTemplate` for template evaluators.
 
         Raises:
             ApiException: If the API request fails
                 (for example, version not found).
         """
-        return self._api.evaluator_versions_get(version_id=version_id)
+        result = self._api.evaluator_versions_get(version_id=version_id)
+        v = unwrap_oneof(result)
+        if isinstance(v, _GenEvaluatorVersionCode):
+            return EvaluatorVersionCode.model_validate(v, from_attributes=True)
+        return v  # type: ignore[return-value]
 
     @prerelease_endpoint(
         key="evaluators.create_template_version", stage=ReleaseStage.ALPHA
@@ -386,7 +436,7 @@ class EvaluatorsClient:
         space: str | None = None,
         commit_message: str,
         template_config: TemplateConfig,
-    ) -> EvaluatorVersion:
+    ) -> EvaluatorVersionTemplate:
         r"""Create a new template version of an existing evaluator.
 
         The new version becomes the latest version immediately (versioning is
@@ -420,10 +470,11 @@ class EvaluatorsClient:
                 template_config=template_config,
             )
         )
-        return self._api.evaluator_versions_create(
+        result = self._api.evaluator_versions_create(
             evaluator_id=evaluator_id,
             evaluator_version_create=body,
         )
+        return unwrap_oneof(result)  # type: ignore[return-value]
 
     @prerelease_endpoint(
         key="evaluators.create_code_version", stage=ReleaseStage.ALPHA
@@ -434,8 +485,8 @@ class EvaluatorsClient:
         evaluator: str,
         space: str | None = None,
         commit_message: str,
-        code_config: CodeConfig,
-    ) -> EvaluatorVersion:
+        code_config: CodeConfig | CustomCodeConfig | ManagedCodeConfig | dict,
+    ) -> EvaluatorVersionCode:
         """Create a new code version of an existing evaluator.
 
         The new version becomes the latest version immediately (versioning is
@@ -447,10 +498,11 @@ class EvaluatorsClient:
             space: Optional space name or ID. Required when ``evaluator`` is a
                 name rather than an ID.
             commit_message: Commit message describing the changes in this version.
-            code_config: Updated code configuration for this version. Build with
+            code_config: Updated code configuration for this version. Accepts a
+                :class:`arize.evaluators.types.CodeConfig` wrapper, an unwrapped
                 :class:`arize.evaluators.types.ManagedCodeConfig` or
-                :class:`arize.evaluators.types.CustomCodeConfig`. Wrap in
-                :class:`arize.evaluators.types.CodeConfig`.
+                :class:`arize.evaluators.types.CustomCodeConfig`, or a plain
+                ``dict`` matching one of those schemas.
 
         Returns:
             The newly created evaluator version.
@@ -468,10 +520,13 @@ class EvaluatorsClient:
         body = gen.EvaluatorVersionCreate(
             gen.EvaluatorVersionCodeCreate(
                 commit_message=commit_message,
-                code_config=code_config,
+                code_config=self._coerce_code_config(code_config),
             )
         )
-        return self._api.evaluator_versions_create(
+        result = self._api.evaluator_versions_create(
             evaluator_id=evaluator_id,
             evaluator_version_create=body,
+        )
+        return EvaluatorVersionCode.model_validate(
+            unwrap_oneof(result), from_attributes=True
         )

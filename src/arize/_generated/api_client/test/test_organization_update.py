@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.resource_restrictions_create_request import ResourceRestrictionsCreateRequest
+from arize._generated.api_client.models.organization_update import OrganizationUpdate
 
-class TestResourceRestrictionsCreateRequest(unittest.TestCase):
-    """ResourceRestrictionsCreateRequest unit test stubs"""
+class TestOrganizationUpdate(unittest.TestCase):
+    """OrganizationUpdate unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,26 +25,26 @@ class TestResourceRestrictionsCreateRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> ResourceRestrictionsCreateRequest:
-        """Test ResourceRestrictionsCreateRequest
+    def make_instance(self, include_optional) -> OrganizationUpdate:
+        """Test OrganizationUpdate
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `ResourceRestrictionsCreateRequest`
+        # uncomment below to create an instance of `OrganizationUpdate`
         """
-        model = ResourceRestrictionsCreateRequest()
+        model = OrganizationUpdate()
         if include_optional:
-            return ResourceRestrictionsCreateRequest(
-                resource_id = 'RW50aXR5OjEyMzQ1'
+            return OrganizationUpdate(
+                name = '0',
+                description = ''
             )
         else:
-            return ResourceRestrictionsCreateRequest(
-                resource_id = 'RW50aXR5OjEyMzQ1',
+            return OrganizationUpdate(
         )
         """
 
-    def testResourceRestrictionsCreateRequest(self):
-        """Test ResourceRestrictionsCreateRequest"""
+    def testOrganizationUpdate(self):
+        """Test OrganizationUpdate"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

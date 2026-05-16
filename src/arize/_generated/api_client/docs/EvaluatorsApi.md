@@ -28,6 +28,44 @@ version immediately (versioning is append-only).
   `code_config.type` is a separate inner discriminator (`managed` or `custom`) and is unrelated to the top-level `type`.
   Schema and constraints match Create Evaluator.
 
+**Valid example** (template version)
+```json
+{
+  "commit_message": "Improve prompt template for better accuracy",
+  "template_config": {
+    "name": "hallucination",
+    "template": "Given the input: {input}\nand output: {output}\nIs the output a hallucination? Explain your reasoning.",
+    "include_explanations": true,
+    "use_function_calling_if_available": true,
+    "classification_choices": {"hallucinated": 0, "factual": 1},
+    "llm_config": {
+      "ai_integration_id": "TGxtSW50ZWdyYXRpb246MTI6YUJjRA==",
+      "model_name": "gpt-4o",
+      "invocation_parameters": {"temperature": 0},
+      "provider_parameters": {}
+    }
+  }
+}
+```
+
+**Invalid example** (missing required `commit_message`)
+```json
+{
+  "template_config": {
+    "name": "hallucination",
+    "template": "Is this a hallucination?",
+    "include_explanations": false,
+    "use_function_calling_if_available": false,
+    "llm_config": {
+      "ai_integration_id": "TGxtSW50ZWdyYXRpb246MTI6YUJjRA==",
+      "model_name": "gpt-4o",
+      "invocation_parameters": {},
+      "provider_parameters": {}
+    }
+  }
+}
+```
+
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
 
@@ -190,7 +228,6 @@ Name | Type | Description  | Notes
 **200** | Returns an evaluator version |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
-**403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
@@ -303,6 +340,49 @@ Creates a new evaluator with an initial version.
 - For template evaluators: `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{"relevant": 1, "irrelevant": 0}`). When omitted, the evaluator produces freeform output.
 - For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: managed`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: custom`) use `code`, optional `imports`, and `variables`.
 - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.
+
+**Valid example** (template evaluator)
+```json
+{
+  "name": "Hallucination Detector",
+  "space_id": "U3BhY2U6MTpWNEth",
+  "type": "template",
+  "version": {
+    "commit_message": "Initial version",
+    "template_config": {
+      "name": "hallucination",
+      "template": "Given the input: {input}\nand the output: {output}\nIs the output a hallucination?",
+      "include_explanations": true,
+      "use_function_calling_if_available": true,
+      "classification_choices": {"hallucinated": 0, "factual": 1},
+      "llm_config": {
+        "ai_integration_id": "TGxtSW50ZWdyYXRpb246MTI6YUJjRA==",
+        "model_name": "gpt-4o",
+        "invocation_parameters": {"temperature": 0},
+        "provider_parameters": {}
+      }
+    }
+  }
+}
+```
+
+**Invalid example** (type/config mismatch — `template` type with `code_config`)
+```json
+{
+  "name": "Bad Evaluator",
+  "space_id": "U3BhY2U6MTpWNEth",
+  "type": "template",
+  "version": {
+    "commit_message": "Wrong config",
+    "code_config": {
+      "type": "custom",
+      "name": "my_eval",
+      "code": "class Evaluator: ...",
+      "variables": ["input"]
+    }
+  }
+}
+```
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -551,7 +631,6 @@ Name | Type | Description  | Notes
 **200** | Returns an evaluator with a resolved version |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
-**403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
@@ -660,6 +739,24 @@ Update evaluator
 
 Update an evaluator's metadata. At least one field must be provided.
 Omitted fields are left unchanged.
+
+**Payload Requirements**
+- At least one of `name` or `description` must be provided.
+- `name`, if provided, must be unique within the space.
+- System-managed fields (`id`, `type`, `space_id`, `created_at`, `updated_at`, `created_by_user_id`) cannot be modified.
+
+**Valid example**
+```json
+{
+  "name": "Hallucination Detector v2",
+  "description": "Updated evaluator for production hallucination checks"
+}
+```
+
+**Invalid example** (no updatable fields provided)
+```json
+{}
+```
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 

@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **name** | **str** | The name of the JSON schema | [optional] 
 **description** | **str** | A description of the JSON schema | [optional] 
 **var_schema** | **object** | The JSON schema object | [optional] 
-**strict** | **bool** | Whether to enforce strict schema validation | [optional] 
+**strict** | **bool** | Whether to enforce strict schema validation. Defaults to &#x60;false&#x60;. | [optional] [default to False]
 
 ## Example
 

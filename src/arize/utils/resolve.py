@@ -21,6 +21,7 @@ if TYPE_CHECKING:
         RolesApi,
         SpacesApi,
         TasksApi,
+        UsersApi,
     )
 
 logger = logging.getLogger(__name__)
@@ -748,3 +749,38 @@ def _find_role_id(api: RolesApi, role: str) -> str:
             break
 
     raise NotFoundError("role", role, available)
+
+
+def _find_user_id_by_email(api: UsersApi, email: str) -> str:
+    """Resolve a user email address to a user ID.
+
+    Performs a case-insensitive exact match against the ``email``
+    field, paginating through results until a match is found.
+
+    Args:
+        api: UsersApi instance.
+        email: Email address to look up.
+
+    Returns:
+        The resolved user ID.
+
+    Raises:
+        NotFoundError: If no user with the given email is found.
+    """
+    cursor: str | None = None
+
+    while True:
+        response = api.users_list(
+            email=email,
+            limit=_LIST_PAGE_SIZE,
+            cursor=cursor,
+        )
+        for u in response.users:
+            if u.email.lower() == email.lower():
+                logger.debug("Resolved user email '%s' → %s", email, u.id)
+                return u.id
+        cursor = getattr(response.pagination, "next_cursor", None)
+        if not cursor:
+            break
+
+    raise NotFoundError("user", email)

@@ -19,15 +19,17 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class ResourceRestrictionsCreateRequest(BaseModel):
+class DeleteSpansRequest(BaseModel):
     """
-    ResourceRestrictionsCreateRequest
+    DeleteSpansRequest
     """ # noqa: E501
-    resource_id: StrictStr = Field(description="The ID of the resource to restrict")
-    __properties: ClassVar[List[str]] = ["resource_id"]
+    project_id: StrictStr = Field(description="The project ID containing the spans to delete")
+    span_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=5000)] = Field(description="List of span IDs to delete (maximum 5000)")
+    __properties: ClassVar[List[str]] = ["project_id", "span_ids"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -47,7 +49,7 @@ class ResourceRestrictionsCreateRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ResourceRestrictionsCreateRequest from a JSON string"""
+        """Create an instance of DeleteSpansRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -72,7 +74,7 @@ class ResourceRestrictionsCreateRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ResourceRestrictionsCreateRequest from a dict"""
+        """Create an instance of DeleteSpansRequest from a dict"""
         if obj is None:
             return None
 
@@ -82,10 +84,11 @@ class ResourceRestrictionsCreateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in ResourceRestrictionsCreateRequest) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in DeleteSpansRequest) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "resource_id": obj.get("resource_id")
+            "project_id": obj.get("project_id"),
+            "span_ids": obj.get("span_ids")
         })
         return _obj
 

@@ -40,7 +40,7 @@ class TestCreateAnnotationConfigRequestBody(unittest.TestCase):
                 space_id = '',
                 minimum_score = 1.337,
                 maximum_score = 1.337,
-                optimization_direction = 'maximize',
+                optimization_direction = 'none',
                 values = [
                     arize._generated.api_client.models.categorical_annotation_value.CategoricalAnnotationValue(
                         label = '', 

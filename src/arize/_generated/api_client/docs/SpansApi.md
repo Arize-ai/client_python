@@ -156,7 +156,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **spans_delete**
-> SpansDelete200Response spans_delete(spans_delete_request)
+> SpansDelete200Response spans_delete(delete_spans_request)
 
 Delete spans
 
@@ -180,8 +180,8 @@ within the retry budget. Retry the original request for a correct result.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.delete_spans_request import DeleteSpansRequest
 from arize._generated.api_client.models.spans_delete200_response import SpansDelete200Response
-from arize._generated.api_client.models.spans_delete_request import SpansDeleteRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -205,11 +205,11 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpansApi(api_client)
-    spans_delete_request = {"project_id":"UHJvamVjdDox","span_ids":["a1b2c3d4e5f6a7b8","f8e7d6c5b4a39281"]} # SpansDeleteRequest | Body containing span IDs to delete
+    delete_spans_request = {"project_id":"UHJvamVjdDox","span_ids":["a1b2c3d4e5f6a7b8","f8e7d6c5b4a39281"]} # DeleteSpansRequest | Body containing span IDs to delete
 
     try:
         # Delete spans
-        api_response = api_instance.spans_delete(spans_delete_request)
+        api_response = api_instance.spans_delete(delete_spans_request)
         print("The response of SpansApi->spans_delete:\n")
         pprint(api_response)
     except Exception as e:
@@ -223,7 +223,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **spans_delete_request** | [**SpansDeleteRequest**](SpansDeleteRequest.md)| Body containing span IDs to delete | 
+ **delete_spans_request** | [**DeleteSpansRequest**](DeleteSpansRequest.md)| Body containing span IDs to delete | 
 
 ### Return type
 
@@ -254,7 +254,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **spans_list**
-> SpansList200Response spans_list(spans_list_request, limit=limit, cursor=cursor)
+> SpansList200Response spans_list(list_spans_request, limit=limit, cursor=cursor)
 
 List spans
 
@@ -269,8 +269,8 @@ Returns a paginated list of spans.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.list_spans_request import ListSpansRequest
 from arize._generated.api_client.models.spans_list200_response import SpansList200Response
-from arize._generated.api_client.models.spans_list_request import SpansListRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -294,13 +294,13 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpansApi(api_client)
-    spans_list_request = {"project_id":"my-project","start_time":"2024-01-01T00:00:00Z","end_time":"2024-01-02T00:00:00Z","filter":"status_code = 'ERROR'"} # SpansListRequest | Body containing span query parameters
+    list_spans_request = {"project_id":"my-project","start_time":"2024-01-01T00:00:00Z","end_time":"2024-01-02T00:00:00Z","filter":"status_code = 'ERROR'"} # ListSpansRequest | Body containing span query parameters
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
         # List spans
-        api_response = api_instance.spans_list(spans_list_request, limit=limit, cursor=cursor)
+        api_response = api_instance.spans_list(list_spans_request, limit=limit, cursor=cursor)
         print("The response of SpansApi->spans_list:\n")
         pprint(api_response)
     except Exception as e:
@@ -314,7 +314,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **spans_list_request** | [**SpansListRequest**](SpansListRequest.md)| Body containing span query parameters | 
+ **list_spans_request** | [**ListSpansRequest**](ListSpansRequest.md)| Body containing span query parameters | 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 

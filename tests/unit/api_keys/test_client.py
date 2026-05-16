@@ -159,13 +159,10 @@ class TestApiKeysClientList:
 class TestApiKeysClientCreate:
     """Tests for ApiKeysClient.create()."""
 
-    # Base64 ID that decodes to "Space:905:abc" — passes is_resource_id()
-    _SPACE_ID = "U3BhY2U6OTA1MDoxSmtS"
-
     def test_create_user_key_builds_request_and_calls_api(
         self, api_keys_client: ApiKeysClient, mock_api: Mock
     ) -> None:
-        """create() should build ApiKeyCreate and pass it to api_keys_create."""
+        """create() should build ApiKeyCreate with key_type='user'."""
         with patch(
             "arize._generated.api_client.ApiKeyCreate"
         ) as mock_request_cls:
@@ -179,7 +176,6 @@ class TestApiKeysClientCreate:
             description=None,
             key_type="user",
             expires_at=None,
-            space_id=None,
         )
         mock_api.api_keys_create.assert_called_once_with(
             api_key_create=mock_body
@@ -198,54 +194,19 @@ class TestApiKeysClientCreate:
             mock_request_cls.return_value = mock_body
 
             api_keys_client.create(
-                name="svc-key",
-                description="A service key",
-                key_type="service",
+                name="my-key",
+                description="A user key",
                 expires_at=expires,
-                space=self._SPACE_ID,
             )
 
         mock_request_cls.assert_called_once_with(
-            name="svc-key",
-            description="A service key",
-            key_type="service",
+            name="my-key",
+            description="A user key",
+            key_type="user",
             expires_at=expires,
-            space_id=self._SPACE_ID,
         )
         mock_api.api_keys_create.assert_called_once_with(
             api_key_create=mock_body
-        )
-
-    def test_create_with_space_name_resolves_to_id(
-        self, api_keys_client: ApiKeysClient, mock_api: Mock
-    ) -> None:
-        """create() should resolve a space name to an ID via _find_space_id."""
-        with (
-            patch(
-                "arize.api_keys.client._find_space_id",
-                return_value="resolved-space-id",
-            ) as mock_resolve,
-            patch(
-                "arize._generated.api_client.ApiKeyCreate"
-            ) as mock_request_cls,
-        ):
-            mock_request_cls.return_value = Mock()
-
-            api_keys_client.create(
-                name="svc-key",
-                key_type="service",
-                space="my-space",
-            )
-
-        mock_resolve.assert_called_once_with(
-            api_keys_client._spaces_api, "my-space"
-        )
-        mock_request_cls.assert_called_once_with(
-            name="svc-key",
-            description=None,
-            key_type="service",
-            expires_at=None,
-            space_id="resolved-space-id",
         )
 
     def test_create_returns_api_response(
@@ -276,6 +237,193 @@ class TestApiKeysClientCreate:
 
         assert any(
             "ALPHA" in record.message and "api_keys.create" in record.message
+            for record in caplog.records
+        )
+
+
+@pytest.mark.unit
+class TestApiKeysClientCreateServiceKey:
+    """Tests for ApiKeysClient.create_service_key()."""
+
+    # Base64 ID that decodes to "Space:905:abc" — passes is_resource_id()
+    _SPACE_ID = "U3BhY2U6OTA1MDoxSmtS"
+
+    def test_create_service_key_builds_request_and_calls_api(
+        self, api_keys_client: ApiKeysClient, mock_api: Mock
+    ) -> None:
+        """create_service_key() should build ApiKeyCreate with key_type='service'."""
+        with patch(
+            "arize._generated.api_client.ApiKeyCreate"
+        ) as mock_request_cls:
+            mock_body = Mock()
+            mock_request_cls.return_value = mock_body
+
+            api_keys_client.create_service_key(
+                name="svc-key", space=self._SPACE_ID
+            )
+
+        mock_request_cls.assert_called_once_with(
+            name="svc-key",
+            description=None,
+            key_type="service",
+            expires_at=None,
+            space_id=self._SPACE_ID,
+            roles=None,
+        )
+        mock_api.api_keys_create.assert_called_once_with(
+            api_key_create=mock_body
+        )
+
+    def test_create_service_key_with_roles(
+        self, api_keys_client: ApiKeysClient, mock_api: Mock
+    ) -> None:
+        """create_service_key() should build ApiKeyRoles when any role is set."""
+        with (
+            patch(
+                "arize._generated.api_client.ApiKeyCreate"
+            ) as mock_create_cls,
+            patch("arize._generated.api_client.ApiKeyRoles") as mock_roles_cls,
+        ):
+            mock_roles = Mock()
+            mock_roles_cls.return_value = mock_roles
+            mock_create_cls.return_value = Mock()
+
+            api_keys_client.create_service_key(
+                name="svc-key",
+                space=self._SPACE_ID,
+                space_role="admin",
+                org_role="read-only",
+                account_role="member",
+            )
+
+        mock_roles_cls.assert_called_once_with(
+            space_role="admin",
+            org_role="read-only",
+            account_role="member",
+        )
+        mock_create_cls.assert_called_once_with(
+            name="svc-key",
+            description=None,
+            key_type="service",
+            expires_at=None,
+            space_id=self._SPACE_ID,
+            roles=mock_roles,
+        )
+
+    def test_create_service_key_partial_roles(
+        self, api_keys_client: ApiKeysClient, mock_api: Mock
+    ) -> None:
+        """create_service_key() should build ApiKeyRoles when only one role is set."""
+        with (
+            patch(
+                "arize._generated.api_client.ApiKeyCreate"
+            ) as mock_create_cls,
+            patch("arize._generated.api_client.ApiKeyRoles") as mock_roles_cls,
+        ):
+            mock_roles_cls.return_value = Mock()
+            mock_create_cls.return_value = Mock()
+
+            api_keys_client.create_service_key(
+                name="svc-key",
+                space=self._SPACE_ID,
+                space_role="read-only",
+            )
+
+        mock_roles_cls.assert_called_once_with(
+            space_role="read-only",
+            org_role=None,
+            account_role=None,
+        )
+
+    def test_create_service_key_with_space_name_resolves_to_id(
+        self, api_keys_client: ApiKeysClient, mock_api: Mock
+    ) -> None:
+        """create_service_key() should resolve a space name via _find_space_id."""
+        with (
+            patch(
+                "arize.api_keys.client._find_space_id",
+                return_value="resolved-space-id",
+            ) as mock_resolve,
+            patch(
+                "arize._generated.api_client.ApiKeyCreate"
+            ) as mock_request_cls,
+        ):
+            mock_request_cls.return_value = Mock()
+
+            api_keys_client.create_service_key(name="svc-key", space="my-space")
+
+        mock_resolve.assert_called_once_with(
+            api_keys_client._spaces_api, "my-space"
+        )
+        mock_request_cls.assert_called_once_with(
+            name="svc-key",
+            description=None,
+            key_type="service",
+            expires_at=None,
+            space_id="resolved-space-id",
+            roles=None,
+        )
+
+    def test_create_service_key_with_all_params(
+        self, api_keys_client: ApiKeysClient, mock_api: Mock
+    ) -> None:
+        """create_service_key() should pass description and expires_at through."""
+        expires = datetime(2030, 1, 1, tzinfo=timezone.utc)
+
+        with patch(
+            "arize._generated.api_client.ApiKeyCreate"
+        ) as mock_request_cls:
+            mock_request_cls.return_value = Mock()
+
+            api_keys_client.create_service_key(
+                name="svc-key",
+                space=self._SPACE_ID,
+                description="My service key",
+                expires_at=expires,
+            )
+
+        mock_request_cls.assert_called_once_with(
+            name="svc-key",
+            description="My service key",
+            key_type="service",
+            expires_at=expires,
+            space_id=self._SPACE_ID,
+            roles=None,
+        )
+
+    def test_create_service_key_returns_api_response(
+        self, api_keys_client: ApiKeysClient, mock_api: Mock
+    ) -> None:
+        """create_service_key() should propagate the return value from api_keys_create."""
+        expected = Mock()
+        mock_api.api_keys_create.return_value = expected
+
+        with patch("arize._generated.api_client.ApiKeyCreate"):
+            result = api_keys_client.create_service_key(
+                name="svc-key", space=self._SPACE_ID
+            )
+
+        assert result is expected
+
+    def test_create_service_key_emits_alpha_prerelease_warning(
+        self,
+        api_keys_client: ApiKeysClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the ALPHA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        with patch("arize._generated.api_client.ApiKeyCreate"):
+            api_keys_client.create_service_key(
+                name="svc-key", space=self._SPACE_ID
+            )
+
+        assert any(
+            "ALPHA" in record.message
+            and "api_keys.create_service_key" in record.message
             for record in caplog.records
         )
 

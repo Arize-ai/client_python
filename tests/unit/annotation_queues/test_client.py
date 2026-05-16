@@ -11,6 +11,7 @@ from arize._generated.api_client.models.assignment_method import (
     AssignmentMethod,
 )
 from arize.annotation_queues.client import AnnotationQueuesClient
+from arize.annotation_queues.types import AnnotationQueueRecordInput
 
 # Base64 IDs that pass is_resource_id() — decode to "Type:123"
 _QUEUE_ID = "QW5ub3RhdGlvblF1ZXVlOjEyMw=="  # AnnotationQueue:123
@@ -452,7 +453,10 @@ class TestAnnotationQueuesClientAddRecords:
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
     ) -> None:
         """add_records() must build AddAnnotationQueueRecordsRequestBody."""
-        mock_sources = [Mock(), Mock()]
+        mock_sources = [
+            Mock(spec=AnnotationQueueRecordInput),
+            Mock(spec=AnnotationQueueRecordInput),
+        ]
 
         with patch(
             "arize._generated.api_client.AddAnnotationQueueRecordsRequestBody"
@@ -482,7 +486,8 @@ class TestAnnotationQueuesClientAddRecords:
             "arize._generated.api_client.AddAnnotationQueueRecordsRequestBody"
         ):
             result = annotation_queues_client.add_records(
-                annotation_queue=_QUEUE_ID, record_sources=[Mock()]
+                annotation_queue=_QUEUE_ID,
+                record_sources=[Mock(spec=AnnotationQueueRecordInput)],
             )
 
         assert result is expected

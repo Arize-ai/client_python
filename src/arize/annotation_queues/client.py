@@ -5,6 +5,11 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
+from arize.annotation_queues.types import (
+    AnnotationQueueExampleRecordInput,
+    AnnotationQueueRecordInput,
+    AnnotationQueueSpanRecordInput,
+)
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
     _find_annotation_queue_id,
@@ -21,7 +26,6 @@ if TYPE_CHECKING:
         AnnotationQueue,
         AnnotationQueueRecordAnnotateResult,
         AnnotationQueueRecordAssignResult,
-        AnnotationQueueRecordInput,
         AnnotationQueueRecordsList200Response,
         AnnotationQueuesList200Response,
         AnnotationQueuesRecordsCreate200Response,
@@ -61,6 +65,41 @@ class AnnotationQueuesClient:
 
         self._api = gen.AnnotationQueuesApi(generated_client)
         self._spaces_api = gen.SpacesApi(generated_client)
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _coerce_record_source(
+        item: AnnotationQueueRecordInput
+        | AnnotationQueueExampleRecordInput
+        | AnnotationQueueSpanRecordInput
+        | dict,
+    ) -> AnnotationQueueRecordInput:
+        """Normalize a record source to a properly wrapped ``AnnotationQueueRecordInput``.
+
+        Accepts:
+        - An already-wrapped ``AnnotationQueueRecordInput`` (returned as-is).
+        - An unwrapped inner type (``AnnotationQueueExampleRecordInput`` or
+          ``AnnotationQueueSpanRecordInput``), which is wrapped automatically.
+        - A plain ``dict`` whose keys match one of the inner schemas; parsed via
+          ``AnnotationQueueRecordInput.from_dict``.
+        """
+        if isinstance(item, AnnotationQueueRecordInput):
+            return item
+        if isinstance(
+            item,
+            (AnnotationQueueExampleRecordInput, AnnotationQueueSpanRecordInput),
+        ):
+            return AnnotationQueueRecordInput(item)
+        if isinstance(item, dict):
+            return AnnotationQueueRecordInput.from_dict(item)
+        raise TypeError(
+            f"record_sources items must be AnnotationQueueRecordInput, "
+            f"AnnotationQueueExampleRecordInput, AnnotationQueueSpanRecordInput, "
+            f"or dict; got {type(item)!r}"
+        )
 
     # ------------------------------------------------------------------
     # Queue management
@@ -146,7 +185,13 @@ class AnnotationQueuesClient:
         annotator_emails: builtins.list[str],
         instructions: str | None = None,
         assignment_method: AssignmentMethod | None = None,
-        record_sources: builtins.list[AnnotationQueueRecordInput] | None = None,
+        record_sources: builtins.list[
+            AnnotationQueueRecordInput
+            | AnnotationQueueExampleRecordInput
+            | AnnotationQueueSpanRecordInput
+            | dict
+        ]
+        | None = None,
     ) -> AnnotationQueue:
         """Create an annotation queue.
 
@@ -177,6 +222,12 @@ class AnnotationQueuesClient:
 
         space_id = _find_space_id(self._spaces_api, space)
 
+        coerced_sources = (
+            [self._coerce_record_source(s) for s in record_sources]
+            if record_sources is not None
+            else None
+        )
+
         body = gen.CreateAnnotationQueueRequestBody(
             name=name,
             space_id=space_id,
@@ -184,7 +235,7 @@ class AnnotationQueuesClient:
             annotator_emails=annotator_emails,
             instructions=instructions,
             assignment_method=assignment_method,
-            record_sources=record_sources,
+            record_sources=coerced_sources,
         )
         return self._api.annotation_queues_create(
             create_annotation_queue_request_body=body
@@ -349,7 +400,12 @@ class AnnotationQueuesClient:
         *,
         annotation_queue: str,
         space: str | None = None,
-        record_sources: builtins.list[AnnotationQueueRecordInput],
+        record_sources: builtins.list[
+            AnnotationQueueRecordInput
+            | AnnotationQueueExampleRecordInput
+            | AnnotationQueueSpanRecordInput
+            | dict
+        ],
     ) -> AnnotationQueuesRecordsCreate200Response:
         """Add records to an annotation queue.
 
@@ -383,8 +439,11 @@ class AnnotationQueuesClient:
             annotation_queue=annotation_queue,
             space=space,
         )
+        coerced_sources = [
+            self._coerce_record_source(s) for s in record_sources
+        ]
         body = gen.AddAnnotationQueueRecordsRequestBody(
-            record_sources=record_sources,
+            record_sources=coerced_sources,
         )
         return self._api.annotation_queues_records_create(
             annotation_queue_id=annotation_queue_id,

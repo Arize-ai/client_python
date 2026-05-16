@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.spans_delete_request import SpansDeleteRequest
+from arize._generated.api_client.models.project_create import ProjectCreate
 
-class TestSpansDeleteRequest(unittest.TestCase):
-    """SpansDeleteRequest unit test stubs"""
+class TestProjectCreate(unittest.TestCase):
+    """ProjectCreate unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,32 +25,28 @@ class TestSpansDeleteRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> SpansDeleteRequest:
-        """Test SpansDeleteRequest
+    def make_instance(self, include_optional) -> ProjectCreate:
+        """Test ProjectCreate
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `SpansDeleteRequest`
+        # uncomment below to create an instance of `ProjectCreate`
         """
-        model = SpansDeleteRequest()
+        model = ProjectCreate()
         if include_optional:
-            return SpansDeleteRequest(
-                project_id = '',
-                span_ids = [
-                    ''
-                    ]
+            return ProjectCreate(
+                name = '',
+                space_id = ''
             )
         else:
-            return SpansDeleteRequest(
-                project_id = '',
-                span_ids = [
-                    ''
-                    ],
+            return ProjectCreate(
+                name = '',
+                space_id = '',
         )
         """
 
-    def testSpansDeleteRequest(self):
-        """Test SpansDeleteRequest"""
+    def testProjectCreate(self):
+        """Test ProjectCreate"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

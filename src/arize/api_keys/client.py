@@ -19,6 +19,10 @@ if TYPE_CHECKING:
     )
     from arize.config import SDKConfiguration
 
+SpaceRole = Literal["admin", "member", "read-only"]
+OrgRole = Literal["admin", "member", "read-only"]
+AccountRole = Literal["admin", "member"]
+
 logger = logging.getLogger(__name__)
 
 
@@ -114,56 +118,109 @@ class ApiKeysClient:
         *,
         name: str,
         description: str | None = None,
-        key_type: Literal["user", "service"] = "user",
         expires_at: datetime | None = None,
-        space: str | None = None,
     ) -> ApiKeyCreated:
-        """Create a new API key.
+        """Create a new user API key.
 
-        Two key types are supported:
+        Creates a user-type key that authenticates as the creating user with
+        their full permissions. To create a space-scoped service key, use
+        :meth:`create_service_key` instead.
 
-        - ``"user"``: authenticates as the creating user with their full
-          permissions. ``space`` must not be set.
-        - ``"service"``: scoped to a specific space, backed by a dedicated
-          bot user with limited roles. ``space`` is required.
-
-        The returned :class:`~arize.api_keys.types.ApiKeyCreated`
-        object contains the full raw key value in its ``key`` field. **This is
-        the only time the raw key is returned.** Store it securely.
+        The returned ``ApiKeyCreated`` object contains the full raw key value
+        in its ``key`` field. **This is the only time the raw key is
+        returned.** Store it securely.
 
         Args:
             name: User-defined name for the API key (max 256 characters).
             description: Optional description (max 1000 characters).
-            key_type: Type of key to create — ``"user"`` (default) or
-                ``"service"``.
             expires_at: Optional expiration timestamp. If omitted the key
                 never expires. Must be a future timestamp.
-            space: Space name or ID the service key is scoped to. Required
-                when ``key_type`` is ``"service"``; must not be set for user
-                keys.
 
         Returns:
             The created API key, including the one-time raw key value.
 
         Raises:
-            ApiException: If the API
-                request fails (e.g. invalid parameters or insufficient
-                permissions).
+            ApiException: If the API request fails (e.g. invalid parameters
+                or insufficient permissions).
         """
         from arize._generated import api_client as gen
-
-        space_id = (
-            _find_space_id(self._spaces_api, space)
-            if space is not None
-            else None
-        )
 
         body = gen.ApiKeyCreate(
             name=name,
             description=description,
-            key_type=key_type,
+            key_type="user",
+            expires_at=expires_at,
+        )
+        return self._api.api_keys_create(api_key_create=body)
+
+    @prerelease_endpoint(
+        key="api_keys.create_service_key", stage=ReleaseStage.ALPHA
+    )
+    def create_service_key(
+        self,
+        *,
+        name: str,
+        space: str,
+        description: str | None = None,
+        expires_at: datetime | None = None,
+        space_role: SpaceRole | None = None,
+        org_role: OrgRole | None = None,
+        account_role: AccountRole | None = None,
+    ) -> ApiKeyCreated:
+        """Create a service-type API key for a space.
+
+        Service keys are scoped to a specific space and backed by a dedicated
+        bot user with configurable roles. When no roles are specified, the
+        server applies its defaults (``space_role="member"``,
+        ``org_role="read-only"``, ``account_role="member"``). All role
+        assignments must be at or below the caller's own privilege level.
+
+        The returned ``ApiKeyCreated`` object contains the full raw key value
+        in its ``key`` field. **This is the only time the raw key is
+        returned.** Store it securely.
+
+        Args:
+            name: User-defined name for the API key (max 256 characters).
+            space: Space name or ID the service key is scoped to.
+            description: Optional description (max 1000 characters).
+            expires_at: Optional expiration timestamp. If omitted the key
+                never expires. Must be a future timestamp.
+            space_role: Role for the bot user within the space. One of
+                ``"admin"``, ``"member"`` (default), or ``"read-only"``.
+                Must be at or below the caller's own space role.
+            org_role: Role for the bot user within the organization. One of
+                ``"admin"``, ``"member"``, or ``"read-only"`` (default).
+                Must be at or below the caller's own org role.
+            account_role: Account-level role for the bot user. One of
+                ``"admin"`` or ``"member"`` (default). Must be at or below
+                the caller's own account role.
+
+        Returns:
+            The created API key, including the one-time raw key value.
+
+        Raises:
+            ApiException: If the API request fails (e.g. invalid role
+                assignment or insufficient permissions).
+        """
+        from arize._generated import api_client as gen
+
+        space_id = _find_space_id(self._spaces_api, space)
+
+        roles = None
+        if any(r is not None for r in (space_role, org_role, account_role)):
+            roles = gen.ApiKeyRoles(
+                space_role=space_role,
+                org_role=org_role,
+                account_role=account_role,
+            )
+
+        body = gen.ApiKeyCreate(
+            name=name,
+            description=description,
+            key_type="service",
             expires_at=expires_at,
             space_id=space_id,
+            roles=roles,
         )
         return self._api.api_keys_create(api_key_create=body)
 

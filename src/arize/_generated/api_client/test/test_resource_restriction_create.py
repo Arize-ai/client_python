@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.organizations_update_request import OrganizationsUpdateRequest
+from arize._generated.api_client.models.resource_restriction_create import ResourceRestrictionCreate
 
-class TestOrganizationsUpdateRequest(unittest.TestCase):
-    """OrganizationsUpdateRequest unit test stubs"""
+class TestResourceRestrictionCreate(unittest.TestCase):
+    """ResourceRestrictionCreate unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,26 +25,26 @@ class TestOrganizationsUpdateRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> OrganizationsUpdateRequest:
-        """Test OrganizationsUpdateRequest
+    def make_instance(self, include_optional) -> ResourceRestrictionCreate:
+        """Test ResourceRestrictionCreate
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `OrganizationsUpdateRequest`
+        # uncomment below to create an instance of `ResourceRestrictionCreate`
         """
-        model = OrganizationsUpdateRequest()
+        model = ResourceRestrictionCreate()
         if include_optional:
-            return OrganizationsUpdateRequest(
-                name = '0',
-                description = ''
+            return ResourceRestrictionCreate(
+                resource_id = 'RW50aXR5OjEyMzQ1'
             )
         else:
-            return OrganizationsUpdateRequest(
+            return ResourceRestrictionCreate(
+                resource_id = 'RW50aXR5OjEyMzQ1',
         )
         """
 
-    def testOrganizationsUpdateRequest(self):
-        """Test OrganizationsUpdateRequest"""
+    def testResourceRestrictionCreate(self):
+        """Test ResourceRestrictionCreate"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

@@ -22,13 +22,12 @@ from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 
-class ProjectsCreateRequest(BaseModel):
+class ResourceRestrictionCreate(BaseModel):
     """
-    ProjectsCreateRequest
+    ResourceRestrictionCreate
     """ # noqa: E501
-    name: StrictStr = Field(description="Name of the project (must be unique within the space)")
-    space_id: StrictStr = Field(description="ID of the space to create the project in")
-    __properties: ClassVar[List[str]] = ["name", "space_id"]
+    resource_id: StrictStr = Field(description="The ID of the resource to restrict")
+    __properties: ClassVar[List[str]] = ["resource_id"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -48,7 +47,7 @@ class ProjectsCreateRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ProjectsCreateRequest from a JSON string"""
+        """Create an instance of ResourceRestrictionCreate from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,7 +72,7 @@ class ProjectsCreateRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ProjectsCreateRequest from a dict"""
+        """Create an instance of ResourceRestrictionCreate from a dict"""
         if obj is None:
             return None
 
@@ -83,11 +82,10 @@ class ProjectsCreateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in ProjectsCreateRequest) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in ResourceRestrictionCreate) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "name": obj.get("name"),
-            "space_id": obj.get("space_id")
+            "resource_id": obj.get("resource_id")
         })
         return _obj
 

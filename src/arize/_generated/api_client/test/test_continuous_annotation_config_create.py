@@ -40,7 +40,7 @@ class TestContinuousAnnotationConfigCreate(unittest.TestCase):
                 annotation_config_type = 'continuous',
                 minimum_score = 1.337,
                 maximum_score = 1.337,
-                optimization_direction = 'maximize'
+                optimization_direction = 'none'
             )
         else:
             return ContinuousAnnotationConfigCreate(

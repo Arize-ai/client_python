@@ -182,7 +182,6 @@ Name | Type | Description  | Notes
 **200** | Returns a single task run object |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
-**403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
@@ -206,16 +205,43 @@ Each trigger (`POST /v2/tasks/{task_id}/trigger`) supplies per-run fields
 (`experiment_name`, optional example subset, etc.) and starts an async run.
 Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.
 
-**Validation Rules (template_evaluation / code_evaluation)**
+**Payload Requirements (template_evaluation / code_evaluation)**
 - At least one evaluator is required.
 - Duplicate evaluator IDs are not allowed.
 - When `dataset_id` is provided, `experiment_ids` must contain at least one entry.
 - `sampling_rate` and `is_continuous` are only supported on project-based tasks.
+- System-managed fields (`id`, `created_at`, `updated_at`) are rejected on input.
 
-**Validation Rules (run_experiment)**
+**Payload Requirements (run_experiment)**
 - `dataset_id` is required; `project_id` must be omitted.
 - `run_configuration` is required; `evaluators`, `experiment_ids`, `sampling_rate`,
   `is_continuous`, and `query_filter` must be omitted.
+
+**Valid example** (template_evaluation, project-based)
+```json
+{
+  "name": "Production Hallucination Check",
+  "type": "template_evaluation",
+  "project_id": "TW9kZWw6MTIzOmFCY0Q=",
+  "sampling_rate": 1.0,
+  "is_continuous": true,
+  "evaluators": [
+    {
+      "evaluator_id": "RXZhbHVhdG9yOjEyOmFCY0Q=",
+      "column_mappings": {"input": "attributes.input.value", "output": "attributes.output.value"}
+    }
+  ]
+}
+```
+
+**Invalid example** (run_experiment missing `run_configuration`)
+```json
+{
+  "name": "My Experiment",
+  "type": "run_experiment",
+  "dataset_id": "RGF0YXNldDo1NjpxUndY"
+}
+```
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -669,6 +695,11 @@ Triggers a new run on an existing task. The run is queued and processed
 asynchronously. Poll `GET /v2/task-runs/{run_id}` until the run reaches a
 terminal status (`completed`, `failed`, or `cancelled`).
 
+**Payload Requirements**
+- Fields must match the task's type; sending inapplicable fields returns 400.
+- For `template_evaluation` / `code_evaluation` tasks, all trigger fields are optional — an empty body uses server defaults.
+- For `run_experiment` tasks, `experiment_name` is required.
+
 **For `run_experiment` tasks**
 
 Supply `experiment_name` (required) plus any of the optional per-run fields:
@@ -686,6 +717,21 @@ The response includes `experiment_id` once the experiment is provisioned.
 Supply `data_start_time`, `data_end_time`, `max_spans`,
 `override_evaluations`, and/or `experiment_ids` as needed.
 `run_experiment`-specific fields are not applicable for these task types.
+
+**Valid example** (trigger a run_experiment run)
+```json
+{
+  "experiment_name": "GPT-4o Baseline v2",
+  "max_examples": 50
+}
+```
+
+**Invalid example** (run_experiment trigger missing required `experiment_name`)
+```json
+{
+  "max_examples": 50
+}
+```
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -778,9 +824,26 @@ Update task
 Update a task's mutable fields. At least one field must be provided.
 Omitted fields are left unchanged.
 
-When `evaluators` is provided, the entire evaluator list is replaced.
+**Payload Requirements**
+- At least one mutable field must be provided.
+- When `evaluators` is provided, the entire evaluator list is replaced.
+- `sampling_rate` and `is_continuous` are only applicable for project-based tasks.
+- Fields not valid for the task's type return 400 (e.g. `run_configuration` on an evaluation task).
+- System-managed fields (`id`, `type`, `created_at`, `updated_at`) cannot be modified.
 
-`sampling_rate` and `is_continuous` are only applicable for project-based tasks.
+**Valid example** (update evaluation task)
+```json
+{
+  "name": "Updated Hallucination Check",
+  "sampling_rate": 0.5,
+  "query_filter": "metadata.environment = 'staging'"
+}
+```
+
+**Invalid example** (no fields provided)
+```json
+{}
+```
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 

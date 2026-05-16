@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Name of the new annotation config | 
 **space_id** | **str** | ID of the space the annotation config will belong to | 
-**annotation_config_type** | **str** |  | 
+**annotation_config_type** | **str** | Discriminator value identifying a freeform annotation config. | 
 
 ## Example
 
