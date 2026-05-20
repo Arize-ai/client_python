@@ -98,7 +98,7 @@ class SpansClient:
         or more span IDs are not found, they are silently ignored.
 
         Args:
-            project: Project name or global ID (base64) containing the spans.
+            project: Project name or identifier (base64) containing the spans.
                 If the value is a name, ``space`` must also be provided.
             span_ids: List of span IDs to delete.
             space: Optional space name or ID used to disambiguate the project
@@ -151,7 +151,7 @@ class SpansClient:
         last seven days relative to the time of the request.
 
         Args:
-            project: Project name or global ID (base64) to list spans for.
+            project: Project name or identifier (base64) to list spans for.
                 If the value is a name, ``space`` must also be provided.
             space: Optional space name or ID used to disambiguate the project
                 lookup. Required when ``project`` is a name.

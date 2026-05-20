@@ -18,8 +18,9 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
+from arize._generated.api_client.models.resource_restriction_type import ResourceRestrictionType
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -27,17 +28,10 @@ class ResourceRestriction(BaseModel):
     """
     ResourceRestriction
     """ # noqa: E501
-    resource_type: StrictStr = Field(description="The type of the restricted resource (e.g. \"PROJECT\")")
+    resource_type: ResourceRestrictionType
     resource_id: StrictStr = Field(description="The ID of the restricted resource")
     created_at: datetime = Field(description="When the restriction was created")
     __properties: ClassVar[List[str]] = ["resource_type", "resource_id", "created_at"]
-
-    @field_validator('resource_type')
-    def resource_type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['PROJECT']):
-            raise ValueError("must be one of enum values ('PROJECT')")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

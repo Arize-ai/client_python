@@ -26,7 +26,7 @@ class RoleBindingUpdate(BaseModel):
     """
     RoleBindingUpdate
     """ # noqa: E501
-    role_id: StrictStr = Field(description="A universally unique identifier")
+    role_id: StrictStr = Field(description="A universally unique identifier (base64-encoded opaque string).")
     __properties: ClassVar[List[str]] = ["role_id"]
 
     model_config = ConfigDict(

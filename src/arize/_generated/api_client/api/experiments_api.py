@@ -103,6 +103,7 @@ class ExperimentsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -176,6 +177,7 @@ class ExperimentsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -249,6 +251,7 @@ class ExperimentsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -339,7 +342,7 @@ class ExperimentsApi:
     @validate_call
     def experiments_delete(
         self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique identifier of the experiment")],
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -357,7 +360,7 @@ class ExperimentsApi:
 
         Delete an experiment by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param experiment_id: The unique identifier of the experiment (required)
+        :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -411,7 +414,7 @@ class ExperimentsApi:
     @validate_call
     def experiments_delete_with_http_info(
         self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique identifier of the experiment")],
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -429,7 +432,7 @@ class ExperimentsApi:
 
         Delete an experiment by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param experiment_id: The unique identifier of the experiment (required)
+        :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -483,7 +486,7 @@ class ExperimentsApi:
     @validate_call
     def experiments_delete_without_preload_content(
         self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique identifier of the experiment")],
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -501,7 +504,7 @@ class ExperimentsApi:
 
         Delete an experiment by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param experiment_id: The unique identifier of the experiment (required)
+        :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -615,7 +618,7 @@ class ExperimentsApi:
     @validate_call
     def experiments_get(
         self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique identifier of the experiment")],
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -633,7 +636,7 @@ class ExperimentsApi:
 
         Get an experiment object by its ID.  The response does not include the experiment's runs. To get the runs of a specific experiment, use the List Experiment Runs endpoint.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param experiment_id: The unique identifier of the experiment (required)
+        :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -686,7 +689,7 @@ class ExperimentsApi:
     @validate_call
     def experiments_get_with_http_info(
         self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique identifier of the experiment")],
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -704,7 +707,7 @@ class ExperimentsApi:
 
         Get an experiment object by its ID.  The response does not include the experiment's runs. To get the runs of a specific experiment, use the List Experiment Runs endpoint.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param experiment_id: The unique identifier of the experiment (required)
+        :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -757,7 +760,7 @@ class ExperimentsApi:
     @validate_call
     def experiments_get_without_preload_content(
         self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique identifier of the experiment")],
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -775,7 +778,7 @@ class ExperimentsApi:
 
         Get an experiment object by its ID.  The response does not include the experiment's runs. To get the runs of a specific experiment, use the List Experiment Runs endpoint.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param experiment_id: The unique identifier of the experiment (required)
+        :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -889,7 +892,7 @@ class ExperimentsApi:
     @validate_call
     def experiments_list(
         self,
-        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 global ID)")] = None,
+        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
@@ -910,7 +913,7 @@ class ExperimentsApi:
 
         List all experiments a user has access to.  To filter experiments by the dataset they were run on, provide the `dataset_id` query parameter.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param dataset_id: Filter to a specific dataset (base64 global ID)
+        :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
         :type dataset_id: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
@@ -972,7 +975,7 @@ class ExperimentsApi:
     @validate_call
     def experiments_list_with_http_info(
         self,
-        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 global ID)")] = None,
+        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
@@ -993,7 +996,7 @@ class ExperimentsApi:
 
         List all experiments a user has access to.  To filter experiments by the dataset they were run on, provide the `dataset_id` query parameter.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param dataset_id: Filter to a specific dataset (base64 global ID)
+        :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
         :type dataset_id: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
@@ -1055,7 +1058,7 @@ class ExperimentsApi:
     @validate_call
     def experiments_list_without_preload_content(
         self,
-        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 global ID)")] = None,
+        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
@@ -1076,7 +1079,7 @@ class ExperimentsApi:
 
         List all experiments a user has access to.  To filter experiments by the dataset they were run on, provide the `dataset_id` query parameter.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param dataset_id: Filter to a specific dataset (base64 global ID)
+        :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
         :type dataset_id: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
@@ -1216,7 +1219,7 @@ class ExperimentsApi:
     @validate_call
     def experiments_runs_annotate(
         self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique identifier of the experiment")],
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         annotate_experiment_runs_request_body: Annotated[AnnotateExperimentRunsRequestBody, Field(description="Body containing experiment run annotation batch")],
         _request_timeout: Union[
             None,
@@ -1235,7 +1238,7 @@ class ExperimentsApi:
 
         Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param experiment_id: The unique identifier of the experiment (required)
+        :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
         :param annotate_experiment_runs_request_body: Body containing experiment run annotation batch (required)
         :type annotate_experiment_runs_request_body: AnnotateExperimentRunsRequestBody
@@ -1276,6 +1279,7 @@ class ExperimentsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1292,7 +1296,7 @@ class ExperimentsApi:
     @validate_call
     def experiments_runs_annotate_with_http_info(
         self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique identifier of the experiment")],
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         annotate_experiment_runs_request_body: Annotated[AnnotateExperimentRunsRequestBody, Field(description="Body containing experiment run annotation batch")],
         _request_timeout: Union[
             None,
@@ -1311,7 +1315,7 @@ class ExperimentsApi:
 
         Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param experiment_id: The unique identifier of the experiment (required)
+        :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
         :param annotate_experiment_runs_request_body: Body containing experiment run annotation batch (required)
         :type annotate_experiment_runs_request_body: AnnotateExperimentRunsRequestBody
@@ -1352,6 +1356,7 @@ class ExperimentsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1368,7 +1373,7 @@ class ExperimentsApi:
     @validate_call
     def experiments_runs_annotate_without_preload_content(
         self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique identifier of the experiment")],
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         annotate_experiment_runs_request_body: Annotated[AnnotateExperimentRunsRequestBody, Field(description="Body containing experiment run annotation batch")],
         _request_timeout: Union[
             None,
@@ -1387,7 +1392,7 @@ class ExperimentsApi:
 
         Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param experiment_id: The unique identifier of the experiment (required)
+        :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
         :param annotate_experiment_runs_request_body: Body containing experiment run annotation batch (required)
         :type annotate_experiment_runs_request_body: AnnotateExperimentRunsRequestBody
@@ -1428,6 +1433,7 @@ class ExperimentsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1520,7 +1526,7 @@ class ExperimentsApi:
     @validate_call
     def experiments_runs_list(
         self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique identifier of the experiment")],
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         _request_timeout: Union[
             None,
@@ -1539,7 +1545,7 @@ class ExperimentsApi:
 
         List runs for a given experiment.  The runs are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param experiment_id: The unique identifier of the experiment (required)
+        :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
         :param limit: Maximum items to return
         :type limit: int
@@ -1596,7 +1602,7 @@ class ExperimentsApi:
     @validate_call
     def experiments_runs_list_with_http_info(
         self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique identifier of the experiment")],
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         _request_timeout: Union[
             None,
@@ -1615,7 +1621,7 @@ class ExperimentsApi:
 
         List runs for a given experiment.  The runs are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param experiment_id: The unique identifier of the experiment (required)
+        :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
         :param limit: Maximum items to return
         :type limit: int
@@ -1672,7 +1678,7 @@ class ExperimentsApi:
     @validate_call
     def experiments_runs_list_without_preload_content(
         self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique identifier of the experiment")],
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         _request_timeout: Union[
             None,
@@ -1691,7 +1697,7 @@ class ExperimentsApi:
 
         List runs for a given experiment.  The runs are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param experiment_id: The unique identifier of the experiment (required)
+        :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
         :param limit: Maximum items to return
         :type limit: int

@@ -80,7 +80,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.OrganizationsApi(api_client)
-    org_id = 'org_12345' # str | The unique identifier of the organization
+    org_id = 'T3JnYW5pemF0aW9uOjEyMzQ1' # str | The unique organization identifier (base64)
     organization_membership_input = {"user_id":"VXNlcjoxMjM0NQ==","role":{"type":"predefined","name":"member"}} # OrganizationMembershipInput | Body containing the user to add to the organization
 
     try:
@@ -99,7 +99,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **org_id** | **str**| The unique identifier of the organization | 
+ **org_id** | **str**| The unique organization identifier (base64) | 
  **organization_membership_input** | [**OrganizationMembershipInput**](OrganizationMembershipInput.md)| Body containing the user to add to the organization | 
 
 ### Return type
@@ -124,6 +124,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -232,6 +233,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -282,7 +284,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.OrganizationsApi(api_client)
-    org_id = 'org_12345' # str | The unique identifier of the organization
+    org_id = 'T3JnYW5pemF0aW9uOjEyMzQ1' # str | The unique organization identifier (base64)
 
     try:
         # Delete an organization
@@ -298,7 +300,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **org_id** | **str**| The unique identifier of the organization | 
+ **org_id** | **str**| The unique organization identifier (base64) | 
 
 ### Return type
 
@@ -366,7 +368,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.OrganizationsApi(api_client)
-    org_id = 'org_12345' # str | The unique identifier of the organization
+    org_id = 'T3JnYW5pemF0aW9uOjEyMzQ1' # str | The unique organization identifier (base64)
 
     try:
         # Get an organization
@@ -384,7 +386,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **org_id** | **str**| The unique identifier of the organization | 
+ **org_id** | **str**| The unique organization identifier (base64) | 
 
 ### Return type
 
@@ -541,8 +543,8 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.OrganizationsApi(api_client)
-    org_id = 'org_12345' # str | The unique identifier of the organization
-    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique identifier of the user
+    org_id = 'T3JnYW5pemF0aW9uOjEyMzQ1' # str | The unique organization identifier (base64)
+    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique user identifier (base64)
 
     try:
         # Remove a user from an organization
@@ -558,8 +560,8 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **org_id** | **str**| The unique identifier of the organization | 
- **user_id** | **str**| The unique identifier of the user | 
+ **org_id** | **str**| The unique organization identifier (base64) | 
+ **user_id** | **str**| The unique user identifier (base64) | 
 
 ### Return type
 
@@ -646,7 +648,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.OrganizationsApi(api_client)
-    org_id = 'org_12345' # str | The unique identifier of the organization
+    org_id = 'T3JnYW5pemF0aW9uOjEyMzQ1' # str | The unique organization identifier (base64)
     organization_update = {"name":"Updated Org Name","description":"Updated organization description"} # OrganizationUpdate | Body containing organization update parameters. At least one field must be provided.
 
     try:
@@ -665,7 +667,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **org_id** | **str**| The unique identifier of the organization | 
+ **org_id** | **str**| The unique organization identifier (base64) | 
  **organization_update** | [**OrganizationUpdate**](OrganizationUpdate.md)| Body containing organization update parameters. At least one field must be provided. | 
 
 ### Return type
@@ -691,6 +693,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

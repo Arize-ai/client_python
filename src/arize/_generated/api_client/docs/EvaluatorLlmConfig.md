@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**ai_integration_id** | **str** | AI integration global ID (base64) | 
+**ai_integration_id** | **str** | AI integration identifier (base64) | 
 **model_name** | **str** | Model name (e.g. gpt-4o) | 
 **invocation_parameters** | [**InvocationParams**](InvocationParams.md) |  | 
 **provider_parameters** | [**ProviderParams**](ProviderParams.md) |  | 

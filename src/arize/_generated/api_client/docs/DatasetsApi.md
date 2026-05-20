@@ -12,6 +12,7 @@ Method | HTTP request | Description
 [**datasets_examples_update**](DatasetsApi.md#datasets_examples_update) | **PATCH** /v2/datasets/{dataset_id}/examples | Update existing examples in a dataset
 [**datasets_get**](DatasetsApi.md#datasets_get) | **GET** /v2/datasets/{dataset_id} | Get a dataset
 [**datasets_list**](DatasetsApi.md#datasets_list) | **GET** /v2/datasets | List datasets
+[**datasets_update**](DatasetsApi.md#datasets_update) | **PATCH** /v2/datasets/{dataset_id} | Update a dataset
 
 
 # **datasets_create**
@@ -139,6 +140,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -181,7 +183,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.DatasetsApi(api_client)
-    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique identifier of the dataset
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique dataset identifier (base64)
 
     try:
         # Delete a dataset
@@ -197,7 +199,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **dataset_id** | **str**| The unique identifier of the dataset | 
+ **dataset_id** | **str**| The unique dataset identifier (base64) | 
 
 ### Return type
 
@@ -301,7 +303,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.DatasetsApi(api_client)
-    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique identifier of the dataset
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique dataset identifier (base64)
     annotate_dataset_examples_request_body = {"annotations":[{"record_id":"ex_abc","values":[{"name":"quality","score":0.8}]}]} # AnnotateDatasetExamplesRequestBody | Body containing dataset example annotation batch
 
     try:
@@ -318,7 +320,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **dataset_id** | **str**| The unique identifier of the dataset | 
+ **dataset_id** | **str**| The unique dataset identifier (base64) | 
  **annotate_dataset_examples_request_body** | [**AnnotateDatasetExamplesRequestBody**](AnnotateDatasetExamplesRequestBody.md)| Body containing dataset example annotation batch | 
 
 ### Return type
@@ -343,6 +345,7 @@ void (empty response body)
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -422,7 +425,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.DatasetsApi(api_client)
-    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique identifier of the dataset
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique dataset identifier (base64)
     datasets_examples_insert_request = {"examples":[{"question":"What is 2 + 2?","answer":"4","topic":"arithmetic"},{"question":"What is the square root of 16?","answer":"4","topic":"geometry"},{"question":"If 3x = 12, what is x?","answer":"4","topic":"algebra"}]} # DatasetsExamplesInsertRequest | Body containing dataset examples for insert (append) operation with auto-generated IDs
     dataset_version_id = 'RGF0YXNldFZlcnNpb246MTIzNDU=' # str | The unique identifier of the dataset version (optional)
 
@@ -442,7 +445,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **dataset_id** | **str**| The unique identifier of the dataset | 
+ **dataset_id** | **str**| The unique dataset identifier (base64) | 
  **datasets_examples_insert_request** | [**DatasetsExamplesInsertRequest**](DatasetsExamplesInsertRequest.md)| Body containing dataset examples for insert (append) operation with auto-generated IDs | 
  **dataset_version_id** | **str**| The unique identifier of the dataset version | [optional] 
 
@@ -468,6 +471,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -526,7 +530,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.DatasetsApi(api_client)
-    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique identifier of the dataset
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique dataset identifier (base64)
     dataset_version_id = 'RGF0YXNldFZlcnNpb246MTIzNDU=' # str | The unique identifier of the dataset version (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
 
@@ -546,7 +550,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **dataset_id** | **str**| The unique identifier of the dataset | 
+ **dataset_id** | **str**| The unique dataset identifier (base64) | 
  **dataset_version_id** | **str**| The unique identifier of the dataset version | [optional] 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
 
@@ -664,7 +668,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.DatasetsApi(api_client)
-    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique identifier of the dataset
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique dataset identifier (base64)
     datasets_examples_update_request = {"examples":[{"id":"example_001","question":"What is 2 * 2?"},{"id":"example_002","question":"What is the square root of 64?","answer":"8"},{"id":"example_003","question":"If 9x = 36, what is x?","topic":"algebra"}]} # DatasetsExamplesUpdateRequest | Body containing dataset examples for update operation by ID matching
     dataset_version_id = 'RGF0YXNldFZlcnNpb246MTIzNDU=' # str | The unique identifier of the dataset version (optional)
 
@@ -684,7 +688,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **dataset_id** | **str**| The unique identifier of the dataset | 
+ **dataset_id** | **str**| The unique dataset identifier (base64) | 
  **datasets_examples_update_request** | [**DatasetsExamplesUpdateRequest**](DatasetsExamplesUpdateRequest.md)| Body containing dataset examples for update operation by ID matching | 
  **dataset_version_id** | **str**| The unique identifier of the dataset version | [optional] 
 
@@ -711,6 +715,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -761,7 +766,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.DatasetsApi(api_client)
-    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique identifier of the dataset
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique dataset identifier (base64)
 
     try:
         # Get a dataset
@@ -779,7 +784,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **dataset_id** | **str**| The unique identifier of the dataset | 
+ **dataset_id** | **str**| The unique dataset identifier (base64) | 
 
 ### Return type
 
@@ -901,6 +906,114 @@ Name | Type | Description  | Notes
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **datasets_update**
+> Dataset datasets_update(dataset_id, datasets_update_request)
+
+Update a dataset
+
+Update an existing dataset by its ID.
+
+**Payload Requirements**
+- `name` is required.
+- `name` must be unique within the space (409 Conflict if duplicate).
+- `name` cannot be empty or whitespace-only.
+
+**Valid example**
+```json
+{
+  "name": "Updated Dataset Name"
+}
+```
+
+**Invalid example** (empty body — no fields provided)
+```json
+{}
+```
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.dataset import Dataset
+from arize._generated.api_client.models.datasets_update_request import DatasetsUpdateRequest
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.DatasetsApi(api_client)
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique dataset identifier (base64)
+    datasets_update_request = {"name":"Updated Dataset Name"} # DatasetsUpdateRequest | Body containing dataset update parameters.
+
+    try:
+        # Update a dataset
+        api_response = api_instance.datasets_update(dataset_id, datasets_update_request)
+        print("The response of DatasetsApi->datasets_update:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling DatasetsApi->datasets_update: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **dataset_id** | **str**| The unique dataset identifier (base64) | 
+ **datasets_update_request** | [**DatasetsUpdateRequest**](DatasetsUpdateRequest.md)| Body containing dataset update parameters. | 
+
+### Return type
+
+[**Dataset**](Dataset.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | A dataset object |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

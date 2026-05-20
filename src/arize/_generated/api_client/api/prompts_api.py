@@ -51,7 +51,7 @@ class PromptsApi:
     @validate_call
     def prompt_labels_get(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
         label_name: Annotated[StrictStr, Field(description="The name of the label (e.g., \"production\", \"staging\")")],
         _request_timeout: Union[
             None,
@@ -70,7 +70,7 @@ class PromptsApi:
 
         Resolve a label on a prompt to the version it points to. Returns the full `PromptVersion` object that this label currently references.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
         :param label_name: The name of the label (e.g., \"production\", \"staging\") (required)
         :type label_name: str
@@ -126,7 +126,7 @@ class PromptsApi:
     @validate_call
     def prompt_labels_get_with_http_info(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
         label_name: Annotated[StrictStr, Field(description="The name of the label (e.g., \"production\", \"staging\")")],
         _request_timeout: Union[
             None,
@@ -145,7 +145,7 @@ class PromptsApi:
 
         Resolve a label on a prompt to the version it points to. Returns the full `PromptVersion` object that this label currently references.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
         :param label_name: The name of the label (e.g., \"production\", \"staging\") (required)
         :type label_name: str
@@ -201,7 +201,7 @@ class PromptsApi:
     @validate_call
     def prompt_labels_get_without_preload_content(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
         label_name: Annotated[StrictStr, Field(description="The name of the label (e.g., \"production\", \"staging\")")],
         _request_timeout: Union[
             None,
@@ -220,7 +220,7 @@ class PromptsApi:
 
         Resolve a label on a prompt to the version it points to. Returns the full `PromptVersion` object that this label currently references.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
         :param label_name: The name of the label (e.g., \"production\", \"staging\") (required)
         :type label_name: str
@@ -340,7 +340,7 @@ class PromptsApi:
     @validate_call
     def prompt_version_labels_delete(
         self,
-        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        version_id: Annotated[StrictStr, Field(description="The unique prompt version identifier (base64)")],
         label_name: Annotated[StrictStr, Field(description="The name of the label (e.g., \"production\", \"staging\")")],
         _request_timeout: Union[
             None,
@@ -359,7 +359,7 @@ class PromptsApi:
 
         Remove a specific label from a prompt version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param version_id: The unique identifier of the prompt version (required)
+        :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
         :param label_name: The name of the label (e.g., \"production\", \"staging\") (required)
         :type label_name: str
@@ -416,7 +416,7 @@ class PromptsApi:
     @validate_call
     def prompt_version_labels_delete_with_http_info(
         self,
-        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        version_id: Annotated[StrictStr, Field(description="The unique prompt version identifier (base64)")],
         label_name: Annotated[StrictStr, Field(description="The name of the label (e.g., \"production\", \"staging\")")],
         _request_timeout: Union[
             None,
@@ -435,7 +435,7 @@ class PromptsApi:
 
         Remove a specific label from a prompt version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param version_id: The unique identifier of the prompt version (required)
+        :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
         :param label_name: The name of the label (e.g., \"production\", \"staging\") (required)
         :type label_name: str
@@ -492,7 +492,7 @@ class PromptsApi:
     @validate_call
     def prompt_version_labels_delete_without_preload_content(
         self,
-        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        version_id: Annotated[StrictStr, Field(description="The unique prompt version identifier (base64)")],
         label_name: Annotated[StrictStr, Field(description="The name of the label (e.g., \"production\", \"staging\")")],
         _request_timeout: Union[
             None,
@@ -511,7 +511,7 @@ class PromptsApi:
 
         Remove a specific label from a prompt version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param version_id: The unique identifier of the prompt version (required)
+        :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
         :param label_name: The name of the label (e.g., \"production\", \"staging\") (required)
         :type label_name: str
@@ -631,7 +631,7 @@ class PromptsApi:
     @validate_call
     def prompt_version_labels_set(
         self,
-        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        version_id: Annotated[StrictStr, Field(description="The unique prompt version identifier (base64)")],
         prompt_version_labels_set_request: Annotated[PromptVersionLabelsSetRequest, Field(description="Body containing the labels to set on a prompt version")],
         _request_timeout: Union[
             None,
@@ -650,7 +650,7 @@ class PromptsApi:
 
         Set (replace) all labels on a prompt version. This is an idempotent operation. If a label already exists on another version of the same prompt, it will be moved to this version.  Labels not included in the request will be removed from this version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param version_id: The unique identifier of the prompt version (required)
+        :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
         :param prompt_version_labels_set_request: Body containing the labels to set on a prompt version (required)
         :type prompt_version_labels_set_request: PromptVersionLabelsSetRequest
@@ -691,6 +691,7 @@ class PromptsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -707,7 +708,7 @@ class PromptsApi:
     @validate_call
     def prompt_version_labels_set_with_http_info(
         self,
-        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        version_id: Annotated[StrictStr, Field(description="The unique prompt version identifier (base64)")],
         prompt_version_labels_set_request: Annotated[PromptVersionLabelsSetRequest, Field(description="Body containing the labels to set on a prompt version")],
         _request_timeout: Union[
             None,
@@ -726,7 +727,7 @@ class PromptsApi:
 
         Set (replace) all labels on a prompt version. This is an idempotent operation. If a label already exists on another version of the same prompt, it will be moved to this version.  Labels not included in the request will be removed from this version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param version_id: The unique identifier of the prompt version (required)
+        :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
         :param prompt_version_labels_set_request: Body containing the labels to set on a prompt version (required)
         :type prompt_version_labels_set_request: PromptVersionLabelsSetRequest
@@ -767,6 +768,7 @@ class PromptsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -783,7 +785,7 @@ class PromptsApi:
     @validate_call
     def prompt_version_labels_set_without_preload_content(
         self,
-        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        version_id: Annotated[StrictStr, Field(description="The unique prompt version identifier (base64)")],
         prompt_version_labels_set_request: Annotated[PromptVersionLabelsSetRequest, Field(description="Body containing the labels to set on a prompt version")],
         _request_timeout: Union[
             None,
@@ -802,7 +804,7 @@ class PromptsApi:
 
         Set (replace) all labels on a prompt version. This is an idempotent operation. If a label already exists on another version of the same prompt, it will be moved to this version.  Labels not included in the request will be removed from this version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param version_id: The unique identifier of the prompt version (required)
+        :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
         :param prompt_version_labels_set_request: Body containing the labels to set on a prompt version (required)
         :type prompt_version_labels_set_request: PromptVersionLabelsSetRequest
@@ -843,6 +845,7 @@ class PromptsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -936,7 +939,7 @@ class PromptsApi:
     @validate_call
     def prompt_versions_create(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
         prompt_versions_create_request: Annotated[PromptVersionsCreateRequest, Field(description="Body containing prompt version creation parameters")],
         _request_timeout: Union[
             None,
@@ -955,7 +958,7 @@ class PromptsApi:
 
         Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `provider` is required. `input_variable_format` defaults to `f_string` if not provided.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
         :param prompt_versions_create_request: Body containing prompt version creation parameters (required)
         :type prompt_versions_create_request: PromptVersionsCreateRequest
@@ -996,6 +999,7 @@ class PromptsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1012,7 +1016,7 @@ class PromptsApi:
     @validate_call
     def prompt_versions_create_with_http_info(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
         prompt_versions_create_request: Annotated[PromptVersionsCreateRequest, Field(description="Body containing prompt version creation parameters")],
         _request_timeout: Union[
             None,
@@ -1031,7 +1035,7 @@ class PromptsApi:
 
         Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `provider` is required. `input_variable_format` defaults to `f_string` if not provided.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
         :param prompt_versions_create_request: Body containing prompt version creation parameters (required)
         :type prompt_versions_create_request: PromptVersionsCreateRequest
@@ -1072,6 +1076,7 @@ class PromptsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1088,7 +1093,7 @@ class PromptsApi:
     @validate_call
     def prompt_versions_create_without_preload_content(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
         prompt_versions_create_request: Annotated[PromptVersionsCreateRequest, Field(description="Body containing prompt version creation parameters")],
         _request_timeout: Union[
             None,
@@ -1107,7 +1112,7 @@ class PromptsApi:
 
         Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `provider` is required. `input_variable_format` defaults to `f_string` if not provided.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
         :param prompt_versions_create_request: Body containing prompt version creation parameters (required)
         :type prompt_versions_create_request: PromptVersionsCreateRequest
@@ -1148,6 +1153,7 @@ class PromptsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1241,7 +1247,7 @@ class PromptsApi:
     @validate_call
     def prompt_versions_get(
         self,
-        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        version_id: Annotated[StrictStr, Field(description="The unique prompt version identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1259,7 +1265,7 @@ class PromptsApi:
 
         Get a specific prompt version by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param version_id: The unique identifier of the prompt version (required)
+        :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1312,7 +1318,7 @@ class PromptsApi:
     @validate_call
     def prompt_versions_get_with_http_info(
         self,
-        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        version_id: Annotated[StrictStr, Field(description="The unique prompt version identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1330,7 +1336,7 @@ class PromptsApi:
 
         Get a specific prompt version by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param version_id: The unique identifier of the prompt version (required)
+        :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1383,7 +1389,7 @@ class PromptsApi:
     @validate_call
     def prompt_versions_get_without_preload_content(
         self,
-        version_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt version")],
+        version_id: Annotated[StrictStr, Field(description="The unique prompt version identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1401,7 +1407,7 @@ class PromptsApi:
 
         Get a specific prompt version by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param version_id: The unique identifier of the prompt version (required)
+        :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1515,7 +1521,7 @@ class PromptsApi:
     @validate_call
     def prompt_versions_list(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1535,7 +1541,7 @@ class PromptsApi:
 
         List all versions of a prompt, sorted by creation date with the most recently created versions first.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
         :param limit: Maximum items to return
         :type limit: int
@@ -1595,7 +1601,7 @@ class PromptsApi:
     @validate_call
     def prompt_versions_list_with_http_info(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1615,7 +1621,7 @@ class PromptsApi:
 
         List all versions of a prompt, sorted by creation date with the most recently created versions first.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
         :param limit: Maximum items to return
         :type limit: int
@@ -1675,7 +1681,7 @@ class PromptsApi:
     @validate_call
     def prompt_versions_list_without_preload_content(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1695,7 +1701,7 @@ class PromptsApi:
 
         List all versions of a prompt, sorted by creation date with the most recently created versions first.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
         :param limit: Maximum items to return
         :type limit: int
@@ -1882,6 +1888,7 @@ class PromptsApi:
             '401': "Problem",
             '403': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1954,6 +1961,7 @@ class PromptsApi:
             '401': "Problem",
             '403': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2026,6 +2034,7 @@ class PromptsApi:
             '401': "Problem",
             '403': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2116,7 +2125,7 @@ class PromptsApi:
     @validate_call
     def prompts_delete(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2134,7 +2143,7 @@ class PromptsApi:
 
         Delete a prompt by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2188,7 +2197,7 @@ class PromptsApi:
     @validate_call
     def prompts_delete_with_http_info(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2206,7 +2215,7 @@ class PromptsApi:
 
         Delete a prompt by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2260,7 +2269,7 @@ class PromptsApi:
     @validate_call
     def prompts_delete_without_preload_content(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2278,7 +2287,7 @@ class PromptsApi:
 
         Delete a prompt by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2392,8 +2401,8 @@ class PromptsApi:
     @validate_call
     def prompts_get(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
-        version_id: Annotated[Optional[StrictStr], Field(description="Return the prompt with this specific version. Mutually exclusive with `label`.")] = None,
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
+        version_id: Annotated[Optional[StrictStr], Field(description="Return the prompt with this specific version (base64 identifier (base64)). Mutually exclusive with `label`.")] = None,
         label: Annotated[Optional[StrictStr], Field(description="Return the prompt with the version pointed to by this label (e.g., \"production\"). Mutually exclusive with `version_id`.")] = None,
         _request_timeout: Union[
             None,
@@ -2412,9 +2421,9 @@ class PromptsApi:
 
         Get a specific prompt by its ID. The response always includes a resolved version. By default, the latest version is returned. Use the `version_id` or `label` query parameter to resolve a specific version instead. You cannot supply both `version_id` and `label`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
-        :param version_id: Return the prompt with this specific version. Mutually exclusive with `label`.
+        :param version_id: Return the prompt with this specific version (base64 identifier (base64)). Mutually exclusive with `label`.
         :type version_id: str
         :param label: Return the prompt with the version pointed to by this label (e.g., \"production\"). Mutually exclusive with `version_id`.
         :type label: str
@@ -2471,8 +2480,8 @@ class PromptsApi:
     @validate_call
     def prompts_get_with_http_info(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
-        version_id: Annotated[Optional[StrictStr], Field(description="Return the prompt with this specific version. Mutually exclusive with `label`.")] = None,
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
+        version_id: Annotated[Optional[StrictStr], Field(description="Return the prompt with this specific version (base64 identifier (base64)). Mutually exclusive with `label`.")] = None,
         label: Annotated[Optional[StrictStr], Field(description="Return the prompt with the version pointed to by this label (e.g., \"production\"). Mutually exclusive with `version_id`.")] = None,
         _request_timeout: Union[
             None,
@@ -2491,9 +2500,9 @@ class PromptsApi:
 
         Get a specific prompt by its ID. The response always includes a resolved version. By default, the latest version is returned. Use the `version_id` or `label` query parameter to resolve a specific version instead. You cannot supply both `version_id` and `label`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
-        :param version_id: Return the prompt with this specific version. Mutually exclusive with `label`.
+        :param version_id: Return the prompt with this specific version (base64 identifier (base64)). Mutually exclusive with `label`.
         :type version_id: str
         :param label: Return the prompt with the version pointed to by this label (e.g., \"production\"). Mutually exclusive with `version_id`.
         :type label: str
@@ -2550,8 +2559,8 @@ class PromptsApi:
     @validate_call
     def prompts_get_without_preload_content(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
-        version_id: Annotated[Optional[StrictStr], Field(description="Return the prompt with this specific version. Mutually exclusive with `label`.")] = None,
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
+        version_id: Annotated[Optional[StrictStr], Field(description="Return the prompt with this specific version (base64 identifier (base64)). Mutually exclusive with `label`.")] = None,
         label: Annotated[Optional[StrictStr], Field(description="Return the prompt with the version pointed to by this label (e.g., \"production\"). Mutually exclusive with `version_id`.")] = None,
         _request_timeout: Union[
             None,
@@ -2570,9 +2579,9 @@ class PromptsApi:
 
         Get a specific prompt by its ID. The response always includes a resolved version. By default, the latest version is returned. Use the `version_id` or `label` query parameter to resolve a specific version instead. You cannot supply both `version_id` and `label`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
-        :param version_id: Return the prompt with this specific version. Mutually exclusive with `label`.
+        :param version_id: Return the prompt with this specific version (base64 identifier (base64)). Mutually exclusive with `label`.
         :type version_id: str
         :param label: Return the prompt with the version pointed to by this label (e.g., \"production\"). Mutually exclusive with `version_id`.
         :type label: str
@@ -3044,7 +3053,7 @@ class PromptsApi:
     @validate_call
     def prompts_update(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
         prompts_update_request: Annotated[PromptsUpdateRequest, Field(description="Body containing prompt update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -3063,7 +3072,7 @@ class PromptsApi:
 
         Update a prompt's metadata by its ID. Currently supports updating the description. The prompt name is immutable after creation; to rename a prompt, delete it and create a new one (note: this loses version history).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
         :param prompts_update_request: Body containing prompt update parameters. At least one field must be provided. (required)
         :type prompts_update_request: PromptsUpdateRequest
@@ -3104,6 +3113,7 @@ class PromptsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -3120,7 +3130,7 @@ class PromptsApi:
     @validate_call
     def prompts_update_with_http_info(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
         prompts_update_request: Annotated[PromptsUpdateRequest, Field(description="Body containing prompt update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -3139,7 +3149,7 @@ class PromptsApi:
 
         Update a prompt's metadata by its ID. Currently supports updating the description. The prompt name is immutable after creation; to rename a prompt, delete it and create a new one (note: this loses version history).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
         :param prompts_update_request: Body containing prompt update parameters. At least one field must be provided. (required)
         :type prompts_update_request: PromptsUpdateRequest
@@ -3180,6 +3190,7 @@ class PromptsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -3196,7 +3207,7 @@ class PromptsApi:
     @validate_call
     def prompts_update_without_preload_content(
         self,
-        prompt_id: Annotated[StrictStr, Field(description="The unique identifier of the prompt")],
+        prompt_id: Annotated[StrictStr, Field(description="The unique prompt identifier (base64)")],
         prompts_update_request: Annotated[PromptsUpdateRequest, Field(description="Body containing prompt update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -3215,7 +3226,7 @@ class PromptsApi:
 
         Update a prompt's metadata by its ID. Currently supports updating the description. The prompt name is immutable after creation; to rename a prompt, delete it and create a new one (note: this loses version history).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param prompt_id: The unique identifier of the prompt (required)
+        :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
         :param prompts_update_request: Body containing prompt update parameters. At least one field must be provided. (required)
         :type prompts_update_request: PromptsUpdateRequest
@@ -3256,6 +3267,7 @@ class PromptsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(

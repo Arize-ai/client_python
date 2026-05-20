@@ -7,7 +7,7 @@ A user assigned to a record with their completion status
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **user** | [**AnnotatorUser**](AnnotatorUser.md) |  | 
-**completion_status** | **str** | The completion status for this user on this record | 
+**completion_status** | [**AnnotationQueueCompletionStatus**](AnnotationQueueCompletionStatus.md) |  | 
 
 ## Example
 

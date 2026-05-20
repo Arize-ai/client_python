@@ -2,6 +2,9 @@
 
 from arize._generated.api_client.models.annotation_input import AnnotationInput
 from arize._generated.api_client.models.annotation_queue import AnnotationQueue
+from arize._generated.api_client.models.annotation_queue_completion_status import (
+    AnnotationQueueCompletionStatus,
+)
 from arize._generated.api_client.models.annotation_queue_example_record_input import (
     AnnotationQueueExampleRecordInput,
 )
@@ -19,6 +22,9 @@ from arize._generated.api_client.models.annotation_queue_record_input import (
 )
 from arize._generated.api_client.models.annotation_queue_records_list200_response import (
     AnnotationQueueRecordsList200Response,
+)
+from arize._generated.api_client.models.annotation_queue_source_type import (
+    AnnotationQueueSourceType,
 )
 from arize._generated.api_client.models.annotation_queue_span_record_input import (
     AnnotationQueueSpanRecordInput,
@@ -39,12 +45,14 @@ from arize._generated.api_client.models.pagination_metadata import (
 __all__ = [
     "AnnotationInput",
     "AnnotationQueue",
+    "AnnotationQueueCompletionStatus",
     "AnnotationQueueExampleRecordInput",
     "AnnotationQueueRecord",
     "AnnotationQueueRecordAnnotateResult",
     "AnnotationQueueRecordAssignResult",
     "AnnotationQueueRecordInput",
     "AnnotationQueueRecordsList200Response",
+    "AnnotationQueueSourceType",
     "AnnotationQueueSpanRecordInput",
     "AnnotationQueuesList200Response",
     "AnnotationQueuesRecordsCreate200Response",

@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.data_granularity import DataGranularity
 from arize._generated.api_client.models.static_param import StaticParam
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,25 +29,15 @@ class CustomCodeConfig(BaseModel):
     """
     CustomCodeConfig
     """ # noqa: E501
-    data_granularity: Optional[StrictStr] = Field(default=None, description="Data granularity level for evaluation. When omitted or null, no granularity filter is applied (span-level evaluation is used by default on the server). ")
+    data_granularity: Optional[DataGranularity] = Field(default=None, description="Data granularity level for evaluation. When omitted or null, no granularity filter is applied (span-level evaluation is used by default on the server). ")
     query_filter: Optional[StrictStr] = Field(default=None, description="Optional filter query over the chosen data granularity. When omitted or null, no filter is applied. ")
-    type: StrictStr = Field(description="Discriminator for custom Python code evaluators")
+    type: StrictStr
     name: Annotated[str, Field(strict=True)] = Field(description="Eval column name. Must match ^[a-zA-Z0-9_\\s\\-&()]+$")
     code: StrictStr = Field(description="Python source defining the evaluator class")
     imports: Optional[StrictStr] = Field(default=None, description="Optional package import block prepended when running the evaluator")
     variables: List[StrictStr] = Field(description="Dataset columns or span attributes mapped to evaluate() arguments")
     static_params: Optional[List[StaticParam]] = Field(default=None, description="Optional typed defaults accessible on the evaluator instance. Omit or pass an empty array when the custom class does not read any static parameters. ")
     __properties: ClassVar[List[str]] = ["data_granularity", "query_filter", "type", "name", "code", "imports", "variables", "static_params"]
-
-    @field_validator('data_granularity')
-    def data_granularity_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['span', 'trace', 'session']):
-            raise ValueError("must be one of enum values ('span', 'trace', 'session')")
-        return value
 
     @field_validator('type')
     def type_validate_enum(cls, value):

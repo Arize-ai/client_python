@@ -29,13 +29,13 @@ class TemplateEvaluationRunConfig(BaseModel):
     Configuration for running a template-based LLM evaluator against each dataset example.
     """ # noqa: E501
     experiment_type: StrictStr = Field(description="Discriminator. Must be `\"template_evaluation\"`.")
-    ai_integration_id: StrictStr = Field(description="AI integration global ID (base64). The LLM that judges each example.")
+    ai_integration_id: StrictStr = Field(description="AI integration identifier (base64). The LLM that judges each example.")
     model_name: Optional[StrictStr] = Field(default=None, description="Model name (e.g. `gpt-4o`). Falls back to the integration's default if omitted.")
     template: Annotated[str, Field(min_length=1, strict=True)] = Field(description="The evaluation prompt template. Use `{{variable}}` placeholders that map to dataset column paths via `column_mapping`. ")
     provide_explanation: StrictBool = Field(description="Whether to ask the LLM to include a written explanation alongside the score/label.")
     classification_choices: Optional[Dict[str, Union[StrictFloat, StrictInt]]] = Field(default=None, description="Map of choice label to numeric score (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`).")
     column_mapping: Optional[Dict[str, StrictStr]] = Field(default=None, description="Maps template variable names to dataset column paths.")
-    evaluator_version_id: Optional[StrictStr] = Field(default=None, description="EvaluatorVersion global ID (base64). Links this run to an Eval Hub evaluator version.")
+    evaluator_version_id: Optional[StrictStr] = Field(default=None, description="EvaluatorVersion identifier (base64). Links this run to an Eval Hub evaluator version.")
     invocation_parameters: Optional[InvocationParams] = None
     provider_parameters: Optional[Dict[str, Any]] = Field(default=None, description="Provider-specific parameters. Defaults to `{}` (no overrides) if omitted.")
     __properties: ClassVar[List[str]] = ["experiment_type", "ai_integration_id", "model_name", "template", "provide_explanation", "classification_choices", "column_mapping", "evaluator_version_id", "invocation_parameters", "provider_parameters"]

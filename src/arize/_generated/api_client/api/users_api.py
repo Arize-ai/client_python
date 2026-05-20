@@ -104,6 +104,7 @@ class UsersApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -178,6 +179,7 @@ class UsersApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -252,6 +254,7 @@ class UsersApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -342,7 +345,7 @@ class UsersApi:
     @validate_call
     def users_delete(
         self,
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -360,7 +363,7 @@ class UsersApi:
 
         Permanently block a user from the account. The user's status is set to `inactive` and they can no longer log in. The operation cascades to: - Organization memberships - Space memberships - User API keys - Role bindings  Blocked users cannot be re-invited via the create endpoint — `inactive` is a terminal state. Callers cannot delete themselves. The operation is idempotent — blocking an already-inactive user returns 204.  Requires account admin role or USER_DELETE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -414,7 +417,7 @@ class UsersApi:
     @validate_call
     def users_delete_with_http_info(
         self,
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -432,7 +435,7 @@ class UsersApi:
 
         Permanently block a user from the account. The user's status is set to `inactive` and they can no longer log in. The operation cascades to: - Organization memberships - Space memberships - User API keys - Role bindings  Blocked users cannot be re-invited via the create endpoint — `inactive` is a terminal state. Callers cannot delete themselves. The operation is idempotent — blocking an already-inactive user returns 204.  Requires account admin role or USER_DELETE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -486,7 +489,7 @@ class UsersApi:
     @validate_call
     def users_delete_without_preload_content(
         self,
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -504,7 +507,7 @@ class UsersApi:
 
         Permanently block a user from the account. The user's status is set to `inactive` and they can no longer log in. The operation cascades to: - Organization memberships - Space memberships - User API keys - Role bindings  Blocked users cannot be re-invited via the create endpoint — `inactive` is a terminal state. Callers cannot delete themselves. The operation is idempotent — blocking an already-inactive user returns 204.  Requires account admin role or USER_DELETE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -618,7 +621,7 @@ class UsersApi:
     @validate_call
     def users_get(
         self,
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -636,7 +639,7 @@ class UsersApi:
 
         Get a specific user by their ID.  Requires account admin role, account member role, or USER_READ permission at the account level.  Returns 404 if the user does not exist, does not belong to the caller's account, or the caller lacks read permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -689,7 +692,7 @@ class UsersApi:
     @validate_call
     def users_get_with_http_info(
         self,
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -707,7 +710,7 @@ class UsersApi:
 
         Get a specific user by their ID.  Requires account admin role, account member role, or USER_READ permission at the account level.  Returns 404 if the user does not exist, does not belong to the caller's account, or the caller lacks read permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -760,7 +763,7 @@ class UsersApi:
     @validate_call
     def users_get_without_preload_content(
         self,
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -778,7 +781,7 @@ class UsersApi:
 
         Get a specific user by their ID.  Requires account admin role, account member role, or USER_READ permission at the account level.  Returns 404 if the user does not exist, does not belong to the caller's account, or the caller lacks read permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1220,7 +1223,7 @@ class UsersApi:
     @validate_call
     def users_password_reset(
         self,
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1238,7 +1241,7 @@ class UsersApi:
 
         Generates a reset token and sends the user a password-reset email with a 30-minute link.  - Requires account admin role or USER_UPDATE permission. - Returns 400 if the target user authenticates via SSO/SAML or has not   yet verified their account (no password hash to key the token against).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1292,7 +1295,7 @@ class UsersApi:
     @validate_call
     def users_password_reset_with_http_info(
         self,
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1310,7 +1313,7 @@ class UsersApi:
 
         Generates a reset token and sends the user a password-reset email with a 30-minute link.  - Requires account admin role or USER_UPDATE permission. - Returns 400 if the target user authenticates via SSO/SAML or has not   yet verified their account (no password hash to key the token against).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1364,7 +1367,7 @@ class UsersApi:
     @validate_call
     def users_password_reset_without_preload_content(
         self,
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1382,7 +1385,7 @@ class UsersApi:
 
         Generates a reset token and sends the user a password-reset email with a 30-minute link.  - Requires account admin role or USER_UPDATE permission. - Returns 400 if the target user authenticates via SSO/SAML or has not   yet verified their account (no password hash to key the token against).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1496,7 +1499,7 @@ class UsersApi:
     @validate_call
     def users_resend_invitation(
         self,
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1514,7 +1517,7 @@ class UsersApi:
 
         Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1568,7 +1571,7 @@ class UsersApi:
     @validate_call
     def users_resend_invitation_with_http_info(
         self,
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1586,7 +1589,7 @@ class UsersApi:
 
         Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1640,7 +1643,7 @@ class UsersApi:
     @validate_call
     def users_resend_invitation_without_preload_content(
         self,
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1658,7 +1661,7 @@ class UsersApi:
 
         Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1772,7 +1775,7 @@ class UsersApi:
     @validate_call
     def users_update(
         self,
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         user_update: Annotated[UserUpdate, Field(description="Body containing user update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -1791,7 +1794,7 @@ class UsersApi:
 
         Update a user's display name and/or developer permission.  **Payload Requirements** - At least one of `name` or `is_developer` must be provided. - `name` must be 1–255 characters. Leading and trailing whitespace is stripped before   validation; whitespace-only values (e.g. `\"   \"`) are rejected with 400. - Setting `is_developer` to its current value is a no-op (idempotent).  **Example valid requests:** ```json { \"name\": \"Jane Smith\" } { \"is_developer\": true } { \"name\": \"Jane Smith\", \"is_developer\": false } ```  **Example invalid requests:** - `{}` — at least one field must be provided - `{ \"name\": \"   \" }` — name cannot be whitespace only  Requires account admin role or USER_UPDATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param user_update: Body containing user update parameters. At least one field must be provided. (required)
         :type user_update: UserUpdate
@@ -1832,6 +1835,7 @@ class UsersApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1848,7 +1852,7 @@ class UsersApi:
     @validate_call
     def users_update_with_http_info(
         self,
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         user_update: Annotated[UserUpdate, Field(description="Body containing user update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -1867,7 +1871,7 @@ class UsersApi:
 
         Update a user's display name and/or developer permission.  **Payload Requirements** - At least one of `name` or `is_developer` must be provided. - `name` must be 1–255 characters. Leading and trailing whitespace is stripped before   validation; whitespace-only values (e.g. `\"   \"`) are rejected with 400. - Setting `is_developer` to its current value is a no-op (idempotent).  **Example valid requests:** ```json { \"name\": \"Jane Smith\" } { \"is_developer\": true } { \"name\": \"Jane Smith\", \"is_developer\": false } ```  **Example invalid requests:** - `{}` — at least one field must be provided - `{ \"name\": \"   \" }` — name cannot be whitespace only  Requires account admin role or USER_UPDATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param user_update: Body containing user update parameters. At least one field must be provided. (required)
         :type user_update: UserUpdate
@@ -1908,6 +1912,7 @@ class UsersApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1924,7 +1929,7 @@ class UsersApi:
     @validate_call
     def users_update_without_preload_content(
         self,
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         user_update: Annotated[UserUpdate, Field(description="Body containing user update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -1943,7 +1948,7 @@ class UsersApi:
 
         Update a user's display name and/or developer permission.  **Payload Requirements** - At least one of `name` or `is_developer` must be provided. - `name` must be 1–255 characters. Leading and trailing whitespace is stripped before   validation; whitespace-only values (e.g. `\"   \"`) are rejected with 400. - Setting `is_developer` to its current value is a no-op (idempotent).  **Example valid requests:** ```json { \"name\": \"Jane Smith\" } { \"is_developer\": true } { \"name\": \"Jane Smith\", \"is_developer\": false } ```  **Example invalid requests:** - `{}` — at least one field must be provided - `{ \"name\": \"   \" }` — name cannot be whitespace only  Requires account admin role or USER_UPDATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param user_update: Body containing user update parameters. At least one field must be provided. (required)
         :type user_update: UserUpdate
@@ -1984,6 +1989,7 @@ class UsersApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(

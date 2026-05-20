@@ -16,11 +16,13 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from pydantic import Field, StrictStr, field_validator
+from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.task import Task
 from arize._generated.api_client.models.task_run import TaskRun
+from arize._generated.api_client.models.task_run_status import TaskRunStatus
+from arize._generated.api_client.models.task_type import TaskType
 from arize._generated.api_client.models.tasks_create_request import TasksCreateRequest
 from arize._generated.api_client.models.tasks_list200_response import TasksList200Response
 from arize._generated.api_client.models.tasks_list_runs200_response import TasksListRuns200Response
@@ -48,7 +50,7 @@ class TasksApi:
     @validate_call
     def task_runs_cancel(
         self,
-        run_id: Annotated[StrictStr, Field(description="The task run global ID (base64)")],
+        run_id: Annotated[StrictStr, Field(description="The unique task run identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -66,7 +68,7 @@ class TasksApi:
 
         Cancel a running task run. Only valid when the run's current status is `pending` or `running`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param run_id: The task run global ID (base64) (required)
+        :param run_id: The unique task run identifier (base64) (required)
         :type run_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -120,7 +122,7 @@ class TasksApi:
     @validate_call
     def task_runs_cancel_with_http_info(
         self,
-        run_id: Annotated[StrictStr, Field(description="The task run global ID (base64)")],
+        run_id: Annotated[StrictStr, Field(description="The unique task run identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -138,7 +140,7 @@ class TasksApi:
 
         Cancel a running task run. Only valid when the run's current status is `pending` or `running`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param run_id: The task run global ID (base64) (required)
+        :param run_id: The unique task run identifier (base64) (required)
         :type run_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -192,7 +194,7 @@ class TasksApi:
     @validate_call
     def task_runs_cancel_without_preload_content(
         self,
-        run_id: Annotated[StrictStr, Field(description="The task run global ID (base64)")],
+        run_id: Annotated[StrictStr, Field(description="The unique task run identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -210,7 +212,7 @@ class TasksApi:
 
         Cancel a running task run. Only valid when the run's current status is `pending` or `running`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param run_id: The task run global ID (base64) (required)
+        :param run_id: The unique task run identifier (base64) (required)
         :type run_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -325,7 +327,7 @@ class TasksApi:
     @validate_call
     def task_runs_get(
         self,
-        run_id: Annotated[StrictStr, Field(description="The task run global ID (base64)")],
+        run_id: Annotated[StrictStr, Field(description="The unique task run identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -343,7 +345,7 @@ class TasksApi:
 
         Returns a single task run. Use this to poll for status updates.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param run_id: The task run global ID (base64) (required)
+        :param run_id: The unique task run identifier (base64) (required)
         :type run_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -396,7 +398,7 @@ class TasksApi:
     @validate_call
     def task_runs_get_with_http_info(
         self,
-        run_id: Annotated[StrictStr, Field(description="The task run global ID (base64)")],
+        run_id: Annotated[StrictStr, Field(description="The unique task run identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -414,7 +416,7 @@ class TasksApi:
 
         Returns a single task run. Use this to poll for status updates.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param run_id: The task run global ID (base64) (required)
+        :param run_id: The unique task run identifier (base64) (required)
         :type run_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -467,7 +469,7 @@ class TasksApi:
     @validate_call
     def task_runs_get_without_preload_content(
         self,
-        run_id: Annotated[StrictStr, Field(description="The task run global ID (base64)")],
+        run_id: Annotated[StrictStr, Field(description="The unique task run identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -485,7 +487,7 @@ class TasksApi:
 
         Returns a single task run. Use this to poll for status updates.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param run_id: The task run global ID (base64) (required)
+        :param run_id: The unique task run identifier (base64) (required)
         :type run_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -655,6 +657,7 @@ class TasksApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -727,6 +730,7 @@ class TasksApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -799,6 +803,7 @@ class TasksApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -889,7 +894,7 @@ class TasksApi:
     @validate_call
     def tasks_delete(
         self,
-        task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -907,7 +912,7 @@ class TasksApi:
 
         Deletes a task and all its associated resources (evaluator configs, runs, etc.). This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param task_id: The task global ID (base64) (required)
+        :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -961,7 +966,7 @@ class TasksApi:
     @validate_call
     def tasks_delete_with_http_info(
         self,
-        task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -979,7 +984,7 @@ class TasksApi:
 
         Deletes a task and all its associated resources (evaluator configs, runs, etc.). This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param task_id: The task global ID (base64) (required)
+        :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1033,7 +1038,7 @@ class TasksApi:
     @validate_call
     def tasks_delete_without_preload_content(
         self,
-        task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1051,7 +1056,7 @@ class TasksApi:
 
         Deletes a task and all its associated resources (evaluator configs, runs, etc.). This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param task_id: The task global ID (base64) (required)
+        :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1165,7 +1170,7 @@ class TasksApi:
     @validate_call
     def tasks_get(
         self,
-        task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1183,7 +1188,7 @@ class TasksApi:
 
         Returns a single task by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param task_id: The task global ID (base64) (required)
+        :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1236,7 +1241,7 @@ class TasksApi:
     @validate_call
     def tasks_get_with_http_info(
         self,
-        task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1254,7 +1259,7 @@ class TasksApi:
 
         Returns a single task by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param task_id: The task global ID (base64) (required)
+        :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1307,7 +1312,7 @@ class TasksApi:
     @validate_call
     def tasks_get_without_preload_content(
         self,
-        task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1325,7 +1330,7 @@ class TasksApi:
 
         Returns a single task by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param task_id: The task global ID (base64) (required)
+        :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1442,9 +1447,9 @@ class TasksApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 global ID)")] = None,
-        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 global ID)")] = None,
-        type: Annotated[Optional[StrictStr], Field(description="Filter by task type: template_evaluation, code_evaluation, or run_experiment")] = None,
+        project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 identifier (base64))")] = None,
+        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
+        type: Annotated[Optional[TaskType], Field(description="Filter by task type: template_evaluation, code_evaluation, or run_experiment")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1470,12 +1475,12 @@ class TasksApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param project_id: Filter to tasks for a specific project (base64 global ID)
+        :param project_id: Filter to tasks for a specific project (base64 identifier (base64))
         :type project_id: str
-        :param dataset_id: Filter to a specific dataset (base64 global ID)
+        :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
         :type dataset_id: str
         :param type: Filter by task type: template_evaluation, code_evaluation, or run_experiment
-        :type type: str
+        :type type: TaskType
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -1542,9 +1547,9 @@ class TasksApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 global ID)")] = None,
-        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 global ID)")] = None,
-        type: Annotated[Optional[StrictStr], Field(description="Filter by task type: template_evaluation, code_evaluation, or run_experiment")] = None,
+        project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 identifier (base64))")] = None,
+        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
+        type: Annotated[Optional[TaskType], Field(description="Filter by task type: template_evaluation, code_evaluation, or run_experiment")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1570,12 +1575,12 @@ class TasksApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param project_id: Filter to tasks for a specific project (base64 global ID)
+        :param project_id: Filter to tasks for a specific project (base64 identifier (base64))
         :type project_id: str
-        :param dataset_id: Filter to a specific dataset (base64 global ID)
+        :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
         :type dataset_id: str
         :param type: Filter by task type: template_evaluation, code_evaluation, or run_experiment
-        :type type: str
+        :type type: TaskType
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -1642,9 +1647,9 @@ class TasksApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 global ID)")] = None,
-        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 global ID)")] = None,
-        type: Annotated[Optional[StrictStr], Field(description="Filter by task type: template_evaluation, code_evaluation, or run_experiment")] = None,
+        project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 identifier (base64))")] = None,
+        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
+        type: Annotated[Optional[TaskType], Field(description="Filter by task type: template_evaluation, code_evaluation, or run_experiment")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1670,12 +1675,12 @@ class TasksApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param project_id: Filter to tasks for a specific project (base64 global ID)
+        :param project_id: Filter to tasks for a specific project (base64 identifier (base64))
         :type project_id: str
-        :param dataset_id: Filter to a specific dataset (base64 global ID)
+        :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
         :type dataset_id: str
         :param type: Filter by task type: template_evaluation, code_evaluation, or run_experiment
-        :type type: str
+        :type type: TaskType
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -1786,7 +1791,7 @@ class TasksApi:
             
         if type is not None:
             
-            _query_params.append(('type', type))
+            _query_params.append(('type', type.value))
             
         if limit is not None:
             
@@ -1837,8 +1842,8 @@ class TasksApi:
     @validate_call
     def tasks_list_runs(
         self,
-        task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
-        status: Annotated[Optional[StrictStr], Field(description="Filter by run status: pending, running, completed, failed, cancelled")] = None,
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
+        status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: pending, running, completed, failed, cancelled")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1858,10 +1863,10 @@ class TasksApi:
 
         List all runs for a task with cursor-based pagination.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param task_id: The task global ID (base64) (required)
+        :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
         :param status: Filter by run status: pending, running, completed, failed, cancelled
-        :type status: str
+        :type status: TaskRunStatus
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -1921,8 +1926,8 @@ class TasksApi:
     @validate_call
     def tasks_list_runs_with_http_info(
         self,
-        task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
-        status: Annotated[Optional[StrictStr], Field(description="Filter by run status: pending, running, completed, failed, cancelled")] = None,
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
+        status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: pending, running, completed, failed, cancelled")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1942,10 +1947,10 @@ class TasksApi:
 
         List all runs for a task with cursor-based pagination.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param task_id: The task global ID (base64) (required)
+        :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
         :param status: Filter by run status: pending, running, completed, failed, cancelled
-        :type status: str
+        :type status: TaskRunStatus
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -2005,8 +2010,8 @@ class TasksApi:
     @validate_call
     def tasks_list_runs_without_preload_content(
         self,
-        task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
-        status: Annotated[Optional[StrictStr], Field(description="Filter by run status: pending, running, completed, failed, cancelled")] = None,
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
+        status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: pending, running, completed, failed, cancelled")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -2026,10 +2031,10 @@ class TasksApi:
 
         List all runs for a task with cursor-based pagination.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param task_id: The task global ID (base64) (required)
+        :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
         :param status: Filter by run status: pending, running, completed, failed, cancelled
-        :type status: str
+        :type status: TaskRunStatus
         :param limit: Maximum items to return
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
@@ -2114,7 +2119,7 @@ class TasksApi:
         # process the query parameters
         if status is not None:
             
-            _query_params.append(('status', status))
+            _query_params.append(('status', status.value))
             
         if limit is not None:
             
@@ -2165,7 +2170,7 @@ class TasksApi:
     @validate_call
     def tasks_trigger_run(
         self,
-        task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
         tasks_trigger_run_request: Annotated[Optional[TasksTriggerRunRequest], Field(description="Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. ")] = None,
         _request_timeout: Union[
             None,
@@ -2184,7 +2189,7 @@ class TasksApi:
 
         Triggers a new run on an existing task. The run is queued and processed asynchronously. Poll `GET /v2/task-runs/{run_id}` until the run reaches a terminal status (`completed`, `failed`, or `cancelled`).  **Payload Requirements** - Fields must match the task's type; sending inapplicable fields returns 400. - For `template_evaluation` / `code_evaluation` tasks, all trigger fields are optional — an empty body uses server defaults. - For `run_experiment` tasks, `experiment_name` is required.  **For `run_experiment` tasks**  Supply `experiment_name` (required) plus any of the optional per-run fields: `dataset_version_id`, `example_ids` (exclusive with `max_examples`), `max_examples`, `tracing_metadata`, `evaluation_task_ids`.  The fields `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and `experiment_ids` are not applicable and will return 400 if supplied.  The response includes `experiment_id` once the experiment is provisioned.  **For `template_evaluation` / `code_evaluation` tasks**  Supply `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and/or `experiment_ids` as needed. `run_experiment`-specific fields are not applicable for these task types.  **Valid example** (trigger a run_experiment run) ```json {   \"experiment_name\": \"GPT-4o Baseline v2\",   \"max_examples\": 50 } ```  **Invalid example** (run_experiment trigger missing required `experiment_name`) ```json {   \"max_examples\": 50 } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param task_id: The task global ID (base64) (required)
+        :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
         :param tasks_trigger_run_request: Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. 
         :type tasks_trigger_run_request: TasksTriggerRunRequest
@@ -2226,6 +2231,7 @@ class TasksApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2242,7 +2248,7 @@ class TasksApi:
     @validate_call
     def tasks_trigger_run_with_http_info(
         self,
-        task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
         tasks_trigger_run_request: Annotated[Optional[TasksTriggerRunRequest], Field(description="Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. ")] = None,
         _request_timeout: Union[
             None,
@@ -2261,7 +2267,7 @@ class TasksApi:
 
         Triggers a new run on an existing task. The run is queued and processed asynchronously. Poll `GET /v2/task-runs/{run_id}` until the run reaches a terminal status (`completed`, `failed`, or `cancelled`).  **Payload Requirements** - Fields must match the task's type; sending inapplicable fields returns 400. - For `template_evaluation` / `code_evaluation` tasks, all trigger fields are optional — an empty body uses server defaults. - For `run_experiment` tasks, `experiment_name` is required.  **For `run_experiment` tasks**  Supply `experiment_name` (required) plus any of the optional per-run fields: `dataset_version_id`, `example_ids` (exclusive with `max_examples`), `max_examples`, `tracing_metadata`, `evaluation_task_ids`.  The fields `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and `experiment_ids` are not applicable and will return 400 if supplied.  The response includes `experiment_id` once the experiment is provisioned.  **For `template_evaluation` / `code_evaluation` tasks**  Supply `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and/or `experiment_ids` as needed. `run_experiment`-specific fields are not applicable for these task types.  **Valid example** (trigger a run_experiment run) ```json {   \"experiment_name\": \"GPT-4o Baseline v2\",   \"max_examples\": 50 } ```  **Invalid example** (run_experiment trigger missing required `experiment_name`) ```json {   \"max_examples\": 50 } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param task_id: The task global ID (base64) (required)
+        :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
         :param tasks_trigger_run_request: Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. 
         :type tasks_trigger_run_request: TasksTriggerRunRequest
@@ -2303,6 +2309,7 @@ class TasksApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2319,7 +2326,7 @@ class TasksApi:
     @validate_call
     def tasks_trigger_run_without_preload_content(
         self,
-        task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
         tasks_trigger_run_request: Annotated[Optional[TasksTriggerRunRequest], Field(description="Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. ")] = None,
         _request_timeout: Union[
             None,
@@ -2338,7 +2345,7 @@ class TasksApi:
 
         Triggers a new run on an existing task. The run is queued and processed asynchronously. Poll `GET /v2/task-runs/{run_id}` until the run reaches a terminal status (`completed`, `failed`, or `cancelled`).  **Payload Requirements** - Fields must match the task's type; sending inapplicable fields returns 400. - For `template_evaluation` / `code_evaluation` tasks, all trigger fields are optional — an empty body uses server defaults. - For `run_experiment` tasks, `experiment_name` is required.  **For `run_experiment` tasks**  Supply `experiment_name` (required) plus any of the optional per-run fields: `dataset_version_id`, `example_ids` (exclusive with `max_examples`), `max_examples`, `tracing_metadata`, `evaluation_task_ids`.  The fields `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and `experiment_ids` are not applicable and will return 400 if supplied.  The response includes `experiment_id` once the experiment is provisioned.  **For `template_evaluation` / `code_evaluation` tasks**  Supply `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and/or `experiment_ids` as needed. `run_experiment`-specific fields are not applicable for these task types.  **Valid example** (trigger a run_experiment run) ```json {   \"experiment_name\": \"GPT-4o Baseline v2\",   \"max_examples\": 50 } ```  **Invalid example** (run_experiment trigger missing required `experiment_name`) ```json {   \"max_examples\": 50 } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param task_id: The task global ID (base64) (required)
+        :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
         :param tasks_trigger_run_request: Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. 
         :type tasks_trigger_run_request: TasksTriggerRunRequest
@@ -2380,6 +2387,7 @@ class TasksApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2473,7 +2481,7 @@ class TasksApi:
     @validate_call
     def tasks_update(
         self,
-        task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
         tasks_update_request: Annotated[TasksUpdateRequest, Field(description="PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task). ")],
         _request_timeout: Union[
             None,
@@ -2492,7 +2500,7 @@ class TasksApi:
 
         Update a task's mutable fields. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one mutable field must be provided. - When `evaluators` is provided, the entire evaluator list is replaced. - `sampling_rate` and `is_continuous` are only applicable for project-based tasks. - Fields not valid for the task's type return 400 (e.g. `run_configuration` on an evaluation task). - System-managed fields (`id`, `type`, `created_at`, `updated_at`) cannot be modified.  **Valid example** (update evaluation task) ```json {   \"name\": \"Updated Hallucination Check\",   \"sampling_rate\": 0.5,   \"query_filter\": \"metadata.environment = 'staging'\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param task_id: The task global ID (base64) (required)
+        :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
         :param tasks_update_request: PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task).  (required)
         :type tasks_update_request: TasksUpdateRequest
@@ -2533,6 +2541,7 @@ class TasksApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2549,7 +2558,7 @@ class TasksApi:
     @validate_call
     def tasks_update_with_http_info(
         self,
-        task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
         tasks_update_request: Annotated[TasksUpdateRequest, Field(description="PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task). ")],
         _request_timeout: Union[
             None,
@@ -2568,7 +2577,7 @@ class TasksApi:
 
         Update a task's mutable fields. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one mutable field must be provided. - When `evaluators` is provided, the entire evaluator list is replaced. - `sampling_rate` and `is_continuous` are only applicable for project-based tasks. - Fields not valid for the task's type return 400 (e.g. `run_configuration` on an evaluation task). - System-managed fields (`id`, `type`, `created_at`, `updated_at`) cannot be modified.  **Valid example** (update evaluation task) ```json {   \"name\": \"Updated Hallucination Check\",   \"sampling_rate\": 0.5,   \"query_filter\": \"metadata.environment = 'staging'\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param task_id: The task global ID (base64) (required)
+        :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
         :param tasks_update_request: PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task).  (required)
         :type tasks_update_request: TasksUpdateRequest
@@ -2609,6 +2618,7 @@ class TasksApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2625,7 +2635,7 @@ class TasksApi:
     @validate_call
     def tasks_update_without_preload_content(
         self,
-        task_id: Annotated[StrictStr, Field(description="The task global ID (base64)")],
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
         tasks_update_request: Annotated[TasksUpdateRequest, Field(description="PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task). ")],
         _request_timeout: Union[
             None,
@@ -2644,7 +2654,7 @@ class TasksApi:
 
         Update a task's mutable fields. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one mutable field must be provided. - When `evaluators` is provided, the entire evaluator list is replaced. - `sampling_rate` and `is_continuous` are only applicable for project-based tasks. - Fields not valid for the task's type return 400 (e.g. `run_configuration` on an evaluation task). - System-managed fields (`id`, `type`, `created_at`, `updated_at`) cannot be modified.  **Valid example** (update evaluation task) ```json {   \"name\": \"Updated Hallucination Check\",   \"sampling_rate\": 0.5,   \"query_filter\": \"metadata.environment = 'staging'\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param task_id: The task global ID (base64) (required)
+        :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
         :param tasks_update_request: PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task).  (required)
         :type tasks_update_request: TasksUpdateRequest
@@ -2685,6 +2695,7 @@ class TasksApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(

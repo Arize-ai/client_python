@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Task name | 
 **type** | **str** | Task type discriminator. Must be &#x60;\&quot;run_experiment\&quot;&#x60;. | 
-**dataset_id** | **str** | Dataset global ID (base64). Required for &#x60;run_experiment&#x60; tasks. | 
+**dataset_id** | **str** | Dataset identifier (base64). Required for &#x60;run_experiment&#x60; tasks. | 
 **run_configuration** | [**RunConfiguration**](RunConfiguration.md) |  | 
 
 ## Example

@@ -1,5 +1,21 @@
 # Changelog
 
+## [8.28.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.27.0...arize-python-sdk/v8.28.0) (2026-05-20)
+
+
+### 🎁 New Features
+
+* **types:** extract inline enums for annotation_queues ([#71641](https://github.com/Arize-ai/arize/issues/71641)) ([0f89415](https://github.com/Arize-ai/arize/commit/0f8941500ff1b838e8b839124b5d61268aa9ece0))
+* **types:** extract inline enums for api_keys ([#71644](https://github.com/Arize-ai/arize/issues/71644)) ([4f91923](https://github.com/Arize-ai/arize/commit/4f9192351487624fb0eca3bbf90d4463bccb3e5b))
+* **types:** extract inline enums for evaluators ([#71639](https://github.com/Arize-ai/arize/issues/71639)) ([b83731e](https://github.com/Arize-ai/arize/commit/b83731eb098a71b1f29c1293b26ea4d5344e8916))
+* **types:** extract inline enums for tasks ([#71640](https://github.com/Arize-ai/arize/issues/71640)) ([eb14662](https://github.com/Arize-ai/arize/commit/eb1466253ba6f3f41a6bf0294e1614e2551539b4))
+* **datasets:** Add update-dataset support for renaming a dataset ([#72037](https://github.com/Arize-ai/arize/issues/72037)) ([25623b4](https://github.com/Arize-ai/arize/commit/25623b4ef59383c1cc68b24cd083ae6427f89945))
+
+
+### 🐛 Bug Fixes
+
+* **cleanup:** use base64 Relay global IDs in OpenAPI spec examples ([#71993](https://github.com/Arize-ai/arize/issues/71993)) ([5903e5b](https://github.com/Arize-ai/arize/commit/5903e5b6bea4b149906f1fc45eb7aa8993eac2c9)), closes [#71246](https://github.com/Arize-ai/arize/issues/71246)
+
 ## [8.27.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.26.0...arize-python-sdk/v8.27.0) (2026-05-15)
 
 

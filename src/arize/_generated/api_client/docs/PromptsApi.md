@@ -58,7 +58,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.PromptsApi(api_client)
-    prompt_id = 'prompt_12345' # str | The unique identifier of the prompt
+    prompt_id = 'UHJvbXB0OjEyMzQ1' # str | The unique prompt identifier (base64)
     label_name = 'label_name_example' # str | The name of the label (e.g., \"production\", \"staging\")
 
     try:
@@ -77,7 +77,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **prompt_id** | **str**| The unique identifier of the prompt | 
+ **prompt_id** | **str**| The unique prompt identifier (base64) | 
  **label_name** | **str**| The name of the label (e.g., \&quot;production\&quot;, \&quot;staging\&quot;) | 
 
 ### Return type
@@ -144,7 +144,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.PromptsApi(api_client)
-    version_id = 'pv_12345' # str | The unique identifier of the prompt version
+    version_id = 'UHJvbXB0VmVyc2lvbjoxMjM0NQ==' # str | The unique prompt version identifier (base64)
     label_name = 'label_name_example' # str | The name of the label (e.g., \"production\", \"staging\")
 
     try:
@@ -161,7 +161,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **version_id** | **str**| The unique identifier of the prompt version | 
+ **version_id** | **str**| The unique prompt version identifier (base64) | 
  **label_name** | **str**| The name of the label (e.g., \&quot;production\&quot;, \&quot;staging\&quot;) | 
 
 ### Return type
@@ -235,7 +235,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.PromptsApi(api_client)
-    version_id = 'pv_12345' # str | The unique identifier of the prompt version
+    version_id = 'UHJvbXB0VmVyc2lvbjoxMjM0NQ==' # str | The unique prompt version identifier (base64)
     prompt_version_labels_set_request = {"labels":["production","staging"]} # PromptVersionLabelsSetRequest | Body containing the labels to set on a prompt version
 
     try:
@@ -254,7 +254,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **version_id** | **str**| The unique identifier of the prompt version | 
+ **version_id** | **str**| The unique prompt version identifier (base64) | 
  **prompt_version_labels_set_request** | [**PromptVersionLabelsSetRequest**](PromptVersionLabelsSetRequest.md)| Body containing the labels to set on a prompt version | 
 
 ### Return type
@@ -279,6 +279,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -365,7 +366,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.PromptsApi(api_client)
-    prompt_id = 'prompt_12345' # str | The unique identifier of the prompt
+    prompt_id = 'UHJvbXB0OjEyMzQ1' # str | The unique prompt identifier (base64)
     prompt_versions_create_request = {"commit_message":"Updated system prompt for better responses","input_variable_format":"f_string","provider":"open_ai","model":"gpt-4","messages":[{"role":"system","content":"You are a helpful assistant."},{"role":"user","content":"Hello, {name}!"}]} # PromptVersionsCreateRequest | Body containing prompt version creation parameters
 
     try:
@@ -384,7 +385,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **prompt_id** | **str**| The unique identifier of the prompt | 
+ **prompt_id** | **str**| The unique prompt identifier (base64) | 
  **prompt_versions_create_request** | [**PromptVersionsCreateRequest**](PromptVersionsCreateRequest.md)| Body containing prompt version creation parameters | 
 
 ### Return type
@@ -409,6 +410,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -453,7 +455,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.PromptsApi(api_client)
-    version_id = 'pv_12345' # str | The unique identifier of the prompt version
+    version_id = 'UHJvbXB0VmVyc2lvbjoxMjM0NQ==' # str | The unique prompt version identifier (base64)
 
     try:
         # Get a prompt version
@@ -471,7 +473,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **version_id** | **str**| The unique identifier of the prompt version | 
+ **version_id** | **str**| The unique prompt version identifier (base64) | 
 
 ### Return type
 
@@ -539,7 +541,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.PromptsApi(api_client)
-    prompt_id = 'prompt_12345' # str | The unique identifier of the prompt
+    prompt_id = 'UHJvbXB0OjEyMzQ1' # str | The unique prompt identifier (base64)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
@@ -559,7 +561,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **prompt_id** | **str**| The unique identifier of the prompt | 
+ **prompt_id** | **str**| The unique prompt identifier (base64) | 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
@@ -676,6 +678,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -719,7 +722,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.PromptsApi(api_client)
-    prompt_id = 'prompt_12345' # str | The unique identifier of the prompt
+    prompt_id = 'UHJvbXB0OjEyMzQ1' # str | The unique prompt identifier (base64)
 
     try:
         # Delete a prompt
@@ -735,7 +738,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **prompt_id** | **str**| The unique identifier of the prompt | 
+ **prompt_id** | **str**| The unique prompt identifier (base64) | 
 
 ### Return type
 
@@ -806,8 +809,8 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.PromptsApi(api_client)
-    prompt_id = 'prompt_12345' # str | The unique identifier of the prompt
-    version_id = 'pv_12345' # str | Return the prompt with this specific version. Mutually exclusive with `label`. (optional)
+    prompt_id = 'UHJvbXB0OjEyMzQ1' # str | The unique prompt identifier (base64)
+    version_id = 'UHJvbXB0VmVyc2lvbjoxMjM0NQ==' # str | Return the prompt with this specific version (base64 identifier (base64)). Mutually exclusive with `label`. (optional)
     label = 'production' # str | Return the prompt with the version pointed to by this label (e.g., \"production\"). Mutually exclusive with `version_id`. (optional)
 
     try:
@@ -826,8 +829,8 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **prompt_id** | **str**| The unique identifier of the prompt | 
- **version_id** | **str**| Return the prompt with this specific version. Mutually exclusive with &#x60;label&#x60;. | [optional] 
+ **prompt_id** | **str**| The unique prompt identifier (base64) | 
+ **version_id** | **str**| Return the prompt with this specific version (base64 identifier (base64)). Mutually exclusive with &#x60;label&#x60;. | [optional] 
  **label** | **str**| Return the prompt with the version pointed to by this label (e.g., \&quot;production\&quot;). Mutually exclusive with &#x60;version_id&#x60;. | [optional] 
 
 ### Return type
@@ -994,7 +997,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.PromptsApi(api_client)
-    prompt_id = 'prompt_12345' # str | The unique identifier of the prompt
+    prompt_id = 'UHJvbXB0OjEyMzQ1' # str | The unique prompt identifier (base64)
     prompts_update_request = {"description":"Updated prompt description"} # PromptsUpdateRequest | Body containing prompt update parameters. At least one field must be provided.
 
     try:
@@ -1013,7 +1016,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **prompt_id** | **str**| The unique identifier of the prompt | 
+ **prompt_id** | **str**| The unique prompt identifier (base64) | 
  **prompts_update_request** | [**PromptsUpdateRequest**](PromptsUpdateRequest.md)| Body containing prompt update parameters. At least one field must be provided. | 
 
 ### Return type
@@ -1038,6 +1041,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

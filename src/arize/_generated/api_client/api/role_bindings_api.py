@@ -59,7 +59,7 @@ class RoleBindingsApi:
     ) -> RoleBinding:
         """Create a role binding
 
-        Create a new role binding that assigns a role to a user on a resource.  **Payload Requirements** - `role_id`, `user_id`, `resource_type`, and `resource_id` are required. - `resource_type` must be `SPACE` or `PROJECT`. - `resource_id` must be a global ID for the selected `resource_type`. - Only one binding per user and resource is allowed. If the target user   already has any binding on the resource, the request returns   `409 Conflict`. - System-managed fields (`id`, `created_at`, `updated_at`) are returned   by the server and are rejected on input.  **Valid example** ```json {   \"role_id\": \"Um9sZToxOlY0S2E=\",   \"user_id\": \"VXNlcjoxOmxQZzI=\",   \"resource_type\": \"PROJECT\",   \"resource_id\": \"TW9kZWw6MTpGdmxM\" } ```  **Invalid example** ```json {   \"role_id\": \"Um9sZToxOlY0S2E=\",   \"user_id\": \"VXNlcjoxOmxQZzI=\",   \"resource_type\": \"PROJECT\",   \"resource_id\": \"U3BhY2U6MTp1Rk4x\" } ``` This fails because `resource_id` must encode a `PROJECT` ID when `resource_type` is `PROJECT`.  Use `PATCH /v2/role-bindings/{binding_id}` to change the assigned role for an existing binding.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new role binding that assigns a role to a user on a resource.  **Payload Requirements** - `role_id`, `user_id`, `resource_type`, and `resource_id` are required. - `resource_type` must be `SPACE` or `PROJECT`. - `resource_id` must be a unique identifier for the selected `resource_type`. - Only one binding per user and resource is allowed. If the target user   already has any binding on the resource, the request returns   `409 Conflict`. - System-managed fields (`id`, `created_at`, `updated_at`) are returned   by the server and are rejected on input.  **Valid example** ```json {   \"role_id\": \"Um9sZToxOlY0S2E=\",   \"user_id\": \"VXNlcjoxOmxQZzI=\",   \"resource_type\": \"PROJECT\",   \"resource_id\": \"TW9kZWw6MTpGdmxM\" } ```  **Invalid example** ```json {   \"role_id\": \"Um9sZToxOlY0S2E=\",   \"user_id\": \"VXNlcjoxOmxQZzI=\",   \"resource_type\": \"PROJECT\",   \"resource_id\": \"U3BhY2U6MTp1Rk4x\" } ``` This fails because `resource_id` must encode a `PROJECT` ID when `resource_type` is `PROJECT`.  Use `PATCH /v2/role-bindings/{binding_id}` to change the assigned role for an existing binding.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param role_binding_create: Body containing role binding creation parameters. (required)
         :type role_binding_create: RoleBindingCreate
@@ -100,6 +100,7 @@ class RoleBindingsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -132,7 +133,7 @@ class RoleBindingsApi:
     ) -> ApiResponse[RoleBinding]:
         """Create a role binding
 
-        Create a new role binding that assigns a role to a user on a resource.  **Payload Requirements** - `role_id`, `user_id`, `resource_type`, and `resource_id` are required. - `resource_type` must be `SPACE` or `PROJECT`. - `resource_id` must be a global ID for the selected `resource_type`. - Only one binding per user and resource is allowed. If the target user   already has any binding on the resource, the request returns   `409 Conflict`. - System-managed fields (`id`, `created_at`, `updated_at`) are returned   by the server and are rejected on input.  **Valid example** ```json {   \"role_id\": \"Um9sZToxOlY0S2E=\",   \"user_id\": \"VXNlcjoxOmxQZzI=\",   \"resource_type\": \"PROJECT\",   \"resource_id\": \"TW9kZWw6MTpGdmxM\" } ```  **Invalid example** ```json {   \"role_id\": \"Um9sZToxOlY0S2E=\",   \"user_id\": \"VXNlcjoxOmxQZzI=\",   \"resource_type\": \"PROJECT\",   \"resource_id\": \"U3BhY2U6MTp1Rk4x\" } ``` This fails because `resource_id` must encode a `PROJECT` ID when `resource_type` is `PROJECT`.  Use `PATCH /v2/role-bindings/{binding_id}` to change the assigned role for an existing binding.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new role binding that assigns a role to a user on a resource.  **Payload Requirements** - `role_id`, `user_id`, `resource_type`, and `resource_id` are required. - `resource_type` must be `SPACE` or `PROJECT`. - `resource_id` must be a unique identifier for the selected `resource_type`. - Only one binding per user and resource is allowed. If the target user   already has any binding on the resource, the request returns   `409 Conflict`. - System-managed fields (`id`, `created_at`, `updated_at`) are returned   by the server and are rejected on input.  **Valid example** ```json {   \"role_id\": \"Um9sZToxOlY0S2E=\",   \"user_id\": \"VXNlcjoxOmxQZzI=\",   \"resource_type\": \"PROJECT\",   \"resource_id\": \"TW9kZWw6MTpGdmxM\" } ```  **Invalid example** ```json {   \"role_id\": \"Um9sZToxOlY0S2E=\",   \"user_id\": \"VXNlcjoxOmxQZzI=\",   \"resource_type\": \"PROJECT\",   \"resource_id\": \"U3BhY2U6MTp1Rk4x\" } ``` This fails because `resource_id` must encode a `PROJECT` ID when `resource_type` is `PROJECT`.  Use `PATCH /v2/role-bindings/{binding_id}` to change the assigned role for an existing binding.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param role_binding_create: Body containing role binding creation parameters. (required)
         :type role_binding_create: RoleBindingCreate
@@ -173,6 +174,7 @@ class RoleBindingsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -205,7 +207,7 @@ class RoleBindingsApi:
     ) -> RESTResponseType:
         """Create a role binding
 
-        Create a new role binding that assigns a role to a user on a resource.  **Payload Requirements** - `role_id`, `user_id`, `resource_type`, and `resource_id` are required. - `resource_type` must be `SPACE` or `PROJECT`. - `resource_id` must be a global ID for the selected `resource_type`. - Only one binding per user and resource is allowed. If the target user   already has any binding on the resource, the request returns   `409 Conflict`. - System-managed fields (`id`, `created_at`, `updated_at`) are returned   by the server and are rejected on input.  **Valid example** ```json {   \"role_id\": \"Um9sZToxOlY0S2E=\",   \"user_id\": \"VXNlcjoxOmxQZzI=\",   \"resource_type\": \"PROJECT\",   \"resource_id\": \"TW9kZWw6MTpGdmxM\" } ```  **Invalid example** ```json {   \"role_id\": \"Um9sZToxOlY0S2E=\",   \"user_id\": \"VXNlcjoxOmxQZzI=\",   \"resource_type\": \"PROJECT\",   \"resource_id\": \"U3BhY2U6MTp1Rk4x\" } ``` This fails because `resource_id` must encode a `PROJECT` ID when `resource_type` is `PROJECT`.  Use `PATCH /v2/role-bindings/{binding_id}` to change the assigned role for an existing binding.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new role binding that assigns a role to a user on a resource.  **Payload Requirements** - `role_id`, `user_id`, `resource_type`, and `resource_id` are required. - `resource_type` must be `SPACE` or `PROJECT`. - `resource_id` must be a unique identifier for the selected `resource_type`. - Only one binding per user and resource is allowed. If the target user   already has any binding on the resource, the request returns   `409 Conflict`. - System-managed fields (`id`, `created_at`, `updated_at`) are returned   by the server and are rejected on input.  **Valid example** ```json {   \"role_id\": \"Um9sZToxOlY0S2E=\",   \"user_id\": \"VXNlcjoxOmxQZzI=\",   \"resource_type\": \"PROJECT\",   \"resource_id\": \"TW9kZWw6MTpGdmxM\" } ```  **Invalid example** ```json {   \"role_id\": \"Um9sZToxOlY0S2E=\",   \"user_id\": \"VXNlcjoxOmxQZzI=\",   \"resource_type\": \"PROJECT\",   \"resource_id\": \"U3BhY2U6MTp1Rk4x\" } ``` This fails because `resource_id` must encode a `PROJECT` ID when `resource_type` is `PROJECT`.  Use `PATCH /v2/role-bindings/{binding_id}` to change the assigned role for an existing binding.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param role_binding_create: Body containing role binding creation parameters. (required)
         :type role_binding_create: RoleBindingCreate
@@ -246,6 +248,7 @@ class RoleBindingsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -336,7 +339,7 @@ class RoleBindingsApi:
     @validate_call
     def role_bindings_delete(
         self,
-        binding_id: Annotated[StrictStr, Field(description="The unique identifier of the role binding.")],
+        binding_id: Annotated[StrictStr, Field(description="The unique role binding identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -354,7 +357,7 @@ class RoleBindingsApi:
 
         Delete a role binding by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param binding_id: The unique identifier of the role binding. (required)
+        :param binding_id: The unique role binding identifier (base64) (required)
         :type binding_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -407,7 +410,7 @@ class RoleBindingsApi:
     @validate_call
     def role_bindings_delete_with_http_info(
         self,
-        binding_id: Annotated[StrictStr, Field(description="The unique identifier of the role binding.")],
+        binding_id: Annotated[StrictStr, Field(description="The unique role binding identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -425,7 +428,7 @@ class RoleBindingsApi:
 
         Delete a role binding by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param binding_id: The unique identifier of the role binding. (required)
+        :param binding_id: The unique role binding identifier (base64) (required)
         :type binding_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -478,7 +481,7 @@ class RoleBindingsApi:
     @validate_call
     def role_bindings_delete_without_preload_content(
         self,
-        binding_id: Annotated[StrictStr, Field(description="The unique identifier of the role binding.")],
+        binding_id: Annotated[StrictStr, Field(description="The unique role binding identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -496,7 +499,7 @@ class RoleBindingsApi:
 
         Delete a role binding by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param binding_id: The unique identifier of the role binding. (required)
+        :param binding_id: The unique role binding identifier (base64) (required)
         :type binding_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -609,7 +612,7 @@ class RoleBindingsApi:
     @validate_call
     def role_bindings_get(
         self,
-        binding_id: Annotated[StrictStr, Field(description="The unique identifier of the role binding.")],
+        binding_id: Annotated[StrictStr, Field(description="The unique role binding identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -627,7 +630,7 @@ class RoleBindingsApi:
 
         Get a single role binding by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param binding_id: The unique identifier of the role binding. (required)
+        :param binding_id: The unique role binding identifier (base64) (required)
         :type binding_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -680,7 +683,7 @@ class RoleBindingsApi:
     @validate_call
     def role_bindings_get_with_http_info(
         self,
-        binding_id: Annotated[StrictStr, Field(description="The unique identifier of the role binding.")],
+        binding_id: Annotated[StrictStr, Field(description="The unique role binding identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -698,7 +701,7 @@ class RoleBindingsApi:
 
         Get a single role binding by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param binding_id: The unique identifier of the role binding. (required)
+        :param binding_id: The unique role binding identifier (base64) (required)
         :type binding_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -751,7 +754,7 @@ class RoleBindingsApi:
     @validate_call
     def role_bindings_get_without_preload_content(
         self,
-        binding_id: Annotated[StrictStr, Field(description="The unique identifier of the role binding.")],
+        binding_id: Annotated[StrictStr, Field(description="The unique role binding identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -769,7 +772,7 @@ class RoleBindingsApi:
 
         Get a single role binding by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param binding_id: The unique identifier of the role binding. (required)
+        :param binding_id: The unique role binding identifier (base64) (required)
         :type binding_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -883,7 +886,7 @@ class RoleBindingsApi:
     @validate_call
     def role_bindings_update(
         self,
-        binding_id: Annotated[StrictStr, Field(description="The unique identifier of the role binding.")],
+        binding_id: Annotated[StrictStr, Field(description="The unique role binding identifier (base64)")],
         role_binding_update: Annotated[RoleBindingUpdate, Field(description="Body containing role binding update parameters.")],
         _request_timeout: Union[
             None,
@@ -902,7 +905,7 @@ class RoleBindingsApi:
 
         Update an existing role binding by changing its assigned role.  **Payload Requirements** - `role_id` is required and replaces the currently assigned role. - Only `role_id` is mutable. The binding identity, principal, resource,   and timestamps stay the same. - System-managed fields (`id`, `user_id`, `resource_type`,   `resource_id`, `created_at`, `updated_at`) are not accepted in the   request body.  **Valid example** ```json {   \"role_id\": \"Um9sZToyOmRLMjQ=\" } ```  **Invalid example** ```json {   \"role_id\": \"Um9sZToyOmRLMjQ=\",   \"user_id\": \"VXNlcjoxOmxQZzI=\" } ``` This fails because only `role_id` can be updated on an existing binding.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param binding_id: The unique identifier of the role binding. (required)
+        :param binding_id: The unique role binding identifier (base64) (required)
         :type binding_id: str
         :param role_binding_update: Body containing role binding update parameters. (required)
         :type role_binding_update: RoleBindingUpdate
@@ -943,6 +946,7 @@ class RoleBindingsApi:
             '401': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -959,7 +963,7 @@ class RoleBindingsApi:
     @validate_call
     def role_bindings_update_with_http_info(
         self,
-        binding_id: Annotated[StrictStr, Field(description="The unique identifier of the role binding.")],
+        binding_id: Annotated[StrictStr, Field(description="The unique role binding identifier (base64)")],
         role_binding_update: Annotated[RoleBindingUpdate, Field(description="Body containing role binding update parameters.")],
         _request_timeout: Union[
             None,
@@ -978,7 +982,7 @@ class RoleBindingsApi:
 
         Update an existing role binding by changing its assigned role.  **Payload Requirements** - `role_id` is required and replaces the currently assigned role. - Only `role_id` is mutable. The binding identity, principal, resource,   and timestamps stay the same. - System-managed fields (`id`, `user_id`, `resource_type`,   `resource_id`, `created_at`, `updated_at`) are not accepted in the   request body.  **Valid example** ```json {   \"role_id\": \"Um9sZToyOmRLMjQ=\" } ```  **Invalid example** ```json {   \"role_id\": \"Um9sZToyOmRLMjQ=\",   \"user_id\": \"VXNlcjoxOmxQZzI=\" } ``` This fails because only `role_id` can be updated on an existing binding.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param binding_id: The unique identifier of the role binding. (required)
+        :param binding_id: The unique role binding identifier (base64) (required)
         :type binding_id: str
         :param role_binding_update: Body containing role binding update parameters. (required)
         :type role_binding_update: RoleBindingUpdate
@@ -1019,6 +1023,7 @@ class RoleBindingsApi:
             '401': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1035,7 +1040,7 @@ class RoleBindingsApi:
     @validate_call
     def role_bindings_update_without_preload_content(
         self,
-        binding_id: Annotated[StrictStr, Field(description="The unique identifier of the role binding.")],
+        binding_id: Annotated[StrictStr, Field(description="The unique role binding identifier (base64)")],
         role_binding_update: Annotated[RoleBindingUpdate, Field(description="Body containing role binding update parameters.")],
         _request_timeout: Union[
             None,
@@ -1054,7 +1059,7 @@ class RoleBindingsApi:
 
         Update an existing role binding by changing its assigned role.  **Payload Requirements** - `role_id` is required and replaces the currently assigned role. - Only `role_id` is mutable. The binding identity, principal, resource,   and timestamps stay the same. - System-managed fields (`id`, `user_id`, `resource_type`,   `resource_id`, `created_at`, `updated_at`) are not accepted in the   request body.  **Valid example** ```json {   \"role_id\": \"Um9sZToyOmRLMjQ=\" } ```  **Invalid example** ```json {   \"role_id\": \"Um9sZToyOmRLMjQ=\",   \"user_id\": \"VXNlcjoxOmxQZzI=\" } ``` This fails because only `role_id` can be updated on an existing binding.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param binding_id: The unique identifier of the role binding. (required)
+        :param binding_id: The unique role binding identifier (base64) (required)
         :type binding_id: str
         :param role_binding_update: Body containing role binding update parameters. (required)
         :type role_binding_update: RoleBindingUpdate
@@ -1095,6 +1100,7 @@ class RoleBindingsApi:
             '401': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(

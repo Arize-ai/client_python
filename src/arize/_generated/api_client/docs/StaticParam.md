@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Parameter name (matches the managed evaluator&#39;s argument name) | 
-**type** | **str** | Argument type for static parameters | 
+**type** | [**StaticParamType**](StaticParamType.md) |  | 
 **default_value** | [**StaticParamDefaultValue**](StaticParamDefaultValue.md) |  | 
 
 ## Example

@@ -101,6 +101,7 @@ class AnnotationConfigsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -174,6 +175,7 @@ class AnnotationConfigsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -247,6 +249,7 @@ class AnnotationConfigsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -337,7 +340,7 @@ class AnnotationConfigsApi:
     @validate_call
     def annotation_configs_delete(
         self,
-        annotation_config_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation config")],
+        annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -355,7 +358,7 @@ class AnnotationConfigsApi:
 
         Delete an annotation config by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param annotation_config_id: The unique identifier of the annotation config (required)
+        :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -409,7 +412,7 @@ class AnnotationConfigsApi:
     @validate_call
     def annotation_configs_delete_with_http_info(
         self,
-        annotation_config_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation config")],
+        annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -427,7 +430,7 @@ class AnnotationConfigsApi:
 
         Delete an annotation config by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param annotation_config_id: The unique identifier of the annotation config (required)
+        :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -481,7 +484,7 @@ class AnnotationConfigsApi:
     @validate_call
     def annotation_configs_delete_without_preload_content(
         self,
-        annotation_config_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation config")],
+        annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -499,7 +502,7 @@ class AnnotationConfigsApi:
 
         Delete an annotation config by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param annotation_config_id: The unique identifier of the annotation config (required)
+        :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -613,7 +616,7 @@ class AnnotationConfigsApi:
     @validate_call
     def annotation_configs_get(
         self,
-        annotation_config_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation config")],
+        annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -631,7 +634,7 @@ class AnnotationConfigsApi:
 
         Get an annotation config object by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param annotation_config_id: The unique identifier of the annotation config (required)
+        :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -684,7 +687,7 @@ class AnnotationConfigsApi:
     @validate_call
     def annotation_configs_get_with_http_info(
         self,
-        annotation_config_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation config")],
+        annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -702,7 +705,7 @@ class AnnotationConfigsApi:
 
         Get an annotation config object by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param annotation_config_id: The unique identifier of the annotation config (required)
+        :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -755,7 +758,7 @@ class AnnotationConfigsApi:
     @validate_call
     def annotation_configs_get_without_preload_content(
         self,
-        annotation_config_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation config")],
+        annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -773,7 +776,7 @@ class AnnotationConfigsApi:
 
         Get an annotation config object by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param annotation_config_id: The unique identifier of the annotation config (required)
+        :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request

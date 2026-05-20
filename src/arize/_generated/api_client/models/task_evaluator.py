@@ -26,7 +26,7 @@ class TaskEvaluator(BaseModel):
     """
     TaskEvaluator
     """ # noqa: E501
-    evaluator_id: StrictStr = Field(description="Evaluator global ID (base64).")
+    evaluator_id: StrictStr = Field(description="Evaluator identifier (base64).")
     evaluator_name: StrictStr = Field(description="The name of the attached evaluator.")
     query_filter: Optional[StrictStr] = Field(description="Per-evaluator query filter, combined with the task-level filter (AND).")
     column_mappings: Optional[Dict[str, StrictStr]] = Field(description="Maps evaluator template variable names to data source column names.")

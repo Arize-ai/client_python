@@ -32,7 +32,7 @@ class TriggerEvaluationTaskRunRequest(BaseModel):
     data_end_time: Optional[datetime] = Field(default=None, description="ISO 8601 end of the data window to evaluate. If omitted, defaults to now. ")
     max_spans: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Maximum number of spans to process (default 10000).")
     override_evaluations: Optional[StrictBool] = Field(default=None, description="Whether to re-evaluate data that already has evaluation labels (default `false`). ")
-    experiment_ids: Optional[List[StrictStr]] = Field(default=None, description="Experiment global IDs (base64) to run against. Only for dataset-based `template_evaluation` / `code_evaluation` tasks. ")
+    experiment_ids: Optional[List[StrictStr]] = Field(default=None, description="Experiment identifiers (base64) to run against. Only for dataset-based `template_evaluation` / `code_evaluation` tasks. ")
     __properties: ClassVar[List[str]] = ["data_start_time", "data_end_time", "max_spans", "override_evaluations", "experiment_ids"]
 
     model_config = ConfigDict(

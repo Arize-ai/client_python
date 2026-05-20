@@ -21,7 +21,7 @@ from arize.utils.resolve import (
     is_resource_id,
 )
 
-# A valid base64 global ID (decodes to "Space:9050:1JkR")
+# A valid base64 identifier (decodes to "Space:9050:1JkR")
 B64_ID = "U3BhY2U6OTA1MDoxSmtS"
 
 

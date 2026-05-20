@@ -124,6 +124,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -167,7 +168,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AIIntegrationsApi(api_client)
-    integration_id = 'TGxtSW50ZWdyYXRpb246MTI6YUJjRA==' # str | The unique identifier of the AI integration
+    integration_id = 'TGxtSW50ZWdyYXRpb246MTI6YUJjRA==' # str | The unique AI integration identifier (base64)
 
     try:
         # Delete an AI integration
@@ -183,7 +184,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **integration_id** | **str**| The unique identifier of the AI integration | 
+ **integration_id** | **str**| The unique AI integration identifier (base64) | 
 
 ### Return type
 
@@ -251,7 +252,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AIIntegrationsApi(api_client)
-    integration_id = 'TGxtSW50ZWdyYXRpb246MTI6YUJjRA==' # str | The unique identifier of the AI integration
+    integration_id = 'TGxtSW50ZWdyYXRpb246MTI6YUJjRA==' # str | The unique AI integration identifier (base64)
 
     try:
         # Get an AI integration
@@ -269,7 +270,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **integration_id** | **str**| The unique identifier of the AI integration | 
+ **integration_id** | **str**| The unique AI integration identifier (base64) | 
 
 ### Return type
 
@@ -451,7 +452,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AIIntegrationsApi(api_client)
-    integration_id = 'TGxtSW50ZWdyYXRpb246MTI6YUJjRA==' # str | The unique identifier of the AI integration
+    integration_id = 'TGxtSW50ZWdyYXRpb246MTI6YUJjRA==' # str | The unique AI integration identifier (base64)
     ai_integrations_update_request = {"name":"Updated OpenAI Integration","api_key":null,"model_names":["gpt-4o","gpt-4o-mini"]} # AiIntegrationsUpdateRequest | Body containing AI integration update parameters. At least one field must be provided.
 
     try:
@@ -470,7 +471,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **integration_id** | **str**| The unique identifier of the AI integration | 
+ **integration_id** | **str**| The unique AI integration identifier (base64) | 
  **ai_integrations_update_request** | [**AiIntegrationsUpdateRequest**](AiIntegrationsUpdateRequest.md)| Body containing AI integration update parameters. At least one field must be provided. | 
 
 ### Return type
@@ -496,6 +497,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

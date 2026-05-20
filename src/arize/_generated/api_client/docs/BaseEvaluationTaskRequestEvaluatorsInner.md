@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**evaluator_id** | **str** | Evaluator global ID (base64). Duplicates are not allowed. | 
+**evaluator_id** | **str** | Evaluator identifier (base64). Duplicates are not allowed. | 
 **query_filter** | **str** | Per-evaluator query filter. Combined with the task-level filter (AND). | [optional] 
 **column_mappings** | **Dict[str, str]** | Maps evaluator template variable names to data source column names. | [optional] 
 

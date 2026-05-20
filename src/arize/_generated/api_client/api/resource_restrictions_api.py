@@ -98,6 +98,7 @@ class ResourceRestrictionsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -170,6 +171,7 @@ class ResourceRestrictionsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -242,6 +244,7 @@ class ResourceRestrictionsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -332,7 +335,7 @@ class ResourceRestrictionsApi:
     @validate_call
     def resource_restrictions_delete(
         self,
-        resource_id: Annotated[StrictStr, Field(description="The unique identifier of the resource")],
+        resource_id: Annotated[StrictStr, Field(description="The unique resource identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -350,7 +353,7 @@ class ResourceRestrictionsApi:
 
         Remove restriction from a resource. Removing a restriction from a resource means that roles bound at other levels of the hierarchy (space, org, account) can grant access to the resource. Returns 404 if the resource is not restricted.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param resource_id: The unique identifier of the resource (required)
+        :param resource_id: The unique resource identifier (base64) (required)
         :type resource_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -404,7 +407,7 @@ class ResourceRestrictionsApi:
     @validate_call
     def resource_restrictions_delete_with_http_info(
         self,
-        resource_id: Annotated[StrictStr, Field(description="The unique identifier of the resource")],
+        resource_id: Annotated[StrictStr, Field(description="The unique resource identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -422,7 +425,7 @@ class ResourceRestrictionsApi:
 
         Remove restriction from a resource. Removing a restriction from a resource means that roles bound at other levels of the hierarchy (space, org, account) can grant access to the resource. Returns 404 if the resource is not restricted.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param resource_id: The unique identifier of the resource (required)
+        :param resource_id: The unique resource identifier (base64) (required)
         :type resource_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -476,7 +479,7 @@ class ResourceRestrictionsApi:
     @validate_call
     def resource_restrictions_delete_without_preload_content(
         self,
-        resource_id: Annotated[StrictStr, Field(description="The unique identifier of the resource")],
+        resource_id: Annotated[StrictStr, Field(description="The unique resource identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -494,7 +497,7 @@ class ResourceRestrictionsApi:
 
         Remove restriction from a resource. Removing a restriction from a resource means that roles bound at other levels of the hierarchy (space, org, account) can grant access to the resource. Returns 404 if the resource is not restricted.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param resource_id: The unique identifier of the resource (required)
+        :param resource_id: The unique resource identifier (base64) (required)
         :type resource_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request

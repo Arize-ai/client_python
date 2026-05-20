@@ -111,6 +111,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -154,7 +155,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ExperimentsApi(api_client)
-    experiment_id = 'RXhwZXJpbWVudDoxMjM0NQ==' # str | The unique identifier of the experiment
+    experiment_id = 'RXhwZXJpbWVudDoxMjM0NQ==' # str | The unique experiment identifier (base64)
 
     try:
         # Delete an experiment
@@ -170,7 +171,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **experiment_id** | **str**| The unique identifier of the experiment | 
+ **experiment_id** | **str**| The unique experiment identifier (base64) | 
 
 ### Return type
 
@@ -241,7 +242,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ExperimentsApi(api_client)
-    experiment_id = 'RXhwZXJpbWVudDoxMjM0NQ==' # str | The unique identifier of the experiment
+    experiment_id = 'RXhwZXJpbWVudDoxMjM0NQ==' # str | The unique experiment identifier (base64)
 
     try:
         # Get an experiment
@@ -259,7 +260,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **experiment_id** | **str**| The unique identifier of the experiment | 
+ **experiment_id** | **str**| The unique experiment identifier (base64) | 
 
 ### Return type
 
@@ -329,7 +330,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ExperimentsApi(api_client)
-    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | Filter to a specific dataset (base64 global ID) (optional)
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | Filter to a specific dataset (base64 identifier (base64)) (optional)
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
@@ -350,7 +351,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **dataset_id** | **str**| Filter to a specific dataset (base64 global ID) | [optional] 
+ **dataset_id** | **str**| Filter to a specific dataset (base64 identifier (base64)) | [optional] 
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
@@ -456,7 +457,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ExperimentsApi(api_client)
-    experiment_id = 'RXhwZXJpbWVudDoxMjM0NQ==' # str | The unique identifier of the experiment
+    experiment_id = 'RXhwZXJpbWVudDoxMjM0NQ==' # str | The unique experiment identifier (base64)
     annotate_experiment_runs_request_body = {"annotations":[{"record_id":"run_abc","values":[{"name":"quality","label":"good"}]}]} # AnnotateExperimentRunsRequestBody | Body containing experiment run annotation batch
 
     try:
@@ -473,7 +474,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **experiment_id** | **str**| The unique identifier of the experiment | 
+ **experiment_id** | **str**| The unique experiment identifier (base64) | 
  **annotate_experiment_runs_request_body** | [**AnnotateExperimentRunsRequestBody**](AnnotateExperimentRunsRequestBody.md)| Body containing experiment run annotation batch | 
 
 ### Return type
@@ -498,6 +499,7 @@ void (empty response body)
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -555,7 +557,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ExperimentsApi(api_client)
-    experiment_id = 'RXhwZXJpbWVudDoxMjM0NQ==' # str | The unique identifier of the experiment
+    experiment_id = 'RXhwZXJpbWVudDoxMjM0NQ==' # str | The unique experiment identifier (base64)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
 
     try:
@@ -574,7 +576,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **experiment_id** | **str**| The unique identifier of the experiment | 
+ **experiment_id** | **str**| The unique experiment identifier (base64) | 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
 
 ### Return type

@@ -26,7 +26,7 @@ class BaseEvaluationTaskRequestEvaluatorsInner(BaseModel):
     """
     BaseEvaluationTaskRequestEvaluatorsInner
     """ # noqa: E501
-    evaluator_id: StrictStr = Field(description="Evaluator global ID (base64). Duplicates are not allowed.")
+    evaluator_id: StrictStr = Field(description="Evaluator identifier (base64). Duplicates are not allowed.")
     query_filter: Optional[StrictStr] = Field(default=None, description="Per-evaluator query filter. Combined with the task-level filter (AND).")
     column_mappings: Optional[Dict[str, StrictStr]] = Field(default=None, description="Maps evaluator template variable names to data source column names.")
     __properties: ClassVar[List[str]] = ["evaluator_id", "query_filter", "column_mappings"]

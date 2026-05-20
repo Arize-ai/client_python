@@ -96,6 +96,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -139,7 +140,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ProjectsApi(api_client)
-    project_id = 'project_12345' # str | The unique identifier of the project
+    project_id = 'UHJvamVjdDoxMjM0NQ==' # str | The unique project identifier (base64)
 
     try:
         # Delete a project
@@ -155,7 +156,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **project_id** | **str**| The unique identifier of the project | 
+ **project_id** | **str**| The unique project identifier (base64) | 
 
 ### Return type
 
@@ -223,7 +224,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ProjectsApi(api_client)
-    project_id = 'project_12345' # str | The unique identifier of the project
+    project_id = 'UHJvamVjdDoxMjM0NQ==' # str | The unique project identifier (base64)
 
     try:
         # Get a project
@@ -241,7 +242,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **project_id** | **str**| The unique identifier of the project | 
+ **project_id** | **str**| The unique project identifier (base64) | 
 
 ### Return type
 

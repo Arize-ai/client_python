@@ -17,9 +17,10 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
 from arize._generated.api_client.models.annotation import Annotation
+from arize._generated.api_client.models.annotation_queue_source_type import AnnotationQueueSourceType
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,16 +30,9 @@ class AnnotationQueueRecordAnnotateResult(BaseModel):
     """ # noqa: E501
     id: StrictStr = Field(description="The unique identifier for the record")
     annotation_queue_id: StrictStr = Field(description="The annotation queue this record belongs to")
-    source_type: StrictStr = Field(description="The source type of the record (spans or dataset)")
+    source_type: AnnotationQueueSourceType
     annotations: List[Annotation] = Field(description="The annotations that were submitted in this request")
     __properties: ClassVar[List[str]] = ["id", "annotation_queue_id", "source_type", "annotations"]
-
-    @field_validator('source_type')
-    def source_type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['spans', 'dataset']):
-            raise ValueError("must be one of enum values ('spans', 'dataset')")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

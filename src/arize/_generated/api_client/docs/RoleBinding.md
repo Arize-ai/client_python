@@ -6,10 +6,10 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | Unique identifier for the role binding. | 
-**role_id** | **str** | A universally unique identifier | 
-**user_id** | **str** | A universally unique identifier | 
+**role_id** | **str** | A universally unique identifier (base64-encoded opaque string). | 
+**user_id** | **str** | A universally unique identifier (base64-encoded opaque string). | 
 **resource_type** | [**RoleBindingResourceType**](RoleBindingResourceType.md) |  | 
-**resource_id** | **str** | A universally unique identifier | 
+**resource_id** | **str** | A universally unique identifier (base64-encoded opaque string). | 
 **created_at** | **datetime** | Timestamp when the binding was created. | 
 **updated_at** | **datetime** | Timestamp when the binding was last updated. | 
 

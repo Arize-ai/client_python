@@ -18,11 +18,12 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
 from arize._generated.api_client.models.run_configuration import RunConfiguration
 from arize._generated.api_client.models.task_evaluator import TaskEvaluator
+from arize._generated.api_client.models.task_type import TaskType
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -32,27 +33,20 @@ class Task(BaseModel):
     """ # noqa: E501
     id: StrictStr = Field(description="The unique identifier for the task")
     name: StrictStr = Field(description="The name of the task")
-    type: StrictStr = Field(description="The task type: template_evaluation, code_evaluation, or run_experiment")
-    project_id: Optional[StrictStr] = Field(default=None, description="The project global ID (base64). Present for project-based tasks.")
-    dataset_id: Optional[StrictStr] = Field(default=None, description="The dataset global ID (base64). Present for dataset-based tasks.")
+    type: TaskType
+    project_id: Optional[StrictStr] = Field(default=None, description="The project identifier (base64). Present for project-based tasks.")
+    dataset_id: Optional[StrictStr] = Field(default=None, description="The dataset identifier (base64). Present for dataset-based tasks.")
     sampling_rate: Optional[Union[Annotated[float, Field(le=1, strict=True, ge=0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = Field(default=None, description="Sampling rate between 0 and 1. Only applicable for project-based tasks.")
     is_continuous: StrictBool = Field(description="Whether the task runs continuously on incoming data.")
     query_filter: Optional[StrictStr] = Field(description="Task-level query filter applied to all data.")
     evaluators: List[TaskEvaluator] = Field(description="The evaluators attached to this task. Empty for run_experiment tasks.")
-    experiment_ids: List[StrictStr] = Field(description="Experiment global IDs (base64) for dataset-based tasks.")
+    experiment_ids: List[StrictStr] = Field(description="Experiment identifiers (base64) for dataset-based tasks.")
     run_configuration: Optional[RunConfiguration] = Field(default=None, description="The run configuration for a `run_experiment` task. Present only when `type` is `run_experiment`. Null for all other task types. ")
     last_run_at: Optional[datetime] = Field(description="When the task was last run.")
     created_at: datetime = Field(description="When the task was created.")
     updated_at: datetime = Field(description="When the task was last updated.")
     created_by_user_id: Optional[StrictStr] = Field(description="The unique identifier for the user who created the task.")
     __properties: ClassVar[List[str]] = ["id", "name", "type", "project_id", "dataset_id", "sampling_rate", "is_continuous", "query_filter", "evaluators", "experiment_ids", "run_configuration", "last_run_at", "created_at", "updated_at", "created_by_user_id"]
-
-    @field_validator('type')
-    def type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['template_evaluation', 'code_evaluation', 'run_experiment']):
-            raise ValueError("must be one of enum values ('template_evaluation', 'code_evaluation', 'run_experiment')")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

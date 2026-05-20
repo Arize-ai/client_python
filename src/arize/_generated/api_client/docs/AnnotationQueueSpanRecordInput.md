@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**record_type** | **str** | The type of record | 
+**record_type** | **str** |  | 
 **project_id** | **str** | The project ID these spans belong to | 
 **start_time** | **datetime** | Start of the time range to search for spans in Druid. The range (end_time - start_time) must not exceed 7 days.  | 
 **end_time** | **datetime** | End of the time range. Must be after start_time.  | 

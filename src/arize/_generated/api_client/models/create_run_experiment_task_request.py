@@ -30,7 +30,7 @@ class CreateRunExperimentTaskRequest(BaseModel):
     """ # noqa: E501
     name: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Task name")
     type: StrictStr = Field(description="Task type discriminator. Must be `\"run_experiment\"`.")
-    dataset_id: StrictStr = Field(description="Dataset global ID (base64). Required for `run_experiment` tasks.")
+    dataset_id: StrictStr = Field(description="Dataset identifier (base64). Required for `run_experiment` tasks.")
     run_configuration: RunConfiguration
     __properties: ClassVar[List[str]] = ["name", "type", "dataset_id", "run_configuration"]
 

@@ -16,13 +16,14 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from pydantic import Field, StrictStr, field_validator
+from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.api_key_create import ApiKeyCreate
 from arize._generated.api_client.models.api_key_created import ApiKeyCreated
 from arize._generated.api_client.models.api_key_refresh import ApiKeyRefresh
 from arize._generated.api_client.models.api_key_status import ApiKeyStatus
+from arize._generated.api_client.models.api_key_type import ApiKeyType
 from arize._generated.api_client.models.api_keys_list200_response import ApiKeysList200Response
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
@@ -102,6 +103,7 @@ class APIKeysApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -174,6 +176,7 @@ class APIKeysApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -246,6 +249,7 @@ class APIKeysApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -336,7 +340,7 @@ class APIKeysApi:
     @validate_call
     def api_keys_delete(
         self,
-        api_key_id: Annotated[StrictStr, Field(description="The unique identifier of the API key")],
+        api_key_id: Annotated[StrictStr, Field(description="The unique API key identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -354,7 +358,7 @@ class APIKeysApi:
 
         Delete an API key by its ID (soft-delete). This operation is irreversible. The key will immediately stop working for authentication.  **Authorization:** - **User keys:** the creator or an account admin may delete the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may delete any service key in their space.   Non-admins require the `SERVICE_KEY_DELETE` permission and must be the creator of the key.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param api_key_id: The unique identifier of the API key (required)
+        :param api_key_id: The unique API key identifier (base64) (required)
         :type api_key_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -408,7 +412,7 @@ class APIKeysApi:
     @validate_call
     def api_keys_delete_with_http_info(
         self,
-        api_key_id: Annotated[StrictStr, Field(description="The unique identifier of the API key")],
+        api_key_id: Annotated[StrictStr, Field(description="The unique API key identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -426,7 +430,7 @@ class APIKeysApi:
 
         Delete an API key by its ID (soft-delete). This operation is irreversible. The key will immediately stop working for authentication.  **Authorization:** - **User keys:** the creator or an account admin may delete the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may delete any service key in their space.   Non-admins require the `SERVICE_KEY_DELETE` permission and must be the creator of the key.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param api_key_id: The unique identifier of the API key (required)
+        :param api_key_id: The unique API key identifier (base64) (required)
         :type api_key_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -480,7 +484,7 @@ class APIKeysApi:
     @validate_call
     def api_keys_delete_without_preload_content(
         self,
-        api_key_id: Annotated[StrictStr, Field(description="The unique identifier of the API key")],
+        api_key_id: Annotated[StrictStr, Field(description="The unique API key identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -498,7 +502,7 @@ class APIKeysApi:
 
         Delete an API key by its ID (soft-delete). This operation is irreversible. The key will immediately stop working for authentication.  **Authorization:** - **User keys:** the creator or an account admin may delete the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may delete any service key in their space.   Non-admins require the `SERVICE_KEY_DELETE` permission and must be the creator of the key.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param api_key_id: The unique identifier of the API key (required)
+        :param api_key_id: The unique API key identifier (base64) (required)
         :type api_key_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -612,10 +616,10 @@ class APIKeysApi:
     @validate_call
     def api_keys_list(
         self,
-        key_type: Annotated[Optional[StrictStr], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
+        key_type: Annotated[Optional[ApiKeyType], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
         status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
-        user_id: Annotated[Optional[StrictStr], Field(description="Filter API keys by the user who created them (base64 global ID). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. ")] = None,
+        user_id: Annotated[Optional[StrictStr], Field(description="Filter API keys by the user who created them (base64 identifier (base64)). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -636,12 +640,12 @@ class APIKeysApi:
         List API keys. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, space, and creator. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Service keys (`key_type=service`):** Provide `space_id` to return all service keys for that space. When `key_type` is omitted alongside `space_id`, service keys are returned implicitly. Requires the `SERVICE_KEY_READ` permission in the space (or account/space admin). Optionally combine with `user_id` to filter service keys by their creator — available to any caller with space access (not admin-gated).  **User keys (`key_type=user`):** Returned by default (no `space_id`). Provide `user_id` to view keys belonging to a specific user — account admins only; non-admins receive `403`.  **Authorization:** Requires the `developer` user permission flag or account admin role. Returns `403` when neither condition is met.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param key_type: Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. 
-        :type key_type: str
+        :type key_type: ApiKeyType
         :param status: Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. 
         :type status: ApiKeyStatus
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
-        :param user_id: Filter API keys by the user who created them (base64 global ID). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. 
+        :param user_id: Filter API keys by the user who created them (base64 identifier (base64)). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. 
         :type user_id: str
         :param limit: Maximum items to return
         :type limit: int
@@ -704,10 +708,10 @@ class APIKeysApi:
     @validate_call
     def api_keys_list_with_http_info(
         self,
-        key_type: Annotated[Optional[StrictStr], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
+        key_type: Annotated[Optional[ApiKeyType], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
         status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
-        user_id: Annotated[Optional[StrictStr], Field(description="Filter API keys by the user who created them (base64 global ID). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. ")] = None,
+        user_id: Annotated[Optional[StrictStr], Field(description="Filter API keys by the user who created them (base64 identifier (base64)). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -728,12 +732,12 @@ class APIKeysApi:
         List API keys. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, space, and creator. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Service keys (`key_type=service`):** Provide `space_id` to return all service keys for that space. When `key_type` is omitted alongside `space_id`, service keys are returned implicitly. Requires the `SERVICE_KEY_READ` permission in the space (or account/space admin). Optionally combine with `user_id` to filter service keys by their creator — available to any caller with space access (not admin-gated).  **User keys (`key_type=user`):** Returned by default (no `space_id`). Provide `user_id` to view keys belonging to a specific user — account admins only; non-admins receive `403`.  **Authorization:** Requires the `developer` user permission flag or account admin role. Returns `403` when neither condition is met.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param key_type: Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. 
-        :type key_type: str
+        :type key_type: ApiKeyType
         :param status: Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. 
         :type status: ApiKeyStatus
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
-        :param user_id: Filter API keys by the user who created them (base64 global ID). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. 
+        :param user_id: Filter API keys by the user who created them (base64 identifier (base64)). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. 
         :type user_id: str
         :param limit: Maximum items to return
         :type limit: int
@@ -796,10 +800,10 @@ class APIKeysApi:
     @validate_call
     def api_keys_list_without_preload_content(
         self,
-        key_type: Annotated[Optional[StrictStr], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
+        key_type: Annotated[Optional[ApiKeyType], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
         status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
-        user_id: Annotated[Optional[StrictStr], Field(description="Filter API keys by the user who created them (base64 global ID). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. ")] = None,
+        user_id: Annotated[Optional[StrictStr], Field(description="Filter API keys by the user who created them (base64 identifier (base64)). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -820,12 +824,12 @@ class APIKeysApi:
         List API keys. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, space, and creator. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Service keys (`key_type=service`):** Provide `space_id` to return all service keys for that space. When `key_type` is omitted alongside `space_id`, service keys are returned implicitly. Requires the `SERVICE_KEY_READ` permission in the space (or account/space admin). Optionally combine with `user_id` to filter service keys by their creator — available to any caller with space access (not admin-gated).  **User keys (`key_type=user`):** Returned by default (no `space_id`). Provide `user_id` to view keys belonging to a specific user — account admins only; non-admins receive `403`.  **Authorization:** Requires the `developer` user permission flag or account admin role. Returns `403` when neither condition is met.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param key_type: Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. 
-        :type key_type: str
+        :type key_type: ApiKeyType
         :param status: Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. 
         :type status: ApiKeyStatus
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
-        :param user_id: Filter API keys by the user who created them (base64 global ID). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. 
+        :param user_id: Filter API keys by the user who created them (base64 identifier (base64)). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. 
         :type user_id: str
         :param limit: Maximum items to return
         :type limit: int
@@ -913,7 +917,7 @@ class APIKeysApi:
         # process the query parameters
         if key_type is not None:
             
-            _query_params.append(('key_type', key_type))
+            _query_params.append(('key_type', key_type.value))
             
         if status is not None:
             
@@ -976,7 +980,7 @@ class APIKeysApi:
     @validate_call
     def api_keys_refresh(
         self,
-        api_key_id: Annotated[StrictStr, Field(description="The unique identifier of the API key")],
+        api_key_id: Annotated[StrictStr, Field(description="The unique API key identifier (base64)")],
         api_key_refresh: Annotated[Optional[ApiKeyRefresh], Field(description="Optional body for overriding expiry on a refreshed API key.")] = None,
         _request_timeout: Union[
             None,
@@ -995,7 +999,7 @@ class APIKeysApi:
 
         Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** Supply `expires_at` in the request body to set an expiration on the replacement key. Omit `expires_at` (or send an empty body `{}`) to create the replacement key with no expiration (infinite lifetime).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param api_key_id: The unique identifier of the API key (required)
+        :param api_key_id: The unique API key identifier (base64) (required)
         :type api_key_id: str
         :param api_key_refresh: Optional body for overriding expiry on a refreshed API key.
         :type api_key_refresh: ApiKeyRefresh
@@ -1036,6 +1040,7 @@ class APIKeysApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1052,7 +1057,7 @@ class APIKeysApi:
     @validate_call
     def api_keys_refresh_with_http_info(
         self,
-        api_key_id: Annotated[StrictStr, Field(description="The unique identifier of the API key")],
+        api_key_id: Annotated[StrictStr, Field(description="The unique API key identifier (base64)")],
         api_key_refresh: Annotated[Optional[ApiKeyRefresh], Field(description="Optional body for overriding expiry on a refreshed API key.")] = None,
         _request_timeout: Union[
             None,
@@ -1071,7 +1076,7 @@ class APIKeysApi:
 
         Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** Supply `expires_at` in the request body to set an expiration on the replacement key. Omit `expires_at` (or send an empty body `{}`) to create the replacement key with no expiration (infinite lifetime).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param api_key_id: The unique identifier of the API key (required)
+        :param api_key_id: The unique API key identifier (base64) (required)
         :type api_key_id: str
         :param api_key_refresh: Optional body for overriding expiry on a refreshed API key.
         :type api_key_refresh: ApiKeyRefresh
@@ -1112,6 +1117,7 @@ class APIKeysApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1128,7 +1134,7 @@ class APIKeysApi:
     @validate_call
     def api_keys_refresh_without_preload_content(
         self,
-        api_key_id: Annotated[StrictStr, Field(description="The unique identifier of the API key")],
+        api_key_id: Annotated[StrictStr, Field(description="The unique API key identifier (base64)")],
         api_key_refresh: Annotated[Optional[ApiKeyRefresh], Field(description="Optional body for overriding expiry on a refreshed API key.")] = None,
         _request_timeout: Union[
             None,
@@ -1147,7 +1153,7 @@ class APIKeysApi:
 
         Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** Supply `expires_at` in the request body to set an expiration on the replacement key. Omit `expires_at` (or send an empty body `{}`) to create the replacement key with no expiration (infinite lifetime).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param api_key_id: The unique identifier of the API key (required)
+        :param api_key_id: The unique API key identifier (base64) (required)
         :type api_key_id: str
         :param api_key_refresh: Optional body for overriding expiry on a refreshed API key.
         :type api_key_refresh: ApiKeyRefresh
@@ -1188,6 +1194,7 @@ class APIKeysApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(

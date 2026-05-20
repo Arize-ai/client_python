@@ -66,7 +66,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
-    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique identifier of the annotation queue
+    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique annotation queue identifier (base64)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
 
@@ -86,7 +86,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **annotation_queue_id** | **str**| The unique identifier of the annotation queue | 
+ **annotation_queue_id** | **str**| The unique annotation queue identifier (base64) | 
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
 
@@ -239,6 +239,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -282,7 +283,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
-    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique identifier of the annotation queue
+    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique annotation queue identifier (base64)
 
     try:
         # Delete an annotation queue
@@ -298,7 +299,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **annotation_queue_id** | **str**| The unique identifier of the annotation queue | 
+ **annotation_queue_id** | **str**| The unique annotation queue identifier (base64) | 
 
 ### Return type
 
@@ -372,7 +373,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
-    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique identifier of the annotation queue
+    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique annotation queue identifier (base64)
 
     try:
         # Get an annotation queue
@@ -390,7 +391,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **annotation_queue_id** | **str**| The unique identifier of the annotation queue | 
+ **annotation_queue_id** | **str**| The unique annotation queue identifier (base64) | 
 
 ### Return type
 
@@ -584,8 +585,8 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
-    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique identifier of the annotation queue
-    annotation_queue_record_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique identifier of the annotation queue record
+    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique annotation queue identifier (base64)
+    annotation_queue_record_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique annotation queue record identifier (base64)
     annotate_annotation_queue_record_request_body = {"annotations":[{"name":"accuracy","score":0.95}]} # AnnotateAnnotationQueueRecordRequestBody | Body containing annotations to submit for an annotation queue record
 
     try:
@@ -604,8 +605,8 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **annotation_queue_id** | **str**| The unique identifier of the annotation queue | 
- **annotation_queue_record_id** | **str**| The unique identifier of the annotation queue record | 
+ **annotation_queue_id** | **str**| The unique annotation queue identifier (base64) | 
+ **annotation_queue_record_id** | **str**| The unique annotation queue record identifier (base64) | 
  **annotate_annotation_queue_record_request_body** | [**AnnotateAnnotationQueueRecordRequestBody**](AnnotateAnnotationQueueRecordRequestBody.md)| Body containing annotations to submit for an annotation queue record | 
 
 ### Return type
@@ -630,6 +631,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -710,8 +712,8 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
-    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique identifier of the annotation queue
-    annotation_queue_record_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique identifier of the annotation queue record
+    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique annotation queue identifier (base64)
+    annotation_queue_record_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique annotation queue record identifier (base64)
     assign_annotation_queue_record_request_body = {"assigned_user_emails":["reviewer@example.com"]} # AssignAnnotationQueueRecordRequestBody | Body containing the user assignment for an annotation queue record
 
     try:
@@ -730,8 +732,8 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **annotation_queue_id** | **str**| The unique identifier of the annotation queue | 
- **annotation_queue_record_id** | **str**| The unique identifier of the annotation queue record | 
+ **annotation_queue_id** | **str**| The unique annotation queue identifier (base64) | 
+ **annotation_queue_record_id** | **str**| The unique annotation queue record identifier (base64) | 
  **assign_annotation_queue_record_request_body** | [**AssignAnnotationQueueRecordRequestBody**](AssignAnnotationQueueRecordRequestBody.md)| Body containing the user assignment for an annotation queue record | 
 
 ### Return type
@@ -756,6 +758,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -841,7 +844,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
-    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique identifier of the annotation queue
+    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique annotation queue identifier (base64)
     add_annotation_queue_records_request_body = {"record_sources":[{"record_type":"span","project_id":"proj_abc123","start_time":"2024-01-15T00:00:00Z","end_time":"2024-01-15T23:59:59Z","span_ids":["span_abc123","span_def456"]}]} # AddAnnotationQueueRecordsRequestBody | Body containing records to add to an annotation queue
 
     try:
@@ -860,7 +863,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **annotation_queue_id** | **str**| The unique identifier of the annotation queue | 
+ **annotation_queue_id** | **str**| The unique annotation queue identifier (base64) | 
  **add_annotation_queue_records_request_body** | [**AddAnnotationQueueRecordsRequestBody**](AddAnnotationQueueRecordsRequestBody.md)| Body containing records to add to an annotation queue | 
 
 ### Return type
@@ -886,6 +889,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -937,7 +941,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
-    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique identifier of the annotation queue
+    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique annotation queue identifier (base64)
     delete_annotation_queue_records_request_body = {"record_ids":["aqr_abc123","aqr_def456"]} # DeleteAnnotationQueueRecordsRequestBody | Body containing the IDs of annotation queue records to delete
 
     try:
@@ -954,7 +958,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **annotation_queue_id** | **str**| The unique identifier of the annotation queue | 
+ **annotation_queue_id** | **str**| The unique annotation queue identifier (base64) | 
  **delete_annotation_queue_records_request_body** | [**DeleteAnnotationQueueRecordsRequestBody**](DeleteAnnotationQueueRecordsRequestBody.md)| Body containing the IDs of annotation queue records to delete | 
 
 ### Return type
@@ -979,6 +983,7 @@ void (empty response body)
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -1044,7 +1049,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
-    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique identifier of the annotation queue
+    annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique annotation queue identifier (base64)
     update_annotation_queue_request_body = {"name":"Updated Queue Name","instructions":"Review each response for accuracy and helpfulness","annotation_config_ids":["ac_abc123"],"annotator_emails":["reviewer@example.com"]} # UpdateAnnotationQueueRequestBody | Body containing annotation queue update parameters. At least one field must be provided.
 
     try:
@@ -1063,7 +1068,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **annotation_queue_id** | **str**| The unique identifier of the annotation queue | 
+ **annotation_queue_id** | **str**| The unique annotation queue identifier (base64) | 
  **update_annotation_queue_request_body** | [**UpdateAnnotationQueueRequestBody**](UpdateAnnotationQueueRequestBody.md)| Body containing annotation queue update parameters. At least one field must be provided. | 
 
 ### Return type
@@ -1089,6 +1094,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

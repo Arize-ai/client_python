@@ -28,11 +28,11 @@ class TriggerRunExperimentTaskRunRequest(BaseModel):
     Trigger request for `run_experiment` tasks. `example_ids` and `max_examples` are mutually exclusive; at most one may be provided. 
     """ # noqa: E501
     experiment_name: StrictStr = Field(description="Display name for the experiment to be created. Must be unique within the dataset. ")
-    dataset_version_id: Optional[StrictStr] = Field(default=None, description="Dataset version global ID (base64). Defaults to the latest version when omitted. ")
+    dataset_version_id: Optional[StrictStr] = Field(default=None, description="Dataset version identifier (base64). Defaults to the latest version when omitted. ")
     example_ids: Optional[List[StrictStr]] = Field(default=None, description="Specific example IDs to run against. Mutually exclusive with `max_examples`. When both are omitted, all examples are used. ")
     max_examples: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Maximum number of examples to run (dataset order). Mutually exclusive with `example_ids`. When both are omitted, all examples are used. ")
     tracing_metadata: Optional[Dict[str, StrictStr]] = Field(default=None, description="Arbitrary key-value metadata. Providing this enables tracing for the run. ")
-    evaluation_task_ids: Optional[List[StrictStr]] = Field(default=None, description="Task global IDs (base64) of evaluation tasks to trigger after the experiment run completes. Supported for all `run_experiment` experiment types. ")
+    evaluation_task_ids: Optional[List[StrictStr]] = Field(default=None, description="Task identifiers (base64) of evaluation tasks to trigger after the experiment run completes. Supported for all `run_experiment` experiment types. ")
     __properties: ClassVar[List[str]] = ["experiment_name", "dataset_version_id", "example_ids", "max_examples", "tracing_metadata", "evaluation_task_ids"]
 
     model_config = ConfigDict(

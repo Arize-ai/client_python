@@ -7,14 +7,14 @@ Configuration for running an LLM prompt against each dataset example.
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **experiment_type** | **str** | Discriminator. Must be &#x60;\&quot;llm_generation\&quot;&#x60;. | 
-**ai_integration_id** | **str** | AI integration global ID (base64). | 
+**ai_integration_id** | **str** | AI integration identifier (base64). | 
 **model_name** | **str** | Model name (e.g. &#x60;gpt-4o&#x60;). Falls back to the integration&#39;s default if omitted. | [optional] 
 **messages** | [**List[LLMMessage]**](LLMMessage.md) | Array of message objects (at least one). | 
 **input_variable_format** | [**InputVariableFormat**](InputVariableFormat.md) |  | 
 **invocation_parameters** | [**InvocationParams**](InvocationParams.md) |  | [optional] 
 **provider_parameters** | **object** | Provider-specific parameters. Defaults to &#x60;{}&#x60; (no overrides) if omitted. | [optional] 
 **tool_config** | [**ToolConfig**](ToolConfig.md) |  | [optional] 
-**prompt_version_id** | **str** | Prompt version global ID (base64). Links to a Prompt Hub version for traceability. | [optional] 
+**prompt_version_id** | **str** | Prompt version identifier (base64). Links to a Prompt Hub version for traceability. | [optional] 
 
 ## Example
 

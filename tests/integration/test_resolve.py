@@ -4,8 +4,8 @@ These tests are skipped unless both ARIZE_API_KEY and ARIZE_TEST_SPACE_NAME
 environment variables are set. They verify that every find/resolve function can
 look up real resources by name and that ID passthrough works correctly.
 
-``ARIZE_TEST_SPACE_NAME`` may be a space **name** or a base64 GraphQL space
-global ID. The find functions accept either format — a base64-encoded value is
+``ARIZE_TEST_SPACE_NAME`` may be a space **name** or a base64 space
+identifier. The find functions accept either format — a base64-encoded value is
 treated as a space ID, any other string is treated as a name.
 
 Run with:

@@ -198,7 +198,12 @@ class DatasetsClient:
         )
 
     @prerelease_endpoint(key="datasets.get", stage=ReleaseStage.BETA)
-    def get(self, *, dataset: str, space: str | None = None) -> Dataset:
+    def get(
+        self,
+        *,
+        dataset: str,
+        space: str | None = None,
+    ) -> Dataset:
         """Get a dataset by ID or name.
 
         The returned dataset includes its dataset versions (sorted by creation time,
@@ -224,7 +229,12 @@ class DatasetsClient:
         return self._api.datasets_get(dataset_id=dataset_id)
 
     @prerelease_endpoint(key="datasets.delete", stage=ReleaseStage.BETA)
-    def delete(self, *, dataset: str, space: str | None = None) -> None:
+    def delete(
+        self,
+        *,
+        dataset: str,
+        space: str | None = None,
+    ) -> None:
         """Delete a dataset by ID or name.
 
         This operation is irreversible.
@@ -246,6 +256,38 @@ class DatasetsClient:
             space=space,
         )
         return self._api.datasets_delete(dataset_id=dataset_id)
+
+    @prerelease_endpoint(key="datasets.update", stage=ReleaseStage.ALPHA)
+    def update(
+        self,
+        *,
+        dataset: str,
+        space: str | None = None,
+        name: str,
+    ) -> Dataset:
+        """Rename a dataset.
+
+        Args:
+            dataset: Dataset ID or name.
+            space: Space ID or name. Required when *dataset* is a name.
+            name: New name for the dataset. Must be unique within the space.
+
+        Returns:
+            The updated dataset object.
+
+        Raises:
+            ApiException: If the REST API returns an error response
+                (e.g. 400/401/403/404/409/429).
+        """
+        from arize._generated import api_client as gen
+
+        dataset_id = _find_dataset_id(
+            api=self._api, dataset=dataset, space=space
+        )
+        body = gen.DatasetsUpdateRequest(name=name)
+        return self._api.datasets_update(
+            dataset_id=dataset_id, datasets_update_request=body
+        )
 
     @prerelease_endpoint(key="datasets.list_examples", stage=ReleaseStage.BETA)
     def list_examples(

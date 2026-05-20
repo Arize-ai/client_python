@@ -102,6 +102,7 @@ class AIIntegrationsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -175,6 +176,7 @@ class AIIntegrationsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -248,6 +250,7 @@ class AIIntegrationsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -338,7 +341,7 @@ class AIIntegrationsApi:
     @validate_call
     def ai_integrations_delete(
         self,
-        integration_id: Annotated[StrictStr, Field(description="The unique identifier of the AI integration")],
+        integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -356,7 +359,7 @@ class AIIntegrationsApi:
 
         Delete an AI integration by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param integration_id: The unique identifier of the AI integration (required)
+        :param integration_id: The unique AI integration identifier (base64) (required)
         :type integration_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -410,7 +413,7 @@ class AIIntegrationsApi:
     @validate_call
     def ai_integrations_delete_with_http_info(
         self,
-        integration_id: Annotated[StrictStr, Field(description="The unique identifier of the AI integration")],
+        integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -428,7 +431,7 @@ class AIIntegrationsApi:
 
         Delete an AI integration by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param integration_id: The unique identifier of the AI integration (required)
+        :param integration_id: The unique AI integration identifier (base64) (required)
         :type integration_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -482,7 +485,7 @@ class AIIntegrationsApi:
     @validate_call
     def ai_integrations_delete_without_preload_content(
         self,
-        integration_id: Annotated[StrictStr, Field(description="The unique identifier of the AI integration")],
+        integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -500,7 +503,7 @@ class AIIntegrationsApi:
 
         Delete an AI integration by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param integration_id: The unique identifier of the AI integration (required)
+        :param integration_id: The unique AI integration identifier (base64) (required)
         :type integration_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -614,7 +617,7 @@ class AIIntegrationsApi:
     @validate_call
     def ai_integrations_get(
         self,
-        integration_id: Annotated[StrictStr, Field(description="The unique identifier of the AI integration")],
+        integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -632,7 +635,7 @@ class AIIntegrationsApi:
 
         Get a specific AI integration by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param integration_id: The unique identifier of the AI integration (required)
+        :param integration_id: The unique AI integration identifier (base64) (required)
         :type integration_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -685,7 +688,7 @@ class AIIntegrationsApi:
     @validate_call
     def ai_integrations_get_with_http_info(
         self,
-        integration_id: Annotated[StrictStr, Field(description="The unique identifier of the AI integration")],
+        integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -703,7 +706,7 @@ class AIIntegrationsApi:
 
         Get a specific AI integration by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param integration_id: The unique identifier of the AI integration (required)
+        :param integration_id: The unique AI integration identifier (base64) (required)
         :type integration_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -756,7 +759,7 @@ class AIIntegrationsApi:
     @validate_call
     def ai_integrations_get_without_preload_content(
         self,
-        integration_id: Annotated[StrictStr, Field(description="The unique identifier of the AI integration")],
+        integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -774,7 +777,7 @@ class AIIntegrationsApi:
 
         Get a specific AI integration by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param integration_id: The unique identifier of the AI integration (required)
+        :param integration_id: The unique AI integration identifier (base64) (required)
         :type integration_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1232,7 +1235,7 @@ class AIIntegrationsApi:
     @validate_call
     def ai_integrations_update(
         self,
-        integration_id: Annotated[StrictStr, Field(description="The unique identifier of the AI integration")],
+        integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
         ai_integrations_update_request: Annotated[AiIntegrationsUpdateRequest, Field(description="Body containing AI integration update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -1251,7 +1254,7 @@ class AIIntegrationsApi:
 
         Update an AI integration's configuration. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one of the updatable fields must be provided. - `name`, if provided, must be unique within the account. - `api_key` can be set to `null` to remove the existing key, or omitted to keep it unchanged. - `scopings`, if provided, replaces all existing scoping rules. - `provider_metadata`, if provided, replaces existing metadata. Set to `null` to remove.  **Valid example** ```json {   \"name\": \"Updated Integration\",   \"model_names\": [\"gpt-4o\", \"gpt-4o-mini\"] } ```  **Invalid example** (empty body) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param integration_id: The unique identifier of the AI integration (required)
+        :param integration_id: The unique AI integration identifier (base64) (required)
         :type integration_id: str
         :param ai_integrations_update_request: Body containing AI integration update parameters. At least one field must be provided. (required)
         :type ai_integrations_update_request: AiIntegrationsUpdateRequest
@@ -1293,6 +1296,7 @@ class AIIntegrationsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1309,7 +1313,7 @@ class AIIntegrationsApi:
     @validate_call
     def ai_integrations_update_with_http_info(
         self,
-        integration_id: Annotated[StrictStr, Field(description="The unique identifier of the AI integration")],
+        integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
         ai_integrations_update_request: Annotated[AiIntegrationsUpdateRequest, Field(description="Body containing AI integration update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -1328,7 +1332,7 @@ class AIIntegrationsApi:
 
         Update an AI integration's configuration. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one of the updatable fields must be provided. - `name`, if provided, must be unique within the account. - `api_key` can be set to `null` to remove the existing key, or omitted to keep it unchanged. - `scopings`, if provided, replaces all existing scoping rules. - `provider_metadata`, if provided, replaces existing metadata. Set to `null` to remove.  **Valid example** ```json {   \"name\": \"Updated Integration\",   \"model_names\": [\"gpt-4o\", \"gpt-4o-mini\"] } ```  **Invalid example** (empty body) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param integration_id: The unique identifier of the AI integration (required)
+        :param integration_id: The unique AI integration identifier (base64) (required)
         :type integration_id: str
         :param ai_integrations_update_request: Body containing AI integration update parameters. At least one field must be provided. (required)
         :type ai_integrations_update_request: AiIntegrationsUpdateRequest
@@ -1370,6 +1374,7 @@ class AIIntegrationsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1386,7 +1391,7 @@ class AIIntegrationsApi:
     @validate_call
     def ai_integrations_update_without_preload_content(
         self,
-        integration_id: Annotated[StrictStr, Field(description="The unique identifier of the AI integration")],
+        integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
         ai_integrations_update_request: Annotated[AiIntegrationsUpdateRequest, Field(description="Body containing AI integration update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -1405,7 +1410,7 @@ class AIIntegrationsApi:
 
         Update an AI integration's configuration. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one of the updatable fields must be provided. - `name`, if provided, must be unique within the account. - `api_key` can be set to `null` to remove the existing key, or omitted to keep it unchanged. - `scopings`, if provided, replaces all existing scoping rules. - `provider_metadata`, if provided, replaces existing metadata. Set to `null` to remove.  **Valid example** ```json {   \"name\": \"Updated Integration\",   \"model_names\": [\"gpt-4o\", \"gpt-4o-mini\"] } ```  **Invalid example** (empty body) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param integration_id: The unique identifier of the AI integration (required)
+        :param integration_id: The unique AI integration identifier (base64) (required)
         :type integration_id: str
         :param ai_integrations_update_request: Body containing AI integration update parameters. At least one field must be provided. (required)
         :type ai_integrations_update_request: AiIntegrationsUpdateRequest
@@ -1447,6 +1452,7 @@ class AIIntegrationsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(

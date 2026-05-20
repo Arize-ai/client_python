@@ -117,6 +117,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -161,7 +162,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.RolesApi(api_client)
-    role_id = 'Rol001' # str | The unique identifier of the role.
+    role_id = 'Um9sZToxOmFCY0Q=' # str | The unique role identifier (base64)
 
     try:
         # Delete a role
@@ -177,7 +178,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **role_id** | **str**| The unique identifier of the role. | 
+ **role_id** | **str**| The unique role identifier (base64) | 
 
 ### Return type
 
@@ -245,7 +246,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.RolesApi(api_client)
-    role_id = 'Rol001' # str | The unique identifier of the role.
+    role_id = 'Um9sZToxOmFCY0Q=' # str | The unique role identifier (base64)
 
     try:
         # Get a role
@@ -263,7 +264,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **role_id** | **str**| The unique identifier of the role. | 
+ **role_id** | **str**| The unique role identifier (base64) | 
 
 ### Return type
 
@@ -441,7 +442,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.RolesApi(api_client)
-    role_id = 'Rol001' # str | The unique identifier of the role.
+    role_id = 'Um9sZToxOmFCY0Q=' # str | The unique role identifier (base64)
     role_update = {"name":"Senior AI Engineer"} # RoleUpdate | Body containing role update parameters. At least one field must be provided.
 
     try:
@@ -460,7 +461,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **role_id** | **str**| The unique identifier of the role. | 
+ **role_id** | **str**| The unique role identifier (base64) | 
  **role_update** | [**RoleUpdate**](RoleUpdate.md)| Body containing role update parameters. At least one field must be provided. | 
 
 ### Return type
@@ -486,6 +487,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

@@ -18,8 +18,9 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.task_run_status import TaskRunStatus
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,9 +29,9 @@ class TaskRun(BaseModel):
     A task run is an async job that executes the work defined on a task. Runs are created by triggering an existing task (`POST /v2/tasks/{task_id}/trigger`). For `run_experiment` tasks, `experiment_id` is populated after the experiment is provisioned; poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state. 
     """ # noqa: E501
     id: StrictStr = Field(description="The unique identifier for the task run.")
-    task_id: StrictStr = Field(description="The parent task global ID (base64).")
-    experiment_id: Optional[StrictStr] = Field(default=None, description="Created experiment global ID (base64). Present only for `run_experiment` task runs; null for all other task types. ")
-    status: StrictStr = Field(description="The current status of the run.")
+    task_id: StrictStr = Field(description="The parent task identifier (base64).")
+    experiment_id: Optional[StrictStr] = Field(default=None, description="Created experiment identifier (base64). Present only for `run_experiment` task runs; null for all other task types. ")
+    status: TaskRunStatus
     run_started_at: Optional[datetime] = Field(description="When the run started processing.")
     run_finished_at: Optional[datetime] = Field(description="When the run finished processing.")
     data_start_time: Optional[datetime] = Field(description="Start of the data window evaluated. Null for run_experiment runs.")
@@ -41,13 +42,6 @@ class TaskRun(BaseModel):
     created_at: datetime = Field(description="When the run was created.")
     created_by_user_id: Optional[StrictStr] = Field(description="The unique identifier for the user who triggered the run.")
     __properties: ClassVar[List[str]] = ["id", "task_id", "experiment_id", "status", "run_started_at", "run_finished_at", "data_start_time", "data_end_time", "num_successes", "num_errors", "num_skipped", "created_at", "created_by_user_id"]
-
-    @field_validator('status')
-    def status_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['pending', 'running', 'completed', 'failed', 'cancelled']):
-            raise ValueError("must be one of enum values ('pending', 'running', 'completed', 'failed', 'cancelled')")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

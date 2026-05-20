@@ -6,9 +6,9 @@ Role assignments for the bot user created with a service key.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**space_role** | **str** | Role to assign the bot user within the space. Defaults to &#x60;member&#x60; when omitted. Must be at or below the caller&#39;s own effective space role.  | [optional] [default to 'member']
-**org_role** | **str** | Role to assign the bot user within the organization. Defaults to &#x60;read-only&#x60; when omitted. Must be at or below the caller&#39;s own organization role.  | [optional] [default to 'read-only']
-**account_role** | **str** | Account-level role to assign the bot user. Defaults to &#x60;member&#x60; when omitted. Must be at or below the caller&#39;s own account role.  | [optional] [default to 'member']
+**space_role** | [**ApiKeySpaceRole**](ApiKeySpaceRole.md) | Role to assign the bot user within the space. Defaults to &#x60;member&#x60; when omitted. Must be at or below the caller&#39;s own effective space role.  | [optional] 
+**org_role** | [**ApiKeyOrganizationRole**](ApiKeyOrganizationRole.md) | Role to assign the bot user within the organization. Defaults to &#x60;read-only&#x60; when omitted. Must be at or below the caller&#39;s own organization role.  | [optional] 
+**account_role** | [**ApiKeyAccountRole**](ApiKeyAccountRole.md) | Account-level role to assign the bot user. Defaults to &#x60;member&#x60; when omitted. Must be at or below the caller&#39;s own account role.  | [optional] 
 
 ## Example
 

@@ -8,6 +8,7 @@ from arize._generated.api_client.models.code_config import CodeConfig
 from arize._generated.api_client.models.custom_code_config import (
     CustomCodeConfig,
 )
+from arize._generated.api_client.models.data_granularity import DataGranularity
 from arize._generated.api_client.models.evaluator import Evaluator
 from arize._generated.api_client.models.evaluator_llm_config import (
     EvaluatorLlmConfig,
@@ -52,6 +53,7 @@ from arize._generated.api_client.models.static_param import StaticParam
 from arize._generated.api_client.models.static_param_default_value import (
     StaticParamDefaultValue,
 )
+from arize._generated.api_client.models.static_param_type import StaticParamType
 from arize._generated.api_client.models.template_config import TemplateConfig
 
 
@@ -148,6 +150,7 @@ class EvaluatorVersionsList200Response(BaseModel):
 __all__ = [
     "CodeConfig",
     "CustomCodeConfig",
+    "DataGranularity",
     "Evaluator",
     "EvaluatorLlmConfig",
     "EvaluatorType",
@@ -164,5 +167,6 @@ __all__ = [
     "OptimizationDirection",
     "StaticParam",
     "StaticParamDefaultValue",
+    "StaticParamType",
     "TemplateConfig",
 ]

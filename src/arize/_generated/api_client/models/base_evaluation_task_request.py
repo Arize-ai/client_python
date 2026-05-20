@@ -30,9 +30,9 @@ class BaseEvaluationTaskRequest(BaseModel):
     """ # noqa: E501
     name: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Task name")
     type: StrictStr = Field(description="Task type discriminator. Narrowed to a specific enum value by each concrete variant (`CreateTemplateEvaluationTaskRequest`, etc.). ")
-    project_id: Optional[StrictStr] = Field(default=None, description="Project global ID (base64). Required when `dataset_id` is not provided. Mutually exclusive with `dataset_id`. ")
-    dataset_id: Optional[StrictStr] = Field(default=None, description="Dataset global ID (base64). Required when `project_id` is not provided. Mutually exclusive with `project_id`. ")
-    experiment_ids: Optional[List[StrictStr]] = Field(default=None, description="Experiment global IDs (base64). Required when `dataset_id` is provided (at least one entry). Must be omitted or empty for project-based tasks. ")
+    project_id: Optional[StrictStr] = Field(default=None, description="Project identifier (base64). Required when `dataset_id` is not provided. Mutually exclusive with `dataset_id`. ")
+    dataset_id: Optional[StrictStr] = Field(default=None, description="Dataset identifier (base64). Required when `project_id` is not provided. Mutually exclusive with `project_id`. ")
+    experiment_ids: Optional[List[StrictStr]] = Field(default=None, description="Experiment identifiers (base64). Required when `dataset_id` is provided (at least one entry). Must be omitted or empty for project-based tasks. ")
     sampling_rate: Optional[Union[Annotated[float, Field(le=1, strict=True, ge=0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = Field(default=None, description="Sampling rate between 0 and 1. Only supported on project-based tasks. ")
     is_continuous: Optional[StrictBool] = Field(default=None, description="Whether the task runs continuously. Only supported on project-based tasks. Must be `false` or omitted for dataset-based tasks. ")
     query_filter: Optional[StrictStr] = Field(default=None, description="Task-level query filter applied to all evaluated data.")

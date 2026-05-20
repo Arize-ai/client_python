@@ -53,7 +53,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queue_records_list(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         _request_timeout: Union[
@@ -73,7 +73,7 @@ class AnnotationQueuesApi:
 
         List the records in an annotation queue with their data and annotations.  Each record includes: - The record's data as flat key-value pairs - Any annotations that have been added to the record - The users assigned to annotate the record and their completion status  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -133,7 +133,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queue_records_list_with_http_info(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         _request_timeout: Union[
@@ -153,7 +153,7 @@ class AnnotationQueuesApi:
 
         List the records in an annotation queue with their data and annotations.  Each record includes: - The record's data as flat key-value pairs - Any annotations that have been added to the record - The users assigned to annotate the record and their completion status  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -213,7 +213,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queue_records_list_without_preload_content(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         _request_timeout: Union[
@@ -233,7 +233,7 @@ class AnnotationQueuesApi:
 
         List the records in an annotation queue with their data and annotations.  Each record includes: - The record's data as flat key-value pairs - Any annotations that have been added to the record - The users assigned to annotate the record and their completion status  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -421,6 +421,7 @@ class AnnotationQueuesApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -494,6 +495,7 @@ class AnnotationQueuesApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -567,6 +569,7 @@ class AnnotationQueuesApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -657,7 +660,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_delete(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -675,7 +678,7 @@ class AnnotationQueuesApi:
 
         Delete an annotation queue by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -729,7 +732,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_delete_with_http_info(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -747,7 +750,7 @@ class AnnotationQueuesApi:
 
         Delete an annotation queue by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -801,7 +804,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_delete_without_preload_content(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -819,7 +822,7 @@ class AnnotationQueuesApi:
 
         Delete an annotation queue by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -933,7 +936,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_get(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -951,7 +954,7 @@ class AnnotationQueuesApi:
 
         Get an annotation queue object by its ID.  This includes the annotation queue's annotation configs, which define the structure of annotations that can be created in this queue.  This endpoint does not include queue records or annotation progress. To manage records in a queue, use the Annotation Queue Items endpoints.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1004,7 +1007,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_get_with_http_info(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1022,7 +1025,7 @@ class AnnotationQueuesApi:
 
         Get an annotation queue object by its ID.  This includes the annotation queue's annotation configs, which define the structure of annotations that can be created in this queue.  This endpoint does not include queue records or annotation progress. To manage records in a queue, use the Annotation Queue Items endpoints.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1075,7 +1078,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_get_without_preload_content(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1093,7 +1096,7 @@ class AnnotationQueuesApi:
 
         Get an annotation queue object by its ID.  This includes the annotation queue's annotation configs, which define the structure of annotations that can be created in this queue.  This endpoint does not include queue records or annotation progress. To manage records in a queue, use the Annotation Queue Items endpoints.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1551,8 +1554,8 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_records_annotate(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
-        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue record")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
+        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique annotation queue record identifier (base64)")],
         annotate_annotation_queue_record_request_body: Annotated[AnnotateAnnotationQueueRecordRequestBody, Field(description="Body containing annotations to submit for an annotation queue record")],
         _request_timeout: Union[
             None,
@@ -1571,9 +1574,9 @@ class AnnotationQueuesApi:
 
         Submit annotations for an annotation queue record.  Annotations are upserted into the underlying data source by annotation config name. Omitted annotation configs are left unchanged.  **Payload Requirements** - `annotations` must contain at least one entry. - There is no maximum limit on the number of annotations — you may submit one annotation per annotation config associated with the queue. - Each annotation `name` must match an annotation config associated with the queue. - Omit `label`, `score`, or `text` to leave the existing value unchanged. Individual fields cannot be set to null; annotations cannot be removed once written.  **Response** Returns a snapshot of the fields updated by this operation: the record identity and the submitted annotations only. Evaluations and user assignments are not included for performance reasons. Use the list records endpoint to retrieve the full record state.  **Valid example** ```json {   \"annotations\": [     {\"name\": \"accuracy\", \"label\": \"correct\", \"score\": 1.0},     {\"name\": \"quality\", \"text\": \"Well-structured response\"}   ] } ```  **Invalid example** (annotation name not in queue) ```json {   \"annotations\": [     {\"name\": \"unknown_config\", \"label\": \"good\"}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
-        :param annotation_queue_record_id: The unique identifier of the annotation queue record (required)
+        :param annotation_queue_record_id: The unique annotation queue record identifier (base64) (required)
         :type annotation_queue_record_id: str
         :param annotate_annotation_queue_record_request_body: Body containing annotations to submit for an annotation queue record (required)
         :type annotate_annotation_queue_record_request_body: AnnotateAnnotationQueueRecordRequestBody
@@ -1615,6 +1618,7 @@ class AnnotationQueuesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1631,8 +1635,8 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_records_annotate_with_http_info(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
-        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue record")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
+        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique annotation queue record identifier (base64)")],
         annotate_annotation_queue_record_request_body: Annotated[AnnotateAnnotationQueueRecordRequestBody, Field(description="Body containing annotations to submit for an annotation queue record")],
         _request_timeout: Union[
             None,
@@ -1651,9 +1655,9 @@ class AnnotationQueuesApi:
 
         Submit annotations for an annotation queue record.  Annotations are upserted into the underlying data source by annotation config name. Omitted annotation configs are left unchanged.  **Payload Requirements** - `annotations` must contain at least one entry. - There is no maximum limit on the number of annotations — you may submit one annotation per annotation config associated with the queue. - Each annotation `name` must match an annotation config associated with the queue. - Omit `label`, `score`, or `text` to leave the existing value unchanged. Individual fields cannot be set to null; annotations cannot be removed once written.  **Response** Returns a snapshot of the fields updated by this operation: the record identity and the submitted annotations only. Evaluations and user assignments are not included for performance reasons. Use the list records endpoint to retrieve the full record state.  **Valid example** ```json {   \"annotations\": [     {\"name\": \"accuracy\", \"label\": \"correct\", \"score\": 1.0},     {\"name\": \"quality\", \"text\": \"Well-structured response\"}   ] } ```  **Invalid example** (annotation name not in queue) ```json {   \"annotations\": [     {\"name\": \"unknown_config\", \"label\": \"good\"}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
-        :param annotation_queue_record_id: The unique identifier of the annotation queue record (required)
+        :param annotation_queue_record_id: The unique annotation queue record identifier (base64) (required)
         :type annotation_queue_record_id: str
         :param annotate_annotation_queue_record_request_body: Body containing annotations to submit for an annotation queue record (required)
         :type annotate_annotation_queue_record_request_body: AnnotateAnnotationQueueRecordRequestBody
@@ -1695,6 +1699,7 @@ class AnnotationQueuesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1711,8 +1716,8 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_records_annotate_without_preload_content(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
-        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue record")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
+        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique annotation queue record identifier (base64)")],
         annotate_annotation_queue_record_request_body: Annotated[AnnotateAnnotationQueueRecordRequestBody, Field(description="Body containing annotations to submit for an annotation queue record")],
         _request_timeout: Union[
             None,
@@ -1731,9 +1736,9 @@ class AnnotationQueuesApi:
 
         Submit annotations for an annotation queue record.  Annotations are upserted into the underlying data source by annotation config name. Omitted annotation configs are left unchanged.  **Payload Requirements** - `annotations` must contain at least one entry. - There is no maximum limit on the number of annotations — you may submit one annotation per annotation config associated with the queue. - Each annotation `name` must match an annotation config associated with the queue. - Omit `label`, `score`, or `text` to leave the existing value unchanged. Individual fields cannot be set to null; annotations cannot be removed once written.  **Response** Returns a snapshot of the fields updated by this operation: the record identity and the submitted annotations only. Evaluations and user assignments are not included for performance reasons. Use the list records endpoint to retrieve the full record state.  **Valid example** ```json {   \"annotations\": [     {\"name\": \"accuracy\", \"label\": \"correct\", \"score\": 1.0},     {\"name\": \"quality\", \"text\": \"Well-structured response\"}   ] } ```  **Invalid example** (annotation name not in queue) ```json {   \"annotations\": [     {\"name\": \"unknown_config\", \"label\": \"good\"}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
-        :param annotation_queue_record_id: The unique identifier of the annotation queue record (required)
+        :param annotation_queue_record_id: The unique annotation queue record identifier (base64) (required)
         :type annotation_queue_record_id: str
         :param annotate_annotation_queue_record_request_body: Body containing annotations to submit for an annotation queue record (required)
         :type annotate_annotation_queue_record_request_body: AnnotateAnnotationQueueRecordRequestBody
@@ -1775,6 +1780,7 @@ class AnnotationQueuesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1871,8 +1877,8 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_records_assign(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
-        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue record")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
+        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique annotation queue record identifier (base64)")],
         assign_annotation_queue_record_request_body: Annotated[AssignAnnotationQueueRecordRequestBody, Field(description="Body containing the user assignment for an annotation queue record")],
         _request_timeout: Union[
             None,
@@ -1891,9 +1897,9 @@ class AnnotationQueuesApi:
 
         Assign users to an annotation queue record.  Fully replaces the current record-level user assignment. Re-assigning a user who has already completed their annotation resets their completion status to pending.  **Payload Requirements** - `assigned_user_emails` fully replaces the existing record-level user assignment. - Pass an empty array to remove all record-level assignments. - At most 100 emails may be provided per request. - All emails must resolve to existing users with access to the queue's space.  **Response** Returns a snapshot of the fields updated by this operation: the record identity and the resulting user assignments only. Annotations and evaluations are not included for performance reasons. Use the list records endpoint to retrieve the full record state.  **Valid example** ```json {   \"assigned_user_emails\": [\"reviewer@example.com\", \"annotator@example.com\"] } ```  **Invalid example** (email does not belong to the space) ```json {   \"assigned_user_emails\": [\"outsider@other.com\"] } ```  **Invalid example** (exceeds 100-email limit) ```json {   \"assigned_user_emails\": [\"user1@example.com\", \"user2@example.com\", \"...101 total emails\"] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
-        :param annotation_queue_record_id: The unique identifier of the annotation queue record (required)
+        :param annotation_queue_record_id: The unique annotation queue record identifier (base64) (required)
         :type annotation_queue_record_id: str
         :param assign_annotation_queue_record_request_body: Body containing the user assignment for an annotation queue record (required)
         :type assign_annotation_queue_record_request_body: AssignAnnotationQueueRecordRequestBody
@@ -1935,6 +1941,7 @@ class AnnotationQueuesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1951,8 +1958,8 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_records_assign_with_http_info(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
-        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue record")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
+        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique annotation queue record identifier (base64)")],
         assign_annotation_queue_record_request_body: Annotated[AssignAnnotationQueueRecordRequestBody, Field(description="Body containing the user assignment for an annotation queue record")],
         _request_timeout: Union[
             None,
@@ -1971,9 +1978,9 @@ class AnnotationQueuesApi:
 
         Assign users to an annotation queue record.  Fully replaces the current record-level user assignment. Re-assigning a user who has already completed their annotation resets their completion status to pending.  **Payload Requirements** - `assigned_user_emails` fully replaces the existing record-level user assignment. - Pass an empty array to remove all record-level assignments. - At most 100 emails may be provided per request. - All emails must resolve to existing users with access to the queue's space.  **Response** Returns a snapshot of the fields updated by this operation: the record identity and the resulting user assignments only. Annotations and evaluations are not included for performance reasons. Use the list records endpoint to retrieve the full record state.  **Valid example** ```json {   \"assigned_user_emails\": [\"reviewer@example.com\", \"annotator@example.com\"] } ```  **Invalid example** (email does not belong to the space) ```json {   \"assigned_user_emails\": [\"outsider@other.com\"] } ```  **Invalid example** (exceeds 100-email limit) ```json {   \"assigned_user_emails\": [\"user1@example.com\", \"user2@example.com\", \"...101 total emails\"] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
-        :param annotation_queue_record_id: The unique identifier of the annotation queue record (required)
+        :param annotation_queue_record_id: The unique annotation queue record identifier (base64) (required)
         :type annotation_queue_record_id: str
         :param assign_annotation_queue_record_request_body: Body containing the user assignment for an annotation queue record (required)
         :type assign_annotation_queue_record_request_body: AssignAnnotationQueueRecordRequestBody
@@ -2015,6 +2022,7 @@ class AnnotationQueuesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2031,8 +2039,8 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_records_assign_without_preload_content(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
-        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue record")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
+        annotation_queue_record_id: Annotated[StrictStr, Field(description="The unique annotation queue record identifier (base64)")],
         assign_annotation_queue_record_request_body: Annotated[AssignAnnotationQueueRecordRequestBody, Field(description="Body containing the user assignment for an annotation queue record")],
         _request_timeout: Union[
             None,
@@ -2051,9 +2059,9 @@ class AnnotationQueuesApi:
 
         Assign users to an annotation queue record.  Fully replaces the current record-level user assignment. Re-assigning a user who has already completed their annotation resets their completion status to pending.  **Payload Requirements** - `assigned_user_emails` fully replaces the existing record-level user assignment. - Pass an empty array to remove all record-level assignments. - At most 100 emails may be provided per request. - All emails must resolve to existing users with access to the queue's space.  **Response** Returns a snapshot of the fields updated by this operation: the record identity and the resulting user assignments only. Annotations and evaluations are not included for performance reasons. Use the list records endpoint to retrieve the full record state.  **Valid example** ```json {   \"assigned_user_emails\": [\"reviewer@example.com\", \"annotator@example.com\"] } ```  **Invalid example** (email does not belong to the space) ```json {   \"assigned_user_emails\": [\"outsider@other.com\"] } ```  **Invalid example** (exceeds 100-email limit) ```json {   \"assigned_user_emails\": [\"user1@example.com\", \"user2@example.com\", \"...101 total emails\"] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
-        :param annotation_queue_record_id: The unique identifier of the annotation queue record (required)
+        :param annotation_queue_record_id: The unique annotation queue record identifier (base64) (required)
         :type annotation_queue_record_id: str
         :param assign_annotation_queue_record_request_body: Body containing the user assignment for an annotation queue record (required)
         :type assign_annotation_queue_record_request_body: AssignAnnotationQueueRecordRequestBody
@@ -2095,6 +2103,7 @@ class AnnotationQueuesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2191,7 +2200,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_records_create(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         add_annotation_queue_records_request_body: Annotated[AddAnnotationQueueRecordsRequestBody, Field(description="Body containing records to add to an annotation queue")],
         _request_timeout: Union[
             None,
@@ -2210,7 +2219,7 @@ class AnnotationQueuesApi:
 
         Add new records from either spans (a project) or from dataset examples to an existing annotation queue.  **Payload Requirements**   - At least one record source is required.   - At most 2 record sources are allowed per request   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.   - For dataset record source: all `example_ids` must be non-empty strings.   - For spans record source: all `span_ids` must be non-empty strings.   - At most 500 records total may be added in one request  **Valid example** ```json {   \"record_sources\": [     {       \"record_type\": \"span\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  **Invalid example** (span record with `start_time` after `end_time`) ```json {   \"record_sources\": [     {       \"record_type\": \"span\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-20T00:00:00Z\",       \"end_time\": \"2026-01-15T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue.</Note>  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param add_annotation_queue_records_request_body: Body containing records to add to an annotation queue (required)
         :type add_annotation_queue_records_request_body: AddAnnotationQueueRecordsRequestBody
@@ -2252,6 +2261,7 @@ class AnnotationQueuesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2268,7 +2278,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_records_create_with_http_info(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         add_annotation_queue_records_request_body: Annotated[AddAnnotationQueueRecordsRequestBody, Field(description="Body containing records to add to an annotation queue")],
         _request_timeout: Union[
             None,
@@ -2287,7 +2297,7 @@ class AnnotationQueuesApi:
 
         Add new records from either spans (a project) or from dataset examples to an existing annotation queue.  **Payload Requirements**   - At least one record source is required.   - At most 2 record sources are allowed per request   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.   - For dataset record source: all `example_ids` must be non-empty strings.   - For spans record source: all `span_ids` must be non-empty strings.   - At most 500 records total may be added in one request  **Valid example** ```json {   \"record_sources\": [     {       \"record_type\": \"span\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  **Invalid example** (span record with `start_time` after `end_time`) ```json {   \"record_sources\": [     {       \"record_type\": \"span\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-20T00:00:00Z\",       \"end_time\": \"2026-01-15T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue.</Note>  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param add_annotation_queue_records_request_body: Body containing records to add to an annotation queue (required)
         :type add_annotation_queue_records_request_body: AddAnnotationQueueRecordsRequestBody
@@ -2329,6 +2339,7 @@ class AnnotationQueuesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2345,7 +2356,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_records_create_without_preload_content(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         add_annotation_queue_records_request_body: Annotated[AddAnnotationQueueRecordsRequestBody, Field(description="Body containing records to add to an annotation queue")],
         _request_timeout: Union[
             None,
@@ -2364,7 +2375,7 @@ class AnnotationQueuesApi:
 
         Add new records from either spans (a project) or from dataset examples to an existing annotation queue.  **Payload Requirements**   - At least one record source is required.   - At most 2 record sources are allowed per request   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.   - For dataset record source: all `example_ids` must be non-empty strings.   - For spans record source: all `span_ids` must be non-empty strings.   - At most 500 records total may be added in one request  **Valid example** ```json {   \"record_sources\": [     {       \"record_type\": \"span\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  **Invalid example** (span record with `start_time` after `end_time`) ```json {   \"record_sources\": [     {       \"record_type\": \"span\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-20T00:00:00Z\",       \"end_time\": \"2026-01-15T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue.</Note>  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param add_annotation_queue_records_request_body: Body containing records to add to an annotation queue (required)
         :type add_annotation_queue_records_request_body: AddAnnotationQueueRecordsRequestBody
@@ -2406,6 +2417,7 @@ class AnnotationQueuesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2499,7 +2511,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_records_delete(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         delete_annotation_queue_records_request_body: Annotated[DeleteAnnotationQueueRecordsRequestBody, Field(description="Body containing the IDs of annotation queue records to delete")],
         _request_timeout: Union[
             None,
@@ -2518,7 +2530,7 @@ class AnnotationQueuesApi:
 
         Delete one or more records from an annotation queue by their IDs.  If one or more record IDs are not found or do not belong to the specified queue, they are silently ignored. A 204 response does not guarantee that all provided IDs were deleted.  Returns 404 if the annotation queue specified by `annotation_queue_id` is not found. Individual missing record IDs do not trigger a 404.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param delete_annotation_queue_records_request_body: Body containing the IDs of annotation queue records to delete (required)
         :type delete_annotation_queue_records_request_body: DeleteAnnotationQueueRecordsRequestBody
@@ -2559,6 +2571,7 @@ class AnnotationQueuesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2575,7 +2588,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_records_delete_with_http_info(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         delete_annotation_queue_records_request_body: Annotated[DeleteAnnotationQueueRecordsRequestBody, Field(description="Body containing the IDs of annotation queue records to delete")],
         _request_timeout: Union[
             None,
@@ -2594,7 +2607,7 @@ class AnnotationQueuesApi:
 
         Delete one or more records from an annotation queue by their IDs.  If one or more record IDs are not found or do not belong to the specified queue, they are silently ignored. A 204 response does not guarantee that all provided IDs were deleted.  Returns 404 if the annotation queue specified by `annotation_queue_id` is not found. Individual missing record IDs do not trigger a 404.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param delete_annotation_queue_records_request_body: Body containing the IDs of annotation queue records to delete (required)
         :type delete_annotation_queue_records_request_body: DeleteAnnotationQueueRecordsRequestBody
@@ -2635,6 +2648,7 @@ class AnnotationQueuesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2651,7 +2665,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_records_delete_without_preload_content(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         delete_annotation_queue_records_request_body: Annotated[DeleteAnnotationQueueRecordsRequestBody, Field(description="Body containing the IDs of annotation queue records to delete")],
         _request_timeout: Union[
             None,
@@ -2670,7 +2684,7 @@ class AnnotationQueuesApi:
 
         Delete one or more records from an annotation queue by their IDs.  If one or more record IDs are not found or do not belong to the specified queue, they are silently ignored. A 204 response does not guarantee that all provided IDs were deleted.  Returns 404 if the annotation queue specified by `annotation_queue_id` is not found. Individual missing record IDs do not trigger a 404.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param delete_annotation_queue_records_request_body: Body containing the IDs of annotation queue records to delete (required)
         :type delete_annotation_queue_records_request_body: DeleteAnnotationQueueRecordsRequestBody
@@ -2711,6 +2725,7 @@ class AnnotationQueuesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2803,7 +2818,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_update(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         update_annotation_queue_request_body: Annotated[UpdateAnnotationQueueRequestBody, Field(description="Body containing annotation queue update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -2822,7 +2837,7 @@ class AnnotationQueuesApi:
 
         Update an annotation queue by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `instructions`, `annotation_config_ids`, or `annotator_emails` must be provided - `name` must be unique within the space (409 Conflict if duplicate) - `annotation_config_ids` replaces all existing config associations; all configs must belong to the same space as the queue - `annotator_emails` replaces all existing user assignments; all users must have active accounts  **Valid example** ```json {   \"name\": \"Updated Review Queue\",   \"annotation_config_ids\": [\"QW5ub3RhdGlvbkNvbmZpZzoxOmFCY0Q=\", \"QW5ub3RhdGlvbkNvbmZpZzoyOmFCY0Q=\"],   \"annotator_emails\": [\"reviewer@example.com\"] } ```  **Invalid example** (empty body — no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param update_annotation_queue_request_body: Body containing annotation queue update parameters. At least one field must be provided. (required)
         :type update_annotation_queue_request_body: UpdateAnnotationQueueRequestBody
@@ -2864,6 +2879,7 @@ class AnnotationQueuesApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2880,7 +2896,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_update_with_http_info(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         update_annotation_queue_request_body: Annotated[UpdateAnnotationQueueRequestBody, Field(description="Body containing annotation queue update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -2899,7 +2915,7 @@ class AnnotationQueuesApi:
 
         Update an annotation queue by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `instructions`, `annotation_config_ids`, or `annotator_emails` must be provided - `name` must be unique within the space (409 Conflict if duplicate) - `annotation_config_ids` replaces all existing config associations; all configs must belong to the same space as the queue - `annotator_emails` replaces all existing user assignments; all users must have active accounts  **Valid example** ```json {   \"name\": \"Updated Review Queue\",   \"annotation_config_ids\": [\"QW5ub3RhdGlvbkNvbmZpZzoxOmFCY0Q=\", \"QW5ub3RhdGlvbkNvbmZpZzoyOmFCY0Q=\"],   \"annotator_emails\": [\"reviewer@example.com\"] } ```  **Invalid example** (empty body — no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param update_annotation_queue_request_body: Body containing annotation queue update parameters. At least one field must be provided. (required)
         :type update_annotation_queue_request_body: UpdateAnnotationQueueRequestBody
@@ -2941,6 +2957,7 @@ class AnnotationQueuesApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2957,7 +2974,7 @@ class AnnotationQueuesApi:
     @validate_call
     def annotation_queues_update_without_preload_content(
         self,
-        annotation_queue_id: Annotated[StrictStr, Field(description="The unique identifier of the annotation queue")],
+        annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         update_annotation_queue_request_body: Annotated[UpdateAnnotationQueueRequestBody, Field(description="Body containing annotation queue update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -2976,7 +2993,7 @@ class AnnotationQueuesApi:
 
         Update an annotation queue by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `instructions`, `annotation_config_ids`, or `annotator_emails` must be provided - `name` must be unique within the space (409 Conflict if duplicate) - `annotation_config_ids` replaces all existing config associations; all configs must belong to the same space as the queue - `annotator_emails` replaces all existing user assignments; all users must have active accounts  **Valid example** ```json {   \"name\": \"Updated Review Queue\",   \"annotation_config_ids\": [\"QW5ub3RhdGlvbkNvbmZpZzoxOmFCY0Q=\", \"QW5ub3RhdGlvbkNvbmZpZzoyOmFCY0Q=\"],   \"annotator_emails\": [\"reviewer@example.com\"] } ```  **Invalid example** (empty body — no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param annotation_queue_id: The unique identifier of the annotation queue (required)
+        :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param update_annotation_queue_request_body: Body containing annotation queue update parameters. At least one field must be provided. (required)
         :type update_annotation_queue_request_body: UpdateAnnotationQueueRequestBody
@@ -3018,6 +3035,7 @@ class AnnotationQueuesApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(

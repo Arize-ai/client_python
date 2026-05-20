@@ -17,8 +17,11 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.api_key_account_role import ApiKeyAccountRole
+from arize._generated.api_client.models.api_key_organization_role import ApiKeyOrganizationRole
+from arize._generated.api_client.models.api_key_space_role import ApiKeySpaceRole
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -26,40 +29,10 @@ class ApiKeyRoles(BaseModel):
     """
     Role assignments for the bot user created with a service key.
     """ # noqa: E501
-    space_role: Optional[StrictStr] = Field(default='member', description="Role to assign the bot user within the space. Defaults to `member` when omitted. Must be at or below the caller's own effective space role. ")
-    org_role: Optional[StrictStr] = Field(default='read-only', description="Role to assign the bot user within the organization. Defaults to `read-only` when omitted. Must be at or below the caller's own organization role. ")
-    account_role: Optional[StrictStr] = Field(default='member', description="Account-level role to assign the bot user. Defaults to `member` when omitted. Must be at or below the caller's own account role. ")
+    space_role: Optional[ApiKeySpaceRole] = Field(default=None, description="Role to assign the bot user within the space. Defaults to `member` when omitted. Must be at or below the caller's own effective space role. ")
+    org_role: Optional[ApiKeyOrganizationRole] = Field(default=None, description="Role to assign the bot user within the organization. Defaults to `read-only` when omitted. Must be at or below the caller's own organization role. ")
+    account_role: Optional[ApiKeyAccountRole] = Field(default=None, description="Account-level role to assign the bot user. Defaults to `member` when omitted. Must be at or below the caller's own account role. ")
     __properties: ClassVar[List[str]] = ["space_role", "org_role", "account_role"]
-
-    @field_validator('space_role')
-    def space_role_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['admin', 'member', 'read-only']):
-            raise ValueError("must be one of enum values ('admin', 'member', 'read-only')")
-        return value
-
-    @field_validator('org_role')
-    def org_role_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['admin', 'member', 'read-only']):
-            raise ValueError("must be one of enum values ('admin', 'member', 'read-only')")
-        return value
-
-    @field_validator('account_role')
-    def account_role_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['admin', 'member']):
-            raise ValueError("must be one of enum values ('admin', 'member')")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -117,9 +90,9 @@ class ApiKeyRoles(BaseModel):
                 raise ValueError("Error due to additional fields (not defined in ApiKeyRoles) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "space_role": obj.get("space_role") if obj.get("space_role") is not None else 'member',
-            "org_role": obj.get("org_role") if obj.get("org_role") is not None else 'read-only',
-            "account_role": obj.get("account_role") if obj.get("account_role") is not None else 'member'
+            "space_role": obj.get("space_role"),
+            "org_role": obj.get("org_role"),
+            "account_role": obj.get("account_role")
         })
         return _obj
 

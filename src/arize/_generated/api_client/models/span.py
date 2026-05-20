@@ -18,12 +18,13 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.annotation import Annotation
 from arize._generated.api_client.models.evaluation import Evaluation
 from arize._generated.api_client.models.span_context import SpanContext
 from arize._generated.api_client.models.span_event import SpanEvent
+from arize._generated.api_client.models.span_status_code import SpanStatusCode
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -37,23 +38,13 @@ class Span(BaseModel):
     parent_id: Optional[StrictStr] = Field(default=None, description="ID of the parent span")
     start_time: datetime = Field(description="Timestamp when the span started")
     end_time: datetime = Field(description="Timestamp when the span ended")
-    status_code: Optional[StrictStr] = Field(default='UNSET', description="Status code of the span. Defaults to `UNSET` if not provided.")
+    status_code: Optional[SpanStatusCode] = None
     status_message: Optional[StrictStr] = Field(default=None, description="Status message associated with the span")
     attributes: Optional[Dict[str, Any]] = Field(default=None, description="Key-value pairs of span attributes")
     annotations: Optional[List[Annotation]] = Field(default=None, description="List of human annotations on this span")
     evaluations: Optional[List[Evaluation]] = Field(default=None, description="List of evaluation results on this span")
     events: Optional[List[SpanEvent]] = Field(default=None, description="List of events that occurred during the span")
     __properties: ClassVar[List[str]] = ["name", "context", "kind", "parent_id", "start_time", "end_time", "status_code", "status_message", "attributes", "annotations", "evaluations", "events"]
-
-    @field_validator('status_code')
-    def status_code_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['OK', 'ERROR', 'UNSET']):
-            raise ValueError("must be one of enum values ('OK', 'ERROR', 'UNSET')")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -141,7 +132,7 @@ class Span(BaseModel):
             "parent_id": obj.get("parent_id"),
             "start_time": obj.get("start_time"),
             "end_time": obj.get("end_time"),
-            "status_code": obj.get("status_code") if obj.get("status_code") is not None else 'UNSET',
+            "status_code": obj.get("status_code"),
             "status_message": obj.get("status_message"),
             "attributes": obj.get("attributes"),
             "annotations": [Annotation.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None,

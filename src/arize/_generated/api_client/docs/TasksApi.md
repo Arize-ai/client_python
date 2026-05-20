@@ -56,7 +56,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
-    run_id = 'VGFza1J1bjoxMjM0NQ==' # str | The task run global ID (base64)
+    run_id = 'VGFza1J1bjoxMjM0NQ==' # str | The unique task run identifier (base64)
 
     try:
         # Cancel task run
@@ -74,7 +74,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **run_id** | **str**| The task run global ID (base64) | 
+ **run_id** | **str**| The unique task run identifier (base64) | 
 
 ### Return type
 
@@ -142,7 +142,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
-    run_id = 'VGFza1J1bjoxMjM0NQ==' # str | The task run global ID (base64)
+    run_id = 'VGFza1J1bjoxMjM0NQ==' # str | The unique task run identifier (base64)
 
     try:
         # Get task run
@@ -160,7 +160,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **run_id** | **str**| The task run global ID (base64) | 
+ **run_id** | **str**| The unique task run identifier (base64) | 
 
 ### Return type
 
@@ -319,6 +319,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -363,7 +364,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
-    task_id = 'VGFzazoxMjM0NQ==' # str | The task global ID (base64)
+    task_id = 'VGFzazoxMjM0NQ==' # str | The unique task identifier (base64)
 
     try:
         # Delete task
@@ -379,7 +380,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **task_id** | **str**| The task global ID (base64) | 
+ **task_id** | **str**| The unique task identifier (base64) | 
 
 ### Return type
 
@@ -447,7 +448,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
-    task_id = 'VGFzazoxMjM0NQ==' # str | The task global ID (base64)
+    task_id = 'VGFzazoxMjM0NQ==' # str | The unique task identifier (base64)
 
     try:
         # Get task
@@ -465,7 +466,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **task_id** | **str**| The task global ID (base64) | 
+ **task_id** | **str**| The unique task identifier (base64) | 
 
 ### Return type
 
@@ -510,6 +511,7 @@ Filter by space, space name, task name, project, dataset, or task type using que
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.task_type import TaskType
 from arize._generated.api_client.models.tasks_list200_response import TasksList200Response
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
@@ -537,9 +539,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
     space_name = 'my-space' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
-    project_id = 'UHJvamVjdDoxMjM0NQ==' # str | Filter to tasks for a specific project (base64 global ID) (optional)
-    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | Filter to a specific dataset (base64 global ID) (optional)
-    type = 'template_evaluation' # str | Filter by task type: template_evaluation, code_evaluation, or run_experiment (optional)
+    project_id = 'UHJvamVjdDoxMjM0NQ==' # str | Filter to tasks for a specific project (base64 identifier (base64)) (optional)
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | Filter to a specific dataset (base64 identifier (base64)) (optional)
+    type = arize._generated.api_client.TaskType() # TaskType | Filter by task type: template_evaluation, code_evaluation, or run_experiment (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
@@ -562,9 +564,9 @@ Name | Type | Description  | Notes
  **space_id** | **str**| Filter search results to a particular space ID | [optional] 
  **space_name** | **str**| Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  | [optional] 
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
- **project_id** | **str**| Filter to tasks for a specific project (base64 global ID) | [optional] 
- **dataset_id** | **str**| Filter to a specific dataset (base64 global ID) | [optional] 
- **type** | **str**| Filter by task type: template_evaluation, code_evaluation, or run_experiment | [optional] 
+ **project_id** | **str**| Filter to tasks for a specific project (base64 identifier (base64)) | [optional] 
+ **dataset_id** | **str**| Filter to a specific dataset (base64 identifier (base64)) | [optional] 
+ **type** | [**TaskType**](.md)| Filter by task type: template_evaluation, code_evaluation, or run_experiment | [optional] 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
@@ -610,6 +612,7 @@ List all runs for a task with cursor-based pagination.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.task_run_status import TaskRunStatus
 from arize._generated.api_client.models.tasks_list_runs200_response import TasksListRuns200Response
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
@@ -634,8 +637,8 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
-    task_id = 'VGFzazoxMjM0NQ==' # str | The task global ID (base64)
-    status = 'completed' # str | Filter by run status: pending, running, completed, failed, cancelled (optional)
+    task_id = 'VGFzazoxMjM0NQ==' # str | The unique task identifier (base64)
+    status = arize._generated.api_client.TaskRunStatus() # TaskRunStatus | Filter by run status: pending, running, completed, failed, cancelled (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
@@ -655,8 +658,8 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **task_id** | **str**| The task global ID (base64) | 
- **status** | **str**| Filter by run status: pending, running, completed, failed, cancelled | [optional] 
+ **task_id** | **str**| The unique task identifier (base64) | 
+ **status** | [**TaskRunStatus**](.md)| Filter by run status: pending, running, completed, failed, cancelled | [optional] 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
@@ -767,7 +770,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
-    task_id = 'VGFzazoxMjM0NQ==' # str | The task global ID (base64)
+    task_id = 'VGFzazoxMjM0NQ==' # str | The unique task identifier (base64)
     tasks_trigger_run_request = {"data_start_time":"2026-03-01T00:00:00Z","data_end_time":"2026-03-07T00:00:00Z","max_spans":5000,"override_evaluations":false} # TasksTriggerRunRequest | Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults.  (optional)
 
     try:
@@ -786,7 +789,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **task_id** | **str**| The task global ID (base64) | 
+ **task_id** | **str**| The unique task identifier (base64) | 
  **tasks_trigger_run_request** | [**TasksTriggerRunRequest**](TasksTriggerRunRequest.md)| Trigger body for &#x60;POST /v2/tasks/{task_id}/trigger&#x60;. The server derives the task type from the URL&#39;s task record and selects the appropriate schema; the body itself does not carry a &#x60;task_type&#x60; field.  | Task type | Schema | |---|---| | &#x60;template_evaluation&#x60; | &#x60;TriggerEvaluationTaskRunRequest&#x60; | | &#x60;code_evaluation&#x60; | &#x60;TriggerEvaluationTaskRunRequest&#x60; | | &#x60;run_experiment&#x60; | &#x60;TriggerRunExperimentTaskRunRequest&#x60; |  Sending a field that is not valid for the resolved task type returns 400. For &#x60;template_evaluation&#x60; and &#x60;code_evaluation&#x60; tasks all trigger fields are optional — an empty body is valid and uses server defaults.  | [optional] 
 
 ### Return type
@@ -812,6 +815,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -879,7 +883,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
-    task_id = 'VGFzazoxMjM0NQ==' # str | The task global ID (base64)
+    task_id = 'VGFzazoxMjM0NQ==' # str | The unique task identifier (base64)
     tasks_update_request = {"name":"Updated Task Name","sampling_rate":0.5,"query_filter":"metadata.environment = 'staging'"} # TasksUpdateRequest | PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task). 
 
     try:
@@ -898,7 +902,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **task_id** | **str**| The task global ID (base64) | 
+ **task_id** | **str**| The unique task identifier (base64) | 
  **tasks_update_request** | [**TasksUpdateRequest**](TasksUpdateRequest.md)| PATCH body for &#x60;PATCH /v2/tasks/{task_id}&#x60;. The server derives the task type from the URL&#39;s task record and selects the appropriate schema; the body itself does not carry a &#x60;type&#x60; field.  | Task type | Schema | |---|---| | &#x60;template_evaluation&#x60; | &#x60;UpdateEvaluationTaskRequest&#x60; | | &#x60;code_evaluation&#x60; | &#x60;UpdateEvaluationTaskRequest&#x60; | | &#x60;run_experiment&#x60; | &#x60;UpdateRunExperimentTaskRequest&#x60; |  For &#x60;template_evaluation&#x60; and &#x60;code_evaluation&#x60; tasks, at least one of &#x60;name&#x60;, &#x60;sampling_rate&#x60;, &#x60;is_continuous&#x60;, &#x60;query_filter&#x60;, or &#x60;evaluators&#x60; must be provided.  For &#x60;run_experiment&#x60; tasks, at least one of &#x60;name&#x60; or &#x60;run_configuration&#x60; must be provided. When &#x60;run_configuration&#x60; is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. &#x60;evaluators&#x60; on a &#x60;run_experiment&#x60; task, or &#x60;run_configuration&#x60; on an evaluation task).  | 
 
 ### Return type
@@ -923,6 +927,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

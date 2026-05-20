@@ -49,7 +49,7 @@ class EvaluatorsApi:
     @validate_call
     def evaluator_versions_create(
         self,
-        evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
         evaluator_version_create: Annotated[EvaluatorVersionCreate, Field(description="Body containing evaluator version creation parameters")],
         _request_timeout: Union[
             None,
@@ -68,7 +68,7 @@ class EvaluatorsApi:
 
         Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide either `template_config` or `code_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`managed` or `custom`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator.  **Valid example** (template version) ```json {   \"commit_message\": \"Improve prompt template for better accuracy\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given the input: {input}\\nand output: {output}\\nIs the output a hallucination? Explain your reasoning.\",     \"include_explanations\": true,     \"use_function_calling_if_available\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {\"temperature\": 0},       \"provider_parameters\": {}     }   } } ```  **Invalid example** (missing required `commit_message`) ```json {   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Is this a hallucination?\",     \"include_explanations\": false,     \"use_function_calling_if_available\": false,     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param evaluator_id: The evaluator global ID (base64) (required)
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
         :param evaluator_version_create: Body containing evaluator version creation parameters (required)
         :type evaluator_version_create: EvaluatorVersionCreate
@@ -109,6 +109,7 @@ class EvaluatorsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -125,7 +126,7 @@ class EvaluatorsApi:
     @validate_call
     def evaluator_versions_create_with_http_info(
         self,
-        evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
         evaluator_version_create: Annotated[EvaluatorVersionCreate, Field(description="Body containing evaluator version creation parameters")],
         _request_timeout: Union[
             None,
@@ -144,7 +145,7 @@ class EvaluatorsApi:
 
         Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide either `template_config` or `code_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`managed` or `custom`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator.  **Valid example** (template version) ```json {   \"commit_message\": \"Improve prompt template for better accuracy\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given the input: {input}\\nand output: {output}\\nIs the output a hallucination? Explain your reasoning.\",     \"include_explanations\": true,     \"use_function_calling_if_available\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {\"temperature\": 0},       \"provider_parameters\": {}     }   } } ```  **Invalid example** (missing required `commit_message`) ```json {   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Is this a hallucination?\",     \"include_explanations\": false,     \"use_function_calling_if_available\": false,     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param evaluator_id: The evaluator global ID (base64) (required)
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
         :param evaluator_version_create: Body containing evaluator version creation parameters (required)
         :type evaluator_version_create: EvaluatorVersionCreate
@@ -185,6 +186,7 @@ class EvaluatorsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -201,7 +203,7 @@ class EvaluatorsApi:
     @validate_call
     def evaluator_versions_create_without_preload_content(
         self,
-        evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
         evaluator_version_create: Annotated[EvaluatorVersionCreate, Field(description="Body containing evaluator version creation parameters")],
         _request_timeout: Union[
             None,
@@ -220,7 +222,7 @@ class EvaluatorsApi:
 
         Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide either `template_config` or `code_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`managed` or `custom`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator.  **Valid example** (template version) ```json {   \"commit_message\": \"Improve prompt template for better accuracy\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given the input: {input}\\nand output: {output}\\nIs the output a hallucination? Explain your reasoning.\",     \"include_explanations\": true,     \"use_function_calling_if_available\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {\"temperature\": 0},       \"provider_parameters\": {}     }   } } ```  **Invalid example** (missing required `commit_message`) ```json {   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Is this a hallucination?\",     \"include_explanations\": false,     \"use_function_calling_if_available\": false,     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param evaluator_id: The evaluator global ID (base64) (required)
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
         :param evaluator_version_create: Body containing evaluator version creation parameters (required)
         :type evaluator_version_create: EvaluatorVersionCreate
@@ -261,6 +263,7 @@ class EvaluatorsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -354,7 +357,7 @@ class EvaluatorsApi:
     @validate_call
     def evaluator_versions_get(
         self,
-        version_id: Annotated[StrictStr, Field(description="The evaluator version global ID (base64)")],
+        version_id: Annotated[StrictStr, Field(description="The unique evaluator version identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -370,9 +373,9 @@ class EvaluatorsApi:
     ) -> EvaluatorVersion:
         """Get evaluator version
 
-        Get a specific evaluator version by its global ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific evaluator version by its unique identifier.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param version_id: The evaluator version global ID (base64) (required)
+        :param version_id: The unique evaluator version identifier (base64) (required)
         :type version_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -425,7 +428,7 @@ class EvaluatorsApi:
     @validate_call
     def evaluator_versions_get_with_http_info(
         self,
-        version_id: Annotated[StrictStr, Field(description="The evaluator version global ID (base64)")],
+        version_id: Annotated[StrictStr, Field(description="The unique evaluator version identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -441,9 +444,9 @@ class EvaluatorsApi:
     ) -> ApiResponse[EvaluatorVersion]:
         """Get evaluator version
 
-        Get a specific evaluator version by its global ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific evaluator version by its unique identifier.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param version_id: The evaluator version global ID (base64) (required)
+        :param version_id: The unique evaluator version identifier (base64) (required)
         :type version_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -496,7 +499,7 @@ class EvaluatorsApi:
     @validate_call
     def evaluator_versions_get_without_preload_content(
         self,
-        version_id: Annotated[StrictStr, Field(description="The evaluator version global ID (base64)")],
+        version_id: Annotated[StrictStr, Field(description="The unique evaluator version identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -512,9 +515,9 @@ class EvaluatorsApi:
     ) -> RESTResponseType:
         """Get evaluator version
 
-        Get a specific evaluator version by its global ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific evaluator version by its unique identifier.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param version_id: The evaluator version global ID (base64) (required)
+        :param version_id: The unique evaluator version identifier (base64) (required)
         :type version_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -628,7 +631,7 @@ class EvaluatorsApi:
     @validate_call
     def evaluator_versions_list(
         self,
-        evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -648,7 +651,7 @@ class EvaluatorsApi:
 
         List all versions of an evaluator with cursor-based pagination.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param evaluator_id: The evaluator global ID (base64) (required)
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
         :param limit: Maximum items to return
         :type limit: int
@@ -708,7 +711,7 @@ class EvaluatorsApi:
     @validate_call
     def evaluator_versions_list_with_http_info(
         self,
-        evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -728,7 +731,7 @@ class EvaluatorsApi:
 
         List all versions of an evaluator with cursor-based pagination.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param evaluator_id: The evaluator global ID (base64) (required)
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
         :param limit: Maximum items to return
         :type limit: int
@@ -788,7 +791,7 @@ class EvaluatorsApi:
     @validate_call
     def evaluator_versions_list_without_preload_content(
         self,
-        evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -808,7 +811,7 @@ class EvaluatorsApi:
 
         List all versions of an evaluator with cursor-based pagination.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param evaluator_id: The evaluator global ID (base64) (required)
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
         :param limit: Maximum items to return
         :type limit: int
@@ -996,6 +999,7 @@ class EvaluatorsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1069,6 +1073,7 @@ class EvaluatorsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1142,6 +1147,7 @@ class EvaluatorsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1232,7 +1238,7 @@ class EvaluatorsApi:
     @validate_call
     def evaluators_delete(
         self,
-        evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1250,7 +1256,7 @@ class EvaluatorsApi:
 
         Deletes an evaluator and all its versions. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param evaluator_id: The evaluator global ID (base64) (required)
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1304,7 +1310,7 @@ class EvaluatorsApi:
     @validate_call
     def evaluators_delete_with_http_info(
         self,
-        evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1322,7 +1328,7 @@ class EvaluatorsApi:
 
         Deletes an evaluator and all its versions. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param evaluator_id: The evaluator global ID (base64) (required)
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1376,7 +1382,7 @@ class EvaluatorsApi:
     @validate_call
     def evaluators_delete_without_preload_content(
         self,
-        evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1394,7 +1400,7 @@ class EvaluatorsApi:
 
         Deletes an evaluator and all its versions. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param evaluator_id: The evaluator global ID (base64) (required)
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1508,8 +1514,8 @@ class EvaluatorsApi:
     @validate_call
     def evaluators_get(
         self,
-        evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
-        version_id: Annotated[Optional[StrictStr], Field(description="Return the evaluator with this specific version (base64 global ID). If omitted, returns the latest version.")] = None,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        version_id: Annotated[Optional[StrictStr], Field(description="Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1527,9 +1533,9 @@ class EvaluatorsApi:
 
         Returns an evaluator and a resolved version. By default, the latest version is included. Use the version_id query parameter to resolve a specific version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param evaluator_id: The evaluator global ID (base64) (required)
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
-        :param version_id: Return the evaluator with this specific version (base64 global ID). If omitted, returns the latest version.
+        :param version_id: Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.
         :type version_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1583,8 +1589,8 @@ class EvaluatorsApi:
     @validate_call
     def evaluators_get_with_http_info(
         self,
-        evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
-        version_id: Annotated[Optional[StrictStr], Field(description="Return the evaluator with this specific version (base64 global ID). If omitted, returns the latest version.")] = None,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        version_id: Annotated[Optional[StrictStr], Field(description="Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1602,9 +1608,9 @@ class EvaluatorsApi:
 
         Returns an evaluator and a resolved version. By default, the latest version is included. Use the version_id query parameter to resolve a specific version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param evaluator_id: The evaluator global ID (base64) (required)
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
-        :param version_id: Return the evaluator with this specific version (base64 global ID). If omitted, returns the latest version.
+        :param version_id: Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.
         :type version_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1658,8 +1664,8 @@ class EvaluatorsApi:
     @validate_call
     def evaluators_get_without_preload_content(
         self,
-        evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
-        version_id: Annotated[Optional[StrictStr], Field(description="Return the evaluator with this specific version (base64 global ID). If omitted, returns the latest version.")] = None,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        version_id: Annotated[Optional[StrictStr], Field(description="Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1677,9 +1683,9 @@ class EvaluatorsApi:
 
         Returns an evaluator and a resolved version. By default, the latest version is included. Use the version_id query parameter to resolve a specific version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param evaluator_id: The evaluator global ID (base64) (required)
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
-        :param version_id: Return the evaluator with this specific version (base64 global ID). If omitted, returns the latest version.
+        :param version_id: Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.
         :type version_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2143,7 +2149,7 @@ class EvaluatorsApi:
     @validate_call
     def evaluators_update(
         self,
-        evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
         evaluators_update_request: Annotated[EvaluatorsUpdateRequest, Field(description="Body containing evaluator update parameters")],
         _request_timeout: Union[
             None,
@@ -2162,7 +2168,7 @@ class EvaluatorsApi:
 
         Update an evaluator's metadata. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one of `name` or `description` must be provided. - `name`, if provided, must be unique within the space. - System-managed fields (`id`, `type`, `space_id`, `created_at`, `updated_at`, `created_by_user_id`) cannot be modified.  **Valid example** ```json {   \"name\": \"Hallucination Detector v2\",   \"description\": \"Updated evaluator for production hallucination checks\" } ```  **Invalid example** (no updatable fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param evaluator_id: The evaluator global ID (base64) (required)
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
         :param evaluators_update_request: Body containing evaluator update parameters (required)
         :type evaluators_update_request: EvaluatorsUpdateRequest
@@ -2204,6 +2210,7 @@ class EvaluatorsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2220,7 +2227,7 @@ class EvaluatorsApi:
     @validate_call
     def evaluators_update_with_http_info(
         self,
-        evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
         evaluators_update_request: Annotated[EvaluatorsUpdateRequest, Field(description="Body containing evaluator update parameters")],
         _request_timeout: Union[
             None,
@@ -2239,7 +2246,7 @@ class EvaluatorsApi:
 
         Update an evaluator's metadata. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one of `name` or `description` must be provided. - `name`, if provided, must be unique within the space. - System-managed fields (`id`, `type`, `space_id`, `created_at`, `updated_at`, `created_by_user_id`) cannot be modified.  **Valid example** ```json {   \"name\": \"Hallucination Detector v2\",   \"description\": \"Updated evaluator for production hallucination checks\" } ```  **Invalid example** (no updatable fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param evaluator_id: The evaluator global ID (base64) (required)
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
         :param evaluators_update_request: Body containing evaluator update parameters (required)
         :type evaluators_update_request: EvaluatorsUpdateRequest
@@ -2281,6 +2288,7 @@ class EvaluatorsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2297,7 +2305,7 @@ class EvaluatorsApi:
     @validate_call
     def evaluators_update_without_preload_content(
         self,
-        evaluator_id: Annotated[StrictStr, Field(description="The evaluator global ID (base64)")],
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
         evaluators_update_request: Annotated[EvaluatorsUpdateRequest, Field(description="Body containing evaluator update parameters")],
         _request_timeout: Union[
             None,
@@ -2316,7 +2324,7 @@ class EvaluatorsApi:
 
         Update an evaluator's metadata. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one of `name` or `description` must be provided. - `name`, if provided, must be unique within the space. - System-managed fields (`id`, `type`, `space_id`, `created_at`, `updated_at`, `created_by_user_id`) cannot be modified.  **Valid example** ```json {   \"name\": \"Hallucination Detector v2\",   \"description\": \"Updated evaluator for production hallucination checks\" } ```  **Invalid example** (no updatable fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param evaluator_id: The evaluator global ID (base64) (required)
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
         :param evaluators_update_request: Body containing evaluator update parameters (required)
         :type evaluators_update_request: EvaluatorsUpdateRequest
@@ -2358,6 +2366,7 @@ class EvaluatorsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(

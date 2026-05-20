@@ -17,8 +17,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict
 from typing import Any, ClassVar, Dict, List
+from arize._generated.api_client.models.annotation_queue_completion_status import AnnotationQueueCompletionStatus
 from arize._generated.api_client.models.annotator_user import AnnotatorUser
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,15 +29,8 @@ class AnnotationQueueAssignedUser(BaseModel):
     A user assigned to a record with their completion status
     """ # noqa: E501
     user: AnnotatorUser
-    completion_status: StrictStr = Field(description="The completion status for this user on this record")
+    completion_status: AnnotationQueueCompletionStatus
     __properties: ClassVar[List[str]] = ["user", "completion_status"]
-
-    @field_validator('completion_status')
-    def completion_status_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['pending', 'completed']):
-            raise ValueError("must be one of enum values ('pending', 'completed')")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

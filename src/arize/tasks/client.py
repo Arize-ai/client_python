@@ -139,10 +139,10 @@ class TasksClient:
 
         Args:
             name: Optional case-insensitive substring filter on the task name.
-            project: Optional project name or global ID (base64) to filter
+            project: Optional project name or identifier (base64) to filter
                 results. If the value is a name, ``space`` must also be
                 provided.
-            dataset: Optional dataset name or global ID (base64) to filter
+            dataset: Optional dataset name or identifier (base64) to filter
                 results. If the value is a name, ``space`` must also be
                 provided.
             space: Optional space name or ID used to disambiguate name-based
@@ -197,7 +197,7 @@ class TasksClient:
         """Get a task by name or ID.
 
         Args:
-            task: Task name or global ID (base64). If the value looks like an
+            task: Task name or identifier (base64). If the value looks like an
                 ID it is used directly; otherwise it is resolved by name.
             space: Optional space name or ID used to disambiguate the task
                 lookup. Recommended when resolving by name.
@@ -259,7 +259,7 @@ class TasksClient:
                 a :class:`arize.tasks.types.BaseEvaluationTaskRequestEvaluatorsInner`
                 with the following fields:
 
-                - ``evaluator_id`` — Evaluator global ID (base64). Required.
+                - ``evaluator_id`` — Evaluator identifier (base64). Required.
                 - ``query_filter`` — Per-evaluator filter (AND-ed with
                   task-level filter). Optional.
                 - ``column_mappings`` — Maps template variable names to column
@@ -272,14 +272,14 @@ class TasksClient:
                 :class:`arize.tasks.types.TemplateEvaluationRunConfig`
                 wrapped in
                 :class:`arize.tasks.types.RunConfiguration`.
-            project: Project name or global ID (base64). For eval tasks,
+            project: Project name or identifier (base64). For eval tasks,
                 required when ``dataset`` is not provided.
-            dataset: Dataset name or global ID (base64). Required for
+            dataset: Dataset name or identifier (base64). Required for
                 ``"run_experiment"`` tasks; for eval tasks, required when
                 ``project`` is not provided.
             space: Optional space name or ID used to disambiguate name-based
                 resolution for ``project`` and ``dataset``.
-            experiment_ids: Experiment global IDs (base64). For eval tasks:
+            experiment_ids: Experiment identifiers (base64). For eval tasks:
                 required (at least one) when ``dataset`` is provided; must
                 be omitted for project-based tasks. Not applicable for
                 ``"run_experiment"`` tasks.
@@ -377,7 +377,9 @@ class TasksClient:
         )
         eval_inner = inner_cls(
             name=name,
-            type=task_type,
+            type=task_type.value
+            if isinstance(task_type, TaskType)
+            else task_type,
             evaluators=evaluators,
             project_id=project_id,
             dataset_id=dataset_id,
@@ -423,17 +425,17 @@ class TasksClient:
                 :class:`arize.tasks.types.BaseEvaluationTaskRequestEvaluatorsInner`
                 with the following fields:
 
-                - ``evaluator_id`` — Evaluator global ID (base64). Required.
+                - ``evaluator_id`` — Evaluator identifier (base64). Required.
                 - ``query_filter`` — Per-evaluator filter. Optional.
                 - ``column_mappings`` — Template variable name mappings. Optional.
 
-            project: Project name or global ID (base64). Required when
+            project: Project name or identifier (base64). Required when
                 ``dataset`` is not provided.
-            dataset: Dataset name or global ID (base64). Required when
+            dataset: Dataset name or identifier (base64). Required when
                 ``project`` is not provided.
             space: Optional space name or ID used to disambiguate name-based
                 resolution for ``project`` and ``dataset``.
-            experiment_ids: Experiment global IDs (base64). Required (at least
+            experiment_ids: Experiment identifiers (base64). Required (at least
                 one) when ``dataset`` is provided.
             sampling_rate: Fraction of data to evaluate (0-1). Only valid for
                 project-based tasks.
@@ -488,7 +490,7 @@ class TasksClient:
 
         Args:
             name: Task name (must be unique within the space).
-            dataset: Dataset name or global ID (base64) to run the
+            dataset: Dataset name or identifier (base64) to run the
                 experiment against.
             run_configuration: Discriminated experiment configuration. Use
                 :class:`arize.tasks.types.LlmGenerationRunConfig` or
@@ -555,7 +557,7 @@ class TasksClient:
           ``query_filter``, ``evaluators``) must not be provided.
 
         Args:
-            task: Task name or global ID (base64). Names are resolved within
+            task: Task name or identifier (base64). Names are resolved within
                 the space when ``space`` is provided.
             space: Optional space name or ID used to disambiguate task name
                 resolution.
@@ -660,7 +662,7 @@ class TasksClient:
         """Delete a task and its associated configuration.
 
         Args:
-            task: Task name or global ID (base64).
+            task: Task name or identifier (base64).
             space: Optional space name or ID used when resolving by task name.
 
         Raises:
@@ -721,7 +723,7 @@ class TasksClient:
           one may be provided. When both are omitted, all examples are used.
 
         Args:
-            task: Task name or global ID (base64) to trigger a run for.
+            task: Task name or identifier (base64) to trigger a run for.
             space: Optional space name or ID used to disambiguate the task
                 lookup. Recommended when resolving by name.
             data_start_time: Start of the data window to evaluate. Evaluation
@@ -733,24 +735,24 @@ class TasksClient:
             override_evaluations: Whether to re-evaluate data that already has
                 evaluation labels. Defaults to ``False``. Evaluation tasks
                 only.
-            experiment_ids: Experiment global IDs (base64) to run against.
+            experiment_ids: Experiment identifiers (base64) to run against.
                 Only applicable for dataset-based evaluation tasks.
             experiment_name: Display name for the experiment to be created.
                 Must be unique within the dataset. Required for
                 ``run_experiment`` tasks.
-            dataset_version_id: Dataset version global ID (base64). Defaults
+            dataset_version_id: Dataset version identifier (base64). Defaults
                 to the latest version when omitted. ``run_experiment`` tasks
                 only.
             max_examples: Maximum number of examples to run (dataset order).
                 Mutually exclusive with ``example_ids``. When both are
                 omitted, all examples are used. ``run_experiment`` tasks only.
-            example_ids: Specific dataset example global IDs (base64) to run
+            example_ids: Specific dataset example identifiers (base64) to run
                 against. Mutually exclusive with ``max_examples``. When both
                 are omitted, all examples are used. ``run_experiment`` tasks
                 only.
             tracing_metadata: Arbitrary key-value metadata attached to the
                 run's traces. ``run_experiment`` tasks only.
-            evaluation_task_ids: Task global IDs (base64) of evaluation tasks
+            evaluation_task_ids: Task identifiers (base64) of evaluation tasks
                 to trigger after the experiment run completes. Supported for
                 all ``run_experiment`` experiment types. ``run_experiment``
                 tasks only.
@@ -862,7 +864,7 @@ class TasksClient:
         status.
 
         Args:
-            task: Task name or global ID (base64) to list runs for.
+            task: Task name or identifier (base64) to list runs for.
             space: Optional space name or ID used to disambiguate the task
                 lookup. Recommended when resolving by name.
             status: Optional run status filter. One of ``"pending"``,
@@ -891,10 +893,10 @@ class TasksClient:
 
     @prerelease_endpoint(key="tasks.get_run", stage=ReleaseStage.ALPHA)
     def get_run(self, *, run_id: str) -> TaskRun:
-        """Get a task run by its global ID.
+        """Get a task run by its unique identifier.
 
         Args:
-            run_id: Task run global ID (base64) to retrieve.
+            run_id: Task run identifier (base64) to retrieve.
 
         Returns:
             The task run with its current status and statistics.
@@ -913,7 +915,7 @@ class TasksClient:
         ``"running"``.
 
         Args:
-            run_id: Task run global ID (base64) to cancel.
+            run_id: Task run identifier (base64) to cancel.
 
         Returns:
             The updated task run with status ``"cancelled"``.
@@ -939,7 +941,7 @@ class TasksClient:
         ``"cancelled"``, or until ``timeout`` seconds have elapsed.
 
         Args:
-            run_id: Task run global ID (base64) to wait for.
+            run_id: Task run identifier (base64) to wait for.
             poll_interval: Seconds between polling attempts. Defaults to 5.
             timeout: Maximum seconds to wait before raising
                 ``TimeoutError``. Defaults to 600.

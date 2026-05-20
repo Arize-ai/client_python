@@ -32,14 +32,14 @@ class LlmGenerationRunConfig(BaseModel):
     Configuration for running an LLM prompt against each dataset example.
     """ # noqa: E501
     experiment_type: StrictStr = Field(description="Discriminator. Must be `\"llm_generation\"`.")
-    ai_integration_id: StrictStr = Field(description="AI integration global ID (base64).")
+    ai_integration_id: StrictStr = Field(description="AI integration identifier (base64).")
     model_name: Optional[StrictStr] = Field(default=None, description="Model name (e.g. `gpt-4o`). Falls back to the integration's default if omitted.")
     messages: Annotated[List[LLMMessage], Field(min_length=1)] = Field(description="Array of message objects (at least one).")
     input_variable_format: InputVariableFormat
     invocation_parameters: Optional[InvocationParams] = None
     provider_parameters: Optional[Dict[str, Any]] = Field(default=None, description="Provider-specific parameters. Defaults to `{}` (no overrides) if omitted.")
     tool_config: Optional[ToolConfig] = None
-    prompt_version_id: Optional[StrictStr] = Field(default=None, description="Prompt version global ID (base64). Links to a Prompt Hub version for traceability.")
+    prompt_version_id: Optional[StrictStr] = Field(default=None, description="Prompt version identifier (base64). Links to a Prompt Hub version for traceability.")
     __properties: ClassVar[List[str]] = ["experiment_type", "ai_integration_id", "model_name", "messages", "input_variable_format", "invocation_parameters", "provider_parameters", "tool_config", "prompt_version_id"]
 
     @field_validator('experiment_type')

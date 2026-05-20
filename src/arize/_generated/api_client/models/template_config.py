@@ -17,8 +17,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictFloat, StrictInt, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictFloat, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
+from arize._generated.api_client.models.data_granularity import DataGranularity
 from arize._generated.api_client.models.evaluator_llm_config import EvaluatorLlmConfig
 from arize._generated.api_client.models.optimization_direction import OptimizationDirection
 from typing import Optional, Set
@@ -34,19 +35,9 @@ class TemplateConfig(BaseModel):
     use_function_calling_if_available: StrictBool = Field(description="Whether to use function calling if the model supports it")
     classification_choices: Optional[Dict[str, Union[StrictFloat, StrictInt]]] = Field(default=None, description="Map of choice label to numeric score (e.g. {\"relevant\": 1, \"irrelevant\": 0}). When omitted, the evaluator produces freeform (non-classification) output.")
     direction: Optional[OptimizationDirection] = OptimizationDirection.NONE
-    data_granularity: Optional[StrictStr] = Field(default=None, description="Data granularity level. Defaults to null when omitted.")
+    data_granularity: Optional[DataGranularity] = Field(default=None, description="Data granularity level. Defaults to null when omitted.")
     llm_config: EvaluatorLlmConfig
     __properties: ClassVar[List[str]] = ["name", "template", "include_explanations", "use_function_calling_if_available", "classification_choices", "direction", "data_granularity", "llm_config"]
-
-    @field_validator('data_granularity')
-    def data_granularity_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['span', 'trace', 'session']):
-            raise ValueError("must be one of enum values ('span', 'trace', 'session')")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

@@ -47,7 +47,7 @@ class SpacesApi:
     @validate_call
     def spaces_add_user(
         self,
-        space_id: Annotated[StrictStr, Field(description="The unique identifier of the space")],
+        space_id: Annotated[StrictStr, Field(description="The unique space identifier (base64)")],
         space_membership_input: Annotated[SpaceMembershipInput, Field(description="Body containing the user to add to the space")],
         _request_timeout: Union[
             None,
@@ -64,9 +64,9 @@ class SpacesApi:
     ) -> SpaceMembership:
         """Add a user to a space
 
-        Add a single existing account user to a space with a specified role.  **Payload Requirements** - `user_id` is required and must be a valid User global ID. - `role` is required and must be a role assignment object with a `type` discriminator:   - `{ \"type\": \"predefined\", \"name\": \"admin\" }` — one of the predefined roles: `admin`, `member`, `read-only`, `annotator`.   - `{ \"type\": \"custom\", \"id\": \"<role_id>\" }` — a custom RBAC role identified by its global ID. - If the user is already a member, their role is updated to the specified value (upsert). - The user must already be a member of the space's parent organization; auto-enrollment is not performed (400 if not a member).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` predefined space role. - Users with a non-annotator account role cannot be assigned the `annotator` predefined space role.  **Authorization** Requires space admin role when using a `predefined` role, or `ROLE_BINDING_CREATE` permission (RBAC) when using a `custom` role.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Add a single existing account user to a space with a specified role.  **Payload Requirements** - `user_id` is required and must be a valid user identifier (base64). - `role` is required and must be a role assignment object with a `type` discriminator:   - `{ \"type\": \"predefined\", \"name\": \"admin\" }` — one of the predefined roles: `admin`, `member`, `read-only`, `annotator`.   - `{ \"type\": \"custom\", \"id\": \"<role_id>\" }` — a custom RBAC role, using its unique identifier. - If the user is already a member, their role is updated to the specified value (upsert). - The user must already be a member of the space's parent organization; auto-enrollment is not performed (400 if not a member).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` predefined space role. - Users with a non-annotator account role cannot be assigned the `annotator` predefined space role.  **Authorization** Requires space admin role when using a `predefined` role, or `ROLE_BINDING_CREATE` permission (RBAC) when using a `custom` role.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param space_id: The unique identifier of the space (required)
+        :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
         :param space_membership_input: Body containing the user to add to the space (required)
         :type space_membership_input: SpaceMembershipInput
@@ -107,6 +107,7 @@ class SpacesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -123,7 +124,7 @@ class SpacesApi:
     @validate_call
     def spaces_add_user_with_http_info(
         self,
-        space_id: Annotated[StrictStr, Field(description="The unique identifier of the space")],
+        space_id: Annotated[StrictStr, Field(description="The unique space identifier (base64)")],
         space_membership_input: Annotated[SpaceMembershipInput, Field(description="Body containing the user to add to the space")],
         _request_timeout: Union[
             None,
@@ -140,9 +141,9 @@ class SpacesApi:
     ) -> ApiResponse[SpaceMembership]:
         """Add a user to a space
 
-        Add a single existing account user to a space with a specified role.  **Payload Requirements** - `user_id` is required and must be a valid User global ID. - `role` is required and must be a role assignment object with a `type` discriminator:   - `{ \"type\": \"predefined\", \"name\": \"admin\" }` — one of the predefined roles: `admin`, `member`, `read-only`, `annotator`.   - `{ \"type\": \"custom\", \"id\": \"<role_id>\" }` — a custom RBAC role identified by its global ID. - If the user is already a member, their role is updated to the specified value (upsert). - The user must already be a member of the space's parent organization; auto-enrollment is not performed (400 if not a member).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` predefined space role. - Users with a non-annotator account role cannot be assigned the `annotator` predefined space role.  **Authorization** Requires space admin role when using a `predefined` role, or `ROLE_BINDING_CREATE` permission (RBAC) when using a `custom` role.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Add a single existing account user to a space with a specified role.  **Payload Requirements** - `user_id` is required and must be a valid user identifier (base64). - `role` is required and must be a role assignment object with a `type` discriminator:   - `{ \"type\": \"predefined\", \"name\": \"admin\" }` — one of the predefined roles: `admin`, `member`, `read-only`, `annotator`.   - `{ \"type\": \"custom\", \"id\": \"<role_id>\" }` — a custom RBAC role, using its unique identifier. - If the user is already a member, their role is updated to the specified value (upsert). - The user must already be a member of the space's parent organization; auto-enrollment is not performed (400 if not a member).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` predefined space role. - Users with a non-annotator account role cannot be assigned the `annotator` predefined space role.  **Authorization** Requires space admin role when using a `predefined` role, or `ROLE_BINDING_CREATE` permission (RBAC) when using a `custom` role.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param space_id: The unique identifier of the space (required)
+        :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
         :param space_membership_input: Body containing the user to add to the space (required)
         :type space_membership_input: SpaceMembershipInput
@@ -183,6 +184,7 @@ class SpacesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -199,7 +201,7 @@ class SpacesApi:
     @validate_call
     def spaces_add_user_without_preload_content(
         self,
-        space_id: Annotated[StrictStr, Field(description="The unique identifier of the space")],
+        space_id: Annotated[StrictStr, Field(description="The unique space identifier (base64)")],
         space_membership_input: Annotated[SpaceMembershipInput, Field(description="Body containing the user to add to the space")],
         _request_timeout: Union[
             None,
@@ -216,9 +218,9 @@ class SpacesApi:
     ) -> RESTResponseType:
         """Add a user to a space
 
-        Add a single existing account user to a space with a specified role.  **Payload Requirements** - `user_id` is required and must be a valid User global ID. - `role` is required and must be a role assignment object with a `type` discriminator:   - `{ \"type\": \"predefined\", \"name\": \"admin\" }` — one of the predefined roles: `admin`, `member`, `read-only`, `annotator`.   - `{ \"type\": \"custom\", \"id\": \"<role_id>\" }` — a custom RBAC role identified by its global ID. - If the user is already a member, their role is updated to the specified value (upsert). - The user must already be a member of the space's parent organization; auto-enrollment is not performed (400 if not a member).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` predefined space role. - Users with a non-annotator account role cannot be assigned the `annotator` predefined space role.  **Authorization** Requires space admin role when using a `predefined` role, or `ROLE_BINDING_CREATE` permission (RBAC) when using a `custom` role.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Add a single existing account user to a space with a specified role.  **Payload Requirements** - `user_id` is required and must be a valid user identifier (base64). - `role` is required and must be a role assignment object with a `type` discriminator:   - `{ \"type\": \"predefined\", \"name\": \"admin\" }` — one of the predefined roles: `admin`, `member`, `read-only`, `annotator`.   - `{ \"type\": \"custom\", \"id\": \"<role_id>\" }` — a custom RBAC role, using its unique identifier. - If the user is already a member, their role is updated to the specified value (upsert). - The user must already be a member of the space's parent organization; auto-enrollment is not performed (400 if not a member).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` predefined space role. - Users with a non-annotator account role cannot be assigned the `annotator` predefined space role.  **Authorization** Requires space admin role when using a `predefined` role, or `ROLE_BINDING_CREATE` permission (RBAC) when using a `custom` role.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param space_id: The unique identifier of the space (required)
+        :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
         :param space_membership_input: Body containing the user to add to the space (required)
         :type space_membership_input: SpaceMembershipInput
@@ -259,6 +261,7 @@ class SpacesApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -409,6 +412,7 @@ class SpacesApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -482,6 +486,7 @@ class SpacesApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -555,6 +560,7 @@ class SpacesApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -645,7 +651,7 @@ class SpacesApi:
     @validate_call
     def spaces_delete(
         self,
-        space_id: Annotated[StrictStr, Field(description="The unique identifier of the space")],
+        space_id: Annotated[StrictStr, Field(description="The unique space identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -663,7 +669,7 @@ class SpacesApi:
 
         Delete a space by its ID. This deletes the space and all resources that belong to it (models, monitors, dashboards, datasets, custom metrics, etc). This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param space_id: The unique identifier of the space (required)
+        :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -717,7 +723,7 @@ class SpacesApi:
     @validate_call
     def spaces_delete_with_http_info(
         self,
-        space_id: Annotated[StrictStr, Field(description="The unique identifier of the space")],
+        space_id: Annotated[StrictStr, Field(description="The unique space identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -735,7 +741,7 @@ class SpacesApi:
 
         Delete a space by its ID. This deletes the space and all resources that belong to it (models, monitors, dashboards, datasets, custom metrics, etc). This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param space_id: The unique identifier of the space (required)
+        :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -789,7 +795,7 @@ class SpacesApi:
     @validate_call
     def spaces_delete_without_preload_content(
         self,
-        space_id: Annotated[StrictStr, Field(description="The unique identifier of the space")],
+        space_id: Annotated[StrictStr, Field(description="The unique space identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -807,7 +813,7 @@ class SpacesApi:
 
         Delete a space by its ID. This deletes the space and all resources that belong to it (models, monitors, dashboards, datasets, custom metrics, etc). This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param space_id: The unique identifier of the space (required)
+        :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -921,7 +927,7 @@ class SpacesApi:
     @validate_call
     def spaces_get(
         self,
-        space_id: Annotated[StrictStr, Field(description="The unique identifier of the space")],
+        space_id: Annotated[StrictStr, Field(description="The unique space identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -939,7 +945,7 @@ class SpacesApi:
 
         Get a specific space by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param space_id: The unique identifier of the space (required)
+        :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -993,7 +999,7 @@ class SpacesApi:
     @validate_call
     def spaces_get_with_http_info(
         self,
-        space_id: Annotated[StrictStr, Field(description="The unique identifier of the space")],
+        space_id: Annotated[StrictStr, Field(description="The unique space identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1011,7 +1017,7 @@ class SpacesApi:
 
         Get a specific space by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param space_id: The unique identifier of the space (required)
+        :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1065,7 +1071,7 @@ class SpacesApi:
     @validate_call
     def spaces_get_without_preload_content(
         self,
-        space_id: Annotated[StrictStr, Field(description="The unique identifier of the space")],
+        space_id: Annotated[StrictStr, Field(description="The unique space identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1083,7 +1089,7 @@ class SpacesApi:
 
         Get a specific space by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param space_id: The unique identifier of the space (required)
+        :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1198,7 +1204,7 @@ class SpacesApi:
     @validate_call
     def spaces_list(
         self,
-        org_id: Annotated[Optional[StrictStr], Field(description="The unique identifier of an organization. When provided, only spaces belonging to this organization are returned.")] = None,
+        org_id: Annotated[Optional[StrictStr], Field(description="The unique organization identifier (base64). When provided, only spaces belonging to this organization are returned.")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
@@ -1219,7 +1225,7 @@ class SpacesApi:
 
         List spaces the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param org_id: The unique identifier of an organization. When provided, only spaces belonging to this organization are returned.
+        :param org_id: The unique organization identifier (base64). When provided, only spaces belonging to this organization are returned.
         :type org_id: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
@@ -1281,7 +1287,7 @@ class SpacesApi:
     @validate_call
     def spaces_list_with_http_info(
         self,
-        org_id: Annotated[Optional[StrictStr], Field(description="The unique identifier of an organization. When provided, only spaces belonging to this organization are returned.")] = None,
+        org_id: Annotated[Optional[StrictStr], Field(description="The unique organization identifier (base64). When provided, only spaces belonging to this organization are returned.")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
@@ -1302,7 +1308,7 @@ class SpacesApi:
 
         List spaces the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param org_id: The unique identifier of an organization. When provided, only spaces belonging to this organization are returned.
+        :param org_id: The unique organization identifier (base64). When provided, only spaces belonging to this organization are returned.
         :type org_id: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
@@ -1364,7 +1370,7 @@ class SpacesApi:
     @validate_call
     def spaces_list_without_preload_content(
         self,
-        org_id: Annotated[Optional[StrictStr], Field(description="The unique identifier of an organization. When provided, only spaces belonging to this organization are returned.")] = None,
+        org_id: Annotated[Optional[StrictStr], Field(description="The unique organization identifier (base64). When provided, only spaces belonging to this organization are returned.")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
@@ -1385,7 +1391,7 @@ class SpacesApi:
 
         List spaces the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param org_id: The unique identifier of an organization. When provided, only spaces belonging to this organization are returned.
+        :param org_id: The unique organization identifier (base64). When provided, only spaces belonging to this organization are returned.
         :type org_id: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
@@ -1525,8 +1531,8 @@ class SpacesApi:
     @validate_call
     def spaces_remove_user(
         self,
-        space_id: Annotated[StrictStr, Field(description="The unique identifier of the space")],
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        space_id: Annotated[StrictStr, Field(description="The unique space identifier (base64)")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1544,9 +1550,9 @@ class SpacesApi:
 
         Remove a user from a space. This removes both the legacy `SpaceMembers` row and any RBAC role bindings for the user on this space.  Returns 404 if the user is not a member of the space.  **Authorization** Requires space admin role (legacy auth) or `ROLE_BINDING_DELETE` permission (RBAC).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param space_id: The unique identifier of the space (required)
+        :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1601,8 +1607,8 @@ class SpacesApi:
     @validate_call
     def spaces_remove_user_with_http_info(
         self,
-        space_id: Annotated[StrictStr, Field(description="The unique identifier of the space")],
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        space_id: Annotated[StrictStr, Field(description="The unique space identifier (base64)")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1620,9 +1626,9 @@ class SpacesApi:
 
         Remove a user from a space. This removes both the legacy `SpaceMembers` row and any RBAC role bindings for the user on this space.  Returns 404 if the user is not a member of the space.  **Authorization** Requires space admin role (legacy auth) or `ROLE_BINDING_DELETE` permission (RBAC).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param space_id: The unique identifier of the space (required)
+        :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1677,8 +1683,8 @@ class SpacesApi:
     @validate_call
     def spaces_remove_user_without_preload_content(
         self,
-        space_id: Annotated[StrictStr, Field(description="The unique identifier of the space")],
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        space_id: Annotated[StrictStr, Field(description="The unique space identifier (base64)")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1696,9 +1702,9 @@ class SpacesApi:
 
         Remove a user from a space. This removes both the legacy `SpaceMembers` row and any RBAC role bindings for the user on this space.  Returns 404 if the user is not a member of the space.  **Authorization** Requires space admin role (legacy auth) or `ROLE_BINDING_DELETE` permission (RBAC).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param space_id: The unique identifier of the space (required)
+        :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1816,7 +1822,7 @@ class SpacesApi:
     @validate_call
     def spaces_update(
         self,
-        space_id: Annotated[StrictStr, Field(description="The unique identifier of the space")],
+        space_id: Annotated[StrictStr, Field(description="The unique space identifier (base64)")],
         spaces_update_request: Annotated[SpacesUpdateRequest, Field(description="Body containing space update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -1835,7 +1841,7 @@ class SpacesApi:
 
         Update a space's metadata by its ID. Currently supports updating the name and description. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param space_id: The unique identifier of the space (required)
+        :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
         :param spaces_update_request: Body containing space update parameters. At least one field must be provided. (required)
         :type spaces_update_request: SpacesUpdateRequest
@@ -1877,6 +1883,7 @@ class SpacesApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1893,7 +1900,7 @@ class SpacesApi:
     @validate_call
     def spaces_update_with_http_info(
         self,
-        space_id: Annotated[StrictStr, Field(description="The unique identifier of the space")],
+        space_id: Annotated[StrictStr, Field(description="The unique space identifier (base64)")],
         spaces_update_request: Annotated[SpacesUpdateRequest, Field(description="Body containing space update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -1912,7 +1919,7 @@ class SpacesApi:
 
         Update a space's metadata by its ID. Currently supports updating the name and description. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param space_id: The unique identifier of the space (required)
+        :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
         :param spaces_update_request: Body containing space update parameters. At least one field must be provided. (required)
         :type spaces_update_request: SpacesUpdateRequest
@@ -1954,6 +1961,7 @@ class SpacesApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1970,7 +1978,7 @@ class SpacesApi:
     @validate_call
     def spaces_update_without_preload_content(
         self,
-        space_id: Annotated[StrictStr, Field(description="The unique identifier of the space")],
+        space_id: Annotated[StrictStr, Field(description="The unique space identifier (base64)")],
         spaces_update_request: Annotated[SpacesUpdateRequest, Field(description="Body containing space update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -1989,7 +1997,7 @@ class SpacesApi:
 
         Update a space's metadata by its ID. Currently supports updating the name and description. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param space_id: The unique identifier of the space (required)
+        :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
         :param spaces_update_request: Body containing space update parameters. At least one field must be provided. (required)
         :type spaces_update_request: SpacesUpdateRequest
@@ -2031,6 +2039,7 @@ class SpacesApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(

@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**resource_type** | **str** | The type of the restricted resource (e.g. \&quot;PROJECT\&quot;) | 
+**resource_type** | [**ResourceRestrictionType**](ResourceRestrictionType.md) |  | 
 **resource_id** | **str** | The ID of the restricted resource | 
 **created_at** | **datetime** | When the restriction was created | 
 

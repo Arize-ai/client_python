@@ -6,8 +6,8 @@ Visibility scoping for the integration
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**organization_id** | **str** | Organization global ID. Null means account-wide. | [optional] 
-**space_id** | **str** | Space global ID. Null means organization-wide (or account-wide if organization_id is also null). | [optional] 
+**organization_id** | **str** | Organization identifier (base64). Null means account-wide. | [optional] 
+**space_id** | **str** | Space identifier (base64). Null means organization-wide (or account-wide if organization_id is also null). | [optional] 
 
 ## Example
 

@@ -8,9 +8,9 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Task name | 
 **type** | **str** | Task type discriminator. Must be &#x60;\&quot;template_evaluation\&quot;&#x60;. | 
-**project_id** | **str** | Project global ID (base64). Required when &#x60;dataset_id&#x60; is not provided. Mutually exclusive with &#x60;dataset_id&#x60;.  | [optional] 
-**dataset_id** | **str** | Dataset global ID (base64). Required when &#x60;project_id&#x60; is not provided. Mutually exclusive with &#x60;project_id&#x60;.  | [optional] 
-**experiment_ids** | **List[str]** | Experiment global IDs (base64). Required when &#x60;dataset_id&#x60; is provided (at least one entry). Must be omitted or empty for project-based tasks.  | [optional] 
+**project_id** | **str** | Project identifier (base64). Required when &#x60;dataset_id&#x60; is not provided. Mutually exclusive with &#x60;dataset_id&#x60;.  | [optional] 
+**dataset_id** | **str** | Dataset identifier (base64). Required when &#x60;project_id&#x60; is not provided. Mutually exclusive with &#x60;project_id&#x60;.  | [optional] 
+**experiment_ids** | **List[str]** | Experiment identifiers (base64). Required when &#x60;dataset_id&#x60; is provided (at least one entry). Must be omitted or empty for project-based tasks.  | [optional] 
 **sampling_rate** | **float** | Sampling rate between 0 and 1. Only supported on project-based tasks.  | [optional] 
 **is_continuous** | **bool** | Whether the task runs continuously. Only supported on project-based tasks. Must be &#x60;false&#x60; or omitted for dataset-based tasks.  | [optional] 
 **query_filter** | **str** | Task-level query filter applied to all evaluated data. | [optional] 

@@ -51,7 +51,7 @@ class TestEvaluatorVersionTemplate(unittest.TestCase):
                         'key' : 1.337
                         }, 
                     direction = 'none', 
-                    data_granularity = 'span', 
+                    data_granularity = null, 
                     llm_config = arize._generated.api_client.models.evaluator_llm_config.EvaluatorLlmConfig(
                         ai_integration_id = '', 
                         model_name = '', 
@@ -99,7 +99,7 @@ class TestEvaluatorVersionTemplate(unittest.TestCase):
                         'key' : 1.337
                         }, 
                     direction = 'none', 
-                    data_granularity = 'span', 
+                    data_granularity = null, 
                     llm_config = arize._generated.api_client.models.evaluator_llm_config.EvaluatorLlmConfig(
                         ai_integration_id = '', 
                         model_name = '', 

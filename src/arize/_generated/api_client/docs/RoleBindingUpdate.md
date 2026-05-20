@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**role_id** | **str** | A universally unique identifier | 
+**role_id** | **str** | A universally unique identifier (base64-encoded opaque string). | 
 
 ## Example
 

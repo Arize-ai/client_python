@@ -47,7 +47,7 @@ class OrganizationsApi:
     @validate_call
     def organizations_add_user(
         self,
-        org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
+        org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         organization_membership_input: Annotated[OrganizationMembershipInput, Field(description="Body containing the user to add to the organization")],
         _request_timeout: Union[
             None,
@@ -66,7 +66,7 @@ class OrganizationsApi:
 
         Add a single existing account user to an organization with a specified role.  **Payload Requirements** - `user_id` and `role` are both required. - If the user is already a member, their role is updated to the specified value (upsert).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` organization role. - Users with a non-annotator account role cannot be assigned the `annotator` organization role.  Requires organization admin.  **Valid example** ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"member\" } ```  **Invalid example** (annotator account user assigned non-annotator org role — returns 400) ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"admin\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param org_id: The unique identifier of the organization (required)
+        :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
         :param organization_membership_input: Body containing the user to add to the organization (required)
         :type organization_membership_input: OrganizationMembershipInput
@@ -107,6 +107,7 @@ class OrganizationsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -123,7 +124,7 @@ class OrganizationsApi:
     @validate_call
     def organizations_add_user_with_http_info(
         self,
-        org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
+        org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         organization_membership_input: Annotated[OrganizationMembershipInput, Field(description="Body containing the user to add to the organization")],
         _request_timeout: Union[
             None,
@@ -142,7 +143,7 @@ class OrganizationsApi:
 
         Add a single existing account user to an organization with a specified role.  **Payload Requirements** - `user_id` and `role` are both required. - If the user is already a member, their role is updated to the specified value (upsert).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` organization role. - Users with a non-annotator account role cannot be assigned the `annotator` organization role.  Requires organization admin.  **Valid example** ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"member\" } ```  **Invalid example** (annotator account user assigned non-annotator org role — returns 400) ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"admin\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param org_id: The unique identifier of the organization (required)
+        :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
         :param organization_membership_input: Body containing the user to add to the organization (required)
         :type organization_membership_input: OrganizationMembershipInput
@@ -183,6 +184,7 @@ class OrganizationsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -199,7 +201,7 @@ class OrganizationsApi:
     @validate_call
     def organizations_add_user_without_preload_content(
         self,
-        org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
+        org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         organization_membership_input: Annotated[OrganizationMembershipInput, Field(description="Body containing the user to add to the organization")],
         _request_timeout: Union[
             None,
@@ -218,7 +220,7 @@ class OrganizationsApi:
 
         Add a single existing account user to an organization with a specified role.  **Payload Requirements** - `user_id` and `role` are both required. - If the user is already a member, their role is updated to the specified value (upsert).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` organization role. - Users with a non-annotator account role cannot be assigned the `annotator` organization role.  Requires organization admin.  **Valid example** ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"member\" } ```  **Invalid example** (annotator account user assigned non-annotator org role — returns 400) ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"admin\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param org_id: The unique identifier of the organization (required)
+        :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
         :param organization_membership_input: Body containing the user to add to the organization (required)
         :type organization_membership_input: OrganizationMembershipInput
@@ -259,6 +261,7 @@ class OrganizationsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -408,6 +411,7 @@ class OrganizationsApi:
             '401': "Problem",
             '403': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -480,6 +484,7 @@ class OrganizationsApi:
             '401': "Problem",
             '403': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -552,6 +557,7 @@ class OrganizationsApi:
             '401': "Problem",
             '403': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -642,7 +648,7 @@ class OrganizationsApi:
     @validate_call
     def organizations_delete(
         self,
-        org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
+        org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -660,7 +666,7 @@ class OrganizationsApi:
 
         Delete an organization by its ID. This deletes the organization and all resources that belong to it, including all spaces and their contents (projects, experiments, evaluators, models, monitors, dashboards, datasets, annotation configs, annotation queues, custom metrics, etc.) as well as organization-level resources such as integrations, cost configurations, SAML identity providers, and API keys.  This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param org_id: The unique identifier of the organization (required)
+        :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -714,7 +720,7 @@ class OrganizationsApi:
     @validate_call
     def organizations_delete_with_http_info(
         self,
-        org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
+        org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -732,7 +738,7 @@ class OrganizationsApi:
 
         Delete an organization by its ID. This deletes the organization and all resources that belong to it, including all spaces and their contents (projects, experiments, evaluators, models, monitors, dashboards, datasets, annotation configs, annotation queues, custom metrics, etc.) as well as organization-level resources such as integrations, cost configurations, SAML identity providers, and API keys.  This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param org_id: The unique identifier of the organization (required)
+        :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -786,7 +792,7 @@ class OrganizationsApi:
     @validate_call
     def organizations_delete_without_preload_content(
         self,
-        org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
+        org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -804,7 +810,7 @@ class OrganizationsApi:
 
         Delete an organization by its ID. This deletes the organization and all resources that belong to it, including all spaces and their contents (projects, experiments, evaluators, models, monitors, dashboards, datasets, annotation configs, annotation queues, custom metrics, etc.) as well as organization-level resources such as integrations, cost configurations, SAML identity providers, and API keys.  This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param org_id: The unique identifier of the organization (required)
+        :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -918,7 +924,7 @@ class OrganizationsApi:
     @validate_call
     def organizations_get(
         self,
-        org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
+        org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -936,7 +942,7 @@ class OrganizationsApi:
 
         Get a specific organization by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param org_id: The unique identifier of the organization (required)
+        :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -989,7 +995,7 @@ class OrganizationsApi:
     @validate_call
     def organizations_get_with_http_info(
         self,
-        org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
+        org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1007,7 +1013,7 @@ class OrganizationsApi:
 
         Get a specific organization by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param org_id: The unique identifier of the organization (required)
+        :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1060,7 +1066,7 @@ class OrganizationsApi:
     @validate_call
     def organizations_get_without_preload_content(
         self,
-        org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
+        org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1078,7 +1084,7 @@ class OrganizationsApi:
 
         Get a specific organization by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param org_id: The unique identifier of the organization (required)
+        :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1502,8 +1508,8 @@ class OrganizationsApi:
     @validate_call
     def organizations_remove_user(
         self,
-        org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1521,9 +1527,9 @@ class OrganizationsApi:
 
         Remove a user from the organization and all its child spaces (membership cascade).  Requires organization admin.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param org_id: The unique identifier of the organization (required)
+        :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1578,8 +1584,8 @@ class OrganizationsApi:
     @validate_call
     def organizations_remove_user_with_http_info(
         self,
-        org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1597,9 +1603,9 @@ class OrganizationsApi:
 
         Remove a user from the organization and all its child spaces (membership cascade).  Requires organization admin.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param org_id: The unique identifier of the organization (required)
+        :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1654,8 +1660,8 @@ class OrganizationsApi:
     @validate_call
     def organizations_remove_user_without_preload_content(
         self,
-        org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
-        user_id: Annotated[StrictStr, Field(description="The unique identifier of the user")],
+        org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1673,9 +1679,9 @@ class OrganizationsApi:
 
         Remove a user from the organization and all its child spaces (membership cascade).  Requires organization admin.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param org_id: The unique identifier of the organization (required)
+        :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
-        :param user_id: The unique identifier of the user (required)
+        :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1793,7 +1799,7 @@ class OrganizationsApi:
     @validate_call
     def organizations_update(
         self,
-        org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
+        org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         organization_update: Annotated[OrganizationUpdate, Field(description="Body containing organization update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -1812,7 +1818,7 @@ class OrganizationsApi:
 
         Update an organization's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the account. - System-managed fields (`id`, `created_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Platform Engineering Team\",   \"description\": \"Renamed from Agent Engineering Team\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param org_id: The unique identifier of the organization (required)
+        :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
         :param organization_update: Body containing organization update parameters. At least one field must be provided. (required)
         :type organization_update: OrganizationUpdate
@@ -1854,6 +1860,7 @@ class OrganizationsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1870,7 +1877,7 @@ class OrganizationsApi:
     @validate_call
     def organizations_update_with_http_info(
         self,
-        org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
+        org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         organization_update: Annotated[OrganizationUpdate, Field(description="Body containing organization update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -1889,7 +1896,7 @@ class OrganizationsApi:
 
         Update an organization's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the account. - System-managed fields (`id`, `created_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Platform Engineering Team\",   \"description\": \"Renamed from Agent Engineering Team\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param org_id: The unique identifier of the organization (required)
+        :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
         :param organization_update: Body containing organization update parameters. At least one field must be provided. (required)
         :type organization_update: OrganizationUpdate
@@ -1931,6 +1938,7 @@ class OrganizationsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1947,7 +1955,7 @@ class OrganizationsApi:
     @validate_call
     def organizations_update_without_preload_content(
         self,
-        org_id: Annotated[StrictStr, Field(description="The unique identifier of the organization")],
+        org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         organization_update: Annotated[OrganizationUpdate, Field(description="Body containing organization update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -1966,7 +1974,7 @@ class OrganizationsApi:
 
         Update an organization's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the account. - System-managed fields (`id`, `created_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Platform Engineering Team\",   \"description\": \"Renamed from Agent Engineering Team\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param org_id: The unique identifier of the organization (required)
+        :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
         :param organization_update: Body containing organization update parameters. At least one field must be provided. (required)
         :type organization_update: OrganizationUpdate
@@ -2008,6 +2016,7 @@ class OrganizationsApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(

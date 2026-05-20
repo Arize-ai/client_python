@@ -117,6 +117,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -160,7 +161,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationConfigsApi(api_client)
-    annotation_config_id = 'QW5ub3RhdGlvbkNvbmZpZzoxMjM0NQ==' # str | The unique identifier of the annotation config
+    annotation_config_id = 'QW5ub3RhdGlvbkNvbmZpZzoxMjM0NQ==' # str | The unique annotation config identifier (base64)
 
     try:
         # Delete an annotation config
@@ -176,7 +177,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **annotation_config_id** | **str**| The unique identifier of the annotation config | 
+ **annotation_config_id** | **str**| The unique annotation config identifier (base64) | 
 
 ### Return type
 
@@ -244,7 +245,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationConfigsApi(api_client)
-    annotation_config_id = 'QW5ub3RhdGlvbkNvbmZpZzoxMjM0NQ==' # str | The unique identifier of the annotation config
+    annotation_config_id = 'QW5ub3RhdGlvbkNvbmZpZzoxMjM0NQ==' # str | The unique annotation config identifier (base64)
 
     try:
         # Get an annotation config
@@ -262,7 +263,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **annotation_config_id** | **str**| The unique identifier of the annotation config | 
+ **annotation_config_id** | **str**| The unique annotation config identifier (base64) | 
 
 ### Return type
 

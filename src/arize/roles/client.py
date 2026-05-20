@@ -86,7 +86,7 @@ class RolesClient:
         """Get a role by name or ID.
 
         Args:
-            role: Role name or global ID (base64). If the value looks like an
+            role: Role name or identifier (base64). If the value looks like an
                 ID it is used directly; otherwise it is resolved by name.
 
         Returns:
@@ -151,7 +151,7 @@ class RolesClient:
         replaced with the new set.
 
         Args:
-            role: Role name or global ID (base64). If the value looks like an
+            role: Role name or identifier (base64). If the value looks like an
                 ID it is used directly; otherwise it is resolved by name.
             name: Updated name for the role (max 255 chars).
             description: Updated description of the role (max 1000 chars).
@@ -192,7 +192,7 @@ class RolesClient:
         Predefined (system-managed) roles cannot be deleted.
 
         Args:
-            role: Role name or global ID (base64). If the value looks like an
+            role: Role name or identifier (base64). If the value looks like an
                 ID it is used directly; otherwise it is resolved by name.
 
         Raises:

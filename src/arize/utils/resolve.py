@@ -89,7 +89,7 @@ def _resolve_resource(value: str | None) -> ResolvedIdentifier:
     """Split a name-or-ID string into a :class:`ResolvedIdentifier`.
 
     - ``None`` → both fields ``None``
-    - base64-encoded global ID → ``id`` field set
+    - base64-encoded identifier → ``id`` field set
     - any other string → ``name`` field set
 
     Args:
@@ -108,7 +108,7 @@ def _resolve_resource(value: str | None) -> ResolvedIdentifier:
 def _find_space_id(api: SpacesApi, space: str) -> str:
     """Resolve a space ID or name to a space ID.
 
-    If *space* is a base64-encoded global ID it is returned as-is. Otherwise,
+    If *space* is a base64-encoded identifier it is returned as-is. Otherwise,
     the list spaces endpoint is called to find an exact name match.
 
     Args:
@@ -678,7 +678,7 @@ def _find_task_id(
 def _find_organization_id(api: OrganizationsApi, organization: str) -> str:
     """Resolve an organization ID or name to an organization ID.
 
-    If *organization* is a base64-encoded global ID it is returned as-is.
+    If *organization* is a base64-encoded identifier it is returned as-is.
     Otherwise, the list organizations endpoint is called to find an exact name
     match.
 

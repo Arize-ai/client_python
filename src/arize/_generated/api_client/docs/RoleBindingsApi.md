@@ -20,7 +20,7 @@ Create a new role binding that assigns a role to a user on a resource.
 **Payload Requirements**
 - `role_id`, `user_id`, `resource_type`, and `resource_id` are required.
 - `resource_type` must be `SPACE` or `PROJECT`.
-- `resource_id` must be a global ID for the selected `resource_type`.
+- `resource_id` must be a unique identifier for the selected `resource_type`.
 - Only one binding per user and resource is allowed. If the target user
   already has any binding on the resource, the request returns
   `409 Conflict`.
@@ -129,6 +129,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -172,7 +173,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.RoleBindingsApi(api_client)
-    binding_id = 'Rbd001' # str | The unique identifier of the role binding.
+    binding_id = 'Um9sZUJpbmRpbmc6MTphQmNE' # str | The unique role binding identifier (base64)
 
     try:
         # Delete a role binding
@@ -188,7 +189,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **binding_id** | **str**| The unique identifier of the role binding. | 
+ **binding_id** | **str**| The unique role binding identifier (base64) | 
 
 ### Return type
 
@@ -255,7 +256,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.RoleBindingsApi(api_client)
-    binding_id = 'Rbd001' # str | The unique identifier of the role binding.
+    binding_id = 'Um9sZUJpbmRpbmc6MTphQmNE' # str | The unique role binding identifier (base64)
 
     try:
         # Get a role binding
@@ -273,7 +274,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **binding_id** | **str**| The unique identifier of the role binding. | 
+ **binding_id** | **str**| The unique role binding identifier (base64) | 
 
 ### Return type
 
@@ -365,7 +366,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.RoleBindingsApi(api_client)
-    binding_id = 'Rbd001' # str | The unique identifier of the role binding.
+    binding_id = 'Um9sZUJpbmRpbmc6MTphQmNE' # str | The unique role binding identifier (base64)
     role_binding_update = {"role_id":"Um9sZToyOmFCY0Q="} # RoleBindingUpdate | Body containing role binding update parameters.
 
     try:
@@ -384,7 +385,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **binding_id** | **str**| The unique identifier of the role binding. | 
+ **binding_id** | **str**| The unique role binding identifier (base64) | 
  **role_binding_update** | [**RoleBindingUpdate**](RoleBindingUpdate.md)| Body containing role binding update parameters. | 
 
 ### Return type
@@ -409,6 +410,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

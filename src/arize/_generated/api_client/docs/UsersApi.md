@@ -127,6 +127,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -181,7 +182,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.UsersApi(api_client)
-    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique identifier of the user
+    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique user identifier (base64)
 
     try:
         # Delete a user
@@ -197,7 +198,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **user_id** | **str**| The unique identifier of the user | 
+ **user_id** | **str**| The unique user identifier (base64) | 
 
 ### Return type
 
@@ -269,7 +270,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.UsersApi(api_client)
-    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique identifier of the user
+    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique user identifier (base64)
 
     try:
         # Get a user
@@ -287,7 +288,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **user_id** | **str**| The unique identifier of the user | 
+ **user_id** | **str**| The unique user identifier (base64) | 
 
 ### Return type
 
@@ -453,7 +454,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.UsersApi(api_client)
-    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique identifier of the user
+    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique user identifier (base64)
 
     try:
         # Trigger a password-reset email for a user
@@ -469,7 +470,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **user_id** | **str**| The unique identifier of the user | 
+ **user_id** | **str**| The unique user identifier (base64) | 
 
 ### Return type
 
@@ -547,7 +548,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.UsersApi(api_client)
-    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique identifier of the user
+    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique user identifier (base64)
 
     try:
         # Resend a user invitation
@@ -563,7 +564,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **user_id** | **str**| The unique identifier of the user | 
+ **user_id** | **str**| The unique user identifier (base64) | 
 
 ### Return type
 
@@ -651,7 +652,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.UsersApi(api_client)
-    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique identifier of the user
+    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique user identifier (base64)
     user_update = {"name":"Jane Smith","is_developer":false} # UserUpdate | Body containing user update parameters. At least one field must be provided.
 
     try:
@@ -670,7 +671,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **user_id** | **str**| The unique identifier of the user | 
+ **user_id** | **str**| The unique user identifier (base64) | 
  **user_update** | [**UserUpdate**](UserUpdate.md)| Body containing user update parameters. At least one field must be provided. | 
 
 ### Return type
@@ -695,6 +696,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

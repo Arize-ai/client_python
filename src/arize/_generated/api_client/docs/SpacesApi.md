@@ -21,10 +21,10 @@ Add a user to a space
 Add a single existing account user to a space with a specified role.
 
 **Payload Requirements**
-- `user_id` is required and must be a valid User global ID.
+- `user_id` is required and must be a valid user identifier (base64).
 - `role` is required and must be a role assignment object with a `type` discriminator:
   - `{ "type": "predefined", "name": "admin" }` — one of the predefined roles: `admin`, `member`, `read-only`, `annotator`.
-  - `{ "type": "custom", "id": "<role_id>" }` — a custom RBAC role identified by its global ID.
+  - `{ "type": "custom", "id": "<role_id>" }` — a custom RBAC role, using its unique identifier.
 - If the user is already a member, their role is updated to the specified value (upsert).
 - The user must already be a member of the space's parent organization; auto-enrollment is not performed (400 if not a member).
 
@@ -70,7 +70,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpacesApi(api_client)
-    space_id = 'spc_12345' # str | The unique identifier of the space
+    space_id = 'U3BhY2U6MTIzNDU=' # str | The unique space identifier (base64)
     space_membership_input = {"user_id":"VXNlcjoxMjM0NQ==","role":{"type":"predefined","name":"member"}} # SpaceMembershipInput | Body containing the user to add to the space
 
     try:
@@ -89,7 +89,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **space_id** | **str**| The unique identifier of the space | 
+ **space_id** | **str**| The unique space identifier (base64) | 
  **space_membership_input** | [**SpaceMembershipInput**](SpaceMembershipInput.md)| Body containing the user to add to the space | 
 
 ### Return type
@@ -114,6 +114,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -209,6 +210,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -254,7 +256,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpacesApi(api_client)
-    space_id = 'spc_12345' # str | The unique identifier of the space
+    space_id = 'U3BhY2U6MTIzNDU=' # str | The unique space identifier (base64)
 
     try:
         # Delete a space
@@ -270,7 +272,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **space_id** | **str**| The unique identifier of the space | 
+ **space_id** | **str**| The unique space identifier (base64) | 
 
 ### Return type
 
@@ -338,7 +340,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpacesApi(api_client)
-    space_id = 'spc_12345' # str | The unique identifier of the space
+    space_id = 'U3BhY2U6MTIzNDU=' # str | The unique space identifier (base64)
 
     try:
         # Get a space
@@ -356,7 +358,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **space_id** | **str**| The unique identifier of the space | 
+ **space_id** | **str**| The unique space identifier (base64) | 
 
 ### Return type
 
@@ -424,7 +426,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpacesApi(api_client)
-    org_id = 'org_id_example' # str | The unique identifier of an organization. When provided, only spaces belonging to this organization are returned. (optional)
+    org_id = 'T3JnYW5pemF0aW9uOjEyMzQ1' # str | The unique organization identifier (base64). When provided, only spaces belonging to this organization are returned. (optional)
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
@@ -445,7 +447,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **org_id** | **str**| The unique identifier of an organization. When provided, only spaces belonging to this organization are returned. | [optional] 
+ **org_id** | **str**| The unique organization identifier (base64). When provided, only spaces belonging to this organization are returned. | [optional] 
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
@@ -520,8 +522,8 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpacesApi(api_client)
-    space_id = 'spc_12345' # str | The unique identifier of the space
-    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique identifier of the user
+    space_id = 'U3BhY2U6MTIzNDU=' # str | The unique space identifier (base64)
+    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique user identifier (base64)
 
     try:
         # Remove a user from a space
@@ -537,8 +539,8 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **space_id** | **str**| The unique identifier of the space | 
- **user_id** | **str**| The unique identifier of the user | 
+ **space_id** | **str**| The unique space identifier (base64) | 
+ **user_id** | **str**| The unique user identifier (base64) | 
 
 ### Return type
 
@@ -613,7 +615,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpacesApi(api_client)
-    space_id = 'spc_12345' # str | The unique identifier of the space
+    space_id = 'U3BhY2U6MTIzNDU=' # str | The unique space identifier (base64)
     spaces_update_request = {"name":"Updated Space Name","description":"Updated space description"} # SpacesUpdateRequest | Body containing space update parameters. At least one field must be provided.
 
     try:
@@ -632,7 +634,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **space_id** | **str**| The unique identifier of the space | 
+ **space_id** | **str**| The unique space identifier (base64) | 
  **spaces_update_request** | [**SpacesUpdateRequest**](SpacesUpdateRequest.md)| Body containing space update parameters. At least one field must be provided. | 
 
 ### Return type
@@ -658,6 +660,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

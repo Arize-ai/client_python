@@ -6,9 +6,9 @@ Discriminated union representing either a managed (built-in) or custom (user-sup
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**data_granularity** | **str** | Data granularity level for evaluation. When omitted or null, no granularity filter is applied (span-level evaluation is used by default on the server).  | [optional] 
+**data_granularity** | [**DataGranularity**](DataGranularity.md) | Data granularity level for evaluation. When omitted or null, no granularity filter is applied (span-level evaluation is used by default on the server).  | [optional] 
 **query_filter** | **str** | Optional filter query over the chosen data granularity. When omitted or null, no filter is applied.  | [optional] 
-**type** | **str** | Discriminator for managed (built-in) code evaluators | 
+**type** | **str** |  | 
 **name** | **str** | Eval column name. Must match ^[a-zA-Z0-9_\\s\\-&amp;()]+$ | 
 **managed_evaluator** | [**ManagedCodeEvaluator**](ManagedCodeEvaluator.md) |  | 
 **variables** | **List[str]** | Dataset columns or span attributes mapped to evaluate() arguments | 

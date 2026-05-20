@@ -100,7 +100,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The evaluator global ID (base64)
+    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
     evaluator_version_create = {"commit_message":"Improve template wording","template_config":{"name":"hallucination","template":"Evaluate whether the output is factually grounded.\n\nInput: {input}\nOutput: {output}","include_explanations":true,"use_function_calling_if_available":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"maximize","data_granularity":"span","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}} # EvaluatorVersionCreate | Body containing evaluator version creation parameters
 
     try:
@@ -119,7 +119,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **evaluator_id** | **str**| The evaluator global ID (base64) | 
+ **evaluator_id** | **str**| The unique evaluator identifier (base64) | 
  **evaluator_version_create** | [**EvaluatorVersionCreate**](EvaluatorVersionCreate.md)| Body containing evaluator version creation parameters | 
 
 ### Return type
@@ -144,6 +144,7 @@ Name | Type | Description  | Notes
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -153,7 +154,7 @@ Name | Type | Description  | Notes
 
 Get evaluator version
 
-Get a specific evaluator version by its global ID.
+Get a specific evaluator version by its unique identifier.
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -188,7 +189,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    version_id = 'RXZhbHVhdG9yVmVyc2lvbjoxMjM0NQ==' # str | The evaluator version global ID (base64)
+    version_id = 'RXZhbHVhdG9yVmVyc2lvbjoxMjM0NQ==' # str | The unique evaluator version identifier (base64)
 
     try:
         # Get evaluator version
@@ -206,7 +207,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **version_id** | **str**| The evaluator version global ID (base64) | 
+ **version_id** | **str**| The unique evaluator version identifier (base64) | 
 
 ### Return type
 
@@ -273,7 +274,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The evaluator global ID (base64)
+    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
@@ -293,7 +294,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **evaluator_id** | **str**| The evaluator global ID (base64) | 
+ **evaluator_id** | **str**| The unique evaluator identifier (base64) | 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
@@ -461,6 +462,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -504,7 +506,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The evaluator global ID (base64)
+    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
 
     try:
         # Delete evaluator
@@ -520,7 +522,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **evaluator_id** | **str**| The evaluator global ID (base64) | 
+ **evaluator_id** | **str**| The unique evaluator identifier (base64) | 
 
 ### Return type
 
@@ -589,8 +591,8 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The evaluator global ID (base64)
-    version_id = 'RXZhbHVhdG9yVmVyc2lvbjoxMjM0NQ==' # str | Return the evaluator with this specific version (base64 global ID). If omitted, returns the latest version. (optional)
+    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
+    version_id = 'RXZhbHVhdG9yVmVyc2lvbjoxMjM0NQ==' # str | Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version. (optional)
 
     try:
         # Get evaluator
@@ -608,8 +610,8 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **evaluator_id** | **str**| The evaluator global ID (base64) | 
- **version_id** | **str**| Return the evaluator with this specific version (base64 global ID). If omitted, returns the latest version. | [optional] 
+ **evaluator_id** | **str**| The unique evaluator identifier (base64) | 
+ **version_id** | **str**| Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version. | [optional] 
 
 ### Return type
 
@@ -792,7 +794,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The evaluator global ID (base64)
+    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
     evaluators_update_request = {"name":"Updated Evaluator Name","description":"Updated description"} # EvaluatorsUpdateRequest | Body containing evaluator update parameters
 
     try:
@@ -811,7 +813,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **evaluator_id** | **str**| The evaluator global ID (base64) | 
+ **evaluator_id** | **str**| The unique evaluator identifier (base64) | 
  **evaluators_update_request** | [**EvaluatorsUpdateRequest**](EvaluatorsUpdateRequest.md)| Body containing evaluator update parameters | 
 
 ### Return type
@@ -837,6 +839,7 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

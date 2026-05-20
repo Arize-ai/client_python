@@ -1,7 +1,6 @@
 """Public type re-exports for the tasks subdomain."""
 
 from datetime import datetime
-from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
@@ -19,30 +18,16 @@ from arize._generated.api_client.models.run_configuration import (
 )
 from arize._generated.api_client.models.task_evaluator import TaskEvaluator
 from arize._generated.api_client.models.task_run import TaskRun
+from arize._generated.api_client.models.task_run_status import (
+    TaskRunStatus as RunStatus,
+)
+from arize._generated.api_client.models.task_type import TaskType
 from arize._generated.api_client.models.tasks_list_runs200_response import (
     TasksListRuns200Response,
 )
 from arize._generated.api_client.models.template_evaluation_run_config import (
     TemplateEvaluationRunConfig,
 )
-
-
-class TaskType(str, Enum):
-    """Task type discriminator values, mirroring the generated OpenAPI schema."""
-
-    TEMPLATE_EVALUATION = "template_evaluation"
-    CODE_EVALUATION = "code_evaluation"
-    RUN_EXPERIMENT = "run_experiment"
-
-
-class RunStatus(str, Enum):
-    """Task run status values, mirroring the generated OpenAPI schema."""
-
-    PENDING = "pending"
-    RUNNING = "running"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    CANCELLED = "cancelled"
 
 
 class Task(BaseModel):

@@ -18,9 +18,10 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.api_key_status import ApiKeyStatus
+from arize._generated.api_client.models.api_key_type import ApiKeyType
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -31,7 +32,7 @@ class ApiKeyCreated(BaseModel):
     id: StrictStr = Field(description="Unique identifier for the API key.")
     name: StrictStr = Field(description="User-defined name for the API key.")
     description: Optional[StrictStr] = Field(default=None, description="Optional user-defined description for the API key.")
-    key_type: StrictStr = Field(description="Type of the API key. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")
+    key_type: ApiKeyType
     status: ApiKeyStatus
     redacted_key: StrictStr = Field(description="Redacted version of the key suitable for display (e.g., \"ak-abc...xyz\").")
     created_at: datetime = Field(description="Timestamp when the key was created.")
@@ -39,13 +40,6 @@ class ApiKeyCreated(BaseModel):
     created_by_user_id: StrictStr = Field(description="ID of the user who created the key.")
     key: StrictStr = Field(description="The full API key value. **Only returned once** at creation or refresh time. Store it securely — it cannot be retrieved again. ")
     __properties: ClassVar[List[str]] = ["id", "name", "description", "key_type", "status", "redacted_key", "created_at", "expires_at", "created_by_user_id", "key"]
-
-    @field_validator('key_type')
-    def key_type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['user', 'service']):
-            raise ValueError("must be one of enum values ('user', 'service')")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

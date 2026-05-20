@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.data_granularity import DataGranularity
 from arize._generated.api_client.models.managed_code_evaluator import ManagedCodeEvaluator
 from arize._generated.api_client.models.static_param import StaticParam
 from typing import Optional, Set
@@ -29,24 +30,14 @@ class ManagedCodeConfig(BaseModel):
     """
     ManagedCodeConfig
     """ # noqa: E501
-    data_granularity: Optional[StrictStr] = Field(default=None, description="Data granularity level for evaluation. When omitted or null, no granularity filter is applied (span-level evaluation is used by default on the server). ")
+    data_granularity: Optional[DataGranularity] = Field(default=None, description="Data granularity level for evaluation. When omitted or null, no granularity filter is applied (span-level evaluation is used by default on the server). ")
     query_filter: Optional[StrictStr] = Field(default=None, description="Optional filter query over the chosen data granularity. When omitted or null, no filter is applied. ")
-    type: StrictStr = Field(description="Discriminator for managed (built-in) code evaluators")
+    type: StrictStr
     name: Annotated[str, Field(strict=True)] = Field(description="Eval column name. Must match ^[a-zA-Z0-9_\\s\\-&()]+$")
     managed_evaluator: ManagedCodeEvaluator
     variables: List[StrictStr] = Field(description="Dataset columns or span attributes passed into the evaluator (order and count must match the managed evaluator's requirements). ")
     static_params: Optional[List[StaticParam]] = Field(default=None, description="Static parameters for the managed evaluator (see registry `args`). When omitted, the registry's required arguments must be satisfied by defaults on the evaluator class; otherwise validation fails with 400. If the registry has no args, omitting this field is equivalent to an empty list. ")
     __properties: ClassVar[List[str]] = ["data_granularity", "query_filter", "type", "name", "managed_evaluator", "variables", "static_params"]
-
-    @field_validator('data_granularity')
-    def data_granularity_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['span', 'trace', 'session']):
-            raise ValueError("must be one of enum values ('span', 'trace', 'session')")
-        return value
 
     @field_validator('type')
     def type_validate_enum(cls, value):

@@ -7,9 +7,9 @@ A task run is an async job that executes the work defined on a task. Runs are cr
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | The unique identifier for the task run. | 
-**task_id** | **str** | The parent task global ID (base64). | 
-**experiment_id** | **str** | Created experiment global ID (base64). Present only for &#x60;run_experiment&#x60; task runs; null for all other task types.  | [optional] 
-**status** | **str** | The current status of the run. | 
+**task_id** | **str** | The parent task identifier (base64). | 
+**experiment_id** | **str** | Created experiment identifier (base64). Present only for &#x60;run_experiment&#x60; task runs; null for all other task types.  | [optional] 
+**status** | [**TaskRunStatus**](TaskRunStatus.md) |  | 
 **run_started_at** | **datetime** | When the run started processing. | 
 **run_finished_at** | **datetime** | When the run finished processing. | 
 **data_start_time** | **datetime** | Start of the data window evaluated. Null for run_experiment runs. | 

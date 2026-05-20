@@ -28,7 +28,7 @@ class EvaluatorLlmConfig(BaseModel):
     """
     EvaluatorLlmConfig
     """ # noqa: E501
-    ai_integration_id: StrictStr = Field(description="AI integration global ID (base64)")
+    ai_integration_id: StrictStr = Field(description="AI integration identifier (base64)")
     model_name: StrictStr = Field(description="Model name (e.g. gpt-4o)")
     invocation_parameters: InvocationParams
     provider_parameters: ProviderParams

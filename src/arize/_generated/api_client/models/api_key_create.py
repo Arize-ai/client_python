@@ -18,10 +18,11 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.api_key_roles import ApiKeyRoles
+from arize._generated.api_client.models.api_key_type import ApiKeyType
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -31,21 +32,11 @@ class ApiKeyCreate(BaseModel):
     """ # noqa: E501
     name: Annotated[str, Field(strict=True, max_length=256)] = Field(description="User-defined name for the API key.")
     description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="Optional user-defined description for the API key.")
-    key_type: Optional[StrictStr] = Field(default='user', description="Type of the API key to create. Defaults to `user`. - user - Key that authenticates as the creating user with their full permissions.   `space_id` and `roles` must not be set (returns `400`). - service - Key scoped to a specific space backed by a dedicated bot user.   Requires `space_id`. All roles default to minimum privilege when omitted. ")
+    key_type: Optional[ApiKeyType] = Field(default=None, description="Type of the API key to create. Defaults to `user`. - user - Key that authenticates as the creating user with their full permissions.   `space_id` and `roles` must not be set (returns `400`). - service - Key scoped to a specific space backed by a dedicated bot user.   Requires `space_id`. All roles default to minimum privilege when omitted. ")
     expires_at: Optional[datetime] = Field(default=None, description="Optional expiration timestamp. If omitted the key never expires.")
     space_id: Optional[StrictStr] = Field(default=None, description="ID of the space this service key is scoped to. Required when `key_type` is `service`; invalid for `user` keys (returns `400`). ")
     roles: Optional[ApiKeyRoles] = None
     __properties: ClassVar[List[str]] = ["name", "description", "key_type", "expires_at", "space_id", "roles"]
-
-    @field_validator('key_type')
-    def key_type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['user', 'service']):
-            raise ValueError("must be one of enum values ('user', 'service')")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -108,7 +99,7 @@ class ApiKeyCreate(BaseModel):
         _obj = cls.model_validate({
             "name": obj.get("name"),
             "description": obj.get("description"),
-            "key_type": obj.get("key_type") if obj.get("key_type") is not None else 'user',
+            "key_type": obj.get("key_type"),
             "expires_at": obj.get("expires_at"),
             "space_id": obj.get("space_id"),
             "roles": ApiKeyRoles.from_dict(obj["roles"]) if obj.get("roles") is not None else None

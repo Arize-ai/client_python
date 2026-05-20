@@ -100,6 +100,7 @@ class ProjectsApi:
             '401': "Problem",
             '403': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -172,6 +173,7 @@ class ProjectsApi:
             '401': "Problem",
             '403': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -244,6 +246,7 @@ class ProjectsApi:
             '401': "Problem",
             '403': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -334,7 +337,7 @@ class ProjectsApi:
     @validate_call
     def projects_delete(
         self,
-        project_id: Annotated[StrictStr, Field(description="The unique identifier of the project")],
+        project_id: Annotated[StrictStr, Field(description="The unique project identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -352,7 +355,7 @@ class ProjectsApi:
 
         Delete a project by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param project_id: The unique identifier of the project (required)
+        :param project_id: The unique project identifier (base64) (required)
         :type project_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -406,7 +409,7 @@ class ProjectsApi:
     @validate_call
     def projects_delete_with_http_info(
         self,
-        project_id: Annotated[StrictStr, Field(description="The unique identifier of the project")],
+        project_id: Annotated[StrictStr, Field(description="The unique project identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -424,7 +427,7 @@ class ProjectsApi:
 
         Delete a project by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param project_id: The unique identifier of the project (required)
+        :param project_id: The unique project identifier (base64) (required)
         :type project_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -478,7 +481,7 @@ class ProjectsApi:
     @validate_call
     def projects_delete_without_preload_content(
         self,
-        project_id: Annotated[StrictStr, Field(description="The unique identifier of the project")],
+        project_id: Annotated[StrictStr, Field(description="The unique project identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -496,7 +499,7 @@ class ProjectsApi:
 
         Delete a project by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param project_id: The unique identifier of the project (required)
+        :param project_id: The unique project identifier (base64) (required)
         :type project_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -610,7 +613,7 @@ class ProjectsApi:
     @validate_call
     def projects_get(
         self,
-        project_id: Annotated[StrictStr, Field(description="The unique identifier of the project")],
+        project_id: Annotated[StrictStr, Field(description="The unique project identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -628,7 +631,7 @@ class ProjectsApi:
 
         Get a specific project by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param project_id: The unique identifier of the project (required)
+        :param project_id: The unique project identifier (base64) (required)
         :type project_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -682,7 +685,7 @@ class ProjectsApi:
     @validate_call
     def projects_get_with_http_info(
         self,
-        project_id: Annotated[StrictStr, Field(description="The unique identifier of the project")],
+        project_id: Annotated[StrictStr, Field(description="The unique project identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -700,7 +703,7 @@ class ProjectsApi:
 
         Get a specific project by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param project_id: The unique identifier of the project (required)
+        :param project_id: The unique project identifier (base64) (required)
         :type project_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -754,7 +757,7 @@ class ProjectsApi:
     @validate_call
     def projects_get_without_preload_content(
         self,
-        project_id: Annotated[StrictStr, Field(description="The unique identifier of the project")],
+        project_id: Annotated[StrictStr, Field(description="The unique project identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -772,7 +775,7 @@ class ProjectsApi:
 
         Get a specific project by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param project_id: The unique identifier of the project (required)
+        :param project_id: The unique project identifier (base64) (required)
         :type project_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request

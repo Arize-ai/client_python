@@ -5,10 +5,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**role_id** | **str** | A universally unique identifier | 
-**user_id** | **str** | A universally unique identifier | 
+**role_id** | **str** | A universally unique identifier (base64-encoded opaque string). | 
+**user_id** | **str** | A universally unique identifier (base64-encoded opaque string). | 
 **resource_type** | [**RoleBindingResourceType**](RoleBindingResourceType.md) |  | 
-**resource_id** | **str** | A universally unique identifier | 
+**resource_id** | **str** | A universally unique identifier (base64-encoded opaque string). | 
 
 ## Example
 

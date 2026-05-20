@@ -24,7 +24,7 @@ class RoleBindingsClient:
 
     A role binding assigns a role to a user on a specific resource. Only one
     binding per user per resource is allowed. The ``resource_type`` must be
-    either ``SPACE`` or ``PROJECT``, and the ``resource_id`` must be a global ID
+    either ``SPACE`` or ``PROJECT``, and the ``resource_id`` must be a unique identifier
     encoding a resource of the matching type.
 
     The role bindings client is a thin wrapper around the generated REST API
@@ -74,12 +74,12 @@ class RoleBindingsClient:
         # "role-456"
 
         Args:
-            user_id: Global ID of the user to bind the role to.
-            role_id: Global ID of the role to assign.
+            user_id: Unique identifier of the user to bind the role to.
+            role_id: Unique identifier of the role to assign.
             resource_type: Type of resource to bind the role on
                 (``RoleBindingResourceType.SPACE`` or
                 ``RoleBindingResourceType.PROJECT``).
-            resource_id: Global ID of the resource. Must encode a resource of
+            resource_id: Unique identifier of the resource. Must encode a resource of
                 the type specified by ``resource_type``.
 
         Returns:

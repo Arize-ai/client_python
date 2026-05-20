@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
+from arize.api_keys.types import ApiKeyType
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import _find_space_id
 
@@ -13,15 +14,14 @@ if TYPE_CHECKING:
 
     from arize._generated.api_client.api_client import ApiClient
     from arize.api_keys.types import (
+        ApiKeyAccountRole,
         ApiKeyCreated,
+        ApiKeyOrganizationRole,
         ApiKeysList200Response,
+        ApiKeySpaceRole,
         ApiKeyStatus,
     )
     from arize.config import SDKConfiguration
-
-SpaceRole = Literal["admin", "member", "read-only"]
-OrgRole = Literal["admin", "member", "read-only"]
-AccountRole = Literal["admin", "member"]
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class ApiKeysClient:
     def list(
         self,
         *,
-        key_type: str | None = None,
+        key_type: ApiKeyType | None = None,
         status: ApiKeyStatus | None = None,
         space: str | None = None,
         user_id: str | None = None,
@@ -80,12 +80,13 @@ class ApiKeysClient:
         only; non-admins receive a ``403``.
 
         Args:
-            key_type: Optional key type filter (``"user"`` or ``"service"``).
+            key_type: Optional key type filter (``ApiKeyType.USER`` or
+                ``ApiKeyType.SERVICE``).
             status: Optional status filter (``"active"`` or ``"deleted"``).
                 Defaults to ``"active"`` on the server side when omitted.
             space: Space name or ID. When provided, filters to service keys for
-                that space. Accepts a human-readable name or a base64 global ID.
-            user_id: Base64 global ID of the user whose keys to return.
+                that space. Accepts a human-readable name or a base64 identifier.
+            user_id: Base64 identifier of the user whose keys to return.
                 For service keys (with ``space``), filters by creator and is
                 available to any caller with space access. For user keys
                 (without ``space``), requires account admin role.
@@ -148,7 +149,7 @@ class ApiKeysClient:
         body = gen.ApiKeyCreate(
             name=name,
             description=description,
-            key_type="user",
+            key_type=ApiKeyType.USER,
             expires_at=expires_at,
         )
         return self._api.api_keys_create(api_key_create=body)
@@ -163,9 +164,9 @@ class ApiKeysClient:
         space: str,
         description: str | None = None,
         expires_at: datetime | None = None,
-        space_role: SpaceRole | None = None,
-        org_role: OrgRole | None = None,
-        account_role: AccountRole | None = None,
+        space_role: ApiKeySpaceRole | None = None,
+        org_role: ApiKeyOrganizationRole | None = None,
+        account_role: ApiKeyAccountRole | None = None,
     ) -> ApiKeyCreated:
         """Create a service-type API key for a space.
 
@@ -185,15 +186,17 @@ class ApiKeysClient:
             description: Optional description (max 1000 characters).
             expires_at: Optional expiration timestamp. If omitted the key
                 never expires. Must be a future timestamp.
-            space_role: Role for the bot user within the space. One of
-                ``"admin"``, ``"member"`` (default), or ``"read-only"``.
-                Must be at or below the caller's own space role.
-            org_role: Role for the bot user within the organization. One of
-                ``"admin"``, ``"member"``, or ``"read-only"`` (default).
-                Must be at or below the caller's own org role.
-            account_role: Account-level role for the bot user. One of
-                ``"admin"`` or ``"member"`` (default). Must be at or below
-                the caller's own account role.
+            space_role: Role for the bot user within the space
+                (``ApiKeySpaceRole``). One of ``"admin"``, ``"member"``
+                (default), or ``"read-only"``. Must be at or below the
+                caller's own space role.
+            org_role: Role for the bot user within the organization
+                (``ApiKeyOrganizationRole``). One of ``"admin"``,
+                ``"member"``, or ``"read-only"`` (default). Must be at or
+                below the caller's own org role.
+            account_role: Account-level role for the bot user
+                (``ApiKeyAccountRole``). One of ``"admin"`` or ``"member"``
+                (default). Must be at or below the caller's own account role.
 
         Returns:
             The created API key, including the one-time raw key value.
@@ -217,7 +220,7 @@ class ApiKeysClient:
         body = gen.ApiKeyCreate(
             name=name,
             description=description,
-            key_type="service",
+            key_type=ApiKeyType.SERVICE,
             expires_at=expires_at,
             space_id=space_id,
             roles=roles,

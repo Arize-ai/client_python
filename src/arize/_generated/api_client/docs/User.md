@@ -6,7 +6,7 @@ An account user represents a member of the account. Users can be listed, updated
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **str** | A universally unique identifier | 
+**id** | **str** | A universally unique identifier (base64-encoded opaque string). | 
 **name** | **str** | Display name of the user | 
 **email** | **str** | An email address | 
 **created_at** | **datetime** | Timestamp for when the user was created | 

@@ -29,10 +29,10 @@ class RoleBinding(BaseModel):
     RoleBinding
     """ # noqa: E501
     id: StrictStr = Field(description="Unique identifier for the role binding.")
-    role_id: StrictStr = Field(description="A universally unique identifier")
-    user_id: StrictStr = Field(description="A universally unique identifier")
+    role_id: StrictStr = Field(description="A universally unique identifier (base64-encoded opaque string).")
+    user_id: StrictStr = Field(description="A universally unique identifier (base64-encoded opaque string).")
     resource_type: RoleBindingResourceType
-    resource_id: StrictStr = Field(description="A universally unique identifier")
+    resource_id: StrictStr = Field(description="A universally unique identifier (base64-encoded opaque string).")
     created_at: datetime = Field(description="Timestamp when the binding was created.")
     updated_at: datetime = Field(description="Timestamp when the binding was last updated.")
     __properties: ClassVar[List[str]] = ["id", "role_id", "user_id", "resource_type", "resource_id", "created_at", "updated_at"]

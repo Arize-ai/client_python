@@ -17,8 +17,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.data_granularity import DataGranularity
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -26,19 +27,9 @@ class CodeConfigCommon(BaseModel):
     """
     CodeConfigCommon
     """ # noqa: E501
-    data_granularity: Optional[StrictStr] = Field(default=None, description="Data granularity level for evaluation. When omitted or null, no granularity filter is applied (span-level evaluation is used by default on the server). ")
+    data_granularity: Optional[DataGranularity] = Field(default=None, description="Data granularity level for evaluation. When omitted or null, no granularity filter is applied (span-level evaluation is used by default on the server). ")
     query_filter: Optional[StrictStr] = Field(default=None, description="Optional filter query over the chosen data granularity. When omitted or null, no filter is applied. ")
     __properties: ClassVar[List[str]] = ["data_granularity", "query_filter"]
-
-    @field_validator('data_granularity')
-    def data_granularity_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['span', 'trace', 'session']):
-            raise ValueError("must be one of enum values ('span', 'trace', 'session')")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

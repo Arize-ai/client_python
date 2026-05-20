@@ -71,22 +71,28 @@ __all__ = [
     "AnnotationInput",
     "AnnotationQueue",
     "AnnotationQueueAssignedUser",
+    "AnnotationQueueCompletionStatus",
     "AnnotationQueueExampleRecordInput",
     "AnnotationQueueRecord",
     "AnnotationQueueRecordAnnotateResult",
     "AnnotationQueueRecordAssignResult",
     "AnnotationQueueRecordInput",
     "AnnotationQueueRecordsList200Response",
+    "AnnotationQueueSourceType",
     "AnnotationQueueSpanRecordInput",
     "AnnotationQueuesList200Response",
     "AnnotationQueuesRecordsCreate200Response",
     "AnnotatorUser",
     "ApiKey",
+    "ApiKeyAccountRole",
     "ApiKeyCreate",
     "ApiKeyCreated",
+    "ApiKeyOrganizationRole",
     "ApiKeyRefresh",
     "ApiKeyRoles",
+    "ApiKeySpaceRole",
     "ApiKeyStatus",
+    "ApiKeyType",
     "ApiKeysList200Response",
     "AssignAnnotationQueueRecordRequestBody",
     "AssignmentMethod",
@@ -110,6 +116,7 @@ __all__ = [
     "CustomCodeConfig",
     "CustomRoleAssignment",
     "CustomUserRoleAssignment",
+    "DataGranularity",
     "Dataset",
     "DatasetExample",
     "DatasetExampleUpdate",
@@ -120,6 +127,7 @@ __all__ = [
     "DatasetsExamplesList200Response",
     "DatasetsExamplesUpdateRequest",
     "DatasetsList200Response",
+    "DatasetsUpdateRequest",
     "DeleteAnnotationQueueRecordsRequestBody",
     "DeleteSpansRequest",
     "Evaluation",
@@ -195,6 +203,7 @@ __all__ = [
     "ProviderParamsBedrockOptions",
     "ResourceRestriction",
     "ResourceRestrictionCreate",
+    "ResourceRestrictionType",
     "ResourceRestrictionsCreate200Response",
     "ResponseFormat",
     "ResponseFormatJsonSchema",
@@ -219,14 +228,18 @@ __all__ = [
     "Span",
     "SpanContext",
     "SpanEvent",
+    "SpanStatusCode",
     "SpansDelete200Response",
     "SpansDelete500Response",
     "SpansList200Response",
     "StaticParam",
     "StaticParamDefaultValue",
+    "StaticParamType",
     "Task",
     "TaskEvaluator",
     "TaskRun",
+    "TaskRunStatus",
+    "TaskType",
     "TasksCreateRequest",
     "TasksList200Response",
     "TasksListRuns200Response",
@@ -312,22 +325,28 @@ from arize._generated.api_client.models.annotation_configs_list200_response impo
 from arize._generated.api_client.models.annotation_input import AnnotationInput as AnnotationInput
 from arize._generated.api_client.models.annotation_queue import AnnotationQueue as AnnotationQueue
 from arize._generated.api_client.models.annotation_queue_assigned_user import AnnotationQueueAssignedUser as AnnotationQueueAssignedUser
+from arize._generated.api_client.models.annotation_queue_completion_status import AnnotationQueueCompletionStatus as AnnotationQueueCompletionStatus
 from arize._generated.api_client.models.annotation_queue_example_record_input import AnnotationQueueExampleRecordInput as AnnotationQueueExampleRecordInput
 from arize._generated.api_client.models.annotation_queue_record import AnnotationQueueRecord as AnnotationQueueRecord
 from arize._generated.api_client.models.annotation_queue_record_annotate_result import AnnotationQueueRecordAnnotateResult as AnnotationQueueRecordAnnotateResult
 from arize._generated.api_client.models.annotation_queue_record_assign_result import AnnotationQueueRecordAssignResult as AnnotationQueueRecordAssignResult
 from arize._generated.api_client.models.annotation_queue_record_input import AnnotationQueueRecordInput as AnnotationQueueRecordInput
 from arize._generated.api_client.models.annotation_queue_records_list200_response import AnnotationQueueRecordsList200Response as AnnotationQueueRecordsList200Response
+from arize._generated.api_client.models.annotation_queue_source_type import AnnotationQueueSourceType as AnnotationQueueSourceType
 from arize._generated.api_client.models.annotation_queue_span_record_input import AnnotationQueueSpanRecordInput as AnnotationQueueSpanRecordInput
 from arize._generated.api_client.models.annotation_queues_list200_response import AnnotationQueuesList200Response as AnnotationQueuesList200Response
 from arize._generated.api_client.models.annotation_queues_records_create200_response import AnnotationQueuesRecordsCreate200Response as AnnotationQueuesRecordsCreate200Response
 from arize._generated.api_client.models.annotator_user import AnnotatorUser as AnnotatorUser
 from arize._generated.api_client.models.api_key import ApiKey as ApiKey
+from arize._generated.api_client.models.api_key_account_role import ApiKeyAccountRole as ApiKeyAccountRole
 from arize._generated.api_client.models.api_key_create import ApiKeyCreate as ApiKeyCreate
 from arize._generated.api_client.models.api_key_created import ApiKeyCreated as ApiKeyCreated
+from arize._generated.api_client.models.api_key_organization_role import ApiKeyOrganizationRole as ApiKeyOrganizationRole
 from arize._generated.api_client.models.api_key_refresh import ApiKeyRefresh as ApiKeyRefresh
 from arize._generated.api_client.models.api_key_roles import ApiKeyRoles as ApiKeyRoles
+from arize._generated.api_client.models.api_key_space_role import ApiKeySpaceRole as ApiKeySpaceRole
 from arize._generated.api_client.models.api_key_status import ApiKeyStatus as ApiKeyStatus
+from arize._generated.api_client.models.api_key_type import ApiKeyType as ApiKeyType
 from arize._generated.api_client.models.api_keys_list200_response import ApiKeysList200Response as ApiKeysList200Response
 from arize._generated.api_client.models.assign_annotation_queue_record_request_body import AssignAnnotationQueueRecordRequestBody as AssignAnnotationQueueRecordRequestBody
 from arize._generated.api_client.models.assignment_method import AssignmentMethod as AssignmentMethod
@@ -351,6 +370,7 @@ from arize._generated.api_client.models.create_user_request import CreateUserReq
 from arize._generated.api_client.models.custom_code_config import CustomCodeConfig as CustomCodeConfig
 from arize._generated.api_client.models.custom_role_assignment import CustomRoleAssignment as CustomRoleAssignment
 from arize._generated.api_client.models.custom_user_role_assignment import CustomUserRoleAssignment as CustomUserRoleAssignment
+from arize._generated.api_client.models.data_granularity import DataGranularity as DataGranularity
 from arize._generated.api_client.models.dataset import Dataset as Dataset
 from arize._generated.api_client.models.dataset_example import DatasetExample as DatasetExample
 from arize._generated.api_client.models.dataset_example_update import DatasetExampleUpdate as DatasetExampleUpdate
@@ -361,6 +381,7 @@ from arize._generated.api_client.models.datasets_examples_insert_request import 
 from arize._generated.api_client.models.datasets_examples_list200_response import DatasetsExamplesList200Response as DatasetsExamplesList200Response
 from arize._generated.api_client.models.datasets_examples_update_request import DatasetsExamplesUpdateRequest as DatasetsExamplesUpdateRequest
 from arize._generated.api_client.models.datasets_list200_response import DatasetsList200Response as DatasetsList200Response
+from arize._generated.api_client.models.datasets_update_request import DatasetsUpdateRequest as DatasetsUpdateRequest
 from arize._generated.api_client.models.delete_annotation_queue_records_request_body import DeleteAnnotationQueueRecordsRequestBody as DeleteAnnotationQueueRecordsRequestBody
 from arize._generated.api_client.models.delete_spans_request import DeleteSpansRequest as DeleteSpansRequest
 from arize._generated.api_client.models.evaluation import Evaluation as Evaluation
@@ -436,6 +457,7 @@ from arize._generated.api_client.models.provider_params_azure_params import Prov
 from arize._generated.api_client.models.provider_params_bedrock_options import ProviderParamsBedrockOptions as ProviderParamsBedrockOptions
 from arize._generated.api_client.models.resource_restriction import ResourceRestriction as ResourceRestriction
 from arize._generated.api_client.models.resource_restriction_create import ResourceRestrictionCreate as ResourceRestrictionCreate
+from arize._generated.api_client.models.resource_restriction_type import ResourceRestrictionType as ResourceRestrictionType
 from arize._generated.api_client.models.resource_restrictions_create200_response import ResourceRestrictionsCreate200Response as ResourceRestrictionsCreate200Response
 from arize._generated.api_client.models.response_format import ResponseFormat as ResponseFormat
 from arize._generated.api_client.models.response_format_json_schema import ResponseFormatJsonSchema as ResponseFormatJsonSchema
@@ -460,14 +482,18 @@ from arize._generated.api_client.models.spaces_update_request import SpacesUpdat
 from arize._generated.api_client.models.span import Span as Span
 from arize._generated.api_client.models.span_context import SpanContext as SpanContext
 from arize._generated.api_client.models.span_event import SpanEvent as SpanEvent
+from arize._generated.api_client.models.span_status_code import SpanStatusCode as SpanStatusCode
 from arize._generated.api_client.models.spans_delete200_response import SpansDelete200Response as SpansDelete200Response
 from arize._generated.api_client.models.spans_delete500_response import SpansDelete500Response as SpansDelete500Response
 from arize._generated.api_client.models.spans_list200_response import SpansList200Response as SpansList200Response
 from arize._generated.api_client.models.static_param import StaticParam as StaticParam
 from arize._generated.api_client.models.static_param_default_value import StaticParamDefaultValue as StaticParamDefaultValue
+from arize._generated.api_client.models.static_param_type import StaticParamType as StaticParamType
 from arize._generated.api_client.models.task import Task as Task
 from arize._generated.api_client.models.task_evaluator import TaskEvaluator as TaskEvaluator
 from arize._generated.api_client.models.task_run import TaskRun as TaskRun
+from arize._generated.api_client.models.task_run_status import TaskRunStatus as TaskRunStatus
+from arize._generated.api_client.models.task_type import TaskType as TaskType
 from arize._generated.api_client.models.tasks_create_request import TasksCreateRequest as TasksCreateRequest
 from arize._generated.api_client.models.tasks_list200_response import TasksList200Response as TasksList200Response
 from arize._generated.api_client.models.tasks_list_runs200_response import TasksListRuns200Response as TasksListRuns200Response

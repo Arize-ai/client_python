@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | The unique identifier for the record | 
 **annotation_queue_id** | **str** | The annotation queue this record belongs to | 
-**source_type** | **str** | The source type of the record (spans or dataset) | 
+**source_type** | [**AnnotationQueueSourceType**](AnnotationQueueSourceType.md) |  | 
 **annotations** | [**List[Annotation]**](Annotation.md) | The annotations that were submitted in this request | 
 
 ## Example

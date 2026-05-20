@@ -17,9 +17,10 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
 from arize._generated.api_client.models.static_param_default_value import StaticParamDefaultValue
+from arize._generated.api_client.models.static_param_type import StaticParamType
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,16 +29,9 @@ class StaticParam(BaseModel):
     StaticParam
     """ # noqa: E501
     name: StrictStr = Field(description="Parameter name (matches the managed evaluator's argument name)")
-    type: StrictStr = Field(description="Argument type for static parameters")
+    type: StaticParamType
     default_value: StaticParamDefaultValue
     __properties: ClassVar[List[str]] = ["name", "type", "default_value"]
-
-    @field_validator('type')
-    def type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['STRING', 'STRING_ARRAY', 'REGEX']):
-            raise ValueError("must be one of enum values ('STRING', 'STRING_ARRAY', 'REGEX')")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

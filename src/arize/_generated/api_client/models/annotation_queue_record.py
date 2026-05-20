@@ -17,10 +17,11 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
 from arize._generated.api_client.models.annotation import Annotation
 from arize._generated.api_client.models.annotation_queue_assigned_user import AnnotationQueueAssignedUser
+from arize._generated.api_client.models.annotation_queue_source_type import AnnotationQueueSourceType
 from arize._generated.api_client.models.evaluation import Evaluation
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,19 +32,12 @@ class AnnotationQueueRecord(BaseModel):
     """ # noqa: E501
     id: StrictStr = Field(description="The unique identifier for the record")
     annotation_queue_id: StrictStr = Field(description="The annotation queue this record belongs to")
-    source_type: StrictStr = Field(description="The source type of the record (spans or dataset)")
+    source_type: AnnotationQueueSourceType
     data: Dict[str, Any] = Field(description="Record data as flat key-value pairs containing span or dataset fields. Does not include annotation or evaluation columns.")
     annotations: List[Annotation] = Field(description="Human annotations on this record")
     evaluations: List[Evaluation] = Field(description="Evaluation results on this record")
     assigned_users: List[AnnotationQueueAssignedUser] = Field(description="Users assigned to this record")
     __properties: ClassVar[List[str]] = ["id", "annotation_queue_id", "source_type", "data", "annotations", "evaluations", "assigned_users"]
-
-    @field_validator('source_type')
-    def source_type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['spans', 'dataset']):
-            raise ValueError("must be one of enum values ('spans', 'dataset')")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

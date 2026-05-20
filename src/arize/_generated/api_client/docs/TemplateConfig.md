@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 **use_function_calling_if_available** | **bool** | Whether to use function calling if the model supports it | 
 **classification_choices** | **Dict[str, float]** | Map of choice label to numeric score (e.g. {\&quot;relevant\&quot;: 1, \&quot;irrelevant\&quot;: 0}). When omitted, the evaluator produces freeform (non-classification) output. | [optional] 
 **direction** | [**OptimizationDirection**](OptimizationDirection.md) |  | [optional] [default to OptimizationDirection.NONE]
-**data_granularity** | **str** | Data granularity level. Defaults to null when omitted. | [optional] 
+**data_granularity** | [**DataGranularity**](DataGranularity.md) | Data granularity level. Defaults to null when omitted. | [optional] 
 **llm_config** | [**EvaluatorLlmConfig**](EvaluatorLlmConfig.md) |  | 
 
 ## Example

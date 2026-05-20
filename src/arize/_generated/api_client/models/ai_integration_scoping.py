@@ -26,8 +26,8 @@ class AiIntegrationScoping(BaseModel):
     """
     Visibility scoping for the integration
     """ # noqa: E501
-    organization_id: Optional[StrictStr] = Field(default=None, description="Organization global ID. Null means account-wide.")
-    space_id: Optional[StrictStr] = Field(default=None, description="Space global ID. Null means organization-wide (or account-wide if organization_id is also null).")
+    organization_id: Optional[StrictStr] = Field(default=None, description="Organization identifier (base64). Null means account-wide.")
+    space_id: Optional[StrictStr] = Field(default=None, description="Space identifier (base64). Null means organization-wide (or account-wide if organization_id is also null).")
     __properties: ClassVar[List[str]] = ["organization_id", "space_id"]
 
     model_config = ConfigDict(

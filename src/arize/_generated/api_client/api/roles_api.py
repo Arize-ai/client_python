@@ -101,6 +101,7 @@ class RolesApi:
             '401': "Problem",
             '403': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -173,6 +174,7 @@ class RolesApi:
             '401': "Problem",
             '403': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -245,6 +247,7 @@ class RolesApi:
             '401': "Problem",
             '403': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -335,7 +338,7 @@ class RolesApi:
     @validate_call
     def roles_delete(
         self,
-        role_id: Annotated[StrictStr, Field(description="The unique identifier of the role.")],
+        role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -353,7 +356,7 @@ class RolesApi:
 
         Delete a custom role by its ID (soft-delete). Predefined roles cannot be deleted.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param role_id: The unique identifier of the role. (required)
+        :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -407,7 +410,7 @@ class RolesApi:
     @validate_call
     def roles_delete_with_http_info(
         self,
-        role_id: Annotated[StrictStr, Field(description="The unique identifier of the role.")],
+        role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -425,7 +428,7 @@ class RolesApi:
 
         Delete a custom role by its ID (soft-delete). Predefined roles cannot be deleted.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param role_id: The unique identifier of the role. (required)
+        :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -479,7 +482,7 @@ class RolesApi:
     @validate_call
     def roles_delete_without_preload_content(
         self,
-        role_id: Annotated[StrictStr, Field(description="The unique identifier of the role.")],
+        role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -497,7 +500,7 @@ class RolesApi:
 
         Delete a custom role by its ID (soft-delete). Predefined roles cannot be deleted.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param role_id: The unique identifier of the role. (required)
+        :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -611,7 +614,7 @@ class RolesApi:
     @validate_call
     def roles_get(
         self,
-        role_id: Annotated[StrictStr, Field(description="The unique identifier of the role.")],
+        role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -629,7 +632,7 @@ class RolesApi:
 
         Get a role by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param role_id: The unique identifier of the role. (required)
+        :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -682,7 +685,7 @@ class RolesApi:
     @validate_call
     def roles_get_with_http_info(
         self,
-        role_id: Annotated[StrictStr, Field(description="The unique identifier of the role.")],
+        role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -700,7 +703,7 @@ class RolesApi:
 
         Get a role by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param role_id: The unique identifier of the role. (required)
+        :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -753,7 +756,7 @@ class RolesApi:
     @validate_call
     def roles_get_without_preload_content(
         self,
-        role_id: Annotated[StrictStr, Field(description="The unique identifier of the role.")],
+        role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -771,7 +774,7 @@ class RolesApi:
 
         Get a role by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param role_id: The unique identifier of the role. (required)
+        :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1195,7 +1198,7 @@ class RolesApi:
     @validate_call
     def roles_update(
         self,
-        role_id: Annotated[StrictStr, Field(description="The unique identifier of the role.")],
+        role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
         role_update: Annotated[RoleUpdate, Field(description="Body containing role update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -1214,7 +1217,7 @@ class RolesApi:
 
         Update a custom role by its ID. At least one field must be provided. Predefined roles cannot be updated.  **Payload Requirements** - At least one of `name`, `description`, or `permissions` must be provided. - When `permissions` is provided, the existing permissions are fully replaced with the new set. - `name`, if provided, must be unique within the account. - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`) cannot be modified.  **Valid example** ```json {   \"name\": \"Senior Data Scientist\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\", \"DATASET_DELETE\"] } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param role_id: The unique identifier of the role. (required)
+        :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
         :param role_update: Body containing role update parameters. At least one field must be provided. (required)
         :type role_update: RoleUpdate
@@ -1256,6 +1259,7 @@ class RolesApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1272,7 +1276,7 @@ class RolesApi:
     @validate_call
     def roles_update_with_http_info(
         self,
-        role_id: Annotated[StrictStr, Field(description="The unique identifier of the role.")],
+        role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
         role_update: Annotated[RoleUpdate, Field(description="Body containing role update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -1291,7 +1295,7 @@ class RolesApi:
 
         Update a custom role by its ID. At least one field must be provided. Predefined roles cannot be updated.  **Payload Requirements** - At least one of `name`, `description`, or `permissions` must be provided. - When `permissions` is provided, the existing permissions are fully replaced with the new set. - `name`, if provided, must be unique within the account. - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`) cannot be modified.  **Valid example** ```json {   \"name\": \"Senior Data Scientist\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\", \"DATASET_DELETE\"] } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param role_id: The unique identifier of the role. (required)
+        :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
         :param role_update: Body containing role update parameters. At least one field must be provided. (required)
         :type role_update: RoleUpdate
@@ -1333,6 +1337,7 @@ class RolesApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1349,7 +1354,7 @@ class RolesApi:
     @validate_call
     def roles_update_without_preload_content(
         self,
-        role_id: Annotated[StrictStr, Field(description="The unique identifier of the role.")],
+        role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
         role_update: Annotated[RoleUpdate, Field(description="Body containing role update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
@@ -1368,7 +1373,7 @@ class RolesApi:
 
         Update a custom role by its ID. At least one field must be provided. Predefined roles cannot be updated.  **Payload Requirements** - At least one of `name`, `description`, or `permissions` must be provided. - When `permissions` is provided, the existing permissions are fully replaced with the new set. - `name`, if provided, must be unique within the account. - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`) cannot be modified.  **Valid example** ```json {   \"name\": \"Senior Data Scientist\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\", \"DATASET_DELETE\"] } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param role_id: The unique identifier of the role. (required)
+        :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
         :param role_update: Body containing role update parameters. At least one field must be provided. (required)
         :type role_update: RoleUpdate
@@ -1410,6 +1415,7 @@ class RolesApi:
             '403': "Problem",
             '404': "Problem",
             '409': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(

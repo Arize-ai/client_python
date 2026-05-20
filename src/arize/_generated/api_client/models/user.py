@@ -29,7 +29,7 @@ class User(BaseModel):
     """
     An account user represents a member of the account. Users can be listed, updated, or removed from the account. 
     """ # noqa: E501
-    id: StrictStr = Field(description="A universally unique identifier")
+    id: StrictStr = Field(description="A universally unique identifier (base64-encoded opaque string).")
     name: StrictStr = Field(description="Display name of the user")
     email: StrictStr = Field(description="An email address")
     created_at: datetime = Field(description="Timestamp for when the user was created")

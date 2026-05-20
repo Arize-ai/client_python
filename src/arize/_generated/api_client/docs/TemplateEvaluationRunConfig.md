@@ -7,13 +7,13 @@ Configuration for running a template-based LLM evaluator against each dataset ex
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **experiment_type** | **str** | Discriminator. Must be &#x60;\&quot;template_evaluation\&quot;&#x60;. | 
-**ai_integration_id** | **str** | AI integration global ID (base64). The LLM that judges each example. | 
+**ai_integration_id** | **str** | AI integration identifier (base64). The LLM that judges each example. | 
 **model_name** | **str** | Model name (e.g. &#x60;gpt-4o&#x60;). Falls back to the integration&#39;s default if omitted. | [optional] 
 **template** | **str** | The evaluation prompt template. Use &#x60;{{variable}}&#x60; placeholders that map to dataset column paths via &#x60;column_mapping&#x60;.  | 
 **provide_explanation** | **bool** | Whether to ask the LLM to include a written explanation alongside the score/label. | 
 **classification_choices** | **Dict[str, float]** | Map of choice label to numeric score (e.g. &#x60;{\&quot;relevant\&quot;: 1, \&quot;irrelevant\&quot;: 0}&#x60;). | [optional] 
 **column_mapping** | **Dict[str, str]** | Maps template variable names to dataset column paths. | [optional] 
-**evaluator_version_id** | **str** | EvaluatorVersion global ID (base64). Links this run to an Eval Hub evaluator version. | [optional] 
+**evaluator_version_id** | **str** | EvaluatorVersion identifier (base64). Links this run to an Eval Hub evaluator version. | [optional] 
 **invocation_parameters** | [**InvocationParams**](InvocationParams.md) |  | [optional] 
 **provider_parameters** | **object** | Provider-specific parameters. Defaults to &#x60;{}&#x60; (no overrides) if omitted. | [optional] 
 

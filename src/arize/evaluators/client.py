@@ -151,10 +151,10 @@ class EvaluatorsClient:
         resolve a specific version instead.
 
         Args:
-            evaluator: Evaluator name or global ID (base64) to retrieve.
+            evaluator: Evaluator name or identifier (base64) to retrieve.
             space: Optional space name or ID. Required when ``evaluator`` is a
                 name rather than an ID.
-            version_id: Optional version global ID (base64). If omitted, the
+            version_id: Optional version identifier (base64). If omitted, the
                 latest version is returned.
 
         Returns:
@@ -235,7 +235,7 @@ class EvaluatorsClient:
         body = gen.EvaluatorsCreateRequest(
             name=name,
             space_id=space_id,
-            type="template",
+            type=gen.EvaluatorType.TEMPLATE,
             description=description,
             version=version,
         )
@@ -286,7 +286,7 @@ class EvaluatorsClient:
         body = gen.EvaluatorsCreateRequest(
             name=name,
             space_id=space_id,
-            type="code",
+            type=gen.EvaluatorType.CODE,
             description=description,
             version=version,
         )
@@ -305,7 +305,7 @@ class EvaluatorsClient:
         """Update an evaluator's metadata.
 
         Args:
-            evaluator: Evaluator name or global ID (base64) to update.
+            evaluator: Evaluator name or identifier (base64) to update.
             space: Optional space name or ID. Required when ``evaluator`` is a
                 name rather than an ID.
             name: New evaluator name (must be unique within its space).
@@ -338,7 +338,7 @@ class EvaluatorsClient:
         This operation is irreversible.
 
         Args:
-            evaluator: Evaluator name or global ID (base64) to delete.
+            evaluator: Evaluator name or identifier (base64) to delete.
             space: Optional space name or ID. Required when ``evaluator`` is a
                 name rather than an ID.
 
@@ -376,7 +376,7 @@ class EvaluatorsClient:
         Results are returned with cursor-based pagination.
 
         Args:
-            evaluator: Evaluator name or global ID (base64) to list versions for.
+            evaluator: Evaluator name or identifier (base64) to list versions for.
             space: Optional space name or ID. Required when ``evaluator`` is a
                 name rather than an ID.
             limit: Maximum number of versions to return (1-100).
@@ -409,7 +409,7 @@ class EvaluatorsClient:
         """Get a specific evaluator version by its global ID.
 
         Args:
-            version_id: Evaluator version global ID (base64).
+            version_id: Evaluator version identifier (base64).
 
         Returns:
             The evaluator version — a :class:`EvaluatorVersionCode` for code
@@ -444,7 +444,7 @@ class EvaluatorsClient:
         configuration, create a new version.
 
         Args:
-            evaluator: Evaluator name or global ID (base64) to add a version to.
+            evaluator: Evaluator name or identifier (base64) to add a version to.
             space: Optional space name or ID. Required when ``evaluator`` is a
                 name rather than an ID.
             commit_message: Commit message describing the changes in this version.
@@ -494,7 +494,7 @@ class EvaluatorsClient:
         configuration, create a new version.
 
         Args:
-            evaluator: Evaluator name or global ID (base64) to add a version to.
+            evaluator: Evaluator name or identifier (base64) to add a version to.
             space: Optional space name or ID. Required when ``evaluator`` is a
                 name rather than an ID.
             commit_message: Commit message describing the changes in this version.

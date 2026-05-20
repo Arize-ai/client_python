@@ -27,10 +27,10 @@ class RoleBindingCreate(BaseModel):
     """
     RoleBindingCreate
     """ # noqa: E501
-    role_id: StrictStr = Field(description="A universally unique identifier")
-    user_id: StrictStr = Field(description="A universally unique identifier")
+    role_id: StrictStr = Field(description="A universally unique identifier (base64-encoded opaque string).")
+    user_id: StrictStr = Field(description="A universally unique identifier (base64-encoded opaque string).")
     resource_type: RoleBindingResourceType
-    resource_id: StrictStr = Field(description="A universally unique identifier")
+    resource_id: StrictStr = Field(description="A universally unique identifier (base64-encoded opaque string).")
     __properties: ClassVar[List[str]] = ["role_id", "user_id", "resource_type", "resource_id"]
 
     model_config = ConfigDict(
