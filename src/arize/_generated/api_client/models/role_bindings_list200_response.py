@@ -17,29 +17,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from arize._generated.api_client.models.api_key_status import ApiKeyStatus
-from arize._generated.api_client.models.api_key_type import ApiKeyType
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Any, ClassVar, Dict, List
+from arize._generated.api_client.models.pagination_metadata import PaginationMetadata
+from arize._generated.api_client.models.role_binding import RoleBinding
 from typing import Optional, Set
 from typing_extensions import Self
 
-class ApiKey(BaseModel):
+class RoleBindingsList200Response(BaseModel):
     """
-    ApiKey
+    RoleBindingsList200Response
     """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the API key.")
-    name: StrictStr = Field(description="User-defined name for the API key.")
-    description: Optional[StrictStr] = Field(default=None, description="Optional user-defined description for the API key.")
-    key_type: ApiKeyType
-    status: ApiKeyStatus
-    redacted_key: StrictStr = Field(description="Redacted version of the key suitable for display (e.g., \"ak-abc...xyz\").")
-    created_at: datetime = Field(description="Timestamp when the key was created.")
-    expires_at: Optional[datetime] = Field(default=None, description="Optional timestamp when the key will expire.")
-    created_by_user_id: StrictStr = Field(description="ID of the user who created the key.")
-    last_used_at: Optional[datetime] = Field(default=None, description="Approximate timestamp when the key was last used for authentication. This value is periodically updated and may not reflect the most recent usage.")
-    __properties: ClassVar[List[str]] = ["id", "name", "description", "key_type", "status", "redacted_key", "created_at", "expires_at", "created_by_user_id", "last_used_at"]
+    role_bindings: List[RoleBinding] = Field(description="A list of role bindings.")
+    pagination: PaginationMetadata
+    __properties: ClassVar[List[str]] = ["role_bindings", "pagination"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -59,7 +50,7 @@ class ApiKey(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ApiKey from a JSON string"""
+        """Create an instance of RoleBindingsList200Response from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -80,11 +71,21 @@ class ApiKey(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in role_bindings (list)
+        _items = []
+        if self.role_bindings:
+            for _item_role_bindings in self.role_bindings:
+                if _item_role_bindings:
+                    _items.append(_item_role_bindings.to_dict())
+            _dict['role_bindings'] = _items
+        # override the default output from pydantic by calling `to_dict()` of pagination
+        if self.pagination:
+            _dict['pagination'] = self.pagination.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ApiKey from a dict"""
+        """Create an instance of RoleBindingsList200Response from a dict"""
         if obj is None:
             return None
 
@@ -94,19 +95,11 @@ class ApiKey(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in ApiKey) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in RoleBindingsList200Response) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "id": obj.get("id"),
-            "name": obj.get("name"),
-            "description": obj.get("description"),
-            "key_type": obj.get("key_type"),
-            "status": obj.get("status"),
-            "redacted_key": obj.get("redacted_key"),
-            "created_at": obj.get("created_at"),
-            "expires_at": obj.get("expires_at"),
-            "created_by_user_id": obj.get("created_by_user_id"),
-            "last_used_at": obj.get("last_used_at")
+            "role_bindings": [RoleBinding.from_dict(_item) for _item in obj["role_bindings"]] if obj.get("role_bindings") is not None else None,
+            "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
         })
         return _obj
 

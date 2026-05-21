@@ -397,6 +397,48 @@ class TestMonkeyPatching:
         assert hasattr(models.TasksListRuns200Response, "to_df")
         assert hasattr(models.AiIntegrationsList200Response, "to_df")
 
+    def test_to_df_attached_to_domain_response_types(self) -> None:
+        """to_df should be patched onto domain list-response types."""
+        import arize  # noqa: F401 — triggers monkey-patching
+        from arize.annotation_configs.types import (
+            AnnotationConfigsList200Response,
+        )
+        from arize.evaluators.types import EvaluatorVersionsList200Response
+        from arize.tasks.types import TasksList200Response
+        from arize.users.types import UsersList200Response
+
+        assert hasattr(UsersList200Response, "to_df")
+        assert hasattr(TasksList200Response, "to_df")
+        assert hasattr(EvaluatorVersionsList200Response, "to_df")
+        assert hasattr(AnnotationConfigsList200Response, "to_df")
+
+    def test_domain_to_df_returns_dataframe(self) -> None:
+        """Domain list-response to_df should return an empty DataFrame for empty lists."""
+        import arize  # noqa: F401 — triggers monkey-patching
+        from arize.annotation_configs.types import (
+            AnnotationConfigsList200Response,
+        )
+        from arize.evaluators.types import EvaluatorVersionsList200Response
+        from arize.tasks.types import TasksList200Response
+        from arize.users.types import UsersList200Response
+
+        pagination = Mock()
+        pagination.has_more = False
+        pagination.next_cursor = None
+
+        for cls, field in [
+            (UsersList200Response, "users"),
+            (TasksList200Response, "tasks"),
+            (EvaluatorVersionsList200Response, "evaluator_versions"),
+            (AnnotationConfigsList200Response, "annotation_configs"),
+        ]:
+            obj = Mock(spec=cls)
+            setattr(obj, field, [])
+            df = cls.to_df(obj)
+            assert isinstance(df, pd.DataFrame), (
+                f"{cls.__name__}.to_df() did not return a DataFrame"
+            )
+
     def test_factory_receives_correct_field_names(self) -> None:
         """Monkey-patched methods should reference correct field names."""
         from arize._generated.api_client import models

@@ -38,8 +38,9 @@ class ApiKeyCreated(BaseModel):
     created_at: datetime = Field(description="Timestamp when the key was created.")
     expires_at: Optional[datetime] = Field(default=None, description="Optional timestamp when the key will expire.")
     created_by_user_id: StrictStr = Field(description="ID of the user who created the key.")
+    last_used_at: Optional[datetime] = Field(default=None, description="Approximate timestamp when the key was last used for authentication. This value is periodically updated and may not reflect the most recent usage.")
     key: StrictStr = Field(description="The full API key value. **Only returned once** at creation or refresh time. Store it securely — it cannot be retrieved again. ")
-    __properties: ClassVar[List[str]] = ["id", "name", "description", "key_type", "status", "redacted_key", "created_at", "expires_at", "created_by_user_id", "key"]
+    __properties: ClassVar[List[str]] = ["id", "name", "description", "key_type", "status", "redacted_key", "created_at", "expires_at", "created_by_user_id", "last_used_at", "key"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -106,6 +107,7 @@ class ApiKeyCreated(BaseModel):
             "created_at": obj.get("created_at"),
             "expires_at": obj.get("expires_at"),
             "created_by_user_id": obj.get("created_by_user_id"),
+            "last_used_at": obj.get("last_used_at"),
             "key": obj.get("key")
         })
         return _obj

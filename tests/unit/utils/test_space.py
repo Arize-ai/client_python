@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from arize.exceptions.spaces import AmbiguousNameError
 from arize.utils.resolve import (
     NotFoundError,
     _find_ai_integration_id,
@@ -42,6 +43,32 @@ def _item(name: str, id: str = "some-id") -> MagicMock:
     item.name = name
     item.id = id
     return item
+
+
+# ---------------------------------------------------------------------------
+# AmbiguousNameError
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+class TestAmbiguousNameError:
+    def test_message_contains_resource_type_name_and_ids(self) -> None:
+        err = AmbiguousNameError("space", "my-space", ["id-1", "id-2"])
+        msg = str(err)
+        assert "space" in msg
+        assert "my-space" in msg
+        assert "id-1" in msg
+        assert "id-2" in msg
+
+    def test_attributes(self) -> None:
+        err = AmbiguousNameError("space", "my-space", ["id-1", "id-2"])
+        assert err.resource_type == "space"
+        assert err.resource_name == "my-space"
+        assert err.matching_ids == ["id-1", "id-2"]
+
+    def test_message_suggests_id(self) -> None:
+        err = AmbiguousNameError("space", "my-space", ["id-1", "id-2"])
+        assert "ID" in str(err)
 
 
 # ---------------------------------------------------------------------------
@@ -158,6 +185,32 @@ class TestFindSpaceId:
         result = _find_space_id(mock_api, "my-space")
         assert result == "found-id"
         assert mock_api.spaces_list.call_count == 2
+
+    def test_duplicate_name_raises_ambiguous_error(self) -> None:
+        resp = _make_paginated([])
+        resp.spaces = [
+            _item("my-space", "id-org-a"),
+            _item("my-space", "id-org-b"),
+        ]
+        mock_api = MagicMock()
+        mock_api.spaces_list.return_value = resp
+        with pytest.raises(AmbiguousNameError) as exc_info:
+            _find_space_id(mock_api, "my-space")
+        err = exc_info.value
+        assert err.resource_name == "my-space"
+        assert set(err.matching_ids) == {"id-org-a", "id-org-b"}
+
+    def test_duplicate_name_across_pages_raises_ambiguous_error(self) -> None:
+        page1 = _make_paginated([], next_cursor="cursor-abc")
+        page1.spaces = [_item("my-space", "id-org-a")]
+        page2 = _make_paginated([])
+        page2.spaces = [_item("my-space", "id-org-b")]
+        mock_api = MagicMock()
+        mock_api.spaces_list.side_effect = [page1, page2]
+        with pytest.raises(AmbiguousNameError) as exc_info:
+            _find_space_id(mock_api, "my-space")
+        err = exc_info.value
+        assert set(err.matching_ids) == {"id-org-a", "id-org-b"}
 
 
 # ---------------------------------------------------------------------------

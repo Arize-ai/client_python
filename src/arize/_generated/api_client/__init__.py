@@ -213,6 +213,7 @@ __all__ = [
     "RoleBindingCreate",
     "RoleBindingResourceType",
     "RoleBindingUpdate",
+    "RoleBindingsList200Response",
     "RoleCreate",
     "RoleUpdate",
     "RolesList200Response",
@@ -467,6 +468,7 @@ from arize._generated.api_client.models.role_binding import RoleBinding as RoleB
 from arize._generated.api_client.models.role_binding_create import RoleBindingCreate as RoleBindingCreate
 from arize._generated.api_client.models.role_binding_resource_type import RoleBindingResourceType as RoleBindingResourceType
 from arize._generated.api_client.models.role_binding_update import RoleBindingUpdate as RoleBindingUpdate
+from arize._generated.api_client.models.role_bindings_list200_response import RoleBindingsList200Response as RoleBindingsList200Response
 from arize._generated.api_client.models.role_create import RoleCreate as RoleCreate
 from arize._generated.api_client.models.role_update import RoleUpdate as RoleUpdate
 from arize._generated.api_client.models.roles_list200_response import RolesList200Response as RolesList200Response

@@ -63,6 +63,53 @@ class TestRoleBindingsClientInit:
 
 
 @pytest.mark.unit
+class TestRoleBindingsClientList:
+    """Tests for RoleBindingsClient.list()."""
+
+    def test_list_requires_resource_type(
+        self, role_bindings_client: RoleBindingsClient, mock_api: Mock
+    ) -> None:
+        """list() should pass resource_type to role_bindings_list."""
+        role_bindings_client.list(resource_type="SPACE")
+
+        mock_api.role_bindings_list.assert_called_once_with(
+            limit=100,
+            cursor=None,
+            user_id=None,
+            resource_type="SPACE",
+        )
+
+    def test_list_with_all_params(
+        self, role_bindings_client: RoleBindingsClient, mock_api: Mock
+    ) -> None:
+        """list() should forward all parameters to role_bindings_list."""
+        role_bindings_client.list(
+            resource_type="PROJECT",
+            user_id="user-123",
+            limit=50,
+            cursor="abc",
+        )
+
+        mock_api.role_bindings_list.assert_called_once_with(
+            limit=50,
+            cursor="abc",
+            user_id="user-123",
+            resource_type="PROJECT",
+        )
+
+    def test_list_returns_api_response(
+        self, role_bindings_client: RoleBindingsClient, mock_api: Mock
+    ) -> None:
+        """list() should propagate the return value."""
+        expected = Mock()
+        mock_api.role_bindings_list.return_value = expected
+
+        result = role_bindings_client.list(resource_type="SPACE")
+
+        assert result is expected
+
+
+@pytest.mark.unit
 class TestRoleBindingsClientCreate:
     """Tests for RoleBindingsClient.create()."""
 

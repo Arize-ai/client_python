@@ -14,7 +14,7 @@ from arize._generated.api_client.models.pagination_metadata import (
     PaginationMetadata,
 )
 from arize._generated.api_client.models.run_configuration import (
-    RunConfiguration as _GenRunConfiguration,
+    RunConfiguration,
 )
 from arize._generated.api_client.models.task_evaluator import TaskEvaluator
 from arize._generated.api_client.models.task_run import TaskRun
@@ -63,7 +63,7 @@ class Task(BaseModel):
     def _coerce_run_configuration(
         cls, v: object
     ) -> LlmGenerationRunConfig | TemplateEvaluationRunConfig | None:
-        if isinstance(v, _GenRunConfiguration):
+        if isinstance(v, RunConfiguration):
             if v.actual_instance is None:
                 raise ValueError(
                     "RunConfiguration wrapper has actual_instance=None"
@@ -84,6 +84,7 @@ class TasksList200Response(BaseModel):
 __all__ = [
     "BaseEvaluationTaskRequestEvaluatorsInner",
     "LlmGenerationRunConfig",
+    "RunConfiguration",
     "RunStatus",
     "Task",
     "TaskEvaluator",

@@ -14,6 +14,7 @@ Name | Type | Description | Notes
 **created_at** | **datetime** | Timestamp when the key was created. | 
 **expires_at** | **datetime** | Optional timestamp when the key will expire. | [optional] 
 **created_by_user_id** | **str** | ID of the user who created the key. | 
+**last_used_at** | **datetime** | Approximate timestamp when the key was last used for authentication. This value is periodically updated and may not reflect the most recent usage. | [optional] 
 
 ## Example
 

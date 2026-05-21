@@ -166,6 +166,7 @@ class TestPromptsClientCreate:
             patch(
                 "arize._generated.api_client.PromptsCreateRequest"
             ) as mock_request_cls,
+            patch("arize.prompts.types.PromptWithVersion.model_validate"),
         ):
             mock_version = Mock()
             mock_version_cls.return_value = mock_version
@@ -212,6 +213,10 @@ class TestPromptsClientCreate:
         with (
             patch("arize._generated.api_client.PromptVersionCreateRequest"),
             patch("arize._generated.api_client.PromptsCreateRequest"),
+            patch(
+                "arize.prompts.types.PromptWithVersion.model_validate",
+                return_value=expected,
+            ),
         ):
             result = prompts_client.create(
                 space="U3BhY2U6OTA1MDoxSmtS",
@@ -233,7 +238,8 @@ class TestPromptsClientGet:
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
         """get() should resolve prompt and pass prompt_id to prompts_get."""
-        prompts_client.get(prompt=_PROMPT_ID)
+        with patch("arize.prompts.types.PromptWithVersion.model_validate"):
+            prompts_client.get(prompt=_PROMPT_ID)
 
         mock_api.prompts_get.assert_called_once_with(
             prompt_id=_PROMPT_ID,
@@ -245,7 +251,8 @@ class TestPromptsClientGet:
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
         """get() should forward version_id to prompts_get."""
-        prompts_client.get(prompt=_PROMPT_ID, version_id="ver-456")
+        with patch("arize.prompts.types.PromptWithVersion.model_validate"):
+            prompts_client.get(prompt=_PROMPT_ID, version_id="ver-456")
 
         mock_api.prompts_get.assert_called_once_with(
             prompt_id=_PROMPT_ID,
@@ -257,7 +264,8 @@ class TestPromptsClientGet:
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
         """get() should forward label to prompts_get."""
-        prompts_client.get(prompt=_PROMPT_ID, label="production")
+        with patch("arize.prompts.types.PromptWithVersion.model_validate"):
+            prompts_client.get(prompt=_PROMPT_ID, label="production")
 
         mock_api.prompts_get.assert_called_once_with(
             prompt_id=_PROMPT_ID,
@@ -272,7 +280,11 @@ class TestPromptsClientGet:
         expected = Mock()
         mock_api.prompts_get.return_value = expected
 
-        result = prompts_client.get(prompt=_PROMPT_ID)
+        with patch(
+            "arize.prompts.types.PromptWithVersion.model_validate",
+            return_value=expected,
+        ):
+            result = prompts_client.get(prompt=_PROMPT_ID)
 
         assert result is expected
 
@@ -399,9 +411,12 @@ class TestPromptsClientCreateVersion:
         mock_input_format = Mock()
         mock_provider = Mock()
 
-        with patch(
-            "arize._generated.api_client.PromptVersionsCreateRequest"
-        ) as mock_request_cls:
+        with (
+            patch(
+                "arize._generated.api_client.PromptVersionsCreateRequest"
+            ) as mock_request_cls,
+            patch("arize.prompts.types.PromptVersion.model_validate"),
+        ):
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
 
@@ -435,7 +450,13 @@ class TestPromptsClientCreateVersion:
         expected = Mock()
         mock_api.prompt_versions_create.return_value = expected
 
-        with patch("arize._generated.api_client.PromptVersionsCreateRequest"):
+        with (
+            patch("arize._generated.api_client.PromptVersionsCreateRequest"),
+            patch(
+                "arize.prompts.types.PromptVersion.model_validate",
+                return_value=expected,
+            ),
+        ):
             result = prompts_client.create_version(
                 prompt=_PROMPT_ID,
                 commit_message="v2",
@@ -455,7 +476,8 @@ class TestPromptsClientGetLabel:
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
         """get_label() should resolve prompt and pass prompt_id and label_name to prompt_labels_get."""
-        prompts_client.get_label(prompt=_PROMPT_ID, label_name="production")
+        with patch("arize.prompts.types.PromptVersion.model_validate"):
+            prompts_client.get_label(prompt=_PROMPT_ID, label_name="production")
 
         mock_api.prompt_labels_get.assert_called_once_with(
             prompt_id=_PROMPT_ID,
@@ -469,9 +491,13 @@ class TestPromptsClientGetLabel:
         expected = Mock()
         mock_api.prompt_labels_get.return_value = expected
 
-        result = prompts_client.get_label(
-            prompt=_PROMPT_ID, label_name="staging"
-        )
+        with patch(
+            "arize.prompts.types.PromptVersion.model_validate",
+            return_value=expected,
+        ):
+            result = prompts_client.get_label(
+                prompt=_PROMPT_ID, label_name="staging"
+            )
 
         assert result is expected
 

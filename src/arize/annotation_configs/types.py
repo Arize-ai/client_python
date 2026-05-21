@@ -3,7 +3,7 @@
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from arize._generated.api_client.models.annotation_config import (
-    AnnotationConfig as _GenAnnotationConfig,
+    AnnotationConfig,
 )
 from arize._generated.api_client.models.annotation_config_type import (
     AnnotationConfigType,
@@ -56,7 +56,7 @@ class AnnotationConfigsList200Response(BaseModel):
     ]:
         result = []
         for item in v:  # type: ignore[attr-defined]
-            if isinstance(item, _GenAnnotationConfig):
+            if isinstance(item, AnnotationConfig):
                 if item.actual_instance is None:
                     raise ValueError(
                         "AnnotationConfig wrapper has actual_instance=None"

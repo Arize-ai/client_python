@@ -47,11 +47,13 @@ class TestApiKey(unittest.TestCase):
         assert key.created_by_user_id == "user-id-456"
         assert key.description is None
         assert key.expires_at is None
+        assert key.last_used_at is None
 
     def test_api_key_with_optional(self) -> None:
-        """ApiKey with optional description and expires_at."""
+        """ApiKey with optional description, expires_at, and last_used_at."""
         created = datetime(2024, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
         expires = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
+        last_used = datetime(2024, 6, 1, 8, 30, 0, tzinfo=timezone.utc)
         key = ApiKey(
             id="key-id-123",
             name="Service Key",
@@ -62,9 +64,11 @@ class TestApiKey(unittest.TestCase):
             created_by_user_id="user-id-456",
             description="CI/CD key",
             expires_at=expires,
+            last_used_at=last_used,
         )
         assert key.description == "CI/CD key"
         assert key.expires_at == expires
+        assert key.last_used_at == last_used
         assert key.key_type == "service"
 
     def test_api_key_from_dict(self) -> None:
@@ -78,11 +82,13 @@ class TestApiKey(unittest.TestCase):
             "redacted_key": "ak-abc...xyz",
             "created_at": created,
             "created_by_user_id": "user-id-456",
+            "last_used_at": "2024-06-01T08:30:00+00:00",
         }
         key = ApiKey.from_dict(data)
         assert key is not None
         assert key.id == "key-id-123"
         assert key.name == "My Key"
+        assert key.last_used_at == datetime(2024, 6, 1, 8, 30, 0, tzinfo=timezone.utc)
         assert key.to_dict()["id"] == "key-id-123"
 
 

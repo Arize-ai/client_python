@@ -202,6 +202,7 @@ arize/_generated/api_client/docs/RoleBindingCreate.md
 arize/_generated/api_client/docs/RoleBindingResourceType.md
 arize/_generated/api_client/docs/RoleBindingUpdate.md
 arize/_generated/api_client/docs/RoleBindingsApi.md
+arize/_generated/api_client/docs/RoleBindingsList200Response.md
 arize/_generated/api_client/docs/RoleCreate.md
 arize/_generated/api_client/docs/RoleUpdate.md
 arize/_generated/api_client/docs/RolesApi.md
@@ -430,6 +431,7 @@ arize/_generated/api_client/models/role_binding.py
 arize/_generated/api_client/models/role_binding_create.py
 arize/_generated/api_client/models/role_binding_resource_type.py
 arize/_generated/api_client/models/role_binding_update.py
+arize/_generated/api_client/models/role_bindings_list200_response.py
 arize/_generated/api_client/models/role_create.py
 arize/_generated/api_client/models/role_update.py
 arize/_generated/api_client/models/roles_list200_response.py
@@ -628,6 +630,7 @@ arize/_generated/api_client/test/test_role_binding_create.py
 arize/_generated/api_client/test/test_role_binding_resource_type.py
 arize/_generated/api_client/test/test_role_binding_update.py
 arize/_generated/api_client/test/test_role_bindings_api.py
+arize/_generated/api_client/test/test_role_bindings_list200_response.py
 arize/_generated/api_client/test/test_role_create.py
 arize/_generated/api_client/test/test_role_update.py
 arize/_generated/api_client/test/test_roles_api.py

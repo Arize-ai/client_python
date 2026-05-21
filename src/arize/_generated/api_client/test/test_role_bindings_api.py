@@ -47,6 +47,13 @@ class TestRoleBindingsApi(unittest.TestCase):
         """
         pass
 
+    def test_role_bindings_list(self) -> None:
+        """Test case for role_bindings_list
+
+        List role bindings
+        """
+        pass
+
     def test_role_bindings_update(self) -> None:
         """Test case for role_bindings_update
 

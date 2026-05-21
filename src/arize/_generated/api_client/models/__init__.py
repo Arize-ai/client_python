@@ -182,6 +182,7 @@ from arize._generated.api_client.models.role_binding import RoleBinding
 from arize._generated.api_client.models.role_binding_create import RoleBindingCreate
 from arize._generated.api_client.models.role_binding_resource_type import RoleBindingResourceType
 from arize._generated.api_client.models.role_binding_update import RoleBindingUpdate
+from arize._generated.api_client.models.role_bindings_list200_response import RoleBindingsList200Response
 from arize._generated.api_client.models.role_create import RoleCreate
 from arize._generated.api_client.models.role_update import RoleUpdate
 from arize._generated.api_client.models.roles_list200_response import RolesList200Response

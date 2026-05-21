@@ -7,6 +7,8 @@ import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from arize.exceptions.spaces import AmbiguousNameError
+
 if TYPE_CHECKING:
     from arize._generated.api_client import (
         AIIntegrationsApi,
@@ -120,11 +122,13 @@ def _find_space_id(api: SpacesApi, space: str) -> str:
 
     Raises:
         NotFoundError: If the space name cannot be found.
+        AmbiguousNameError: If multiple spaces share the same name (e.g.
+            across different organizations). Pass a space ID instead.
     """
     if is_resource_id(space):
         return space
 
-    available: list[str] = []
+    matches: list[str] = []
     cursor: str | None = None
 
     while True:
@@ -133,16 +137,18 @@ def _find_space_id(api: SpacesApi, space: str) -> str:
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
-        for s in response.spaces:
-            if s.name == space:
-                logger.debug("Resolved space '%s' → %s", space, s.id)
-                return s.id
-            available.append(s.name)
+        matches.extend(s.id for s in response.spaces if s.name == space)
         cursor = getattr(response.pagination, "next_cursor", None)
         if not cursor:
             break
 
-    raise NotFoundError("space", space, available)
+    if len(matches) > 1:
+        raise AmbiguousNameError("space", space, matches)
+    if matches:
+        logger.debug("Resolved space '%s' → %s", space, matches[0])
+        return matches[0]
+
+    raise NotFoundError("space", space)
 
 
 def _find_project_id(

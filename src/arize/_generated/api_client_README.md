@@ -146,6 +146,7 @@ Class | Method | HTTP request | Description
 *RoleBindingsApi* | [**role_bindings_create**](arize/_generated/api_client/docs/RoleBindingsApi.md#role_bindings_create) | **POST** /v2/role-bindings | Create a role binding
 *RoleBindingsApi* | [**role_bindings_delete**](arize/_generated/api_client/docs/RoleBindingsApi.md#role_bindings_delete) | **DELETE** /v2/role-bindings/{binding_id} | Delete a role binding
 *RoleBindingsApi* | [**role_bindings_get**](arize/_generated/api_client/docs/RoleBindingsApi.md#role_bindings_get) | **GET** /v2/role-bindings/{binding_id} | Get a role binding
+*RoleBindingsApi* | [**role_bindings_list**](arize/_generated/api_client/docs/RoleBindingsApi.md#role_bindings_list) | **GET** /v2/role-bindings | List role bindings
 *RoleBindingsApi* | [**role_bindings_update**](arize/_generated/api_client/docs/RoleBindingsApi.md#role_bindings_update) | **PATCH** /v2/role-bindings/{binding_id} | Update a role binding
 *RolesApi* | [**roles_create**](arize/_generated/api_client/docs/RolesApi.md#roles_create) | **POST** /v2/roles | Create a role
 *RolesApi* | [**roles_delete**](arize/_generated/api_client/docs/RolesApi.md#roles_delete) | **DELETE** /v2/roles/{role_id} | Delete a role
@@ -351,6 +352,7 @@ Class | Method | HTTP request | Description
  - [RoleBindingCreate](arize/_generated/api_client/docs/RoleBindingCreate.md)
  - [RoleBindingResourceType](arize/_generated/api_client/docs/RoleBindingResourceType.md)
  - [RoleBindingUpdate](arize/_generated/api_client/docs/RoleBindingUpdate.md)
+ - [RoleBindingsList200Response](arize/_generated/api_client/docs/RoleBindingsList200Response.md)
  - [RoleCreate](arize/_generated/api_client/docs/RoleCreate.md)
  - [RoleUpdate](arize/_generated/api_client/docs/RoleUpdate.md)
  - [RolesList200Response](arize/_generated/api_client/docs/RolesList200Response.md)

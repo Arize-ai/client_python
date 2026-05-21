@@ -7,10 +7,24 @@ from typing import TYPE_CHECKING, Literal, cast
 from arize._generated.api_client import models
 from arize._generated.api_client.exceptions import ApiException
 from arize._generated.api_client.models.problem import Problem
+from arize.annotation_configs.types import (
+    AnnotationConfigsList200Response as _DomainAnnotationConfigsList200Response,
+)
 from arize.client import ArizeClient
 from arize.config import SDKConfiguration
+from arize.evaluators.types import (
+    EvaluatorVersionsList200Response as _DomainEvaluatorVersionsList200Response,
+)
+from arize.exceptions.spaces import AmbiguousNameError
 from arize.regions import Region
+from arize.tasks.types import (
+    TasksList200Response as _DomainTasksList200Response,
+)
 from arize.users.types import BulkUserDeletionResult
+from arize.users.types import (
+    UsersList200Response as _DomainUsersList200Response,
+)
+from arize.utils.resolve import NotFoundError
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -30,9 +44,11 @@ except Exception:  # noqa: S110
     pass
 
 __all__ = [
+    "AmbiguousNameError",
     "ApiException",
     "ArizeClient",
     "BulkUserDeletionResult",
+    "NotFoundError",
     "Problem",
     "Region",
     "SDKConfiguration",
@@ -75,7 +91,19 @@ def _pivot_annotations(row: dict, prefix: str = "annotation") -> dict:
 
 def make_to_df(
     field_name: str, flatten_annotations: bool = False
-) -> Callable[..., "pd.DataFrame"]:
+) -> "Callable[..., pd.DataFrame]":
+    """Return a ``to_df`` method bound to *field_name* on a list-response model.
+
+    Args:
+        field_name: Name of the list field on the response object (e.g.
+            ``"users"``, ``"datasets"``).
+        flatten_annotations: If ``True``, pivot the ``annotations`` list into
+            per-annotation named columns.
+
+    Returns:
+        A ``to_df`` function suitable for assignment as a class method.
+    """
+
     def to_df(
         self: object,
         by_alias: bool = False,
@@ -100,11 +128,14 @@ def make_to_df(
                 - "all": drop columns where all values are None/NaN
                 - "any": drop columns where any value is None/NaN
                 - True: alias for "all"
-            json_normalize (bool): If True, flatten nested dicts via `pandas.json_normalize`.
-            convert_dtypes (bool): If True, call `DataFrame.convert_dtypes()` at the end.
+            json_normalize (bool): If True, flatten nested dicts via
+                ``pandas.json_normalize``.
+            convert_dtypes (bool): If True, call ``DataFrame.convert_dtypes()``
+                at the end.
             expand_field (str): If set, look for this field in each row and
-            expand its keys into top-level columns.
-            expand_prefix (str): If set, prefix expanded column names with this string.
+                expand its keys into top-level columns.
+            expand_prefix (str): If set, prefix expanded column names with this
+                string.
 
         Returns:
             pandas.DataFrame: The converted DataFrame.
@@ -221,3 +252,10 @@ models.TasksListRuns200Response.to_df = make_to_df("task_runs")  # type: ignore[
 models.AiIntegrationsList200Response.to_df = make_to_df("ai_integrations")  # type: ignore[attr-defined]
 models.OrganizationsList200Response.to_df = make_to_df("organizations")  # type: ignore[attr-defined]
 models.UsersList200Response.to_df = make_to_df("users")  # type: ignore[attr-defined]
+
+# Monkey-patch domain list-response types so .to_df() works on the
+# SDK-typed objects returned by sub-clients (e.g. client.users.list()).
+_DomainUsersList200Response.to_df = make_to_df("users")  # type: ignore[attr-defined]
+_DomainTasksList200Response.to_df = make_to_df("tasks")  # type: ignore[attr-defined]
+_DomainEvaluatorVersionsList200Response.to_df = make_to_df("evaluator_versions")  # type: ignore[attr-defined]
+_DomainAnnotationConfigsList200Response.to_df = make_to_df("annotation_configs")  # type: ignore[attr-defined]

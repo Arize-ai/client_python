@@ -9,6 +9,9 @@ from arize.pre_releases import ReleaseStage, prerelease_endpoint
 
 if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
+    from arize._generated.api_client.models.role_bindings_list200_response import (
+        RoleBindingsList200Response,
+    )
     from arize.config import SDKConfiguration
     from arize.role_bindings.types import RoleBinding, RoleBindingResourceType
 
@@ -47,6 +50,43 @@ class RoleBindingsClient:
 
         # Use the provided client directly
         self._api = gen.RoleBindingsApi(generated_client)
+
+    @prerelease_endpoint(key="role_bindings.list", stage=ReleaseStage.ALPHA)
+    def list(
+        self,
+        *,
+        resource_type: RoleBindingResourceType,
+        user_id: str | None = None,
+        limit: int = 100,
+        cursor: str | None = None,
+    ) -> RoleBindingsList200Response:
+        """List role bindings for the authenticated user's account.
+
+        Supports cursor-based pagination. Use ``user_id`` to filter by a
+        specific user.
+
+        Args:
+            resource_type: Resource type to list bindings for
+                (``RoleBindingResourceType.SPACE`` or
+                ``RoleBindingResourceType.PROJECT``).
+            limit: Maximum number of role bindings to return. The server
+                enforces an upper bound of 100.
+            cursor: Opaque pagination cursor from a previous response.
+            user_id: Global ID of the user to filter by. When provided, only
+                bindings assigned to this user are returned.
+
+        Returns:
+            A paginated role binding list response from the Arize REST API.
+
+        Raises:
+            ApiException: If the API request fails.
+        """
+        return self._api.role_bindings_list(
+            limit=limit,
+            cursor=cursor,
+            user_id=user_id,
+            resource_type=resource_type,
+        )
 
     @prerelease_endpoint(key="role_bindings.create", stage=ReleaseStage.ALPHA)
     def create(

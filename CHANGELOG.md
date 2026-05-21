@@ -1,5 +1,14 @@
 # Changelog
 
+## [8.28.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.28.1...arize-python-sdk/v8.28.2) (2026-05-21)
+
+
+### 🐛 Bug Fixes
+
+* **prompts:** add SDK wrapper types with clean __str__ for CLI display ([#72435](https://github.com/Arize-ai/arize/issues/72435)) ([0e6e454](https://github.com/Arize-ai/arize/commit/0e6e4543772e23cb19fdd4eb911cd571302b1259))
+* raise AmbiguousNameError when multiple spaces share the same name ([#72449](https://github.com/Arize-ai/arize/issues/72449)) ([6e71959](https://github.com/Arize-ai/arize/commit/6e71959db6b952aad77648532921355c028cfb98))
+* **users:** patch UsersList200Response.to_df to fix ax users list crash ([#72428](https://github.com/Arize-ai/arize/issues/72428)) ([9e31c1e](https://github.com/Arize-ai/arize/commit/9e31c1e44f0710560f308d7d53b06a74a7b15af0))
+
 ## [8.28.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.28.0...arize-python-sdk/v8.28.1) (2026-05-21)
 
 
