@@ -37,7 +37,13 @@ class InvocationParams(BaseModel):
     stop: Optional[List[StrictStr]] = Field(default=None, description="Stop sequences")
     response_format: Optional[ResponseFormat] = Field(default=None, description="Response format configuration. Optional. When omitted, no structured output constraint is applied (the provider's default plain-text behavior is used).")
     tool_config: Optional[ToolConfig] = Field(default=None, description="Tool configuration for the LLM invocation. Optional. When omitted, no tools are made available to the model.")
-    __properties: ClassVar[List[str]] = ["temperature", "max_tokens", "max_completion_tokens", "top_p", "frequency_penalty", "presence_penalty", "stop", "response_format", "tool_config"]
+    top_k: Optional[StrictInt] = Field(default=None, description="Top-K sampling parameter. A top-K of 1 means the next selected token is the most probable (greedy decoding).")
+    thinking_level: Optional[StrictStr] = Field(default=None, description="Controls how much reasoning the model performs before responding. Supported by Gemini 3.x models. Accepted values: 'low', 'high'.")
+    thinking_budget: Optional[StrictInt] = Field(default=None, description="Maximum tokens the model may use for internal reasoning. Supported by Gemini 2.5 models. Range: 0-24576 (Flash/Flash-Lite) or 128-32768 (Pro). Set 0 to disable thinking on Flash models.")
+    reasoning_effort: Optional[StrictStr] = Field(default=None, description="Controls how much reasoning the model performs before responding. Supported by OpenAI o-series and GPT-5 models. o-series: 'low' | 'medium' | 'high'. GPT-5: 'none' | 'low' | 'medium' | 'high' | 'xhigh'.")
+    verbosity: Optional[StrictStr] = Field(default=None, description="Controls the verbosity of model output. Supported by OpenAI GPT-5 series. Accepted values: 'low' | 'medium' | 'high'.")
+    additional_properties: Dict[str, Any] = {}
+    __properties: ClassVar[List[str]] = ["temperature", "max_tokens", "max_completion_tokens", "top_p", "frequency_penalty", "presence_penalty", "stop", "response_format", "tool_config", "top_k", "thinking_level", "thinking_budget", "reasoning_effort", "verbosity"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -69,8 +75,10 @@ class InvocationParams(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -84,6 +92,11 @@ class InvocationParams(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of tool_config
         if self.tool_config:
             _dict['tool_config'] = self.tool_config.to_dict()
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
@@ -95,11 +108,6 @@ class InvocationParams(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in InvocationParams) in the input: " + _key)
-
         _obj = cls.model_validate({
             "temperature": obj.get("temperature"),
             "max_tokens": obj.get("max_tokens"),
@@ -109,8 +117,18 @@ class InvocationParams(BaseModel):
             "presence_penalty": obj.get("presence_penalty"),
             "stop": obj.get("stop"),
             "response_format": ResponseFormat.from_dict(obj["response_format"]) if obj.get("response_format") is not None else None,
-            "tool_config": ToolConfig.from_dict(obj["tool_config"]) if obj.get("tool_config") is not None else None
+            "tool_config": ToolConfig.from_dict(obj["tool_config"]) if obj.get("tool_config") is not None else None,
+            "top_k": obj.get("top_k"),
+            "thinking_level": obj.get("thinking_level"),
+            "thinking_budget": obj.get("thinking_budget"),
+            "reasoning_effort": obj.get("reasoning_effort"),
+            "verbosity": obj.get("verbosity")
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

@@ -55,7 +55,12 @@ class TestInvocationParams(unittest.TestCase):
                     tools = [
                         None
                         ], 
-                    tool_choice = null, )
+                    tool_choice = null, ),
+                top_k = 56,
+                thinking_level = '',
+                thinking_budget = 56,
+                reasoning_effort = '',
+                verbosity = ''
             )
         else:
             return InvocationParams(

@@ -34,6 +34,7 @@ class ProviderParams(BaseModel):
     anthropic_version: Optional[StrictStr] = Field(default=None, description="Anthropic API version")
     bedrock_options: Optional[ProviderParamsBedrockOptions] = None
     region: Optional[StrictStr] = Field(default=None, description="Region for the model deployment")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["azure_params", "anthropic_headers", "anthropic_version", "bedrock_options", "region"]
 
     model_config = ConfigDict(
@@ -66,8 +67,10 @@ class ProviderParams(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -84,6 +87,11 @@ class ProviderParams(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of bedrock_options
         if self.bedrock_options:
             _dict['bedrock_options'] = self.bedrock_options.to_dict()
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
@@ -95,11 +103,6 @@ class ProviderParams(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in ProviderParams) in the input: " + _key)
-
         _obj = cls.model_validate({
             "azure_params": ProviderParamsAzureParams.from_dict(obj["azure_params"]) if obj.get("azure_params") is not None else None,
             "anthropic_headers": ProviderParamsAnthropicHeaders.from_dict(obj["anthropic_headers"]) if obj.get("anthropic_headers") is not None else None,
@@ -107,6 +110,11 @@ class ProviderParams(BaseModel):
             "bedrock_options": ProviderParamsBedrockOptions.from_dict(obj["bedrock_options"]) if obj.get("bedrock_options") is not None else None,
             "region": obj.get("region")
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.28.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.28.0...arize-python-sdk/v8.28.1) (2026-05-21)
+
+
+### 🐛 Bug Fixes
+
+* **prompts:** add missing fields breaking prompts.get() ([#72583](https://github.com/Arize-ai/arize/issues/72583)) ([6954a17](https://github.com/Arize-ai/arize/commit/6954a1775c3c1b409e6dca7399a29ca7cc3a1918)), closes [#72582](https://github.com/Arize-ai/arize/issues/72582)
+
 ## [8.28.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.27.0...arize-python-sdk/v8.28.0) (2026-05-20)
 
 
