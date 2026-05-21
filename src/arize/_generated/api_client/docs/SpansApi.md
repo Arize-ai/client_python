@@ -157,7 +157,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **spans_delete**
-> SpansDelete200Response spans_delete(delete_spans_request)
+> SpanDeletePartialResponse spans_delete(delete_spans_request)
 
 Delete spans
 
@@ -182,7 +182,7 @@ within the retry budget. Retry the original request for a correct result.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.delete_spans_request import DeleteSpansRequest
-from arize._generated.api_client.models.spans_delete200_response import SpansDelete200Response
+from arize._generated.api_client.models.span_delete_partial_response import SpanDeletePartialResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -228,7 +228,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**SpansDelete200Response**](SpansDelete200Response.md)
+[**SpanDeletePartialResponse**](SpanDeletePartialResponse.md)
 
 ### Authorization
 
@@ -256,7 +256,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **spans_list**
-> SpansList200Response spans_list(list_spans_request, limit=limit, cursor=cursor)
+> SpanListResponse spans_list(list_spans_request, limit=limit, cursor=cursor)
 
 List spans
 
@@ -272,7 +272,7 @@ Returns a paginated list of spans.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.list_spans_request import ListSpansRequest
-from arize._generated.api_client.models.spans_list200_response import SpansList200Response
+from arize._generated.api_client.models.span_list_response import SpanListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -322,7 +322,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**SpansList200Response**](SpansList200Response.md)
+[**SpanListResponse**](SpanListResponse.md)
 
 ### Authorization
 

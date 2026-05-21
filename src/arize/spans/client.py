@@ -51,8 +51,8 @@ if TYPE_CHECKING:
     from arize.config import SDKConfiguration
     from arize.spans.types import (
         AnnotateRecordInput,
-        SpansDelete200Response,
-        SpansList200Response,
+        SpanDeletePartialResponse,
+        SpanListResponse,
     )
 
 logger = logging.getLogger(__name__)
@@ -90,7 +90,7 @@ class SpansClient:
         project: str,
         span_ids: builtins.list[str],
         space: str | None = None,
-    ) -> SpansDelete200Response | None:
+    ) -> SpanDeletePartialResponse | None:
         """Permanently delete spans by their IDs.
 
         This operation is irreversible. Only spans within the supported
@@ -143,7 +143,7 @@ class SpansClient:
         filter: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> SpansList200Response:
+    ) -> SpanListResponse:
         """List spans for a project within a time range.
 
         Spans are returned in descending start-time order (most recent first).

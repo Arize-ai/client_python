@@ -10,7 +10,7 @@ from arize.users.types import (
     BulkUserDeletionResult,
     DeletionStatus,
     User,
-    UsersList200Response,
+    UserListResponse,
 )
 from arize.utils.resolve import NotFoundError, _find_user_id_by_email
 
@@ -68,7 +68,7 @@ class UsersClient:
         status: list[UserStatus] | None = None,
         limit: int = 50,
         cursor: str | None = None,
-    ) -> UsersList200Response:
+    ) -> UserListResponse:
         """List users in the account.
 
         This endpoint supports cursor-based pagination. When provided,
@@ -89,7 +89,7 @@ class UsersClient:
         Raises:
             ApiException: If the API request fails.
         """
-        return UsersList200Response.model_validate(
+        return UserListResponse.model_validate(
             self._api.users_list(
                 limit=limit,
                 cursor=cursor,

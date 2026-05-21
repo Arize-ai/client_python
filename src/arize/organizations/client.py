@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from arize.config import SDKConfiguration
     from arize.organizations.types import (
         Organization,
-        OrganizationsList200Response,
+        OrganizationListResponse,
         PredefinedOrgRole,
     )
 
@@ -56,7 +56,7 @@ class OrganizationsClient:
         name: str | None = None,
         limit: int = 50,
         cursor: str | None = None,
-    ) -> OrganizationsList200Response:
+    ) -> OrganizationListResponse:
         """List organizations the user has access to.
 
         This endpoint supports cursor-based pagination. When provided,

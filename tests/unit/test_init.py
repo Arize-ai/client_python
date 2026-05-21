@@ -379,58 +379,58 @@ class TestMonkeyPatching:
         from arize._generated.api_client import models
 
         # Check that to_df is attached
-        assert hasattr(models.DatasetsList200Response, "to_df")
-        assert hasattr(models.DatasetsExamplesList200Response, "to_df")
-        assert hasattr(models.ExperimentsList200Response, "to_df")
-        assert hasattr(models.ExperimentsRunsList200Response, "to_df")
-        assert hasattr(models.ProjectsList200Response, "to_df")
-        assert hasattr(models.AnnotationConfigsList200Response, "to_df")
-        assert hasattr(models.SpacesList200Response, "to_df")
-        assert hasattr(models.AnnotationQueueRecordsList200Response, "to_df")
-        assert hasattr(models.AnnotationQueuesList200Response, "to_df")
-        assert hasattr(models.EvaluatorsList200Response, "to_df")
-        assert hasattr(models.EvaluatorVersionsList200Response, "to_df")
-        assert hasattr(models.PromptsList200Response, "to_df")
-        assert hasattr(models.PromptVersionsList200Response, "to_df")
-        assert hasattr(models.RolesList200Response, "to_df")
-        assert hasattr(models.TasksList200Response, "to_df")
-        assert hasattr(models.TasksListRuns200Response, "to_df")
-        assert hasattr(models.AiIntegrationsList200Response, "to_df")
+        assert hasattr(models.DatasetListResponse, "to_df")
+        assert hasattr(models.DatasetExampleListResponse, "to_df")
+        assert hasattr(models.ExperimentListResponse, "to_df")
+        assert hasattr(models.ExperimentRunsListResponse, "to_df")
+        assert hasattr(models.ProjectListResponse, "to_df")
+        assert hasattr(models.AnnotationConfigListResponse, "to_df")
+        assert hasattr(models.SpaceListResponse, "to_df")
+        assert hasattr(models.AnnotationQueueRecordListResponse, "to_df")
+        assert hasattr(models.AnnotationQueueListResponse, "to_df")
+        assert hasattr(models.EvaluatorListResponse, "to_df")
+        assert hasattr(models.EvaluatorVersionListResponse, "to_df")
+        assert hasattr(models.PromptListResponse, "to_df")
+        assert hasattr(models.PromptVersionListResponse, "to_df")
+        assert hasattr(models.RoleListResponse, "to_df")
+        assert hasattr(models.TaskListResponse, "to_df")
+        assert hasattr(models.TaskRunListResponse, "to_df")
+        assert hasattr(models.AiIntegrationListResponse, "to_df")
 
     def test_to_df_attached_to_domain_response_types(self) -> None:
         """to_df should be patched onto domain list-response types."""
         import arize  # noqa: F401 — triggers monkey-patching
         from arize.annotation_configs.types import (
-            AnnotationConfigsList200Response,
+            AnnotationConfigListResponse,
         )
-        from arize.evaluators.types import EvaluatorVersionsList200Response
-        from arize.tasks.types import TasksList200Response
-        from arize.users.types import UsersList200Response
+        from arize.evaluators.types import EvaluatorVersionListResponse
+        from arize.tasks.types import TaskListResponse
+        from arize.users.types import UserListResponse
 
-        assert hasattr(UsersList200Response, "to_df")
-        assert hasattr(TasksList200Response, "to_df")
-        assert hasattr(EvaluatorVersionsList200Response, "to_df")
-        assert hasattr(AnnotationConfigsList200Response, "to_df")
+        assert hasattr(UserListResponse, "to_df")
+        assert hasattr(TaskListResponse, "to_df")
+        assert hasattr(EvaluatorVersionListResponse, "to_df")
+        assert hasattr(AnnotationConfigListResponse, "to_df")
 
     def test_domain_to_df_returns_dataframe(self) -> None:
         """Domain list-response to_df should return an empty DataFrame for empty lists."""
         import arize  # noqa: F401 — triggers monkey-patching
         from arize.annotation_configs.types import (
-            AnnotationConfigsList200Response,
+            AnnotationConfigListResponse,
         )
-        from arize.evaluators.types import EvaluatorVersionsList200Response
-        from arize.tasks.types import TasksList200Response
-        from arize.users.types import UsersList200Response
+        from arize.evaluators.types import EvaluatorVersionListResponse
+        from arize.tasks.types import TaskListResponse
+        from arize.users.types import UserListResponse
 
         pagination = Mock()
         pagination.has_more = False
         pagination.next_cursor = None
 
         for cls, field in [
-            (UsersList200Response, "users"),
-            (TasksList200Response, "tasks"),
-            (EvaluatorVersionsList200Response, "evaluator_versions"),
-            (AnnotationConfigsList200Response, "annotation_configs"),
+            (UserListResponse, "users"),
+            (TaskListResponse, "tasks"),
+            (EvaluatorVersionListResponse, "evaluator_versions"),
+            (AnnotationConfigListResponse, "annotation_configs"),
         ]:
             obj = Mock(spec=cls)
             setattr(obj, field, [])
@@ -444,39 +444,35 @@ class TestMonkeyPatching:
         from arize._generated.api_client import models
 
         # Create mock objects with the expected field names
-        datasets_resp = Mock(spec=models.DatasetsList200Response)
+        datasets_resp = Mock(spec=models.DatasetListResponse)
         datasets_resp.datasets = []
 
-        examples_resp = Mock(spec=models.DatasetsExamplesList200Response)
+        examples_resp = Mock(spec=models.DatasetExampleListResponse)
         examples_resp.examples = []
 
-        experiments_resp = Mock(spec=models.ExperimentsList200Response)
+        experiments_resp = Mock(spec=models.ExperimentListResponse)
         experiments_resp.experiments = []
 
-        runs_resp = Mock(spec=models.ExperimentsRunsList200Response)
+        runs_resp = Mock(spec=models.ExperimentRunsListResponse)
         runs_resp.experiment_runs = []
 
-        projects_resp = Mock(spec=models.ProjectsList200Response)
+        projects_resp = Mock(spec=models.ProjectListResponse)
         projects_resp.projects = []
 
-        annotation_configs_resp = Mock(
-            spec=models.AnnotationConfigsList200Response
-        )
+        annotation_configs_resp = Mock(spec=models.AnnotationConfigListResponse)
         annotation_configs_resp.annotation_configs = []
 
-        spaces_resp = Mock(spec=models.SpacesList200Response)
+        spaces_resp = Mock(spec=models.SpaceListResponse)
         spaces_resp.spaces = []
 
         # Call to_df on each and verify they work
-        df1 = models.DatasetsList200Response.to_df(datasets_resp)
-        df2 = models.DatasetsExamplesList200Response.to_df(examples_resp)
-        df3 = models.ExperimentsList200Response.to_df(experiments_resp)
-        df4 = models.ExperimentsRunsList200Response.to_df(runs_resp)
-        df5 = models.ProjectsList200Response.to_df(projects_resp)
-        df6 = models.AnnotationConfigsList200Response.to_df(
-            annotation_configs_resp
-        )
-        df7 = models.SpacesList200Response.to_df(spaces_resp)
+        df1 = models.DatasetListResponse.to_df(datasets_resp)
+        df2 = models.DatasetExampleListResponse.to_df(examples_resp)
+        df3 = models.ExperimentListResponse.to_df(experiments_resp)
+        df4 = models.ExperimentRunsListResponse.to_df(runs_resp)
+        df5 = models.ProjectListResponse.to_df(projects_resp)
+        df6 = models.AnnotationConfigListResponse.to_df(annotation_configs_resp)
+        df7 = models.SpaceListResponse.to_df(spaces_resp)
 
         # All should return DataFrames
         assert isinstance(df1, pd.DataFrame)
@@ -491,9 +487,7 @@ class TestMonkeyPatching:
         """Annotation config to_df should flatten oneOf wrapper internals."""
         from arize._generated.api_client import models
 
-        annotation_configs_resp = Mock(
-            spec=models.AnnotationConfigsList200Response
-        )
+        annotation_configs_resp = Mock(spec=models.AnnotationConfigListResponse)
         annotation_configs_resp.annotation_configs = [
             {
                 "actual_instance": {
@@ -510,9 +504,7 @@ class TestMonkeyPatching:
             }
         ]
 
-        df = models.AnnotationConfigsList200Response.to_df(
-            annotation_configs_resp
-        )
+        df = models.AnnotationConfigListResponse.to_df(annotation_configs_resp)
 
         assert "id" in df.columns
         assert "name" in df.columns

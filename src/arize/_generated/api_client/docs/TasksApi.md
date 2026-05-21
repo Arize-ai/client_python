@@ -494,7 +494,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **tasks_list**
-> TasksList200Response tasks_list(space_id=space_id, space_name=space_name, name=name, project_id=project_id, dataset_id=dataset_id, type=type, limit=limit, cursor=cursor)
+> TaskListResponse tasks_list(space_id=space_id, space_name=space_name, name=name, project_id=project_id, dataset_id=dataset_id, type=type, limit=limit, cursor=cursor)
 
 List tasks
 
@@ -511,8 +511,8 @@ Filter by space, space name, task name, project, dataset, or task type using que
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.task_list_response import TaskListResponse
 from arize._generated.api_client.models.task_type import TaskType
-from arize._generated.api_client.models.tasks_list200_response import TasksList200Response
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -572,7 +572,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**TasksList200Response**](TasksList200Response.md)
+[**TaskListResponse**](TaskListResponse.md)
 
 ### Authorization
 
@@ -597,7 +597,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **tasks_list_runs**
-> TasksListRuns200Response tasks_list_runs(task_id, status=status, limit=limit, cursor=cursor)
+> TaskRunListResponse tasks_list_runs(task_id, status=status, limit=limit, cursor=cursor)
 
 List task runs
 
@@ -612,8 +612,8 @@ List all runs for a task with cursor-based pagination.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.task_run_list_response import TaskRunListResponse
 from arize._generated.api_client.models.task_run_status import TaskRunStatus
-from arize._generated.api_client.models.tasks_list_runs200_response import TasksListRuns200Response
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -665,7 +665,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**TasksListRuns200Response**](TasksListRuns200Response.md)
+[**TaskRunListResponse**](TaskRunListResponse.md)
 
 ### Authorization
 

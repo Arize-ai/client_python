@@ -20,12 +20,12 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.evaluator import Evaluator
+from arize._generated.api_client.models.evaluator_list_response import EvaluatorListResponse
 from arize._generated.api_client.models.evaluator_version import EvaluatorVersion
 from arize._generated.api_client.models.evaluator_version_create import EvaluatorVersionCreate
-from arize._generated.api_client.models.evaluator_versions_list200_response import EvaluatorVersionsList200Response
+from arize._generated.api_client.models.evaluator_version_list_response import EvaluatorVersionListResponse
 from arize._generated.api_client.models.evaluator_with_version import EvaluatorWithVersion
 from arize._generated.api_client.models.evaluators_create_request import EvaluatorsCreateRequest
-from arize._generated.api_client.models.evaluators_list200_response import EvaluatorsList200Response
 from arize._generated.api_client.models.evaluators_update_request import EvaluatorsUpdateRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
@@ -646,7 +646,7 @@ class EvaluatorsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> EvaluatorVersionsList200Response:
+    ) -> EvaluatorVersionListResponse:
         """List evaluator versions
 
         List all versions of an evaluator with cursor-based pagination.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -690,7 +690,7 @@ class EvaluatorsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvaluatorVersionsList200Response",
+            '200': "EvaluatorVersionListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -726,7 +726,7 @@ class EvaluatorsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[EvaluatorVersionsList200Response]:
+    ) -> ApiResponse[EvaluatorVersionListResponse]:
         """List evaluator versions
 
         List all versions of an evaluator with cursor-based pagination.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -770,7 +770,7 @@ class EvaluatorsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvaluatorVersionsList200Response",
+            '200': "EvaluatorVersionListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -850,7 +850,7 @@ class EvaluatorsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvaluatorVersionsList200Response",
+            '200': "EvaluatorVersionListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1822,7 +1822,7 @@ class EvaluatorsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> EvaluatorsList200Response:
+    ) -> EvaluatorListResponse:
         """List evaluators
 
         List evaluators the user has access to, sorted by update date (most recent first).  When `space_id` is provided, results are limited to that space. When omitted, evaluators from all permitted spaces are returned.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1872,7 +1872,7 @@ class EvaluatorsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvaluatorsList200Response",
+            '200': "EvaluatorListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1909,7 +1909,7 @@ class EvaluatorsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[EvaluatorsList200Response]:
+    ) -> ApiResponse[EvaluatorListResponse]:
         """List evaluators
 
         List evaluators the user has access to, sorted by update date (most recent first).  When `space_id` is provided, results are limited to that space. When omitted, evaluators from all permitted spaces are returned.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1959,7 +1959,7 @@ class EvaluatorsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvaluatorsList200Response",
+            '200': "EvaluatorListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -2046,7 +2046,7 @@ class EvaluatorsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvaluatorsList200Response",
+            '200': "EvaluatorListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

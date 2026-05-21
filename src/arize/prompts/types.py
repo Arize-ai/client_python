@@ -14,20 +14,20 @@ from arize._generated.api_client.models.llm_message import LLMMessage
 from arize._generated.api_client.models.llm_provider import LlmProvider
 from arize._generated.api_client.models.message_role import MessageRole
 from arize._generated.api_client.models.prompt import Prompt
+from arize._generated.api_client.models.prompt_list_response import (
+    PromptListResponse,
+)
 from arize._generated.api_client.models.prompt_version import (
     PromptVersion as _GenPromptVersion,
 )
-from arize._generated.api_client.models.prompt_version_labels_set200_response import (
-    PromptVersionLabelsSet200Response,
+from arize._generated.api_client.models.prompt_version_labels_response import (
+    PromptVersionLabelsResponse,
 )
-from arize._generated.api_client.models.prompt_versions_list200_response import (
-    PromptVersionsList200Response,
+from arize._generated.api_client.models.prompt_version_list_response import (
+    PromptVersionListResponse,
 )
 from arize._generated.api_client.models.prompt_with_version import (
     PromptWithVersion as _GenPromptWithVersion,
-)
-from arize._generated.api_client.models.prompts_list200_response import (
-    PromptsList200Response,
 )
 from arize._generated.api_client.models.provider_params import ProviderParams
 from arize._generated.api_client.models.tool_call_type import ToolCallType
@@ -125,11 +125,11 @@ __all__ = [
     "LlmProvider",
     "MessageRole",
     "Prompt",
+    "PromptListResponse",
     "PromptVersion",
-    "PromptVersionLabelsSet200Response",
-    "PromptVersionsList200Response",
+    "PromptVersionLabelsResponse",
+    "PromptVersionListResponse",
     "PromptWithVersion",
-    "PromptsList200Response",
     "ProviderParams",
     "ToolCallType",
 ]

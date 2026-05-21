@@ -21,10 +21,10 @@ from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.api_key_create import ApiKeyCreate
 from arize._generated.api_client.models.api_key_created import ApiKeyCreated
+from arize._generated.api_client.models.api_key_list_response import ApiKeyListResponse
 from arize._generated.api_client.models.api_key_refresh import ApiKeyRefresh
 from arize._generated.api_client.models.api_key_status import ApiKeyStatus
 from arize._generated.api_client.models.api_key_type import ApiKeyType
-from arize._generated.api_client.models.api_keys_list200_response import ApiKeysList200Response
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -634,7 +634,7 @@ class APIKeysApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiKeysList200Response:
+    ) -> ApiKeyListResponse:
         """List API keys
 
         List API keys. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, space, and creator. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Service keys (`key_type=service`):** Provide `space_id` to return all service keys for that space. When `key_type` is omitted alongside `space_id`, service keys are returned implicitly. Requires the `SERVICE_KEY_READ` permission in the space (or account/space admin). Optionally combine with `user_id` to filter service keys by their creator — available to any caller with space access (not admin-gated).  **User keys (`key_type=user`):** Returned by default (no `space_id`). Provide `user_id` to view keys belonging to a specific user — account admins only; non-admins receive `403`.  **Authorization:** Requires the `developer` user permission flag or account admin role. Returns `403` when neither condition is met.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -687,7 +687,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ApiKeysList200Response",
+            '200': "ApiKeyListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -726,7 +726,7 @@ class APIKeysApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ApiKeysList200Response]:
+    ) -> ApiResponse[ApiKeyListResponse]:
         """List API keys
 
         List API keys. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, space, and creator. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Service keys (`key_type=service`):** Provide `space_id` to return all service keys for that space. When `key_type` is omitted alongside `space_id`, service keys are returned implicitly. Requires the `SERVICE_KEY_READ` permission in the space (or account/space admin). Optionally combine with `user_id` to filter service keys by their creator — available to any caller with space access (not admin-gated).  **User keys (`key_type=user`):** Returned by default (no `space_id`). Provide `user_id` to view keys belonging to a specific user — account admins only; non-admins receive `403`.  **Authorization:** Requires the `developer` user permission flag or account admin role. Returns `403` when neither condition is met.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -779,7 +779,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ApiKeysList200Response",
+            '200': "ApiKeyListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -871,7 +871,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ApiKeysList200Response",
+            '200': "ApiKeyListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

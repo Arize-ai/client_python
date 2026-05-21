@@ -16,8 +16,8 @@ if TYPE_CHECKING:
     from arize.api_keys.types import (
         ApiKeyAccountRole,
         ApiKeyCreated,
+        ApiKeyListResponse,
         ApiKeyOrganizationRole,
-        ApiKeysList200Response,
         ApiKeySpaceRole,
         ApiKeyStatus,
     )
@@ -63,7 +63,7 @@ class ApiKeysClient:
         user_id: str | None = None,
         limit: int = 50,
         cursor: str | None = None,
-    ) -> ApiKeysList200Response:
+    ) -> ApiKeyListResponse:
         """List API keys.
 
         This endpoint supports cursor-based pagination. Optionally filter by

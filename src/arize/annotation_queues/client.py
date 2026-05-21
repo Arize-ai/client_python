@@ -24,11 +24,11 @@ if TYPE_CHECKING:
     from arize.annotation_queues.types import (
         AnnotationInput,
         AnnotationQueue,
+        AnnotationQueueListResponse,
         AnnotationQueueRecordAnnotateResult,
         AnnotationQueueRecordAssignResult,
-        AnnotationQueueRecordsList200Response,
-        AnnotationQueuesList200Response,
-        AnnotationQueuesRecordsCreate200Response,
+        AnnotationQueueRecordCreateResponse,
+        AnnotationQueueRecordListResponse,
         AssignmentMethod,
     )
     from arize.config import SDKConfiguration
@@ -113,7 +113,7 @@ class AnnotationQueuesClient:
         name: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> AnnotationQueuesList200Response:
+    ) -> AnnotationQueueListResponse:
         """List annotation queues the user has access to.
 
         Annotation queues are returned in descending creation order (most recently
@@ -358,7 +358,7 @@ class AnnotationQueuesClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> AnnotationQueueRecordsList200Response:
+    ) -> AnnotationQueueRecordListResponse:
         """List records in an annotation queue.
 
         Each record includes its data as flat key-value pairs, any annotations
@@ -406,7 +406,7 @@ class AnnotationQueuesClient:
             | AnnotationQueueSpanRecordInput
             | dict
         ],
-    ) -> AnnotationQueuesRecordsCreate200Response:
+    ) -> AnnotationQueueRecordCreateResponse:
         """Add records to an annotation queue.
 
         Records may come from spans (a project time range) or dataset examples.

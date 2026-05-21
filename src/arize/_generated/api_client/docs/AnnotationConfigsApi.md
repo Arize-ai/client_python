@@ -291,7 +291,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **annotation_configs_list**
-> AnnotationConfigsList200Response annotation_configs_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+> AnnotationConfigListResponse annotation_configs_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
 
 List annotation configs
 
@@ -306,7 +306,7 @@ List annotation configs the user has access to.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.annotation_configs_list200_response import AnnotationConfigsList200Response
+from arize._generated.api_client.models.annotation_config_list_response import AnnotationConfigListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -360,7 +360,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AnnotationConfigsList200Response**](AnnotationConfigsList200Response.md)
+[**AnnotationConfigListResponse**](AnnotationConfigListResponse.md)
 
 ### Authorization
 

@@ -21,8 +21,8 @@ from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.role import Role
 from arize._generated.api_client.models.role_create import RoleCreate
+from arize._generated.api_client.models.role_list_response import RoleListResponse
 from arize._generated.api_client.models.role_update import RoleUpdate
-from arize._generated.api_client.models.roles_list200_response import RolesList200Response
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -903,7 +903,7 @@ class RolesApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RolesList200Response:
+    ) -> RoleListResponse:
         """List roles
 
         List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -947,7 +947,7 @@ class RolesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "RolesList200Response",
+            '200': "RoleListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -982,7 +982,7 @@ class RolesApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[RolesList200Response]:
+    ) -> ApiResponse[RoleListResponse]:
         """List roles
 
         List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1026,7 +1026,7 @@ class RolesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "RolesList200Response",
+            '200': "RoleListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1105,7 +1105,7 @@ class RolesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "RolesList200Response",
+            '200': "RoleListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

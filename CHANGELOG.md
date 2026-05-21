@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.28.3](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.28.2...arize-python-sdk/v8.28.3) (2026-05-21)
+
+
+### 💫 Code Refactoring
+
+* extract inline response schemas to named schemas ([#72523](https://github.com/Arize-ai/arize/issues/72523)) ([a1f4259](https://github.com/Arize-ai/arize/commit/a1f42591e0895b4d20ea3abc9f755ab0f89b4ec2))
+
 ## [8.28.2](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.28.1...arize-python-sdk/v8.28.2) (2026-05-21)
 
 

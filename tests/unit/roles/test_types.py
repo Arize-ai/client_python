@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 import arize.roles.types as types_module
-from arize.roles.types import Permission, Role, RolesList200Response
+from arize.roles.types import Permission, Role, RoleListResponse
 
 
 @pytest.mark.unit
@@ -22,7 +22,7 @@ class TestRolesTypes:
         """__all__ should contain the expected public type names."""
         assert "Permission" in types_module.__all__
         assert "Role" in types_module.__all__
-        assert "RolesList200Response" in types_module.__all__
+        assert "RoleListResponse" in types_module.__all__
 
     def test_permission_is_enum(self) -> None:
         from enum import Enum
@@ -33,4 +33,4 @@ class TestRolesTypes:
         assert isinstance(Role, type)
 
     def test_roles_list_response_is_class(self) -> None:
-        assert isinstance(RolesList200Response, type)
+        assert isinstance(RoleListResponse, type)

@@ -21,7 +21,7 @@ from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.project import Project
 from arize._generated.api_client.models.project_create import ProjectCreate
-from arize._generated.api_client.models.projects_list200_response import ProjectsList200Response
+from arize._generated.api_client.models.project_list_response import ProjectListResponse
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -907,7 +907,7 @@ class ProjectsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ProjectsList200Response:
+    ) -> ProjectListResponse:
         """List projects
 
         List projects the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -957,7 +957,7 @@ class ProjectsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ProjectsList200Response",
+            '200': "ProjectListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -994,7 +994,7 @@ class ProjectsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ProjectsList200Response]:
+    ) -> ApiResponse[ProjectListResponse]:
         """List projects
 
         List projects the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1044,7 +1044,7 @@ class ProjectsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ProjectsList200Response",
+            '200': "ProjectListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1131,7 +1131,7 @@ class ProjectsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ProjectsList200Response",
+            '200': "ProjectListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

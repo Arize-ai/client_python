@@ -10,6 +10,9 @@ from arize._generated.api_client.models.custom_code_config import (
 )
 from arize._generated.api_client.models.data_granularity import DataGranularity
 from arize._generated.api_client.models.evaluator import Evaluator
+from arize._generated.api_client.models.evaluator_list_response import (
+    EvaluatorListResponse,
+)
 from arize._generated.api_client.models.evaluator_llm_config import (
     EvaluatorLlmConfig,
 )
@@ -33,9 +36,6 @@ from arize._generated.api_client.models.evaluator_version_template import (
 )
 from arize._generated.api_client.models.evaluator_version_template_create import (
     EvaluatorVersionTemplateCreate,
-)
-from arize._generated.api_client.models.evaluators_list200_response import (
-    EvaluatorsList200Response,
 )
 from arize._generated.api_client.models.managed_code_config import (
     ManagedCodeConfig,
@@ -122,8 +122,8 @@ class EvaluatorWithVersion(BaseModel):
         return v  # type: ignore[return-value]
 
 
-class EvaluatorVersionsList200Response(BaseModel):
-    """SDK view of the generated ``EvaluatorVersionsList200Response`` with each version unwrapped."""
+class EvaluatorVersionListResponse(BaseModel):
+    """SDK view of the generated ``EvaluatorVersionListResponse`` with each version unwrapped."""
 
     evaluator_versions: list[EvaluatorVersionCode | EvaluatorVersionTemplate]
     pagination: PaginationMetadata
@@ -152,16 +152,16 @@ __all__ = [
     "CustomCodeConfig",
     "DataGranularity",
     "Evaluator",
+    "EvaluatorListResponse",
     "EvaluatorLlmConfig",
     "EvaluatorType",
     "EvaluatorVersionCode",
     "EvaluatorVersionCodeCreate",
     "EvaluatorVersionCreate",
+    "EvaluatorVersionListResponse",
     "EvaluatorVersionTemplate",
     "EvaluatorVersionTemplateCreate",
-    "EvaluatorVersionsList200Response",
     "EvaluatorWithVersion",
-    "EvaluatorsList200Response",
     "ManagedCodeConfig",
     "ManagedCodeEvaluator",
     "OptimizationDirection",

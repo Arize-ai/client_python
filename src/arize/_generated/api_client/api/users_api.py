@@ -21,9 +21,9 @@ from typing import List, Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.create_user_request import CreateUserRequest
 from arize._generated.api_client.models.user import User
+from arize._generated.api_client.models.user_list_response import UserListResponse
 from arize._generated.api_client.models.user_status import UserStatus
 from arize._generated.api_client.models.user_update import UserUpdate
-from arize._generated.api_client.models.users_list200_response import UsersList200Response
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -911,7 +911,7 @@ class UsersApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> UsersList200Response:
+    ) -> UserListResponse:
         """List users
 
         List users in the account with cursor-based pagination. Results are sorted by creation date ascending (oldest first).  Requires account admin role, account member role, or USER_READ permission at the account level.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -958,7 +958,7 @@ class UsersApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "UsersList200Response",
+            '200': "UserListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -994,7 +994,7 @@ class UsersApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[UsersList200Response]:
+    ) -> ApiResponse[UserListResponse]:
         """List users
 
         List users in the account with cursor-based pagination. Results are sorted by creation date ascending (oldest first).  Requires account admin role, account member role, or USER_READ permission at the account level.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1041,7 +1041,7 @@ class UsersApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "UsersList200Response",
+            '200': "UserListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1124,7 +1124,7 @@ class UsersApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "UsersList200Response",
+            '200': "UserListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

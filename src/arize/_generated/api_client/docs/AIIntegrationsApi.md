@@ -298,7 +298,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **ai_integrations_list**
-> AiIntegrationsList200Response ai_integrations_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+> AiIntegrationListResponse ai_integrations_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
 
 List AI integrations
 
@@ -313,7 +313,7 @@ List AI integrations the user has access to.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.ai_integrations_list200_response import AiIntegrationsList200Response
+from arize._generated.api_client.models.ai_integration_list_response import AiIntegrationListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -367,7 +367,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AiIntegrationsList200Response**](AiIntegrationsList200Response.md)
+[**AiIntegrationListResponse**](AiIntegrationListResponse.md)
 
 ### Authorization
 

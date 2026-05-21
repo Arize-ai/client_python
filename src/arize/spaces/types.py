@@ -13,14 +13,14 @@ from arize._generated.api_client.models.predefined_role_assignment import (
     PredefinedRoleAssignment,
 )
 from arize._generated.api_client.models.space import Space
+from arize._generated.api_client.models.space_list_response import (
+    SpaceListResponse,
+)
 from arize._generated.api_client.models.space_membership_input import (
     SpaceMembershipInput,
 )
 from arize._generated.api_client.models.space_role_assignment import (
     SpaceRoleAssignment,
-)
-from arize._generated.api_client.models.spaces_list200_response import (
-    SpacesList200Response,
 )
 from arize._generated.api_client.models.user_space_role import UserSpaceRole
 
@@ -91,9 +91,9 @@ __all__ = [
     "CustomSpaceRole",
     "PredefinedSpaceRole",
     "Space",
+    "SpaceListResponse",
     "SpaceMembership",
     "SpaceMembershipInput",
     "SpaceRoleAssignment",
-    "SpacesList200Response",
     "UserSpaceRole",
 ]

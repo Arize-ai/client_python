@@ -7,8 +7,8 @@ import pytest
 import arize.datasets.types as types_module
 from arize.datasets.types import (
     Dataset,
-    DatasetsExamplesList200Response,
-    DatasetsList200Response,
+    DatasetExampleListResponse,
+    DatasetListResponse,
 )
 
 
@@ -25,12 +25,12 @@ class TestDatasetsTypes:
     def test_expected_names_in_all(self) -> None:
         """__all__ should contain the expected public type names."""
         assert "Dataset" in types_module.__all__
-        assert "DatasetsExamplesList200Response" in types_module.__all__
-        assert "DatasetsList200Response" in types_module.__all__
+        assert "DatasetExampleListResponse" in types_module.__all__
+        assert "DatasetListResponse" in types_module.__all__
 
     @pytest.mark.parametrize(
         "cls",
-        [Dataset, DatasetsExamplesList200Response, DatasetsList200Response],
+        [Dataset, DatasetExampleListResponse, DatasetListResponse],
     )
     def test_type_is_class(self, cls: type) -> None:
         assert isinstance(cls, type)

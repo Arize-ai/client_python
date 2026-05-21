@@ -18,13 +18,13 @@ from arize._generated.api_client.models.run_configuration import (
 )
 from arize._generated.api_client.models.task_evaluator import TaskEvaluator
 from arize._generated.api_client.models.task_run import TaskRun
+from arize._generated.api_client.models.task_run_list_response import (
+    TaskRunListResponse,
+)
 from arize._generated.api_client.models.task_run_status import (
     TaskRunStatus as RunStatus,
 )
 from arize._generated.api_client.models.task_type import TaskType
-from arize._generated.api_client.models.tasks_list_runs200_response import (
-    TasksListRuns200Response,
-)
 from arize._generated.api_client.models.template_evaluation_run_config import (
     TemplateEvaluationRunConfig,
 )
@@ -72,7 +72,7 @@ class Task(BaseModel):
         return v  # type: ignore[return-value]
 
 
-class TasksList200Response(BaseModel):
+class TaskListResponse(BaseModel):
     """SDK view of the generated list response with each ``Task``'s ``run_configuration`` unwrapped."""
 
     tasks: list[Task]
@@ -88,9 +88,9 @@ __all__ = [
     "RunStatus",
     "Task",
     "TaskEvaluator",
+    "TaskListResponse",
     "TaskRun",
+    "TaskRunListResponse",
     "TaskType",
-    "TasksList200Response",
-    "TasksListRuns200Response",
     "TemplateEvaluationRunConfig",
 ]

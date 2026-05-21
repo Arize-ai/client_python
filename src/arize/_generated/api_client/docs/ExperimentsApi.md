@@ -288,7 +288,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **experiments_list**
-> ExperimentsList200Response experiments_list(dataset_id=dataset_id, name=name, limit=limit, cursor=cursor)
+> ExperimentListResponse experiments_list(dataset_id=dataset_id, name=name, limit=limit, cursor=cursor)
 
 List experiments
 
@@ -306,7 +306,7 @@ To filter experiments by the dataset they were run on, provide the
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.experiments_list200_response import ExperimentsList200Response
+from arize._generated.api_client.models.experiment_list_response import ExperimentListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -358,7 +358,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ExperimentsList200Response**](ExperimentsList200Response.md)
+[**ExperimentListResponse**](ExperimentListResponse.md)
 
 ### Authorization
 
@@ -505,7 +505,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **experiments_runs_list**
-> ExperimentsRunsList200Response experiments_runs_list(experiment_id, limit=limit)
+> ExperimentRunsListResponse experiments_runs_list(experiment_id, limit=limit)
 
 List experiment runs
 
@@ -533,7 +533,7 @@ other list endpoints (cursor-based, opaque tokens).
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.experiments_runs_list200_response import ExperimentsRunsList200Response
+from arize._generated.api_client.models.experiment_runs_list_response import ExperimentRunsListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -581,7 +581,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ExperimentsRunsList200Response**](ExperimentsRunsList200Response.md)
+[**ExperimentRunsListResponse**](ExperimentRunsListResponse.md)
 
 ### Authorization
 

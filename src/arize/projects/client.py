@@ -15,7 +15,7 @@ from arize.utils.resolve import (
 if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
-    from arize.projects.types import Project, ProjectsList200Response
+    from arize.projects.types import Project, ProjectListResponse
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class ProjectsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> ProjectsList200Response:
+    ) -> ProjectListResponse:
         """List projects the user has access to.
 
         This endpoint supports cursor-based pagination. When ``space`` is provided,

@@ -387,7 +387,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **spaces_list**
-> SpacesList200Response spaces_list(org_id=org_id, name=name, limit=limit, cursor=cursor)
+> SpaceListResponse spaces_list(org_id=org_id, name=name, limit=limit, cursor=cursor)
 
 List spaces
 
@@ -402,7 +402,7 @@ List spaces the user has access to.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.spaces_list200_response import SpacesList200Response
+from arize._generated.api_client.models.space_list_response import SpaceListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -454,7 +454,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**SpacesList200Response**](SpacesList200Response.md)
+[**SpaceListResponse**](SpaceListResponse.md)
 
 ### Authorization
 

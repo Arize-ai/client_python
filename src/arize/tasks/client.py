@@ -13,7 +13,7 @@ from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.tasks.types import (
     LlmGenerationRunConfig,
     Task,
-    TasksList200Response,
+    TaskListResponse,
     TaskType,
     TemplateEvaluationRunConfig,
 )
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
         BaseEvaluationTaskRequestEvaluatorsInner,
         RunStatus,
         TaskRun,
-        TasksListRuns200Response,
+        TaskRunListResponse,
     )
 
 logger = logging.getLogger(__name__)
@@ -131,7 +131,7 @@ class TasksClient:
         task_type: TaskType | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> TasksList200Response:
+    ) -> TaskListResponse:
         """List tasks the user has access to.
 
         Results support cursor-based pagination. Optionally filter by space,
@@ -190,7 +190,7 @@ class TasksClient:
             limit=limit,
             cursor=cursor,
         )
-        return TasksList200Response.model_validate(result, from_attributes=True)
+        return TaskListResponse.model_validate(result, from_attributes=True)
 
     @prerelease_endpoint(key="tasks.get", stage=ReleaseStage.ALPHA)
     def get(self, *, task: str, space: str | None = None) -> Task:
@@ -857,7 +857,7 @@ class TasksClient:
         status: RunStatus | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> TasksListRuns200Response:
+    ) -> TaskRunListResponse:
         """List runs for a task.
 
         Results support cursor-based pagination. Optionally filter by run

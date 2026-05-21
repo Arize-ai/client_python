@@ -22,11 +22,11 @@ from typing_extensions import Annotated
 from arize._generated.api_client.models.add_annotation_queue_records_request_body import AddAnnotationQueueRecordsRequestBody
 from arize._generated.api_client.models.annotate_annotation_queue_record_request_body import AnnotateAnnotationQueueRecordRequestBody
 from arize._generated.api_client.models.annotation_queue import AnnotationQueue
+from arize._generated.api_client.models.annotation_queue_list_response import AnnotationQueueListResponse
 from arize._generated.api_client.models.annotation_queue_record_annotate_result import AnnotationQueueRecordAnnotateResult
 from arize._generated.api_client.models.annotation_queue_record_assign_result import AnnotationQueueRecordAssignResult
-from arize._generated.api_client.models.annotation_queue_records_list200_response import AnnotationQueueRecordsList200Response
-from arize._generated.api_client.models.annotation_queues_list200_response import AnnotationQueuesList200Response
-from arize._generated.api_client.models.annotation_queues_records_create200_response import AnnotationQueuesRecordsCreate200Response
+from arize._generated.api_client.models.annotation_queue_record_create_response import AnnotationQueueRecordCreateResponse
+from arize._generated.api_client.models.annotation_queue_record_list_response import AnnotationQueueRecordListResponse
 from arize._generated.api_client.models.assign_annotation_queue_record_request_body import AssignAnnotationQueueRecordRequestBody
 from arize._generated.api_client.models.create_annotation_queue_request_body import CreateAnnotationQueueRequestBody
 from arize._generated.api_client.models.delete_annotation_queue_records_request_body import DeleteAnnotationQueueRecordsRequestBody
@@ -68,7 +68,7 @@ class AnnotationQueuesApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AnnotationQueueRecordsList200Response:
+    ) -> AnnotationQueueRecordListResponse:
         """List annotation queue records
 
         List the records in an annotation queue with their data and annotations.  Each record includes: - The record's data as flat key-value pairs - Any annotations that have been added to the record - The users assigned to annotate the record and their completion status  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -112,7 +112,7 @@ class AnnotationQueuesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationQueueRecordsList200Response",
+            '200': "AnnotationQueueRecordListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -148,7 +148,7 @@ class AnnotationQueuesApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AnnotationQueueRecordsList200Response]:
+    ) -> ApiResponse[AnnotationQueueRecordListResponse]:
         """List annotation queue records
 
         List the records in an annotation queue with their data and annotations.  Each record includes: - The record's data as flat key-value pairs - Any annotations that have been added to the record - The users assigned to annotate the record and their completion status  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -192,7 +192,7 @@ class AnnotationQueuesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationQueueRecordsList200Response",
+            '200': "AnnotationQueueRecordListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -272,7 +272,7 @@ class AnnotationQueuesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationQueueRecordsList200Response",
+            '200': "AnnotationQueueRecordListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1227,7 +1227,7 @@ class AnnotationQueuesApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AnnotationQueuesList200Response:
+    ) -> AnnotationQueueListResponse:
         """List annotation queues
 
         List annotation queues the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1277,7 +1277,7 @@ class AnnotationQueuesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationQueuesList200Response",
+            '200': "AnnotationQueueListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1314,7 +1314,7 @@ class AnnotationQueuesApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AnnotationQueuesList200Response]:
+    ) -> ApiResponse[AnnotationQueueListResponse]:
         """List annotation queues
 
         List annotation queues the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1364,7 +1364,7 @@ class AnnotationQueuesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationQueuesList200Response",
+            '200': "AnnotationQueueListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1451,7 +1451,7 @@ class AnnotationQueuesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationQueuesList200Response",
+            '200': "AnnotationQueueListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -2214,7 +2214,7 @@ class AnnotationQueuesApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AnnotationQueuesRecordsCreate200Response:
+    ) -> AnnotationQueueRecordCreateResponse:
         """Create annotation queue records
 
         Add new records from either spans (a project) or from dataset examples to an existing annotation queue.  **Payload Requirements**   - At least one record source is required.   - At most 2 record sources are allowed per request   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.   - For dataset record source: all `example_ids` must be non-empty strings.   - For spans record source: all `span_ids` must be non-empty strings.   - At most 500 records total may be added in one request  **Valid example** ```json {   \"record_sources\": [     {       \"record_type\": \"span\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  **Invalid example** (span record with `start_time` after `end_time`) ```json {   \"record_sources\": [     {       \"record_type\": \"span\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-20T00:00:00Z\",       \"end_time\": \"2026-01-15T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue.</Note>  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -2255,8 +2255,8 @@ class AnnotationQueuesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationQueuesRecordsCreate200Response",
-            '201': "AnnotationQueuesRecordsCreate200Response",
+            '200': "AnnotationQueueRecordCreateResponse",
+            '201': "AnnotationQueueRecordCreateResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -2292,7 +2292,7 @@ class AnnotationQueuesApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AnnotationQueuesRecordsCreate200Response]:
+    ) -> ApiResponse[AnnotationQueueRecordCreateResponse]:
         """Create annotation queue records
 
         Add new records from either spans (a project) or from dataset examples to an existing annotation queue.  **Payload Requirements**   - At least one record source is required.   - At most 2 record sources are allowed per request   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.   - For dataset record source: all `example_ids` must be non-empty strings.   - For spans record source: all `span_ids` must be non-empty strings.   - At most 500 records total may be added in one request  **Valid example** ```json {   \"record_sources\": [     {       \"record_type\": \"span\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  **Invalid example** (span record with `start_time` after `end_time`) ```json {   \"record_sources\": [     {       \"record_type\": \"span\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-20T00:00:00Z\",       \"end_time\": \"2026-01-15T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue.</Note>  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -2333,8 +2333,8 @@ class AnnotationQueuesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationQueuesRecordsCreate200Response",
-            '201': "AnnotationQueuesRecordsCreate200Response",
+            '200': "AnnotationQueueRecordCreateResponse",
+            '201': "AnnotationQueueRecordCreateResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -2411,8 +2411,8 @@ class AnnotationQueuesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationQueuesRecordsCreate200Response",
-            '201': "AnnotationQueuesRecordsCreate200Response",
+            '200': "AnnotationQueueRecordCreateResponse",
+            '201': "AnnotationQueueRecordCreateResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

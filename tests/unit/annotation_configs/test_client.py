@@ -9,7 +9,7 @@ import pytest
 
 from arize.annotation_configs.client import AnnotationConfigsClient
 from arize.annotation_configs.types import (
-    AnnotationConfigsList200Response,
+    AnnotationConfigListResponse,
     AnnotationConfigType,
 )
 
@@ -75,7 +75,7 @@ class TestAnnotationConfigsClientList:
     @pytest.fixture(autouse=True)
     def _bypass_model_validate(self) -> None:
         with patch.object(
-            AnnotationConfigsList200Response,
+            AnnotationConfigListResponse,
             "model_validate",
             side_effect=lambda v, **kw: v,
         ):

@@ -292,7 +292,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **roles_list**
-> RolesList200Response roles_list(limit=limit, cursor=cursor, is_predefined=is_predefined)
+> RoleListResponse roles_list(limit=limit, cursor=cursor, is_predefined=is_predefined)
 
 List roles
 
@@ -308,7 +308,7 @@ Results are paginated; use `limit` and `cursor` for subsequent pages.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.roles_list200_response import RolesList200Response
+from arize._generated.api_client.models.role_list_response import RoleListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -358,7 +358,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**RolesList200Response**](RolesList200Response.md)
+[**RoleListResponse**](RoleListResponse.md)
 
 ### Authorization
 

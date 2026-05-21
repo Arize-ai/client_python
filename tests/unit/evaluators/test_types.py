@@ -31,7 +31,7 @@ from arize.evaluators.types import (
     Evaluator,
     EvaluatorLlmConfig,
     EvaluatorVersionCode,
-    EvaluatorVersionsList200Response,
+    EvaluatorVersionListResponse,
     EvaluatorWithVersion,
     TemplateConfig,
 )
@@ -117,9 +117,9 @@ class TestEvaluatorsTypes:
         expected = {
             "Evaluator",
             "EvaluatorLlmConfig",
-            "EvaluatorVersionsList200Response",
+            "EvaluatorVersionListResponse",
             "EvaluatorWithVersion",
-            "EvaluatorsList200Response",
+            "EvaluatorListResponse",
             "TemplateConfig",
         }
         assert expected.issubset(set(types_module.__all__))
@@ -129,7 +129,7 @@ class TestEvaluatorsTypes:
         [
             Evaluator,
             EvaluatorLlmConfig,
-            EvaluatorVersionsList200Response,
+            EvaluatorVersionListResponse,
             EvaluatorWithVersion,
             TemplateConfig,
         ],
@@ -323,7 +323,7 @@ class TestEvaluatorWithVersionCoercion:
 
 @pytest.mark.unit
 class TestEvaluatorVersionsListCoercion:
-    """Tests for EvaluatorVersionsList200Response._coerce_evaluator_versions validator."""
+    """Tests for EvaluatorVersionListResponse._coerce_evaluator_versions validator."""
 
     def _make_pagination(self) -> PaginationMetadata:
         return PaginationMetadata.model_construct(
@@ -334,7 +334,7 @@ class TestEvaluatorVersionsListCoercion:
         """_GenEvaluatorVersionCode items in the list should be converted to SDK EvaluatorVersionCode."""
         gen_code = _make_gen_evaluator_version_code()
 
-        response = EvaluatorVersionsList200Response(
+        response = EvaluatorVersionListResponse(
             evaluator_versions=[gen_code],
             pagination=self._make_pagination(),
         )
@@ -349,7 +349,7 @@ class TestEvaluatorVersionsListCoercion:
             actual_instance=gen_code
         )
 
-        response = EvaluatorVersionsList200Response(
+        response = EvaluatorVersionListResponse(
             evaluator_versions=[gen_version],
             pagination=self._make_pagination(),
         )
@@ -360,7 +360,7 @@ class TestEvaluatorVersionsListCoercion:
         """EvaluatorVersionTemplate items should pass through unchanged."""
         tmpl = _make_evaluator_version_template()
 
-        response = EvaluatorVersionsList200Response(
+        response = EvaluatorVersionListResponse(
             evaluator_versions=[tmpl],
             pagination=self._make_pagination(),
         )
@@ -374,7 +374,7 @@ class TestEvaluatorVersionsListCoercion:
         gen_code = _make_gen_evaluator_version_code()
         tmpl = _make_evaluator_version_template()
 
-        response = EvaluatorVersionsList200Response(
+        response = EvaluatorVersionListResponse(
             evaluator_versions=[gen_code, tmpl],
             pagination=self._make_pagination(),
         )
@@ -386,7 +386,7 @@ class TestEvaluatorVersionsListCoercion:
 
     def test_handles_empty_list(self) -> None:
         """An empty list should produce an empty evaluator_versions list."""
-        response = EvaluatorVersionsList200Response(
+        response = EvaluatorVersionListResponse(
             evaluator_versions=[],
             pagination=self._make_pagination(),
         )

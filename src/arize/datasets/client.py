@@ -37,8 +37,8 @@ if TYPE_CHECKING:
     from arize.config import SDKConfiguration
     from arize.datasets.types import (
         Dataset,
-        DatasetsExamplesList200Response,
-        DatasetsList200Response,
+        DatasetExampleListResponse,
+        DatasetListResponse,
     )
 
 logger = logging.getLogger(__name__)
@@ -81,7 +81,7 @@ class DatasetsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> DatasetsList200Response:
+    ) -> DatasetListResponse:
         """List datasets the user has access to.
 
         Datasets are returned in descending creation order (most recently created
@@ -298,7 +298,7 @@ class DatasetsClient:
         dataset_version_id: str | None = None,
         limit: int = 100,
         all: bool = False,
-    ) -> DatasetsExamplesList200Response:
+    ) -> DatasetExampleListResponse:
         """List examples for a dataset (optionally for a specific version).
 
         If `dataset_version_id` is not provided (empty string), the server selects
@@ -367,7 +367,7 @@ class DatasetsClient:
                 )
                 is not None
             ]
-            return models.DatasetsExamplesList200Response(
+            return models.DatasetExampleListResponse(
                 examples=examples,
                 pagination=models.PaginationMetadata(
                     has_more=False,  # Note that all=True
@@ -418,7 +418,7 @@ class DatasetsClient:
             )
             is not None
         ]
-        return models.DatasetsExamplesList200Response(
+        return models.DatasetExampleListResponse(
             examples=examples,
             pagination=models.PaginationMetadata(
                 has_more=False,  # Note that all=True

@@ -191,7 +191,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **prompt_version_labels_set**
-> PromptVersionLabelsSet200Response prompt_version_labels_set(version_id, prompt_version_labels_set_request)
+> PromptVersionLabelsResponse prompt_version_labels_set(version_id, prompt_version_labels_set_request)
 
 Set labels on a prompt version
 
@@ -210,7 +210,7 @@ Labels not included in the request will be removed from this version.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.prompt_version_labels_set200_response import PromptVersionLabelsSet200Response
+from arize._generated.api_client.models.prompt_version_labels_response import PromptVersionLabelsResponse
 from arize._generated.api_client.models.prompt_version_labels_set_request import PromptVersionLabelsSetRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
@@ -259,7 +259,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PromptVersionLabelsSet200Response**](PromptVersionLabelsSet200Response.md)
+[**PromptVersionLabelsResponse**](PromptVersionLabelsResponse.md)
 
 ### Authorization
 
@@ -501,7 +501,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **prompt_versions_list**
-> PromptVersionsList200Response prompt_versions_list(prompt_id, limit=limit, cursor=cursor)
+> PromptVersionListResponse prompt_versions_list(prompt_id, limit=limit, cursor=cursor)
 
 List prompt versions
 
@@ -517,7 +517,7 @@ recently created versions first.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.prompt_versions_list200_response import PromptVersionsList200Response
+from arize._generated.api_client.models.prompt_version_list_response import PromptVersionListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -567,7 +567,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PromptVersionsList200Response**](PromptVersionsList200Response.md)
+[**PromptVersionListResponse**](PromptVersionListResponse.md)
 
 ### Authorization
 
@@ -859,7 +859,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **prompts_list**
-> PromptsList200Response prompts_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+> PromptListResponse prompts_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
 
 List prompts
 
@@ -877,7 +877,7 @@ prompts coming first.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.prompts_list200_response import PromptsList200Response
+from arize._generated.api_client.models.prompt_list_response import PromptListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -931,7 +931,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PromptsList200Response**](PromptsList200Response.md)
+[**PromptListResponse**](PromptListResponse.md)
 
 ### Authorization
 

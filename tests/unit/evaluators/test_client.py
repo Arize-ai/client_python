@@ -11,7 +11,7 @@ from arize.evaluators.client import EvaluatorsClient
 from arize.evaluators.types import (
     CodeConfig,
     EvaluatorVersionCode,
-    EvaluatorVersionsList200Response,
+    EvaluatorVersionListResponse,
     EvaluatorWithVersion,
 )
 
@@ -607,7 +607,7 @@ class TestEvaluatorsClientListVersions:
     @pytest.fixture(autouse=True)
     def _bypass_model_validate(self) -> None:
         with patch.object(
-            EvaluatorVersionsList200Response,
+            EvaluatorVersionListResponse,
             "model_validate",
             side_effect=lambda v, **kw: v,
         ):

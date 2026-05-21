@@ -235,7 +235,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **evaluator_versions_list**
-> EvaluatorVersionsList200Response evaluator_versions_list(evaluator_id, limit=limit, cursor=cursor)
+> EvaluatorVersionListResponse evaluator_versions_list(evaluator_id, limit=limit, cursor=cursor)
 
 List evaluator versions
 
@@ -250,7 +250,7 @@ List all versions of an evaluator with cursor-based pagination.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.evaluator_versions_list200_response import EvaluatorVersionsList200Response
+from arize._generated.api_client.models.evaluator_version_list_response import EvaluatorVersionListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -300,7 +300,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**EvaluatorVersionsList200Response**](EvaluatorVersionsList200Response.md)
+[**EvaluatorVersionListResponse**](EvaluatorVersionListResponse.md)
 
 ### Authorization
 
@@ -639,7 +639,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **evaluators_list**
-> EvaluatorsList200Response evaluators_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+> EvaluatorListResponse evaluators_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
 
 List evaluators
 
@@ -657,7 +657,7 @@ evaluators from all permitted spaces are returned.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.evaluators_list200_response import EvaluatorsList200Response
+from arize._generated.api_client.models.evaluator_list_response import EvaluatorListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -711,7 +711,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**EvaluatorsList200Response**](EvaluatorsList200Response.md)
+[**EvaluatorListResponse**](EvaluatorListResponse.md)
 
 ### Authorization
 

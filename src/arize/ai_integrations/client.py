@@ -20,9 +20,9 @@ if TYPE_CHECKING:
     from arize.ai_integrations.types import (
         AiIntegration,
         AiIntegrationAuthType,
+        AiIntegrationListResponse,
         AiIntegrationProvider,
         AiIntegrationScoping,
-        AiIntegrationsList200Response,
         AwsProviderMetadata,
         GcpProviderMetadata,
     )
@@ -76,7 +76,7 @@ class AiIntegrationsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> AiIntegrationsList200Response:
+    ) -> AiIntegrationListResponse:
         """List AI integrations the user has access to.
 
         This endpoint supports cursor-based pagination. When provided,

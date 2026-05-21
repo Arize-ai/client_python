@@ -10,9 +10,9 @@ import arize.organizations.types as types_module
 from arize.organizations.types import (
     CustomOrgRole,
     Organization,
+    OrganizationListResponse,
     OrganizationMembership,
     OrganizationRole,
-    OrganizationsList200Response,
     PredefinedOrgRole,
 )
 
@@ -33,13 +33,13 @@ class TestOrganizationsTypes:
         assert "CustomOrgRole" in types_module.__all__
         assert "OrganizationMembership" in types_module.__all__
         assert "Organization" in types_module.__all__
-        assert "OrganizationsList200Response" in types_module.__all__
+        assert "OrganizationListResponse" in types_module.__all__
 
     def test_organization_is_class(self) -> None:
         assert isinstance(Organization, type)
 
     def test_organizations_list_response_is_class(self) -> None:
-        assert isinstance(OrganizationsList200Response, type)
+        assert isinstance(OrganizationListResponse, type)
 
 
 @pytest.mark.unit

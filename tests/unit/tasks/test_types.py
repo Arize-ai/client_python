@@ -19,9 +19,9 @@ from arize._generated.api_client.models.run_configuration import (
 from arize.tasks.types import (
     BaseEvaluationTaskRequestEvaluatorsInner,
     Task,
+    TaskListResponse,
     TaskRun,
-    TasksList200Response,
-    TasksListRuns200Response,
+    TaskRunListResponse,
     TemplateEvaluationRunConfig,
 )
 
@@ -85,8 +85,8 @@ class TestTasksTypes:
             "LlmGenerationRunConfig",
             "Task",
             "TaskRun",
-            "TasksList200Response",
-            "TasksListRuns200Response",
+            "TaskListResponse",
+            "TaskRunListResponse",
             "TemplateEvaluationRunConfig",
         }
         assert expected.issubset(set(types_module.__all__))
@@ -98,8 +98,8 @@ class TestTasksTypes:
             LlmGenerationRunConfig,
             Task,
             TaskRun,
-            TasksList200Response,
-            TasksListRuns200Response,
+            TaskListResponse,
+            TaskRunListResponse,
             TemplateEvaluationRunConfig,
         ],
     )
@@ -167,7 +167,7 @@ class TestTaskRunConfigurationCoercion:
 
 @pytest.mark.unit
 class TestTasksListCoercion:
-    """Tests for TasksList200Response wrapping Task objects."""
+    """Tests for TaskListResponse wrapping Task objects."""
 
     def _make_pagination(self) -> PaginationMetadata:
         return PaginationMetadata.model_construct(
@@ -175,14 +175,14 @@ class TestTasksListCoercion:
         )
 
     def test_tasks_list_preserves_run_configuration_unwrapping(self) -> None:
-        """Tasks inside TasksList200Response should have their run_configuration unwrapped."""
+        """Tasks inside TaskListResponse should have their run_configuration unwrapped."""
         llm_config = _make_llm_run_config()
         wrapper = _GenRunConfiguration.model_construct(
             actual_instance=llm_config
         )
         task = _make_task(run_configuration=wrapper)
 
-        response = TasksList200Response(
+        response = TaskListResponse(
             tasks=[task],
             pagination=self._make_pagination(),
         )
@@ -194,7 +194,7 @@ class TestTasksListCoercion:
         """Tasks with no run_configuration should be stored as-is."""
         task = _make_task(run_configuration=None)
 
-        response = TasksList200Response(
+        response = TaskListResponse(
             tasks=[task],
             pagination=self._make_pagination(),
         )
@@ -203,7 +203,7 @@ class TestTasksListCoercion:
 
     def test_tasks_list_empty(self) -> None:
         """An empty task list should be preserved."""
-        response = TasksList200Response(
+        response = TaskListResponse(
             tasks=[],
             pagination=self._make_pagination(),
         )

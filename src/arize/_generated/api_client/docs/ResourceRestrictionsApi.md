@@ -9,7 +9,7 @@ Method | HTTP request | Description
 
 
 # **resource_restrictions_create**
-> ResourceRestrictionsCreate200Response resource_restrictions_create(resource_restriction_create)
+> ResourceRestrictionResponseBody resource_restrictions_create(resource_restriction_create)
 
 Restrict a resource
 
@@ -41,7 +41,7 @@ Returns 400 — only Project / Model IDs are accepted
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.resource_restriction_create import ResourceRestrictionCreate
-from arize._generated.api_client.models.resource_restrictions_create200_response import ResourceRestrictionsCreate200Response
+from arize._generated.api_client.models.resource_restriction_response_body import ResourceRestrictionResponseBody
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -87,7 +87,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ResourceRestrictionsCreate200Response**](ResourceRestrictionsCreate200Response.md)
+[**ResourceRestrictionResponseBody**](ResourceRestrictionResponseBody.md)
 
 ### Authorization
 

@@ -21,9 +21,9 @@ from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.annotate_experiment_runs_request_body import AnnotateExperimentRunsRequestBody
 from arize._generated.api_client.models.experiment import Experiment
+from arize._generated.api_client.models.experiment_list_response import ExperimentListResponse
+from arize._generated.api_client.models.experiment_runs_list_response import ExperimentRunsListResponse
 from arize._generated.api_client.models.experiments_create_request import ExperimentsCreateRequest
-from arize._generated.api_client.models.experiments_list200_response import ExperimentsList200Response
-from arize._generated.api_client.models.experiments_runs_list200_response import ExperimentsRunsList200Response
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -908,7 +908,7 @@ class ExperimentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ExperimentsList200Response:
+    ) -> ExperimentListResponse:
         """List experiments
 
         List all experiments a user has access to.  To filter experiments by the dataset they were run on, provide the `dataset_id` query parameter.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -955,7 +955,7 @@ class ExperimentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ExperimentsList200Response",
+            '200': "ExperimentListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -991,7 +991,7 @@ class ExperimentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ExperimentsList200Response]:
+    ) -> ApiResponse[ExperimentListResponse]:
         """List experiments
 
         List all experiments a user has access to.  To filter experiments by the dataset they were run on, provide the `dataset_id` query parameter.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1038,7 +1038,7 @@ class ExperimentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ExperimentsList200Response",
+            '200': "ExperimentListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1121,7 +1121,7 @@ class ExperimentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ExperimentsList200Response",
+            '200': "ExperimentListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1540,7 +1540,7 @@ class ExperimentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ExperimentsRunsList200Response:
+    ) -> ExperimentRunsListResponse:
         """List experiment runs
 
         List runs for a given experiment.  The runs are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1581,7 +1581,7 @@ class ExperimentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ExperimentsRunsList200Response",
+            '200': "ExperimentRunsListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1616,7 +1616,7 @@ class ExperimentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ExperimentsRunsList200Response]:
+    ) -> ApiResponse[ExperimentRunsListResponse]:
         """List experiment runs
 
         List runs for a given experiment.  The runs are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1657,7 +1657,7 @@ class ExperimentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ExperimentsRunsList200Response",
+            '200': "ExperimentRunsListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1733,7 +1733,7 @@ class ExperimentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ExperimentsRunsList200Response",
+            '200': "ExperimentRunsListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

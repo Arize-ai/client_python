@@ -20,14 +20,14 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.prompt import Prompt
+from arize._generated.api_client.models.prompt_list_response import PromptListResponse
 from arize._generated.api_client.models.prompt_version import PromptVersion
-from arize._generated.api_client.models.prompt_version_labels_set200_response import PromptVersionLabelsSet200Response
+from arize._generated.api_client.models.prompt_version_labels_response import PromptVersionLabelsResponse
 from arize._generated.api_client.models.prompt_version_labels_set_request import PromptVersionLabelsSetRequest
+from arize._generated.api_client.models.prompt_version_list_response import PromptVersionListResponse
 from arize._generated.api_client.models.prompt_versions_create_request import PromptVersionsCreateRequest
-from arize._generated.api_client.models.prompt_versions_list200_response import PromptVersionsList200Response
 from arize._generated.api_client.models.prompt_with_version import PromptWithVersion
 from arize._generated.api_client.models.prompts_create_request import PromptsCreateRequest
-from arize._generated.api_client.models.prompts_list200_response import PromptsList200Response
 from arize._generated.api_client.models.prompts_update_request import PromptsUpdateRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
@@ -645,7 +645,7 @@ class PromptsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> PromptVersionLabelsSet200Response:
+    ) -> PromptVersionLabelsResponse:
         """Set labels on a prompt version
 
         Set (replace) all labels on a prompt version. This is an idempotent operation. If a label already exists on another version of the same prompt, it will be moved to this version.  Labels not included in the request will be removed from this version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -686,7 +686,7 @@ class PromptsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PromptVersionLabelsSet200Response",
+            '200': "PromptVersionLabelsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -722,7 +722,7 @@ class PromptsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[PromptVersionLabelsSet200Response]:
+    ) -> ApiResponse[PromptVersionLabelsResponse]:
         """Set labels on a prompt version
 
         Set (replace) all labels on a prompt version. This is an idempotent operation. If a label already exists on another version of the same prompt, it will be moved to this version.  Labels not included in the request will be removed from this version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -763,7 +763,7 @@ class PromptsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PromptVersionLabelsSet200Response",
+            '200': "PromptVersionLabelsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -840,7 +840,7 @@ class PromptsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PromptVersionLabelsSet200Response",
+            '200': "PromptVersionLabelsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1536,7 +1536,7 @@ class PromptsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> PromptVersionsList200Response:
+    ) -> PromptVersionListResponse:
         """List prompt versions
 
         List all versions of a prompt, sorted by creation date with the most recently created versions first.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1580,7 +1580,7 @@ class PromptsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PromptVersionsList200Response",
+            '200': "PromptVersionListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1616,7 +1616,7 @@ class PromptsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[PromptVersionsList200Response]:
+    ) -> ApiResponse[PromptVersionListResponse]:
         """List prompt versions
 
         List all versions of a prompt, sorted by creation date with the most recently created versions first.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1660,7 +1660,7 @@ class PromptsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PromptVersionsList200Response",
+            '200': "PromptVersionListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1740,7 +1740,7 @@ class PromptsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PromptVersionsList200Response",
+            '200': "PromptVersionListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -2726,7 +2726,7 @@ class PromptsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> PromptsList200Response:
+    ) -> PromptListResponse:
         """List prompts
 
         List prompts the user has access to.  The prompts are sorted by update date, with the most recently updated prompts coming first.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -2776,7 +2776,7 @@ class PromptsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PromptsList200Response",
+            '200': "PromptListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -2813,7 +2813,7 @@ class PromptsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[PromptsList200Response]:
+    ) -> ApiResponse[PromptListResponse]:
         """List prompts
 
         List prompts the user has access to.  The prompts are sorted by update date, with the most recently updated prompts coming first.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -2863,7 +2863,7 @@ class PromptsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PromptsList200Response",
+            '200': "PromptListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -2950,7 +2950,7 @@ class PromptsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PromptsList200Response",
+            '200': "PromptListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

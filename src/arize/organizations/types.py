@@ -10,6 +10,9 @@ from arize._generated.api_client.models.organization import Organization
 from arize._generated.api_client.models.organization_custom_role_assignment import (
     OrganizationCustomRoleAssignment,
 )
+from arize._generated.api_client.models.organization_list_response import (
+    OrganizationListResponse,
+)
 from arize._generated.api_client.models.organization_membership_input import (
     OrganizationMembershipInput,
 )
@@ -21,9 +24,6 @@ from arize._generated.api_client.models.organization_role import (
 )
 from arize._generated.api_client.models.organization_role_assignment import (
     OrganizationRoleAssignment,
-)
-from arize._generated.api_client.models.organizations_list200_response import (
-    OrganizationsList200Response,
 )
 
 
@@ -92,9 +92,9 @@ class OrganizationMembership(BaseModel):
 __all__ = [
     "CustomOrgRole",
     "Organization",
+    "OrganizationListResponse",
     "OrganizationMembership",
     "OrganizationMembershipInput",
     "OrganizationRole",
-    "OrganizationsList200Response",
     "PredefinedOrgRole",
 ]

@@ -18,8 +18,8 @@ from arize.users.types import (
     DeletionStatus,
     PredefinedUserRole,
     User,
+    UserListResponse,
     UserRole,
-    UsersList200Response,
 )
 
 
@@ -30,9 +30,7 @@ def _stub_from_generated() -> Generator[None, None, None]:
     """
     with (
         patch.object(User, "model_validate", return_value=Mock()),
-        patch.object(
-            UsersList200Response, "model_validate", return_value=Mock()
-        ),
+        patch.object(UserListResponse, "model_validate", return_value=Mock()),
     ):
         yield
 
@@ -124,12 +122,12 @@ class TestUsersClientList:
     def test_list_returns_domain_response(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
-        """list() should convert the raw API response to a domain UsersList200Response."""
+        """list() should convert the raw API response to a domain UserListResponse."""
         raw = Mock()
         mock_api.users_list.return_value = raw
         domain = Mock()
         with patch.object(
-            UsersList200Response, "model_validate", return_value=domain
+            UserListResponse, "model_validate", return_value=domain
         ) as mock_conv:
             result = users_client.list()
         mock_conv.assert_called_once_with(raw, from_attributes=True)

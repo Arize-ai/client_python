@@ -9,13 +9,13 @@ from arize.annotation_queues.types import (
     AnnotationInput,
     AnnotationQueue,
     AnnotationQueueExampleRecordInput,
+    AnnotationQueueListResponse,
     AnnotationQueueRecordAnnotateResult,
     AnnotationQueueRecordAssignResult,
+    AnnotationQueueRecordCreateResponse,
     AnnotationQueueRecordInput,
-    AnnotationQueueRecordsList200Response,
-    AnnotationQueuesList200Response,
+    AnnotationQueueRecordListResponse,
     AnnotationQueueSpanRecordInput,
-    AnnotationQueuesRecordsCreate200Response,
     AssignmentMethod,
 )
 
@@ -39,10 +39,10 @@ class TestAnnotationQueuesTypes:
             "AnnotationQueueRecordAnnotateResult",
             "AnnotationQueueRecordAssignResult",
             "AnnotationQueueRecordInput",
-            "AnnotationQueueRecordsList200Response",
+            "AnnotationQueueRecordListResponse",
             "AnnotationQueueSpanRecordInput",
-            "AnnotationQueuesList200Response",
-            "AnnotationQueuesRecordsCreate200Response",
+            "AnnotationQueueListResponse",
+            "AnnotationQueueRecordCreateResponse",
             "AssignmentMethod",
         }
         assert expected.issubset(set(types_module.__all__))
@@ -61,10 +61,10 @@ class TestAnnotationQueuesTypes:
             AnnotationQueueRecordAnnotateResult,
             AnnotationQueueRecordAssignResult,
             AnnotationQueueRecordInput,
-            AnnotationQueueRecordsList200Response,
+            AnnotationQueueRecordListResponse,
             AnnotationQueueSpanRecordInput,
-            AnnotationQueuesList200Response,
-            AnnotationQueuesRecordsCreate200Response,
+            AnnotationQueueListResponse,
+            AnnotationQueueRecordCreateResponse,
         ],
     )
     def test_type_is_class(self, cls: type) -> None:

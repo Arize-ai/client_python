@@ -316,7 +316,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **users_list**
-> UsersList200Response users_list(limit=limit, cursor=cursor, email=email, status=status)
+> UserListResponse users_list(limit=limit, cursor=cursor, email=email, status=status)
 
 List users
 
@@ -335,8 +335,8 @@ account level.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.user_list_response import UserListResponse
 from arize._generated.api_client.models.user_status import UserStatus
-from arize._generated.api_client.models.users_list200_response import UsersList200Response
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -388,7 +388,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**UsersList200Response**](UsersList200Response.md)
+[**UserListResponse**](UserListResponse.md)
 
 ### Authorization
 

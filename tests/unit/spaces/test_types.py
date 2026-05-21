@@ -11,8 +11,8 @@ from arize.spaces.types import (
     CustomSpaceRole,
     PredefinedSpaceRole,
     Space,
+    SpaceListResponse,
     SpaceMembership,
-    SpacesList200Response,
     UserSpaceRole,
 )
 
@@ -33,13 +33,13 @@ class TestSpacesTypes:
         assert "CustomSpaceRole" in types_module.__all__
         assert "SpaceMembership" in types_module.__all__
         assert "Space" in types_module.__all__
-        assert "SpacesList200Response" in types_module.__all__
+        assert "SpaceListResponse" in types_module.__all__
 
     def test_space_is_class(self) -> None:
         assert isinstance(Space, type)
 
     def test_spaces_list_response_is_class(self) -> None:
-        assert isinstance(SpacesList200Response, type)
+        assert isinstance(SpaceListResponse, type)
 
 
 @pytest.mark.unit

@@ -9,8 +9,8 @@ from arize.pre_releases import ReleaseStage, prerelease_endpoint
 
 if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
-    from arize._generated.api_client.models.role_bindings_list200_response import (
-        RoleBindingsList200Response,
+    from arize._generated.api_client.models.role_binding_list_response import (
+        RoleBindingListResponse,
     )
     from arize.config import SDKConfiguration
     from arize.role_bindings.types import RoleBinding, RoleBindingResourceType
@@ -59,7 +59,7 @@ class RoleBindingsClient:
         user_id: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> RoleBindingsList200Response:
+    ) -> RoleBindingListResponse:
         """List role bindings for the authenticated user's account.
 
         Supports cursor-based pagination. Use ``user_id`` to filter by a

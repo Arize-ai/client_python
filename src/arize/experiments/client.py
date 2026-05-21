@@ -52,8 +52,8 @@ if TYPE_CHECKING:
     from arize.experiments.evaluators.types import EvaluationResultFieldNames
     from arize.experiments.types import (
         Experiment,
-        ExperimentsList200Response,
-        ExperimentsRunsList200Response,
+        ExperimentListResponse,
+        ExperimentRunsListResponse,
         ExperimentTask,
         ExperimentTaskFieldNames,
     )
@@ -98,7 +98,7 @@ class ExperimentsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> ExperimentsList200Response:
+    ) -> ExperimentListResponse:
         """List experiments the user has access to.
 
         To filter experiments by the dataset they were run on, provide `dataset`.
@@ -327,7 +327,7 @@ class ExperimentsClient:
         space: str | None = None,
         limit: int = 100,
         all: bool = False,
-    ) -> ExperimentsRunsList200Response:
+    ) -> ExperimentRunsListResponse:
         """List runs for an experiment.
 
         Runs are returned in insertion order.
@@ -398,7 +398,7 @@ class ExperimentsClient:
                 )
                 is not None
             ]
-            return models.ExperimentsRunsList200Response(
+            return models.ExperimentRunsListResponse(
                 experiment_runs=experiment_runs,
                 pagination=models.PaginationMetadata(
                     has_more=False,  # Note that all=True
@@ -448,7 +448,7 @@ class ExperimentsClient:
             )
             is not None
         ]
-        return models.ExperimentsRunsList200Response(
+        return models.ExperimentRunsListResponse(
             experiment_runs=experiment_runs,
             pagination=models.PaginationMetadata(
                 has_more=False,  # Note that all=True

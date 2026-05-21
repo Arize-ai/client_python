@@ -21,9 +21,9 @@ from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.role_binding import RoleBinding
 from arize._generated.api_client.models.role_binding_create import RoleBindingCreate
+from arize._generated.api_client.models.role_binding_list_response import RoleBindingListResponse
 from arize._generated.api_client.models.role_binding_resource_type import RoleBindingResourceType
 from arize._generated.api_client.models.role_binding_update import RoleBindingUpdate
-from arize._generated.api_client.models.role_bindings_list200_response import RoleBindingsList200Response
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -905,7 +905,7 @@ class RoleBindingsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RoleBindingsList200Response:
+    ) -> RoleBindingListResponse:
         """List role bindings
 
         List role bindings for the authenticated user's account, filtered by resource type. Results are paginated; use `limit` and `cursor` for subsequent pages.  The `resource_type` query parameter is **required** and must be one of `SPACE` or `PROJECT`. All bindings in the account are visible to any authenticated account member. Use `user_id` to narrow to a specific user.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -952,7 +952,7 @@ class RoleBindingsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "RoleBindingsList200Response",
+            '200': "RoleBindingListResponse",
             '400': "Problem",
             '401': "Problem",
             '429': "Problem",
@@ -987,7 +987,7 @@ class RoleBindingsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[RoleBindingsList200Response]:
+    ) -> ApiResponse[RoleBindingListResponse]:
         """List role bindings
 
         List role bindings for the authenticated user's account, filtered by resource type. Results are paginated; use `limit` and `cursor` for subsequent pages.  The `resource_type` query parameter is **required** and must be one of `SPACE` or `PROJECT`. All bindings in the account are visible to any authenticated account member. Use `user_id` to narrow to a specific user.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1034,7 +1034,7 @@ class RoleBindingsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "RoleBindingsList200Response",
+            '200': "RoleBindingListResponse",
             '400': "Problem",
             '401': "Problem",
             '429': "Problem",
@@ -1116,7 +1116,7 @@ class RoleBindingsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "RoleBindingsList200Response",
+            '200': "RoleBindingListResponse",
             '400': "Problem",
             '401': "Problem",
             '429': "Problem",

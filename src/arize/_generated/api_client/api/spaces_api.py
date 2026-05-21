@@ -20,10 +20,10 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.space import Space
+from arize._generated.api_client.models.space_list_response import SpaceListResponse
 from arize._generated.api_client.models.space_membership import SpaceMembership
 from arize._generated.api_client.models.space_membership_input import SpaceMembershipInput
 from arize._generated.api_client.models.spaces_create_request import SpacesCreateRequest
-from arize._generated.api_client.models.spaces_list200_response import SpacesList200Response
 from arize._generated.api_client.models.spaces_update_request import SpacesUpdateRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
@@ -1220,7 +1220,7 @@ class SpacesApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> SpacesList200Response:
+    ) -> SpaceListResponse:
         """List spaces
 
         List spaces the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1267,7 +1267,7 @@ class SpacesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SpacesList200Response",
+            '200': "SpaceListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1303,7 +1303,7 @@ class SpacesApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[SpacesList200Response]:
+    ) -> ApiResponse[SpaceListResponse]:
         """List spaces
 
         List spaces the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1350,7 +1350,7 @@ class SpacesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SpacesList200Response",
+            '200': "SpaceListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1433,7 +1433,7 @@ class SpacesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SpacesList200Response",
+            '200': "SpaceListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

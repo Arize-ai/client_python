@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 import arize.spans.types as types_module
-from arize.spans.types import SpansList200Response
+from arize.spans.types import SpanListResponse
 
 
 @pytest.mark.unit
@@ -20,7 +20,7 @@ class TestSpansTypes:
 
     def test_expected_names_in_all(self) -> None:
         """__all__ should contain the expected public type names."""
-        assert "SpansList200Response" in types_module.__all__
+        assert "SpanListResponse" in types_module.__all__
 
     def test_spans_list_response_is_class(self) -> None:
-        assert isinstance(SpansList200Response, type)
+        assert isinstance(SpanListResponse, type)

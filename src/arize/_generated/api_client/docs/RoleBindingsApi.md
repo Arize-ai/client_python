@@ -303,7 +303,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **role_bindings_list**
-> RoleBindingsList200Response role_bindings_list(resource_type, limit=limit, cursor=cursor, user_id=user_id)
+> RoleBindingListResponse role_bindings_list(resource_type, limit=limit, cursor=cursor, user_id=user_id)
 
 List role bindings
 
@@ -325,8 +325,8 @@ user.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.role_binding_list_response import RoleBindingListResponse
 from arize._generated.api_client.models.role_binding_resource_type import RoleBindingResourceType
-from arize._generated.api_client.models.role_bindings_list200_response import RoleBindingsList200Response
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -378,7 +378,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**RoleBindingsList200Response**](RoleBindingsList200Response.md)
+[**RoleBindingListResponse**](RoleBindingListResponse.md)
 
 ### Authorization
 

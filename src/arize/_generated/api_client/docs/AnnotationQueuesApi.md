@@ -17,7 +17,7 @@ Method | HTTP request | Description
 
 
 # **annotation_queue_records_list**
-> AnnotationQueueRecordsList200Response annotation_queue_records_list(annotation_queue_id, cursor=cursor, limit=limit)
+> AnnotationQueueRecordListResponse annotation_queue_records_list(annotation_queue_id, cursor=cursor, limit=limit)
 
 List annotation queue records
 
@@ -42,7 +42,7 @@ value as the `cursor` query parameter in subsequent requests.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.annotation_queue_records_list200_response import AnnotationQueueRecordsList200Response
+from arize._generated.api_client.models.annotation_queue_record_list_response import AnnotationQueueRecordListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -92,7 +92,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AnnotationQueueRecordsList200Response**](AnnotationQueueRecordsList200Response.md)
+[**AnnotationQueueRecordListResponse**](AnnotationQueueRecordListResponse.md)
 
 ### Authorization
 
@@ -419,7 +419,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **annotation_queues_list**
-> AnnotationQueuesList200Response annotation_queues_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+> AnnotationQueueListResponse annotation_queues_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
 
 List annotation queues
 
@@ -434,7 +434,7 @@ List annotation queues the user has access to.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.annotation_queues_list200_response import AnnotationQueuesList200Response
+from arize._generated.api_client.models.annotation_queue_list_response import AnnotationQueueListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -488,7 +488,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AnnotationQueuesList200Response**](AnnotationQueuesList200Response.md)
+[**AnnotationQueueListResponse**](AnnotationQueueListResponse.md)
 
 ### Authorization
 
@@ -764,7 +764,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **annotation_queues_records_create**
-> AnnotationQueuesRecordsCreate200Response annotation_queues_records_create(annotation_queue_id, add_annotation_queue_records_request_body)
+> AnnotationQueueRecordCreateResponse annotation_queues_records_create(annotation_queue_id, add_annotation_queue_records_request_body)
 
 Create annotation queue records
 
@@ -820,7 +820,7 @@ Add new records from either spans (a project) or from dataset examples to an exi
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.add_annotation_queue_records_request_body import AddAnnotationQueueRecordsRequestBody
-from arize._generated.api_client.models.annotation_queues_records_create200_response import AnnotationQueuesRecordsCreate200Response
+from arize._generated.api_client.models.annotation_queue_record_create_response import AnnotationQueueRecordCreateResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -868,7 +868,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AnnotationQueuesRecordsCreate200Response**](AnnotationQueuesRecordsCreate200Response.md)
+[**AnnotationQueueRecordCreateResponse**](AnnotationQueueRecordCreateResponse.md)
 
 ### Authorization
 

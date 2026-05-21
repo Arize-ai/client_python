@@ -128,6 +128,58 @@ class TestRoleBindingsClientGet:
         assert exc_info.value.status == 404
 
 
+class TestRoleBindingsClientList:
+    """Integration tests for RoleBindingsClient.list()."""
+
+    def test_list_returns_role_binding_list_response(
+        self, arize_client, role_binding
+    ) -> None:
+        """list() should return a RoleBindingListResponse with role_bindings and pagination."""
+        from arize._generated.api_client.models.role_binding_list_response import (
+            RoleBindingListResponse,
+        )
+        from arize._generated.api_client.models.role_binding_resource_type import (
+            RoleBindingResourceType,
+        )
+
+        result = arize_client.role_bindings.list(
+            resource_type=RoleBindingResourceType.PROJECT,
+        )
+
+        assert isinstance(result, RoleBindingListResponse)
+        assert isinstance(result.role_bindings, list)
+        assert hasattr(result.pagination, "has_more")
+
+    def test_list_includes_created_binding(
+        self, arize_client, role_binding
+    ) -> None:
+        """list() filtered by user_id should include the binding created in the fixture."""
+        from arize._generated.api_client.models.role_binding_resource_type import (
+            RoleBindingResourceType,
+        )
+
+        result = arize_client.role_bindings.list(
+            resource_type=RoleBindingResourceType.PROJECT,
+            user_id=USER_ID,
+        )
+
+        binding_ids = [rb.id for rb in result.role_bindings]
+        assert role_binding.id in binding_ids
+
+    def test_list_limit_is_respected(self, arize_client, role_binding) -> None:
+        """list() with limit=1 should return at most one binding."""
+        from arize._generated.api_client.models.role_binding_resource_type import (
+            RoleBindingResourceType,
+        )
+
+        result = arize_client.role_bindings.list(
+            resource_type=RoleBindingResourceType.PROJECT,
+            limit=1,
+        )
+
+        assert len(result.role_bindings) <= 1
+
+
 @pytest.mark.skipif(
     not ROLE_ID_2,
     reason="ARIZE_TEST_ROLE_ID_2 must be set for update tests",

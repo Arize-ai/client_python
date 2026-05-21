@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
-    from arize.roles.types import Permission, Role, RolesList200Response
+    from arize.roles.types import Permission, Role, RoleListResponse
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ class RolesClient:
         limit: int = 100,
         cursor: str | None = None,
         is_predefined: bool | None = None,
-    ) -> RolesList200Response:
+    ) -> RoleListResponse:
         """List roles for the authenticated user's account.
 
         This endpoint supports cursor-based pagination. When provided,

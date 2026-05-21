@@ -21,12 +21,12 @@ from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.annotate_dataset_examples_request_body import AnnotateDatasetExamplesRequestBody
 from arize._generated.api_client.models.dataset import Dataset
+from arize._generated.api_client.models.dataset_example_list_response import DatasetExampleListResponse
+from arize._generated.api_client.models.dataset_list_response import DatasetListResponse
 from arize._generated.api_client.models.dataset_version_with_example_ids import DatasetVersionWithExampleIds
 from arize._generated.api_client.models.datasets_create_request import DatasetsCreateRequest
 from arize._generated.api_client.models.datasets_examples_insert_request import DatasetsExamplesInsertRequest
-from arize._generated.api_client.models.datasets_examples_list200_response import DatasetsExamplesList200Response
 from arize._generated.api_client.models.datasets_examples_update_request import DatasetsExamplesUpdateRequest
-from arize._generated.api_client.models.datasets_list200_response import DatasetsList200Response
 from arize._generated.api_client.models.datasets_update_request import DatasetsUpdateRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
@@ -1266,7 +1266,7 @@ class DatasetsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> DatasetsExamplesList200Response:
+    ) -> DatasetExampleListResponse:
         """List dataset examples
 
         List examples for a given dataset and version.  If version is not passed, the latest version is selected. Examples are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each example. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1310,7 +1310,7 @@ class DatasetsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "DatasetsExamplesList200Response",
+            '200': "DatasetExampleListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1346,7 +1346,7 @@ class DatasetsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[DatasetsExamplesList200Response]:
+    ) -> ApiResponse[DatasetExampleListResponse]:
         """List dataset examples
 
         List examples for a given dataset and version.  If version is not passed, the latest version is selected. Examples are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each example. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1390,7 +1390,7 @@ class DatasetsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "DatasetsExamplesList200Response",
+            '200': "DatasetExampleListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1470,7 +1470,7 @@ class DatasetsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "DatasetsExamplesList200Response",
+            '200': "DatasetExampleListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -2181,7 +2181,7 @@ class DatasetsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> DatasetsList200Response:
+    ) -> DatasetListResponse:
         """List datasets
 
         List datasets the user has access to.  The datasets are sorted by creation date, with the most recently created datasets coming first.  The dataset versions are not included in this response. To get the versions of a specific dataset, use the Get Dataset by ID endpoint.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -2231,7 +2231,7 @@ class DatasetsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "DatasetsList200Response",
+            '200': "DatasetListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -2268,7 +2268,7 @@ class DatasetsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[DatasetsList200Response]:
+    ) -> ApiResponse[DatasetListResponse]:
         """List datasets
 
         List datasets the user has access to.  The datasets are sorted by creation date, with the most recently created datasets coming first.  The dataset versions are not included in this response. To get the versions of a specific dataset, use the Get Dataset by ID endpoint.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -2318,7 +2318,7 @@ class DatasetsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "DatasetsList200Response",
+            '200': "DatasetListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -2405,7 +2405,7 @@ class DatasetsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "DatasetsList200Response",
+            '200': "DatasetListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

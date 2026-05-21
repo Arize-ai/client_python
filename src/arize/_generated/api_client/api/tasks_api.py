@@ -20,12 +20,12 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.task import Task
+from arize._generated.api_client.models.task_list_response import TaskListResponse
 from arize._generated.api_client.models.task_run import TaskRun
+from arize._generated.api_client.models.task_run_list_response import TaskRunListResponse
 from arize._generated.api_client.models.task_run_status import TaskRunStatus
 from arize._generated.api_client.models.task_type import TaskType
 from arize._generated.api_client.models.tasks_create_request import TasksCreateRequest
-from arize._generated.api_client.models.tasks_list200_response import TasksList200Response
-from arize._generated.api_client.models.tasks_list_runs200_response import TasksListRuns200Response
 from arize._generated.api_client.models.tasks_trigger_run_request import TasksTriggerRunRequest
 from arize._generated.api_client.models.tasks_update_request import TasksUpdateRequest
 
@@ -1464,7 +1464,7 @@ class TasksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> TasksList200Response:
+    ) -> TaskListResponse:
         """List tasks
 
         List tasks the user has access to, with cursor-based pagination.  Filter by space, space name, task name, project, dataset, or task type using query parameters.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1523,7 +1523,7 @@ class TasksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TasksList200Response",
+            '200': "TaskListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1564,7 +1564,7 @@ class TasksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[TasksList200Response]:
+    ) -> ApiResponse[TaskListResponse]:
         """List tasks
 
         List tasks the user has access to, with cursor-based pagination.  Filter by space, space name, task name, project, dataset, or task type using query parameters.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1623,7 +1623,7 @@ class TasksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TasksList200Response",
+            '200': "TaskListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1723,7 +1723,7 @@ class TasksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TasksList200Response",
+            '200': "TaskListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1858,7 +1858,7 @@ class TasksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> TasksListRuns200Response:
+    ) -> TaskRunListResponse:
         """List task runs
 
         List all runs for a task with cursor-based pagination.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1905,7 +1905,7 @@ class TasksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TasksListRuns200Response",
+            '200': "TaskRunListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1942,7 +1942,7 @@ class TasksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[TasksListRuns200Response]:
+    ) -> ApiResponse[TaskRunListResponse]:
         """List task runs
 
         List all runs for a task with cursor-based pagination.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1989,7 +1989,7 @@ class TasksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TasksListRuns200Response",
+            '200': "TaskRunListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -2073,7 +2073,7 @@ class TasksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TasksListRuns200Response",
+            '200': "TaskRunListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

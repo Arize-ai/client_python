@@ -20,8 +20,8 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.ai_integration import AiIntegration
+from arize._generated.api_client.models.ai_integration_list_response import AiIntegrationListResponse
 from arize._generated.api_client.models.ai_integrations_create_request import AiIntegrationsCreateRequest
-from arize._generated.api_client.models.ai_integrations_list200_response import AiIntegrationsList200Response
 from arize._generated.api_client.models.ai_integrations_update_request import AiIntegrationsUpdateRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
@@ -908,7 +908,7 @@ class AIIntegrationsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AiIntegrationsList200Response:
+    ) -> AiIntegrationListResponse:
         """List AI integrations
 
         List AI integrations the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -958,7 +958,7 @@ class AIIntegrationsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AiIntegrationsList200Response",
+            '200': "AiIntegrationListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -995,7 +995,7 @@ class AIIntegrationsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AiIntegrationsList200Response]:
+    ) -> ApiResponse[AiIntegrationListResponse]:
         """List AI integrations
 
         List AI integrations the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1045,7 +1045,7 @@ class AIIntegrationsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AiIntegrationsList200Response",
+            '200': "AiIntegrationListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1132,7 +1132,7 @@ class AIIntegrationsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AiIntegrationsList200Response",
+            '200': "AiIntegrationListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

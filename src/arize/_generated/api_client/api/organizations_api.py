@@ -21,10 +21,10 @@ from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.organization import Organization
 from arize._generated.api_client.models.organization_create import OrganizationCreate
+from arize._generated.api_client.models.organization_list_response import OrganizationListResponse
 from arize._generated.api_client.models.organization_membership import OrganizationMembership
 from arize._generated.api_client.models.organization_membership_input import OrganizationMembershipInput
 from arize._generated.api_client.models.organization_update import OrganizationUpdate
-from arize._generated.api_client.models.organizations_list200_response import OrganizationsList200Response
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -1213,7 +1213,7 @@ class OrganizationsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> OrganizationsList200Response:
+    ) -> OrganizationListResponse:
         """List organizations
 
         List organizations the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1257,7 +1257,7 @@ class OrganizationsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "OrganizationsList200Response",
+            '200': "OrganizationListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1292,7 +1292,7 @@ class OrganizationsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[OrganizationsList200Response]:
+    ) -> ApiResponse[OrganizationListResponse]:
         """List organizations
 
         List organizations the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1336,7 +1336,7 @@ class OrganizationsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "OrganizationsList200Response",
+            '200': "OrganizationListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1415,7 +1415,7 @@ class OrganizationsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "OrganizationsList200Response",
+            '200': "OrganizationListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

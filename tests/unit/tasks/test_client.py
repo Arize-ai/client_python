@@ -15,7 +15,7 @@ from arize.tasks.client import (
     _DEFAULT_TIMEOUT,
     TasksClient,
 )
-from arize.tasks.types import Task, TasksList200Response
+from arize.tasks.types import Task, TaskListResponse
 
 # Base64 IDs that pass _is_resource_id() — decode to "Type:123"
 _TASK_ID = "VGFzazoxMjM="  # Task:123
@@ -78,7 +78,7 @@ class TestTasksClientList:
     @pytest.fixture(autouse=True)
     def _bypass_model_validate(self) -> None:
         with patch.object(
-            TasksList200Response,
+            TaskListResponse,
             "model_validate",
             side_effect=lambda v, **kw: v,
         ):

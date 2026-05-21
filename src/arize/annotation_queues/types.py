@@ -8,6 +8,9 @@ from arize._generated.api_client.models.annotation_queue_completion_status impor
 from arize._generated.api_client.models.annotation_queue_example_record_input import (
     AnnotationQueueExampleRecordInput,
 )
+from arize._generated.api_client.models.annotation_queue_list_response import (
+    AnnotationQueueListResponse,
+)
 from arize._generated.api_client.models.annotation_queue_record import (
     AnnotationQueueRecord,
 )
@@ -17,23 +20,20 @@ from arize._generated.api_client.models.annotation_queue_record_annotate_result 
 from arize._generated.api_client.models.annotation_queue_record_assign_result import (
     AnnotationQueueRecordAssignResult,
 )
+from arize._generated.api_client.models.annotation_queue_record_create_response import (
+    AnnotationQueueRecordCreateResponse,
+)
 from arize._generated.api_client.models.annotation_queue_record_input import (
     AnnotationQueueRecordInput,
 )
-from arize._generated.api_client.models.annotation_queue_records_list200_response import (
-    AnnotationQueueRecordsList200Response,
+from arize._generated.api_client.models.annotation_queue_record_list_response import (
+    AnnotationQueueRecordListResponse,
 )
 from arize._generated.api_client.models.annotation_queue_source_type import (
     AnnotationQueueSourceType,
 )
 from arize._generated.api_client.models.annotation_queue_span_record_input import (
     AnnotationQueueSpanRecordInput,
-)
-from arize._generated.api_client.models.annotation_queues_list200_response import (
-    AnnotationQueuesList200Response,
-)
-from arize._generated.api_client.models.annotation_queues_records_create200_response import (
-    AnnotationQueuesRecordsCreate200Response,
 )
 from arize._generated.api_client.models.assignment_method import (
     AssignmentMethod,
@@ -47,15 +47,15 @@ __all__ = [
     "AnnotationQueue",
     "AnnotationQueueCompletionStatus",
     "AnnotationQueueExampleRecordInput",
+    "AnnotationQueueListResponse",
     "AnnotationQueueRecord",
     "AnnotationQueueRecordAnnotateResult",
     "AnnotationQueueRecordAssignResult",
+    "AnnotationQueueRecordCreateResponse",
     "AnnotationQueueRecordInput",
-    "AnnotationQueueRecordsList200Response",
+    "AnnotationQueueRecordListResponse",
     "AnnotationQueueSourceType",
     "AnnotationQueueSpanRecordInput",
-    "AnnotationQueuesList200Response",
-    "AnnotationQueuesRecordsCreate200Response",
     "AssignmentMethod",
     "PaginationMetadata",
 ]

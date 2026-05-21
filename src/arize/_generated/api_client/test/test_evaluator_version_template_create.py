@@ -44,7 +44,7 @@ class TestEvaluatorVersionTemplateCreate(unittest.TestCase):
                     classification_choices = {
                         'key' : 1.337
                         }, 
-                    direction = 'none', 
+                    direction = null, 
                     data_granularity = null, 
                     llm_config = arize._generated.api_client.models.evaluator_llm_config.EvaluatorLlmConfig(
                         ai_integration_id = '', 
@@ -63,7 +63,7 @@ class TestEvaluatorVersionTemplateCreate(unittest.TestCase):
                     classification_choices = {
                         'key' : 1.337
                         }, 
-                    direction = 'none', 
+                    direction = null, 
                     data_granularity = null, 
                     llm_config = arize._generated.api_client.models.evaluator_llm_config.EvaluatorLlmConfig(
                         ai_integration_id = '', 

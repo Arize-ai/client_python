@@ -477,7 +477,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **datasets_examples_list**
-> DatasetsExamplesList200Response datasets_examples_list(dataset_id, dataset_version_id=dataset_version_id, limit=limit)
+> DatasetExampleListResponse datasets_examples_list(dataset_id, dataset_version_id=dataset_version_id, limit=limit)
 
 List dataset examples
 
@@ -506,7 +506,7 @@ other list endpoints (cursor-based, opaque tokens).
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.datasets_examples_list200_response import DatasetsExamplesList200Response
+from arize._generated.api_client.models.dataset_example_list_response import DatasetExampleListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -556,7 +556,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**DatasetsExamplesList200Response**](DatasetsExamplesList200Response.md)
+[**DatasetExampleListResponse**](DatasetExampleListResponse.md)
 
 ### Authorization
 
@@ -812,7 +812,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **datasets_list**
-> DatasetsList200Response datasets_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+> DatasetListResponse datasets_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
 
 List datasets
 
@@ -833,7 +833,7 @@ versions of a specific dataset, use the Get Dataset by ID endpoint.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.datasets_list200_response import DatasetsList200Response
+from arize._generated.api_client.models.dataset_list_response import DatasetListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -887,7 +887,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**DatasetsList200Response**](DatasetsList200Response.md)
+[**DatasetListResponse**](DatasetListResponse.md)
 
 ### Authorization
 

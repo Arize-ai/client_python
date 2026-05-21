@@ -13,7 +13,7 @@ from arize.evaluators.types import (
     CodeConfig,
     CustomCodeConfig,
     EvaluatorVersionCode,
-    EvaluatorVersionsList200Response,
+    EvaluatorVersionListResponse,
     EvaluatorWithVersion,
     ManagedCodeConfig,
 )
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from arize.config import SDKConfiguration
     from arize.evaluators.types import (
         Evaluator,
-        EvaluatorsList200Response,
+        EvaluatorListResponse,
         EvaluatorVersionTemplate,
         TemplateConfig,
     )
@@ -106,7 +106,7 @@ class EvaluatorsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> EvaluatorsList200Response:
+    ) -> EvaluatorListResponse:
         """List evaluators the user has access to.
 
         Results are sorted by update date (most recent first). This endpoint
@@ -370,7 +370,7 @@ class EvaluatorsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> EvaluatorVersionsList200Response:
+    ) -> EvaluatorVersionListResponse:
         """List all versions of an evaluator.
 
         Results are returned with cursor-based pagination.
@@ -398,7 +398,7 @@ class EvaluatorsClient:
             limit=limit,
             cursor=cursor,
         )
-        return EvaluatorVersionsList200Response.model_validate(
+        return EvaluatorVersionListResponse.model_validate(
             result, from_attributes=True
         )
 

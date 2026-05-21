@@ -20,7 +20,7 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.annotation_config import AnnotationConfig
-from arize._generated.api_client.models.annotation_configs_list200_response import AnnotationConfigsList200Response
+from arize._generated.api_client.models.annotation_config_list_response import AnnotationConfigListResponse
 from arize._generated.api_client.models.create_annotation_config_request_body import CreateAnnotationConfigRequestBody
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
@@ -907,7 +907,7 @@ class AnnotationConfigsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AnnotationConfigsList200Response:
+    ) -> AnnotationConfigListResponse:
         """List annotation configs
 
         List annotation configs the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -957,7 +957,7 @@ class AnnotationConfigsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationConfigsList200Response",
+            '200': "AnnotationConfigListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -994,7 +994,7 @@ class AnnotationConfigsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AnnotationConfigsList200Response]:
+    ) -> ApiResponse[AnnotationConfigListResponse]:
         """List annotation configs
 
         List annotation configs the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1044,7 +1044,7 @@ class AnnotationConfigsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationConfigsList200Response",
+            '200': "AnnotationConfigListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1131,7 +1131,7 @@ class AnnotationConfigsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationConfigsList200Response",
+            '200': "AnnotationConfigListResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

@@ -271,7 +271,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **projects_list**
-> ProjectsList200Response projects_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+> ProjectListResponse projects_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
 
 List projects
 
@@ -286,7 +286,7 @@ List projects the user has access to.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.projects_list200_response import ProjectsList200Response
+from arize._generated.api_client.models.project_list_response import ProjectListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -340,7 +340,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ProjectsList200Response**](ProjectsList200Response.md)
+[**ProjectListResponse**](ProjectListResponse.md)
 
 ### Authorization
 

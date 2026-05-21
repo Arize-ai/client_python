@@ -101,7 +101,7 @@ class User(BaseModel):
         return v
 
 
-class UsersList200Response(BaseModel):
+class UserListResponse(BaseModel):
     """Paginated list of users with domain-typed roles."""
 
     users: list[User]
@@ -142,8 +142,8 @@ __all__ = [
     "PredefinedUserRole",
     "User",
     "UserCreatedResponse",
+    "UserListResponse",
     "UserRole",
     "UserStatus",
     "UserUpdate",
-    "UsersList200Response",
 ]

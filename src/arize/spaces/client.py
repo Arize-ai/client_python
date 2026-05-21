@@ -16,7 +16,7 @@ if TYPE_CHECKING:
         CustomSpaceRole,
         PredefinedSpaceRole,
         Space,
-        SpacesList200Response,
+        SpaceListResponse,
     )
 
 logger = logging.getLogger(__name__)
@@ -58,7 +58,7 @@ class SpacesClient:
         name: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> SpacesList200Response:
+    ) -> SpaceListResponse:
         """List spaces the user has access to.
 
         This endpoint supports cursor-based pagination. When provided,

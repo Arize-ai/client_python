@@ -208,7 +208,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **api_keys_list**
-> ApiKeysList200Response api_keys_list(key_type=key_type, status=status, space_id=space_id, user_id=user_id, limit=limit, cursor=cursor)
+> ApiKeyListResponse api_keys_list(key_type=key_type, status=status, space_id=space_id, user_id=user_id, limit=limit, cursor=cursor)
 
 List API keys
 
@@ -241,9 +241,9 @@ Returns `403` when neither condition is met.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.api_key_list_response import ApiKeyListResponse
 from arize._generated.api_client.models.api_key_status import ApiKeyStatus
 from arize._generated.api_client.models.api_key_type import ApiKeyType
-from arize._generated.api_client.models.api_keys_list200_response import ApiKeysList200Response
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -299,7 +299,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ApiKeysList200Response**](ApiKeysList200Response.md)
+[**ApiKeyListResponse**](ApiKeyListResponse.md)
 
 ### Authorization
 

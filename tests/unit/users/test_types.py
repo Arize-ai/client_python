@@ -17,8 +17,8 @@ from arize.users.types import (
     PredefinedUserRole,
     User,
     UserCreatedResponse,
+    UserListResponse,
     UserRole,
-    UsersList200Response,
     UserStatus,
     UserUpdate,
 )
@@ -26,7 +26,7 @@ from arize.users.types import (
 # `datetime` and `PaginationMetadata` are imported only under TYPE_CHECKING in
 # users/types.py, so Pydantic v2 cannot resolve them at runtime without help.
 User.model_rebuild(_types_namespace={"datetime": datetime})
-UsersList200Response.model_rebuild(
+UserListResponse.model_rebuild(
     _types_namespace={
         "datetime": datetime,
         "PaginationMetadata": PaginationMetadata,
@@ -54,7 +54,7 @@ class TestUsersTypes:
         assert "UserRole" in types_module.__all__
         assert "UserStatus" in types_module.__all__
         assert "UserUpdate" in types_module.__all__
-        assert "UsersList200Response" in types_module.__all__
+        assert "UserListResponse" in types_module.__all__
 
     def test_user_is_class(self) -> None:
         assert isinstance(User, type)
@@ -75,7 +75,7 @@ class TestUsersTypes:
         assert isinstance(UserUpdate, type)
 
     def test_users_list_response_is_class(self) -> None:
-        assert isinstance(UsersList200Response, type)
+        assert isinstance(UserListResponse, type)
 
 
 @pytest.mark.unit
@@ -228,8 +228,8 @@ class TestUser:
 
 
 @pytest.mark.unit
-class TestUsersList200Response:
-    """Tests for UsersList200Response."""
+class TestUserListResponse:
+    """Tests for UserListResponse."""
 
     def _make_user(self, role_name: UserRole = UserRole.MEMBER) -> User:
         return User(
@@ -249,7 +249,7 @@ class TestUsersList200Response:
         pagination = self._make_pagination()
         users = [self._make_user(), self._make_user(UserRole.ADMIN)]
 
-        result = UsersList200Response(users=users, pagination=pagination)
+        result = UserListResponse(users=users, pagination=pagination)
 
         assert len(result.users) == 2
         assert result.pagination == pagination
@@ -258,7 +258,7 @@ class TestUsersList200Response:
     def test_from_generated_handles_none_users(self) -> None:
         pagination = self._make_pagination()
 
-        result = UsersList200Response(users=[], pagination=pagination)
+        result = UserListResponse(users=[], pagination=pagination)
 
         assert result.users == []
         assert result.pagination == pagination

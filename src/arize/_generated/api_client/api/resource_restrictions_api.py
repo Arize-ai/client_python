@@ -19,7 +19,7 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr
 from typing_extensions import Annotated
 from arize._generated.api_client.models.resource_restriction_create import ResourceRestrictionCreate
-from arize._generated.api_client.models.resource_restrictions_create200_response import ResourceRestrictionsCreate200Response
+from arize._generated.api_client.models.resource_restriction_response_body import ResourceRestrictionResponseBody
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -55,7 +55,7 @@ class ResourceRestrictionsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ResourceRestrictionsCreate200Response:
+    ) -> ResourceRestrictionResponseBody:
         """Restrict a resource
 
         Mark a resource as restricted. Only space admins or users with the RESOURCE_RESTRICT permission can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The ID for the resource.    Only `project` resources are currently supported. Other resource types are not currently supported and will return 400.  **Valid example** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a project ID\" } ``` Returns 400 — only Project / Model IDs are accepted   <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -93,7 +93,7 @@ class ResourceRestrictionsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ResourceRestrictionsCreate200Response",
+            '200': "ResourceRestrictionResponseBody",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -128,7 +128,7 @@ class ResourceRestrictionsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ResourceRestrictionsCreate200Response]:
+    ) -> ApiResponse[ResourceRestrictionResponseBody]:
         """Restrict a resource
 
         Mark a resource as restricted. Only space admins or users with the RESOURCE_RESTRICT permission can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The ID for the resource.    Only `project` resources are currently supported. Other resource types are not currently supported and will return 400.  **Valid example** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a project ID\" } ``` Returns 400 — only Project / Model IDs are accepted   <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -166,7 +166,7 @@ class ResourceRestrictionsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ResourceRestrictionsCreate200Response",
+            '200': "ResourceRestrictionResponseBody",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -239,7 +239,7 @@ class ResourceRestrictionsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ResourceRestrictionsCreate200Response",
+            '200': "ResourceRestrictionResponseBody",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",

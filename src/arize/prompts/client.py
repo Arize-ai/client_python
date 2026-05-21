@@ -24,9 +24,9 @@ if TYPE_CHECKING:
         LLMMessage,
         LlmProvider,
         Prompt,
-        PromptsList200Response,
-        PromptVersionLabelsSet200Response,
-        PromptVersionsList200Response,
+        PromptListResponse,
+        PromptVersionLabelsResponse,
+        PromptVersionListResponse,
         ProviderParams,
     )
 
@@ -70,7 +70,7 @@ class PromptsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> PromptsList200Response:
+    ) -> PromptListResponse:
         """List prompts in a space.
 
         Args:
@@ -270,7 +270,7 @@ class PromptsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> PromptVersionsList200Response:
+    ) -> PromptVersionListResponse:
         """List versions for a prompt.
 
         Args:
@@ -394,7 +394,7 @@ class PromptsClient:
         *,
         version_id: str,
         labels: builtins.list[str],
-    ) -> PromptVersionLabelsSet200Response:
+    ) -> PromptVersionLabelsResponse:
         """Set labels on a prompt version.
 
         Replaces all existing labels on the version with the provided list.

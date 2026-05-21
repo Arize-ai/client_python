@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from arize._utils import unwrap_oneof
 from arize.annotation_configs.types import (
-    AnnotationConfigsList200Response,
+    AnnotationConfigListResponse,
     AnnotationConfigType,
 )
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
@@ -70,7 +70,7 @@ class AnnotationConfigsClient:
         space: str | None = None,
         limit: int = 100,
         cursor: str | None = None,
-    ) -> AnnotationConfigsList200Response:
+    ) -> AnnotationConfigListResponse:
         """List annotation configs the user has access to.
 
         Annotation configs are returned in descending creation order (most recently created
@@ -100,7 +100,7 @@ class AnnotationConfigsClient:
             limit=limit,
             cursor=cursor,
         )
-        return AnnotationConfigsList200Response.model_validate(
+        return AnnotationConfigListResponse.model_validate(
             result, from_attributes=True
         )
 

@@ -414,7 +414,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **organizations_list**
-> OrganizationsList200Response organizations_list(name=name, limit=limit, cursor=cursor)
+> OrganizationListResponse organizations_list(name=name, limit=limit, cursor=cursor)
 
 List organizations
 
@@ -429,7 +429,7 @@ List organizations the user has access to.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.organizations_list200_response import OrganizationsList200Response
+from arize._generated.api_client.models.organization_list_response import OrganizationListResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -479,7 +479,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**OrganizationsList200Response**](OrganizationsList200Response.md)
+[**OrganizationListResponse**](OrganizationListResponse.md)
 
 ### Authorization
 
