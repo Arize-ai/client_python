@@ -404,3 +404,67 @@ class TestProviderParamsForwardCompat:
         assert result is not None
         assert result.region == "us-east-1"
         assert result.additional_properties["experimental_turbo_mode"] is True
+
+
+@pytest.mark.unit
+class TestPromptVersionListResponseToDF:
+    """Contract tests: to_df() must return structured data, not display strings.
+
+    Display formatting belongs in the CLI layer (ax/core/output.py).
+    Callers rely on to_df() returning dicts/lists they can index into.
+    """
+
+    def _make_response(
+        self, versions: list[PromptVersion]
+    ) -> PromptVersionListResponse:
+        from arize._generated.api_client.models.pagination_metadata import (
+            PaginationMetadata,
+        )
+
+        return PromptVersionListResponse(
+            prompt_versions=versions,
+            pagination=PaginationMetadata(has_more=False, next_cursor=None),
+        )
+
+    def test_invocation_params_is_dict(self) -> None:
+        """invocation_params must be a dict in the DataFrame, not a formatted string."""
+        version = _make_version(
+            invocation_params=InvocationParams(temperature=0.7, max_tokens=100)
+        )
+        df = self._make_response([version]).to_df()
+        assert "invocation_params" in df.columns
+        val = df["invocation_params"].iloc[0]
+        assert isinstance(val, dict), f"expected dict, got {type(val)}: {val!r}"
+        assert val["temperature"] == 0.7
+        assert val["max_tokens"] == 100
+
+    def test_invocation_params_none_column_dropped(self) -> None:
+        """Column is absent when all versions have invocation_params=None."""
+        df = self._make_response(
+            [_make_version(invocation_params=None)]
+        ).to_df()
+        assert "invocation_params" not in df.columns
+
+    def test_provider_params_is_dict(self) -> None:
+        """provider_params must be a dict in the DataFrame, not a formatted string."""
+        version = _make_version()
+        version.provider_params = ProviderParams(anthropic_version="2023-06-01")
+        df = self._make_response([version]).to_df()
+        assert "provider_params" in df.columns
+        val = df["provider_params"].iloc[0]
+        assert isinstance(val, dict), f"expected dict, got {type(val)}: {val!r}"
+        assert val["anthropic_version"] == "2023-06-01"
+
+    def test_messages_is_list(self) -> None:
+        """Messages must be a list of dicts in the DataFrame, not a formatted string."""
+        version = _make_version(
+            messages=[
+                LLMMessage(role=MessageRole.SYSTEM, content="You are helpful"),
+                LLMMessage(role=MessageRole.USER, content="Hello {{name}}"),
+            ]
+        )
+        df = self._make_response([version]).to_df()
+        assert "messages" in df.columns
+        val = df["messages"].iloc[0]
+        assert isinstance(val, list), f"expected list, got {type(val)}: {val!r}"
+        assert len(val) == 2

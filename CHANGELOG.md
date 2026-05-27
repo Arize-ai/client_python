@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.29.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.29.0...arize-python-sdk/v8.29.1) (2026-05-27)
+
+
+### 🐛 Bug Fixes
+
+* resolve type-check errors in users, api-keys, evaluators, annotation-configs, and tasks ([#72432](https://github.com/Arize-ai/arize/issues/72432)) ([ea899a1](https://github.com/Arize-ai/arize/commit/ea899a1ad478deafd9d3a14123ddd3cb90492860))
+
 ## [8.29.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.28.3...arize-python-sdk/v8.29.0) (2026-05-27)
 
 

@@ -5,8 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**data_start_time** | **datetime** | ISO 8601 start of the data window to evaluate. If omitted, defaults to the task&#39;s last run time (or 7 days ago on first run).  | [optional] 
-**data_end_time** | **datetime** | ISO 8601 end of the data window to evaluate. If omitted, defaults to now.  | [optional] 
+**data_start_time** | **datetime** | ISO 8601 start of the data window to evaluate. For model-based tasks, defaults to the task&#39;s last run time. Required on the first run (when no previous run exists). Not applicable to dataset-based tasks.  | [optional] 
+**data_end_time** | **datetime** | ISO 8601 end of the data window to evaluate. For model-based tasks, defaults to now. Not applicable to dataset-based tasks.  | [optional] 
 **max_spans** | **int** | Maximum number of spans to process (default 10000). | [optional] 
 **override_evaluations** | **bool** | Whether to re-evaluate data that already has evaluation labels (default &#x60;false&#x60;).  | [optional] 
 **experiment_ids** | **List[str]** | Experiment identifiers (base64) to run against. Only for dataset-based &#x60;template_evaluation&#x60; / &#x60;code_evaluation&#x60; tasks.  | [optional] 
