@@ -155,6 +155,7 @@ from arize._generated.api_client.models.problem import Problem
 from arize._generated.api_client.models.project import Project
 from arize._generated.api_client.models.project_create import ProjectCreate
 from arize._generated.api_client.models.project_list_response import ProjectListResponse
+from arize._generated.api_client.models.project_update import ProjectUpdate
 from arize._generated.api_client.models.prompt import Prompt
 from arize._generated.api_client.models.prompt_list_response import PromptListResponse
 from arize._generated.api_client.models.prompt_version import PromptVersion

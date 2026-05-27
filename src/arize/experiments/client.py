@@ -22,8 +22,10 @@ from opentelemetry.sdk.trace.export import (
 from arize._flight.client import ArizeFlightClient
 from arize._flight.types import FlightRequestType
 from arize._generated.api_client import models
+from arize._generated.api_client.exceptions import ApiException
 from arize.exceptions.base import INVALID_ARROW_CONVERSION_MSG
 from arize.experiments.functions import (
+    ExperimentMetadata,
     run_experiment,
     transform_to_experiment_format,
 )
@@ -522,6 +524,7 @@ class ExperimentsClient:
         exit_on_error: bool = False,
         timeout: int = 120,
         force_http: bool = False,
+        metadata: ExperimentMetadata | dict[str, str] | None = None,
     ) -> tuple[Experiment | None, pd.DataFrame]:
         """Run an experiment on a dataset and optionally upload results.
 
@@ -561,6 +564,12 @@ class ExperimentsClient:
             force_http: If True, bypass gRPC/Flight and use REST only. This is not
                 recommended for large datasets since it limits the number of rows to 500
                 and may be slower than the Flight path.
+            metadata: Optional metadata included in every experiment span. Use
+                :class:`~arize.experiments.functions.ExperimentMetadata` for IDE
+                autocomplete on known fields (``user_id``, ``user_name``,
+                ``user_email``, etc.), or pass any ``dict[str, str]`` for custom
+                fields. Dataset fields (``dataset_id``, ``dataset_name``,
+                ``dataset_version_id``) are always populated automatically.
 
         Returns:
             If `dry_run=True`, returns `(None, results_df)`.
@@ -608,6 +617,19 @@ class ExperimentsClient:
                     experiment_name=name,
                 )
             )
+
+        # Resolve dataset_version_id from the initialized experiment.
+        # Skipped for dry-runs (synthetic IDs); for force_http the API call
+        # will fail gracefully until _init_experiment_via_http is enabled.
+        dataset_version_id: str | None = None
+        if not dry_run:
+            try:
+                exp_obj = self._api.experiments_get(experiment_id=experiment_id)
+                dataset_version_id = exp_obj.dataset_version_id
+            except ApiException:
+                logger.debug(
+                    "Could not retrieve dataset_version_id for experiment metadata"
+                )
 
         # --- Phase 2: obtain dataset (download or from cache) ---
         # Don't cache force_http fetches — row count is limited to 500
@@ -659,6 +681,16 @@ class ExperimentsClient:
             set_global_tracer_provider=set_global_tracer_provider,
         )
 
+        internal_metadata: dict[str, str] = {
+            "dataset_id": dataset_id,
+            "dataset_name": dataset_obj.name,
+            **(
+                {"dataset_version_id": dataset_version_id}
+                if dataset_version_id
+                else {}
+            ),
+            **(metadata or {}),  # type: ignore[dict-item]
+        }
         output_df = run_experiment(
             experiment_name=name,
             experiment_id=experiment_id,
@@ -670,6 +702,7 @@ class ExperimentsClient:
             concurrency=concurrency,
             exit_on_error=exit_on_error,
             timeout=timeout,
+            metadata=internal_metadata,
         )
 
         output_df = convert_default_columns_to_json_str(output_df)

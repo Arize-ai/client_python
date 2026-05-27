@@ -7,11 +7,13 @@ from arize.experiments.evaluators.types import (
     EvaluationResult,
     EvaluationResultFieldNames,
 )
+from arize.experiments.functions import ExperimentMetadata
 from arize.experiments.types import ExperimentTaskFieldNames
 
 __all__ = [
     "EvaluationResult",
     "EvaluationResultFieldNames",
     "Evaluator",
+    "ExperimentMetadata",
     "ExperimentTaskFieldNames",
 ]

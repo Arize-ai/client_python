@@ -171,6 +171,7 @@ arize/_generated/api_client/docs/Problem.md
 arize/_generated/api_client/docs/Project.md
 arize/_generated/api_client/docs/ProjectCreate.md
 arize/_generated/api_client/docs/ProjectListResponse.md
+arize/_generated/api_client/docs/ProjectUpdate.md
 arize/_generated/api_client/docs/ProjectsApi.md
 arize/_generated/api_client/docs/Prompt.md
 arize/_generated/api_client/docs/PromptListResponse.md
@@ -404,6 +405,7 @@ arize/_generated/api_client/models/problem.py
 arize/_generated/api_client/models/project.py
 arize/_generated/api_client/models/project_create.py
 arize/_generated/api_client/models/project_list_response.py
+arize/_generated/api_client/models/project_update.py
 arize/_generated/api_client/models/prompt.py
 arize/_generated/api_client/models/prompt_list_response.py
 arize/_generated/api_client/models/prompt_version.py
@@ -605,6 +607,7 @@ arize/_generated/api_client/test/test_problem.py
 arize/_generated/api_client/test/test_project.py
 arize/_generated/api_client/test/test_project_create.py
 arize/_generated/api_client/test/test_project_list_response.py
+arize/_generated/api_client/test/test_project_update.py
 arize/_generated/api_client/test/test_prompt.py
 arize/_generated/api_client/test/test_prompt_list_response.py
 arize/_generated/api_client/test/test_prompt_version.py

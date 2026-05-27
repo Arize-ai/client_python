@@ -24,6 +24,15 @@
    :member-order: bysource
 ```
 
+## Metadata
+
+```{eval-rst}
+.. currentmodule:: arize.experiments.functions
+.. autoclass:: ExperimentMetadata
+   :members:
+   :member-order: bysource
+```
+
 ## Response Types
 
 ```{eval-rst}

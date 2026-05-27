@@ -1,10 +1,9 @@
 """Public type re-exports and SDK-facing role types for the users subdomain."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Annotated, Literal
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -15,16 +14,12 @@ from arize._generated.api_client.models.custom_user_role_assignment import (
     CustomUserRoleAssignment,
 )
 from arize._generated.api_client.models.invite_mode import InviteMode
+from arize._generated.api_client.models.pagination_metadata import (
+    PaginationMetadata,
+)
 from arize._generated.api_client.models.predefined_user_role_assignment import (
     PredefinedUserRoleAssignment,
 )
-
-if TYPE_CHECKING:
-    from datetime import datetime
-
-    from arize._generated.api_client.models.pagination_metadata import (
-        PaginationMetadata,
-    )
 from arize._generated.api_client.models.user_created_response import (
     UserCreatedResponse,
 )

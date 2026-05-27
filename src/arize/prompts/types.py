@@ -1,7 +1,5 @@
 """Public type re-exports and SDK-facing prompt types for the prompts subdomain."""
 
-from __future__ import annotations
-
 from enum import Enum
 
 from arize._generated.api_client.models.input_variable_format import (

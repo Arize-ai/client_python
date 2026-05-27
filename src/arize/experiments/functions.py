@@ -26,6 +26,7 @@ from typing import (
     Any,
     Literal,
     TypeAlias,
+    TypedDict,
     Union,
     cast,
     get_args,
@@ -70,6 +71,23 @@ from arize.experiments.types import (
 
 RateLimitErrors: TypeAlias = type[BaseException] | Sequence[type[BaseException]]
 
+
+class ExperimentMetadata(TypedDict, total=False):
+    """Known metadata keys for experiment spans.
+
+    All fields are optional. Any additional ``str`` keys are also accepted by
+    passing a plain ``dict[str, str]`` — this TypedDict exists to provide IDE
+    autocomplete and static type-checking for the common fields.
+    """
+
+    dataset_id: str
+    dataset_name: str
+    dataset_version_id: str
+    user_id: str
+    user_name: str
+    user_email: str
+
+
 logger = logging.getLogger(__name__)
 
 # Module-level singleton for no-op tracing
@@ -85,6 +103,7 @@ def run_experiment(
     resource: Resource,
     rate_limit_errors: RateLimitErrors | None = None,
     evaluators: Evaluators | None = None,
+    metadata: ExperimentMetadata | dict[str, str] | None = None,
     concurrency: int = 3,
     exit_on_error: bool = False,
     timeout: int = 120,
@@ -100,6 +119,12 @@ def run_experiment(
         resource (Resource): The resource for tracing the experiment.
         rate_limit_errors (RateLimitErrors | :obj:`None`): Optional rate limit errors.
         evaluators (Evaluators | :obj:`None`): Optional evaluators to assess the task.
+        metadata (ExperimentMetadata | dict[str, str] | :obj:`None`): Optional metadata
+            included in every experiment span. Use :class:`ExperimentMetadata` for
+            IDE autocomplete on known fields (``dataset_id``, ``dataset_name``,
+            ``dataset_version_id``, ``user_id``, ``user_name``, ``user_email``), or
+            pass any ``dict[str, str]`` for custom fields. Both may be combined via
+            dict unpacking. Default is None.
         concurrency (int): The number of concurrent tasks to run. Default is 3.
         exit_on_error (bool): Whether to exit on error. Default is False.
         timeout (int): The timeout for each task execution in seconds. Default is 120.
@@ -120,7 +145,11 @@ def run_experiment(
 
     logger.info("🧪 Experiment started.")
 
-    md = {"experiment_id": experiment_id}
+    md: dict[str, str] = {
+        "experiment_id": experiment_id,
+        "experiment_name": experiment_name,
+        **(metadata or {}),  # type: ignore[dict-item]
+    }
 
     def sync_run_experiment(example: Example) -> ExperimentRun:
         output = None

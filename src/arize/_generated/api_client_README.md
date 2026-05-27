@@ -130,6 +130,7 @@ Class | Method | HTTP request | Description
 *ProjectsApi* | [**projects_delete**](arize/_generated/api_client/docs/ProjectsApi.md#projects_delete) | **DELETE** /v2/projects/{project_id} | Delete a project
 *ProjectsApi* | [**projects_get**](arize/_generated/api_client/docs/ProjectsApi.md#projects_get) | **GET** /v2/projects/{project_id} | Get a project
 *ProjectsApi* | [**projects_list**](arize/_generated/api_client/docs/ProjectsApi.md#projects_list) | **GET** /v2/projects | List projects
+*ProjectsApi* | [**projects_update**](arize/_generated/api_client/docs/ProjectsApi.md#projects_update) | **PATCH** /v2/projects/{project_id} | Update a project
 *PromptsApi* | [**prompt_labels_get**](arize/_generated/api_client/docs/PromptsApi.md#prompt_labels_get) | **GET** /v2/prompts/{prompt_id}/labels/{label_name} | Resolve a label to a prompt version
 *PromptsApi* | [**prompt_version_labels_delete**](arize/_generated/api_client/docs/PromptsApi.md#prompt_version_labels_delete) | **DELETE** /v2/prompt-versions/{version_id}/labels/{label_name} | Remove a label from a prompt version
 *PromptsApi* | [**prompt_version_labels_set**](arize/_generated/api_client/docs/PromptsApi.md#prompt_version_labels_set) | **PUT** /v2/prompt-versions/{version_id}/labels | Set labels on a prompt version
@@ -325,6 +326,7 @@ Class | Method | HTTP request | Description
  - [Project](arize/_generated/api_client/docs/Project.md)
  - [ProjectCreate](arize/_generated/api_client/docs/ProjectCreate.md)
  - [ProjectListResponse](arize/_generated/api_client/docs/ProjectListResponse.md)
+ - [ProjectUpdate](arize/_generated/api_client/docs/ProjectUpdate.md)
  - [Prompt](arize/_generated/api_client/docs/Prompt.md)
  - [PromptListResponse](arize/_generated/api_client/docs/PromptListResponse.md)
  - [PromptVersion](arize/_generated/api_client/docs/PromptVersion.md)

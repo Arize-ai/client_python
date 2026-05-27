@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.29.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.28.3...arize-python-sdk/v8.29.0) (2026-05-27)
+
+
+### 🎁 New Features
+
+* **experiments:** populate experiment span metadata with dataset and experiment keys ([#70739](https://github.com/Arize-ai/arize/issues/70739)) ([72dfabb](https://github.com/Arize-ai/arize/commit/72dfabb2b3626aff391f604f55d862a0301cef49))
+
+
+### 🐛 Bug Fixes
+
+* move PaginationMetadata and datetime out of TYPE_CHECKING in users/types.py ([#72683](https://github.com/Arize-ai/arize/issues/72683)) ([98286fb](https://github.com/Arize-ai/arize/commit/98286fb208c742ab5bd6e3528199c710498166c9))
+
 ## [8.28.3](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.28.2...arize-python-sdk/v8.28.3) (2026-05-21)
 
 

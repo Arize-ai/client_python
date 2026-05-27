@@ -587,18 +587,31 @@ resp_df = resp.to_df()
 You can run an experiment on a dataset using `client.experiments.run()` by defining a task, evaluators (optional), and passing the dataset id or name of the dataset you want to use, together with a name for the experiment. The function will download the entire dataset from Arize (unless cached, see caching section under "SDK Configuration"), execute the task to obtain an output, and perform evaluations (if evaluators were passed). The experiments will also be traced, and these traces will be visible in Arize. The experiment will be created and the data logged into Arize automatically. You can avoid logging to Arize by making `dry_run=True`. The function will return the `Experiment` object (or `None` if `dry_run=True`) together with the dataframe with the experiment data.
 
 ```python
+from arize.experiments import ExperimentMetadata
+
 experiment, experiment_df = client.experiments.run(
     name="<name-your-experiment>",
     dataset="<your-dataset-id-or-name>",
     space=..., # Optional, space ID or name
-    task=... # The task to be performed in the experiment.
-    evaluators=... # Optional: The evaluators to use in the experiment.
+    task=..., # The task to be performed in the experiment.
+    evaluators=..., # Optional: The evaluators to use in the experiment.
     dry_run=..., # If True, the experiment result will not be uploaded to Arize. Defaults to False
     dry_run_count=..., # Number of examples of the dataset to use in the dry run. Defaults to 10
     concurrency=..., # The number of concurrent tasks to run. Defaults to 3.
     set_global_tracer_provider=..., # If True, sets the global tracer provider for the experiment. Defaults to False
     exit_on_error=..., # If True, the experiment will stop running on first occurrence of an error. Defaults to False
+    metadata=ExperimentMetadata(user_id="...", user_email="..."), # Optional: metadata attached to every experiment span
 )
+```
+
+`metadata` accepts an [`ExperimentMetadata`](https://arize.com/docs/api-clients/python/version-8/experiments) typed dict (for IDE autocomplete on known fields like `user_id`, `user_name`, `user_email`) or any plain `dict[str, str]` for custom fields. Dataset fields (`dataset_id`, `dataset_name`, `dataset_version_id`) are always populated automatically. Both can be combined via dict unpacking:
+
+```python
+metadata={
+    **ExperimentMetadata(user_email="alice@example.com"),
+    "team": "ml-platform",
+    "git_sha": "abc123",
+}
 ```
 
 The `Experiment` object also has convenience methods:

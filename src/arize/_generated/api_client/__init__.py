@@ -186,6 +186,7 @@ __all__ = [
     "Project",
     "ProjectCreate",
     "ProjectListResponse",
+    "ProjectUpdate",
     "Prompt",
     "PromptListResponse",
     "PromptVersion",
@@ -441,6 +442,7 @@ from arize._generated.api_client.models.problem import Problem as Problem
 from arize._generated.api_client.models.project import Project as Project
 from arize._generated.api_client.models.project_create import ProjectCreate as ProjectCreate
 from arize._generated.api_client.models.project_list_response import ProjectListResponse as ProjectListResponse
+from arize._generated.api_client.models.project_update import ProjectUpdate as ProjectUpdate
 from arize._generated.api_client.models.prompt import Prompt as Prompt
 from arize._generated.api_client.models.prompt_list_response import PromptListResponse as PromptListResponse
 from arize._generated.api_client.models.prompt_version import PromptVersion as PromptVersion
