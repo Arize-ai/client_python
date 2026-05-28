@@ -106,3 +106,35 @@ class TestProjectsCRUD:
             assert any(p.id == project.id for p in resp.projects)
         finally:
             _delete_project_if_permitted(projects_client, project=project.id)
+
+    def test_update_renames_project_by_id(self, projects_client) -> None:
+        """update() should rename a project when addressed by ID."""
+        name = _unique("sdk-test-proj")
+        new_name = _unique("sdk-test-proj-renamed")
+        project = projects_client.create(name=name, space=SPACE_NAME)
+        try:
+            updated = projects_client.update(project=project.id, name=new_name)
+            assert updated.name == new_name
+            assert updated.id == project.id
+
+            fetched = projects_client.get(project=project.id)
+            assert fetched.name == new_name
+        finally:
+            _delete_project_if_permitted(projects_client, project=project.id)
+
+    def test_update_renames_project_by_name(self, projects_client) -> None:
+        """update() should rename a project when addressed by name."""
+        name = _unique("sdk-test-proj")
+        new_name = _unique("sdk-test-proj-renamed")
+        project = projects_client.create(name=name, space=SPACE_NAME)
+        try:
+            updated = projects_client.update(
+                project=name, space=SPACE_NAME, name=new_name
+            )
+            assert updated.name == new_name
+            assert updated.id == project.id
+
+            fetched = projects_client.get(project=name, space=SPACE_NAME)
+            assert fetched.name == new_name
+        finally:
+            _delete_project_if_permitted(projects_client, project=project.id)

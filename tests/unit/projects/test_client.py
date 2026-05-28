@@ -192,3 +192,101 @@ class TestProjectsClientCreate:
             result = projects_client.create(name="proj", space="space-id")
 
         assert result is expected
+
+
+@pytest.mark.unit
+class TestProjectsClientUpdate:
+    """Tests for ProjectsClient.update()."""
+
+    def test_update_resolves_project_and_builds_request(
+        self, projects_client: ProjectsClient, mock_api: Mock
+    ) -> None:
+        """update() should resolve the project ID, build ProjectUpdate, and call projects_update."""
+        with (
+            patch(
+                "arize.projects.client._find_project_id",
+                return_value="resolved-project-id",
+            ) as mock_resolve,
+            patch(
+                "arize._generated.api_client.ProjectUpdate"
+            ) as mock_request_cls,
+        ):
+            mock_request_cls.return_value = Mock()
+
+            projects_client.update(
+                project="my-project",
+                space="my-space",
+                name="renamed-project",
+            )
+
+        mock_resolve.assert_called_once_with(
+            api=projects_client._api,
+            project="my-project",
+            space="my-space",
+        )
+        mock_request_cls.assert_called_once_with(name="renamed-project")
+        mock_api.projects_update.assert_called_once_with(
+            project_id="resolved-project-id",
+            project_update=mock_request_cls.return_value,
+        )
+
+    def test_update_with_project_id_skips_space(
+        self, projects_client: ProjectsClient, mock_api: Mock
+    ) -> None:
+        """update() with a resource ID should pass space=None to _find_project_id."""
+        project_id = "UHJvamVjdDoxOjEyMw=="
+        with (
+            patch(
+                "arize.projects.client._find_project_id",
+                return_value=project_id,
+            ) as mock_resolve,
+            patch("arize._generated.api_client.ProjectUpdate"),
+        ):
+            projects_client.update(project=project_id, name="renamed-project")
+
+        mock_resolve.assert_called_once_with(
+            api=projects_client._api,
+            project=project_id,
+            space=None,
+        )
+
+    def test_update_returns_api_response(
+        self, projects_client: ProjectsClient, mock_api: Mock
+    ) -> None:
+        """update() should propagate the return value from projects_update."""
+        expected = Mock()
+        mock_api.projects_update.return_value = expected
+
+        with (
+            patch("arize.projects.client._find_project_id", return_value="pid"),
+            patch("arize._generated.api_client.ProjectUpdate"),
+        ):
+            result = projects_client.update(
+                project="proj", space="space-id", name="new-name"
+            )
+
+        assert result is expected
+
+    def test_update_emits_alpha_prerelease_warning(
+        self,
+        projects_client: ProjectsClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the ALPHA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        with (
+            patch("arize.projects.client._find_project_id", return_value="pid"),
+            patch("arize._generated.api_client.ProjectUpdate"),
+        ):
+            projects_client.update(
+                project="proj", space="space-id", name="new-name"
+            )
+
+        assert any(
+            "ALPHA" in record.message and "projects.update" in record.message
+            for record in caplog.records
+        )

@@ -74,6 +74,7 @@
     - [List Projects](#list-projects)
     - [Create a Project](#create-a-project)
     - [Get a Project](#get-a-project)
+    - [Update a Project](#update-a-project)
     - [Delete a Project](#delete-a-project)
   - [Operations on Annotation Configs](#operations-on-annotation-configs)
     - [List Annotation Configs](#list-annotation-configs)
@@ -1065,6 +1066,16 @@ project = client.projects.create(
 project = client.projects.get(
     project="<project-id-or-name>",
     space=..., # Optional
+)
+```
+
+### Update a Project
+
+```python
+project = client.projects.update(
+    project="<project-id-or-name>",
+    space=..., # Optional, space ID or name (required when looking up by project name)
+    name="<new-project-name>", # Must be unique within the space
 )
 ```
 

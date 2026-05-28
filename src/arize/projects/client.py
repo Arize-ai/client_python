@@ -164,3 +164,37 @@ class ProjectsClient:
             space=space,
         )
         return self._api.projects_delete(project_id=project_id)
+
+    @prerelease_endpoint(key="projects.update", stage=ReleaseStage.ALPHA)
+    def update(
+        self,
+        *,
+        project: str,
+        space: str | None = None,
+        name: str,
+    ) -> Project:
+        """Update an existing project.
+
+        Args:
+            project: Project ID or name.
+            space: Space ID or name. Required when *project* is a name.
+            name: New name for the project. Must be unique within the space.
+
+        Returns:
+            The updated project object.
+
+        Raises:
+            ApiException: If the REST API returns an error response
+                (e.g. 400/401/403/404/409/429).
+        """
+        # Import at runtime so it's still lazy and extras-gated by the parent
+        from arize._generated import api_client as gen
+
+        project_id = _find_project_id(
+            api=self._api, project=project, space=space
+        )
+
+        body = gen.ProjectUpdate(name=name)
+        return self._api.projects_update(
+            project_id=project_id, project_update=body
+        )

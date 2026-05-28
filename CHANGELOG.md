@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.30.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.29.1...arize-python-sdk/v8.30.0) (2026-05-28)
+
+
+### 🎁 New Features
+
+* **projects:** support for update project ([#72937](https://github.com/Arize-ai/arize/issues/72937)) ([270605f](https://github.com/Arize-ai/arize/commit/270605fadb630c306d4c73b2752c9f46663a23e3))
+
 ## [8.29.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.29.0...arize-python-sdk/v8.29.1) (2026-05-27)
 
 
