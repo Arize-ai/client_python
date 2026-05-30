@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.30.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.30.0...arize-python-sdk/v8.30.1) (2026-05-30)
+
+
+### ❔ Miscellaneous Chores
+
+* promote annotation-queues, organizations, prompts, roles, spaces to BETA ([#72421](https://github.com/Arize-ai/arize/issues/72421)) ([745ee18](https://github.com/Arize-ai/arize/commit/745ee18a34b1b89f1b3a80d96a196c53ea838682))
+
 ## [8.30.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.29.1...arize-python-sdk/v8.30.0) (2026-05-28)
 
 

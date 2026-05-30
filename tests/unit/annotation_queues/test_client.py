@@ -142,12 +142,12 @@ class TestAnnotationQueuesClientList:
 
         assert result is expected
 
-    def test_emits_alpha_prerelease_warning(
+    def test_emits_beta_prerelease_warning(
         self,
         annotation_queues_client: AnnotationQueuesClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call to list() should emit the ALPHA prerelease warning."""
+        """First call to list() should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -156,7 +156,7 @@ class TestAnnotationQueuesClientList:
         annotation_queues_client.list()
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "annotation_queues.list" in record.message
             for record in caplog.records
         )
@@ -279,12 +279,12 @@ class TestAnnotationQueuesClientCreate:
 
         assert result is expected
 
-    def test_emits_alpha_prerelease_warning(
+    def test_emits_beta_prerelease_warning(
         self,
         annotation_queues_client: AnnotationQueuesClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call to create() should emit the ALPHA prerelease warning."""
+        """First call to create() should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -301,7 +301,7 @@ class TestAnnotationQueuesClientCreate:
             )
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "annotation_queues.create" in record.message
             for record in caplog.records
         )
@@ -671,12 +671,12 @@ class TestAnnotationQueuesClientAssignRecord:
 
         assert result is expected
 
-    def test_emits_alpha_prerelease_warning(
+    def test_emits_beta_prerelease_warning(
         self,
         annotation_queues_client: AnnotationQueuesClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call to assign_record() should emit the ALPHA prerelease warning."""
+        """First call to assign_record() should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -692,7 +692,7 @@ class TestAnnotationQueuesClientAssignRecord:
             )
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "annotation_queues.assign_record" in record.message
             for record in caplog.records
         )

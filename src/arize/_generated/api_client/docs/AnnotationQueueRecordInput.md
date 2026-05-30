@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**record_type** | **str** |  | 
+**record_type** | **str** | Discriminator identifying the record source type. Must be &#x60;span&#x60; for span records. | 
 **dataset_id** | **str** | The dataset ID these examples belong to | 
 **dataset_version_id** | **str** | Optional. The specific dataset version to use. If omitted, the latest version is used.  | [optional] 
 **example_ids** | **List[str]** | Optional. List of example IDs within the dataset to add to the queue. If omitted, all examples in the dataset (or dataset version) are added.  | [optional] 

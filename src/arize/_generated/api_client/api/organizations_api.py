@@ -371,7 +371,7 @@ class OrganizationsApi:
     ) -> Organization:
         """Create an organization
 
-        Create a new organization within the account.  **Payload Requirements** - `name` is required and must be unique within the account. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated automatically and rejected if provided.  **Valid example** ```json {   \"name\": \"Agent Engineering Team\",   \"description\": \"Organization for the Agent Engineering team\" } ```  **Invalid example** (duplicate name) ```json {   \"name\": \"Agent Engineering Team\" } ``` Fails with 409 Conflict if an organization with that name already exists in the account.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new organization within the account.  **Payload Requirements** - `name` is required and must be unique within the account. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated automatically and rejected if provided.  **Valid example** ```json {   \"name\": \"Agent Engineering Team\",   \"description\": \"Organization for the Agent Engineering team\" } ```  **Invalid example** (duplicate name) ```json {   \"name\": \"Agent Engineering Team\" } ``` Fails with 409 Conflict if an organization with that name already exists in the account.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param organization_create: Body containing organization creation parameters (required)
         :type organization_create: OrganizationCreate
@@ -444,7 +444,7 @@ class OrganizationsApi:
     ) -> ApiResponse[Organization]:
         """Create an organization
 
-        Create a new organization within the account.  **Payload Requirements** - `name` is required and must be unique within the account. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated automatically and rejected if provided.  **Valid example** ```json {   \"name\": \"Agent Engineering Team\",   \"description\": \"Organization for the Agent Engineering team\" } ```  **Invalid example** (duplicate name) ```json {   \"name\": \"Agent Engineering Team\" } ``` Fails with 409 Conflict if an organization with that name already exists in the account.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new organization within the account.  **Payload Requirements** - `name` is required and must be unique within the account. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated automatically and rejected if provided.  **Valid example** ```json {   \"name\": \"Agent Engineering Team\",   \"description\": \"Organization for the Agent Engineering team\" } ```  **Invalid example** (duplicate name) ```json {   \"name\": \"Agent Engineering Team\" } ``` Fails with 409 Conflict if an organization with that name already exists in the account.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param organization_create: Body containing organization creation parameters (required)
         :type organization_create: OrganizationCreate
@@ -517,7 +517,7 @@ class OrganizationsApi:
     ) -> RESTResponseType:
         """Create an organization
 
-        Create a new organization within the account.  **Payload Requirements** - `name` is required and must be unique within the account. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated automatically and rejected if provided.  **Valid example** ```json {   \"name\": \"Agent Engineering Team\",   \"description\": \"Organization for the Agent Engineering team\" } ```  **Invalid example** (duplicate name) ```json {   \"name\": \"Agent Engineering Team\" } ``` Fails with 409 Conflict if an organization with that name already exists in the account.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new organization within the account.  **Payload Requirements** - `name` is required and must be unique within the account. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated automatically and rejected if provided.  **Valid example** ```json {   \"name\": \"Agent Engineering Team\",   \"description\": \"Organization for the Agent Engineering team\" } ```  **Invalid example** (duplicate name) ```json {   \"name\": \"Agent Engineering Team\" } ``` Fails with 409 Conflict if an organization with that name already exists in the account.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param organization_create: Body containing organization creation parameters (required)
         :type organization_create: OrganizationCreate
@@ -664,7 +664,7 @@ class OrganizationsApi:
     ) -> None:
         """Delete an organization
 
-        Delete an organization by its ID. This deletes the organization and all resources that belong to it, including all spaces and their contents (projects, experiments, evaluators, models, monitors, dashboards, datasets, annotation configs, annotation queues, custom metrics, etc.) as well as organization-level resources such as integrations, cost configurations, SAML identity providers, and API keys.  This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete an organization by its ID. This deletes the organization and all resources that belong to it, including all spaces and their contents (projects, experiments, evaluators, models, monitors, dashboards, datasets, annotation configs, annotation queues, custom metrics, etc.) as well as organization-level resources such as integrations, cost configurations, SAML identity providers, and API keys.  This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
@@ -736,7 +736,7 @@ class OrganizationsApi:
     ) -> ApiResponse[None]:
         """Delete an organization
 
-        Delete an organization by its ID. This deletes the organization and all resources that belong to it, including all spaces and their contents (projects, experiments, evaluators, models, monitors, dashboards, datasets, annotation configs, annotation queues, custom metrics, etc.) as well as organization-level resources such as integrations, cost configurations, SAML identity providers, and API keys.  This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete an organization by its ID. This deletes the organization and all resources that belong to it, including all spaces and their contents (projects, experiments, evaluators, models, monitors, dashboards, datasets, annotation configs, annotation queues, custom metrics, etc.) as well as organization-level resources such as integrations, cost configurations, SAML identity providers, and API keys.  This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
@@ -808,7 +808,7 @@ class OrganizationsApi:
     ) -> RESTResponseType:
         """Delete an organization
 
-        Delete an organization by its ID. This deletes the organization and all resources that belong to it, including all spaces and their contents (projects, experiments, evaluators, models, monitors, dashboards, datasets, annotation configs, annotation queues, custom metrics, etc.) as well as organization-level resources such as integrations, cost configurations, SAML identity providers, and API keys.  This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete an organization by its ID. This deletes the organization and all resources that belong to it, including all spaces and their contents (projects, experiments, evaluators, models, monitors, dashboards, datasets, annotation configs, annotation queues, custom metrics, etc.) as well as organization-level resources such as integrations, cost configurations, SAML identity providers, and API keys.  This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
@@ -940,7 +940,7 @@ class OrganizationsApi:
     ) -> Organization:
         """Get an organization
 
-        Get a specific organization by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific organization by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
@@ -1011,7 +1011,7 @@ class OrganizationsApi:
     ) -> ApiResponse[Organization]:
         """Get an organization
 
-        Get a specific organization by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific organization by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
@@ -1082,7 +1082,7 @@ class OrganizationsApi:
     ) -> RESTResponseType:
         """Get an organization
 
-        Get a specific organization by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific organization by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
@@ -1216,7 +1216,7 @@ class OrganizationsApi:
     ) -> OrganizationListResponse:
         """List organizations
 
-        List organizations the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List organizations the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
@@ -1295,7 +1295,7 @@ class OrganizationsApi:
     ) -> ApiResponse[OrganizationListResponse]:
         """List organizations
 
-        List organizations the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List organizations the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
@@ -1374,7 +1374,7 @@ class OrganizationsApi:
     ) -> RESTResponseType:
         """List organizations
 
-        List organizations the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List organizations the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
@@ -1816,7 +1816,7 @@ class OrganizationsApi:
     ) -> Organization:
         """Update an organization
 
-        Update an organization's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the account. - System-managed fields (`id`, `created_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Platform Engineering Team\",   \"description\": \"Renamed from Agent Engineering Team\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update an organization's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the account. - System-managed fields (`id`, `created_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Platform Engineering Team\",   \"description\": \"Renamed from Agent Engineering Team\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
@@ -1894,7 +1894,7 @@ class OrganizationsApi:
     ) -> ApiResponse[Organization]:
         """Update an organization
 
-        Update an organization's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the account. - System-managed fields (`id`, `created_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Platform Engineering Team\",   \"description\": \"Renamed from Agent Engineering Team\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update an organization's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the account. - System-managed fields (`id`, `created_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Platform Engineering Team\",   \"description\": \"Renamed from Agent Engineering Team\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
@@ -1972,7 +1972,7 @@ class OrganizationsApi:
     ) -> RESTResponseType:
         """Update an organization
 
-        Update an organization's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the account. - System-managed fields (`id`, `created_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Platform Engineering Team\",   \"description\": \"Renamed from Agent Engineering Team\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update an organization's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the account. - System-managed fields (`id`, `created_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Platform Engineering Team\",   \"description\": \"Renamed from Agent Engineering Team\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str

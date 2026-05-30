@@ -128,12 +128,12 @@ class TestPromptsClientList:
 
         assert result is expected
 
-    def test_list_emits_alpha_prerelease_warning(
+    def test_list_emits_beta_prerelease_warning(
         self,
         prompts_client: PromptsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -142,7 +142,7 @@ class TestPromptsClientList:
         prompts_client.list()
 
         assert any(
-            "ALPHA" in record.message and "prompts.list" in record.message
+            "BETA" in record.message and "prompts.list" in record.message
             for record in caplog.records
         )
 

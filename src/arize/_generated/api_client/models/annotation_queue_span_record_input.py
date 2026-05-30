@@ -28,7 +28,7 @@ class AnnotationQueueSpanRecordInput(BaseModel):
     """
     AnnotationQueueSpanRecordInput
     """ # noqa: E501
-    record_type: StrictStr
+    record_type: StrictStr = Field(description="Discriminator identifying the record source type. Must be `span` for span records.")
     project_id: StrictStr = Field(description="The project ID these spans belong to")
     start_time: datetime = Field(description="Start of the time range to search for spans in Druid. The range (end_time - start_time) must not exceed 7 days. ")
     end_time: datetime = Field(description="End of the time range. Must be after start_time. ")

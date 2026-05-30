@@ -667,7 +667,7 @@ class SpacesApi:
     ) -> None:
         """Delete a space
 
-        Delete a space by its ID. This deletes the space and all resources that belong to it (models, monitors, dashboards, datasets, custom metrics, etc). This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete a space by its ID. This deletes the space and all resources that belong to it (models, monitors, dashboards, datasets, custom metrics, etc). This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
@@ -739,7 +739,7 @@ class SpacesApi:
     ) -> ApiResponse[None]:
         """Delete a space
 
-        Delete a space by its ID. This deletes the space and all resources that belong to it (models, monitors, dashboards, datasets, custom metrics, etc). This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete a space by its ID. This deletes the space and all resources that belong to it (models, monitors, dashboards, datasets, custom metrics, etc). This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
@@ -811,7 +811,7 @@ class SpacesApi:
     ) -> RESTResponseType:
         """Delete a space
 
-        Delete a space by its ID. This deletes the space and all resources that belong to it (models, monitors, dashboards, datasets, custom metrics, etc). This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete a space by its ID. This deletes the space and all resources that belong to it (models, monitors, dashboards, datasets, custom metrics, etc). This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: The unique space identifier (base64) (required)
         :type space_id: str

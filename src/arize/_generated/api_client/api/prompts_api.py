@@ -68,7 +68,7 @@ class PromptsApi:
     ) -> PromptVersion:
         """Resolve a label to a prompt version
 
-        Resolve a label on a prompt to the version it points to. Returns the full `PromptVersion` object that this label currently references.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Resolve a label on a prompt to the version it points to. Returns the full `PromptVersion` object that this label currently references.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -143,7 +143,7 @@ class PromptsApi:
     ) -> ApiResponse[PromptVersion]:
         """Resolve a label to a prompt version
 
-        Resolve a label on a prompt to the version it points to. Returns the full `PromptVersion` object that this label currently references.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Resolve a label on a prompt to the version it points to. Returns the full `PromptVersion` object that this label currently references.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -218,7 +218,7 @@ class PromptsApi:
     ) -> RESTResponseType:
         """Resolve a label to a prompt version
 
-        Resolve a label on a prompt to the version it points to. Returns the full `PromptVersion` object that this label currently references.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Resolve a label on a prompt to the version it points to. Returns the full `PromptVersion` object that this label currently references.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -357,7 +357,7 @@ class PromptsApi:
     ) -> None:
         """Remove a label from a prompt version
 
-        Remove a specific label from a prompt version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Remove a specific label from a prompt version.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
@@ -433,7 +433,7 @@ class PromptsApi:
     ) -> ApiResponse[None]:
         """Remove a label from a prompt version
 
-        Remove a specific label from a prompt version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Remove a specific label from a prompt version.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
@@ -509,7 +509,7 @@ class PromptsApi:
     ) -> RESTResponseType:
         """Remove a label from a prompt version
 
-        Remove a specific label from a prompt version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Remove a specific label from a prompt version.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
@@ -648,7 +648,7 @@ class PromptsApi:
     ) -> PromptVersionLabelsResponse:
         """Set labels on a prompt version
 
-        Set (replace) all labels on a prompt version. This is an idempotent operation. If a label already exists on another version of the same prompt, it will be moved to this version.  Labels not included in the request will be removed from this version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Set (replace) all labels on a prompt version. This is an idempotent operation. If a label already exists on another version of the same prompt, it will be moved to this version.  Labels not included in the request will be removed from this version.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
@@ -725,7 +725,7 @@ class PromptsApi:
     ) -> ApiResponse[PromptVersionLabelsResponse]:
         """Set labels on a prompt version
 
-        Set (replace) all labels on a prompt version. This is an idempotent operation. If a label already exists on another version of the same prompt, it will be moved to this version.  Labels not included in the request will be removed from this version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Set (replace) all labels on a prompt version. This is an idempotent operation. If a label already exists on another version of the same prompt, it will be moved to this version.  Labels not included in the request will be removed from this version.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
@@ -802,7 +802,7 @@ class PromptsApi:
     ) -> RESTResponseType:
         """Set labels on a prompt version
 
-        Set (replace) all labels on a prompt version. This is an idempotent operation. If a label already exists on another version of the same prompt, it will be moved to this version.  Labels not included in the request will be removed from this version.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Set (replace) all labels on a prompt version. This is an idempotent operation. If a label already exists on another version of the same prompt, it will be moved to this version.  Labels not included in the request will be removed from this version.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
@@ -956,7 +956,7 @@ class PromptsApi:
     ) -> PromptVersion:
         """Create a prompt version
 
-        Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `provider` is required. `input_variable_format` defaults to `f_string` if not provided.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `provider` is required. `input_variable_format` defaults to `f_string` if not provided.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -1033,7 +1033,7 @@ class PromptsApi:
     ) -> ApiResponse[PromptVersion]:
         """Create a prompt version
 
-        Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `provider` is required. `input_variable_format` defaults to `f_string` if not provided.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `provider` is required. `input_variable_format` defaults to `f_string` if not provided.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -1110,7 +1110,7 @@ class PromptsApi:
     ) -> RESTResponseType:
         """Create a prompt version
 
-        Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `provider` is required. `input_variable_format` defaults to `f_string` if not provided.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new version of an existing prompt.  **Payload Requirements** - A `commit_message` is required. - At least one message is required in `messages`. - Do not include system-managed fields on input: `id`, `commit_hash`, `created_at`, `created_by_user_id`.   Requests that contain these fields will be rejected. - `provider` is required. `input_variable_format` defaults to `f_string` if not provided.  **Valid example** (create) ```json {   \"commit_message\": \"Updated system prompt for better responses\",   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"model\": \"gpt-4\",   \"messages\": [     {       \"role\": \"system\",       \"content\": \"You are a helpful assistant.\"     },     {       \"role\": \"user\",       \"content\": \"Hello, {name}!\"     }   ] } ```  **Invalid example** (missing required `commit_message`) ```json {   \"input_variable_format\": \"f_string\",   \"provider\": \"open_ai\",   \"messages\": [     {       \"role\": \"user\",       \"content\": \"Hello!\"     }   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -1263,7 +1263,7 @@ class PromptsApi:
     ) -> PromptVersion:
         """Get a prompt version
 
-        Get a specific prompt version by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific prompt version by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
@@ -1334,7 +1334,7 @@ class PromptsApi:
     ) -> ApiResponse[PromptVersion]:
         """Get a prompt version
 
-        Get a specific prompt version by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific prompt version by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
@@ -1405,7 +1405,7 @@ class PromptsApi:
     ) -> RESTResponseType:
         """Get a prompt version
 
-        Get a specific prompt version by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific prompt version by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param version_id: The unique prompt version identifier (base64) (required)
         :type version_id: str
@@ -1539,7 +1539,7 @@ class PromptsApi:
     ) -> PromptVersionListResponse:
         """List prompt versions
 
-        List all versions of a prompt, sorted by creation date with the most recently created versions first.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List all versions of a prompt, sorted by creation date with the most recently created versions first.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -1619,7 +1619,7 @@ class PromptsApi:
     ) -> ApiResponse[PromptVersionListResponse]:
         """List prompt versions
 
-        List all versions of a prompt, sorted by creation date with the most recently created versions first.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List all versions of a prompt, sorted by creation date with the most recently created versions first.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -1699,7 +1699,7 @@ class PromptsApi:
     ) -> RESTResponseType:
         """List prompt versions
 
-        List all versions of a prompt, sorted by creation date with the most recently created versions first.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List all versions of a prompt, sorted by creation date with the most recently created versions first.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -1848,7 +1848,7 @@ class PromptsApi:
     ) -> PromptWithVersion:
         """Create a prompt
 
-        Create a new prompt with an initial version.  **Payload Requirements** - The prompt name must be unique within the given space. - At least one message is required.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new prompt with an initial version.  **Payload Requirements** - The prompt name must be unique within the given space. - At least one message is required.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompts_create_request: Body containing prompt creation parameters with an initial version (required)
         :type prompts_create_request: PromptsCreateRequest
@@ -1921,7 +1921,7 @@ class PromptsApi:
     ) -> ApiResponse[PromptWithVersion]:
         """Create a prompt
 
-        Create a new prompt with an initial version.  **Payload Requirements** - The prompt name must be unique within the given space. - At least one message is required.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new prompt with an initial version.  **Payload Requirements** - The prompt name must be unique within the given space. - At least one message is required.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompts_create_request: Body containing prompt creation parameters with an initial version (required)
         :type prompts_create_request: PromptsCreateRequest
@@ -1994,7 +1994,7 @@ class PromptsApi:
     ) -> RESTResponseType:
         """Create a prompt
 
-        Create a new prompt with an initial version.  **Payload Requirements** - The prompt name must be unique within the given space. - At least one message is required.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new prompt with an initial version.  **Payload Requirements** - The prompt name must be unique within the given space. - At least one message is required.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompts_create_request: Body containing prompt creation parameters with an initial version (required)
         :type prompts_create_request: PromptsCreateRequest
@@ -2141,7 +2141,7 @@ class PromptsApi:
     ) -> None:
         """Delete a prompt
 
-        Delete a prompt by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete a prompt by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -2213,7 +2213,7 @@ class PromptsApi:
     ) -> ApiResponse[None]:
         """Delete a prompt
 
-        Delete a prompt by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete a prompt by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -2285,7 +2285,7 @@ class PromptsApi:
     ) -> RESTResponseType:
         """Delete a prompt
 
-        Delete a prompt by its ID. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Delete a prompt by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -2419,7 +2419,7 @@ class PromptsApi:
     ) -> PromptWithVersion:
         """Get a prompt
 
-        Get a specific prompt by its ID. The response always includes a resolved version. By default, the latest version is returned. Use the `version_id` or `label` query parameter to resolve a specific version instead. You cannot supply both `version_id` and `label`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific prompt by its ID. The response always includes a resolved version. By default, the latest version is returned. Use the `version_id` or `label` query parameter to resolve a specific version instead. You cannot supply both `version_id` and `label`.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -2498,7 +2498,7 @@ class PromptsApi:
     ) -> ApiResponse[PromptWithVersion]:
         """Get a prompt
 
-        Get a specific prompt by its ID. The response always includes a resolved version. By default, the latest version is returned. Use the `version_id` or `label` query parameter to resolve a specific version instead. You cannot supply both `version_id` and `label`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific prompt by its ID. The response always includes a resolved version. By default, the latest version is returned. Use the `version_id` or `label` query parameter to resolve a specific version instead. You cannot supply both `version_id` and `label`.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -2577,7 +2577,7 @@ class PromptsApi:
     ) -> RESTResponseType:
         """Get a prompt
 
-        Get a specific prompt by its ID. The response always includes a resolved version. By default, the latest version is returned. Use the `version_id` or `label` query parameter to resolve a specific version instead. You cannot supply both `version_id` and `label`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific prompt by its ID. The response always includes a resolved version. By default, the latest version is returned. Use the `version_id` or `label` query parameter to resolve a specific version instead. You cannot supply both `version_id` and `label`.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -2729,7 +2729,7 @@ class PromptsApi:
     ) -> PromptListResponse:
         """List prompts
 
-        List prompts the user has access to.  The prompts are sorted by update date, with the most recently updated prompts coming first.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List prompts the user has access to.  The prompts are sorted by update date, with the most recently updated prompts coming first.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -2816,7 +2816,7 @@ class PromptsApi:
     ) -> ApiResponse[PromptListResponse]:
         """List prompts
 
-        List prompts the user has access to.  The prompts are sorted by update date, with the most recently updated prompts coming first.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List prompts the user has access to.  The prompts are sorted by update date, with the most recently updated prompts coming first.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -2903,7 +2903,7 @@ class PromptsApi:
     ) -> RESTResponseType:
         """List prompts
 
-        List prompts the user has access to.  The prompts are sorted by update date, with the most recently updated prompts coming first.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List prompts the user has access to.  The prompts are sorted by update date, with the most recently updated prompts coming first.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -3070,7 +3070,7 @@ class PromptsApi:
     ) -> Prompt:
         """Update a prompt
 
-        Update a prompt's metadata by its ID. Currently supports updating the description. The prompt name is immutable after creation; to rename a prompt, delete it and create a new one (note: this loses version history).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a prompt's metadata by its ID. Currently supports updating the description. The prompt name is immutable after creation; to rename a prompt, delete it and create a new one (note: this loses version history).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -3147,7 +3147,7 @@ class PromptsApi:
     ) -> ApiResponse[Prompt]:
         """Update a prompt
 
-        Update a prompt's metadata by its ID. Currently supports updating the description. The prompt name is immutable after creation; to rename a prompt, delete it and create a new one (note: this loses version history).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a prompt's metadata by its ID. Currently supports updating the description. The prompt name is immutable after creation; to rename a prompt, delete it and create a new one (note: this loses version history).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str
@@ -3224,7 +3224,7 @@ class PromptsApi:
     ) -> RESTResponseType:
         """Update a prompt
 
-        Update a prompt's metadata by its ID. Currently supports updating the description. The prompt name is immutable after creation; to rename a prompt, delete it and create a new one (note: this loses version history).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a prompt's metadata by its ID. Currently supports updating the description. The prompt name is immutable after creation; to rename a prompt, delete it and create a new one (note: this loses version history).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param prompt_id: The unique prompt identifier (base64) (required)
         :type prompt_id: str

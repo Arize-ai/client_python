@@ -135,7 +135,7 @@ class SpacesClient:
         )
         return self._api.spaces_create(spaces_create_request=body)
 
-    @prerelease_endpoint(key="spaces.delete", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="spaces.delete", stage=ReleaseStage.BETA)
     def delete(self, *, space: str) -> None:
         """Delete a space by ID or name.
 

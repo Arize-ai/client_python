@@ -25,7 +25,7 @@ Resolve a label to a prompt version
 Resolve a label on a prompt to the version it points to. Returns the
 full `PromptVersion` object that this label currently references.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -112,7 +112,7 @@ Remove a label from a prompt version
 
 Remove a specific label from a prompt version.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -201,7 +201,7 @@ prompt, it will be moved to this version.
 
 Labels not included in the request will be removed from this version.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -332,7 +332,7 @@ Create a new version of an existing prompt.
 }
 ```
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -422,7 +422,7 @@ Get a prompt version
 
 Get a specific prompt version by its ID.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -508,7 +508,7 @@ List prompt versions
 List all versions of a prompt, sorted by creation date with the most
 recently created versions first.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -602,7 +602,7 @@ Create a new prompt with an initial version.
 - The prompt name must be unique within the given space.
 - At least one message is required.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -690,7 +690,7 @@ Delete a prompt
 
 Delete a prompt by its ID. This operation is irreversible.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -776,7 +776,7 @@ version. By default, the latest version is returned. Use the `version_id`
 or `label` query parameter to resolve a specific version instead. You
 cannot supply both `version_id` and `label`.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -868,7 +868,7 @@ List prompts the user has access to.
 The prompts are sorted by update date, with the most recently updated
 prompts coming first.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -963,7 +963,7 @@ Update a prompt's metadata by its ID. Currently supports updating the
 description. The prompt name is immutable after creation; to rename a
 prompt, delete it and create a new one (note: this loses version history).
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example

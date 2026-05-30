@@ -49,7 +49,7 @@ class OrganizationsClient:
         # Use the provided client directly
         self._api = gen.OrganizationsApi(generated_client)
 
-    @prerelease_endpoint(key="organizations.list", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="organizations.list", stage=ReleaseStage.BETA)
     def list(
         self,
         *,
@@ -81,7 +81,7 @@ class OrganizationsClient:
             cursor=cursor,
         )
 
-    @prerelease_endpoint(key="organizations.get", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="organizations.get", stage=ReleaseStage.BETA)
     def get(self, *, organization: str) -> Organization:
         """Get an organization by ID or name.
 
@@ -98,7 +98,7 @@ class OrganizationsClient:
         org_id = _find_organization_id(self._api, organization)
         return self._api.organizations_get(org_id=org_id)
 
-    @prerelease_endpoint(key="organizations.create", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="organizations.create", stage=ReleaseStage.BETA)
     def create(
         self,
         *,
@@ -127,7 +127,7 @@ class OrganizationsClient:
         )
         return self._api.organizations_create(organization_create=body)
 
-    @prerelease_endpoint(key="organizations.delete", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="organizations.delete", stage=ReleaseStage.BETA)
     def delete(self, *, organization: str) -> None:
         """Delete an organization by ID or name.
 
@@ -153,7 +153,7 @@ class OrganizationsClient:
         org_id = _find_organization_id(self._api, organization)
         return self._api.organizations_delete(org_id=org_id)
 
-    @prerelease_endpoint(key="organizations.update", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="organizations.update", stage=ReleaseStage.BETA)
     def update(
         self,
         *,

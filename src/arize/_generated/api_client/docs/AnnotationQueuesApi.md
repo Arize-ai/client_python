@@ -33,7 +33,7 @@ Each record includes:
 - Use cursor-based pagination by passing the returned `next_cursor`
 value as the `cursor` query parameter in subsequent requests.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -162,7 +162,7 @@ Create a new annotation queue.
 }
 ```
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -251,7 +251,7 @@ Delete an annotation queue
 
 Delete an annotation queue by its ID. This operation is irreversible.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -340,7 +340,7 @@ structure of annotations that can be created in this queue.
 This endpoint does not include queue records or annotation progress. To
 manage records in a queue, use the Annotation Queue Items endpoints.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -425,7 +425,7 @@ List annotation queues
 
 List annotation queues the user has access to.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -678,7 +678,7 @@ Use the list records endpoint to retrieve the full record state.
 }
 ```
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -810,7 +810,7 @@ Add new records from either spans (a project) or from dataset examples to an exi
 
 <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue.</Note>
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -908,7 +908,7 @@ all provided IDs were deleted.
 Returns 404 if the annotation queue specified by `annotation_queue_id` is not found.
 Individual missing record IDs do not trigger a 404.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -1015,7 +1015,7 @@ Update an annotation queue by its ID. At least one field must be provided.
 {}
 ```
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example

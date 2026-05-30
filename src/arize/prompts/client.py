@@ -62,7 +62,7 @@ class PromptsClient:
         self._api = gen.PromptsApi(generated_client)
         self._spaces_api = gen.SpacesApi(generated_client)
 
-    @prerelease_endpoint(key="prompts.list", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="prompts.list", stage=ReleaseStage.BETA)
     def list(
         self,
         *,
@@ -98,7 +98,7 @@ class PromptsClient:
             cursor=cursor,
         )
 
-    @prerelease_endpoint(key="prompts.create", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="prompts.create", stage=ReleaseStage.BETA)
     def create(
         self,
         *,
@@ -160,7 +160,7 @@ class PromptsClient:
         result = self._api.prompts_create(prompts_create_request=body)
         return PromptWithVersion.model_validate(result, from_attributes=True)
 
-    @prerelease_endpoint(key="prompts.get", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="prompts.get", stage=ReleaseStage.BETA)
     def get(
         self,
         *,
@@ -200,7 +200,7 @@ class PromptsClient:
         )
         return PromptWithVersion.model_validate(result, from_attributes=True)
 
-    @prerelease_endpoint(key="prompts.update", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="prompts.update", stage=ReleaseStage.BETA)
     def update(
         self,
         *,
@@ -237,7 +237,7 @@ class PromptsClient:
             prompt_id=prompt_id, prompts_update_request=body
         )
 
-    @prerelease_endpoint(key="prompts.delete", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="prompts.delete", stage=ReleaseStage.BETA)
     def delete(self, *, prompt: str, space: str | None = None) -> None:
         """Delete a prompt by ID or name.
 
@@ -262,7 +262,7 @@ class PromptsClient:
         )
         return self._api.prompts_delete(prompt_id=prompt_id)
 
-    @prerelease_endpoint(key="prompts.list_versions", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="prompts.list_versions", stage=ReleaseStage.BETA)
     def list_versions(
         self,
         *,
@@ -299,7 +299,7 @@ class PromptsClient:
             cursor=cursor,
         )
 
-    @prerelease_endpoint(key="prompts.create_version", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="prompts.create_version", stage=ReleaseStage.BETA)
     def create_version(
         self,
         *,
@@ -359,7 +359,7 @@ class PromptsClient:
         )
         return PromptVersion.model_validate(result, from_attributes=True)
 
-    @prerelease_endpoint(key="prompts.get_label", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="prompts.get_label", stage=ReleaseStage.BETA)
     def get_label(
         self, *, prompt: str, space: str | None = None, label_name: str
     ) -> PromptVersion:
@@ -388,7 +388,7 @@ class PromptsClient:
         )
         return PromptVersion.model_validate(result, from_attributes=True)
 
-    @prerelease_endpoint(key="prompts.set_labels", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="prompts.set_labels", stage=ReleaseStage.BETA)
     def set_labels(
         self,
         *,
@@ -417,7 +417,7 @@ class PromptsClient:
             version_id=version_id, prompt_version_labels_set_request=body
         )
 
-    @prerelease_endpoint(key="prompts.delete_label", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="prompts.delete_label", stage=ReleaseStage.BETA)
     def delete_label(self, *, version_id: str, label_name: str) -> None:
         """Remove a label from a prompt version.
 

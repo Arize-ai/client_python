@@ -126,12 +126,12 @@ class TestOrganizationsClientList:
 
         assert result is expected
 
-    def test_list_emits_alpha_prerelease_warning(
+    def test_list_emits_beta_prerelease_warning(
         self,
         organizations_client: OrganizationsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -140,7 +140,7 @@ class TestOrganizationsClientList:
         organizations_client.list()
 
         assert any(
-            "ALPHA" in record.message and "organizations.list" in record.message
+            "BETA" in record.message and "organizations.list" in record.message
             for record in caplog.records
         )
 
@@ -294,12 +294,12 @@ class TestOrganizationsClientDelete:
 
         assert result is None
 
-    def test_delete_emits_alpha_prerelease_warning(
+    def test_delete_emits_beta_prerelease_warning(
         self,
         organizations_client: OrganizationsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -308,7 +308,7 @@ class TestOrganizationsClientDelete:
         organizations_client.delete(organization="T3JnYW5pemF0aW9uOjEyMzQ1")
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "organizations.delete" in record.message
             for record in caplog.records
         )

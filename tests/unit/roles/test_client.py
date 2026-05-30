@@ -104,12 +104,12 @@ class TestRolesClientList:
 
         assert result is expected
 
-    def test_list_emits_alpha_prerelease_warning(
+    def test_list_emits_beta_prerelease_warning(
         self,
         roles_client: RolesClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -118,7 +118,7 @@ class TestRolesClientList:
         roles_client.list()
 
         assert any(
-            "ALPHA" in record.message and "roles.list" in record.message
+            "BETA" in record.message and "roles.list" in record.message
             for record in caplog.records
         )
 
@@ -178,12 +178,12 @@ class TestRolesClientGet:
 
         assert result is expected
 
-    def test_get_emits_alpha_prerelease_warning(
+    def test_get_emits_beta_prerelease_warning(
         self,
         roles_client: RolesClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -192,7 +192,7 @@ class TestRolesClientGet:
         roles_client.get(role=_ROLE_ID)
 
         assert any(
-            "ALPHA" in record.message and "roles.get" in record.message
+            "BETA" in record.message and "roles.get" in record.message
             for record in caplog.records
         )
 

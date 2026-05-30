@@ -224,7 +224,7 @@ Delete a space by its ID. This deletes the space and all resources
 that belong to it (models, monitors, dashboards, datasets, custom metrics, etc).
 This operation is irreversible.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example

@@ -48,7 +48,7 @@ class RolesClient:
         # Use the provided client directly
         self._api = gen.RolesApi(generated_client)
 
-    @prerelease_endpoint(key="roles.list", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="roles.list", stage=ReleaseStage.BETA)
     def list(
         self,
         *,
@@ -81,7 +81,7 @@ class RolesClient:
             is_predefined=is_predefined,
         )
 
-    @prerelease_endpoint(key="roles.get", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="roles.get", stage=ReleaseStage.BETA)
     def get(self, *, role: str) -> Role:
         """Get a role by name or ID.
 
@@ -100,7 +100,7 @@ class RolesClient:
         role_id = _find_role_id(self._api, role)
         return self._api.roles_get(role_id=role_id)
 
-    @prerelease_endpoint(key="roles.create", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="roles.create", stage=ReleaseStage.BETA)
     def create(
         self,
         *,
@@ -135,7 +135,7 @@ class RolesClient:
         )
         return self._api.roles_create(role_create=body)
 
-    @prerelease_endpoint(key="roles.update", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="roles.update", stage=ReleaseStage.BETA)
     def update(
         self,
         *,
@@ -185,7 +185,7 @@ class RolesClient:
         )
         return self._api.roles_update(role_id=role_id, role_update=body)
 
-    @prerelease_endpoint(key="roles.delete", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="roles.delete", stage=ReleaseStage.BETA)
     def delete(self, *, role: str) -> None:
         """Delete a custom role by name or ID.
 
