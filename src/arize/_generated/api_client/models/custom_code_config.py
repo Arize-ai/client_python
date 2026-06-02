@@ -31,7 +31,7 @@ class CustomCodeConfig(BaseModel):
     """ # noqa: E501
     data_granularity: Optional[DataGranularity] = Field(default=None, description="Data granularity level for evaluation. When omitted or null, no granularity filter is applied (span-level evaluation is used by default on the server). ")
     query_filter: Optional[StrictStr] = Field(default=None, description="Optional filter query over the chosen data granularity. When omitted or null, no filter is applied. ")
-    type: StrictStr
+    type: StrictStr = Field(description="Discriminator identifying this as a custom (user-supplied Python) code evaluator")
     name: Annotated[str, Field(strict=True)] = Field(description="Eval column name. Must match ^[a-zA-Z0-9_\\s\\-&()]+$")
     code: StrictStr = Field(description="Python source defining the evaluator class")
     imports: Optional[StrictStr] = Field(default=None, description="Optional package import block prepended when running the evaluator")

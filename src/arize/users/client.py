@@ -61,7 +61,7 @@ class UsersClient:
         # Use the provided client directly
         self._api = gen.UsersApi(generated_client)
 
-    @prerelease_endpoint(key="users.list", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="users.list", stage=ReleaseStage.BETA)
     def list(
         self,
         *,
@@ -100,7 +100,7 @@ class UsersClient:
             from_attributes=True,
         )
 
-    @prerelease_endpoint(key="users.get", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="users.get", stage=ReleaseStage.BETA)
     def get(self, *, user: str) -> User | None:
         """Get a user by ID or email address.
 
@@ -135,7 +135,7 @@ class UsersClient:
             self._api.users_get(user_id=user), from_attributes=True
         )
 
-    @prerelease_endpoint(key="users.create", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="users.create", stage=ReleaseStage.BETA)
     def create(
         self,
         *,
@@ -195,7 +195,7 @@ class UsersClient:
             from_attributes=True,
         )
 
-    @prerelease_endpoint(key="users.update", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="users.update", stage=ReleaseStage.BETA)
     def update(
         self,
         *,
@@ -234,7 +234,7 @@ class UsersClient:
             from_attributes=True,
         )
 
-    @prerelease_endpoint(key="users.delete", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="users.delete", stage=ReleaseStage.BETA)
     def delete(self, *, user_id: str) -> None:
         """Delete a user by ID.
 
@@ -254,9 +254,7 @@ class UsersClient:
         """
         return self._api.users_delete(user_id=user_id)
 
-    @prerelease_endpoint(
-        key="users.resend_invitation", stage=ReleaseStage.ALPHA
-    )
+    @prerelease_endpoint(key="users.resend_invitation", stage=ReleaseStage.BETA)
     def resend_invitation(self, *, user_id: str) -> None:
         """Resend an invitation email for a pending user.
 
@@ -274,7 +272,7 @@ class UsersClient:
         """
         return self._api.users_resend_invitation(user_id=user_id)
 
-    @prerelease_endpoint(key="users.bulk_delete", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="users.bulk_delete", stage=ReleaseStage.BETA)
     def bulk_delete(
         self,
         *,
@@ -306,24 +304,29 @@ class UsersClient:
 
         results: builtins.list[BulkUserDeletionResult] = []
         ids_to_delete: builtins.list[str] = user_ids or []
+        id_to_email: dict[str, str] = {}
 
         # Resolve emails to user IDs
         email: str
         for email in emails or []:
             try:
-                ids_to_delete.append(_find_user_id_by_email(self._api, email))
-            except NotFoundError:  # noqa: PERF203
+                uid = _find_user_id_by_email(self._api, email)
+            except NotFoundError:
                 logger.warning(
                     "No user found with email '%s' — skipping",
                     email,
                 )
                 results.append(
                     BulkUserDeletionResult(
-                        id=email,
+                        user_id="",
+                        email=email,
                         status=DeletionStatus.NOT_FOUND,
                         error=f"No user found with email '{email}'",
                     )
                 )
+                continue
+            id_to_email[uid] = email
+            ids_to_delete.append(uid)
 
         # Delete each user
         for uid in ids_to_delete:
@@ -331,13 +334,16 @@ class UsersClient:
                 self.delete(user_id=uid)
                 results.append(
                     BulkUserDeletionResult(
-                        id=uid, status=DeletionStatus.DELETED
+                        user_id=uid,
+                        email=id_to_email.get(uid),
+                        status=DeletionStatus.DELETED,
                     )
                 )
             except Exception as exc:  # noqa: PERF203
                 results.append(
                     BulkUserDeletionResult(
-                        id=uid,
+                        user_id=uid,
+                        email=id_to_email.get(uid),
                         status=DeletionStatus.FAILED,
                         error=str(exc),
                     )
@@ -345,7 +351,7 @@ class UsersClient:
 
         return results
 
-    @prerelease_endpoint(key="users.reset_password", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="users.reset_password", stage=ReleaseStage.BETA)
     def reset_password(self, *, user_id: str) -> None:
         """Trigger a password-reset email for a user.
 

@@ -62,7 +62,7 @@ class UsersApi:
     ) -> User:
         """Create a user
 
-        Create a new account user with explicit invite control.  **Invite modes** - `none` — add the user directly with no invitation (for SSO-only accounts). The user   is immediately active and can log in via the configured identity provider. - `email_link` — create an `invited` invitation and send the user an email with a   verification link to complete registration. - `temporary_password` — create an `invited` invitation with a temporary password   (returned once in the response). The user must reset it on first login.  **Idempotency on `email`** (applies when `invite_mode != \"none\"`)  | Existing state | Behavior | Response | | --- | --- | --- | | No prior invitation | Create a new `invited` invitation | `201 Created` | | `invited` (not yet accepted) | Return the existing invitation as-is; do not resend | `200 OK` | | `active` | Email belongs to an existing member | `409 Conflict` | | `expired` | Create a new `invited` invitation | `201 Created` | | `inactive` | User has been deactivated and cannot be re-invited | `409 Conflict` |  When `invite_mode` is `none` and the email already belongs to an active account member, the request returns `409 Conflict`.  **Payload requirements** - `name` — required, 1–255 characters - `email` — required, must be a valid email address; used as the idempotency key - `role` — required, one of `admin`, `member`, `annotator`; sets the account-level role - `invite_mode` — required, one of `none`, `email_link`, `temporary_password`  Requires account admin role or USER_CREATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new account user with explicit invite control.  **Invite modes** - `none` — add the user directly with no invitation (for SSO-only accounts). The user   is immediately active and can log in via the configured identity provider. - `email_link` — create an `invited` invitation and send the user an email with a   verification link to complete registration. - `temporary_password` — create an `invited` invitation with a temporary password   (returned once in the response). The user must reset it on first login.  **Idempotency on `email`** (applies when `invite_mode != \"none\"`)  | Existing state | Behavior | Response | | --- | --- | --- | | No prior invitation | Create a new `invited` invitation | `201 Created` | | `invited` (not yet accepted) | Return the existing invitation as-is; do not resend | `200 OK` | | `active` | Email belongs to an existing member | `409 Conflict` | | `expired` | Create a new `invited` invitation | `201 Created` | | `inactive` | User has been deactivated and cannot be re-invited | `409 Conflict` |  When `invite_mode` is `none` and the email already belongs to an active account member, the request returns `409 Conflict`.  **Payload requirements** - `name` — required, 1–255 characters - `email` — required, must be a valid email address; used as the idempotency key - `role` — required, one of `admin`, `member`, `annotator`; sets the account-level role - `invite_mode` — required, one of `none`, `email_link`, `temporary_password`  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_user_request: Body containing user creation parameters and invite control. (required)
         :type create_user_request: CreateUserRequest
@@ -137,7 +137,7 @@ class UsersApi:
     ) -> ApiResponse[User]:
         """Create a user
 
-        Create a new account user with explicit invite control.  **Invite modes** - `none` — add the user directly with no invitation (for SSO-only accounts). The user   is immediately active and can log in via the configured identity provider. - `email_link` — create an `invited` invitation and send the user an email with a   verification link to complete registration. - `temporary_password` — create an `invited` invitation with a temporary password   (returned once in the response). The user must reset it on first login.  **Idempotency on `email`** (applies when `invite_mode != \"none\"`)  | Existing state | Behavior | Response | | --- | --- | --- | | No prior invitation | Create a new `invited` invitation | `201 Created` | | `invited` (not yet accepted) | Return the existing invitation as-is; do not resend | `200 OK` | | `active` | Email belongs to an existing member | `409 Conflict` | | `expired` | Create a new `invited` invitation | `201 Created` | | `inactive` | User has been deactivated and cannot be re-invited | `409 Conflict` |  When `invite_mode` is `none` and the email already belongs to an active account member, the request returns `409 Conflict`.  **Payload requirements** - `name` — required, 1–255 characters - `email` — required, must be a valid email address; used as the idempotency key - `role` — required, one of `admin`, `member`, `annotator`; sets the account-level role - `invite_mode` — required, one of `none`, `email_link`, `temporary_password`  Requires account admin role or USER_CREATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new account user with explicit invite control.  **Invite modes** - `none` — add the user directly with no invitation (for SSO-only accounts). The user   is immediately active and can log in via the configured identity provider. - `email_link` — create an `invited` invitation and send the user an email with a   verification link to complete registration. - `temporary_password` — create an `invited` invitation with a temporary password   (returned once in the response). The user must reset it on first login.  **Idempotency on `email`** (applies when `invite_mode != \"none\"`)  | Existing state | Behavior | Response | | --- | --- | --- | | No prior invitation | Create a new `invited` invitation | `201 Created` | | `invited` (not yet accepted) | Return the existing invitation as-is; do not resend | `200 OK` | | `active` | Email belongs to an existing member | `409 Conflict` | | `expired` | Create a new `invited` invitation | `201 Created` | | `inactive` | User has been deactivated and cannot be re-invited | `409 Conflict` |  When `invite_mode` is `none` and the email already belongs to an active account member, the request returns `409 Conflict`.  **Payload requirements** - `name` — required, 1–255 characters - `email` — required, must be a valid email address; used as the idempotency key - `role` — required, one of `admin`, `member`, `annotator`; sets the account-level role - `invite_mode` — required, one of `none`, `email_link`, `temporary_password`  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_user_request: Body containing user creation parameters and invite control. (required)
         :type create_user_request: CreateUserRequest
@@ -212,7 +212,7 @@ class UsersApi:
     ) -> RESTResponseType:
         """Create a user
 
-        Create a new account user with explicit invite control.  **Invite modes** - `none` — add the user directly with no invitation (for SSO-only accounts). The user   is immediately active and can log in via the configured identity provider. - `email_link` — create an `invited` invitation and send the user an email with a   verification link to complete registration. - `temporary_password` — create an `invited` invitation with a temporary password   (returned once in the response). The user must reset it on first login.  **Idempotency on `email`** (applies when `invite_mode != \"none\"`)  | Existing state | Behavior | Response | | --- | --- | --- | | No prior invitation | Create a new `invited` invitation | `201 Created` | | `invited` (not yet accepted) | Return the existing invitation as-is; do not resend | `200 OK` | | `active` | Email belongs to an existing member | `409 Conflict` | | `expired` | Create a new `invited` invitation | `201 Created` | | `inactive` | User has been deactivated and cannot be re-invited | `409 Conflict` |  When `invite_mode` is `none` and the email already belongs to an active account member, the request returns `409 Conflict`.  **Payload requirements** - `name` — required, 1–255 characters - `email` — required, must be a valid email address; used as the idempotency key - `role` — required, one of `admin`, `member`, `annotator`; sets the account-level role - `invite_mode` — required, one of `none`, `email_link`, `temporary_password`  Requires account admin role or USER_CREATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new account user with explicit invite control.  **Invite modes** - `none` — add the user directly with no invitation (for SSO-only accounts). The user   is immediately active and can log in via the configured identity provider. - `email_link` — create an `invited` invitation and send the user an email with a   verification link to complete registration. - `temporary_password` — create an `invited` invitation with a temporary password   (returned once in the response). The user must reset it on first login.  **Idempotency on `email`** (applies when `invite_mode != \"none\"`)  | Existing state | Behavior | Response | | --- | --- | --- | | No prior invitation | Create a new `invited` invitation | `201 Created` | | `invited` (not yet accepted) | Return the existing invitation as-is; do not resend | `200 OK` | | `active` | Email belongs to an existing member | `409 Conflict` | | `expired` | Create a new `invited` invitation | `201 Created` | | `inactive` | User has been deactivated and cannot be re-invited | `409 Conflict` |  When `invite_mode` is `none` and the email already belongs to an active account member, the request returns `409 Conflict`.  **Payload requirements** - `name` — required, 1–255 characters - `email` — required, must be a valid email address; used as the idempotency key - `role` — required, one of `admin`, `member`, `annotator`; sets the account-level role - `invite_mode` — required, one of `none`, `email_link`, `temporary_password`  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_user_request: Body containing user creation parameters and invite control. (required)
         :type create_user_request: CreateUserRequest
@@ -361,7 +361,7 @@ class UsersApi:
     ) -> None:
         """Delete a user
 
-        Permanently block a user from the account. The user's status is set to `inactive` and they can no longer log in. The operation cascades to: - Organization memberships - Space memberships - User API keys - Role bindings  Blocked users cannot be re-invited via the create endpoint — `inactive` is a terminal state. Callers cannot delete themselves. The operation is idempotent — blocking an already-inactive user returns 204.  Requires account admin role or USER_DELETE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently block a user from the account. The user's status is set to `inactive` and they can no longer log in. The operation cascades to: - Organization memberships - Space memberships - User API keys - Role bindings  Blocked users cannot be re-invited via the create endpoint — `inactive` is a terminal state. Callers cannot delete themselves. The operation is idempotent — blocking an already-inactive user returns 204.  Requires account admin role or USER_DELETE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -433,7 +433,7 @@ class UsersApi:
     ) -> ApiResponse[None]:
         """Delete a user
 
-        Permanently block a user from the account. The user's status is set to `inactive` and they can no longer log in. The operation cascades to: - Organization memberships - Space memberships - User API keys - Role bindings  Blocked users cannot be re-invited via the create endpoint — `inactive` is a terminal state. Callers cannot delete themselves. The operation is idempotent — blocking an already-inactive user returns 204.  Requires account admin role or USER_DELETE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently block a user from the account. The user's status is set to `inactive` and they can no longer log in. The operation cascades to: - Organization memberships - Space memberships - User API keys - Role bindings  Blocked users cannot be re-invited via the create endpoint — `inactive` is a terminal state. Callers cannot delete themselves. The operation is idempotent — blocking an already-inactive user returns 204.  Requires account admin role or USER_DELETE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -505,7 +505,7 @@ class UsersApi:
     ) -> RESTResponseType:
         """Delete a user
 
-        Permanently block a user from the account. The user's status is set to `inactive` and they can no longer log in. The operation cascades to: - Organization memberships - Space memberships - User API keys - Role bindings  Blocked users cannot be re-invited via the create endpoint — `inactive` is a terminal state. Callers cannot delete themselves. The operation is idempotent — blocking an already-inactive user returns 204.  Requires account admin role or USER_DELETE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently block a user from the account. The user's status is set to `inactive` and they can no longer log in. The operation cascades to: - Organization memberships - Space memberships - User API keys - Role bindings  Blocked users cannot be re-invited via the create endpoint — `inactive` is a terminal state. Callers cannot delete themselves. The operation is idempotent — blocking an already-inactive user returns 204.  Requires account admin role or USER_DELETE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -637,7 +637,7 @@ class UsersApi:
     ) -> User:
         """Get a user
 
-        Get a specific user by their ID.  Requires account admin role, account member role, or USER_READ permission at the account level.  Returns 404 if the user does not exist, does not belong to the caller's account, or the caller lacks read permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific user by their ID.  Requires account admin role, account member role, or USER_READ permission at the account level.  Returns 404 if the user does not exist, does not belong to the caller's account, or the caller lacks read permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -708,7 +708,7 @@ class UsersApi:
     ) -> ApiResponse[User]:
         """Get a user
 
-        Get a specific user by their ID.  Requires account admin role, account member role, or USER_READ permission at the account level.  Returns 404 if the user does not exist, does not belong to the caller's account, or the caller lacks read permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific user by their ID.  Requires account admin role, account member role, or USER_READ permission at the account level.  Returns 404 if the user does not exist, does not belong to the caller's account, or the caller lacks read permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -779,7 +779,7 @@ class UsersApi:
     ) -> RESTResponseType:
         """Get a user
 
-        Get a specific user by their ID.  Requires account admin role, account member role, or USER_READ permission at the account level.  Returns 404 if the user does not exist, does not belong to the caller's account, or the caller lacks read permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Get a specific user by their ID.  Requires account admin role, account member role, or USER_READ permission at the account level.  Returns 404 if the user does not exist, does not belong to the caller's account, or the caller lacks read permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -914,7 +914,7 @@ class UsersApi:
     ) -> UserListResponse:
         """List users
 
-        List users in the account with cursor-based pagination. Results are sorted by creation date ascending (oldest first).  Requires account admin role, account member role, or USER_READ permission at the account level.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List users in the account with cursor-based pagination. Results are sorted by creation date ascending (oldest first).  Requires account admin role, account member role, or USER_READ permission at the account level.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param limit: Maximum items to return
         :type limit: int
@@ -997,7 +997,7 @@ class UsersApi:
     ) -> ApiResponse[UserListResponse]:
         """List users
 
-        List users in the account with cursor-based pagination. Results are sorted by creation date ascending (oldest first).  Requires account admin role, account member role, or USER_READ permission at the account level.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List users in the account with cursor-based pagination. Results are sorted by creation date ascending (oldest first).  Requires account admin role, account member role, or USER_READ permission at the account level.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param limit: Maximum items to return
         :type limit: int
@@ -1080,7 +1080,7 @@ class UsersApi:
     ) -> RESTResponseType:
         """List users
 
-        List users in the account with cursor-based pagination. Results are sorted by creation date ascending (oldest first).  Requires account admin role, account member role, or USER_READ permission at the account level.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List users in the account with cursor-based pagination. Results are sorted by creation date ascending (oldest first).  Requires account admin role, account member role, or USER_READ permission at the account level.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param limit: Maximum items to return
         :type limit: int
@@ -1239,7 +1239,7 @@ class UsersApi:
     ) -> None:
         """Trigger a password-reset email for a user
 
-        Generates a reset token and sends the user a password-reset email with a 30-minute link.  - Requires account admin role or USER_UPDATE permission. - Returns 400 if the target user authenticates via SSO/SAML or has not   yet verified their account (no password hash to key the token against).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Generates a reset token and sends the user a password-reset email with a 30-minute link.  - Requires account admin role or USER_UPDATE permission. - Returns 400 if the target user authenticates via SSO/SAML or has not   yet verified their account (no password hash to key the token against).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -1311,7 +1311,7 @@ class UsersApi:
     ) -> ApiResponse[None]:
         """Trigger a password-reset email for a user
 
-        Generates a reset token and sends the user a password-reset email with a 30-minute link.  - Requires account admin role or USER_UPDATE permission. - Returns 400 if the target user authenticates via SSO/SAML or has not   yet verified their account (no password hash to key the token against).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Generates a reset token and sends the user a password-reset email with a 30-minute link.  - Requires account admin role or USER_UPDATE permission. - Returns 400 if the target user authenticates via SSO/SAML or has not   yet verified their account (no password hash to key the token against).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -1383,7 +1383,7 @@ class UsersApi:
     ) -> RESTResponseType:
         """Trigger a password-reset email for a user
 
-        Generates a reset token and sends the user a password-reset email with a 30-minute link.  - Requires account admin role or USER_UPDATE permission. - Returns 400 if the target user authenticates via SSO/SAML or has not   yet verified their account (no password hash to key the token against).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Generates a reset token and sends the user a password-reset email with a 30-minute link.  - Requires account admin role or USER_UPDATE permission. - Returns 400 if the target user authenticates via SSO/SAML or has not   yet verified their account (no password hash to key the token against).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -1515,7 +1515,7 @@ class UsersApi:
     ) -> None:
         """Resend a user invitation
 
-        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -1587,7 +1587,7 @@ class UsersApi:
     ) -> ApiResponse[None]:
         """Resend a user invitation
 
-        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -1659,7 +1659,7 @@ class UsersApi:
     ) -> RESTResponseType:
         """Resend a user invitation
 
-        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -1792,7 +1792,7 @@ class UsersApi:
     ) -> User:
         """Update a user
 
-        Update a user's display name and/or developer permission.  **Payload Requirements** - At least one of `name` or `is_developer` must be provided. - `name` must be 1–255 characters. Leading and trailing whitespace is stripped before   validation; whitespace-only values (e.g. `\"   \"`) are rejected with 400. - Setting `is_developer` to its current value is a no-op (idempotent).  **Example valid requests:** ```json { \"name\": \"Jane Smith\" } { \"is_developer\": true } { \"name\": \"Jane Smith\", \"is_developer\": false } ```  **Example invalid requests:** - `{}` — at least one field must be provided - `{ \"name\": \"   \" }` — name cannot be whitespace only  Requires account admin role or USER_UPDATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a user's display name and/or developer permission.  **Payload Requirements** - At least one of `name` or `is_developer` must be provided. - `name` must be 1–255 characters. Leading and trailing whitespace is stripped before   validation; whitespace-only values (e.g. `\"   \"`) are rejected with 400. - Setting `is_developer` to its current value is a no-op (idempotent).  **Example valid requests:** ```json { \"name\": \"Jane Smith\" } { \"is_developer\": true } { \"name\": \"Jane Smith\", \"is_developer\": false } ```  **Example invalid requests:** - `{}` — at least one field must be provided - `{ \"name\": \"   \" }` — name cannot be whitespace only  Requires account admin role or USER_UPDATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -1869,7 +1869,7 @@ class UsersApi:
     ) -> ApiResponse[User]:
         """Update a user
 
-        Update a user's display name and/or developer permission.  **Payload Requirements** - At least one of `name` or `is_developer` must be provided. - `name` must be 1–255 characters. Leading and trailing whitespace is stripped before   validation; whitespace-only values (e.g. `\"   \"`) are rejected with 400. - Setting `is_developer` to its current value is a no-op (idempotent).  **Example valid requests:** ```json { \"name\": \"Jane Smith\" } { \"is_developer\": true } { \"name\": \"Jane Smith\", \"is_developer\": false } ```  **Example invalid requests:** - `{}` — at least one field must be provided - `{ \"name\": \"   \" }` — name cannot be whitespace only  Requires account admin role or USER_UPDATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a user's display name and/or developer permission.  **Payload Requirements** - At least one of `name` or `is_developer` must be provided. - `name` must be 1–255 characters. Leading and trailing whitespace is stripped before   validation; whitespace-only values (e.g. `\"   \"`) are rejected with 400. - Setting `is_developer` to its current value is a no-op (idempotent).  **Example valid requests:** ```json { \"name\": \"Jane Smith\" } { \"is_developer\": true } { \"name\": \"Jane Smith\", \"is_developer\": false } ```  **Example invalid requests:** - `{}` — at least one field must be provided - `{ \"name\": \"   \" }` — name cannot be whitespace only  Requires account admin role or USER_UPDATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -1946,7 +1946,7 @@ class UsersApi:
     ) -> RESTResponseType:
         """Update a user
 
-        Update a user's display name and/or developer permission.  **Payload Requirements** - At least one of `name` or `is_developer` must be provided. - `name` must be 1–255 characters. Leading and trailing whitespace is stripped before   validation; whitespace-only values (e.g. `\"   \"`) are rejected with 400. - Setting `is_developer` to its current value is a no-op (idempotent).  **Example valid requests:** ```json { \"name\": \"Jane Smith\" } { \"is_developer\": true } { \"name\": \"Jane Smith\", \"is_developer\": false } ```  **Example invalid requests:** - `{}` — at least one field must be provided - `{ \"name\": \"   \" }` — name cannot be whitespace only  Requires account admin role or USER_UPDATE permission.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a user's display name and/or developer permission.  **Payload Requirements** - At least one of `name` or `is_developer` must be provided. - `name` must be 1–255 characters. Leading and trailing whitespace is stripped before   validation; whitespace-only values (e.g. `\"   \"`) are rejected with 400. - Setting `is_developer` to its current value is a no-op (idempotent).  **Example valid requests:** ```json { \"name\": \"Jane Smith\" } { \"is_developer\": true } { \"name\": \"Jane Smith\", \"is_developer\": false } ```  **Example invalid requests:** - `{}` — at least one field must be provided - `{ \"name\": \"   \" }` — name cannot be whitespace only  Requires account admin role or USER_UPDATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str

@@ -306,10 +306,10 @@ class TestSpansClientList:
 
         assert result is expected
 
-    def test_list_emits_alpha_prerelease_warning(
+    def test_list_emits_beta_prerelease_warning(
         self, spans_client: SpansClient, caplog: pytest.LogCaptureFixture
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -319,7 +319,7 @@ class TestSpansClientList:
             spans_client.list(project=_PROJECT_ID)
 
         assert any(
-            "ALPHA" in r.message and "spans.list" in r.message
+            "BETA" in r.message and "spans.list" in r.message
             for r in caplog.records
         )
 
@@ -337,10 +337,10 @@ class TestSpansClientList:
 
         assert any("active development" in r.message for r in caplog.records)
 
-    def test_list_alpha_warning_only_on_first_call(
+    def test_list_beta_warning_only_on_first_call(
         self, spans_client: SpansClient, caplog: pytest.LogCaptureFixture
     ) -> None:
-        """The ALPHA prerelease warning should be emitted only on the first call."""
+        """The BETA prerelease warning should be emitted only on the first call."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -349,18 +349,18 @@ class TestSpansClientList:
             caplog.set_level(logging.WARNING)
 
             spans_client.list(project=_PROJECT_ID)
-            alpha_count_first = sum(
-                1 for r in caplog.records if "ALPHA" in r.message
+            beta_count_first = sum(
+                1 for r in caplog.records if "BETA" in r.message
             )
             caplog.clear()
 
             spans_client.list(project=_PROJECT_ID)
-            alpha_count_second = sum(
-                1 for r in caplog.records if "ALPHA" in r.message
+            beta_count_second = sum(
+                1 for r in caplog.records if "BETA" in r.message
             )
 
-        assert alpha_count_first == 1
-        assert alpha_count_second == 0
+        assert beta_count_first == 1
+        assert beta_count_second == 0
 
     def test_list_with_project_name_resolves_id(
         self, spans_client: SpansClient, mock_api: Mock

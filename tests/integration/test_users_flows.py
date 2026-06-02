@@ -290,7 +290,8 @@ class TestUsersBulkDelete:
 
         assert len(results) == 1
         assert results[0].status == DeletionStatus.DELETED
-        assert results[0].id == user.id
+        assert results[0].user_id == user.id
+        assert results[0].email == email
 
         with pytest.raises(ApiException) as exc_info:
             users_client.get(user_id=user.id)

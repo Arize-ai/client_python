@@ -655,7 +655,7 @@ class SpansApi:
     ) -> SpanListResponse:
         """List spans
 
-        Returns a paginated list of spans.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Returns a paginated list of spans.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param list_spans_request: Body containing span query parameters (required)
         :type list_spans_request: ListSpansRequest
@@ -736,7 +736,7 @@ class SpansApi:
     ) -> ApiResponse[SpanListResponse]:
         """List spans
 
-        Returns a paginated list of spans.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Returns a paginated list of spans.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param list_spans_request: Body containing span query parameters (required)
         :type list_spans_request: ListSpansRequest
@@ -817,7 +817,7 @@ class SpansApi:
     ) -> RESTResponseType:
         """List spans
 
-        Returns a paginated list of spans.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Returns a paginated list of spans.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param list_spans_request: Body containing span query parameters (required)
         :type list_spans_request: ListSpansRequest

@@ -89,7 +89,7 @@ class RoleBindingsClient:
             resource_type=resource_type,
         )
 
-    @prerelease_endpoint(key="role_bindings.create", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="role_bindings.create", stage=ReleaseStage.BETA)
     def create(
         self,
         *,
@@ -142,7 +142,7 @@ class RoleBindingsClient:
         )
         return self._api.role_bindings_create(body)
 
-    @prerelease_endpoint(key="role_bindings.get", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="role_bindings.get", stage=ReleaseStage.BETA)
     def get(self, *, binding_id: str) -> RoleBinding:
         """Get a role binding by ID.
 
@@ -158,7 +158,7 @@ class RoleBindingsClient:
         """
         return self._api.role_bindings_get(binding_id)
 
-    @prerelease_endpoint(key="role_bindings.update", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="role_bindings.update", stage=ReleaseStage.BETA)
     def update(self, *, binding_id: str, role_id: str) -> RoleBinding:
         """Update an existing role binding by replacing its assigned role.
 
@@ -190,7 +190,7 @@ class RoleBindingsClient:
         body = gen.RoleBindingUpdate(role_id=role_id)
         return self._api.role_bindings_update(binding_id, body)
 
-    @prerelease_endpoint(key="role_bindings.delete", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="role_bindings.delete", stage=ReleaseStage.BETA)
     def delete(self, *, binding_id: str) -> None:
         """Delete a role binding by ID.
 

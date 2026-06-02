@@ -133,7 +133,7 @@ class SpansClient:
         )
         return self._api.spans_delete(delete_spans_request=body)
 
-    @prerelease_endpoint(key="spans.list", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="spans.list", stage=ReleaseStage.BETA)
     def list(
         self,
         *,

@@ -138,12 +138,12 @@ class TestEvaluatorsClientList:
 
         assert result is expected
 
-    def test_list_emits_alpha_prerelease_warning(
+    def test_list_emits_beta_prerelease_warning(
         self,
         evaluators_client: EvaluatorsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -152,7 +152,7 @@ class TestEvaluatorsClientList:
         evaluators_client.list()
 
         assert any(
-            "ALPHA" in record.message and "evaluators.list" in record.message
+            "BETA" in record.message and "evaluators.list" in record.message
             for record in caplog.records
         )
 
@@ -203,12 +203,12 @@ class TestEvaluatorsClientGet:
 
         assert result is expected
 
-    def test_get_emits_alpha_prerelease_warning(
+    def test_get_emits_beta_prerelease_warning(
         self,
         evaluators_client: EvaluatorsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -217,7 +217,7 @@ class TestEvaluatorsClientGet:
         evaluators_client.get(evaluator=_EVALUATOR_ID)
 
         assert any(
-            "ALPHA" in record.message and "evaluators.get" in record.message
+            "BETA" in record.message and "evaluators.get" in record.message
             for record in caplog.records
         )
 
@@ -327,12 +327,12 @@ class TestEvaluatorsClientCreateTemplate:
 
         assert result is expected
 
-    def test_create_template_emits_alpha_prerelease_warning(
+    def test_create_template_emits_beta_prerelease_warning(
         self,
         evaluators_client: EvaluatorsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call to create_template_evaluator() should emit the ALPHA prerelease warning."""
+        """First call to create_template_evaluator() should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -351,7 +351,7 @@ class TestEvaluatorsClientCreateTemplate:
             )
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "evaluators.create_template" in record.message
             for record in caplog.records
         )
@@ -435,12 +435,12 @@ class TestEvaluatorsClientCreateCode:
 
         assert result is expected
 
-    def test_create_code_emits_alpha_prerelease_warning(
+    def test_create_code_emits_beta_prerelease_warning(
         self,
         evaluators_client: EvaluatorsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call to create_code_evaluator() should emit the ALPHA prerelease warning."""
+        """First call to create_code_evaluator() should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -459,7 +459,7 @@ class TestEvaluatorsClientCreateCode:
             )
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "evaluators.create_code" in record.message
             for record in caplog.records
         )
@@ -537,12 +537,12 @@ class TestEvaluatorsClientUpdate:
 
         assert result is expected
 
-    def test_update_emits_alpha_prerelease_warning(
+    def test_update_emits_beta_prerelease_warning(
         self,
         evaluators_client: EvaluatorsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call to update() should emit the ALPHA prerelease warning."""
+        """First call to update() should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -552,7 +552,7 @@ class TestEvaluatorsClientUpdate:
             evaluators_client.update(evaluator=_EVALUATOR_ID, name="x")
 
         assert any(
-            "ALPHA" in record.message and "evaluators.update" in record.message
+            "BETA" in record.message and "evaluators.update" in record.message
             for record in caplog.records
         )
 
@@ -581,12 +581,12 @@ class TestEvaluatorsClientDelete:
 
         assert result is None
 
-    def test_delete_emits_alpha_prerelease_warning(
+    def test_delete_emits_beta_prerelease_warning(
         self,
         evaluators_client: EvaluatorsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call to delete() should emit the ALPHA prerelease warning."""
+        """First call to delete() should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -595,7 +595,7 @@ class TestEvaluatorsClientDelete:
         evaluators_client.delete(evaluator=_EVALUATOR_ID)
 
         assert any(
-            "ALPHA" in record.message and "evaluators.delete" in record.message
+            "BETA" in record.message and "evaluators.delete" in record.message
             for record in caplog.records
         )
 
@@ -652,12 +652,12 @@ class TestEvaluatorsClientListVersions:
 
         assert result is expected
 
-    def test_list_versions_emits_alpha_prerelease_warning(
+    def test_list_versions_emits_beta_prerelease_warning(
         self,
         evaluators_client: EvaluatorsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -666,7 +666,7 @@ class TestEvaluatorsClientListVersions:
         evaluators_client.list_versions(evaluator=_EVALUATOR_ID)
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "evaluators.list_versions" in record.message
             for record in caplog.records
         )
@@ -697,12 +697,12 @@ class TestEvaluatorsClientGetVersion:
 
         assert result is expected
 
-    def test_get_version_emits_alpha_prerelease_warning(
+    def test_get_version_emits_beta_prerelease_warning(
         self,
         evaluators_client: EvaluatorsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -711,7 +711,7 @@ class TestEvaluatorsClientGetVersion:
         evaluators_client.get_version(version_id="ver-456")
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "evaluators.get_version" in record.message
             for record in caplog.records
         )
@@ -777,12 +777,12 @@ class TestEvaluatorsClientCreateTemplateVersion:
 
         assert result is expected
 
-    def test_create_template_version_emits_alpha_prerelease_warning(
+    def test_create_template_version_emits_beta_prerelease_warning(
         self,
         evaluators_client: EvaluatorsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -799,7 +799,7 @@ class TestEvaluatorsClientCreateTemplateVersion:
             )
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "evaluators.create_template_version" in record.message
             for record in caplog.records
         )
@@ -874,12 +874,12 @@ class TestEvaluatorsClientCreateCodeVersion:
 
         assert result is expected
 
-    def test_create_code_version_emits_alpha_prerelease_warning(
+    def test_create_code_version_emits_beta_prerelease_warning(
         self,
         evaluators_client: EvaluatorsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -896,7 +896,7 @@ class TestEvaluatorsClientCreateCodeVersion:
             )
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "evaluators.create_code_version" in record.message
             for record in caplog.records
         )

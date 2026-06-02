@@ -99,7 +99,7 @@ class EvaluatorsClient:
     # Evaluators
     # -------------------------------------------------------------------------
 
-    @prerelease_endpoint(key="evaluators.list", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="evaluators.list", stage=ReleaseStage.BETA)
     def list(
         self,
         *,
@@ -138,7 +138,7 @@ class EvaluatorsClient:
             cursor=cursor,
         )
 
-    @prerelease_endpoint(key="evaluators.get", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="evaluators.get", stage=ReleaseStage.BETA)
     def get(
         self,
         *,
@@ -177,7 +177,7 @@ class EvaluatorsClient:
         return EvaluatorWithVersion.model_validate(result, from_attributes=True)
 
     @prerelease_endpoint(
-        key="evaluators.create_template", stage=ReleaseStage.ALPHA
+        key="evaluators.create_template", stage=ReleaseStage.BETA
     )
     def create_template_evaluator(
         self,
@@ -243,7 +243,7 @@ class EvaluatorsClient:
         result = self._api.evaluators_create(evaluators_create_request=body)
         return EvaluatorWithVersion.model_validate(result, from_attributes=True)
 
-    @prerelease_endpoint(key="evaluators.create_code", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="evaluators.create_code", stage=ReleaseStage.BETA)
     def create_code_evaluator(
         self,
         *,
@@ -294,7 +294,7 @@ class EvaluatorsClient:
         result = self._api.evaluators_create(evaluators_create_request=body)
         return EvaluatorWithVersion.model_validate(result, from_attributes=True)
 
-    @prerelease_endpoint(key="evaluators.update", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="evaluators.update", stage=ReleaseStage.BETA)
     def update(
         self,
         *,
@@ -332,7 +332,7 @@ class EvaluatorsClient:
             evaluators_update_request=body,
         )
 
-    @prerelease_endpoint(key="evaluators.delete", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="evaluators.delete", stage=ReleaseStage.BETA)
     def delete(self, *, evaluator: str, space: str | None = None) -> None:
         """Delete an evaluator and all its versions.
 
@@ -362,7 +362,7 @@ class EvaluatorsClient:
     # -------------------------------------------------------------------------
 
     @prerelease_endpoint(
-        key="evaluators.list_versions", stage=ReleaseStage.ALPHA
+        key="evaluators.list_versions", stage=ReleaseStage.BETA
     )
     def list_versions(
         self,
@@ -403,7 +403,7 @@ class EvaluatorsClient:
             result, from_attributes=True
         )
 
-    @prerelease_endpoint(key="evaluators.get_version", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="evaluators.get_version", stage=ReleaseStage.BETA)
     def get_version(
         self, *, version_id: str
     ) -> EvaluatorVersionCode | EvaluatorVersionTemplate:
@@ -428,7 +428,7 @@ class EvaluatorsClient:
         return v  # type: ignore[return-value]
 
     @prerelease_endpoint(
-        key="evaluators.create_template_version", stage=ReleaseStage.ALPHA
+        key="evaluators.create_template_version", stage=ReleaseStage.BETA
     )
     def create_template_version(
         self,
@@ -478,7 +478,7 @@ class EvaluatorsClient:
         return unwrap_oneof(result)  # type: ignore[return-value]
 
     @prerelease_endpoint(
-        key="evaluators.create_code_version", stage=ReleaseStage.ALPHA
+        key="evaluators.create_code_version", stage=ReleaseStage.BETA
     )
     def create_code_version(
         self,

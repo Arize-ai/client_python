@@ -133,12 +133,12 @@ class TestUsersClientList:
         mock_conv.assert_called_once_with(raw, from_attributes=True)
         assert result is domain
 
-    def test_list_emits_alpha_prerelease_warning(
+    def test_list_emits_beta_prerelease_warning(
         self,
         users_client: UsersClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -147,7 +147,7 @@ class TestUsersClientList:
         users_client.list()
 
         assert any(
-            "ALPHA" in record.message and "users.list" in record.message
+            "BETA" in record.message and "users.list" in record.message
             for record in caplog.records
         )
 
@@ -250,12 +250,12 @@ class TestUsersClientGet:
             users_client.get(user="alice@example.com")
         mock_api.users_get.assert_not_called()
 
-    def test_get_emits_alpha_prerelease_warning(
+    def test_get_emits_beta_prerelease_warning(
         self,
         users_client: UsersClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -264,7 +264,7 @@ class TestUsersClientGet:
         users_client.get(user="user-12345")
 
         assert any(
-            "ALPHA" in record.message and "users.get" in record.message
+            "BETA" in record.message and "users.get" in record.message
             for record in caplog.records
         )
 
@@ -444,12 +444,12 @@ class TestUsersClientCreate:
         mock_conv.assert_called_once_with(raw, from_attributes=True)
         assert result is domain
 
-    def test_create_emits_alpha_prerelease_warning(
+    def test_create_emits_beta_prerelease_warning(
         self,
         users_client: UsersClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -467,7 +467,7 @@ class TestUsersClientCreate:
             )
 
         assert any(
-            "ALPHA" in record.message and "users.create" in record.message
+            "BETA" in record.message and "users.create" in record.message
             for record in caplog.records
         )
 
@@ -533,12 +533,12 @@ class TestUsersClientUpdate:
         mock_conv.assert_called_once_with(raw, from_attributes=True)
         assert result is domain
 
-    def test_update_emits_alpha_prerelease_warning(
+    def test_update_emits_beta_prerelease_warning(
         self,
         users_client: UsersClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -548,7 +548,7 @@ class TestUsersClientUpdate:
             users_client.update(user_id="user-12345", name="Updated Name")
 
         assert any(
-            "ALPHA" in record.message and "users.update" in record.message
+            "BETA" in record.message and "users.update" in record.message
             for record in caplog.records
         )
 
@@ -575,12 +575,12 @@ class TestUsersClientDelete:
 
         assert result is None
 
-    def test_delete_emits_alpha_prerelease_warning(
+    def test_delete_emits_beta_prerelease_warning(
         self,
         users_client: UsersClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -589,7 +589,7 @@ class TestUsersClientDelete:
         users_client.delete(user_id="user-12345")
 
         assert any(
-            "ALPHA" in record.message and "users.delete" in record.message
+            "BETA" in record.message and "users.delete" in record.message
             for record in caplog.records
         )
 
@@ -618,12 +618,12 @@ class TestUsersClientResendInvitation:
 
         assert result is None
 
-    def test_resend_invitation_emits_alpha_prerelease_warning(
+    def test_resend_invitation_emits_beta_prerelease_warning(
         self,
         users_client: UsersClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -632,7 +632,7 @@ class TestUsersClientResendInvitation:
         users_client.resend_invitation(user_id="user-12345")
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "users.resend_invitation" in record.message
             for record in caplog.records
         )
@@ -662,12 +662,12 @@ class TestUsersClientResetPassword:
 
         assert result is None
 
-    def test_reset_password_emits_alpha_prerelease_warning(
+    def test_reset_password_emits_beta_prerelease_warning(
         self,
         users_client: UsersClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -676,7 +676,7 @@ class TestUsersClientResetPassword:
         users_client.reset_password(user_id="user-12345")
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "users.reset_password" in record.message
             for record in caplog.records
         )
@@ -722,7 +722,8 @@ class TestUsersClientBulkDelete:
 
         assert len(results) == 2
         assert all(r.status == DeletionStatus.DELETED for r in results)
-        assert [r.id for r in results] == ["u1", "u2"]
+        assert [r.user_id for r in results] == ["u1", "u2"]
+        assert all(r.email is None for r in results)
         assert mock_api.users_delete.call_count == 2
 
     def test_bulk_delete_by_emails(
@@ -738,7 +739,9 @@ class TestUsersClientBulkDelete:
 
         assert len(results) == 1
         assert results[0] == BulkUserDeletionResult(
-            id="resolved-1", status=DeletionStatus.DELETED
+            user_id="resolved-1",
+            email="alice@example.com",
+            status=DeletionStatus.DELETED,
         )
 
     def test_bulk_delete_email_not_found(
@@ -750,7 +753,8 @@ class TestUsersClientBulkDelete:
         results = users_client.bulk_delete(emails=["ghost@example.com"])
 
         assert len(results) == 1
-        assert results[0].id == "ghost@example.com"
+        assert results[0].user_id == ""
+        assert results[0].email == "ghost@example.com"
         assert results[0].status == DeletionStatus.NOT_FOUND
         assert results[0].error is not None
 
@@ -769,9 +773,9 @@ class TestUsersClientBulkDelete:
 
         assert len(results) == 2
         assert results[0] == BulkUserDeletionResult(
-            id="good", status=DeletionStatus.DELETED
+            user_id="good", status=DeletionStatus.DELETED
         )
-        assert results[1].id == "bad"
+        assert results[1].user_id == "bad"
         assert results[1].status == DeletionStatus.FAILED
         assert "API exploded" in (results[1].error or "")
 
@@ -794,7 +798,8 @@ class TestUsersClientBulkDelete:
         results = users_client.bulk_delete(emails=["alice@example.com"])
 
         assert len(results) == 1
-        assert results[0].id == "uid-1"
+        assert results[0].user_id == "uid-1"
+        assert results[0].email == "alice@example.com"
         assert results[0].status == "deleted"
 
     def test_bulk_delete_logs_not_found_emails(
@@ -813,13 +818,13 @@ class TestUsersClientBulkDelete:
             "ghost@example.com" in record.message for record in caplog.records
         )
 
-    def test_bulk_delete_emits_alpha_prerelease_warning(
+    def test_bulk_delete_emits_beta_prerelease_warning(
         self,
         users_client: UsersClient,
         mock_api: Mock,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -829,6 +834,6 @@ class TestUsersClientBulkDelete:
         users_client.bulk_delete(user_ids=["u1"])
 
         assert any(
-            "ALPHA" in record.message and "users.bulk_delete" in record.message
+            "BETA" in record.message and "users.bulk_delete" in record.message
             for record in caplog.records
         )

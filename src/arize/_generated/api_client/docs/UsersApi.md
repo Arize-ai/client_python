@@ -49,7 +49,7 @@ the request returns `409 Conflict`.
 
 Requires account admin role or USER_CREATE permission.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -150,7 +150,7 @@ idempotent — blocking an already-inactive user returns 204.
 
 Requires account admin role or USER_DELETE permission.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -237,7 +237,7 @@ Requires account admin role, account member role, or USER_READ permission at the
 
 Returns 404 if the user does not exist, does not belong to the caller's account, or the caller lacks read permission.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -326,7 +326,7 @@ creation date ascending (oldest first).
 Requires account admin role, account member role, or USER_READ permission at the
 account level.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -422,7 +422,7 @@ Generates a reset token and sends the user a password-reset email with a 30-minu
 - Returns 400 if the target user authenticates via SSO/SAML or has not
   yet verified their account (no password hash to key the token against).
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -516,7 +516,7 @@ the endpoint still returns 204 and logs the error internally.
 
 Requires account admin role or USER_CREATE permission.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -618,7 +618,7 @@ Update a user's display name and/or developer permission.
 
 Requires account admin role or USER_UPDATE permission.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example

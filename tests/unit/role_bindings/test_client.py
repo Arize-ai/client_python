@@ -155,12 +155,12 @@ class TestRoleBindingsClientCreate:
 
         assert result is expected
 
-    def test_create_emits_alpha_prerelease_warning(
+    def test_create_emits_beta_prerelease_warning(
         self,
         role_bindings_client: RoleBindingsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -175,7 +175,7 @@ class TestRoleBindingsClientCreate:
             )
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "role_bindings.create" in record.message
             for record in caplog.records
         )

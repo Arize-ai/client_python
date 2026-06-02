@@ -116,15 +116,18 @@ class BulkUserDeletionResult:
     """Result of a single user deletion attempt.
 
     Attributes:
-        id: User ID, or the email address if the user could not
-            be resolved.
+        user_id: ID of the user targeted for deletion. Empty when an email
+            could not be resolved to a user (status ``"not_found"``).
+        email: Email address the deletion was requested for, set only when
+            the user was specified by email. ``None`` when specified by ID.
         status: Outcome of the deletion attempt.
         error: Error message when ``status`` is ``"failed"`` or
             ``"not_found"``.
     """
 
-    id: str
+    user_id: str
     status: DeletionStatus
+    email: str | None = None
     error: str | None = None
 
 

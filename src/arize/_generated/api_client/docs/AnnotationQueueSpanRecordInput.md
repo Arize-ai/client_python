@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**record_type** | **str** | Discriminator identifying the record source type. Must be &#x60;span&#x60; for span records. | 
+**record_type** | **str** | Discriminator identifying this record source as project spans. Must be &#x60;span&#x60; for span records. | 
 **project_id** | **str** | The project ID these spans belong to | 
 **start_time** | **datetime** | Start of the time range to search for spans in Druid. The range (end_time - start_time) must not exceed 7 days.  | 
 **end_time** | **datetime** | End of the time range. Must be after start_time.  | 

@@ -1,5 +1,18 @@
 # Changelog
 
+## [8.32.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.31.0...arize-python-sdk/v8.32.0) (2026-06-02)
+
+
+### 🎁 New Features
+
+* **users:** give bulk-delete results separate UserID and Email fields ([#73532](https://github.com/Arize-ai/arize/issues/73532)) ([aeeaaf5](https://github.com/Arize-ai/arize/commit/aeeaaf55f21f81ab7fe01c4b40066f44606ace97))
+
+
+### ❔ Miscellaneous Chores
+
+* promote evaluators, role-bindings (CRUD), spans list, and users to BETA ([#73280](https://github.com/Arize-ai/arize/issues/73280)) ([ad1ee37](https://github.com/Arize-ai/arize/commit/ad1ee374872dd0d9afdbcccec1b74275b26d3a7c))
+
+
 ## [8.31.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.30.1...arize-python-sdk/v8.31.0) (2026-06-02)
 
 
