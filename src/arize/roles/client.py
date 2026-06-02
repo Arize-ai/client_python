@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import _find_role_id
 
@@ -52,7 +53,7 @@ class RolesClient:
     def list(
         self,
         *,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
         is_predefined: bool | None = None,
     ) -> RoleListResponse:

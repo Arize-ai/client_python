@@ -116,14 +116,14 @@ class TestEvaluatorsClientList:
     def test_list_defaults(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """list() should default space/name/cursor to None and limit to 100."""
+        """list() should default space/name/cursor to None and limit to 50."""
         evaluators_client.list()
 
         mock_api.evaluators_list.assert_called_once_with(
             space_id=None,
             space_name=None,
             name=None,
-            limit=100,
+            limit=50,
             cursor=None,
         )
 
@@ -632,12 +632,12 @@ class TestEvaluatorsClientListVersions:
     def test_list_versions_defaults(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """list_versions() should default limit to 100 and cursor to None."""
+        """list_versions() should default limit to 50 and cursor to None."""
         evaluators_client.list_versions(evaluator=_EVALUATOR_ID)
 
         mock_api.evaluator_versions_list.assert_called_once_with(
             evaluator_id=_EVALUATOR_ID,
-            limit=100,
+            limit=50,
             cursor=None,
         )
 

@@ -10,8 +10,10 @@ Run with:
 
 from __future__ import annotations
 
+import contextlib
 import os
 import uuid
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import pytest
@@ -98,3 +100,80 @@ class TestApiKeysCRUD:
         )
         active_ids = [k.id for k in resp.api_keys]
         assert created.id not in active_ids
+
+    def test_refresh_service_key_default_invalidation(
+        self, api_keys_client
+    ) -> None:
+        """Refresh without grace period should replace the key immediately."""
+        created = api_keys_client.create_service_key(
+            name=_unique("sdk-test-svc-key-refresh"),
+            space=SPACE_ID,
+        )
+        refreshed_id: str | None = None
+        try:
+            refreshed = api_keys_client.refresh(api_key_id=created.id)
+            refreshed_id = refreshed.id
+
+            assert refreshed.key is not None
+            assert len(refreshed.key) > 0
+            assert refreshed.id != created.id
+            assert refreshed.name == created.name
+
+            active_resp = api_keys_client.list(
+                key_type="service", space=SPACE_ID, status="active", limit=100
+            )
+            active_ids = [k.id for k in active_resp.api_keys]
+            assert refreshed.id in active_ids
+            assert created.id not in active_ids
+        finally:
+            if refreshed_id is not None:
+                with contextlib.suppress(Exception):
+                    api_keys_client.delete(api_key_id=refreshed_id)
+            with contextlib.suppress(Exception):
+                api_keys_client.delete(api_key_id=created.id)
+
+    def test_refresh_service_key_with_grace_period(
+        self, api_keys_client
+    ) -> None:
+        """Refresh with grace period keeps old key active with bounded expiry."""
+        created = api_keys_client.create_service_key(
+            name=_unique("sdk-test-svc-key-grace"),
+            space=SPACE_ID,
+        )
+        refreshed_id: str | None = None
+        grace_seconds = 300
+        lower_bound = datetime.now(timezone.utc) + timedelta(
+            seconds=grace_seconds - 30
+        )
+        upper_bound = datetime.now(timezone.utc) + timedelta(
+            seconds=grace_seconds + 60
+        )
+
+        try:
+            refreshed = api_keys_client.refresh(
+                api_key_id=created.id,
+                grace_period_seconds=grace_seconds,
+            )
+            refreshed_id = refreshed.id
+
+            assert refreshed.key is not None
+            assert len(refreshed.key) > 0
+            assert refreshed.id != created.id
+
+            active_resp = api_keys_client.list(
+                key_type="service", space=SPACE_ID, status="active", limit=100
+            )
+            active_by_id = {k.id: k for k in active_resp.api_keys}
+            assert refreshed.id in active_by_id
+            assert created.id in active_by_id
+
+            old_key = active_by_id[created.id]
+            assert old_key.expires_at is not None
+            assert old_key.expires_at >= lower_bound
+            assert old_key.expires_at <= upper_bound
+        finally:
+            if refreshed_id is not None:
+                with contextlib.suppress(Exception):
+                    api_keys_client.delete(api_key_id=refreshed_id)
+            with contextlib.suppress(Exception):
+                api_keys_client.delete(api_key_id=created.id)

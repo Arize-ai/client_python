@@ -120,12 +120,14 @@ from arize._generated.api_client.models.experiment_list_response import Experime
 from arize._generated.api_client.models.experiment_run import ExperimentRun
 from arize._generated.api_client.models.experiment_run_create import ExperimentRunCreate
 from arize._generated.api_client.models.experiment_runs_list_response import ExperimentRunsListResponse
+from arize._generated.api_client.models.experiment_with_run_ids import ExperimentWithRunIds
 from arize._generated.api_client.models.experiments_create_request import ExperimentsCreateRequest
 from arize._generated.api_client.models.freeform_annotation_config import FreeformAnnotationConfig
 from arize._generated.api_client.models.freeform_annotation_config_create import FreeformAnnotationConfigCreate
 from arize._generated.api_client.models.gcp_provider_metadata import GcpProviderMetadata
 from arize._generated.api_client.models.gcp_provider_metadata_kind import GcpProviderMetadataKind
 from arize._generated.api_client.models.input_variable_format import InputVariableFormat
+from arize._generated.api_client.models.insert_experiment_runs_body import InsertExperimentRunsBody
 from arize._generated.api_client.models.invite_mode import InviteMode
 from arize._generated.api_client.models.invocation_params import InvocationParams
 from arize._generated.api_client.models.llm_message import LLMMessage

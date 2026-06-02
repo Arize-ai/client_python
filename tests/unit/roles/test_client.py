@@ -84,11 +84,11 @@ class TestRolesClientList:
     def test_list_defaults(
         self, roles_client: RolesClient, mock_api: Mock
     ) -> None:
-        """list() should default cursor/is_predefined to None and limit to 100."""
+        """list() should default cursor/is_predefined to None and limit to 50."""
         roles_client.list()
 
         mock_api.roles_list.assert_called_once_with(
-            limit=100,
+            limit=50,
             cursor=None,
             is_predefined=None,
         )

@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
+from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
     _find_ai_integration_id,
@@ -74,7 +75,7 @@ class AiIntegrationsClient:
         *,
         name: str | None = None,
         space: str | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> AiIntegrationListResponse:
         """List AI integrations the user has access to.

@@ -12,6 +12,7 @@ import pyarrow as pa
 
 from arize._flight.client import ArizeFlightClient
 from arize._generated.api_client import models
+from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.datasets.validation import validate_dataset_df
 from arize.exceptions.base import INVALID_ARROW_CONVERSION_MSG
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
@@ -79,7 +80,7 @@ class DatasetsClient:
         *,
         name: str | None = None,
         space: str | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> DatasetListResponse:
         """List datasets the user has access to.
@@ -296,7 +297,7 @@ class DatasetsClient:
         dataset: str,
         space: str | None = None,
         dataset_version_id: str | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         all: bool = False,
     ) -> DatasetExampleListResponse:
         """List examples for a dataset (optionally for a specific version).

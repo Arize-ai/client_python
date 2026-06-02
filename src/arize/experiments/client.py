@@ -23,6 +23,7 @@ from arize._flight.client import ArizeFlightClient
 from arize._flight.types import FlightRequestType
 from arize._generated.api_client import models
 from arize._generated.api_client.exceptions import ApiException
+from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.exceptions.base import INVALID_ARROW_CONVERSION_MSG
 from arize.experiments.functions import (
     ExperimentMetadata,
@@ -98,7 +99,7 @@ class ExperimentsClient:
         *,
         dataset: str | None = None,
         space: str | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> ExperimentListResponse:
         """List experiments the user has access to.
@@ -327,7 +328,7 @@ class ExperimentsClient:
         experiment: str,
         dataset: str | None = None,
         space: str | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         all: bool = False,
     ) -> ExperimentRunsListResponse:
         """List runs for an experiment.

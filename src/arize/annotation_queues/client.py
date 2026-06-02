@@ -10,6 +10,7 @@ from arize.annotation_queues.types import (
     AnnotationQueueRecordInput,
     AnnotationQueueSpanRecordInput,
 )
+from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
     _find_annotation_queue_id,
@@ -111,7 +112,7 @@ class AnnotationQueuesClient:
         *,
         space: str | None = None,
         name: str | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> AnnotationQueueListResponse:
         """List annotation queues the user has access to.
@@ -356,7 +357,7 @@ class AnnotationQueuesClient:
         *,
         annotation_queue: str,
         space: str | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> AnnotationQueueRecordListResponse:
         """List records in an annotation queue.

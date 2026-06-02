@@ -266,7 +266,7 @@ class TestSpansClientList:
     def test_list_defaults(
         self, spans_client: SpansClient, mock_api: Mock
     ) -> None:
-        """list() should default start_time/end_time/filter to None and limit to 100."""
+        """list() should default start_time/end_time/filter to None and limit to 50."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -286,7 +286,7 @@ class TestSpansClientList:
         )
         mock_api.spans_list.assert_called_once_with(
             list_spans_request=mock_request_cls.return_value,
-            limit=100,
+            limit=50,
             cursor=None,
         )
 
@@ -397,8 +397,8 @@ class TestSpansClientList:
 
 
 @pytest.mark.unit
-class TestSpansClientAnnotateSpans:
-    """Tests for SpansClient.annotate_spans()."""
+class TestSpansClientAnnotate:
+    """Tests for SpansClient.annotate()."""
 
     @pytest.fixture(autouse=True)
     def _clear_warned(self) -> None:
@@ -406,10 +406,10 @@ class TestSpansClientAnnotateSpans:
 
         pre_releases._WARNED.clear()
 
-    def test_annotate_spans_builds_request_and_calls_api(
+    def test_annotate_builds_request_and_calls_api(
         self, spans_client: SpansClient, mock_api: Mock
     ) -> None:
-        """annotate_spans() should build an AnnotateSpansRequestBody and call spans_annotate."""
+        """annotate() should build an AnnotateSpansRequestBody and call spans_annotate."""
         from arize._generated.api_client import models
 
         annotations = [
@@ -425,7 +425,7 @@ class TestSpansClientAnnotateSpans:
             mock_body = Mock()
             mock_body_cls.return_value = mock_body
 
-            spans_client.annotate_spans(
+            spans_client.annotate(
                 project=_PROJECT_ID,
                 annotations=annotations,
             )
@@ -440,10 +440,10 @@ class TestSpansClientAnnotateSpans:
             annotate_spans_request_body=mock_body
         )
 
-    def test_annotate_spans_forwards_time_window(
+    def test_annotate_forwards_time_window(
         self, spans_client: SpansClient, mock_api: Mock
     ) -> None:
-        """annotate_spans() should forward start_time and end_time to the request body."""
+        """annotate() should forward start_time and end_time to the request body."""
         from arize._generated.api_client import models
 
         start = datetime(2024, 1, 1, tzinfo=timezone.utc)
@@ -453,7 +453,7 @@ class TestSpansClientAnnotateSpans:
             "arize._generated.api_client.AnnotateSpansRequestBody"
         ) as mock_body_cls:
             mock_body_cls.return_value = Mock()
-            spans_client.annotate_spans(
+            spans_client.annotate(
                 project=_PROJECT_ID,
                 annotations=[
                     models.AnnotateRecordInput(
@@ -472,16 +472,16 @@ class TestSpansClientAnnotateSpans:
             end_time=end,
         )
 
-    def test_annotate_spans_returns_none(
+    def test_annotate_returns_none(
         self, spans_client: SpansClient, mock_api: Mock
     ) -> None:
-        """annotate_spans() should return None (HTTP 202)."""
+        """annotate() should return None (HTTP 202)."""
         from arize._generated.api_client import models
 
         mock_api.spans_annotate.return_value = None
 
         with patch("arize._generated.api_client.AnnotateSpansRequestBody"):
-            result = spans_client.annotate_spans(
+            result = spans_client.annotate(
                 project=_PROJECT_ID,
                 annotations=[
                     models.AnnotateRecordInput(
@@ -493,10 +493,10 @@ class TestSpansClientAnnotateSpans:
 
         assert result is None
 
-    def test_annotate_spans_with_project_name_resolves_id(
+    def test_annotate_with_project_name_resolves_id(
         self, spans_client: SpansClient, mock_api: Mock
     ) -> None:
-        """annotate_spans() should resolve a project name to an ID via ProjectsApi."""
+        """annotate() should resolve a project name to an ID via ProjectsApi."""
         from arize._generated.api_client import models
 
         mock_project = Mock()
@@ -513,7 +513,7 @@ class TestSpansClientAnnotateSpans:
             "arize._generated.api_client.AnnotateSpansRequestBody"
         ) as mock_body_cls:
             mock_body_cls.return_value = Mock()
-            spans_client.annotate_spans(
+            spans_client.annotate(
                 project="my-project",
                 space="U3BhY2U6OTA1MDoxSmtS",
                 annotations=[
@@ -531,7 +531,7 @@ class TestSpansClientAnnotateSpans:
             end_time=None,
         )
 
-    def test_annotate_spans_emits_alpha_prerelease_warning(
+    def test_annotate_emits_alpha_prerelease_warning(
         self,
         spans_client: SpansClient,
         mock_api: Mock,
@@ -542,7 +542,7 @@ class TestSpansClientAnnotateSpans:
 
         with patch("arize._generated.api_client.AnnotateSpansRequestBody"):
             caplog.set_level(logging.WARNING)
-            spans_client.annotate_spans(
+            spans_client.annotate(
                 project=_PROJECT_ID,
                 annotations=[
                     models.AnnotateRecordInput(

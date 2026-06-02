@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.spaces.types import SpaceMembership
 from arize.utils.resolve import _find_space_id
@@ -56,7 +57,7 @@ class SpacesClient:
         *,
         organization_id: str | None = None,
         name: str | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> SpaceListResponse:
         """List spaces the user has access to.

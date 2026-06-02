@@ -109,14 +109,14 @@ class TestAiIntegrationsClientList:
     def test_list_defaults(
         self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
     ) -> None:
-        """list() should default space/name/cursor to None and limit to 100."""
+        """list() should default space/name/cursor to None and limit to 50."""
         ai_integrations_client.list()
 
         mock_api.ai_integrations_list.assert_called_once_with(
             space_id=None,
             space_name=None,
             name=None,
-            limit=100,
+            limit=50,
             cursor=None,
         )
 

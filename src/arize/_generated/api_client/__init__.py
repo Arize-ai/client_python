@@ -151,12 +151,14 @@ __all__ = [
     "ExperimentRun",
     "ExperimentRunCreate",
     "ExperimentRunsListResponse",
+    "ExperimentWithRunIds",
     "ExperimentsCreateRequest",
     "FreeformAnnotationConfig",
     "FreeformAnnotationConfigCreate",
     "GcpProviderMetadata",
     "GcpProviderMetadataKind",
     "InputVariableFormat",
+    "InsertExperimentRunsBody",
     "InviteMode",
     "InvocationParams",
     "LLMMessage",
@@ -407,12 +409,14 @@ from arize._generated.api_client.models.experiment_list_response import Experime
 from arize._generated.api_client.models.experiment_run import ExperimentRun as ExperimentRun
 from arize._generated.api_client.models.experiment_run_create import ExperimentRunCreate as ExperimentRunCreate
 from arize._generated.api_client.models.experiment_runs_list_response import ExperimentRunsListResponse as ExperimentRunsListResponse
+from arize._generated.api_client.models.experiment_with_run_ids import ExperimentWithRunIds as ExperimentWithRunIds
 from arize._generated.api_client.models.experiments_create_request import ExperimentsCreateRequest as ExperimentsCreateRequest
 from arize._generated.api_client.models.freeform_annotation_config import FreeformAnnotationConfig as FreeformAnnotationConfig
 from arize._generated.api_client.models.freeform_annotation_config_create import FreeformAnnotationConfigCreate as FreeformAnnotationConfigCreate
 from arize._generated.api_client.models.gcp_provider_metadata import GcpProviderMetadata as GcpProviderMetadata
 from arize._generated.api_client.models.gcp_provider_metadata_kind import GcpProviderMetadataKind as GcpProviderMetadataKind
 from arize._generated.api_client.models.input_variable_format import InputVariableFormat as InputVariableFormat
+from arize._generated.api_client.models.insert_experiment_runs_body import InsertExperimentRunsBody as InsertExperimentRunsBody
 from arize._generated.api_client.models.invite_mode import InviteMode as InviteMode
 from arize._generated.api_client.models.invocation_params import InvocationParams as InvocationParams
 from arize._generated.api_client.models.llm_message import LLMMessage as LLMMessage

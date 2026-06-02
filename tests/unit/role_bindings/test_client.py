@@ -73,7 +73,7 @@ class TestRoleBindingsClientList:
         role_bindings_client.list(resource_type="SPACE")
 
         mock_api.role_bindings_list.assert_called_once_with(
-            limit=100,
+            limit=50,
             cursor=None,
             user_id=None,
             resource_type="SPACE",

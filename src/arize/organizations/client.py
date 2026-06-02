@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.organizations.types import OrganizationMembership
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import _find_organization_id
@@ -54,7 +55,7 @@ class OrganizationsClient:
         self,
         *,
         name: str | None = None,
-        limit: int = 50,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> OrganizationListResponse:
         """List organizations the user has access to.

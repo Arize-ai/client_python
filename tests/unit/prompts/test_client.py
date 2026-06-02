@@ -106,14 +106,14 @@ class TestPromptsClientList:
     def test_list_defaults(
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
-        """list() should default space/name/cursor to None and limit to 100."""
+        """list() should default space/name/cursor to None and limit to 50."""
         prompts_client.list()
 
         mock_api.prompts_list.assert_called_once_with(
             space_id=None,
             space_name=None,
             name=None,
-            limit=100,
+            limit=50,
             cursor=None,
         )
 
@@ -290,6 +290,37 @@ class TestPromptsClientGet:
 
 
 @pytest.mark.unit
+class TestPromptsClientGetVersion:
+    """Tests for PromptsClient.get_version()."""
+
+    def test_get_version_calls_api_with_version_id(
+        self, prompts_client: PromptsClient, mock_api: Mock
+    ) -> None:
+        """get_version() should pass version_id to prompt_versions_get."""
+        with patch("arize.prompts.types.PromptVersion.model_validate"):
+            prompts_client.get_version(version_id="ver-456")
+
+        mock_api.prompt_versions_get.assert_called_once_with(
+            version_id="ver-456",
+        )
+
+    def test_get_version_returns_api_response(
+        self, prompts_client: PromptsClient, mock_api: Mock
+    ) -> None:
+        """get_version() should propagate the return value from prompt_versions_get."""
+        expected = Mock()
+        mock_api.prompt_versions_get.return_value = expected
+
+        with patch(
+            "arize.prompts.types.PromptVersion.model_validate",
+            return_value=expected,
+        ):
+            result = prompts_client.get_version(version_id="ver-456")
+
+        assert result is expected
+
+
+@pytest.mark.unit
 class TestPromptsClientUpdate:
     """Tests for PromptsClient.update()."""
 
@@ -378,12 +409,12 @@ class TestPromptsClientListVersions:
     def test_list_versions_defaults(
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
-        """list_versions() should default limit to 100 and cursor to None."""
+        """list_versions() should default limit to 50 and cursor to None."""
         prompts_client.list_versions(prompt=_PROMPT_ID)
 
         mock_api.prompt_versions_list.assert_called_once_with(
             prompt_id=_PROMPT_ID,
-            limit=100,
+            limit=50,
             cursor=None,
         )
 
@@ -469,25 +500,27 @@ class TestPromptsClientCreateVersion:
 
 
 @pytest.mark.unit
-class TestPromptsClientGetLabel:
-    """Tests for PromptsClient.get_label()."""
+class TestPromptsClientGetVersionByLabel:
+    """Tests for PromptsClient.get_version_by_label()."""
 
-    def test_get_label_calls_api_with_params(
+    def test_get_version_by_label_calls_api_with_params(
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
-        """get_label() should resolve prompt and pass prompt_id and label_name to prompt_labels_get."""
+        """get_version_by_label() should resolve prompt and pass prompt_id and label_name to prompt_labels_get."""
         with patch("arize.prompts.types.PromptVersion.model_validate"):
-            prompts_client.get_label(prompt=_PROMPT_ID, label_name="production")
+            prompts_client.get_version_by_label(
+                prompt=_PROMPT_ID, label_name="production"
+            )
 
         mock_api.prompt_labels_get.assert_called_once_with(
             prompt_id=_PROMPT_ID,
             label_name="production",
         )
 
-    def test_get_label_returns_api_response(
+    def test_get_version_by_label_returns_api_response(
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
-        """get_label() should propagate the return value from prompt_labels_get."""
+        """get_version_by_label() should propagate the return value from prompt_labels_get."""
         expected = Mock()
         mock_api.prompt_labels_get.return_value = expected
 
@@ -495,7 +528,7 @@ class TestPromptsClientGetLabel:
             "arize.prompts.types.PromptVersion.model_validate",
             return_value=expected,
         ):
-            result = prompts_client.get_label(
+            result = prompts_client.get_version_by_label(
                 prompt=_PROMPT_ID, label_name="staging"
             )
 

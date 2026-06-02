@@ -345,6 +345,9 @@ there is no window where neither key is valid. The full new key value (`key`) is
 on the replacement key. Omit `expires_at` (or send an empty body `{}`) to create
 the replacement key with no expiration (infinite lifetime).
 
+**Grace period:** Supply `grace_period_seconds` in the request body to keep the old key
+valid for that many seconds after the refresh. If not supplied, the old key is revoked immediately.
+
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
 
@@ -380,7 +383,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.APIKeysApi(api_client)
     api_key_id = 'QXBpS2V5OjEyMzQ1' # str | The unique API key identifier (base64)
-    api_key_refresh = {} # ApiKeyRefresh | Optional body for overriding expiry on a refreshed API key. (optional)
+    api_key_refresh = {} # ApiKeyRefresh | Optional body for setting expiry on the new key and/or a grace period on the old key. (optional)
 
     try:
         # Refresh an API key
@@ -399,7 +402,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **api_key_id** | **str**| The unique API key identifier (base64) | 
- **api_key_refresh** | [**ApiKeyRefresh**](ApiKeyRefresh.md)| Optional body for overriding expiry on a refreshed API key. | [optional] 
+ **api_key_refresh** | [**ApiKeyRefresh**](ApiKeyRefresh.md)| Optional body for setting expiry on the new key and/or a grace period on the old key. | [optional] 
 
 ### Return type
 

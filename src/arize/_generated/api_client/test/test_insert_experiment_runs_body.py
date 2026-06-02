@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.api_key_refresh import ApiKeyRefresh
+from arize._generated.api_client.models.insert_experiment_runs_body import InsertExperimentRunsBody
 
-class TestApiKeyRefresh(unittest.TestCase):
-    """ApiKeyRefresh unit test stubs"""
+class TestInsertExperimentRunsBody(unittest.TestCase):
+    """InsertExperimentRunsBody unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,26 +25,30 @@ class TestApiKeyRefresh(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> ApiKeyRefresh:
-        """Test ApiKeyRefresh
+    def make_instance(self, include_optional) -> InsertExperimentRunsBody:
+        """Test InsertExperimentRunsBody
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `ApiKeyRefresh`
+        # uncomment below to create an instance of `InsertExperimentRunsBody`
         """
-        model = ApiKeyRefresh()
+        model = InsertExperimentRunsBody()
         if include_optional:
-            return ApiKeyRefresh(
-                expires_at = '2027-01-01T00:00Z',
-                grace_period_seconds = 300
+            return InsertExperimentRunsBody(
+                experiment_runs = [
+                    { }
+                    ]
             )
         else:
-            return ApiKeyRefresh(
+            return InsertExperimentRunsBody(
+                experiment_runs = [
+                    { }
+                    ],
         )
         """
 
-    def testApiKeyRefresh(self):
-        """Test ApiKeyRefresh"""
+    def testInsertExperimentRunsBody(self):
+        """Test InsertExperimentRunsBody"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

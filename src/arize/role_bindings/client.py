@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 
 if TYPE_CHECKING:
@@ -57,7 +58,7 @@ class RoleBindingsClient:
         *,
         resource_type: RoleBindingResourceType,
         user_id: str | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> RoleBindingListResponse:
         """List role bindings for the authenticated user's account.

@@ -52,3 +52,9 @@ DEFAULT_LOG_STRUCTURED = False
 # Validation limits
 ENV_MAX_PAST_YEARS = "ARIZE_MAX_PAST_YEARS"
 DEFAULT_MAX_PAST_YEARS = 5
+
+# Pagination
+# Default page size the SDK applies when a list call omits ``limit``.
+# Centralized here so every sub-client shares one source of truth; change it in
+# one place to change the default everywhere.
+DEFAULT_LIST_LIMIT = 50

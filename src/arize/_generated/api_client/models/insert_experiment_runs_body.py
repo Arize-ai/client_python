@@ -17,20 +17,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
+from arize._generated.api_client.models.experiment_run_create import ExperimentRunCreate
 from typing import Optional, Set
 from typing_extensions import Self
 
-class ApiKeyRefresh(BaseModel):
+class InsertExperimentRunsBody(BaseModel):
     """
-    ApiKeyRefresh
+    InsertExperimentRunsBody
     """ # noqa: E501
-    expires_at: Optional[datetime] = Field(default=None, description="Expiration timestamp for the refreshed key. If omitted, the refreshed key has no expiration (infinite lifetime). ")
-    grace_period_seconds: Optional[Annotated[int, Field(le=86400, strict=True, ge=0)]] = Field(default=None, description="Grace period in seconds during which the old key remains valid after the refresh. When set, the old key's expiration is updated to `now + grace_period_seconds` instead of being immediately revoked — it expires naturally at the end of the window. If the old key already has an `expires_at` that is sooner than the grace window end, the shorter value is used (the grace period cannot extend a key's original lifetime). Defaults to 0 (immediate revocation). Maximum is 86400 (24 hours). ")
-    __properties: ClassVar[List[str]] = ["expires_at", "grace_period_seconds"]
+    experiment_runs: Annotated[List[ExperimentRunCreate], Field(min_length=1, max_length=1000)] = Field(description="Array of experiment run data to append to the experiment. Between 1 and 1000 runs per request.")
+    __properties: ClassVar[List[str]] = ["experiment_runs"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -50,7 +49,7 @@ class ApiKeyRefresh(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ApiKeyRefresh from a JSON string"""
+        """Create an instance of InsertExperimentRunsBody from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -71,11 +70,18 @@ class ApiKeyRefresh(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in experiment_runs (list)
+        _items = []
+        if self.experiment_runs:
+            for _item_experiment_runs in self.experiment_runs:
+                if _item_experiment_runs:
+                    _items.append(_item_experiment_runs.to_dict())
+            _dict['experiment_runs'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ApiKeyRefresh from a dict"""
+        """Create an instance of InsertExperimentRunsBody from a dict"""
         if obj is None:
             return None
 
@@ -85,11 +91,10 @@ class ApiKeyRefresh(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in ApiKeyRefresh) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in InsertExperimentRunsBody) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "expires_at": obj.get("expires_at"),
-            "grace_period_seconds": obj.get("grace_period_seconds")
+            "experiment_runs": [ExperimentRunCreate.from_dict(_item) for _item in obj["experiment_runs"]] if obj.get("experiment_runs") is not None else None
         })
         return _obj
 

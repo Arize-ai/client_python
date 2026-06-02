@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.prompts.types import PromptVersion, PromptWithVersion
 from arize.utils.resolve import (
@@ -68,7 +69,7 @@ class PromptsClient:
         *,
         name: str | None = None,
         space: str | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> PromptListResponse:
         """List prompts in a space.
@@ -200,6 +201,25 @@ class PromptsClient:
         )
         return PromptWithVersion.model_validate(result, from_attributes=True)
 
+    @prerelease_endpoint(key="prompts.get_version", stage=ReleaseStage.ALPHA)
+    def get_version(self, *, version_id: str) -> PromptVersion:
+        """Get a single prompt version by its ID.
+
+        Version IDs are pure IDs with no name resolution.
+
+        Args:
+            version_id: Version ID to retrieve.
+
+        Returns:
+            The prompt version.
+
+        Raises:
+            ApiException: If the REST API
+                returns an error response (e.g. 400/401/404/429).
+        """
+        result = self._api.prompt_versions_get(version_id=version_id)
+        return PromptVersion.model_validate(result, from_attributes=True)
+
     @prerelease_endpoint(key="prompts.update", stage=ReleaseStage.BETA)
     def update(
         self,
@@ -268,7 +288,7 @@ class PromptsClient:
         *,
         prompt: str,
         space: str | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> PromptVersionListResponse:
         """List versions for a prompt.
@@ -359,8 +379,10 @@ class PromptsClient:
         )
         return PromptVersion.model_validate(result, from_attributes=True)
 
-    @prerelease_endpoint(key="prompts.get_label", stage=ReleaseStage.BETA)
-    def get_label(
+    @prerelease_endpoint(
+        key="prompts.get_version_by_label", stage=ReleaseStage.BETA
+    )
+    def get_version_by_label(
         self, *, prompt: str, space: str | None = None, label_name: str
     ) -> PromptVersion:
         """Resolve a label to a prompt version.

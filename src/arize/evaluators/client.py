@@ -9,6 +9,7 @@ from arize._generated.api_client.models.evaluator_version_code import (
     EvaluatorVersionCode as _GenEvaluatorVersionCode,
 )
 from arize._utils import unwrap_oneof
+from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.evaluators.types import (
     CodeConfig,
     CustomCodeConfig,
@@ -104,7 +105,7 @@ class EvaluatorsClient:
         *,
         name: str | None = None,
         space: str | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> EvaluatorListResponse:
         """List evaluators the user has access to.
@@ -368,7 +369,7 @@ class EvaluatorsClient:
         *,
         evaluator: str,
         space: str | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> EvaluatorVersionListResponse:
         """List all versions of an evaluator.

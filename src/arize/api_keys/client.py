@@ -6,6 +6,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from arize.api_keys.types import ApiKeyType
+from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import _find_space_id
 
@@ -61,7 +62,7 @@ class ApiKeysClient:
         status: ApiKeyStatus | None = None,
         space: str | None = None,
         user_id: str | None = None,
-        limit: int = 50,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> ApiKeyListResponse:
         """List API keys.
@@ -252,18 +253,23 @@ class ApiKeysClient:
         *,
         api_key_id: str,
         expires_at: datetime | None = None,
+        grace_period_seconds: int | None = None,
     ) -> ApiKeyCreated:
         """Refresh an existing API key.
 
-        Atomically revokes the old key and issues a replacement with the same
-        name, description, type, and scope. The new raw key value is returned
-        in the ``key`` field of the response. **This is the only time the new
-        raw key is returned.** Store it securely.
+        Atomically revokes the old key and issues a replacement with the
+        same name, description, type, and scope.
+
+        Use ``grace_period_seconds`` to keep the old key valid briefly while your
+        services rotate to the new key.
 
         Args:
             api_key_id: ID of the API key to refresh.
             expires_at: New expiration for the replacement key. If omitted the
                 replacement key will not expire.
+            grace_period_seconds: Optional grace window, in seconds, during
+                which the old key remains valid after refresh. If omitted or
+                ``0``, the old key is invalidated immediately.
 
         Returns:
             The newly issued API key, including the one-time raw key value.
@@ -275,7 +281,10 @@ class ApiKeysClient:
         """
         from arize._generated import api_client as gen
 
-        body = gen.ApiKeyRefresh(expires_at=expires_at)
+        body = gen.ApiKeyRefresh(
+            expires_at=expires_at,
+            grace_period_seconds=grace_period_seconds,
+        )
         return self._api.api_keys_refresh(
             api_key_id=api_key_id,
             api_key_refresh=body,

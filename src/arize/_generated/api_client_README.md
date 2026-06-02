@@ -118,6 +118,7 @@ Class | Method | HTTP request | Description
 *ExperimentsApi* | [**experiments_get**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_get) | **GET** /v2/experiments/{experiment_id} | Get an experiment
 *ExperimentsApi* | [**experiments_list**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_list) | **GET** /v2/experiments | List experiments
 *ExperimentsApi* | [**experiments_runs_annotate**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_runs_annotate) | **POST** /v2/experiments/{experiment_id}/runs/annotate | Annotate a batch of experiment runs
+*ExperimentsApi* | [**experiments_runs_insert**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_runs_insert) | **POST** /v2/experiments/{experiment_id}/runs | Append runs to an experiment
 *ExperimentsApi* | [**experiments_runs_list**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_runs_list) | **GET** /v2/experiments/{experiment_id}/runs | List experiment runs
 *OrganizationsApi* | [**organizations_add_user**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_add_user) | **POST** /v2/organizations/{org_id}/users | Add a user to an organization
 *OrganizationsApi* | [**organizations_create**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_create) | **POST** /v2/organizations | Create an organization
@@ -291,12 +292,14 @@ Class | Method | HTTP request | Description
  - [ExperimentRun](arize/_generated/api_client/docs/ExperimentRun.md)
  - [ExperimentRunCreate](arize/_generated/api_client/docs/ExperimentRunCreate.md)
  - [ExperimentRunsListResponse](arize/_generated/api_client/docs/ExperimentRunsListResponse.md)
+ - [ExperimentWithRunIds](arize/_generated/api_client/docs/ExperimentWithRunIds.md)
  - [ExperimentsCreateRequest](arize/_generated/api_client/docs/ExperimentsCreateRequest.md)
  - [FreeformAnnotationConfig](arize/_generated/api_client/docs/FreeformAnnotationConfig.md)
  - [FreeformAnnotationConfigCreate](arize/_generated/api_client/docs/FreeformAnnotationConfigCreate.md)
  - [GcpProviderMetadata](arize/_generated/api_client/docs/GcpProviderMetadata.md)
  - [GcpProviderMetadataKind](arize/_generated/api_client/docs/GcpProviderMetadataKind.md)
  - [InputVariableFormat](arize/_generated/api_client/docs/InputVariableFormat.md)
+ - [InsertExperimentRunsBody](arize/_generated/api_client/docs/InsertExperimentRunsBody.md)
  - [InviteMode](arize/_generated/api_client/docs/InviteMode.md)
  - [InvocationParams](arize/_generated/api_client/docs/InvocationParams.md)
  - [LLMMessage](arize/_generated/api_client/docs/LLMMessage.md)

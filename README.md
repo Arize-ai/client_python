@@ -781,6 +781,9 @@ versions = client.prompts.list_versions(
     limit=..., # Optional, defaults to 100
 )
 
+# Get a specific version
+version = client.prompts.get_version(version_id="<version-id>")
+
 # Create a new version
 new_version = client.prompts.create_version(
     prompt="<prompt-id-or-name>",
@@ -800,7 +803,7 @@ Labels allow you to tag a specific prompt version with a named alias (e.g. `"pro
 
 ```python
 # Get the version currently tagged with a label
-version = client.prompts.get_label(
+version = client.prompts.get_version_by_label(
     prompt="<prompt-id-or-name>",
     space=..., # Optional
     label_name="production",
@@ -1384,15 +1387,44 @@ client.api_keys.delete(
 
 ### Refresh an API Key
 
-Atomically revokes the old key and issues a replacement with the same name, description, type, and scope.
+Atomically revokes the old key and issues a replacement with the same name, description, type, and scope. 
+
+Use `grace_period_seconds` to keep the old key valid briefly while your
+services rotate to the new key.
 
 ```python
 refreshed = client.api_keys.refresh(
     api_key_id="<api-key-id>",
     expires_at=...,  # Optional, new expiration for the replacement key
+    grace_period_seconds=...,  # Optional, old key remains valid for N seconds
 )
 new_raw_key = refreshed.key  # Store securely — only returned once
 ```
+
+Common patterns:
+
+```python
+# Immediate invalidation of old key (default)
+refreshed = client.api_keys.refresh(api_key_id="<api-key-id>")
+
+# Graceful rotation window (old key valid for 5 minutes)
+refreshed = client.api_keys.refresh(
+    api_key_id="<api-key-id>",
+    grace_period_seconds=300,
+)
+
+# Graceful rotation + expiry on the replacement key
+refreshed = client.api_keys.refresh(
+    api_key_id="<api-key-id>",
+    expires_at=...,
+    grace_period_seconds=300,
+)
+```
+
+Notes:
+- `expires_at` applies to the replacement key.
+- `grace_period_seconds` applies to the old key.
+- Refreshing a deleted or already expired key returns an error.
 
 ## Operations on Annotation Configs
 

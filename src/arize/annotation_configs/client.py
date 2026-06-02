@@ -10,6 +10,7 @@ from arize.annotation_configs.types import (
     AnnotationConfigListResponse,
     AnnotationConfigType,
 )
+from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
     _find_annotation_config_id,
@@ -68,7 +69,7 @@ class AnnotationConfigsClient:
         *,
         name: str | None = None,
         space: str | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> AnnotationConfigListResponse:
         """List annotation configs the user has access to.

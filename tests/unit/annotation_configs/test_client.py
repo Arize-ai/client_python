@@ -128,14 +128,14 @@ class TestAnnotationConfigsClientList:
         annotation_configs_client: AnnotationConfigsClient,
         mock_api: Mock,
     ) -> None:
-        """list() should default space/name/cursor to None and limit to 100."""
+        """list() should default space/name/cursor to None and limit to 50."""
         annotation_configs_client.list()
 
         mock_api.annotation_configs_list.assert_called_once_with(
             space_id=None,
             space_name=None,
             name=None,
-            limit=100,
+            limit=50,
             cursor=None,
         )
 

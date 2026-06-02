@@ -485,7 +485,9 @@ class TestApiKeysClientRefresh:
 
             api_keys_client.refresh(api_key_id="key-123")
 
-        mock_request_cls.assert_called_once_with(expires_at=None)
+        mock_request_cls.assert_called_once_with(
+            expires_at=None, grace_period_seconds=None
+        )
         mock_api.api_keys_refresh.assert_called_once_with(
             api_key_id="key-123",
             api_key_refresh=mock_body,
@@ -505,7 +507,29 @@ class TestApiKeysClientRefresh:
 
             api_keys_client.refresh(api_key_id="key-123", expires_at=expires)
 
-        mock_request_cls.assert_called_once_with(expires_at=expires)
+        mock_request_cls.assert_called_once_with(
+            expires_at=expires, grace_period_seconds=None
+        )
+
+    def test_refresh_passes_grace_period_seconds(
+        self, api_keys_client: ApiKeysClient, mock_api: Mock
+    ) -> None:
+        """refresh() should forward grace_period_seconds to request body."""
+        with patch(
+            "arize._generated.api_client.ApiKeyRefresh"
+        ) as mock_request_cls:
+            mock_body = Mock()
+            mock_request_cls.return_value = mock_body
+
+            api_keys_client.refresh(
+                api_key_id="key-123",
+                grace_period_seconds=300,
+            )
+
+        mock_request_cls.assert_called_once_with(
+            expires_at=None,
+            grace_period_seconds=300,
+        )
 
     def test_refresh_returns_api_response(
         self, api_keys_client: ApiKeysClient, mock_api: Mock

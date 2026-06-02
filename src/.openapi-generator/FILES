@@ -134,6 +134,7 @@ arize/_generated/api_client/docs/ExperimentListResponse.md
 arize/_generated/api_client/docs/ExperimentRun.md
 arize/_generated/api_client/docs/ExperimentRunCreate.md
 arize/_generated/api_client/docs/ExperimentRunsListResponse.md
+arize/_generated/api_client/docs/ExperimentWithRunIds.md
 arize/_generated/api_client/docs/ExperimentsApi.md
 arize/_generated/api_client/docs/ExperimentsCreateRequest.md
 arize/_generated/api_client/docs/FreeformAnnotationConfig.md
@@ -141,6 +142,7 @@ arize/_generated/api_client/docs/FreeformAnnotationConfigCreate.md
 arize/_generated/api_client/docs/GcpProviderMetadata.md
 arize/_generated/api_client/docs/GcpProviderMetadataKind.md
 arize/_generated/api_client/docs/InputVariableFormat.md
+arize/_generated/api_client/docs/InsertExperimentRunsBody.md
 arize/_generated/api_client/docs/InviteMode.md
 arize/_generated/api_client/docs/InvocationParams.md
 arize/_generated/api_client/docs/LLMMessage.md
@@ -370,12 +372,14 @@ arize/_generated/api_client/models/experiment_list_response.py
 arize/_generated/api_client/models/experiment_run.py
 arize/_generated/api_client/models/experiment_run_create.py
 arize/_generated/api_client/models/experiment_runs_list_response.py
+arize/_generated/api_client/models/experiment_with_run_ids.py
 arize/_generated/api_client/models/experiments_create_request.py
 arize/_generated/api_client/models/freeform_annotation_config.py
 arize/_generated/api_client/models/freeform_annotation_config_create.py
 arize/_generated/api_client/models/gcp_provider_metadata.py
 arize/_generated/api_client/models/gcp_provider_metadata_kind.py
 arize/_generated/api_client/models/input_variable_format.py
+arize/_generated/api_client/models/insert_experiment_runs_body.py
 arize/_generated/api_client/models/invite_mode.py
 arize/_generated/api_client/models/invocation_params.py
 arize/_generated/api_client/models/list_spans_request.py
@@ -580,11 +584,13 @@ arize/_generated/api_client/test/test_experiment.py
 arize/_generated/api_client/test/test_experiment_list_response.py
 arize/_generated/api_client/test/test_experiment_run.py
 arize/_generated/api_client/test/test_experiment_runs_list_response.py
+arize/_generated/api_client/test/test_experiment_with_run_ids.py
 arize/_generated/api_client/test/test_freeform_annotation_config.py
 arize/_generated/api_client/test/test_freeform_annotation_config_create.py
 arize/_generated/api_client/test/test_gcp_provider_metadata.py
 arize/_generated/api_client/test/test_gcp_provider_metadata_kind.py
 arize/_generated/api_client/test/test_input_variable_format.py
+arize/_generated/api_client/test/test_insert_experiment_runs_body.py
 arize/_generated/api_client/test/test_invocation_params.py
 arize/_generated/api_client/test/test_list_spans_request.py
 arize/_generated/api_client/test/test_llm_message.py

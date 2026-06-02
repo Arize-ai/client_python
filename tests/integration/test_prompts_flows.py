@@ -131,7 +131,7 @@ class TestPromptsCRUD:
         finally:
             prompts_client.delete(prompt=prompt.id)
 
-    def test_set_and_get_label(self, prompts_client) -> None:
+    def test_set_and_get_version_by_label(self, prompts_client) -> None:
         """Set a label on a prompt version and resolve it back."""
         name = _unique("sdk-test-prompt")
         prompt = prompts_client.create(**_make_prompt_args(name))
@@ -139,7 +139,7 @@ class TestPromptsCRUD:
             version_id = prompt.version.id
             prompts_client.set_labels(version_id=version_id, labels=["staging"])
 
-            resolved = prompts_client.get_label(
+            resolved = prompts_client.get_version_by_label(
                 prompt=prompt.id, label_name="staging"
             )
             assert resolved.id == version_id

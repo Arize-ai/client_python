@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.users.types import (
     BulkUserDeletionResult,
@@ -66,7 +67,7 @@ class UsersClient:
         *,
         email: str | None = None,
         status: list[UserStatus] | None = None,
-        limit: int = 50,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> UserListResponse:
         """List users in the account.

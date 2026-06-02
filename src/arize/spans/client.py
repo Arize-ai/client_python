@@ -17,6 +17,7 @@ from google.protobuf import json_format, message
 from arize._exporter.client import ArizeExportClient
 from arize._flight.client import ArizeFlightClient, FlightPostArrowFileResponse
 from arize._flight.types import FlightRequestType
+from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.constants.spans import DEFAULT_DATETIME_FMT
 from arize.exceptions.base import (
     INVALID_ARROW_CONVERSION_MSG,
@@ -141,7 +142,7 @@ class SpansClient:
         start_time: datetime | None = None,
         end_time: datetime | None = None,
         filter: str | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> SpanListResponse:
         """List spans for a project within a time range.
@@ -170,7 +171,7 @@ class SpansClient:
                     "status_code = 'ERROR' AND eval.Custom_eval_correctness.label = 'correct'"
                     "status_code = 'ERROR' OR eval.Custom_eval_correctness.label = 'correct'"
             limit: Maximum number of spans to return. The server enforces an
-                upper bound. Defaults to 100.
+                upper bound. Defaults to 50.
             cursor: Opaque pagination cursor returned from a previous response.
 
         Returns:
@@ -204,7 +205,7 @@ class SpansClient:
         )
 
     @prerelease_endpoint(key="spans.annotate", stage=ReleaseStage.ALPHA)
-    def annotate_spans(
+    def annotate(
         self,
         *,
         project: str,

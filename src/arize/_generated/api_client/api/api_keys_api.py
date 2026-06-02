@@ -981,7 +981,7 @@ class APIKeysApi:
     def api_keys_refresh(
         self,
         api_key_id: Annotated[StrictStr, Field(description="The unique API key identifier (base64)")],
-        api_key_refresh: Annotated[Optional[ApiKeyRefresh], Field(description="Optional body for overriding expiry on a refreshed API key.")] = None,
+        api_key_refresh: Annotated[Optional[ApiKeyRefresh], Field(description="Optional body for setting expiry on the new key and/or a grace period on the old key.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -997,11 +997,11 @@ class APIKeysApi:
     ) -> ApiKeyCreated:
         """Refresh an API key
 
-        Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** Supply `expires_at` in the request body to set an expiration on the replacement key. Omit `expires_at` (or send an empty body `{}`) to create the replacement key with no expiration (infinite lifetime).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** Supply `expires_at` in the request body to set an expiration on the replacement key. Omit `expires_at` (or send an empty body `{}`) to create the replacement key with no expiration (infinite lifetime).  **Grace period:** Supply `grace_period_seconds` in the request body to keep the old key valid for that many seconds after the refresh. If not supplied, the old key is revoked immediately.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param api_key_id: The unique API key identifier (base64) (required)
         :type api_key_id: str
-        :param api_key_refresh: Optional body for overriding expiry on a refreshed API key.
+        :param api_key_refresh: Optional body for setting expiry on the new key and/or a grace period on the old key.
         :type api_key_refresh: ApiKeyRefresh
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1058,7 +1058,7 @@ class APIKeysApi:
     def api_keys_refresh_with_http_info(
         self,
         api_key_id: Annotated[StrictStr, Field(description="The unique API key identifier (base64)")],
-        api_key_refresh: Annotated[Optional[ApiKeyRefresh], Field(description="Optional body for overriding expiry on a refreshed API key.")] = None,
+        api_key_refresh: Annotated[Optional[ApiKeyRefresh], Field(description="Optional body for setting expiry on the new key and/or a grace period on the old key.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1074,11 +1074,11 @@ class APIKeysApi:
     ) -> ApiResponse[ApiKeyCreated]:
         """Refresh an API key
 
-        Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** Supply `expires_at` in the request body to set an expiration on the replacement key. Omit `expires_at` (or send an empty body `{}`) to create the replacement key with no expiration (infinite lifetime).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** Supply `expires_at` in the request body to set an expiration on the replacement key. Omit `expires_at` (or send an empty body `{}`) to create the replacement key with no expiration (infinite lifetime).  **Grace period:** Supply `grace_period_seconds` in the request body to keep the old key valid for that many seconds after the refresh. If not supplied, the old key is revoked immediately.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param api_key_id: The unique API key identifier (base64) (required)
         :type api_key_id: str
-        :param api_key_refresh: Optional body for overriding expiry on a refreshed API key.
+        :param api_key_refresh: Optional body for setting expiry on the new key and/or a grace period on the old key.
         :type api_key_refresh: ApiKeyRefresh
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1135,7 +1135,7 @@ class APIKeysApi:
     def api_keys_refresh_without_preload_content(
         self,
         api_key_id: Annotated[StrictStr, Field(description="The unique API key identifier (base64)")],
-        api_key_refresh: Annotated[Optional[ApiKeyRefresh], Field(description="Optional body for overriding expiry on a refreshed API key.")] = None,
+        api_key_refresh: Annotated[Optional[ApiKeyRefresh], Field(description="Optional body for setting expiry on the new key and/or a grace period on the old key.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1151,11 +1151,11 @@ class APIKeysApi:
     ) -> RESTResponseType:
         """Refresh an API key
 
-        Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** Supply `expires_at` in the request body to set an expiration on the replacement key. Omit `expires_at` (or send an empty body `{}`) to create the replacement key with no expiration (infinite lifetime).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** Supply `expires_at` in the request body to set an expiration on the replacement key. Omit `expires_at` (or send an empty body `{}`) to create the replacement key with no expiration (infinite lifetime).  **Grace period:** Supply `grace_period_seconds` in the request body to keep the old key valid for that many seconds after the refresh. If not supplied, the old key is revoked immediately.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param api_key_id: The unique API key identifier (base64) (required)
         :type api_key_id: str
-        :param api_key_refresh: Optional body for overriding expiry on a refreshed API key.
+        :param api_key_refresh: Optional body for setting expiry on the new key and/or a grace period on the old key.
         :type api_key_refresh: ApiKeyRefresh
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request

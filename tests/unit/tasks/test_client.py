@@ -125,7 +125,7 @@ class TestTasksClientList:
             project_id=None,
             dataset_id=None,
             type=None,
-            limit=100,
+            limit=50,
             cursor=None,
         )
 
@@ -152,14 +152,14 @@ class TestTasksClientList:
             project_id=_PROJECT_ID,
             dataset_id=None,
             type=None,
-            limit=100,
+            limit=50,
             cursor=None,
         )
 
     def test_list_defaults(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """list() should default all filters to None and limit to 100."""
+        """list() should default all filters to None and limit to 50."""
         tasks_client.list()
 
         mock_api.tasks_list.assert_called_once_with(
@@ -169,7 +169,7 @@ class TestTasksClientList:
             project_id=None,
             dataset_id=None,
             type=None,
-            limit=100,
+            limit=50,
             cursor=None,
         )
 
@@ -1110,13 +1110,13 @@ class TestTasksClientListRuns:
     def test_list_runs_defaults(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """list_runs() should default status/cursor to None and limit to 100."""
+        """list_runs() should default status/cursor to None and limit to 50."""
         tasks_client.list_runs(task=_TASK_ID)
 
         mock_api.tasks_list_runs.assert_called_once_with(
             task_id=_TASK_ID,
             status=None,
-            limit=100,
+            limit=50,
             cursor=None,
         )
 

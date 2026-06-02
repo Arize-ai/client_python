@@ -125,11 +125,11 @@ class TestAnnotationQueuesClientList:
     def test_uses_default_limit(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
     ) -> None:
-        """list() must default limit to 100 when not provided."""
+        """list() must default limit to 50 when not provided."""
         annotation_queues_client.list()
 
         _, kwargs = mock_api.annotation_queues_list.call_args
-        assert kwargs["limit"] == 100
+        assert kwargs["limit"] == 50
 
     def test_returns_api_response(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
@@ -425,11 +425,11 @@ class TestAnnotationQueuesClientListRecords:
     def test_uses_default_limit(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
     ) -> None:
-        """list_records() must default limit to 100."""
+        """list_records() must default limit to 50."""
         annotation_queues_client.list_records(annotation_queue=_QUEUE_ID)
 
         _, kwargs = mock_api.annotation_queue_records_list.call_args
-        assert kwargs["limit"] == 100
+        assert kwargs["limit"] == 50
 
     def test_returns_api_response(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock

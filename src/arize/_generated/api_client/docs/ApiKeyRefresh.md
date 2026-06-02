@@ -6,6 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **expires_at** | **datetime** | Expiration timestamp for the refreshed key. If omitted, the refreshed key has no expiration (infinite lifetime).  | [optional] 
+**grace_period_seconds** | **int** | Grace period in seconds during which the old key remains valid after the refresh. When set, the old key&#39;s expiration is updated to &#x60;now + grace_period_seconds&#x60; instead of being immediately revoked — it expires naturally at the end of the window. If the old key already has an &#x60;expires_at&#x60; that is sooner than the grace window end, the shorter value is used (the grace period cannot extend a key&#39;s original lifetime). Defaults to 0 (immediate revocation). Maximum is 86400 (24 hours).  | [optional] 
 
 ## Example
 

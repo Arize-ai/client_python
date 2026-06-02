@@ -101,13 +101,13 @@ class TestSpacesClientList:
     def test_list_defaults(
         self, spaces_client: SpacesClient, mock_api: Mock
     ) -> None:
-        """list() should default organization_id/name/cursor to None and limit to 100."""
+        """list() should default organization_id/name/cursor to None and limit to 50."""
         spaces_client.list()
 
         mock_api.spaces_list.assert_called_once_with(
             org_id=None,
             name=None,
-            limit=100,
+            limit=50,
             cursor=None,
         )
 

@@ -105,14 +105,14 @@ class TestDatasetsClientList:
     def test_list_defaults(
         self, datasets_client: DatasetsClient, mock_api: Mock
     ) -> None:
-        """list() should default space/name/cursor to None and limit to 100."""
+        """list() should default space/name/cursor to None and limit to 50."""
         datasets_client.list()
 
         mock_api.datasets_list.assert_called_once_with(
             space_id=None,
             space_name=None,
             name=None,
-            limit=100,
+            limit=50,
             cursor=None,
         )
 

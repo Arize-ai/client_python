@@ -9,6 +9,7 @@ Method | HTTP request | Description
 [**experiments_get**](ExperimentsApi.md#experiments_get) | **GET** /v2/experiments/{experiment_id} | Get an experiment
 [**experiments_list**](ExperimentsApi.md#experiments_list) | **GET** /v2/experiments | List experiments
 [**experiments_runs_annotate**](ExperimentsApi.md#experiments_runs_annotate) | **POST** /v2/experiments/{experiment_id}/runs/annotate | Annotate a batch of experiment runs
+[**experiments_runs_insert**](ExperimentsApi.md#experiments_runs_insert) | **POST** /v2/experiments/{experiment_id}/runs | Append runs to an experiment
 [**experiments_runs_list**](ExperimentsApi.md#experiments_runs_list) | **GET** /v2/experiments/{experiment_id}/runs | List experiment runs
 
 
@@ -495,6 +496,123 @@ void (empty response body)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **202** | Annotations written successfully. The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **experiments_runs_insert**
+> ExperimentWithRunIds experiments_runs_insert(experiment_id, insert_experiment_runs_body)
+
+Append runs to an experiment
+
+Append new runs to an existing experiment.
+
+**Payload Requirements**
+- Provide between 1 and 1000 runs in `experiment_runs`.
+- Each run must include:
+  - `example_id` -- the ID of an existing example in the dataset version
+  - `output` -- model/task output for that example
+  - You may include any additional fields per run that can be used for
+  analysis or filtering. For example: `model`, `latency_ms`,
+  `temperature`, `prompt`, `tool_calls`, etc.
+
+**Valid example**
+```json
+{
+  "experiment_runs": [
+    {"example_id": "example_001", "output": "4", "model": "gpt-4o-mini"}
+  ]
+}
+```
+
+**Invalid example** (missing required output field)
+```json
+{
+  "experiment_runs": [
+    {"example_id": "example_001"}
+  ]
+}
+```
+
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.experiment_with_run_ids import ExperimentWithRunIds
+from arize._generated.api_client.models.insert_experiment_runs_body import InsertExperimentRunsBody
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.ExperimentsApi(api_client)
+    experiment_id = 'RXhwZXJpbWVudDoxMjM0NQ==' # str | The unique experiment identifier (base64)
+    insert_experiment_runs_body = {"experiment_runs":[{"example_id":"example_001","output":"4","model":"gpt-4o-mini","temperature":0.2,"latency_ms":118},{"example_id":"example_002","output":"4","model":"gpt-4o-mini","temperature":0.2,"latency_ms":132}]} # InsertExperimentRunsBody | Body containing experiment runs to append to the experiment
+
+    try:
+        # Append runs to an experiment
+        api_response = api_instance.experiments_runs_insert(experiment_id, insert_experiment_runs_body)
+        print("The response of ExperimentsApi->experiments_runs_insert:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling ExperimentsApi->experiments_runs_insert: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **experiment_id** | **str**| The unique experiment identifier (base64) | 
+ **insert_experiment_runs_body** | [**InsertExperimentRunsBody**](InsertExperimentRunsBody.md)| Body containing experiment runs to append to the experiment | 
+
+### Return type
+
+[**ExperimentWithRunIds**](ExperimentWithRunIds.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**201** | Experiment with the IDs of the newly inserted runs. |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |

@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Final
 from arize._generated.api_client.models.run_configuration import (
     RunConfiguration,
 )
+from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.tasks.types import (
     LlmGenerationRunConfig,
@@ -129,7 +130,7 @@ class TasksClient:
         dataset: str | None = None,
         space: str | None = None,
         task_type: TaskType | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> TaskListResponse:
         """List tasks the user has access to.
@@ -855,7 +856,7 @@ class TasksClient:
         task: str,
         space: str | None = None,
         status: RunStatus | None = None,
-        limit: int = 100,
+        limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> TaskRunListResponse:
         """List runs for a task.
