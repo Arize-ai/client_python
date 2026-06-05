@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **annotation_config_type** | **str** | Discriminator value identifying a continuous annotation config. | 
 **minimum_score** | **float** | The minimum score value | 
 **maximum_score** | **float** | The maximum score value | 
-**optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) |  | [optional] [default to OptimizationDirection.NONE]
+**optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) | Direction for optimization. Defaults to &#x60;none&#x60; when omitted. | [optional] 
 
 ## Example
 

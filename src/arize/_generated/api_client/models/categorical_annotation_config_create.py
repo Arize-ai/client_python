@@ -32,7 +32,7 @@ class CategoricalAnnotationConfigCreate(BaseModel):
     space_id: StrictStr = Field(description="ID of the space the annotation config will belong to")
     annotation_config_type: StrictStr = Field(description="Discriminator value identifying a categorical annotation config.")
     values: List[CategoricalAnnotationValue] = Field(description="An array of categorical annotation values")
-    optimization_direction: Optional[OptimizationDirection] = OptimizationDirection.NONE
+    optimization_direction: Optional[OptimizationDirection] = Field(default=None, description="Direction for optimization. Defaults to `none` when omitted.")
     __properties: ClassVar[List[str]] = ["name", "space_id", "annotation_config_type", "values", "optimization_direction"]
 
     @field_validator('annotation_config_type')
@@ -109,7 +109,7 @@ class CategoricalAnnotationConfigCreate(BaseModel):
             "space_id": obj.get("space_id"),
             "annotation_config_type": obj.get("annotation_config_type"),
             "values": [CategoricalAnnotationValue.from_dict(_item) for _item in obj["values"]] if obj.get("values") is not None else None,
-            "optimization_direction": obj.get("optimization_direction") if obj.get("optimization_direction") is not None else OptimizationDirection.NONE
+            "optimization_direction": obj.get("optimization_direction")
         })
         return _obj
 

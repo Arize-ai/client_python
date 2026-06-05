@@ -1384,6 +1384,7 @@ def _process_patch_document(
     patch_doc = metadata_df.loc[row_idx, patch_document_column_name]
 
     # Handle different patch document formats
+    explicit_patch: dict[str, object]
     if patch_doc is None:
         # None (as opposed to NaN) is a valid value but creates an empty patch
         explicit_patch = {}

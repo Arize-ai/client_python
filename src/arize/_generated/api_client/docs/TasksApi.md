@@ -6,11 +6,11 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**task_runs_cancel**](TasksApi.md#task_runs_cancel) | **POST** /v2/task-runs/{run_id}/cancel | Cancel task run
 [**task_runs_get**](TasksApi.md#task_runs_get) | **GET** /v2/task-runs/{run_id} | Get task run
+[**task_runs_list**](TasksApi.md#task_runs_list) | **GET** /v2/tasks/{task_id}/runs | List task runs
 [**tasks_create**](TasksApi.md#tasks_create) | **POST** /v2/tasks | Create task
 [**tasks_delete**](TasksApi.md#tasks_delete) | **DELETE** /v2/tasks/{task_id} | Delete task
 [**tasks_get**](TasksApi.md#tasks_get) | **GET** /v2/tasks/{task_id} | Get task
 [**tasks_list**](TasksApi.md#tasks_list) | **GET** /v2/tasks | List tasks
-[**tasks_list_runs**](TasksApi.md#tasks_list_runs) | **GET** /v2/tasks/{task_id}/runs | List task runs
 [**tasks_trigger_run**](TasksApi.md#tasks_trigger_run) | **POST** /v2/tasks/{task_id}/trigger | Trigger a task run
 [**tasks_update**](TasksApi.md#tasks_update) | **PATCH** /v2/tasks/{task_id} | Update task
 
@@ -182,6 +182,99 @@ Name | Type | Description  | Notes
 **200** | Returns a single task run object |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **task_runs_list**
+> TaskRunListResponse task_runs_list(task_id, status=status, limit=limit, cursor=cursor)
+
+List task runs
+
+List all runs for a task with cursor-based pagination.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.task_run_list_response import TaskRunListResponse
+from arize._generated.api_client.models.task_run_status import TaskRunStatus
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.TasksApi(api_client)
+    task_id = 'VGFzazoxMjM0NQ==' # str | The unique task identifier (base64)
+    status = arize._generated.api_client.TaskRunStatus() # TaskRunStatus | Filter by run status: pending, running, completed, failed, cancelled (optional)
+    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
+
+    try:
+        # List task runs
+        api_response = api_instance.task_runs_list(task_id, status=status, limit=limit, cursor=cursor)
+        print("The response of TasksApi->task_runs_list:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling TasksApi->task_runs_list: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **task_id** | **str**| The unique task identifier (base64) | 
+ **status** | [**TaskRunStatus**](.md)| Filter by run status: pending, running, completed, failed, cancelled | [optional] 
+ **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
+
+### Return type
+
+[**TaskRunListResponse**](TaskRunListResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns a list of task run objects |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
@@ -588,99 +681,6 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Returns a list of task objects |  -  |
-**400** | Invalid request |  -  |
-**401** | Authentication is required |  -  |
-**403** | Insufficient permissions to access this resource |  -  |
-**404** | Not found |  -  |
-**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **tasks_list_runs**
-> TaskRunListResponse tasks_list_runs(task_id, status=status, limit=limit, cursor=cursor)
-
-List task runs
-
-List all runs for a task with cursor-based pagination.
-
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
-
-
-### Example
-
-* Bearer (<api-key>) Authentication (bearerAuth):
-
-```python
-import arize._generated.api_client
-from arize._generated.api_client.models.task_run_list_response import TaskRunListResponse
-from arize._generated.api_client.models.task_run_status import TaskRunStatus
-from arize._generated.api_client.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to https://api.arize.com
-# See configuration.py for a list of all supported configuration parameters.
-configuration = arize._generated.api_client.Configuration(
-    host = "https://api.arize.com"
-)
-
-# The client must configure the authentication and authorization parameters
-# in accordance with the API server security policy.
-# Examples for each auth method are provided below, use the example that
-# satisfies your auth use case.
-
-# Configure Bearer authorization (<api-key>): bearerAuth
-configuration = arize._generated.api_client.Configuration(
-    access_token = os.environ["BEARER_TOKEN"]
-)
-
-# Enter a context with an instance of the API client
-with arize._generated.api_client.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = arize._generated.api_client.TasksApi(api_client)
-    task_id = 'VGFzazoxMjM0NQ==' # str | The unique task identifier (base64)
-    status = arize._generated.api_client.TaskRunStatus() # TaskRunStatus | Filter by run status: pending, running, completed, failed, cancelled (optional)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
-    cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
-
-    try:
-        # List task runs
-        api_response = api_instance.tasks_list_runs(task_id, status=status, limit=limit, cursor=cursor)
-        print("The response of TasksApi->tasks_list_runs:\n")
-        pprint(api_response)
-    except Exception as e:
-        print("Exception when calling TasksApi->tasks_list_runs: %s\n" % e)
-```
-
-
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **task_id** | **str**| The unique task identifier (base64) | 
- **status** | [**TaskRunStatus**](.md)| Filter by run status: pending, running, completed, failed, cancelled | [optional] 
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
- **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
-
-### Return type
-
-[**TaskRunListResponse**](TaskRunListResponse.md)
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json, application/problem+json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Returns a list of task run objects |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |

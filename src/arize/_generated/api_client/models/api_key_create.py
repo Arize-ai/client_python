@@ -35,7 +35,7 @@ class ApiKeyCreate(BaseModel):
     key_type: Optional[ApiKeyType] = Field(default=None, description="Type of the API key to create. Defaults to `user`. - user - Key that authenticates as the creating user with their full permissions.   `space_id` and `roles` must not be set (returns `400`). - service - Key scoped to a specific space backed by a dedicated bot user.   Requires `space_id`. All roles default to minimum privilege when omitted. ")
     expires_at: Optional[datetime] = Field(default=None, description="Optional expiration timestamp. If omitted the key never expires.")
     space_id: Optional[StrictStr] = Field(default=None, description="ID of the space this service key is scoped to. Required when `key_type` is `service`; invalid for `user` keys (returns `400`). ")
-    roles: Optional[ApiKeyRoles] = None
+    roles: Optional[ApiKeyRoles] = Field(default=None, description="Role assignments for the service key's bot user. Only valid when `key_type` is `service`; invalid for `user` keys (returns `400`). When omitted, each role field defaults to minimum privilege: `space_role` → `member`, `org_role` → `read-only`, `account_role` → `member`. ")
     __properties: ClassVar[List[str]] = ["name", "description", "key_type", "expires_at", "space_id", "roles"]
 
     model_config = ConfigDict(

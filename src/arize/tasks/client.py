@@ -885,7 +885,7 @@ class TasksClient:
             task=task,
             space=space,
         )
-        return self._api.tasks_list_runs(
+        return self._api.task_runs_list(
             task_id=task_id,
             status=status,
             limit=limit,

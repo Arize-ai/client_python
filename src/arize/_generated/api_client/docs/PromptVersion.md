@@ -14,8 +14,8 @@ Name | Type | Description | Notes
 **input_variable_format** | [**InputVariableFormat**](InputVariableFormat.md) |  | 
 **provider** | [**LlmProvider**](LlmProvider.md) |  | 
 **model** | **str** | The model to use for the call | 
-**invocation_params** | [**InvocationParams**](InvocationParams.md) |  | [optional] 
-**provider_params** | [**ProviderParams**](ProviderParams.md) |  | [optional] 
+**invocation_params** | [**InvocationParams**](InvocationParams.md) | LLM invocation parameters for this version. When absent, no invocation parameters were set on this version. | [optional] 
+**provider_params** | [**ProviderParams**](ProviderParams.md) | Provider-specific parameters for this version. When absent, no provider-specific parameters were set on this version. | [optional] 
 **created_at** | **datetime** | When the version was created | 
 **created_by_user_id** | **str** | The user ID of the user who created this version | 
 **labels** | **List[str]** | Label names currently pointing to this version (e.g., \&quot;production\&quot;, \&quot;staging\&quot;). Labels are case-sensitive. | [optional] 

@@ -1,6 +1,5 @@
 """Public type re-exports and SDK-facing role types for the users subdomain."""
 
-from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Annotated, Literal
@@ -111,8 +110,7 @@ class DeletionStatus(str, Enum):
     NOT_FOUND = "not_found"
 
 
-@dataclass
-class BulkUserDeletionResult:
+class BulkUserDeletionResult(BaseModel):
     """Result of a single user deletion attempt.
 
     Attributes:
@@ -131,7 +129,18 @@ class BulkUserDeletionResult:
     error: str | None = None
 
 
+class BulkDeleteResponse(BaseModel):
+    """Response from a bulk user delete operation.
+
+    Attributes:
+        results: Per-user deletion outcomes.
+    """
+
+    results: list[BulkUserDeletionResult]
+
+
 __all__ = [
+    "BulkDeleteResponse",
     "BulkUserDeletionResult",
     "CreateUserRequest",
     "CustomUserRole",

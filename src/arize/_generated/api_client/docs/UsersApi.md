@@ -616,7 +616,10 @@ Update a user's display name and/or developer permission.
 - `{}` — at least one field must be provided
 - `{ "name": "   " }` — name cannot be whitespace only
 
-Requires account admin role or USER_UPDATE permission.
+Updating `name` requires account admin role or USER_UPDATE permission.
+
+Updating `is_developer` requires account admin role. Callers without account admin that include
+`is_developer` in the body receive `403`.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 

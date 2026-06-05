@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **type** | **str** | Discriminator value identifying a continuous annotation config. | 
 **minimum_score** | **float** | The minimum score value | 
 **maximum_score** | **float** | The maximum score value | 
-**optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) |  | [optional] [default to OptimizationDirection.NONE]
+**optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) | Direction for optimization. When absent, the server treats the value as &#x60;none&#x60;. | [optional] 
 **values** | [**List[CategoricalAnnotationValue]**](CategoricalAnnotationValue.md) | An array of categorical annotation values | 
 
 ## Example

@@ -167,11 +167,11 @@ Class | Method | HTTP request | Description
 *SpansApi* | [**spans_list**](arize/_generated/api_client/docs/SpansApi.md#spans_list) | **POST** /v2/spans | List spans
 *TasksApi* | [**task_runs_cancel**](arize/_generated/api_client/docs/TasksApi.md#task_runs_cancel) | **POST** /v2/task-runs/{run_id}/cancel | Cancel task run
 *TasksApi* | [**task_runs_get**](arize/_generated/api_client/docs/TasksApi.md#task_runs_get) | **GET** /v2/task-runs/{run_id} | Get task run
+*TasksApi* | [**task_runs_list**](arize/_generated/api_client/docs/TasksApi.md#task_runs_list) | **GET** /v2/tasks/{task_id}/runs | List task runs
 *TasksApi* | [**tasks_create**](arize/_generated/api_client/docs/TasksApi.md#tasks_create) | **POST** /v2/tasks | Create task
 *TasksApi* | [**tasks_delete**](arize/_generated/api_client/docs/TasksApi.md#tasks_delete) | **DELETE** /v2/tasks/{task_id} | Delete task
 *TasksApi* | [**tasks_get**](arize/_generated/api_client/docs/TasksApi.md#tasks_get) | **GET** /v2/tasks/{task_id} | Get task
 *TasksApi* | [**tasks_list**](arize/_generated/api_client/docs/TasksApi.md#tasks_list) | **GET** /v2/tasks | List tasks
-*TasksApi* | [**tasks_list_runs**](arize/_generated/api_client/docs/TasksApi.md#tasks_list_runs) | **GET** /v2/tasks/{task_id}/runs | List task runs
 *TasksApi* | [**tasks_trigger_run**](arize/_generated/api_client/docs/TasksApi.md#tasks_trigger_run) | **POST** /v2/tasks/{task_id}/trigger | Trigger a task run
 *TasksApi* | [**tasks_update**](arize/_generated/api_client/docs/TasksApi.md#tasks_update) | **PATCH** /v2/tasks/{task_id} | Update task
 *UsersApi* | [**users_create**](arize/_generated/api_client/docs/UsersApi.md#users_create) | **POST** /v2/users | Create a user

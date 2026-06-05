@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **key_type** | [**ApiKeyType**](ApiKeyType.md) | Type of the API key to create. Defaults to &#x60;user&#x60;. - user - Key that authenticates as the creating user with their full permissions.   &#x60;space_id&#x60; and &#x60;roles&#x60; must not be set (returns &#x60;400&#x60;). - service - Key scoped to a specific space backed by a dedicated bot user.   Requires &#x60;space_id&#x60;. All roles default to minimum privilege when omitted.  | [optional] 
 **expires_at** | **datetime** | Optional expiration timestamp. If omitted the key never expires. | [optional] 
 **space_id** | **str** | ID of the space this service key is scoped to. Required when &#x60;key_type&#x60; is &#x60;service&#x60;; invalid for &#x60;user&#x60; keys (returns &#x60;400&#x60;).  | [optional] 
-**roles** | [**ApiKeyRoles**](ApiKeyRoles.md) |  | [optional] 
+**roles** | [**ApiKeyRoles**](ApiKeyRoles.md) | Role assignments for the service key&#39;s bot user. Only valid when &#x60;key_type&#x60; is &#x60;service&#x60;; invalid for &#x60;user&#x60; keys (returns &#x60;400&#x60;). When omitted, each role field defaults to minimum privilege: &#x60;space_role&#x60; → &#x60;member&#x60;, &#x60;org_role&#x60; → &#x60;read-only&#x60;, &#x60;account_role&#x60; → &#x60;member&#x60;.  | [optional] 
 
 ## Example
 

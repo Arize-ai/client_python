@@ -21,7 +21,7 @@ Create a new AI integration for an external LLM provider.
 **Payload Requirements**
 - `name` and `provider` are required.
 - The integration name must be unique within the account.
-- `provider` must be one of: `openAI`, `azureOpenAI`, `awsBedrock`, `vertexAI`, `anthropic`, `custom`.
+- `provider` must be one of: `openAI`, `azureOpenAI`, `awsBedrock`, `vertexAI`, `anthropic`, `nvidiaNim`, `gemini`, `custom`.
 - If `scopings` is omitted, the integration defaults to account-wide visibility.
 - `enable_default_models` defaults to `false` if not provided.
 - `function_calling_enabled` defaults to `true` if not provided.

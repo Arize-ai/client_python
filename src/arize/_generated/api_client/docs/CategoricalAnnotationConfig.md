@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 **space_id** | **str** | The space id the annotation config belongs to | 
 **type** | **str** | Discriminator value identifying a categorical annotation config. | 
 **values** | [**List[CategoricalAnnotationValue]**](CategoricalAnnotationValue.md) | An array of categorical annotation values | 
-**optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) |  | [optional] [default to OptimizationDirection.NONE]
+**optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) | Direction for optimization. When absent, the server treats the value as &#x60;none&#x60;. | [optional] 
 
 ## Example
 

@@ -38,7 +38,7 @@ class Span(BaseModel):
     parent_id: Optional[StrictStr] = Field(default=None, description="ID of the parent span")
     start_time: datetime = Field(description="Timestamp when the span started")
     end_time: datetime = Field(description="Timestamp when the span ended")
-    status_code: Optional[SpanStatusCode] = None
+    status_code: Optional[SpanStatusCode] = Field(default=None, description="Status code of the span. When absent, the server treats the value as `UNSET` (equivalent to OK).")
     status_message: Optional[StrictStr] = Field(default=None, description="Status message associated with the span")
     attributes: Optional[Dict[str, Any]] = Field(default=None, description="Key-value pairs of span attributes")
     annotations: Optional[List[Annotation]] = Field(default=None, description="List of human annotations on this span")

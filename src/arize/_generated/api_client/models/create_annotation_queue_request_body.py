@@ -34,7 +34,7 @@ class CreateAnnotationQueueRequestBody(BaseModel):
     instructions: Optional[Annotated[str, Field(strict=True, max_length=5000)]] = Field(default=None, description="Instructions for annotators working on this queue")
     annotation_config_ids: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="IDs of annotation configs to associate with this queue. All configs must belong to the same space.")
     annotator_emails: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="Email addresses of annotators to assign to the queue. Emails are resolved to user IDs server-side.")
-    assignment_method: Optional[AssignmentMethod] = AssignmentMethod.ALL
+    assignment_method: Optional[AssignmentMethod] = Field(default=None, description="How records are assigned to annotators. Defaults to `all` when omitted.")
     record_sources: Optional[Annotated[List[AnnotationQueueRecordInput], Field(max_length=2)]] = Field(default=None, description="Record sources to add to the annotation queue on creation. At most 2 record sources (projects or datasets) may be provided in a single create request. Additional records from other sources can be added after creation.")
     __properties: ClassVar[List[str]] = ["name", "space_id", "instructions", "annotation_config_ids", "annotator_emails", "assignment_method", "record_sources"]
 
@@ -106,7 +106,7 @@ class CreateAnnotationQueueRequestBody(BaseModel):
             "instructions": obj.get("instructions"),
             "annotation_config_ids": obj.get("annotation_config_ids"),
             "annotator_emails": obj.get("annotator_emails"),
-            "assignment_method": obj.get("assignment_method") if obj.get("assignment_method") is not None else AssignmentMethod.ALL,
+            "assignment_method": obj.get("assignment_method"),
             "record_sources": [AnnotationQueueRecordInput.from_dict(_item) for _item in obj["record_sources"]] if obj.get("record_sources") is not None else None
         })
         return _obj

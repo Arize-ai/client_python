@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.32.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.32.0...arize-python-sdk/v8.32.1) (2026-06-05)
+
+
+### 🐛 Bug Fixes
+
+* add missing Bulk delete response object ([#74063](https://github.com/Arize-ai/arize/issues/74063)) ([22b2594](https://github.com/Arize-ai/arize/commit/22b2594938a6fdbead5e32416dd53717ac4d6b67))
+
 ## [8.32.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.31.0...arize-python-sdk/v8.32.0) (2026-06-02)
 
 

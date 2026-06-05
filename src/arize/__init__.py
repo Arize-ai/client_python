@@ -20,7 +20,8 @@ from arize.regions import Region
 from arize.tasks.types import (
     TaskListResponse as _DomainTaskListResponse,
 )
-from arize.users.types import BulkUserDeletionResult
+from arize.users.types import BulkDeleteResponse, BulkUserDeletionResult
+from arize.users.types import BulkDeleteResponse as _DomainBulkDeleteResponse
 from arize.users.types import (
     UserListResponse as _DomainUserListResponse,
 )
@@ -47,6 +48,7 @@ __all__ = [
     "AmbiguousNameError",
     "ApiException",
     "ArizeClient",
+    "BulkDeleteResponse",
     "BulkUserDeletionResult",
     "NotFoundError",
     "Problem",
@@ -257,6 +259,7 @@ models.UserListResponse.to_df = make_to_df("users")  # type: ignore[attr-defined
 # Monkey-patch domain list-response types so .to_df() works on the
 # SDK-typed objects returned by sub-clients (e.g. client.users.list()).
 _DomainUserListResponse.to_df = make_to_df("users")  # type: ignore[attr-defined]
+_DomainBulkDeleteResponse.to_df = make_to_df("results")  # type: ignore[attr-defined]
 _DomainTaskListResponse.to_df = make_to_df("tasks")  # type: ignore[attr-defined]
 _DomainEvaluatorVersionListResponse.to_df = make_to_df("evaluator_versions")  # type: ignore[attr-defined]
 _DomainAnnotationConfigListResponse.to_df = make_to_df("annotation_configs")  # type: ignore[attr-defined]

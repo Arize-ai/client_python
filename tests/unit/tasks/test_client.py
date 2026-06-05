@@ -1092,7 +1092,7 @@ class TestTasksClientListRuns:
     def test_list_runs_calls_api_with_all_params(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """list_runs() should forward all parameters to tasks_list_runs."""
+        """list_runs() should forward all parameters to task_runs_list."""
         tasks_client.list_runs(
             task=_TASK_ID,
             status="completed",
@@ -1100,7 +1100,7 @@ class TestTasksClientListRuns:
             cursor="cursor-abc",
         )
 
-        mock_api.tasks_list_runs.assert_called_once_with(
+        mock_api.task_runs_list.assert_called_once_with(
             task_id=_TASK_ID,
             status="completed",
             limit=25,
@@ -1113,7 +1113,7 @@ class TestTasksClientListRuns:
         """list_runs() should default status/cursor to None and limit to 50."""
         tasks_client.list_runs(task=_TASK_ID)
 
-        mock_api.tasks_list_runs.assert_called_once_with(
+        mock_api.task_runs_list.assert_called_once_with(
             task_id=_TASK_ID,
             status=None,
             limit=50,
@@ -1125,7 +1125,7 @@ class TestTasksClientListRuns:
     ) -> None:
         """list_runs() should propagate the return value."""
         expected = Mock()
-        mock_api.tasks_list_runs.return_value = expected
+        mock_api.task_runs_list.return_value = expected
 
         result = tasks_client.list_runs(task=_TASK_ID)
 

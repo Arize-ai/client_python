@@ -45,7 +45,7 @@ class TestSpanListResponse(unittest.TestCase):
                         parent_id = '', 
                         start_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         end_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
-                        status_code = 'OK', 
+                        status_code = null, 
                         status_message = '', 
                         attributes = { }, 
                         annotations = [
@@ -86,7 +86,7 @@ class TestSpanListResponse(unittest.TestCase):
                         parent_id = '', 
                         start_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         end_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
-                        status_code = 'OK', 
+                        status_code = null, 
                         status_message = '', 
                         attributes = { }, 
                         annotations = [

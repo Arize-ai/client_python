@@ -40,8 +40,8 @@ class PromptVersion(BaseModel):
     input_variable_format: InputVariableFormat
     provider: LlmProvider
     model: StrictStr = Field(description="The model to use for the call")
-    invocation_params: Optional[InvocationParams] = None
-    provider_params: Optional[ProviderParams] = None
+    invocation_params: Optional[InvocationParams] = Field(default=None, description="LLM invocation parameters for this version. When absent, no invocation parameters were set on this version.")
+    provider_params: Optional[ProviderParams] = Field(default=None, description="Provider-specific parameters for this version. When absent, no provider-specific parameters were set on this version.")
     created_at: datetime = Field(description="When the version was created")
     created_by_user_id: StrictStr = Field(description="The user ID of the user who created this version")
     labels: Optional[List[StrictStr]] = Field(default=None, description="Label names currently pointing to this version (e.g., \"production\", \"staging\"). Labels are case-sensitive.")

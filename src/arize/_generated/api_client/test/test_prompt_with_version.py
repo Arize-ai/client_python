@@ -64,8 +64,8 @@ class TestPromptWithVersion(unittest.TestCase):
                     input_variable_format = 'f_string', 
                     provider = 'open_ai', 
                     model = '', 
-                    invocation_params = { }, 
-                    provider_params = { }, 
+                    invocation_params = null, 
+                    provider_params = null, 
                     created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                     created_by_user_id = '', 
                     labels = [
@@ -102,8 +102,8 @@ class TestPromptWithVersion(unittest.TestCase):
                     input_variable_format = 'f_string', 
                     provider = 'open_ai', 
                     model = '', 
-                    invocation_params = { }, 
-                    provider_params = { }, 
+                    invocation_params = null, 
+                    provider_params = null, 
                     created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                     created_by_user_id = '', 
                     labels = [
