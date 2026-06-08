@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.33.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.32.1...arize-python-sdk/v8.33.0) (2026-06-08)
+
+
+### 🎁 New Features
+
+* **experiments:** support for appending experiment runs ([#72134](https://github.com/Arize-ai/arize/issues/72134)) ([f761a25](https://github.com/Arize-ai/arize/commit/f761a259acb04dd40ea489f1e8e1f09143d01ecb))
+
 ## [8.32.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.32.0...arize-python-sdk/v8.32.1) (2026-06-05)
 
 

@@ -434,8 +434,14 @@ from arize._generated.api_client.models.experiment import (  # noqa: E402
 from arize._generated.api_client.models.experiment_list_response import (  # noqa: E402
     ExperimentListResponse,
 )
+from arize._generated.api_client.models.experiment_run_create import (  # noqa: E402
+    ExperimentRunCreate,
+)
 from arize._generated.api_client.models.experiment_runs_list_response import (  # noqa: E402
     ExperimentRunsListResponse,
+)
+from arize._generated.api_client.models.experiment_with_run_ids import (  # noqa: E402
+    ExperimentWithRunIds,
 )
 
 __all__ = [
@@ -451,10 +457,12 @@ __all__ = [
     "ExperimentId",
     "ExperimentListResponse",
     "ExperimentRun",
+    "ExperimentRunCreate",
     "ExperimentRunId",
     "ExperimentRunsListResponse",
     "ExperimentTask",
     "ExperimentTaskFieldNames",
+    "ExperimentWithRunIds",
     "RepetitionNumber",
     "TaskOutput",
     "TestCase",

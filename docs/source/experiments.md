@@ -80,6 +80,14 @@
    :members:
    :member-order: bysource
 
+.. autoclass:: ExperimentRunCreate
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ExperimentWithRunIds
+   :members:
+   :member-order: bysource
+
 .. autoclass:: AnnotationBatchResult
    :members:
    :member-order: bysource

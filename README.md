@@ -49,6 +49,7 @@
     - [Get an Experiment](#get-an-experiment)
     - [Delete an Experiment](#delete-an-experiment)
     - [List Experiment Runs](#list-experiment-runs)
+    - [Append Experiment Runs](#append-experiment-runs)
   - [Operations on Prompts](#operations-on-prompts)
     - [List Prompts](#list-prompts)
     - [Create a Prompt](#create-a-prompt)
@@ -697,6 +698,24 @@ resp_dict = resp.to_dict()
 resp_json = resp.to_json()
 # Get the response as a pandas dataframe
 resp_df = resp.to_df()
+```
+
+### Append Experiment Runs
+
+Append between 1 and 1000 new runs to an existing experiment using `client.experiments.append_runs()`. Each run must include `example_id` (the ID of an example from the experiment's dataset) and `output`. The response includes the updated experiment and the generated run IDs in input order (`run_ids`).
+
+```python
+result = client.experiments.append_runs(
+    experiment="<your-experiment-id-or-name>",
+    dataset=...,  # Optional, dataset ID or name (required when experiment is a name)
+    space=...,    # Optional, space ID or name (required when dataset is a name)
+    experiment_runs=[
+        {"example_id": "ex-1", "output": "The answer is 42"},
+        {"example_id": "ex-2", "output": "Paris"},
+    ],
+    # experiment_runs also accepts a pandas DataFrame
+)
+print(result.run_ids)  # IDs of the appended runs, in input order
 ```
 
 ## Operations on Prompts

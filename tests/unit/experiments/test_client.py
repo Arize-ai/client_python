@@ -52,6 +52,72 @@ def run_experiment_df() -> pd.DataFrame:
 
 
 @pytest.mark.unit
+class TestAppendRuns:
+    """Tests for ExperimentsClient.append_runs."""
+
+    def test_calls_experiments_runs_insert_with_correct_body(
+        self,
+        experiments_client: ExperimentsClient,
+        mock_api: Mock,
+    ) -> None:
+        """append_runs must forward runs to experiments_runs_insert."""
+        mock_api.experiments_runs_insert.return_value = Mock()
+
+        from arize._generated import api_client as gen
+
+        runs = [
+            gen.ExperimentRunCreate(example_id="ex-1", output="result-1"),
+            gen.ExperimentRunCreate(example_id="ex-2", output="result-2"),
+        ]
+        with patch(
+            "arize.experiments.client._find_experiment_id",
+            return_value="exp-id-123",
+        ):
+            experiments_client.append_runs(
+                experiment="my-experiment",
+                experiment_runs=runs,
+            )
+
+        mock_api.experiments_runs_insert.assert_called_once()
+        call_kwargs = mock_api.experiments_runs_insert.call_args.kwargs
+        assert call_kwargs["experiment_id"] == "exp-id-123"
+        body = call_kwargs["insert_experiment_runs_body"]
+        assert len(body.experiment_runs) == 2
+        assert body.experiment_runs[0].example_id == "ex-1"
+        assert body.experiment_runs[1].example_id == "ex-2"
+
+    def test_converts_dataframe_to_run_records(
+        self,
+        experiments_client: ExperimentsClient,
+        mock_api: Mock,
+    ) -> None:
+        """append_runs must convert a DataFrame to ExperimentRunCreate records."""
+        import pandas as pd
+
+        mock_api.experiments_runs_insert.return_value = Mock()
+
+        df = pd.DataFrame(
+            {"example_id": ["ex-a", "ex-b"], "output": ["out-a", "out-b"]}
+        )
+        with patch(
+            "arize.experiments.client._find_experiment_id",
+            return_value="exp-id-456",
+        ):
+            experiments_client.append_runs(
+                experiment="exp-id-456",
+                experiment_runs=df,
+            )
+
+        mock_api.experiments_runs_insert.assert_called_once()
+        body = mock_api.experiments_runs_insert.call_args.kwargs[
+            "insert_experiment_runs_body"
+        ]
+        assert len(body.experiment_runs) == 2
+        assert body.experiment_runs[0].output == "out-a"
+        assert body.experiment_runs[1].output == "out-b"
+
+
+@pytest.mark.unit
 class TestPostExperimentRunsViaHttp:
     """Tests for ExperimentsClient._post_experiment_runs_via_http."""
 

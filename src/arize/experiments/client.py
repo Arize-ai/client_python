@@ -54,11 +54,14 @@ if TYPE_CHECKING:
     from arize.experiments.evaluators.base import Evaluators
     from arize.experiments.evaluators.types import EvaluationResultFieldNames
     from arize.experiments.types import (
+        AnnotateRecordInput,
         Experiment,
         ExperimentListResponse,
+        ExperimentRunCreate,
         ExperimentRunsListResponse,
         ExperimentTask,
         ExperimentTaskFieldNames,
+        ExperimentWithRunIds,
     )
 
 logger = logging.getLogger(__name__)
@@ -458,6 +461,76 @@ class ExperimentsClient:
             ),
         )
 
+    @prerelease_endpoint(key="experiments.append_runs", stage=ReleaseStage.BETA)
+    def append_runs(
+        self,
+        *,
+        experiment: str,
+        dataset: str | None = None,
+        space: str | None = None,
+        experiment_runs: builtins.list[ExperimentRunCreate] | pd.DataFrame,
+    ) -> ExperimentWithRunIds:
+        """Append new runs to an existing experiment.
+
+        Runs are inserted in input order. The response includes the generated
+        run IDs in `run_ids` (in the same order as the input) and the updated
+        experiment attributes.
+
+        Payload requirements (server-enforced):
+            - Provide between 1 and 1000 runs per request.
+            - Each run must include ``example_id`` (ID of an example from
+              the experiment's dataset) and ``output``.
+            - Additional user-defined fields (e.g. ``model``, ``latency_ms``)
+              are allowed per run.
+
+        Args:
+            experiment: Experiment ID or name to append runs to.
+            dataset: Optional dataset name or ID used to resolve ``experiment``
+                by name.
+            space: Optional space name or ID used to resolve ``dataset`` by name.
+            experiment_runs: Runs to append, provided as either:
+                - a list of JSON-like dicts, or
+                - a :class:`pandas.DataFrame` (converted to records before upload).
+
+        Returns:
+            An :class:`ExperimentWithRunIds` containing the updated experiment
+            attributes and the IDs of the inserted runs (``run_ids``), in input order.
+
+        Raises:
+            AssertionError: If ``experiment_runs`` is not a list of dicts or a
+                :class:`pandas.DataFrame`.
+            ApiException: If the REST API returns an error response
+                (e.g. 400/401/403/404/429).
+        """
+        experiment_id = _find_experiment_id(
+            api=self._api,
+            datasets_api=self._datasets_api,
+            experiment=experiment,
+            dataset=dataset,
+            space=space,
+        )
+        from arize._generated import api_client as gen
+
+        if isinstance(experiment_runs, pd.DataFrame):
+            data = experiment_runs.to_dict(orient="records")
+            runs_create = [
+                obj
+                for run in data
+                if (
+                    obj := gen.ExperimentRunCreate.from_dict(
+                        cast("dict[str, Any]", run)
+                    )
+                )
+                is not None
+            ]
+        else:
+            runs_create = list(experiment_runs)
+        body = gen.InsertExperimentRunsBody(experiment_runs=runs_create)
+        return self._api.experiments_runs_insert(
+            experiment_id=experiment_id,
+            insert_experiment_runs_body=body,
+        )
+
     @prerelease_endpoint(
         key="experiments.annotate_runs", stage=ReleaseStage.ALPHA
     )
@@ -467,7 +540,7 @@ class ExperimentsClient:
         experiment: str,
         dataset: str | None = None,
         space: str | None = None,
-        annotations: builtins.list[models.AnnotateRecordInput],
+        annotations: builtins.list[AnnotateRecordInput],
     ) -> None:
         """Write human annotations to a batch of runs in an experiment.
 
