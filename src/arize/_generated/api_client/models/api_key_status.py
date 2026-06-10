@@ -20,14 +20,14 @@ from typing_extensions import Self
 
 class ApiKeyStatus(str, Enum):
     """
-    Current status of the API key. - active - The key is valid for use. - deleted - The key has been deleted by a user. 
+    Current status of the API key. - active - The key is valid for use. - revoked - The key has been revoked and is no longer valid. 
     """
 
     """
     allowed enum values
     """
     ACTIVE = 'active'
-    DELETED = 'deleted'
+    REVOKED = 'revoked'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

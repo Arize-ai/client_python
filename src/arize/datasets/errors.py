@@ -89,3 +89,30 @@ class EmptyDatasetError(DatasetError):
     def __repr__(self) -> str:
         """Return a string representation for debugging and logging."""
         return "EmptyDatasetError()"
+
+
+class BinaryColumnError(DatasetError):
+    """Raised when one or more columns contain Python bytes values.
+
+    Dataset columns must be text or numeric. Python ``bytes`` values are
+    encoded as a binary column type that the dataset service cannot store as
+    text, so they are rejected before upload. Pass text as :class:`str`
+    instead. All offending columns are reported together so they can be fixed
+    in one pass.
+    """
+
+    def __init__(self, column_names: list[str]) -> None:
+        """Initialize the exception with the offending column names.
+
+        Args:
+            column_names: Names of the columns whose values are bytes.
+        """
+        self.column_names = column_names
+
+    def error_message(self) -> str:
+        """Return the error message for this exception."""
+        return f"these columns contain bytes; pass text as str: {self.column_names}"
+
+    def __repr__(self) -> str:
+        """Return a string representation for debugging and logging."""
+        return f"BinaryColumnError({self.column_names!r})"

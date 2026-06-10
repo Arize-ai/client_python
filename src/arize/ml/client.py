@@ -865,14 +865,7 @@ class MLModelsClient:
         from arize._exporter.client import ArizeExportClient
         from arize._flight.client import ArizeFlightClient
 
-        with ArizeFlightClient(
-            api_key=self._sdk_config.api_key,
-            host=self._sdk_config.flight_host,
-            port=self._sdk_config.flight_port,
-            scheme=self._sdk_config.flight_scheme,
-            request_verify=self._sdk_config.request_verify,
-            max_chunksize=self._sdk_config.pyarrow_max_chunksize,
-        ) as flight_client:
+        with ArizeFlightClient(sdk_config=self._sdk_config) as flight_client:
             exporter = ArizeExportClient(
                 flight_client=flight_client,
             )
@@ -944,14 +937,7 @@ class MLModelsClient:
         from arize._exporter.client import ArizeExportClient
         from arize._flight.client import ArizeFlightClient
 
-        with ArizeFlightClient(
-            api_key=self._sdk_config.api_key,
-            host=self._sdk_config.flight_host,
-            port=self._sdk_config.flight_port,
-            scheme=self._sdk_config.flight_scheme,
-            request_verify=self._sdk_config.request_verify,
-            max_chunksize=self._sdk_config.pyarrow_max_chunksize,
-        ) as flight_client:
+        with ArizeFlightClient(sdk_config=self._sdk_config) as flight_client:
             exporter = ArizeExportClient(
                 flight_client=flight_client,
             )

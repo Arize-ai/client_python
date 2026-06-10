@@ -411,14 +411,7 @@ class ExperimentsClient:
                 ),
             )
 
-        with ArizeFlightClient(
-            api_key=self._sdk_config.api_key,
-            host=self._sdk_config.flight_host,
-            port=self._sdk_config.flight_port,
-            scheme=self._sdk_config.flight_scheme,
-            request_verify=self._sdk_config.request_verify,
-            max_chunksize=self._sdk_config.pyarrow_max_chunksize,
-        ) as flight_client:
+        with ArizeFlightClient(sdk_config=self._sdk_config) as flight_client:
             try:
                 experiment_df = flight_client.get_experiment_runs(
                     space_id=space_id,
@@ -827,14 +820,7 @@ class ExperimentsClient:
         dataset_id: str,
         experiment_name: str,
     ) -> tuple[str, str]:
-        with ArizeFlightClient(
-            api_key=self._sdk_config.api_key,
-            host=self._sdk_config.flight_host,
-            port=self._sdk_config.flight_port,
-            scheme=self._sdk_config.flight_scheme,
-            request_verify=self._sdk_config.request_verify,
-            max_chunksize=self._sdk_config.pyarrow_max_chunksize,
-        ) as flight_client:
+        with ArizeFlightClient(sdk_config=self._sdk_config) as flight_client:
             response = None
             try:
                 response = flight_client.init_experiment(
@@ -877,14 +863,7 @@ class ExperimentsClient:
         space_id: str,
         dataset_id: str,
     ) -> pd.DataFrame:
-        with ArizeFlightClient(
-            api_key=self._sdk_config.api_key,
-            host=self._sdk_config.flight_host,
-            port=self._sdk_config.flight_port,
-            scheme=self._sdk_config.flight_scheme,
-            request_verify=self._sdk_config.request_verify,
-            max_chunksize=self._sdk_config.pyarrow_max_chunksize,
-        ) as flight_client:
+        with ArizeFlightClient(sdk_config=self._sdk_config) as flight_client:
             try:
                 dataset_df = flight_client.get_dataset_examples(
                     space_id=space_id,
@@ -952,14 +931,7 @@ class ExperimentsClient:
             raise
 
         request_type = FlightRequestType.LOG_EXPERIMENT_DATA
-        with ArizeFlightClient(
-            api_key=self._sdk_config.api_key,
-            host=self._sdk_config.flight_host,
-            port=self._sdk_config.flight_port,
-            scheme=self._sdk_config.flight_scheme,
-            request_verify=self._sdk_config.request_verify,
-            max_chunksize=self._sdk_config.pyarrow_max_chunksize,
-        ) as flight_client:
+        with ArizeFlightClient(sdk_config=self._sdk_config) as flight_client:
             post_resp = None
             try:
                 post_resp = flight_client.log_arrow_table(

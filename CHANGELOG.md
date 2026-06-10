@@ -1,5 +1,22 @@
 # Changelog
 
+## [8.34.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.33.0...arize-python-sdk/v8.34.0) (2026-06-10)
+
+
+### 🎁 New Features
+
+* **sdk-config:** add default_headers support ([#74380](https://github.com/Arize-ai/arize/issues/74380)) ([ce31931](https://github.com/Arize-ai/arize/commit/ce31931c4c3176a617083e75283375c45ba3cefe))
+
+
+### 🐛 Bug Fixes
+
+* **datasets:** reject binary columns at ingest (flightserver + Python SDK) ([#74312](https://github.com/Arize-ai/arize/issues/74312)) ([5a1467c](https://github.com/Arize-ai/arize/commit/5a1467c18ff17707b76e858925d90c16cc240d60))
+
+
+### 💫 Code Refactoring
+
+* **arrow-flight:** use SDKConfiguration as direct input of ArizeFlightClient ([#74380](https://github.com/Arize-ai/arize/issues/74380)) ([ce31931](https://github.com/Arize-ai/arize/commit/ce31931c4c3176a617083e75283375c45ba3cefe))
+
 ## [8.33.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.32.1...arize-python-sdk/v8.33.0) (2026-06-08)
 
 

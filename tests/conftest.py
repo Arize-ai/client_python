@@ -42,12 +42,26 @@ def mock_sdk_config() -> Mock:
     config.api_url = "https://api.arize.com"
     config.cache_dir = "~/.arize/cache"
     config.request_verify = True
+    config.default_headers = {}
     config.headers = {
         "authorization": "test_api_key_12345",
         "sdk-language": "python",
         "language-version": "3.x.x",
         "sdk-version": "0.0.0",
         "sdk-package-name": "arize",
+    }
+    config.headers_grpc = {
+        "authorization": "test_api_key_12345",
+        "Grpc-Metadata-sdk-language": "python",
+        "Grpc-Metadata-language-version": "3.x.x",
+        "Grpc-Metadata-sdk-version": "0.0.0",
+    }
+    config.headers_flight = {
+        "origin": "arize-logging-client",
+        "auth-token-bin": "test_api_key_12345",
+        "sdk-language": "python",
+        "language-version": "3.x.x",
+        "sdk-version": "0.0.0",
     }
     return config
 

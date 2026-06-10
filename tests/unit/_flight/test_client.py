@@ -25,6 +25,7 @@ from arize._flight.client import (
 )
 from arize._flight.types import FlightRequestType
 from arize._generated.protocol.flight import flight_pb2
+from arize.config import SDKConfiguration
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -52,21 +53,22 @@ class TestArizeFlightClientInit:
     """Test ArizeFlightClient initialization."""
 
     def test_init_with_all_params(self) -> None:
-        """Test client initialization with all parameters."""
-        client = ArizeFlightClient(
+        """Test client initialization reads connection settings from sdk_config."""
+        config = SDKConfiguration(
             api_key="test_key",
-            host="example.com",
-            port=443,
-            scheme="https",
-            max_chunksize=2000,
+            flight_host="example.com",
+            flight_port=443,
+            flight_scheme="https",
+            pyarrow_max_chunksize=2000,
             request_verify=False,
         )
-        assert client.api_key == "test_key"
-        assert client.host == "example.com"
-        assert client.port == 443
-        assert client.scheme == "https"
-        assert client.max_chunksize == 2000
-        assert client.request_verify is False
+        client = ArizeFlightClient(sdk_config=config)
+        assert client.sdk_config is config
+        assert client.sdk_config.flight_host == "example.com"
+        assert client.sdk_config.flight_port == 443
+        assert client.sdk_config.flight_scheme == "https"
+        assert client.sdk_config.pyarrow_max_chunksize == 2000
+        assert client.sdk_config.request_verify is False
 
     def test_init_internal_client_is_none(
         self, flight_client: ArizeFlightClient
@@ -77,7 +79,7 @@ class TestArizeFlightClientInit:
     def test_frozen_dataclass(self, flight_client: ArizeFlightClient) -> None:
         """Test that ArizeFlightClient is frozen."""
         with pytest.raises(AttributeError):
-            flight_client.api_key = "new_key"  # type: ignore[misc]
+            flight_client.sdk_config = None  # type: ignore[misc, assignment]
 
 
 @pytest.mark.unit
@@ -88,10 +90,11 @@ class TestArizeFlightClientProperties:
         """Test that headers property returns correct headers."""
         headers = flight_client.headers
         assert isinstance(headers, list)
-        assert len(headers) == 5
+        assert len(headers) == 6
         assert (b"origin", b"arize-logging-client") in headers
         assert (b"auth-token-bin", b"test_api_key") in headers
         assert (b"sdk-language", b"python") in headers
+        assert (b"sdk-package-name", b"arize") in headers
 
     def test_headers_contain_version_info(
         self, flight_client: ArizeFlightClient
@@ -101,6 +104,20 @@ class TestArizeFlightClientProperties:
         headers_dict = dict(headers)
         assert b"language-version" in headers_dict
         assert b"sdk-version" in headers_dict
+
+    def test_headers_include_default_headers(self) -> None:
+        """Test that user default_headers are byte-encoded into Flight headers."""
+        client = ArizeFlightClient(
+            sdk_config=SDKConfiguration(
+                api_key="test_api_key",
+                default_headers={"x-tenant": "acme"},
+            )
+        )
+        headers_dict = dict(client.headers)
+        assert headers_dict[b"x-tenant"] == b"acme"
+        # Built-in Flight headers are still present.
+        assert headers_dict[b"origin"] == b"arize-logging-client"
+        assert headers_dict[b"auth-token-bin"] == b"test_api_key"
 
     def test_call_options_property(
         self, flight_client: ArizeFlightClient
@@ -178,12 +195,14 @@ class TestArizeFlightClientConnection:
     ) -> None:
         """Test that TLS verification is disabled when request_verify=False."""
         client = ArizeFlightClient(
-            api_key="test_key",
-            host="example.com",
-            port=443,
-            scheme="https",
-            max_chunksize=1000,
-            request_verify=False,
+            sdk_config=SDKConfiguration(
+                api_key="test_key",
+                flight_host="example.com",
+                flight_port=443,
+                flight_scheme="https",
+                pyarrow_max_chunksize=1000,
+                request_verify=False,
+            )
         )
         mock_client_instance = Mock()
         mock_flight_client_class.return_value = mock_client_instance

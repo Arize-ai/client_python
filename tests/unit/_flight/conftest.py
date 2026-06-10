@@ -7,18 +7,21 @@ import pyarrow as pa
 import pytest
 
 from arize._flight.client import ArizeFlightClient
+from arize.config import SDKConfiguration
 
 
 @pytest.fixture
 def flight_client() -> ArizeFlightClient:
     """Create a test ArizeFlightClient instance."""
     return ArizeFlightClient(
-        api_key="test_api_key",
-        host="test-host.com",
-        port=443,
-        scheme="https",
-        max_chunksize=1000,
-        request_verify=True,
+        sdk_config=SDKConfiguration(
+            api_key="test_api_key",
+            flight_host="test-host.com",
+            flight_port=443,
+            flight_scheme="https",
+            pyarrow_max_chunksize=1000,
+            request_verify=True,
+        )
     )
 
 
@@ -26,12 +29,14 @@ def flight_client() -> ArizeFlightClient:
 def flight_client_localhost() -> ArizeFlightClient:
     """Create a test ArizeFlightClient instance for localhost."""
     return ArizeFlightClient(
-        api_key="test_api_key",
-        host="localhost",
-        port=8080,
-        scheme="http",
-        max_chunksize=1000,
-        request_verify=True,
+        sdk_config=SDKConfiguration(
+            api_key="test_api_key",
+            flight_host="localhost",
+            flight_port=8080,
+            flight_scheme="http",
+            pyarrow_max_chunksize=1000,
+            request_verify=True,
+        )
     )
 
 

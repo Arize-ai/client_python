@@ -20,3 +20,25 @@ class MultipleEndpointOverridesError(Exception):
     def __str__(self) -> str:
         """Return the error message."""
         return self.message
+
+
+class InvalidDefaultHeadersError(Exception):
+    """Raised when ``default_headers`` contains an invalid or reserved header.
+
+    Covers all default-header validation failures: non-string keys/values,
+    empty keys, control-character/injection attempts, ``Grpc-Metadata-``
+    prefixed keys (reserved for SDK-owned gRPC translation), and keys that
+    collide with the SDK's built-in headers.
+    """
+
+    def __init__(self, message: str) -> None:
+        """Initialize the exception with a custom message.
+
+        Args:
+            message: Custom error message describing the offending header.
+        """
+        self.message = message
+
+    def __str__(self) -> str:
+        """Return the error message."""
+        return self.message

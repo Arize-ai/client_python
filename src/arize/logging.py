@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Any, ClassVar
 if TYPE_CHECKING:
     import requests
 
-from arize.config import _parse_bool
+from arize._env import _parse_bool
 from arize.constants.config import (
     DEFAULT_LOG_ENABLE,
     DEFAULT_LOG_LEVEL,

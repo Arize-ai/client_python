@@ -11,11 +11,9 @@ from pyarrow import flight
 
 from arize._flight.types import FlightRequestType
 from arize._generated.protocol.flight import flight_pb2
-from arize.config import PYTHON_VERSION, SDK_LANGUAGE
 from arize.logging import log_a_list
 from arize.utils.openinference_conversion import convert_json_str_to_dict
 from arize.utils.proto import get_pb_schema_tracing
-from arize.version import __version__
 
 if TYPE_CHECKING:
     import types
@@ -23,6 +21,8 @@ if TYPE_CHECKING:
 
     import pandas as pd
     import pyarrow as pa
+
+    from arize.config import SDKConfiguration
 
 
 BytesPair: TypeAlias = tuple[bytes, bytes]
@@ -58,12 +58,7 @@ class ArizeFlightClient:
     for Flight operations.
     """
 
-    api_key: str = field(repr=False)
-    host: str
-    port: int
-    scheme: str
-    max_chunksize: int
-    request_verify: bool
+    sdk_config: SDKConfiguration
 
     # internal cache for the underlying FlightClient
     _client: flight.FlightClient | None = field(
@@ -74,12 +69,10 @@ class ArizeFlightClient:
 
     @property
     def headers(self) -> Headers:
+        """Byte-encode the SDK's Flight headers (built-ins + default_headers)."""
         return [
-            (b"origin", b"arize-logging-client"),
-            (b"auth-token-bin", str(self.api_key).encode("utf-8")),
-            (b"sdk-language", SDK_LANGUAGE.encode("utf-8")),
-            (b"language-version", PYTHON_VERSION.encode("utf-8")),
-            (b"sdk-version", __version__.encode("utf-8")),
+            (key.encode("utf-8"), value.encode("utf-8"))
+            for key, value in self.sdk_config.headers_flight.items()
         ]
 
     @property
@@ -99,12 +92,14 @@ class ArizeFlightClient:
             return client
 
         # disable TLS verification for local dev on localhost, or if user opts out
+        host = self.sdk_config.flight_host
         disable_cert = (
-            self.request_verify is False or self.host.lower() == "localhost"
+            self.sdk_config.request_verify is False
+            or host.lower() == "localhost"
         )
 
         new_client = flight.FlightClient(
-            location=f"{self.scheme}://{self.host}:{self.port}",
+            location=f"{self.sdk_config.flight_scheme}://{host}:{self.sdk_config.flight_port}",
             disable_server_verification=disable_cert,
         )
         object.__setattr__(self, "_client", new_client)
@@ -255,7 +250,9 @@ class ArizeFlightClient:
             )
             with flight_writer:
                 # write table as stream to flight server
-                flight_writer.write_table(pa_table, self.max_chunksize)
+                flight_writer.write_table(
+                    pa_table, self.sdk_config.pyarrow_max_chunksize
+                )
                 # indicate that client has flushed all contents to stream
                 flight_writer.done_writing()
                 # read response from flight server
@@ -321,7 +318,9 @@ class ArizeFlightClient:
             )
             with flight_writer:
                 # write table as stream to flight server
-                flight_writer.write_table(pa_table, self.max_chunksize)
+                flight_writer.write_table(
+                    pa_table, self.sdk_config.pyarrow_max_chunksize
+                )
                 # indicate that client has flushed all contents to stream
                 flight_writer.done_writing()
                 # read response from flight server

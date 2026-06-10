@@ -4,6 +4,7 @@ import logging
 
 import pytest
 
+from arize._env import _parse_bool
 from arize.config import (
     SDKConfiguration,
     _endpoint,
@@ -14,10 +15,12 @@ from arize.config import (
     _env_str,
     _is_sensitive_field,
     _mask_secret,
-    _parse_bool,
 )
 from arize.exceptions.auth import MissingAPIKeyError
-from arize.exceptions.config import MultipleEndpointOverridesError
+from arize.exceptions.config import (
+    InvalidDefaultHeadersError,
+    MultipleEndpointOverridesError,
+)
 from arize.regions import Region
 
 
@@ -1023,3 +1026,175 @@ class TestMultipleEndpointOverridesError:
             assert (
                 expected in error_msg or expected.replace("_", " ") in error_msg
             )
+
+
+@pytest.mark.unit
+class TestDefaultHeaders:
+    """Tests for the ``default_headers`` config field across all surfaces."""
+
+    def _config(self, **kwargs: object) -> SDKConfiguration:
+        return SDKConfiguration(api_key="test_key_12345", **kwargs)
+
+    def test_default_is_empty(self) -> None:
+        """default_headers defaults to an empty dict."""
+        config = self._config()
+        assert config.default_headers == {}
+
+    def test_merged_into_http_headers(self) -> None:
+        """User headers appear verbatim in the HTTP headers property."""
+        config = self._config(default_headers={"x-tenant": "acme"})
+        assert config.headers["x-tenant"] == "acme"
+        # Built-ins still present.
+        assert config.headers["authorization"] == "test_key_12345"
+
+    def test_grpc_headers_are_prefixed(self) -> None:
+        """User headers are auto-prefixed with Grpc-Metadata- on the gRPC surface."""
+        config = self._config(default_headers={"x-tenant": "acme"})
+        headers = config.headers_grpc
+        assert headers["Grpc-Metadata-x-tenant"] == "acme"
+        assert "x-tenant" not in headers
+        assert headers["authorization"] == "test_key_12345"
+
+    def test_merged_into_flight_headers(self) -> None:
+        """User headers appear verbatim in the Flight headers property."""
+        config = self._config(default_headers={"x-tenant": "acme"})
+        assert config.headers_flight["x-tenant"] == "acme"
+        assert config.headers_flight["origin"] == "arize-logging-client"
+
+    def test_builtins_win_at_merge(self) -> None:
+        """Built-in headers win at merge even if the construction guard is bypassed.
+
+        Collisions are rejected at construction, so to assert merge-order
+        precedence directly we force colliding keys into default_headers via
+        object.__setattr__ (bypassing validation) and confirm the built-in value
+        is still the one returned on the verbatim surfaces.
+        """
+        config = self._config()
+        object.__setattr__(
+            config,
+            "default_headers",
+            {"authorization": "evil", "sdk-version": "evil", "origin": "evil"},
+        )
+        assert config.headers["authorization"] == "test_key_12345"
+        assert config.headers["sdk-version"] != "evil"
+        assert config.headers_flight["origin"] == "arize-logging-client"
+
+    def test_defensive_copy(self) -> None:
+        """Mutating the passed dict after construction must not affect the config."""
+        passed = {"x-tenant": "acme"}
+        config = self._config(default_headers=passed)
+        passed["x-tenant"] = "evil"
+        passed["x-new"] = "added"
+        assert config.headers["x-tenant"] == "acme"
+        assert "x-new" not in config.headers
+
+    def test_repr_masks_sensitive_header_values(self) -> None:
+        """Header values are masked in repr when the header name looks sensitive."""
+        config = self._config(
+            default_headers={"x-api-token": "supersecretvalue", "x-trace": "ok"}
+        )
+        repr_str = repr(config)
+        assert "supersecretvalue" not in repr_str
+        assert "supers***" in repr_str
+        # Non-sensitive header is shown verbatim.
+        assert "ok" in repr_str
+
+    @pytest.mark.parametrize(
+        "headers",
+        [
+            {"authorization": "x"},
+            {"Authorization": "x"},  # case-insensitive collision
+            {"SDK-Version": "9"},  # case-insensitive collision
+            {"sdk-package-name": "x"},  # built-in across all transports
+            {"origin": "x"},  # Flight-only built-in
+        ],
+    )
+    def test_reserved_key_rejected(self, headers: dict[str, str]) -> None:
+        """Keys colliding with a built-in (any case) are rejected at construction."""
+        with pytest.raises(InvalidDefaultHeadersError):
+            self._config(default_headers=headers)
+
+    @pytest.mark.parametrize(
+        "headers",
+        [
+            {"Grpc-Metadata-x": "y"},
+            {"grpc-metadata-x": "y"},  # case-insensitive
+        ],
+    )
+    def test_grpc_metadata_prefix_rejected(
+        self, headers: dict[str, str]
+    ) -> None:
+        """User keys may not pre-write the Grpc-Metadata- prefix."""
+        with pytest.raises(InvalidDefaultHeadersError):
+            self._config(default_headers=headers)
+
+    @pytest.mark.parametrize(
+        "headers",
+        [
+            {"x-num": 5},  # non-str value
+            {5: "v"},  # non-str key
+            {"x": None},  # non-str value
+        ],
+    )
+    def test_non_string_rejected(self, headers: dict) -> None:
+        """Non-string keys or values are rejected."""
+        with pytest.raises(InvalidDefaultHeadersError):
+            self._config(default_headers=headers)
+
+    @pytest.mark.parametrize("key", ["", "   ", "\t"])
+    def test_empty_key_rejected(self, key: str) -> None:
+        """Empty or whitespace-only keys are rejected."""
+        with pytest.raises(InvalidDefaultHeadersError):
+            self._config(default_headers={key: "v"})
+
+    @pytest.mark.parametrize(
+        "key", [" x-tenant", "x-tenant ", " x-tenant ", "x tenant"]
+    )
+    def test_whitespace_in_key_rejected(self, key: str) -> None:
+        """Keys with leading/trailing/internal whitespace are rejected.
+
+        Otherwise they pass validation and crash late in http.client with
+        ``ValueError: Invalid header name`` at send time.
+        """
+        with pytest.raises(InvalidDefaultHeadersError):
+            self._config(default_headers={key: "v"})
+
+    @pytest.mark.parametrize(
+        "headers",
+        [
+            {"x-evil": "a\r\nInjected: header"},
+            {"x-evil\n": "v"},
+            {"x-null": "a\0b"},
+            {"x:colon": "v"},
+        ],
+    )
+    def test_injection_rejected(self, headers: dict[str, str]) -> None:
+        """Control characters and ':' in keys are rejected."""
+        with pytest.raises(InvalidDefaultHeadersError):
+            self._config(default_headers=headers)
+
+    def test_empty_value_allowed(self) -> None:
+        """Empty header values are permitted."""
+        config = self._config(default_headers={"x-blank": ""})
+        assert config.headers["x-blank"] == ""
+
+    @pytest.mark.parametrize(
+        "headers",
+        [
+            {"x-note": "中文"},  # non-Latin-1 value
+            {"x-emoji": "\U0001f600"},  # emoji value
+            {"键": "v"},  # non-ASCII key
+        ],
+    )
+    def test_non_ascii_rejected(self, headers: dict[str, str]) -> None:
+        """Non-ASCII keys / non-Latin-1 values are rejected at construction.
+
+        These would otherwise crash with UnicodeEncodeError at HTTP send time.
+        """
+        with pytest.raises(InvalidDefaultHeadersError):
+            self._config(default_headers=headers)
+
+    def test_latin1_value_allowed(self) -> None:
+        """Latin-1 encodable values (e.g. 'café') are permitted."""
+        config = self._config(default_headers={"x-note": "café"})
+        assert config.headers["x-note"] == "café"

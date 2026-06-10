@@ -186,6 +186,7 @@ class ArizeClient(LazySubclientsMixin):
         single_port: int | None = None,
         base_domain: str | None = None,
         max_past_years: int | None = None,
+        default_headers: dict[str, str] | None = None,
     ) -> None:
         """Initialize the Arize client with configuration parameters.
 
@@ -259,11 +260,17 @@ class ArizeClient(LazySubclientsMixin):
                 For on-prem deployments with custom retention policies, this can be increased.
                 ENV: ARIZE_MAX_PAST_YEARS.
                 Default: 5.
+            default_headers: Custom headers added to every outbound request across all
+                transports (HTTP REST, grpc-gateway, Apache Arrow Flight). gRPC keys are
+                auto-prefixed with "Grpc-Metadata-". Keys may not collide with the SDK's
+                built-in headers or start with "Grpc-Metadata-". Programmatic-only (no ENV).
+                Default: None ({} empty).
 
         Raises:
             MissingAPIKeyError: If api_key is not provided via argument or environment variable.
             MultipleEndpointOverridesError: If multiple endpoint override options (region,
                 single_host/single_port, base_domain) are provided.
+            InvalidDefaultHeadersError: If default_headers contains an invalid or reserved header.
 
         Notes:
             Values provided to this class override environment variables, which in turn
@@ -311,6 +318,8 @@ class ArizeClient(LazySubclientsMixin):
             cfg_kwargs["base_domain"] = base_domain
         if max_past_years is not None:
             cfg_kwargs["max_past_years"] = max_past_years
+        if default_headers is not None:
+            cfg_kwargs["default_headers"] = default_headers
 
         # Only the explicitly provided fields are passed; the rest use
         # SDKConfiguration's default factories / defaults.

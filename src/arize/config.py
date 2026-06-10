@@ -1,11 +1,22 @@
 """SDK configuration and settings management for the Arize client."""
 
 import logging
-import os
-import sys
 from dataclasses import dataclass, field, fields
 from pathlib import Path
 
+from arize._env import (
+    _env_bool,
+    _env_float,
+    _env_http_scheme,
+    _env_int,
+    _env_str,
+)
+from arize._headers import (
+    _builtin_flight_headers,
+    _builtin_grpc_headers,
+    _builtin_http_headers,
+    _validate_default_headers,
+)
 from arize.constants.config import (
     DEFAULT_API_HOST,
     DEFAULT_API_SCHEME,
@@ -45,17 +56,14 @@ from arize.constants.config import (
 )
 from arize.constants.pyarrow import MAX_CHUNKSIZE
 from arize.exceptions.auth import MissingAPIKeyError
-from arize.exceptions.config import MultipleEndpointOverridesError
+from arize.exceptions.config import (
+    MultipleEndpointOverridesError,
+)
 from arize.regions import REGION_ENDPOINTS, Region
-from arize.version import __version__
 
 logger = logging.getLogger(__name__)
 
-SDK_LANGUAGE = "python"
-SDK_PACKAGE_NAME = "arize"
-PYTHON_VERSION = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
 SENSITIVE_FIELD_MARKERS = ("key", "token", "secret")
-ALLOWED_HTTP_SCHEMES = {"http", "https"}
 
 
 def _is_sensitive_field(name: str) -> bool:
@@ -101,168 +109,6 @@ def _endpoint(scheme: str, base: str, path: str = "") -> str:
     if path:
         endpoint += "/" + path.lstrip("/")
     return endpoint
-
-
-def _env_http_scheme(name: str, default: str) -> str:
-    """Get an HTTP scheme from environment variable with validation.
-
-    Args:
-        name: The environment variable name.
-        default: The default value if the environment variable is not set.
-
-    Returns:
-        str: The validated HTTP scheme ('http' or 'https').
-
-    Raises:
-        ValueError: If the scheme is not 'http' or 'https'.
-    """
-    v = _env_str(name, default).lower()
-    if v not in ALLOWED_HTTP_SCHEMES:
-        raise ValueError(
-            f"{name} must be one of {sorted(ALLOWED_HTTP_SCHEMES)}. Found {v!r}"
-        )
-    return v
-
-
-def _env_str(
-    name: str,
-    default: str,
-    min_len: int | None = None,
-    max_len: int | None = None,
-) -> str:
-    """Get a string value from environment variable with length validation.
-
-    Args:
-        name: The environment variable name.
-        default: The default value if the environment variable is not set.
-        min_len: Optional minimum length constraint for the string.
-        max_len: Optional maximum length constraint for the string.
-
-    Returns:
-        str: The validated string value (stripped of whitespace).
-
-    Raises:
-        ValueError: If the string length violates min_len or max_len constraints.
-    """
-    val = os.getenv(name, default).strip()
-
-    if min_len is not None and len(val) < min_len:
-        raise ValueError(
-            f"The value of environment variable {name} must be at least {min_len} "
-            f"characters long. Found {len(val)} characters."
-        )
-    if max_len is not None and len(val) > max_len:
-        raise ValueError(
-            f"The value of environment variable {name} must be at most {max_len} "
-            f"characters long. Found {len(val)} characters."
-        )
-    return val
-
-
-def _env_int(
-    name: str,
-    default: int,
-    min_val: int | None = None,
-    max_val: int | None = None,
-) -> int:
-    """Get an integer value from environment variable with range validation.
-
-    Args:
-        name: The environment variable name.
-        default: The default value if the environment variable is not set.
-        min_val: Optional minimum value constraint for the integer.
-        max_val: Optional maximum value constraint for the integer.
-
-    Returns:
-        int: The validated integer value.
-
-    Raises:
-        ValueError: If the value cannot be parsed as an integer or violates min_val/max_val constraints.
-    """
-    raw = os.getenv(name, default)
-    try:
-        val = int(raw)
-    except Exception as e:
-        raise ValueError(
-            f"Environment variable {name} must be an int. Found: {raw!r}"
-        ) from e
-
-    if min_val is not None and val < min_val:
-        raise ValueError(
-            f"The value of environment variable {name} must be at least {min_val}. Found {val}."
-        )
-    if max_val is not None and val > max_val:
-        raise ValueError(
-            f"The value of environment variable {name} must be at most {max_val}. Found {val}."
-        )
-    return val
-
-
-def _env_float(
-    name: str,
-    default: float,
-    min_val: float | None = None,
-    max_val: float | None = None,
-) -> float:
-    """Get a float value from environment variable with range validation.
-
-    Args:
-        name: The environment variable name.
-        default: The default value if the environment variable is not set.
-        min_val: Optional minimum value constraint for the float.
-        max_val: Optional maximum value constraint for the float.
-
-    Returns:
-        float: The validated float value.
-
-    Raises:
-        ValueError: If the value cannot be parsed as a float or violates min_val/max_val constraints.
-    """
-    raw = os.getenv(name, default)
-    try:
-        val = float(raw)
-    except Exception as e:
-        raise ValueError(
-            f"Environment variable {name} must be a float. Found: {raw!r}"
-        ) from e
-
-    if min_val is not None and val < min_val:
-        raise ValueError(
-            f"The value of environment variable {name} must be at least {min_val}. Found {val}."
-        )
-    if max_val is not None and val > max_val:
-        raise ValueError(
-            f"The value of environment variable {name} must be at most {max_val}. Found {val}."
-        )
-    return val
-
-
-def _env_bool(name: str, default: bool) -> bool:
-    """Get a boolean value from environment variable.
-
-    Args:
-        name: The environment variable name.
-        default: The default boolean value if the environment variable is not set.
-
-    Returns:
-        bool: The parsed boolean value.
-    """
-    return _parse_bool(os.getenv(name, str(default)))
-
-
-def _parse_bool(val: bool | str | None) -> bool:
-    """Parse a boolean value from various input types.
-
-    Args:
-        val: The value to parse. Can be a bool, string, or None.
-
-    Returns:
-        bool: True if the value is already True or matches one of the truthy strings
-            ('1', 'true', 'yes', 'on', case-insensitive). False otherwise.
-    """
-    if isinstance(val, bool):
-        return val
-    return (val or "").strip().lower() in {"1", "true", "yes", "on"}
 
 
 @dataclass(frozen=True)
@@ -350,6 +196,16 @@ class SDKConfiguration:
             to contact Arize support.
             Environment variable: ARIZE_MAX_PAST_YEARS.
             Default: 5.
+        default_headers: Custom headers added to every outbound request across all
+            transports (HTTP REST, grpc-gateway, and Apache Arrow Flight). They appear
+            in the ``headers``, ``headers_grpc``, and ``headers_flight`` properties. On
+            the gRPC path each key is automatically prefixed with ``Grpc-Metadata-`` so
+            grpc-gateway forwards it to the backend service. Keys may not collide
+            (case-insensitively) with the SDK's built-in headers, start with
+            ``Grpc-Metadata-``, or contain control characters; violations raise
+            InvalidDefaultHeadersError. Unlike other fields, this has no environment
+            variable and is programmatic-only (argument or default).
+            Default: {} (empty).
 
     Note:
         The endpoint override options (region, single_host/single_port, base_domain) are
@@ -358,6 +214,7 @@ class SDKConfiguration:
     Raises:
         MissingAPIKeyError: If api_key is not provided via argument or environment variable.
         MultipleEndpointOverridesError: If multiple endpoint override options are provided.
+        InvalidDefaultHeadersError: If default_headers contains an invalid or reserved header.
     """
 
     api_key: str = field(
@@ -459,6 +316,7 @@ class SDKConfiguration:
             ENV_MAX_PAST_YEARS, DEFAULT_MAX_PAST_YEARS, min_val=1
         )
     )
+    default_headers: dict[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         """Validate and configure SDK endpoints after initialization.
@@ -478,6 +336,12 @@ class SDKConfiguration:
         # Validate configuration
         if not self.api_key:
             raise MissingAPIKeyError()
+
+        # Validate and freeze user-supplied default headers. Store a defensive
+        # shallow copy so a caller mutating their dict afterward cannot alter
+        # this (frozen) configuration.
+        _validate_default_headers(self.default_headers)
+        object.__setattr__(self, "default_headers", dict(self.default_headers))
 
         # Check which override options are set
         has_base_domain = bool(self.base_domain)
@@ -584,27 +448,36 @@ class SDKConfiguration:
 
     @property
     def headers(self) -> dict[str, str]:
-        """Return HTTP headers for API requests."""
-        # Create base headers
-        return {
-            "authorization": self.api_key,
-            "sdk-language": SDK_LANGUAGE,
-            "language-version": PYTHON_VERSION,
-            "sdk-version": __version__,
-            "sdk-package-name": SDK_PACKAGE_NAME,
-        }
+        """Return HTTP headers for API requests.
+
+        User-supplied ``default_headers`` are included verbatim; the SDK's
+        built-in headers are merged last and always win.
+        """
+        return {**self.default_headers, **_builtin_http_headers(self.api_key)}
 
     @property
     def headers_grpc(self) -> dict[str, str]:
-        """Return headers for gRPC requests."""
-        return {
-            "authorization": self.api_key,
-            "Grpc-Metadata-sdk-language": SDK_LANGUAGE,
-            "Grpc-Metadata-language-version": PYTHON_VERSION,
-            "Grpc-Metadata-sdk-version": __version__,
-            # "Grpc-Metadata-arize-space-id": space_id,
-            # "Grpc-Metadata-arize-interface": "stream",
+        """Return headers for gRPC (grpc-gateway) requests.
+
+        User-supplied ``default_headers`` are each prefixed with
+        ``Grpc-Metadata-`` so grpc-gateway forwards them to the backend service;
+        the SDK's built-in headers are merged last and always win.
+        """
+        prefixed = {
+            f"Grpc-Metadata-{key}": value
+            for key, value in self.default_headers.items()
         }
+        return {**prefixed, **_builtin_grpc_headers(self.api_key)}
+
+    @property
+    def headers_flight(self) -> dict[str, str]:
+        """Return headers for Apache Arrow Flight requests.
+
+        User-supplied ``default_headers`` are included verbatim; the SDK's
+        built-in headers are merged last and always win. The Flight client is
+        responsible for byte-encoding these into the wire format.
+        """
+        return {**self.default_headers, **_builtin_flight_headers(self.api_key)}
 
     def __repr__(self) -> str:
         """Return a detailed string representation with masked sensitive fields."""
@@ -614,7 +487,13 @@ class SDKConfiguration:
             if not f.repr:
                 continue
             val = getattr(self, f.name)
-            if _is_sensitive_field(f.name):
+            if f.name == "default_headers":
+                # Mask values whose header name looks sensitive; show the rest.
+                val = {
+                    k: (_mask_secret(v, 6) if _is_sensitive_field(k) else v)
+                    for k, v in val.items()
+                }
+            elif _is_sensitive_field(f.name):
                 val = _mask_secret(val, 6)
             lines.append(f"  {f.name}={val!r},")
         lines.append(")")
