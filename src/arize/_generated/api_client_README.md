@@ -82,6 +82,7 @@ Class | Method | HTTP request | Description
 *APIKeysApi* | [**api_keys_delete**](arize/_generated/api_client/docs/APIKeysApi.md#api_keys_delete) | **DELETE** /v2/api-keys/{api_key_id} | Delete an API key
 *APIKeysApi* | [**api_keys_list**](arize/_generated/api_client/docs/APIKeysApi.md#api_keys_list) | **GET** /v2/api-keys | List API keys
 *APIKeysApi* | [**api_keys_refresh**](arize/_generated/api_client/docs/APIKeysApi.md#api_keys_refresh) | **POST** /v2/api-keys/{api_key_id}/refresh | Refresh an API key
+*APIKeysApi* | [**api_keys_revoke**](arize/_generated/api_client/docs/APIKeysApi.md#api_keys_revoke) | **PUT** /v2/api-keys/{api_key_id}/revoke | Revoke an API key
 *AnnotationConfigsApi* | [**annotation_configs_create**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_create) | **POST** /v2/annotation-configs | Create an annotation config
 *AnnotationConfigsApi* | [**annotation_configs_delete**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_delete) | **DELETE** /v2/annotation-configs/{annotation_config_id} | Delete an annotation config
 *AnnotationConfigsApi* | [**annotation_configs_get**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_get) | **GET** /v2/annotation-configs/{annotation_config_id} | Get an annotation config

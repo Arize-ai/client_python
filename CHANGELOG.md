@@ -1,5 +1,16 @@
 # Changelog
 
+## [8.35.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.34.0...arize-python-sdk/v8.35.0) (2026-06-11)
+
+
+### 🎁 New Features
+
+* **api-keys:** add revoke support ([#74112](https://github.com/Arize-ai/arize/issues/74112)) ([28198d3](https://github.com/Arize-ai/arize/commit/28198d3ee3e72502016af6b10b8ba2b98fcbbbd5))
+
+### 💫 Code Refactoring
+
+* **api-keys:** removed delete method ([#74112](https://github.com/Arize-ai/arize/issues/74112)) ([28198d3](https://github.com/Arize-ai/arize/commit/28198d3ee3e72502016af6b10b8ba2b98fcbbbd5))
+
 ## [8.34.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.33.0...arize-python-sdk/v8.34.0) (2026-06-10)
 
 

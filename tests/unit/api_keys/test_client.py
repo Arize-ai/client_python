@@ -429,42 +429,42 @@ class TestApiKeysClientCreateServiceKey:
 
 
 @pytest.mark.unit
-class TestApiKeysClientDelete:
-    """Tests for ApiKeysClient.delete()."""
+class TestApiKeysClientRevoke:
+    """Tests for ApiKeysClient.revoke()."""
 
-    def test_delete_calls_api_with_key_id(
+    def test_revoke_calls_api_with_key_id(
         self, api_keys_client: ApiKeysClient, mock_api: Mock
     ) -> None:
-        """delete() should pass api_key_id to api_keys_delete."""
-        api_keys_client.delete(api_key_id="key-123")
+        """revoke() should pass api_key_id to api_keys_revoke."""
+        api_keys_client.revoke(api_key_id="key-123")
 
-        mock_api.api_keys_delete.assert_called_once_with(api_key_id="key-123")
+        mock_api.api_keys_revoke.assert_called_once_with(api_key_id="key-123")
 
-    def test_delete_returns_none(
+    def test_revoke_returns_none(
         self, api_keys_client: ApiKeysClient, mock_api: Mock
     ) -> None:
-        """delete() should return None (204 No Content)."""
-        mock_api.api_keys_delete.return_value = None
+        """revoke() should return None (204 No Content)."""
+        mock_api.api_keys_revoke.return_value = None
 
-        result = api_keys_client.delete(api_key_id="key-123")
+        result = api_keys_client.revoke(api_key_id="key-123")
 
         assert result is None
 
-    def test_delete_emits_alpha_prerelease_warning(
+    def test_revoke_emits_alpha_prerelease_warning(
         self,
         api_keys_client: ApiKeysClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call to delete() should emit the ALPHA prerelease warning."""
+        """First call to revoke() should emit the ALPHA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        api_keys_client.delete(api_key_id="key-123")
+        api_keys_client.revoke(api_key_id="key-123")
 
         assert any(
-            "ALPHA" in record.message and "api_keys.delete" in record.message
+            "ALPHA" in record.message and "api_keys.revoke" in record.message
             for record in caplog.records
         )
 

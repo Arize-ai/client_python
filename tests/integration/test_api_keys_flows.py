@@ -66,7 +66,7 @@ class TestApiKeysCRUD:
             assert len(created.key) > 0
             assert created.id is not None
         finally:
-            api_keys_client.delete(api_key_id=created.id)
+            api_keys_client.revoke(api_key_id=created.id)
 
     def test_create_and_list_service_key(self, api_keys_client) -> None:
         """Created service key appears in list() results."""
@@ -82,24 +82,7 @@ class TestApiKeysCRUD:
             key_ids = [k.id for k in resp.api_keys]
             assert created.id in key_ids
         finally:
-            api_keys_client.delete(api_key_id=created.id)
-
-    def test_create_and_delete_service_key(self, api_keys_client) -> None:
-        """Delete a service key; subsequent list should not include it."""
-        name = _unique("sdk-test-svc-key")
-        created = api_keys_client.create_service_key(
-            name=name,
-            space=SPACE_ID,
-        )
-
-        result = api_keys_client.delete(api_key_id=created.id)
-        assert result is None
-
-        resp = api_keys_client.list(
-            key_type="service", space=SPACE_ID, limit=100
-        )
-        active_ids = [k.id for k in resp.api_keys]
-        assert created.id not in active_ids
+            api_keys_client.revoke(api_key_id=created.id)
 
     def test_refresh_service_key_default_invalidation(
         self, api_keys_client
@@ -128,9 +111,9 @@ class TestApiKeysCRUD:
         finally:
             if refreshed_id is not None:
                 with contextlib.suppress(Exception):
-                    api_keys_client.delete(api_key_id=refreshed_id)
+                    api_keys_client.revoke(api_key_id=refreshed_id)
             with contextlib.suppress(Exception):
-                api_keys_client.delete(api_key_id=created.id)
+                api_keys_client.revoke(api_key_id=created.id)
 
     def test_refresh_service_key_with_grace_period(
         self, api_keys_client
@@ -174,6 +157,6 @@ class TestApiKeysCRUD:
         finally:
             if refreshed_id is not None:
                 with contextlib.suppress(Exception):
-                    api_keys_client.delete(api_key_id=refreshed_id)
+                    api_keys_client.revoke(api_key_id=refreshed_id)
             with contextlib.suppress(Exception):
-                api_keys_client.delete(api_key_id=created.id)
+                api_keys_client.revoke(api_key_id=created.id)

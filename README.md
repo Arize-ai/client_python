@@ -112,7 +112,7 @@
     - [List API Keys](#list-api-keys)
     - [Create an API Key](#create-an-api-key)
     - [Create a Service Key](#create-a-service-key)
-    - [Delete an API Key](#delete-an-api-key)
+    - [Revoke an API Key](#revoke-an-api-key)
     - [Refresh an API Key](#refresh-an-api-key)
 - [SDK Configuration](#sdk-configuration)
   - [Logging](#logging)
@@ -1396,10 +1396,12 @@ created = client.api_keys.create_service_key(
 raw_key = created.key  # Store this securely — only returned once
 ```
 
-### Delete an API Key
+### Revoke an API Key
+
+Sets the key's status to `revoked` and deactivates it immediately. Revoking an already-revoked key is a no-op and still succeeds. Returns `None` on success.
 
 ```python
-client.api_keys.delete(
+client.api_keys.revoke(
     api_key_id="<api-key-id>",
 )
 ```

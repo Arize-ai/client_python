@@ -228,15 +228,17 @@ class ApiKeysClient:
         )
         return self._api.api_keys_create(api_key_create=body)
 
-    @prerelease_endpoint(key="api_keys.delete", stage=ReleaseStage.ALPHA)
-    def delete(self, *, api_key_id: str) -> None:
-        """Delete an API key.
+    @prerelease_endpoint(key="api_keys.revoke", stage=ReleaseStage.ALPHA)
+    def revoke(self, *, api_key_id: str) -> None:
+        """Revoke an API key.
 
-        The key is deactivated immediately and permanently. This operation is
-        irreversible — the key will stop working right away.
+        The key's status is set to ``revoked`` and it is deactivated
+        immediately and permanently. This operation is irreversible — the key
+        will stop working right away. Revoking an already-revoked key is a
+        no-op and still succeeds.
 
         Args:
-            api_key_id: ID of the API key to delete.
+            api_key_id: ID of the API key to revoke.
 
         Returns:
             None
@@ -245,7 +247,7 @@ class ApiKeysClient:
             ApiException: If the API
                 request fails (e.g. key not found or insufficient permissions).
         """
-        return self._api.api_keys_delete(api_key_id=api_key_id)
+        return self._api.api_keys_revoke(api_key_id=api_key_id)
 
     @prerelease_endpoint(key="api_keys.refresh", stage=ReleaseStage.ALPHA)
     def refresh(
