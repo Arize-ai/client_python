@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.37.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.36.0...arize-python-sdk/v8.37.0) (2026-06-23)
+
+
+### 🎁 New Features
+
+* **datasets:** add cursor pagination for List Dataset Examples ([#76007](https://github.com/Arize-ai/arize/issues/76007)) ([47a9d4a](https://github.com/Arize-ai/arize/commit/47a9d4ab3d17b8ccaf741cceb848ef0c8ba9dec4))
+
 ## [8.36.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.35.0...arize-python-sdk/v8.36.0) (2026-06-23)
 
 

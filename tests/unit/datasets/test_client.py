@@ -148,6 +148,43 @@ class TestDatasetsClientList:
 
 
 @pytest.mark.unit
+class TestDatasetsClientListExamples:
+    """Tests for DatasetsClient.list_examples() REST path."""
+
+    # Base64-encoded dataset ID that bypasses name resolution
+    DATASET_ID = "RGF0YXNldDoxMjM6YWJj"
+
+    def test_list_examples_passes_cursor(
+        self, datasets_client: DatasetsClient, mock_api: Mock
+    ) -> None:
+        """list_examples() should forward cursor to the generated client."""
+        datasets_client.list_examples(
+            dataset=self.DATASET_ID,
+            cursor="tok-abc",
+        )
+
+        mock_api.datasets_examples_list.assert_called_once_with(
+            dataset_id=self.DATASET_ID,
+            dataset_version_id=None,
+            limit=50,
+            cursor="tok-abc",
+        )
+
+    def test_list_examples_defaults_cursor_to_none(
+        self, datasets_client: DatasetsClient, mock_api: Mock
+    ) -> None:
+        """list_examples() should default cursor to None (first page)."""
+        datasets_client.list_examples(dataset=self.DATASET_ID)
+
+        mock_api.datasets_examples_list.assert_called_once_with(
+            dataset_id=self.DATASET_ID,
+            dataset_version_id=None,
+            limit=50,
+            cursor=None,
+        )
+
+
+@pytest.mark.unit
 class TestDatasetsClientListExamplesCaching:
     """Tests for DatasetsClient.list_examples() caching behaviour."""
 
