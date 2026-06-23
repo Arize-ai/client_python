@@ -394,13 +394,14 @@ class DatasetsClient:
             raise RuntimeError(msg)
 
         # cache dataset for future use
-        cache_resource(
-            cache_dir=self._sdk_config.cache_dir,
-            resource="dataset",
-            resource_id=dataset_id,
-            resource_updated_at=dataset_updated_at,
-            resource_data=dataset_df,
-        )
+        if self._sdk_config.enable_caching:
+            cache_resource(
+                cache_dir=self._sdk_config.cache_dir,
+                resource="dataset",
+                resource_id=dataset_id,
+                resource_updated_at=dataset_updated_at,
+                resource_data=dataset_df,
+            )
 
         examples = [
             obj
@@ -491,7 +492,7 @@ class DatasetsClient:
         )
 
     @prerelease_endpoint(
-        key="datasets.annotate_examples", stage=ReleaseStage.ALPHA
+        key="datasets.annotate_examples", stage=ReleaseStage.BETA
     )
     def annotate_examples(
         self,

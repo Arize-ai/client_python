@@ -5,14 +5,15 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**record_type** | **str** | Discriminator identifying this record source as project spans. Must be &#x60;span&#x60; for span records. | 
+**record_type** | **str** | Discriminator identifying this record as a trace record. | 
 **dataset_id** | **str** | The dataset ID these examples belong to | 
 **dataset_version_id** | **str** | Optional. The specific dataset version to use. If omitted, the latest version is used.  | [optional] 
 **example_ids** | **List[str]** | Optional. List of example IDs within the dataset to add to the queue. If omitted, all examples in the dataset (or dataset version) are added.  | [optional] 
-**project_id** | **str** | The project ID these spans belong to | 
-**start_time** | **datetime** | Start of the time range to search for spans in Druid. The range (end_time - start_time) must not exceed 7 days.  | 
+**project_id** | **str** | The project ID these traces belong to. | 
+**start_time** | **datetime** | Start of the time range used to resolve each trace&#39;s root span. The range (end_time - start_time) must not exceed 7 days.  | 
 **end_time** | **datetime** | End of the time range. Must be after start_time.  | 
 **span_ids** | **List[str]** | List of span IDs to add to the queue | 
+**trace_ids** | **List[str]** | List of trace IDs to add to the queue.  | 
 
 ## Example
 

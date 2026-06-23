@@ -40,6 +40,7 @@ class TestAnnotationQueueRecordListResponse(unittest.TestCase):
                         id = '', 
                         annotation_queue_id = '', 
                         source_type = 'spans', 
+                        granularity = null, 
                         data = { }, 
                         annotations = [
                             arize._generated.api_client.models.annotation.Annotation(
@@ -76,6 +77,7 @@ class TestAnnotationQueueRecordListResponse(unittest.TestCase):
                         id = '', 
                         annotation_queue_id = '', 
                         source_type = 'spans', 
+                        granularity = null, 
                         data = { }, 
                         annotations = [
                             arize._generated.api_client.models.annotation.Annotation(

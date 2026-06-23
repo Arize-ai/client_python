@@ -429,13 +429,14 @@ class ExperimentsClient:
             raise RuntimeError(msg)
 
         # cache experiment for future use
-        cache_resource(
-            cache_dir=self._sdk_config.cache_dir,
-            resource="experiment",
-            resource_id=experiment_id,
-            resource_updated_at=experiment_updated_at,
-            resource_data=experiment_df,
-        )
+        if self._sdk_config.enable_caching:
+            cache_resource(
+                cache_dir=self._sdk_config.cache_dir,
+                resource="experiment",
+                resource_id=experiment_id,
+                resource_updated_at=experiment_updated_at,
+                resource_data=experiment_df,
+            )
 
         experiment_runs = [
             obj
@@ -525,7 +526,7 @@ class ExperimentsClient:
         )
 
     @prerelease_endpoint(
-        key="experiments.annotate_runs", stage=ReleaseStage.ALPHA
+        key="experiments.annotate_runs", stage=ReleaseStage.BETA
     )
     def annotate_runs(
         self,

@@ -6,6 +6,7 @@ import asyncio
 import contextlib
 import logging
 import signal
+import sys
 import threading
 import time
 import traceback
@@ -25,6 +26,8 @@ from tqdm.auto import tqdm
 from arize.experiments.evaluators.exceptions import ArizeException
 
 logger = logging.getLogger(__name__)
+
+_NEST_ASYNCIO_INCOMPATIBLE_VERSION = (3, 14)
 
 
 class Unset:
@@ -522,11 +525,18 @@ def get_executor_on_sync_context(
                 fallback_return_value=fallback_return_value,
                 timeout=timeout,
             )
-        logger.warning(
-            "🐌!! If running inside a notebook, patching the event loop with "
-            "nest_asyncio will allow asynchronous eval submission, and is significantly "
-            "faster. To patch the event loop, run `nest_asyncio.apply()`."
-        )
+        if _nest_asyncio_is_compatible():
+            logger.warning(
+                "🐌!! If running inside a notebook, patching the event loop "
+                "with nest_asyncio will allow asynchronous eval submission, "
+                "and is significantly faster. To patch the event loop, run "
+                "`nest_asyncio.apply()`."
+            )
+        else:
+            logger.warning(
+                "Async eval execution is running inside an existing event "
+                "loop. Falling back to sync execution."
+            )
         return SyncExecutor(
             sync_fn,
             tqdm_bar_format=tqdm_bar_format,
@@ -557,3 +567,7 @@ def _running_event_loop_exists() -> bool:
     except RuntimeError:
         return False
     return True
+
+
+def _nest_asyncio_is_compatible() -> bool:
+    return sys.version_info < _NEST_ASYNCIO_INCOMPATIBLE_VERSION

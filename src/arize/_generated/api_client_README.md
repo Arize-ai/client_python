@@ -79,7 +79,6 @@ Class | Method | HTTP request | Description
 *AIIntegrationsApi* | [**ai_integrations_list**](arize/_generated/api_client/docs/AIIntegrationsApi.md#ai_integrations_list) | **GET** /v2/ai-integrations | List AI integrations
 *AIIntegrationsApi* | [**ai_integrations_update**](arize/_generated/api_client/docs/AIIntegrationsApi.md#ai_integrations_update) | **PATCH** /v2/ai-integrations/{integration_id} | Update an AI integration
 *APIKeysApi* | [**api_keys_create**](arize/_generated/api_client/docs/APIKeysApi.md#api_keys_create) | **POST** /v2/api-keys | Create an API key
-*APIKeysApi* | [**api_keys_delete**](arize/_generated/api_client/docs/APIKeysApi.md#api_keys_delete) | **DELETE** /v2/api-keys/{api_key_id} | Delete an API key
 *APIKeysApi* | [**api_keys_list**](arize/_generated/api_client/docs/APIKeysApi.md#api_keys_list) | **GET** /v2/api-keys | List API keys
 *APIKeysApi* | [**api_keys_refresh**](arize/_generated/api_client/docs/APIKeysApi.md#api_keys_refresh) | **POST** /v2/api-keys/{api_key_id}/refresh | Refresh an API key
 *APIKeysApi* | [**api_keys_revoke**](arize/_generated/api_client/docs/APIKeysApi.md#api_keys_revoke) | **PUT** /v2/api-keys/{api_key_id}/revoke | Revoke an API key
@@ -224,6 +223,7 @@ Class | Method | HTTP request | Description
  - [AnnotationQueueRecordListResponse](arize/_generated/api_client/docs/AnnotationQueueRecordListResponse.md)
  - [AnnotationQueueSourceType](arize/_generated/api_client/docs/AnnotationQueueSourceType.md)
  - [AnnotationQueueSpanRecordInput](arize/_generated/api_client/docs/AnnotationQueueSpanRecordInput.md)
+ - [AnnotationQueueTraceRecordInput](arize/_generated/api_client/docs/AnnotationQueueTraceRecordInput.md)
  - [AnnotatorUser](arize/_generated/api_client/docs/AnnotatorUser.md)
  - [ApiKey](arize/_generated/api_client/docs/ApiKey.md)
  - [ApiKeyAccountRole](arize/_generated/api_client/docs/ApiKeyAccountRole.md)
@@ -346,6 +346,7 @@ Class | Method | HTTP request | Description
  - [ProviderParamsAnthropicHeaders](arize/_generated/api_client/docs/ProviderParamsAnthropicHeaders.md)
  - [ProviderParamsAzureParams](arize/_generated/api_client/docs/ProviderParamsAzureParams.md)
  - [ProviderParamsBedrockOptions](arize/_generated/api_client/docs/ProviderParamsBedrockOptions.md)
+ - [RecordGranularity](arize/_generated/api_client/docs/RecordGranularity.md)
  - [ResourceRestriction](arize/_generated/api_client/docs/ResourceRestriction.md)
  - [ResourceRestrictionCreate](arize/_generated/api_client/docs/ResourceRestrictionCreate.md)
  - [ResourceRestrictionResponseBody](arize/_generated/api_client/docs/ResourceRestrictionResponseBody.md)

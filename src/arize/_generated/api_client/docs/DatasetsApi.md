@@ -270,7 +270,7 @@ No error is returned.
 }
 ```
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -477,14 +477,16 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **datasets_examples_list**
-> DatasetExampleListResponse datasets_examples_list(dataset_id, dataset_version_id=dataset_version_id, limit=limit)
+> DatasetExampleListResponse datasets_examples_list(dataset_id, dataset_version_id=dataset_version_id, limit=limit, cursor=cursor)
 
 List dataset examples
 
 List examples for a given dataset and version.
 
 If version is not passed, the latest version is selected. Examples are
-sorted by insertion order.
+returned in ascending order of `created_at`, with `id` as a tiebreaker.
+This order is stable across pages, so cursor pagination never skips or
+repeats an example.
 
 **Human annotations**: returned in the structured `annotations` array on
 each example. Each entry includes `name`, optional `label` / `score` /
@@ -492,10 +494,9 @@ each example. Each entry includes `name`, optional `label` / `score` /
 annotations.
 
 **Pagination**:
-- Response includes `pagination` for forward compatibility.
-- **Currently not implemented**: `pagination.next_cursor` is omitted
-- When pagination is enabled in the future, the behavior will match
-other list endpoints (cursor-based, opaque tokens).
+- Response includes `pagination` with `has_more` and `next_cursor`.
+- Use cursor-based pagination by passing the returned `next_cursor`
+value as the `cursor` query parameter in subsequent requests.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
@@ -533,10 +534,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique dataset identifier (base64)
     dataset_version_id = 'RGF0YXNldFZlcnNpb246MTIzNDU=' # str | The unique identifier of the dataset version (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
+    cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
         # List dataset examples
-        api_response = api_instance.datasets_examples_list(dataset_id, dataset_version_id=dataset_version_id, limit=limit)
+        api_response = api_instance.datasets_examples_list(dataset_id, dataset_version_id=dataset_version_id, limit=limit, cursor=cursor)
         print("The response of DatasetsApi->datasets_examples_list:\n")
         pprint(api_response)
     except Exception as e:
@@ -553,6 +555,7 @@ Name | Type | Description  | Notes
  **dataset_id** | **str**| The unique dataset identifier (base64) | 
  **dataset_version_id** | **str**| The unique identifier of the dataset version | [optional] 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
 ### Return type
 

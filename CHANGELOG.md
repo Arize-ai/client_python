@@ -1,5 +1,18 @@
 # Changelog
 
+## [8.36.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.35.0...arize-python-sdk/v8.36.0) (2026-06-23)
+
+
+### 🎁 New Features
+
+* **annotations:** promote annotation /annotate endpoints to beta + cap queue annotate array ([#75836](https://github.com/Arize-ai/arize/issues/75836)) ([d1bf960](https://github.com/Arize-ai/arize/commit/d1bf960076ff425d4f4cfd979ba2fa2976ab75b1))
+
+
+### 🐛 Bug Fixes
+
+* gate nest_asyncio recommendation by python version ([#75530](https://github.com/Arize-ai/arize/issues/75530)) ([e1376b2](https://github.com/Arize-ai/arize/commit/e1376b203b66befaf0d4bb9df606cf1de7363ab8))
+* **caching:** respect enable_caching when writing dataset to cache in list_examples ([#75812](https://github.com/Arize-ai/arize/issues/75812)) ([3ca7383](https://github.com/Arize-ai/arize/commit/3ca73831573473f5815f17f42a7914c37c553a6f)), closes [#75531](https://github.com/Arize-ai/arize/issues/75531)
+
 ## [8.35.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.34.0...arize-python-sdk/v8.35.0) (2026-06-11)
 
 

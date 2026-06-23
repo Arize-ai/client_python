@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import pandas as pd
 import pytest
@@ -142,3 +142,116 @@ class TestPostExperimentRunsViaHttp:
         assert len(body.experiment_runs) == 1
         assert body.experiment_runs[0].output == "pong"
         assert body.experiment_runs[0].example_id == "ex-abc"
+
+
+@pytest.mark.unit
+class TestListRunsCaching:
+    """Tests for ExperimentsClient.list_runs() caching behaviour."""
+
+    def _make_client(
+        self, mock_sdk_config: Mock, enable_caching: bool
+    ) -> ExperimentsClient:
+        mock_sdk_config.enable_caching = enable_caching
+        with (
+            patch(
+                "arize._generated.api_client.ExperimentsApi",
+                return_value=Mock(),
+            ),
+            patch(
+                "arize._generated.api_client.DatasetsApi", return_value=Mock()
+            ),
+        ):
+            return ExperimentsClient(
+                sdk_config=mock_sdk_config,
+                generated_client=Mock(),
+            )
+
+    def test_cache_write_skipped_when_caching_disabled(
+        self, mock_sdk_config: Mock
+    ) -> None:
+        """list_runs(all=True) must not write to cache when enable_caching=False."""
+        client = self._make_client(mock_sdk_config, enable_caching=False)
+
+        experiment_obj = Mock()
+        experiment_obj.updated_at = "2024-01-01T00:00:00Z"
+        experiment_obj.dataset_id = "RGF0YXNldDoxMjM6YWJj"
+
+        dataset_obj = Mock()
+        dataset_obj.space_id = "space-123"
+
+        empty_df = pd.DataFrame(columns=["id", "example_id", "output"])
+
+        with (
+            patch.object(client, "get", return_value=experiment_obj),
+            patch.object(
+                client._datasets_api, "datasets_get", return_value=dataset_obj
+            ),
+            patch(
+                "arize.experiments.client.load_cached_resource",
+                return_value=None,
+            ),
+            patch(
+                "arize.experiments.client.cache_resource"
+            ) as mock_cache_write,
+            patch(
+                "arize.experiments.client.ArizeFlightClient"
+            ) as mock_flight_cls,
+        ):
+            mock_flight_instance = MagicMock()
+            mock_flight_instance.__enter__ = Mock(
+                return_value=mock_flight_instance
+            )
+            mock_flight_instance.__exit__ = Mock(return_value=False)
+            mock_flight_instance.get_experiment_runs.return_value = empty_df
+            mock_flight_cls.return_value = mock_flight_instance
+
+            # Use a base64-encoded ID so _find_experiment_id treats it as a
+            # direct resource ID and skips the name-lookup API call.
+            client.list_runs(experiment="RXhwZXJpbWVudDoxMjM6YWJj", all=True)
+
+        mock_cache_write.assert_not_called()
+
+    def test_cache_write_called_when_caching_enabled(
+        self, mock_sdk_config: Mock
+    ) -> None:
+        """list_runs(all=True) must write to cache when enable_caching=True."""
+        client = self._make_client(mock_sdk_config, enable_caching=True)
+
+        experiment_obj = Mock()
+        experiment_obj.updated_at = "2024-01-01T00:00:00Z"
+        experiment_obj.dataset_id = "RGF0YXNldDoxMjM6YWJj"
+
+        dataset_obj = Mock()
+        dataset_obj.space_id = "space-123"
+
+        empty_df = pd.DataFrame(columns=["id", "example_id", "output"])
+
+        with (
+            patch.object(client, "get", return_value=experiment_obj),
+            patch.object(
+                client._datasets_api, "datasets_get", return_value=dataset_obj
+            ),
+            patch(
+                "arize.experiments.client.load_cached_resource",
+                return_value=None,
+            ),
+            patch(
+                "arize.experiments.client.cache_resource"
+            ) as mock_cache_write,
+            patch(
+                "arize.experiments.client.ArizeFlightClient"
+            ) as mock_flight_cls,
+        ):
+            mock_flight_instance = MagicMock()
+            mock_flight_instance.__enter__ = Mock(
+                return_value=mock_flight_instance
+            )
+            mock_flight_instance.__exit__ = Mock(return_value=False)
+            mock_flight_instance.get_experiment_runs.return_value = empty_df
+            mock_flight_cls.return_value = mock_flight_instance
+
+            # Use a base64-encoded ID so _find_experiment_id treats it as a
+            # direct resource ID and skips the name-lookup API call.
+            client.list_runs(experiment="RXhwZXJpbWVudDoxMjM6YWJj", all=True)
+
+        mock_cache_write.assert_called_once()

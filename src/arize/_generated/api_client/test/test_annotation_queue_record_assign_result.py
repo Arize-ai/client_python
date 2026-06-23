@@ -38,6 +38,7 @@ class TestAnnotationQueueRecordAssignResult(unittest.TestCase):
                 id = '',
                 annotation_queue_id = '',
                 source_type = 'spans',
+                granularity = 'span',
                 assigned_users = [
                     arize._generated.api_client.models.annotation_queue_assigned_user.AnnotationQueueAssignedUser(
                         user = arize._generated.api_client.models.annotator_user.AnnotatorUser(

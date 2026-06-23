@@ -26,7 +26,7 @@ class PaginationMetadata(BaseModel):
     """
     Cursor-based pagination metadata. Use `next_cursor` in the subsequent request's `cursor` query parameter. 
     """ # noqa: E501
-    next_cursor: Optional[StrictStr] = Field(default=None, description="Opaque cursor for fetching the next page. Treat as an unreadable token. Present when `has_more` is true; omitted when `hasMore` is false. ")
+    next_cursor: Optional[StrictStr] = Field(default=None, description="Opaque cursor for fetching the next page. Treat as an unreadable token. Present when `has_more` is true; omitted when `has_more` is false. ")
     has_more: StrictBool = Field(description="True if another page of results is available.")
     __properties: ClassVar[List[str]] = ["next_cursor", "has_more"]
 

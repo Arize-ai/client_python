@@ -18,11 +18,12 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.annotation import Annotation
 from arize._generated.api_client.models.annotation_queue_assigned_user import AnnotationQueueAssignedUser
 from arize._generated.api_client.models.annotation_queue_source_type import AnnotationQueueSourceType
 from arize._generated.api_client.models.evaluation import Evaluation
+from arize._generated.api_client.models.record_granularity import RecordGranularity
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -33,11 +34,12 @@ class AnnotationQueueRecord(BaseModel):
     id: StrictStr = Field(description="The unique identifier for the record")
     annotation_queue_id: StrictStr = Field(description="The annotation queue this record belongs to")
     source_type: AnnotationQueueSourceType
+    granularity: Optional[RecordGranularity] = Field(default=None, description="The granularity of the record, if applicable.")
     data: Dict[str, Any] = Field(description="Record data as flat key-value pairs containing span or dataset fields. Does not include annotation or evaluation columns.")
     annotations: List[Annotation] = Field(description="Human annotations on this record")
     evaluations: List[Evaluation] = Field(description="Evaluation results on this record")
     assigned_users: List[AnnotationQueueAssignedUser] = Field(description="Users assigned to this record")
-    __properties: ClassVar[List[str]] = ["id", "annotation_queue_id", "source_type", "data", "annotations", "evaluations", "assigned_users"]
+    __properties: ClassVar[List[str]] = ["id", "annotation_queue_id", "source_type", "granularity", "data", "annotations", "evaluations", "assigned_users"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -99,6 +101,11 @@ class AnnotationQueueRecord(BaseModel):
                 if _item_assigned_users:
                     _items.append(_item_assigned_users.to_dict())
             _dict['assigned_users'] = _items
+        # set to None if granularity (nullable) is None
+        # and model_fields_set contains the field
+        if self.granularity is None and "granularity" in self.model_fields_set:
+            _dict['granularity'] = None
+
         return _dict
 
     @classmethod
@@ -119,6 +126,7 @@ class AnnotationQueueRecord(BaseModel):
             "id": obj.get("id"),
             "annotation_queue_id": obj.get("annotation_queue_id"),
             "source_type": obj.get("source_type"),
+            "granularity": obj.get("granularity"),
             "data": obj.get("data"),
             "annotations": [Annotation.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None,
             "evaluations": [Evaluation.from_dict(_item) for _item in obj["evaluations"]] if obj.get("evaluations") is not None else None,

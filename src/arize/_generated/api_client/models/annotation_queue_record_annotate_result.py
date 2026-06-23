@@ -18,9 +18,10 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.annotation import Annotation
 from arize._generated.api_client.models.annotation_queue_source_type import AnnotationQueueSourceType
+from arize._generated.api_client.models.record_granularity import RecordGranularity
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -31,8 +32,9 @@ class AnnotationQueueRecordAnnotateResult(BaseModel):
     id: StrictStr = Field(description="The unique identifier for the record")
     annotation_queue_id: StrictStr = Field(description="The annotation queue this record belongs to")
     source_type: AnnotationQueueSourceType
+    granularity: Optional[RecordGranularity] = Field(default=None, description="The granularity of the record, if applicable.")
     annotations: List[Annotation] = Field(description="The annotations that were submitted in this request")
-    __properties: ClassVar[List[str]] = ["id", "annotation_queue_id", "source_type", "annotations"]
+    __properties: ClassVar[List[str]] = ["id", "annotation_queue_id", "source_type", "granularity", "annotations"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -80,6 +82,11 @@ class AnnotationQueueRecordAnnotateResult(BaseModel):
                 if _item_annotations:
                     _items.append(_item_annotations.to_dict())
             _dict['annotations'] = _items
+        # set to None if granularity (nullable) is None
+        # and model_fields_set contains the field
+        if self.granularity is None and "granularity" in self.model_fields_set:
+            _dict['granularity'] = None
+
         return _dict
 
     @classmethod
@@ -100,6 +107,7 @@ class AnnotationQueueRecordAnnotateResult(BaseModel):
             "id": obj.get("id"),
             "annotation_queue_id": obj.get("annotation_queue_id"),
             "source_type": obj.get("source_type"),
+            "granularity": obj.get("granularity"),
             "annotations": [Annotation.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None
         })
         return _obj

@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **id** | **str** | The unique identifier for the record | 
 **annotation_queue_id** | **str** | The annotation queue this record belongs to | 
 **source_type** | [**AnnotationQueueSourceType**](AnnotationQueueSourceType.md) |  | 
+**granularity** | [**RecordGranularity**](RecordGranularity.md) | The granularity of the record, if applicable. | [optional] 
 **data** | **Dict[str, object]** | Record data as flat key-value pairs containing span or dataset fields. Does not include annotation or evaluation columns. | 
 **annotations** | [**List[Annotation]**](Annotation.md) | Human annotations on this record | 
 **evaluations** | [**List[Evaluation]**](Evaluation.md) | Evaluation results on this record | 

@@ -636,7 +636,7 @@ class DatasetsApi:
     ) -> None:
         """Annotate a batch of dataset examples
 
-        Write human annotations to a batch of examples in a dataset.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same example overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing example in the dataset, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `dataset_id` is the path parameter for the target dataset. - `annotations` is a list of per-example annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the dataset's space. - Up to 1000 examples may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"quality\", \"score\": 0.8}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Write human annotations to a batch of examples in a dataset.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same example overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing example in the dataset, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `dataset_id` is the path parameter for the target dataset. - `annotations` is a list of per-example annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the dataset's space. - Up to 1000 examples may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"quality\", \"score\": 0.8}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param dataset_id: The unique dataset identifier (base64) (required)
         :type dataset_id: str
@@ -713,7 +713,7 @@ class DatasetsApi:
     ) -> ApiResponse[None]:
         """Annotate a batch of dataset examples
 
-        Write human annotations to a batch of examples in a dataset.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same example overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing example in the dataset, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `dataset_id` is the path parameter for the target dataset. - `annotations` is a list of per-example annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the dataset's space. - Up to 1000 examples may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"quality\", \"score\": 0.8}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Write human annotations to a batch of examples in a dataset.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same example overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing example in the dataset, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `dataset_id` is the path parameter for the target dataset. - `annotations` is a list of per-example annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the dataset's space. - Up to 1000 examples may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"quality\", \"score\": 0.8}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param dataset_id: The unique dataset identifier (base64) (required)
         :type dataset_id: str
@@ -790,7 +790,7 @@ class DatasetsApi:
     ) -> RESTResponseType:
         """Annotate a batch of dataset examples
 
-        Write human annotations to a batch of examples in a dataset.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same example overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing example in the dataset, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `dataset_id` is the path parameter for the target dataset. - `annotations` is a list of per-example annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the dataset's space. - Up to 1000 examples may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"quality\", \"score\": 0.8}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Write human annotations to a batch of examples in a dataset.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same example overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing example in the dataset, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `dataset_id` is the path parameter for the target dataset. - `annotations` is a list of per-example annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the dataset's space. - Up to 1000 examples may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"quality\", \"score\": 0.8}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"ex_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param dataset_id: The unique dataset identifier (base64) (required)
         :type dataset_id: str
@@ -1254,6 +1254,7 @@ class DatasetsApi:
         dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
         dataset_version_id: Annotated[Optional[StrictStr], Field(description="The unique identifier of the dataset version")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1269,7 +1270,7 @@ class DatasetsApi:
     ) -> DatasetExampleListResponse:
         """List dataset examples
 
-        List examples for a given dataset and version.  If version is not passed, the latest version is selected. Examples are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each example. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List examples for a given dataset and version.  If version is not passed, the latest version is selected. Examples are returned in ascending order of `created_at`, with `id` as a tiebreaker. This order is stable across pages, so cursor pagination never skips or repeats an example.  **Human annotations**: returned in the structured `annotations` array on each example. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param dataset_id: The unique dataset identifier (base64) (required)
         :type dataset_id: str
@@ -1277,6 +1278,8 @@ class DatasetsApi:
         :type dataset_version_id: str
         :param limit: Maximum items to return
         :type limit: int
+        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
+        :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1303,6 +1306,7 @@ class DatasetsApi:
             dataset_id=dataset_id,
             dataset_version_id=dataset_version_id,
             limit=limit,
+            cursor=cursor,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1334,6 +1338,7 @@ class DatasetsApi:
         dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
         dataset_version_id: Annotated[Optional[StrictStr], Field(description="The unique identifier of the dataset version")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1349,7 +1354,7 @@ class DatasetsApi:
     ) -> ApiResponse[DatasetExampleListResponse]:
         """List dataset examples
 
-        List examples for a given dataset and version.  If version is not passed, the latest version is selected. Examples are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each example. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List examples for a given dataset and version.  If version is not passed, the latest version is selected. Examples are returned in ascending order of `created_at`, with `id` as a tiebreaker. This order is stable across pages, so cursor pagination never skips or repeats an example.  **Human annotations**: returned in the structured `annotations` array on each example. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param dataset_id: The unique dataset identifier (base64) (required)
         :type dataset_id: str
@@ -1357,6 +1362,8 @@ class DatasetsApi:
         :type dataset_version_id: str
         :param limit: Maximum items to return
         :type limit: int
+        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
+        :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1383,6 +1390,7 @@ class DatasetsApi:
             dataset_id=dataset_id,
             dataset_version_id=dataset_version_id,
             limit=limit,
+            cursor=cursor,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1414,6 +1422,7 @@ class DatasetsApi:
         dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
         dataset_version_id: Annotated[Optional[StrictStr], Field(description="The unique identifier of the dataset version")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1429,7 +1438,7 @@ class DatasetsApi:
     ) -> RESTResponseType:
         """List dataset examples
 
-        List examples for a given dataset and version.  If version is not passed, the latest version is selected. Examples are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each example. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List examples for a given dataset and version.  If version is not passed, the latest version is selected. Examples are returned in ascending order of `created_at`, with `id` as a tiebreaker. This order is stable across pages, so cursor pagination never skips or repeats an example.  **Human annotations**: returned in the structured `annotations` array on each example. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param dataset_id: The unique dataset identifier (base64) (required)
         :type dataset_id: str
@@ -1437,6 +1446,8 @@ class DatasetsApi:
         :type dataset_version_id: str
         :param limit: Maximum items to return
         :type limit: int
+        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
+        :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1463,6 +1474,7 @@ class DatasetsApi:
             dataset_id=dataset_id,
             dataset_version_id=dataset_version_id,
             limit=limit,
+            cursor=cursor,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1489,6 +1501,7 @@ class DatasetsApi:
         dataset_id,
         dataset_version_id,
         limit,
+        cursor,
         _request_auth,
         _content_type,
         _headers,
@@ -1520,6 +1533,10 @@ class DatasetsApi:
         if limit is not None:
             
             _query_params.append(('limit', limit))
+            
+        if cursor is not None:
+            
+            _query_params.append(('cursor', cursor))
             
         # process the header parameters
         # process the form parameters

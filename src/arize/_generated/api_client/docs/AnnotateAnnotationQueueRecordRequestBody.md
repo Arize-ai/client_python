@@ -6,7 +6,7 @@ Annotations to submit for an annotation queue record. Annotations are upserted b
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**annotations** | [**List[AnnotationInput]**](AnnotationInput.md) | Annotations to upsert on this record, keyed by annotation config name. There is no maximum limit — you may submit one annotation per annotation config associated with the queue. | 
+**annotations** | [**List[AnnotationInput]**](AnnotationInput.md) | Annotations to upsert on this record, keyed by annotation config name. At most 500 annotations may be submitted per request — one per annotation config associated with the queue. | 
 
 ## Example
 

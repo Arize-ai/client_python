@@ -82,6 +82,7 @@ __all__ = [
     "AnnotationQueueRecordListResponse",
     "AnnotationQueueSourceType",
     "AnnotationQueueSpanRecordInput",
+    "AnnotationQueueTraceRecordInput",
     "AnnotatorUser",
     "ApiKey",
     "ApiKeyAccountRole",
@@ -204,6 +205,7 @@ __all__ = [
     "ProviderParamsAnthropicHeaders",
     "ProviderParamsAzureParams",
     "ProviderParamsBedrockOptions",
+    "RecordGranularity",
     "ResourceRestriction",
     "ResourceRestrictionCreate",
     "ResourceRestrictionResponseBody",
@@ -340,6 +342,7 @@ from arize._generated.api_client.models.annotation_queue_record_input import Ann
 from arize._generated.api_client.models.annotation_queue_record_list_response import AnnotationQueueRecordListResponse as AnnotationQueueRecordListResponse
 from arize._generated.api_client.models.annotation_queue_source_type import AnnotationQueueSourceType as AnnotationQueueSourceType
 from arize._generated.api_client.models.annotation_queue_span_record_input import AnnotationQueueSpanRecordInput as AnnotationQueueSpanRecordInput
+from arize._generated.api_client.models.annotation_queue_trace_record_input import AnnotationQueueTraceRecordInput as AnnotationQueueTraceRecordInput
 from arize._generated.api_client.models.annotator_user import AnnotatorUser as AnnotatorUser
 from arize._generated.api_client.models.api_key import ApiKey as ApiKey
 from arize._generated.api_client.models.api_key_account_role import ApiKeyAccountRole as ApiKeyAccountRole
@@ -462,6 +465,7 @@ from arize._generated.api_client.models.provider_params import ProviderParams as
 from arize._generated.api_client.models.provider_params_anthropic_headers import ProviderParamsAnthropicHeaders as ProviderParamsAnthropicHeaders
 from arize._generated.api_client.models.provider_params_azure_params import ProviderParamsAzureParams as ProviderParamsAzureParams
 from arize._generated.api_client.models.provider_params_bedrock_options import ProviderParamsBedrockOptions as ProviderParamsBedrockOptions
+from arize._generated.api_client.models.record_granularity import RecordGranularity as RecordGranularity
 from arize._generated.api_client.models.resource_restriction import ResourceRestriction as ResourceRestriction
 from arize._generated.api_client.models.resource_restriction_create import ResourceRestrictionCreate as ResourceRestrictionCreate
 from arize._generated.api_client.models.resource_restriction_response_body import ResourceRestrictionResponseBody as ResourceRestrictionResponseBody

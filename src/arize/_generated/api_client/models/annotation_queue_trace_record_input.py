@@ -17,19 +17,30 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
-from arize._generated.api_client.models.annotation_input import AnnotationInput
 from typing import Optional, Set
 from typing_extensions import Self
 
-class AnnotateAnnotationQueueRecordRequestBody(BaseModel):
+class AnnotationQueueTraceRecordInput(BaseModel):
     """
-    Annotations to submit for an annotation queue record. Annotations are upserted by annotation config name; omitted configs are left unchanged.
+    AnnotationQueueTraceRecordInput
     """ # noqa: E501
-    annotations: Annotated[List[AnnotationInput], Field(min_length=1, max_length=500)] = Field(description="Annotations to upsert on this record, keyed by annotation config name. At most 500 annotations may be submitted per request — one per annotation config associated with the queue.")
-    __properties: ClassVar[List[str]] = ["annotations"]
+    record_type: StrictStr = Field(description="Discriminator identifying this record as a trace record.")
+    project_id: StrictStr = Field(description="The project ID these traces belong to.")
+    start_time: datetime = Field(description="Start of the time range used to resolve each trace's root span. The range (end_time - start_time) must not exceed 7 days. ")
+    end_time: datetime = Field(description="End of the time range. Must be after start_time. ")
+    trace_ids: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="List of trace IDs to add to the queue. ")
+    __properties: ClassVar[List[str]] = ["record_type", "project_id", "start_time", "end_time", "trace_ids"]
+
+    @field_validator('record_type')
+    def record_type_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['trace']):
+            raise ValueError("must be one of enum values ('trace')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -49,7 +60,7 @@ class AnnotateAnnotationQueueRecordRequestBody(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of AnnotateAnnotationQueueRecordRequestBody from a JSON string"""
+        """Create an instance of AnnotationQueueTraceRecordInput from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,18 +81,11 @@ class AnnotateAnnotationQueueRecordRequestBody(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in annotations (list)
-        _items = []
-        if self.annotations:
-            for _item_annotations in self.annotations:
-                if _item_annotations:
-                    _items.append(_item_annotations.to_dict())
-            _dict['annotations'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of AnnotateAnnotationQueueRecordRequestBody from a dict"""
+        """Create an instance of AnnotationQueueTraceRecordInput from a dict"""
         if obj is None:
             return None
 
@@ -91,10 +95,14 @@ class AnnotateAnnotationQueueRecordRequestBody(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in AnnotateAnnotationQueueRecordRequestBody) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in AnnotationQueueTraceRecordInput) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "annotations": [AnnotationInput.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None
+            "record_type": obj.get("record_type"),
+            "project_id": obj.get("project_id"),
+            "start_time": obj.get("start_time"),
+            "end_time": obj.get("end_time"),
+            "trace_ids": obj.get("trace_ids")
         })
         return _obj
 

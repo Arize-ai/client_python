@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import logging
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
+import pandas as pd
 import pytest
 
 from arize.datasets.client import DatasetsClient
@@ -144,3 +145,88 @@ class TestDatasetsClientList:
             "BETA" in record.message and "datasets.list" in record.message
             for record in caplog.records
         )
+
+
+@pytest.mark.unit
+class TestDatasetsClientListExamplesCaching:
+    """Tests for DatasetsClient.list_examples() caching behaviour."""
+
+    def _make_client(
+        self, mock_sdk_config: Mock, enable_caching: bool
+    ) -> DatasetsClient:
+        mock_sdk_config.enable_caching = enable_caching
+        with patch(
+            "arize._generated.api_client.DatasetsApi", return_value=Mock()
+        ):
+            return DatasetsClient(
+                sdk_config=mock_sdk_config,
+                generated_client=Mock(),
+            )
+
+    def test_cache_write_skipped_when_caching_disabled(
+        self, mock_sdk_config: Mock
+    ) -> None:
+        """list_examples(all=True) must not write to cache when enable_caching=False."""
+        client = self._make_client(mock_sdk_config, enable_caching=False)
+
+        dataset_obj = Mock()
+        dataset_obj.updated_at = "2024-01-01T00:00:00Z"
+        dataset_obj.space_id = "space-123"
+
+        empty_df = pd.DataFrame(columns=["id", "input", "output"])
+
+        with (
+            patch.object(client, "get", return_value=dataset_obj),
+            patch(
+                "arize.datasets.client.load_cached_resource", return_value=None
+            ),
+            patch("arize.datasets.client.cache_resource") as mock_cache_write,
+            patch("arize.datasets.client.ArizeFlightClient") as mock_flight_cls,
+        ):
+            mock_flight_instance = MagicMock()
+            mock_flight_instance.__enter__ = Mock(
+                return_value=mock_flight_instance
+            )
+            mock_flight_instance.__exit__ = Mock(return_value=False)
+            mock_flight_instance.get_dataset_examples.return_value = empty_df
+            mock_flight_cls.return_value = mock_flight_instance
+
+            # Use a base64-encoded ID so _find_dataset_id treats it as a
+            # direct resource ID and skips the name-lookup API call.
+            client.list_examples(dataset="RGF0YXNldDoxMjM6YWJj", all=True)
+
+        mock_cache_write.assert_not_called()
+
+    def test_cache_write_called_when_caching_enabled(
+        self, mock_sdk_config: Mock
+    ) -> None:
+        """list_examples(all=True) must write to cache when enable_caching=True."""
+        client = self._make_client(mock_sdk_config, enable_caching=True)
+
+        dataset_obj = Mock()
+        dataset_obj.updated_at = "2024-01-01T00:00:00Z"
+        dataset_obj.space_id = "space-123"
+
+        empty_df = pd.DataFrame(columns=["id", "input", "output"])
+
+        with (
+            patch.object(client, "get", return_value=dataset_obj),
+            patch(
+                "arize.datasets.client.load_cached_resource", return_value=None
+            ),
+            patch("arize.datasets.client.cache_resource") as mock_cache_write,
+            patch("arize.datasets.client.ArizeFlightClient") as mock_flight_cls,
+        ):
+            mock_flight_instance = MagicMock()
+            mock_flight_instance.__enter__ = Mock(
+                return_value=mock_flight_instance
+            )
+            mock_flight_instance.__exit__ = Mock(return_value=False)
+            mock_flight_instance.get_dataset_examples.return_value = empty_df
+            mock_flight_cls.return_value = mock_flight_instance
+
+            # Use a base64-encoded ID so _find_dataset_id treats it as a
+            # direct resource ID and skips the name-lookup API call.
+            client.list_examples(dataset="RGF0YXNldDoxMjM6YWJj", all=True)
+
+        mock_cache_write.assert_called_once()

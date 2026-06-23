@@ -51,6 +51,7 @@ from arize._generated.api_client.models.annotation_queue_record_input import Ann
 from arize._generated.api_client.models.annotation_queue_record_list_response import AnnotationQueueRecordListResponse
 from arize._generated.api_client.models.annotation_queue_source_type import AnnotationQueueSourceType
 from arize._generated.api_client.models.annotation_queue_span_record_input import AnnotationQueueSpanRecordInput
+from arize._generated.api_client.models.annotation_queue_trace_record_input import AnnotationQueueTraceRecordInput
 from arize._generated.api_client.models.annotator_user import AnnotatorUser
 from arize._generated.api_client.models.api_key import ApiKey
 from arize._generated.api_client.models.api_key_account_role import ApiKeyAccountRole
@@ -173,6 +174,7 @@ from arize._generated.api_client.models.provider_params import ProviderParams
 from arize._generated.api_client.models.provider_params_anthropic_headers import ProviderParamsAnthropicHeaders
 from arize._generated.api_client.models.provider_params_azure_params import ProviderParamsAzureParams
 from arize._generated.api_client.models.provider_params_bedrock_options import ProviderParamsBedrockOptions
+from arize._generated.api_client.models.record_granularity import RecordGranularity
 from arize._generated.api_client.models.resource_restriction import ResourceRestriction
 from arize._generated.api_client.models.resource_restriction_create import ResourceRestrictionCreate
 from arize._generated.api_client.models.resource_restriction_response_body import ResourceRestrictionResponseBody

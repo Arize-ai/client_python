@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **id** | **str** | The unique identifier for the record | 
 **annotation_queue_id** | **str** | The annotation queue this record belongs to | 
 **source_type** | [**AnnotationQueueSourceType**](AnnotationQueueSourceType.md) |  | 
+**granularity** | [**RecordGranularity**](RecordGranularity.md) | The granularity of the record, if applicable. | [optional] 
 **assigned_users** | [**List[AnnotationQueueAssignedUser]**](AnnotationQueueAssignedUser.md) | The users now assigned to this record after this operation | 
 
 ## Example

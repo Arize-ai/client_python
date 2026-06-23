@@ -27,6 +27,7 @@ Each record includes:
 - The record's data as flat key-value pairs
 - Any annotations that have been added to the record
 - The users assigned to annotate the record and their completion status
+- The record's granularity, applicable when the source type is spans
 
 **Pagination**:
 - Response includes `pagination` with `has_more` and `next_cursor`.
@@ -522,8 +523,7 @@ Annotations are upserted into the underlying data source by annotation config na
 Omitted annotation configs are left unchanged.
 
 **Payload Requirements**
-- `annotations` must contain at least one entry.
-- There is no maximum limit on the number of annotations — you may submit one annotation per annotation config associated with the queue.
+- `annotations` must contain at least one entry and at most 500.
 - Each annotation `name` must match an annotation config associated with the queue.
 - Omit `label`, `score`, or `text` to leave the existing value unchanged. Individual fields cannot be set to null; annotations cannot be removed once written.
 
@@ -551,7 +551,7 @@ Use the list records endpoint to retrieve the full record state.
 }
 ```
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -768,17 +768,19 @@ Name | Type | Description  | Notes
 
 Create annotation queue records
 
-Add new records from either spans (a project) or from dataset examples to an existing annotation queue.
+Add new records from spans, traces, or dataset examples to an existing annotation queue.
 
 **Payload Requirements**
   - At least one record source is required.
   - At most 2 record sources are allowed per request
   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.
   - For dataset record source: all `example_ids` must be non-empty strings.
-  - For spans record source: all `span_ids` must be non-empty strings.
+  - For project record source:
+    - span records: all `span_ids` must be non-empty strings.
+    - trace records: all `trace_ids` must be non-empty strings.
   - At most 500 records total may be added in one request
 
-**Valid example**
+**Valid example (span record)**
 ```json
 {
   "record_sources": [
@@ -788,6 +790,21 @@ Add new records from either spans (a project) or from dataset examples to an exi
       "start_time": "2026-01-15T00:00:00Z",
       "end_time": "2026-01-16T00:00:00Z",
       "span_ids": ["U3BhbjoxOmFCY0Q="]
+    }
+  ]
+}
+```
+
+**Valid example (trace record)**
+```json
+{
+  "record_sources": [
+    {
+      "record_type": "trace",
+      "project_id": "TW9kZWw6MTIzOmFCY0Q=",
+      "start_time": "2026-01-15T00:00:00Z",
+      "end_time": "2026-01-16T00:00:00Z",
+      "trace_ids": ["8fe3373f-0da4-4a8e-b57f-5c8878cfb747"]
     }
   ]
 }

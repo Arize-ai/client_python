@@ -498,7 +498,7 @@ class AnnotationQueuesClient:
         )
 
     @prerelease_endpoint(
-        key="annotation_queues.annotate_record", stage=ReleaseStage.ALPHA
+        key="annotation_queues.annotate_record", stage=ReleaseStage.BETA
     )
     def annotate_record(
         self,

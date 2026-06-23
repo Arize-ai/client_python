@@ -6,7 +6,7 @@ Cursor-based pagination metadata. Use `next_cursor` in the subsequent request's 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**next_cursor** | **str** | Opaque cursor for fetching the next page. Treat as an unreadable token. Present when &#x60;has_more&#x60; is true; omitted when &#x60;hasMore&#x60; is false.  | [optional] 
+**next_cursor** | **str** | Opaque cursor for fetching the next page. Treat as an unreadable token. Present when &#x60;has_more&#x60; is true; omitted when &#x60;has_more&#x60; is false.  | [optional] 
 **has_more** | **bool** | True if another page of results is available. | 
 
 ## Example

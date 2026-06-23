@@ -204,7 +204,7 @@ class SpansClient:
             cursor=cursor,
         )
 
-    @prerelease_endpoint(key="spans.annotate", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="spans.annotate", stage=ReleaseStage.BETA)
     def annotate(
         self,
         *,

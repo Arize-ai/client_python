@@ -5,7 +5,6 @@ All URIs are relative to *https://api.arize.com*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**api_keys_create**](APIKeysApi.md#api_keys_create) | **POST** /v2/api-keys | Create an API key
-[**api_keys_delete**](APIKeysApi.md#api_keys_delete) | **DELETE** /v2/api-keys/{api_key_id} | Delete an API key
 [**api_keys_list**](APIKeysApi.md#api_keys_list) | **GET** /v2/api-keys | List API keys
 [**api_keys_refresh**](APIKeysApi.md#api_keys_refresh) | **POST** /v2/api-keys/{api_key_id}/refresh | Refresh an API key
 [**api_keys_revoke**](APIKeysApi.md#api_keys_revoke) | **PUT** /v2/api-keys/{api_key_id}/revoke | Revoke an API key
@@ -114,96 +113,6 @@ Name | Type | Description  | Notes
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **422** | Unprocessable entity |  -  |
-**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **api_keys_delete**
-> api_keys_delete(api_key_id)
-
-Delete an API key
-
-Delete an API key by its ID (soft-delete). This operation is irreversible. The key will
-immediately stop working for authentication.
-
-**Authorization:**
-- **User keys:** the creator or an account admin may delete the key. Requires the
-  `developer` user permission flag. Returns `403` when this flag is absent.
-- **Service keys:** space admins (and higher) may delete any service key in their space.
-  Non-admins require the `SERVICE_KEY_DELETE` permission and must be the creator of the key.
-
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
-
-
-### Example
-
-* Bearer (<api-key>) Authentication (bearerAuth):
-
-```python
-import arize._generated.api_client
-from arize._generated.api_client.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to https://api.arize.com
-# See configuration.py for a list of all supported configuration parameters.
-configuration = arize._generated.api_client.Configuration(
-    host = "https://api.arize.com"
-)
-
-# The client must configure the authentication and authorization parameters
-# in accordance with the API server security policy.
-# Examples for each auth method are provided below, use the example that
-# satisfies your auth use case.
-
-# Configure Bearer authorization (<api-key>): bearerAuth
-configuration = arize._generated.api_client.Configuration(
-    access_token = os.environ["BEARER_TOKEN"]
-)
-
-# Enter a context with an instance of the API client
-with arize._generated.api_client.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = arize._generated.api_client.APIKeysApi(api_client)
-    api_key_id = 'QXBpS2V5OjEyMzQ1' # str | The unique API key identifier (base64)
-
-    try:
-        # Delete an API key
-        api_instance.api_keys_delete(api_key_id)
-    except Exception as e:
-        print("Exception when calling APIKeysApi->api_keys_delete: %s\n" % e)
-```
-
-
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **api_key_id** | **str**| The unique API key identifier (base64) | 
-
-### Return type
-
-void (empty response body)
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/problem+json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**204** | API key successfully deleted |  -  |
-**400** | Invalid request |  -  |
-**401** | Authentication is required |  -  |
-**403** | Insufficient permissions to access this resource |  -  |
-**404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

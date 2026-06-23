@@ -18,9 +18,10 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.annotation_queue_assigned_user import AnnotationQueueAssignedUser
 from arize._generated.api_client.models.annotation_queue_source_type import AnnotationQueueSourceType
+from arize._generated.api_client.models.record_granularity import RecordGranularity
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -31,8 +32,9 @@ class AnnotationQueueRecordAssignResult(BaseModel):
     id: StrictStr = Field(description="The unique identifier for the record")
     annotation_queue_id: StrictStr = Field(description="The annotation queue this record belongs to")
     source_type: AnnotationQueueSourceType
+    granularity: Optional[RecordGranularity] = Field(default=None, description="The granularity of the record, if applicable.")
     assigned_users: List[AnnotationQueueAssignedUser] = Field(description="The users now assigned to this record after this operation")
-    __properties: ClassVar[List[str]] = ["id", "annotation_queue_id", "source_type", "assigned_users"]
+    __properties: ClassVar[List[str]] = ["id", "annotation_queue_id", "source_type", "granularity", "assigned_users"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -80,6 +82,11 @@ class AnnotationQueueRecordAssignResult(BaseModel):
                 if _item_assigned_users:
                     _items.append(_item_assigned_users.to_dict())
             _dict['assigned_users'] = _items
+        # set to None if granularity (nullable) is None
+        # and model_fields_set contains the field
+        if self.granularity is None and "granularity" in self.model_fields_set:
+            _dict['granularity'] = None
+
         return _dict
 
     @classmethod
@@ -100,6 +107,7 @@ class AnnotationQueueRecordAssignResult(BaseModel):
             "id": obj.get("id"),
             "annotation_queue_id": obj.get("annotation_queue_id"),
             "source_type": obj.get("source_type"),
+            "granularity": obj.get("granularity"),
             "assigned_users": [AnnotationQueueAssignedUser.from_dict(_item) for _item in obj["assigned_users"]] if obj.get("assigned_users") is not None else None
         })
         return _obj

@@ -531,13 +531,13 @@ class TestSpansClientAnnotate:
             end_time=None,
         )
 
-    def test_annotate_emits_alpha_prerelease_warning(
+    def test_annotate_emits_beta_prerelease_warning(
         self,
         spans_client: SpansClient,
         mock_api: Mock,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize._generated.api_client import models
 
         with patch("arize._generated.api_client.AnnotateSpansRequestBody"):
@@ -553,7 +553,7 @@ class TestSpansClientAnnotate:
             )
 
         assert any(
-            "ALPHA" in r.message and "spans.annotate" in r.message
+            "BETA" in r.message and "spans.annotate" in r.message
             for r in caplog.records
         )
 

@@ -19,11 +19,12 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, f
 from typing import Any, List, Optional
 from arize._generated.api_client.models.annotation_queue_example_record_input import AnnotationQueueExampleRecordInput
 from arize._generated.api_client.models.annotation_queue_span_record_input import AnnotationQueueSpanRecordInput
+from arize._generated.api_client.models.annotation_queue_trace_record_input import AnnotationQueueTraceRecordInput
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-ANNOTATIONQUEUERECORDINPUT_ONE_OF_SCHEMAS = ["AnnotationQueueExampleRecordInput", "AnnotationQueueSpanRecordInput"]
+ANNOTATIONQUEUERECORDINPUT_ONE_OF_SCHEMAS = ["AnnotationQueueExampleRecordInput", "AnnotationQueueSpanRecordInput", "AnnotationQueueTraceRecordInput"]
 
 class AnnotationQueueRecordInput(BaseModel):
     """
@@ -33,8 +34,10 @@ class AnnotationQueueRecordInput(BaseModel):
     oneof_schema_1_validator: Optional[AnnotationQueueExampleRecordInput] = None
     # data type: AnnotationQueueSpanRecordInput
     oneof_schema_2_validator: Optional[AnnotationQueueSpanRecordInput] = None
-    actual_instance: Optional[Union[AnnotationQueueExampleRecordInput, AnnotationQueueSpanRecordInput]] = None
-    one_of_schemas: Set[str] = { "AnnotationQueueExampleRecordInput", "AnnotationQueueSpanRecordInput" }
+    # data type: AnnotationQueueTraceRecordInput
+    oneof_schema_3_validator: Optional[AnnotationQueueTraceRecordInput] = None
+    actual_instance: Optional[Union[AnnotationQueueExampleRecordInput, AnnotationQueueSpanRecordInput, AnnotationQueueTraceRecordInput]] = None
+    one_of_schemas: Set[str] = { "AnnotationQueueExampleRecordInput", "AnnotationQueueSpanRecordInput", "AnnotationQueueTraceRecordInput" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -70,12 +73,17 @@ class AnnotationQueueRecordInput(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `AnnotationQueueSpanRecordInput`")
         else:
             match += 1
+        # validate data type: AnnotationQueueTraceRecordInput
+        if not isinstance(v, AnnotationQueueTraceRecordInput):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `AnnotationQueueTraceRecordInput`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in AnnotationQueueRecordInput with oneOf schemas: AnnotationQueueExampleRecordInput, AnnotationQueueSpanRecordInput. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in AnnotationQueueRecordInput with oneOf schemas: AnnotationQueueExampleRecordInput, AnnotationQueueSpanRecordInput, AnnotationQueueTraceRecordInput. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in AnnotationQueueRecordInput with oneOf schemas: AnnotationQueueExampleRecordInput, AnnotationQueueSpanRecordInput. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in AnnotationQueueRecordInput with oneOf schemas: AnnotationQueueExampleRecordInput, AnnotationQueueSpanRecordInput, AnnotationQueueTraceRecordInput. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -102,13 +110,19 @@ class AnnotationQueueRecordInput(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into AnnotationQueueTraceRecordInput
+        try:
+            instance.actual_instance = AnnotationQueueTraceRecordInput.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into AnnotationQueueRecordInput with oneOf schemas: AnnotationQueueExampleRecordInput, AnnotationQueueSpanRecordInput. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into AnnotationQueueRecordInput with oneOf schemas: AnnotationQueueExampleRecordInput, AnnotationQueueSpanRecordInput, AnnotationQueueTraceRecordInput. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into AnnotationQueueRecordInput with oneOf schemas: AnnotationQueueExampleRecordInput, AnnotationQueueSpanRecordInput. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into AnnotationQueueRecordInput with oneOf schemas: AnnotationQueueExampleRecordInput, AnnotationQueueSpanRecordInput, AnnotationQueueTraceRecordInput. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -122,7 +136,7 @@ class AnnotationQueueRecordInput(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], AnnotationQueueExampleRecordInput, AnnotationQueueSpanRecordInput]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], AnnotationQueueExampleRecordInput, AnnotationQueueSpanRecordInput, AnnotationQueueTraceRecordInput]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

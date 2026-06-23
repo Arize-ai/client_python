@@ -5,6 +5,7 @@ import functools
 import inspect
 import json
 import logging
+import sys
 import traceback
 from binascii import hexlify
 from collections.abc import (
@@ -89,6 +90,8 @@ class ExperimentMetadata(TypedDict, total=False):
 
 
 logger = logging.getLogger(__name__)
+
+_NEST_ASYNCIO_INCOMPATIBLE_VERSION = (3, 14)
 
 # Module-level singleton for no-op tracing
 _NOOP_TRACER = NoOpTracer()
@@ -178,11 +181,19 @@ def run_experiment(
                 _print_experiment_error(exc, example_id=example.id, kind="task")
             else:
                 if isinstance(_output, Awaitable):
+                    nested_loop_option = (
+                        "2. Use `nest_asyncio.apply()` to allow nesting event loops."
+                        if _nest_asyncio_is_compatible()
+                        else (
+                            "2. Run the experiment from a synchronous context so the SDK "
+                            "can manage async execution."
+                        )
+                    )
                     sync_error_message = (
                         "Task is async and cannot be run within an existing event loop. "
                         "Consider the following options:\n\n"
                         "1. Pass in a synchronous task callable.\n"
-                        "2. Use `nest_asyncio.apply()` to allow nesting event loops."
+                        f"{nested_loop_option}"
                     )
                     raise TypeError(sync_error_message)
                 output = _output
@@ -864,6 +875,10 @@ def get_result_attr(r: object, attr: str, default: object = None) -> object:
     """
     # Type ignore: r typed as object but expected to have result attribute at runtime
     return getattr(r.result, attr, default) if r.result else default  # type: ignore[attr-defined]
+
+
+def _nest_asyncio_is_compatible() -> bool:
+    return sys.version_info < _NEST_ASYNCIO_INCOMPATIBLE_VERSION
 
 
 def transform_to_experiment_format(

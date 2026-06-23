@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.annotation_queue_record_input import AnnotationQueueRecordInput
+from arize._generated.api_client.models.annotation_queue_trace_record_input import AnnotationQueueTraceRecordInput
 
-class TestAnnotationQueueRecordInput(unittest.TestCase):
-    """AnnotationQueueRecordInput unit test stubs"""
+class TestAnnotationQueueTraceRecordInput(unittest.TestCase):
+    """AnnotationQueueTraceRecordInput unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,50 +25,38 @@ class TestAnnotationQueueRecordInput(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> AnnotationQueueRecordInput:
-        """Test AnnotationQueueRecordInput
+    def make_instance(self, include_optional) -> AnnotationQueueTraceRecordInput:
+        """Test AnnotationQueueTraceRecordInput
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `AnnotationQueueRecordInput`
+        # uncomment below to create an instance of `AnnotationQueueTraceRecordInput`
         """
-        model = AnnotationQueueRecordInput()
+        model = AnnotationQueueTraceRecordInput()
         if include_optional:
-            return AnnotationQueueRecordInput(
+            return AnnotationQueueTraceRecordInput(
                 record_type = 'trace',
-                dataset_id = '',
-                dataset_version_id = '',
-                example_ids = [
-                    ''
-                    ],
                 project_id = '',
                 start_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 end_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
-                span_ids = [
-                    ''
-                    ],
                 trace_ids = [
                     ''
                     ]
             )
         else:
-            return AnnotationQueueRecordInput(
+            return AnnotationQueueTraceRecordInput(
                 record_type = 'trace',
-                dataset_id = '',
                 project_id = '',
                 start_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 end_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
-                span_ids = [
-                    ''
-                    ],
                 trace_ids = [
                     ''
                     ],
         )
         """
 
-    def testAnnotationQueueRecordInput(self):
-        """Test AnnotationQueueRecordInput"""
+    def testAnnotationQueueTraceRecordInput(self):
+        """Test AnnotationQueueTraceRecordInput"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 
