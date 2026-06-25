@@ -122,6 +122,12 @@
     - [In Code](#in-code-1)
     - [Via Environment Variables](#via-environment-variables-1)
     - [Clean the cache](#clean-the-cache)
+  - [Custom Endpoints, Proxies, and On-Prem](#custom-endpoints-proxies-and-on-prem)
+    - [Single host and port](#single-host-and-port)
+    - [Per-endpoint ports](#per-endpoint-ports)
+    - [SSL certificate verification](#ssl-certificate-verification)
+    - [Egress / CONNECT proxy](#egress--connect-proxy)
+    - [Via Environment Variables](#via-environment-variables-2)
 - [Community](#community)
 
 # Overview
@@ -1632,6 +1638,149 @@ os.environ["ARIZE_DIRECTORY"] = "~/.arize"
 ### Clean the cache
 
 To clean the cache you can directly `rm` the files or directory. In addition, the client has the option to help with that as well using `client.clear_cache()`, which will delete the `cache/` directory inside the _arize directory_ (defaults to `~/.arize`).
+
+## Custom Endpoints, Proxies, and On-Prem
+
+Use these parameters when connecting through a proxy, a custom on-prem gateway, or
+a Private Connect setup where all traffic is routed through a single host/port.
+
+### Single host and port
+
+`single_host` and `single_port` override **all** endpoint hosts and ports at once —
+REST API, OTLP, and Arrow Flight. This is the typical pattern for an on-prem proxy
+that terminates connections on one address:
+
+```python
+from arize import ArizeClient
+
+client = ArizeClient(
+    api_key=API_KEY,
+    single_host="my-proxy.internal",
+    single_port=4040,
+    api_scheme="http",   # set to "http" if the proxy uses plain HTTP
+    otlp_scheme="http",
+    request_verify=False,  # disable SSL verification for self-signed certs
+)
+```
+
+For `localhost` (common during development):
+
+```python
+client = ArizeClient(
+    api_key=API_KEY,
+    single_host="localhost",
+    single_port=4040,
+    api_scheme="http",
+    otlp_scheme="http",
+)
+```
+
+### Per-endpoint ports
+
+If each protocol needs a different port, set them individually:
+
+```python
+client = ArizeClient(
+    api_key=API_KEY,
+    api_host="api.internal",
+    api_port=8080,         # REST API port
+    otlp_host="otel.internal",
+    otlp_port=4318,        # OTLP port
+    flight_host="flight.internal",
+    flight_port=9443,      # Arrow Flight port
+)
+```
+
+### SSL certificate verification
+
+Set `request_verify=False` to disable TLS certificate verification (e.g. for
+self-signed certificates in dev). For **production on-prem** deployments where a
+reverse proxy presents its own corporate CA certificate, supply the CA bundle path
+instead of disabling verification entirely:
+
+```python
+# Disable verification (dev only)
+client = ArizeClient(api_key=API_KEY, request_verify=False)
+
+# Provide a custom CA bundle (recommended for on-prem)
+client = ArizeClient(
+    api_key=API_KEY,
+    single_host="my-proxy.internal",
+    single_port=4040,
+    ssl_ca_cert="/etc/ssl/certs/corp-ca-bundle.crt",
+)
+```
+
+`ssl_ca_cert` applies to **all three transports**: REST API, OTLP (gRPC), and
+Apache Arrow Flight. The CA bundle is loaded once at connection time for each
+transport.
+
+The `ssl_ca_cert` field reads the first set environment variable from
+`ARIZE_SSL_CA_CERT` → `REQUESTS_CA_BUNDLE` → `SSL_CERT_FILE`, so existing CA
+bundle configuration in your environment is picked up automatically:
+
+```bash
+# Works out of the box — no code change needed
+export REQUESTS_CA_BUNDLE=/etc/ssl/certs/corp-ca-bundle.crt
+```
+
+### Egress / CONNECT proxy
+
+For environments where outbound traffic is routed through an HTTP CONNECT proxy,
+set `proxy_url`:
+
+```python
+client = ArizeClient(
+    api_key=API_KEY,
+    proxy_url="http://proxy.corp.example.com:8080",
+)
+```
+
+The `proxy_url` field reads from `ARIZE_PROXY_URL`. It applies to the **REST API**
+transport only — Arrow Flight (gRPC) does not support HTTP CONNECT proxies. For
+system-wide proxy configuration (including `NO_PROXY` exclusions), set the standard
+`HTTPS_PROXY` / `HTTP_PROXY` environment variables instead; Python's `urllib3`
+honours those automatically for REST requests without requiring `proxy_url`.
+
+```bash
+# System-wide proxy (recommended — also respects NO_PROXY)
+export HTTPS_PROXY=http://proxy.corp.example.com:8080
+```
+
+> **Note:** `proxy_url` configures an egress CONNECT proxy (traffic passes *through*
+> the proxy to reach Arize). This is different from `single_host`/`single_port`,
+> which route traffic to a reverse proxy that *terminates* the connection and
+> forwards it internally.
+
+### Via Environment Variables
+
+All endpoint and connection settings can be configured via environment variables:
+
+| Variable | Description | Default |
+|---|---|---|
+| `ARIZE_SINGLE_HOST` | Override all endpoint hosts | — |
+| `ARIZE_SINGLE_PORT` | Override all endpoint ports (REST, OTLP, Flight) | `0` (unset) |
+| `ARIZE_API_HOST` | REST API host | `api.arize.com` |
+| `ARIZE_API_SCHEME` | REST API scheme (`http`/`https`) | `https` |
+| `ARIZE_API_PORT` | REST API port (`0` = scheme default) | `0` |
+| `ARIZE_OTLP_HOST` | OTLP host | `otlp.arize.com` |
+| `ARIZE_OTLP_SCHEME` | OTLP scheme (`http`/`https`) | `https` |
+| `ARIZE_OTLP_PORT` | OTLP port (`0` = scheme default) | `0` |
+| `ARIZE_FLIGHT_HOST` | Arrow Flight host | `flight.arize.com` |
+| `ARIZE_FLIGHT_PORT` | Arrow Flight port | `443` |
+| `ARIZE_REQUEST_VERIFY` | SSL certificate verification (`true`/`false`) | `true` |
+| `ARIZE_SSL_CA_CERT` | Path to CA bundle file (falls back to `REQUESTS_CA_BUNDLE`, then `SSL_CERT_FILE`) | — |
+| `ARIZE_PROXY_URL` | Egress proxy URL (falls back to `HTTPS_PROXY`, then `HTTP_PROXY`) | — |
+
+```python
+import os
+
+os.environ["ARIZE_SINGLE_HOST"] = "my-proxy.internal"
+os.environ["ARIZE_SINGLE_PORT"] = "4040"
+os.environ["ARIZE_API_SCHEME"] = "http"
+os.environ["ARIZE_OTLP_SCHEME"] = "http"
+os.environ["ARIZE_REQUEST_VERIFY"] = "false"
+```
 
 # Community
 

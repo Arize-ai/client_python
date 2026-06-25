@@ -47,6 +47,10 @@ class GeneratedClientFactory:
             if self._sdk_config.api_key:
                 cfg.access_token = self._sdk_config.api_key
             cfg.verify_ssl = self._sdk_config.request_verify
+            if self._sdk_config.ssl_ca_cert:
+                cfg.ssl_ca_cert = self._sdk_config.ssl_ca_cert
+            if self._sdk_config.proxy_url:
+                cfg.proxy = self._sdk_config.proxy_url
             self._client = gen.ApiClient(cfg)
 
             for key, value in self._sdk_config.headers.items():

@@ -22,7 +22,7 @@ from typing_extensions import Annotated
 from arize._generated.api_client.models.annotate_spans_request_body import AnnotateSpansRequestBody
 from arize._generated.api_client.models.delete_spans_request import DeleteSpansRequest
 from arize._generated.api_client.models.list_spans_request import ListSpansRequest
-from arize._generated.api_client.models.span_delete_partial_response import SpanDeletePartialResponse
+from arize._generated.api_client.models.span_delete_response import SpanDeleteResponse
 from arize._generated.api_client.models.span_list_response import SpanListResponse
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
@@ -351,10 +351,10 @@ class SpansApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> SpanDeletePartialResponse:
+    ) -> SpanDeleteResponse:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the supported lookback window were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if the operation could not fully complete (retry the full request). - `deleted_span_ids` — span IDs confirmed deleted in this request. - `not_deleted_span_ids` — requested IDs not deleted: either not found within   the supported lookback window, or not reached when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param delete_spans_request: Body containing span IDs to delete (required)
         :type delete_spans_request: DeleteSpansRequest
@@ -389,15 +389,14 @@ class SpansApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SpanDeletePartialResponse",
-            '204': None,
+            '200': "SpanDeleteResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
             '422': "Problem",
             '429': "Problem",
-            '500': "SpanDeleteErrorResponse",
+            '503': "SpanDeleteProblem",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -426,10 +425,10 @@ class SpansApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[SpanDeletePartialResponse]:
+    ) -> ApiResponse[SpanDeleteResponse]:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the supported lookback window were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if the operation could not fully complete (retry the full request). - `deleted_span_ids` — span IDs confirmed deleted in this request. - `not_deleted_span_ids` — requested IDs not deleted: either not found within   the supported lookback window, or not reached when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param delete_spans_request: Body containing span IDs to delete (required)
         :type delete_spans_request: DeleteSpansRequest
@@ -464,15 +463,14 @@ class SpansApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SpanDeletePartialResponse",
-            '204': None,
+            '200': "SpanDeleteResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
             '422': "Problem",
             '429': "Problem",
-            '500': "SpanDeleteErrorResponse",
+            '503': "SpanDeleteProblem",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -504,7 +502,7 @@ class SpansApi:
     ) -> RESTResponseType:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `204 No Content` response indicates all extant IDs provided within the supported lookback window were deleted.  A `200 OK` response indicates one or more intervals could not be fully processed within the retry budget. Retry the original request for a correct result.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if the operation could not fully complete (retry the full request). - `deleted_span_ids` — span IDs confirmed deleted in this request. - `not_deleted_span_ids` — requested IDs not deleted: either not found within   the supported lookback window, or not reached when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
         :param delete_spans_request: Body containing span IDs to delete (required)
         :type delete_spans_request: DeleteSpansRequest
@@ -539,15 +537,14 @@ class SpansApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SpanDeletePartialResponse",
-            '204': None,
+            '200': "SpanDeleteResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
             '422': "Problem",
             '429': "Problem",
-            '500': "SpanDeleteErrorResponse",
+            '503': "SpanDeleteProblem",
         }
         response_data = self.api_client.call_api(
             *_param,

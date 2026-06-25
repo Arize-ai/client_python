@@ -11,10 +11,10 @@
 
 ```{eval-rst}
 .. currentmodule:: arize.spans.types
-.. autoclass:: SpansDelete200Response
+.. autoclass:: SpanDeleteResponse
    :members:
    :member-order: bysource
-.. autoclass:: SpansList200Response
+.. autoclass:: SpanListResponse
    :members:
    :member-order: bysource
 ```

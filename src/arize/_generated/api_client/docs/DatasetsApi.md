@@ -6,6 +6,7 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**datasets_create**](DatasetsApi.md#datasets_create) | **POST** /v2/datasets | Create a dataset
 [**datasets_delete**](DatasetsApi.md#datasets_delete) | **DELETE** /v2/datasets/{dataset_id} | Delete a dataset
+[**datasets_example_delete**](DatasetsApi.md#datasets_example_delete) | **DELETE** /v2/datasets/{dataset_id}/examples/{example_id} | Delete a dataset example
 [**datasets_examples_annotate**](DatasetsApi.md#datasets_examples_annotate) | **POST** /v2/datasets/{dataset_id}/examples/annotate | Annotate a batch of dataset examples
 [**datasets_examples_insert**](DatasetsApi.md#datasets_examples_insert) | **POST** /v2/datasets/{dataset_id}/examples | Add new examples to a dataset
 [**datasets_examples_list**](DatasetsApi.md#datasets_examples_list) | **GET** /v2/datasets/{dataset_id}/examples | List dataset examples
@@ -219,6 +220,98 @@ void (empty response body)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **204** | Dataset successfully deleted |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **datasets_example_delete**
+> datasets_example_delete(dataset_id, example_id, dataset_version_id=dataset_version_id)
+
+Delete a dataset example
+
+Delete a single example from a dataset by its ID.
+
+If `dataset_version_id` is provided, the example is deleted from that
+specific version. If omitted, the latest version is used. The example
+is removed in place from the selected version; no new version is
+created. This operation is irreversible.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.DatasetsApi(api_client)
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique dataset identifier (base64)
+    example_id = '550e8400-e29b-41d4-a716-446655440000' # str | The unique dataset example identifier (UUID)
+    dataset_version_id = 'RGF0YXNldFZlcnNpb246MTIzNDU=' # str | The unique identifier of the dataset version (optional)
+
+    try:
+        # Delete a dataset example
+        api_instance.datasets_example_delete(dataset_id, example_id, dataset_version_id=dataset_version_id)
+    except Exception as e:
+        print("Exception when calling DatasetsApi->datasets_example_delete: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **dataset_id** | **str**| The unique dataset identifier (base64) | 
+ **example_id** | **str**| The unique dataset example identifier (UUID) | 
+ **dataset_version_id** | **str**| The unique identifier of the dataset version | [optional] 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**204** | Dataset example successfully deleted |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |

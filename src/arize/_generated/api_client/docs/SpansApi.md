@@ -157,7 +157,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **spans_delete**
-> SpanDeletePartialResponse spans_delete(delete_spans_request)
+> SpanDeleteResponse spans_delete(delete_spans_request)
 
 Delete spans
 
@@ -166,11 +166,14 @@ Permanently deletes spans by their span IDs. This operation is irreversible.
 Accepts between 1 and 5000 span IDs per request. Only spans within the
 supported lookback window (2 years) are considered; older spans are not affected.
 
-A `204 No Content` response indicates all extant IDs provided
-within the supported lookback window were deleted.
+A `200 OK` response always includes:
+- `completed` — `true` if the operation finished and no retry is needed;
+  `false` if the operation could not fully complete (retry the full request).
+- `deleted_span_ids` — span IDs confirmed deleted in this request.
+- `not_deleted_span_ids` — requested IDs not deleted: either not found within
+  the supported lookback window, or not reached when `completed` is `false`.
 
-A `200 OK` response indicates one or more intervals could not be fully processed
-within the retry budget. Retry the original request for a correct result.
+The delete operation is idempotent — re-submitting already-deleted IDs is safe.
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -182,7 +185,7 @@ within the retry budget. Retry the original request for a correct result.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.delete_spans_request import DeleteSpansRequest
-from arize._generated.api_client.models.span_delete_partial_response import SpanDeletePartialResponse
+from arize._generated.api_client.models.span_delete_response import SpanDeleteResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -228,7 +231,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**SpanDeletePartialResponse**](SpanDeletePartialResponse.md)
+[**SpanDeleteResponse**](SpanDeleteResponse.md)
 
 ### Authorization
 
@@ -243,15 +246,14 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**200** | Some span IDs could not be confirmed deleted within the allotted retries. Retry the original request for a completed deletion result.  |  -  |
-**204** | Spans successfully deleted |  -  |
+**200** | Spans deleted. The response body always includes: - &#x60;completed&#x60;: whether all requested spans were fully processed. This endpoint is idempotent — retries are safe. - &#x60;deleted_span_ids&#x60;: IDs of spans confirmed deleted. - &#x60;not_deleted_span_ids&#x60;: IDs of spans not deleted — either not found, or not yet processed when &#x60;completed&#x60; is &#x60;false&#x60;.  |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
-**500** | Fatal mid-request error. Body carries any IDs already confirmed deleted. |  -  |
+**503** | Fatal mid-request error. Returned as &#x60;503 Service Unavailable&#x60; when the server encountered an unrecoverable error after partially processing the request. The caller should retry the original full request — the delete operation is idempotent.  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

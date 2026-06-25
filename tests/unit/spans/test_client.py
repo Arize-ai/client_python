@@ -140,11 +140,20 @@ class TestSpansClientDelete:
 
         assert result is expected
 
-    def test_delete_returns_none_on_full_success(
+    def test_delete_returns_response_on_full_success(
         self, spans_client: SpansClient, mock_api: Mock
     ) -> None:
-        """delete() should return None when the API returns None (204)."""
-        mock_api.spans_delete.return_value = None
+        """delete() should return a SpanDeleteResponse with completed/deleted/not_deleted lists."""
+        from arize._generated.api_client.models.span_delete_response import (
+            SpanDeleteResponse,
+        )
+
+        expected = SpanDeleteResponse(
+            completed=True,
+            deleted_span_ids=["span-1"],
+            not_deleted_span_ids=[],
+        )
+        mock_api.spans_delete.return_value = expected
 
         with patch("arize._generated.api_client.DeleteSpansRequest"):
             result = spans_client.delete(
@@ -152,7 +161,7 @@ class TestSpansClientDelete:
                 span_ids=["span-1"],
             )
 
-        assert result is None
+        assert result is expected
 
     def test_delete_with_project_name_resolves_id(
         self, spans_client: SpansClient, mock_api: Mock

@@ -10,13 +10,11 @@ import pandas as pd
 import pyarrow as pa
 from openinference.semconv.resource import ResourceAttributes
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
-    OTLPSpanExporter as GrpcSpanExporter,
-)
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace.export import (
     ConsoleSpanExporter,
     SimpleSpanProcessor,
+    SpanExporter,
 )
 
 from arize._flight.client import ArizeFlightClient
@@ -747,6 +745,7 @@ class ExperimentsClient:
             endpoint=self._sdk_config.otlp_url,
             dry_run=dry_run,
             set_global_tracer_provider=set_global_tracer_provider,
+            ssl_ca_cert=self._sdk_config.ssl_ca_cert,
         )
 
         internal_metadata: dict[str, str] = {
@@ -964,6 +963,7 @@ def _get_tracer_resource(
     endpoint: str,
     dry_run: bool = False,
     set_global_tracer_provider: bool = False,
+    ssl_ca_cert: str = "",
 ) -> tuple[Tracer, Resource]:
     """Initialize and return an OpenTelemetry tracer and resource for experiment tracing."""
     resource = Resource(
@@ -977,15 +977,31 @@ def _get_tracer_resource(
         "arize-space-id": space_id,
         "arize-interface": "otel",
     }
-    use_tls = any(endpoint.startswith(v) for v in ["https://", "grpc+tls://"])
-    insecure = not use_tls
-    exporter = (
-        ConsoleSpanExporter()
-        if dry_run
-        else GrpcSpanExporter(
+    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
+        OTLPSpanExporter as GrpcSpanExporter,
+    )
+
+    exporter: SpanExporter
+    if dry_run:
+        exporter = ConsoleSpanExporter()
+    elif ssl_ca_cert:
+        from pathlib import Path
+
+        import grpc
+
+        cert_bytes = Path(ssl_ca_cert).read_bytes()
+        credentials = grpc.ssl_channel_credentials(root_certificates=cert_bytes)
+        exporter = GrpcSpanExporter(
+            endpoint=endpoint, credentials=credentials, headers=headers
+        )
+    else:
+        use_tls = any(
+            endpoint.startswith(v) for v in ["https://", "grpc+tls://"]
+        )
+        insecure = not use_tls
+        exporter = GrpcSpanExporter(
             endpoint=endpoint, insecure=insecure, headers=headers
         )
-    )
     tracer_provider.add_span_processor(SimpleSpanProcessor(exporter))
 
     if set_global_tracer_provider:

@@ -114,6 +114,25 @@ class TestEndpoint:
         )
         assert result == expected
 
+    def test_endpoint_with_port(self) -> None:
+        """_endpoint should include port when specified."""
+        assert (
+            _endpoint("https", "localhost", "/v1", port=4040)
+            == "https://localhost:4040/v1"
+        )
+        assert (
+            _endpoint("http", "myhost.example.com", port=8080)
+            == "http://myhost.example.com:8080"
+        )
+
+    def test_endpoint_without_port(self) -> None:
+        """_endpoint should omit port when port is 0 (default)."""
+        assert (
+            _endpoint("https", "localhost", "/v1", port=0)
+            == "https://localhost/v1"
+        )
+        assert _endpoint("https", "localhost", "/v1") == "https://localhost/v1"
+
 
 @pytest.mark.unit
 class TestEnvHttpScheme:
@@ -443,16 +462,72 @@ class TestSDKConfiguration:
         assert config.otlp_host == "single.host.com"
         assert config.flight_host == "single.host.com"
 
-    def test_single_port_overrides_flight_port(
+    def test_single_port_overrides_all_ports(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """Single port should override flight port."""
+        """Single port should override flight, API, and OTLP ports."""
         monkeypatch.setenv("ARIZE_API_KEY", "test_key")
-        config = SDKConfiguration(
-            single_port=9000,
-        )
+        config = SDKConfiguration(single_port=9000)
 
         assert config.flight_port == 9000
+        assert config.api_port == 9000
+        assert config.otlp_port == 9000
+
+    def test_single_port_in_url_properties(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """URL properties should include port when single_port is set."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        config = SDKConfiguration(
+            single_host="localhost",
+            single_port=4040,
+            api_scheme="http",
+            otlp_scheme="http",
+        )
+
+        assert config.api_url == "http://localhost:4040"
+        assert config.otlp_url == "http://localhost:4040/v1"
+        assert config.files_url == "http://localhost:4040/v1/pandas_arrow"
+        assert config.records_url == "http://localhost:4040/v1/log"
+
+    def test_default_port_not_in_urls(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """URL properties should not include port when port is 0 (default)."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        config = SDKConfiguration()
+
+        assert config.api_url == "https://api.arize.com"
+        assert config.otlp_url == "https://otlp.arize.com/v1"
+        assert ":0" not in config.api_url
+        assert ":0" not in config.otlp_url
+
+    def test_api_port_in_urls(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """api_port should appear in api_url, files_url, and records_url."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        config = SDKConfiguration(api_port=8080)
+
+        assert config.api_url == "https://api.arize.com:8080"
+        assert config.files_url == "https://api.arize.com:8080/v1/pandas_arrow"
+        assert config.records_url == "https://api.arize.com:8080/v1/log"
+
+    def test_otlp_port_in_otlp_url(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """otlp_port should appear in otlp_url."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        config = SDKConfiguration(otlp_port=4318)
+
+        assert config.otlp_url == "https://otlp.arize.com:4318/v1"
+
+    def test_api_port_from_env(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """api_port should be read from ARIZE_API_PORT env var."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        monkeypatch.setenv("ARIZE_API_PORT", "8080")
+        config = SDKConfiguration()
+
+        assert config.api_port == 8080
+        assert ":8080" in config.api_url
 
     def test_multiple_overrides_raises_error(
         self, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
@@ -663,6 +738,143 @@ class TestSDKConfiguration:
         config = SDKConfiguration(base_domain="internal.example.com")
 
         assert config.records_url == "https://api.internal.example.com/v1/log"
+
+
+@pytest.mark.unit
+class TestSSLAndProxy:
+    """Tests for ssl_ca_cert and proxy_url fields."""
+
+    def test_ssl_ca_cert_default_is_empty(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """ssl_ca_cert should default to empty string."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        monkeypatch.delenv("ARIZE_SSL_CA_CERT", raising=False)
+        monkeypatch.delenv("REQUESTS_CA_BUNDLE", raising=False)
+        monkeypatch.delenv("SSL_CERT_FILE", raising=False)
+        config = SDKConfiguration()
+
+        assert config.ssl_ca_cert == ""
+
+    def test_proxy_url_default_is_empty(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """proxy_url should default to empty string."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        monkeypatch.delenv("ARIZE_PROXY_URL", raising=False)
+        monkeypatch.delenv("HTTPS_PROXY", raising=False)
+        monkeypatch.delenv("HTTP_PROXY", raising=False)
+        config = SDKConfiguration()
+
+        assert config.proxy_url == ""
+
+    def test_ssl_ca_cert_explicit(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Explicit ssl_ca_cert overrides env vars."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        config = SDKConfiguration(ssl_ca_cert="/etc/ssl/ca-bundle.crt")
+
+        assert config.ssl_ca_cert == "/etc/ssl/ca-bundle.crt"
+
+    def test_proxy_url_explicit(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Explicit proxy_url overrides env vars."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        config = SDKConfiguration(proxy_url="http://proxy.corp:8080")
+
+        assert config.proxy_url == "http://proxy.corp:8080"
+
+    def test_ssl_ca_cert_from_arize_env(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """ARIZE_SSL_CA_CERT env var should be read."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        monkeypatch.setenv("ARIZE_SSL_CA_CERT", "/path/to/arize-ca.crt")
+        config = SDKConfiguration()
+
+        assert config.ssl_ca_cert == "/path/to/arize-ca.crt"
+
+    def test_ssl_ca_cert_fallback_to_requests_ca_bundle(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """REQUESTS_CA_BUNDLE should be used when ARIZE_SSL_CA_CERT is not set."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        monkeypatch.delenv("ARIZE_SSL_CA_CERT", raising=False)
+        monkeypatch.setenv("REQUESTS_CA_BUNDLE", "/path/to/bundle.crt")
+        monkeypatch.delenv("SSL_CERT_FILE", raising=False)
+        config = SDKConfiguration()
+
+        assert config.ssl_ca_cert == "/path/to/bundle.crt"
+
+    def test_ssl_ca_cert_fallback_to_ssl_cert_file(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """SSL_CERT_FILE should be used when higher-priority vars are not set."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        monkeypatch.delenv("ARIZE_SSL_CA_CERT", raising=False)
+        monkeypatch.delenv("REQUESTS_CA_BUNDLE", raising=False)
+        monkeypatch.setenv(
+            "SSL_CERT_FILE", "/etc/ssl/certs/ca-certificates.crt"
+        )
+        config = SDKConfiguration()
+
+        assert config.ssl_ca_cert == "/etc/ssl/certs/ca-certificates.crt"
+
+    def test_ssl_ca_cert_arize_takes_priority_over_requests_bundle(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """ARIZE_SSL_CA_CERT should take priority over REQUESTS_CA_BUNDLE."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        monkeypatch.setenv("ARIZE_SSL_CA_CERT", "/arize/ca.crt")
+        monkeypatch.setenv("REQUESTS_CA_BUNDLE", "/requests/ca.crt")
+        config = SDKConfiguration()
+
+        assert config.ssl_ca_cert == "/arize/ca.crt"
+
+    def test_proxy_url_from_arize_env(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """ARIZE_PROXY_URL env var should be read."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        monkeypatch.setenv("ARIZE_PROXY_URL", "http://arize-proxy:3128")
+        config = SDKConfiguration()
+
+        assert config.proxy_url == "http://arize-proxy:3128"
+
+    def test_proxy_url_not_set_by_https_proxy(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """HTTPS_PROXY is not read into proxy_url — urllib3 handles it natively."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        monkeypatch.delenv("ARIZE_PROXY_URL", raising=False)
+        monkeypatch.setenv("HTTPS_PROXY", "http://corp-proxy:8080")
+        monkeypatch.delenv("HTTP_PROXY", raising=False)
+        config = SDKConfiguration()
+
+        assert config.proxy_url == ""
+
+    def test_proxy_url_not_set_by_http_proxy(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """HTTP_PROXY is not read into proxy_url — urllib3 handles it natively."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        monkeypatch.delenv("ARIZE_PROXY_URL", raising=False)
+        monkeypatch.delenv("HTTPS_PROXY", raising=False)
+        monkeypatch.setenv("HTTP_PROXY", "http://fallback-proxy:8080")
+        config = SDKConfiguration()
+
+        assert config.proxy_url == ""
+
+    def test_proxy_url_arize_takes_priority_over_https_proxy(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """ARIZE_PROXY_URL should take priority over HTTPS_PROXY."""
+        monkeypatch.setenv("ARIZE_API_KEY", "test_key")
+        monkeypatch.setenv("ARIZE_PROXY_URL", "http://arize-proxy:3128")
+        monkeypatch.setenv("HTTPS_PROXY", "http://system-proxy:8080")
+        config = SDKConfiguration()
+
+        assert config.proxy_url == "http://arize-proxy:3128"
 
 
 @pytest.mark.unit

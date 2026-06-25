@@ -52,7 +52,7 @@ if TYPE_CHECKING:
     from arize.config import SDKConfiguration
     from arize.spans.types import (
         AnnotateRecordInput,
-        SpanDeletePartialResponse,
+        SpanDeleteResponse,
         SpanListResponse,
     )
 
@@ -91,12 +91,11 @@ class SpansClient:
         project: str,
         span_ids: builtins.list[str],
         space: str | None = None,
-    ) -> SpanDeletePartialResponse | None:
+    ) -> SpanDeleteResponse:
         """Permanently delete spans by their IDs.
 
         This operation is irreversible. Only spans within the supported
-        lookback window (2 years) are considered; older spans are not affected. If one
-        or more span IDs are not found, they are silently ignored.
+        lookback window (2 years) are considered; older spans are not affected.
 
         Args:
             project: Project name or identifier (base64) containing the spans.
@@ -106,10 +105,12 @@ class SpansClient:
                 lookup. Required when ``project`` is a name.
 
         Returns:
-            ``None`` when all spans were deleted (HTTP 204). A response
-            object with ``deleted_span_ids`` when the server reports a
-            partial deletion (HTTP 200) — retry the original request for
-            a complete result.
+            A ``SpanDeleteResponse`` with ``completed`` (``True`` if no retry
+            is needed), ``deleted_span_ids`` (IDs confirmed deleted), and
+            ``not_deleted_span_ids`` (IDs not deleted — either not found within
+            the supported lookback window, or not reached when ``completed`` is
+            ``False``). When ``completed`` is ``False``, retry the original full
+            request to complete the deletion.
 
         Raises:
             ValueError: If ``span_ids`` is empty.

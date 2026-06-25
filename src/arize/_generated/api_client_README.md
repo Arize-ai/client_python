@@ -98,6 +98,7 @@ Class | Method | HTTP request | Description
 *AnnotationQueuesApi* | [**annotation_queues_update**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_update) | **PATCH** /v2/annotation-queues/{annotation_queue_id} | Update an annotation queue
 *DatasetsApi* | [**datasets_create**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_create) | **POST** /v2/datasets | Create a dataset
 *DatasetsApi* | [**datasets_delete**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_delete) | **DELETE** /v2/datasets/{dataset_id} | Delete a dataset
+*DatasetsApi* | [**datasets_example_delete**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_example_delete) | **DELETE** /v2/datasets/{dataset_id}/examples/{example_id} | Delete a dataset example
 *DatasetsApi* | [**datasets_examples_annotate**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_examples_annotate) | **POST** /v2/datasets/{dataset_id}/examples/annotate | Annotate a batch of dataset examples
 *DatasetsApi* | [**datasets_examples_insert**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_examples_insert) | **POST** /v2/datasets/{dataset_id}/examples | Add new examples to a dataset
 *DatasetsApi* | [**datasets_examples_list**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_examples_list) | **GET** /v2/datasets/{dataset_id}/examples | List dataset examples
@@ -374,8 +375,8 @@ Class | Method | HTTP request | Description
  - [SpacesUpdateRequest](arize/_generated/api_client/docs/SpacesUpdateRequest.md)
  - [Span](arize/_generated/api_client/docs/Span.md)
  - [SpanContext](arize/_generated/api_client/docs/SpanContext.md)
- - [SpanDeleteErrorResponse](arize/_generated/api_client/docs/SpanDeleteErrorResponse.md)
- - [SpanDeletePartialResponse](arize/_generated/api_client/docs/SpanDeletePartialResponse.md)
+ - [SpanDeleteProblem](arize/_generated/api_client/docs/SpanDeleteProblem.md)
+ - [SpanDeleteResponse](arize/_generated/api_client/docs/SpanDeleteResponse.md)
  - [SpanEvent](arize/_generated/api_client/docs/SpanEvent.md)
  - [SpanListResponse](arize/_generated/api_client/docs/SpanListResponse.md)
  - [SpanStatusCode](arize/_generated/api_client/docs/SpanStatusCode.md)

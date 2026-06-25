@@ -233,8 +233,8 @@ __all__ = [
     "SpacesUpdateRequest",
     "Span",
     "SpanContext",
-    "SpanDeleteErrorResponse",
-    "SpanDeletePartialResponse",
+    "SpanDeleteProblem",
+    "SpanDeleteResponse",
     "SpanEvent",
     "SpanListResponse",
     "SpanStatusCode",
@@ -493,8 +493,8 @@ from arize._generated.api_client.models.spaces_create_request import SpacesCreat
 from arize._generated.api_client.models.spaces_update_request import SpacesUpdateRequest as SpacesUpdateRequest
 from arize._generated.api_client.models.span import Span as Span
 from arize._generated.api_client.models.span_context import SpanContext as SpanContext
-from arize._generated.api_client.models.span_delete_error_response import SpanDeleteErrorResponse as SpanDeleteErrorResponse
-from arize._generated.api_client.models.span_delete_partial_response import SpanDeletePartialResponse as SpanDeletePartialResponse
+from arize._generated.api_client.models.span_delete_problem import SpanDeleteProblem as SpanDeleteProblem
+from arize._generated.api_client.models.span_delete_response import SpanDeleteResponse as SpanDeleteResponse
 from arize._generated.api_client.models.span_event import SpanEvent as SpanEvent
 from arize._generated.api_client.models.span_list_response import SpanListResponse as SpanListResponse
 from arize._generated.api_client.models.span_status_code import SpanStatusCode as SpanStatusCode

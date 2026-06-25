@@ -170,13 +170,17 @@ class ArizeClient(LazySubclientsMixin):
         region: Region | None = None,
         api_host: str | None = None,
         api_scheme: str | None = None,
+        api_port: int | None = None,
         otlp_host: str | None = None,
         otlp_scheme: str | None = None,
+        otlp_port: int | None = None,
         flight_host: str | None = None,
         flight_port: int | None = None,
         flight_scheme: str | None = None,
         pyarrow_max_chunksize: int | None = None,
         request_verify: bool | None = None,
+        ssl_ca_cert: str | None = None,
+        proxy_url: str | None = None,
         stream_max_workers: int | None = None,
         stream_max_queue_bound: int | None = None,
         max_http_payload_size_mb: float | None = None,
@@ -207,12 +211,20 @@ class ArizeClient(LazySubclientsMixin):
             api_scheme: API endpoint scheme (http/https).
                 ENV: ARIZE_API_SCHEME.
                 Default: "https".
+            api_port: API endpoint port. When 0 (default), the scheme's standard port
+                applies and no port is appended to the URL.
+                ENV: ARIZE_API_PORT.
+                Default: 0 (not set).
             otlp_host: OTLP endpoint host.
                 ENV: ARIZE_OTLP_HOST.
                 Default: "otlp.arize.com".
             otlp_scheme: OTLP endpoint scheme (http/https).
                 ENV: ARIZE_OTLP_SCHEME.
                 Default: "https".
+            otlp_port: OTLP endpoint port. When 0 (default), the scheme's standard port
+                applies and no port is appended to the URL.
+                ENV: ARIZE_OTLP_PORT.
+                Default: 0 (not set).
             flight_host: Apache Arrow Flight endpoint host.
                 ENV: ARIZE_FLIGHT_HOST.
                 Default: "flight.arize.com".
@@ -228,6 +240,13 @@ class ArizeClient(LazySubclientsMixin):
             request_verify: Whether to verify SSL certificates.
                 ENV: ARIZE_REQUEST_VERIFY.
                 Default: True.
+            ssl_ca_cert: Path to a CA bundle file for verifying SSL certificates.
+                Useful when a proxy or on-prem gateway presents its own TLS certificate.
+                Reads from ARIZE_SSL_CA_CERT → REQUESTS_CA_BUNDLE → SSL_CERT_FILE.
+                Default: "" (use system CAs).
+            proxy_url: HTTP(S) proxy URL for REST API and OTLP requests.
+                Reads from ARIZE_PROXY_URL → HTTPS_PROXY → HTTP_PROXY.
+                Default: "" (direct connection).
             stream_max_workers: Maximum worker threads for streaming (minimum: 1).
                 ENV: ARIZE_STREAM_MAX_WORKERS.
                 Default: 8.
@@ -286,10 +305,14 @@ class ArizeClient(LazySubclientsMixin):
             cfg_kwargs["api_host"] = api_host
         if api_scheme is not None:
             cfg_kwargs["api_scheme"] = api_scheme
+        if api_port is not None:
+            cfg_kwargs["api_port"] = api_port
         if otlp_host is not None:
             cfg_kwargs["otlp_host"] = otlp_host
         if otlp_scheme is not None:
             cfg_kwargs["otlp_scheme"] = otlp_scheme
+        if otlp_port is not None:
+            cfg_kwargs["otlp_port"] = otlp_port
         if flight_host is not None:
             cfg_kwargs["flight_host"] = flight_host
         if flight_port is not None:
@@ -300,6 +323,10 @@ class ArizeClient(LazySubclientsMixin):
             cfg_kwargs["pyarrow_max_chunksize"] = pyarrow_max_chunksize
         if request_verify is not None:
             cfg_kwargs["request_verify"] = request_verify
+        if ssl_ca_cert is not None:
+            cfg_kwargs["ssl_ca_cert"] = ssl_ca_cert
+        if proxy_url is not None:
+            cfg_kwargs["proxy_url"] = proxy_url
         if stream_max_workers is not None:
             cfg_kwargs["stream_max_workers"] = stream_max_workers
         if stream_max_queue_bound is not None:

@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.span_delete_error_response import SpanDeleteErrorResponse
+from arize._generated.api_client.models.span_delete_response import SpanDeleteResponse
 
-class TestSpanDeleteErrorResponse(unittest.TestCase):
-    """SpanDeleteErrorResponse unit test stubs"""
+class TestSpanDeleteResponse(unittest.TestCase):
+    """SpanDeleteResponse unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,34 +25,38 @@ class TestSpanDeleteErrorResponse(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> SpanDeleteErrorResponse:
-        """Test SpanDeleteErrorResponse
+    def make_instance(self, include_optional) -> SpanDeleteResponse:
+        """Test SpanDeleteResponse
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `SpanDeleteErrorResponse`
+        # uncomment below to create an instance of `SpanDeleteResponse`
         """
-        model = SpanDeleteErrorResponse()
+        model = SpanDeleteResponse()
         if include_optional:
-            return SpanDeleteErrorResponse(
-                title = '',
-                status = 56,
-                type = '',
-                detail = '',
-                instance = '',
+            return SpanDeleteResponse(
+                completed = True,
                 deleted_span_ids = [
+                    ''
+                    ],
+                not_deleted_span_ids = [
                     ''
                     ]
             )
         else:
-            return SpanDeleteErrorResponse(
-                title = '',
-                status = 56,
+            return SpanDeleteResponse(
+                completed = True,
+                deleted_span_ids = [
+                    ''
+                    ],
+                not_deleted_span_ids = [
+                    ''
+                    ],
         )
         """
 
-    def testSpanDeleteErrorResponse(self):
-        """Test SpanDeleteErrorResponse"""
+    def testSpanDeleteResponse(self):
+        """Test SpanDeleteResponse"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

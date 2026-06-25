@@ -209,6 +209,7 @@ disable_error_code = []
 module = [
     "pyarrow.*",
     "google.protobuf.*",
+    "grpc.*",
     "wrapt.*",
     "datasets.*",
     "requests_futures.*",

@@ -202,8 +202,8 @@ from arize._generated.api_client.models.spaces_create_request import SpacesCreat
 from arize._generated.api_client.models.spaces_update_request import SpacesUpdateRequest
 from arize._generated.api_client.models.span import Span
 from arize._generated.api_client.models.span_context import SpanContext
-from arize._generated.api_client.models.span_delete_error_response import SpanDeleteErrorResponse
-from arize._generated.api_client.models.span_delete_partial_response import SpanDeletePartialResponse
+from arize._generated.api_client.models.span_delete_problem import SpanDeleteProblem
+from arize._generated.api_client.models.span_delete_response import SpanDeleteResponse
 from arize._generated.api_client.models.span_event import SpanEvent
 from arize._generated.api_client.models.span_list_response import SpanListResponse
 from arize._generated.api_client.models.span_status_code import SpanStatusCode

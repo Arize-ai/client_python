@@ -98,10 +98,18 @@ class ArizeFlightClient:
             or host.lower() == "localhost"
         )
 
-        new_client = flight.FlightClient(
-            location=f"{self.sdk_config.flight_scheme}://{host}:{self.sdk_config.flight_port}",
-            disable_server_verification=disable_cert,
-        )
+        kwargs: dict[str, object] = {
+            "location": f"{self.sdk_config.flight_scheme}://{host}:{self.sdk_config.flight_port}",
+            "disable_server_verification": disable_cert,
+        }
+        if self.sdk_config.ssl_ca_cert and not disable_cert:
+            from pathlib import Path
+
+            kwargs["tls_root_certs"] = Path(
+                self.sdk_config.ssl_ca_cert
+            ).read_bytes()
+
+        new_client = flight.FlightClient(**kwargs)
         object.__setattr__(self, "_client", new_client)
         return new_client
 

@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.span_delete_partial_response import SpanDeletePartialResponse
+from arize._generated.api_client.models.span_delete_problem import SpanDeleteProblem
 
-class TestSpanDeletePartialResponse(unittest.TestCase):
-    """SpanDeletePartialResponse unit test stubs"""
+class TestSpanDeleteProblem(unittest.TestCase):
+    """SpanDeleteProblem unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,30 +25,37 @@ class TestSpanDeletePartialResponse(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> SpanDeletePartialResponse:
-        """Test SpanDeletePartialResponse
+    def make_instance(self, include_optional) -> SpanDeleteProblem:
+        """Test SpanDeleteProblem
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `SpanDeletePartialResponse`
+        # uncomment below to create an instance of `SpanDeleteProblem`
         """
-        model = SpanDeletePartialResponse()
+        model = SpanDeleteProblem()
         if include_optional:
-            return SpanDeletePartialResponse(
+            return SpanDeleteProblem(
+                title = '',
+                status = 56,
+                type = '',
+                detail = '',
+                instance = '',
                 deleted_span_ids = [
+                    ''
+                    ],
+                not_deleted_span_ids = [
                     ''
                     ]
             )
         else:
-            return SpanDeletePartialResponse(
-                deleted_span_ids = [
-                    ''
-                    ],
+            return SpanDeleteProblem(
+                title = '',
+                status = 56,
         )
         """
 
-    def testSpanDeletePartialResponse(self):
-        """Test SpanDeletePartialResponse"""
+    def testSpanDeleteProblem(self):
+        """Test SpanDeleteProblem"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

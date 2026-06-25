@@ -3,6 +3,7 @@
 import logging
 from dataclasses import dataclass, field, fields
 from pathlib import Path
+from urllib.parse import urlparse, urlsplit
 
 from arize._env import (
     _env_bool,
@@ -10,6 +11,7 @@ from arize._env import (
     _env_http_scheme,
     _env_int,
     _env_str,
+    _env_str_fallback,
 )
 from arize._headers import (
     _builtin_flight_headers,
@@ -19,6 +21,7 @@ from arize._headers import (
 )
 from arize.constants.config import (
     DEFAULT_API_HOST,
+    DEFAULT_API_PORT,
     DEFAULT_API_SCHEME,
     DEFAULT_ARIZE_DIRECTORY,
     DEFAULT_ENABLE_CACHING,
@@ -28,6 +31,7 @@ from arize.constants.config import (
     DEFAULT_MAX_HTTP_PAYLOAD_SIZE_MB,
     DEFAULT_MAX_PAST_YEARS,
     DEFAULT_OTLP_HOST,
+    DEFAULT_OTLP_PORT,
     DEFAULT_OTLP_SCHEME,
     DEFAULT_PYARROW_MAX_CHUNKSIZE,
     DEFAULT_REQUEST_VERIFY,
@@ -35,6 +39,7 @@ from arize.constants.config import (
     DEFAULT_STREAM_MAX_WORKERS,
     ENV_API_HOST,
     ENV_API_KEY,
+    ENV_API_PORT,
     ENV_API_SCHEME,
     ENV_ARIZE_DIRECTORY,
     ENV_BASE_DOMAIN,
@@ -45,12 +50,15 @@ from arize.constants.config import (
     ENV_MAX_HTTP_PAYLOAD_SIZE_MB,
     ENV_MAX_PAST_YEARS,
     ENV_OTLP_HOST,
+    ENV_OTLP_PORT,
     ENV_OTLP_SCHEME,
+    ENV_PROXY_URL,
     ENV_PYARROW_MAX_CHUNKSIZE,
     ENV_REGION,
     ENV_REQUEST_VERIFY,
     ENV_SINGLE_HOST,
     ENV_SINGLE_PORT,
+    ENV_SSL_CA_CERT,
     ENV_STREAM_MAX_QUEUE_BOUND,
     ENV_STREAM_MAX_WORKERS,
 )
@@ -79,6 +87,23 @@ def _is_sensitive_field(name: str) -> bool:
     return bool(any(k in n for k in SENSITIVE_FIELD_MARKERS))
 
 
+def _mask_proxy_url(url: str) -> str:
+    """Redact the password from a proxy URL, leaving the rest intact."""
+    if not url:
+        return url
+    try:
+        parsed = urlparse(url)
+        if parsed.password:
+            masked = parsed._replace(
+                netloc=f"{parsed.username}:***@{parsed.hostname}"
+                + (f":{parsed.port}" if parsed.port else "")
+            )
+            return masked.geturl()
+    except Exception:  # noqa: S110
+        pass
+    return url
+
+
 def _mask_secret(secret: str, N: int = 4) -> str:
     """Mask a secret string by showing only the first N characters.
 
@@ -94,18 +119,30 @@ def _mask_secret(secret: str, N: int = 4) -> str:
     return f"{secret[:N]}***"
 
 
-def _endpoint(scheme: str, base: str, path: str = "") -> str:
-    """Construct a full endpoint URL from scheme, base, and optional path.
+def _endpoint(scheme: str, base: str, path: str = "", port: int = 0) -> str:
+    """Construct a full endpoint URL from scheme, base, optional path, and port.
 
     Args:
         scheme: The URL scheme (e.g., "http", "https").
         base: The base URL or hostname.
         path: Optional path to append to the base URL. Defaults to empty string.
+        port: Optional port number. When non-zero, appended as ``:<port>`` after
+            the host. When 0 (default), the port is omitted and the scheme's
+            standard port applies.
 
     Returns:
         str: The fully constructed endpoint URL.
     """
-    endpoint = scheme + "://" + base.rstrip("/")
+    host = base.rstrip("/")
+    if port:
+        # Strip any port already embedded in base (e.g. "api.arize.com:8080") to
+        # avoid producing "scheme://host:old_port:new_port".
+        parsed = urlsplit(f"//{host}")
+        if parsed.port is not None:
+            host = parsed.hostname or host
+    endpoint = scheme + "://" + host
+    if port:
+        endpoint += ":" + str(port)
     if path:
         endpoint += "/" + path.lstrip("/")
     return endpoint
@@ -137,12 +174,20 @@ class SDKConfiguration:
         api_scheme: API endpoint scheme (http/https).
             Environment variable: ARIZE_API_SCHEME.
             Default: "https".
+        api_port: API endpoint port (0-65535). When 0 (default), the port is omitted
+            from the URL and the scheme's standard port applies.
+            Environment variable: ARIZE_API_PORT.
+            Default: 0 (not set).
         otlp_host: OTLP (OpenTelemetry Protocol) endpoint host.
             Environment variable: ARIZE_OTLP_HOST.
             Default: "otlp.arize.com".
         otlp_scheme: OTLP endpoint scheme (http/https).
             Environment variable: ARIZE_OTLP_SCHEME.
             Default: "https".
+        otlp_port: OTLP endpoint port (0-65535). When 0 (default), the port is omitted
+            from the URL and the scheme's standard port applies.
+            Environment variable: ARIZE_OTLP_PORT.
+            Default: 0 (not set).
         flight_host: Apache Arrow Flight endpoint host.
             Environment variable: ARIZE_FLIGHT_HOST.
             Default: "flight.arize.com".
@@ -158,6 +203,15 @@ class SDKConfiguration:
         request_verify: Whether to verify SSL certificates for HTTP requests.
             Environment variable: ARIZE_REQUEST_VERIFY.
             Default: True.
+        ssl_ca_cert: Path to a CA bundle file for verifying SSL certificates.
+            Useful when connecting through a proxy or on-prem gateway that terminates
+            TLS with its own certificate. Reads the first set variable from:
+            ARIZE_SSL_CA_CERT → REQUESTS_CA_BUNDLE → SSL_CERT_FILE.
+            Default: "" (use system CAs).
+        proxy_url: HTTP(S) proxy URL for all REST API and OTLP requests (e.g.
+            "http://proxy.corp:8080"). Reads the first set variable from:
+            ARIZE_PROXY_URL → HTTPS_PROXY → HTTP_PROXY.
+            Default: "" (direct connection).
         stream_max_workers: Maximum number of worker threads for streaming operations (minimum: 1).
             Environment variable: ARIZE_STREAM_MAX_WORKERS.
             Default: 8.
@@ -182,7 +236,7 @@ class SDKConfiguration:
             Environment variable: ARIZE_SINGLE_HOST.
             Default: "" (not set).
         single_port: Single port to use for all endpoints. When specified, overrides
-            individual port settings (0-65535).
+            api_port, otlp_port, and flight_port (0-65535).
             Environment variable: ARIZE_SINGLE_PORT.
             Default: 0 (not set).
         base_domain: Base domain for generating all endpoint hosts. Intended for Private Connect
@@ -229,6 +283,11 @@ class SDKConfiguration:
             DEFAULT_API_SCHEME,
         ),
     )
+    api_port: int = field(
+        default_factory=lambda: _env_int(
+            ENV_API_PORT, DEFAULT_API_PORT, min_val=0, max_val=65535
+        )
+    )
     otlp_host: str = field(
         default_factory=lambda: _env_str(ENV_OTLP_HOST, DEFAULT_OTLP_HOST)
     )
@@ -237,6 +296,11 @@ class SDKConfiguration:
             ENV_OTLP_SCHEME,
             DEFAULT_OTLP_SCHEME,
         ),
+    )
+    otlp_port: int = field(
+        default_factory=lambda: _env_int(
+            ENV_OTLP_PORT, DEFAULT_OTLP_PORT, min_val=0, max_val=65535
+        )
     )
     flight_host: str = field(
         default_factory=lambda: _env_str(ENV_FLIGHT_HOST, DEFAULT_FLIGHT_HOST)
@@ -264,6 +328,16 @@ class SDKConfiguration:
         default_factory=lambda: _env_bool(
             ENV_REQUEST_VERIFY, DEFAULT_REQUEST_VERIFY
         )
+    )
+    ssl_ca_cert: str = field(
+        default_factory=lambda: _env_str_fallback(
+            ENV_SSL_CA_CERT,
+            "REQUESTS_CA_BUNDLE",
+            "SSL_CERT_FILE",
+        )
+    )
+    proxy_url: str = field(
+        default_factory=lambda: _env_str_fallback(ENV_PROXY_URL)
     )
     stream_max_workers: int = field(
         default_factory=lambda: _env_int(
@@ -402,6 +476,10 @@ class SDKConfiguration:
                 self.single_port,
             )
             object.__setattr__(self, "flight_port", self.single_port)
+            if self.api_port == DEFAULT_API_PORT:
+                object.__setattr__(self, "api_port", self.single_port)
+            if self.otlp_port == DEFAULT_OTLP_PORT:
+                object.__setattr__(self, "otlp_port", self.single_port)
 
         if has_region:
             logger.info(
@@ -429,22 +507,31 @@ class SDKConfiguration:
     @property
     def api_url(self) -> str:
         """Return the base API URL."""
-        return _endpoint(self.api_scheme, self.api_host)
+        return _endpoint(self.api_scheme, self.api_host, port=self.api_port)
 
     @property
     def otlp_url(self) -> str:
         """Return the OTLP endpoint URL."""
-        return _endpoint(self.otlp_scheme, self.otlp_host, "/v1")
+        return _endpoint(
+            self.otlp_scheme, self.otlp_host, "/v1", port=self.otlp_port
+        )
 
     @property
     def files_url(self) -> str:
         """Return the files upload endpoint URL."""
-        return _endpoint(self.api_scheme, self.api_host, "/v1/pandas_arrow")
+        return _endpoint(
+            self.api_scheme,
+            self.api_host,
+            "/v1/pandas_arrow",
+            port=self.api_port,
+        )
 
     @property
     def records_url(self) -> str:
         """Return the records logging endpoint URL."""
-        return _endpoint(self.api_scheme, self.api_host, "/v1/log")
+        return _endpoint(
+            self.api_scheme, self.api_host, "/v1/log", port=self.api_port
+        )
 
     @property
     def headers(self) -> dict[str, str]:
@@ -481,18 +568,18 @@ class SDKConfiguration:
 
     def __repr__(self) -> str:
         """Return a detailed string representation with masked sensitive fields."""
-        # Dynamically build repr for all fields
         lines = [f"{self.__class__.__name__}("]
         for f in fields(self):
             if not f.repr:
                 continue
             val = getattr(self, f.name)
             if f.name == "default_headers":
-                # Mask values whose header name looks sensitive; show the rest.
                 val = {
                     k: (_mask_secret(v, 6) if _is_sensitive_field(k) else v)
                     for k, v in val.items()
                 }
+            elif f.name == "proxy_url":
+                val = _mask_proxy_url(val)
             elif _is_sensitive_field(f.name):
                 val = _mask_secret(val, 6)
             lines.append(f"  {f.name}={val!r},")

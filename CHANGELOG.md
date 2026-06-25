@@ -1,5 +1,13 @@
 # Changelog
 
+## [8.37.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.37.0...arize-python-sdk/v8.37.1) (2026-06-25)
+
+
+### 🐛 Bug Fixes
+
+* **Spans** For delete, structured 200 with completed/deleted/not_deleted, 503 for errors ([#73611](https://github.com/Arize-ai/arize/issues/73611)) ([d9ceb12](https://github.com/Arize-ai/arize/commit/d9ceb122a2484302767bb1e86539be3abca8b0aa))
+* **Config:** honour single_port for HTTP API and OTLP endpoints ([#75813](https://github.com/Arize-ai/arize/issues/75813)) ([7784eed](https://github.com/Arize-ai/arize/commit/7784eeda5b09829d73c49ae64af73b651c1ef81c))
+
 ## [8.37.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.36.0...arize-python-sdk/v8.37.0) (2026-06-23)
 
 

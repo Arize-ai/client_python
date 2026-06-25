@@ -150,6 +150,27 @@ def _env_bool(name: str, default: bool) -> bool:
     return _parse_bool(os.getenv(name, str(default)))
 
 
+def _env_str_fallback(*names: str, default: str = "") -> str:
+    """Get a string value from the first set environment variable in a priority list.
+
+    Checks each name in order and returns the first non-empty value found.
+    Useful for honouring familiar env vars alongside Arize-specific overrides
+    (e.g. ARIZE_SSL_CA_CERT → REQUESTS_CA_BUNDLE → SSL_CERT_FILE).
+
+    Args:
+        *names: Environment variable names to check, in priority order.
+        default: The default value if none of the variables are set.
+
+    Returns:
+        str: The first non-empty value found among the env vars, or default.
+    """
+    for name in names:
+        val = os.environ.get(name, "").strip()
+        if val:
+            return val
+    return default
+
+
 def _parse_bool(val: bool | str | None) -> bool:
     """Parse a boolean value from various input types.
 
