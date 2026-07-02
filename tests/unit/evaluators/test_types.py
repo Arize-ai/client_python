@@ -18,6 +18,12 @@ from arize._generated.api_client.models.evaluator_version import (
 from arize._generated.api_client.models.evaluator_version_code import (
     EvaluatorVersionCode as _GenEvaluatorVersionCode,
 )
+from arize._generated.api_client.models.evaluator_version_harness import (
+    EvaluatorVersionHarness,
+)
+from arize._generated.api_client.models.evaluator_version_remote import (
+    EvaluatorVersionRemote,
+)
 from arize._generated.api_client.models.evaluator_version_template import (
     EvaluatorVersionTemplate,
 )
@@ -82,6 +88,30 @@ def _make_evaluator_version_template() -> EvaluatorVersionTemplate:
         created_by_user_id=None,
         type="template",
         template_config=None,
+    )
+
+
+def _make_evaluator_version_harness() -> EvaluatorVersionHarness:
+    return EvaluatorVersionHarness.model_construct(
+        id="v3",
+        evaluator_id="e1",
+        commit_hash="aaa111",
+        commit_message=None,
+        created_at=datetime(2024, 1, 1),
+        created_by_user_id=None,
+        type="harness",
+    )
+
+
+def _make_evaluator_version_remote() -> EvaluatorVersionRemote:
+    return EvaluatorVersionRemote.model_construct(
+        id="v4",
+        evaluator_id="e1",
+        commit_hash="bbb222",
+        commit_message=None,
+        created_at=datetime(2024, 1, 1),
+        created_by_user_id=None,
+        type="remote",
     )
 
 
@@ -320,6 +350,30 @@ class TestEvaluatorWithVersionCoercion:
         assert isinstance(result.version, EvaluatorVersionCode)
         assert isinstance(result.version.code_config, CustomCodeConfig)
 
+    def test_passes_through_harness_version_from_wrapper(self) -> None:
+        """EvaluatorVersion wrapping an EvaluatorVersionHarness should yield EvaluatorVersionHarness."""
+        harness = _make_evaluator_version_harness()
+        gen_version = _GenEvaluatorVersion.model_construct(
+            actual_instance=harness
+        )
+
+        result = self._make_evaluator_with_version(gen_version)
+
+        assert isinstance(result.version, EvaluatorVersionHarness)
+        assert result.version.type == "harness"
+
+    def test_passes_through_remote_version_from_wrapper(self) -> None:
+        """EvaluatorVersion wrapping an EvaluatorVersionRemote should yield EvaluatorVersionRemote."""
+        remote = _make_evaluator_version_remote()
+        gen_version = _GenEvaluatorVersion.model_construct(
+            actual_instance=remote
+        )
+
+        result = self._make_evaluator_with_version(gen_version)
+
+        assert isinstance(result.version, EvaluatorVersionRemote)
+        assert result.version.type == "remote"
+
 
 @pytest.mark.unit
 class TestEvaluatorVersionsListCoercion:
@@ -369,19 +423,44 @@ class TestEvaluatorVersionsListCoercion:
             response.evaluator_versions[0], EvaluatorVersionTemplate
         )
 
-    def test_handles_mixed_version_list(self) -> None:
-        """A list with both code and template versions should coerce each correctly."""
-        gen_code = _make_gen_evaluator_version_code()
-        tmpl = _make_evaluator_version_template()
+    def test_passes_through_harness_and_remote_in_list(self) -> None:
+        """Harness and remote version items should pass through unchanged."""
+        harness = _make_evaluator_version_harness()
+        remote = _make_evaluator_version_remote()
 
         response = EvaluatorVersionListResponse(
-            evaluator_versions=[gen_code, tmpl],
+            evaluator_versions=[harness, remote],
+            pagination=self._make_pagination(),
+        )
+
+        assert isinstance(
+            response.evaluator_versions[0], EvaluatorVersionHarness
+        )
+        assert isinstance(
+            response.evaluator_versions[1], EvaluatorVersionRemote
+        )
+
+    def test_handles_mixed_version_list(self) -> None:
+        """A list with code, template, harness, and remote versions should coerce each correctly."""
+        gen_code = _make_gen_evaluator_version_code()
+        tmpl = _make_evaluator_version_template()
+        harness = _make_evaluator_version_harness()
+        remote = _make_evaluator_version_remote()
+
+        response = EvaluatorVersionListResponse(
+            evaluator_versions=[gen_code, tmpl, harness, remote],
             pagination=self._make_pagination(),
         )
 
         assert isinstance(response.evaluator_versions[0], EvaluatorVersionCode)
         assert isinstance(
             response.evaluator_versions[1], EvaluatorVersionTemplate
+        )
+        assert isinstance(
+            response.evaluator_versions[2], EvaluatorVersionHarness
+        )
+        assert isinstance(
+            response.evaluator_versions[3], EvaluatorVersionRemote
         )
 
     def test_handles_empty_list(self) -> None:

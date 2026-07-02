@@ -330,35 +330,41 @@ class ExperimentsClient:
         dataset: str | None = None,
         space: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
+        cursor: str | None = None,
         all: bool = False,
     ) -> ExperimentRunsListResponse:
         """List runs for an experiment.
 
-        Runs are returned in insertion order.
+        Runs are sorted by ``id ASC`` — a stable total order that survives
+        segment compaction.
 
         Pagination notes:
-            - The response includes `pagination` for forward compatibility.
-            - Cursor pagination may not be fully implemented by the server yet.
-            - If `all=True`, this method retrieves all runs via the Flight path and
-              returns them in a single response with `has_more=False`.
+            - Pass ``pagination.next_cursor`` from the previous response back as
+              ``cursor`` to retrieve the next page.
+            - The cursor is opaque — do not parse or construct it.
+            - If ``all=True``, this method retrieves all runs via the Flight path
+              and returns them in a single response with ``has_more=False``.
 
         Args:
             experiment: Experiment name or ID to list runs for.
             dataset: Optional dataset name or ID used to resolve ``experiment`` by name.
             space: Optional space name or ID used to resolve ``dataset`` by name.
-            limit: Maximum number of runs to return when `all=False`. The server
-                enforces an upper bound.
-            all: If True, fetch all runs (ignores `limit`) via Flight and return a
+            limit: Maximum number of runs to return when ``all=False``. The server
+                enforces an upper bound (500).
+            cursor: Opaque pagination cursor from a previous response's
+                `pagination.next_cursor`. When ``None``, results start from the
+                first page.
+            all: If True, fetch all runs (ignores ``limit``) via Flight and return a
                 single response.
 
         Returns:
-            A response object containing `experiment_runs` and `pagination` metadata.
+            A response object containing ``experiment_runs`` and ``pagination`` metadata.
 
         Raises:
             RuntimeError: If the Flight request fails or returns no response when
-                `all=True`.
+                ``all=True``.
             ApiException: If the REST API
-                returns an error response when `all=False` (e.g. 401/403/404/429).
+                returns an error response when ``all=False`` (e.g. 401/403/404/429).
         """
         experiment_id = _find_experiment_id(
             api=self._api,
@@ -371,6 +377,7 @@ class ExperimentsClient:
             return self._api.experiments_runs_list(
                 experiment_id=experiment_id,
                 limit=limit,
+                cursor=cursor,
             )
 
         experiment_obj = self.get(experiment=experiment_id)

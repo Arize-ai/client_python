@@ -8,6 +8,7 @@ Method | HTTP request | Description
 [**annotation_configs_delete**](AnnotationConfigsApi.md#annotation_configs_delete) | **DELETE** /v2/annotation-configs/{annotation_config_id} | Delete an annotation config
 [**annotation_configs_get**](AnnotationConfigsApi.md#annotation_configs_get) | **GET** /v2/annotation-configs/{annotation_config_id} | Get an annotation config
 [**annotation_configs_list**](AnnotationConfigsApi.md#annotation_configs_list) | **GET** /v2/annotation-configs | List annotation configs
+[**annotation_configs_update**](AnnotationConfigsApi.md#annotation_configs_update) | **PATCH** /v2/annotation-configs/{annotation_config_id} | Update an annotation config
 
 
 # **annotation_configs_create**
@@ -379,6 +380,130 @@ Name | Type | Description  | Notes
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **annotation_configs_update**
+> AnnotationConfig annotation_configs_update(annotation_config_id, update_annotation_config_request_body)
+
+Update an annotation config
+
+Update an annotation config by its ID.
+
+**Payload Requirements**
+- `annotation_config_type` is required and must match the stored config's type. The
+  type is immutable and cannot be changed.
+- The updatable fields depend on the type:
+  - `categorical`: `name`, `values`, `optimization_direction`.
+  - `continuous`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.
+  - `freeform`: `name`.
+- All fields other than `annotation_config_type` are optional; omitted fields are left
+  unchanged.
+- `name`, if provided, must be unique within the space (409 Conflict if duplicate).
+- `values` replaces the full label set (2-100 labels).
+- System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.
+
+**Valid example** (categorical config)
+```json
+{
+  "annotation_config_type": "categorical",
+  "name": "quality-v2",
+  "values": [
+    { "label": "good", "score": 1 },
+    { "label": "bad", "score": 0 }
+  ],
+  "optimization_direction": "maximize"
+}
+```
+
+**Invalid example** (missing `annotation_config_type`)
+```json
+{
+  "name": "quality-v2"
+}
+```
+
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.annotation_config import AnnotationConfig
+from arize._generated.api_client.models.update_annotation_config_request_body import UpdateAnnotationConfigRequestBody
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.AnnotationConfigsApi(api_client)
+    annotation_config_id = 'QW5ub3RhdGlvbkNvbmZpZzoxMjM0NQ==' # str | The unique annotation config identifier (base64)
+    update_annotation_config_request_body = {"annotation_config_type":"categorical","name":"quality-v2","values":[{"label":"good","score":1},{"label":"bad","score":0}],"optimization_direction":"maximize"} # UpdateAnnotationConfigRequestBody | Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type.
+
+    try:
+        # Update an annotation config
+        api_response = api_instance.annotation_configs_update(annotation_config_id, update_annotation_config_request_body)
+        print("The response of AnnotationConfigsApi->annotation_configs_update:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling AnnotationConfigsApi->annotation_configs_update: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **annotation_config_id** | **str**| The unique annotation config identifier (base64) | 
+ **update_annotation_config_request_body** | [**UpdateAnnotationConfigRequestBody**](UpdateAnnotationConfigRequestBody.md)| Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config&#39;s type. | 
+
+### Return type
+
+[**AnnotationConfig**](AnnotationConfig.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | An annotation config object |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

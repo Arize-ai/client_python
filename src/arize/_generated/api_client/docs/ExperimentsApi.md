@@ -623,13 +623,13 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **experiments_runs_list**
-> ExperimentRunsListResponse experiments_runs_list(experiment_id, limit=limit)
+> ExperimentRunsListResponse experiments_runs_list(experiment_id, limit=limit, cursor=cursor)
 
 List experiment runs
 
 List runs for a given experiment.
 
-The runs are sorted by insertion order.
+The runs are returned in a stable insertion order.
 
 **Human annotations**: returned in the structured `annotations` array on
 each run. Each entry includes `name`, optional `label` / `score` /
@@ -637,10 +637,9 @@ each run. Each entry includes `name`, optional `label` / `score` /
 annotations.
 
 **Pagination**:
-- Response includes `pagination` for forward compatibility.
-- **Currently not implemented**: `pagination.next_cursor` is omitted
-- When pagination is enabled in the future, the behavior will match
-other list endpoints (cursor-based, opaque tokens).
+- Response includes `pagination` with `has_more` and `next_cursor`.
+- Use cursor-based pagination by passing the returned `next_cursor`
+value as the `cursor` query parameter in subsequent requests.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
@@ -677,10 +676,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     api_instance = arize._generated.api_client.ExperimentsApi(api_client)
     experiment_id = 'RXhwZXJpbWVudDoxMjM0NQ==' # str | The unique experiment identifier (base64)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
+    cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
         # List experiment runs
-        api_response = api_instance.experiments_runs_list(experiment_id, limit=limit)
+        api_response = api_instance.experiments_runs_list(experiment_id, limit=limit, cursor=cursor)
         print("The response of ExperimentsApi->experiments_runs_list:\n")
         pprint(api_response)
     except Exception as e:
@@ -696,6 +696,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **experiment_id** | **str**| The unique experiment identifier (base64) | 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
 ### Return type
 

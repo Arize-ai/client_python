@@ -31,6 +31,16 @@ from arize._generated.api_client.models.evaluator_version_code_create import (
 from arize._generated.api_client.models.evaluator_version_create import (
     EvaluatorVersionCreate,
 )
+
+# Harness and remote versions expose only common version metadata; their
+# configurations are not yet accessible via the REST API, so the generated
+# models are re-exported directly with no SDK-side unwrapping.
+from arize._generated.api_client.models.evaluator_version_harness import (
+    EvaluatorVersionHarness,
+)
+from arize._generated.api_client.models.evaluator_version_remote import (
+    EvaluatorVersionRemote,
+)
 from arize._generated.api_client.models.evaluator_version_template import (
     EvaluatorVersionTemplate,
 )
@@ -93,8 +103,10 @@ class EvaluatorWithVersion(BaseModel):
     """SDK view of the generated ``EvaluatorWithVersion`` with ``version`` unwrapped.
 
     The ``version`` field holds the concrete inner type
-    (:class:`EvaluatorVersionCode` for code evaluators, or
-    :class:`EvaluatorVersionTemplate` for template evaluators) instead of the
+    (:class:`EvaluatorVersionCode` for code evaluators,
+    :class:`EvaluatorVersionTemplate` for template evaluators,
+    :class:`EvaluatorVersionHarness` for harness evaluators, or
+    :class:`EvaluatorVersionRemote` for remote evaluators) instead of the
     oneOf wrapper.
     """
 
@@ -106,7 +118,12 @@ class EvaluatorWithVersion(BaseModel):
     created_at: datetime
     updated_at: datetime
     created_by_user_id: str | None = None
-    version: EvaluatorVersionCode | EvaluatorVersionTemplate
+    version: (
+        EvaluatorVersionCode
+        | EvaluatorVersionTemplate
+        | EvaluatorVersionHarness
+        | EvaluatorVersionRemote
+    )
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -114,7 +131,12 @@ class EvaluatorWithVersion(BaseModel):
     @classmethod
     def _coerce_version(
         cls, v: object
-    ) -> EvaluatorVersionCode | EvaluatorVersionTemplate:
+    ) -> (
+        EvaluatorVersionCode
+        | EvaluatorVersionTemplate
+        | EvaluatorVersionHarness
+        | EvaluatorVersionRemote
+    ):
         if isinstance(v, _GenEvaluatorVersion):
             v = v.actual_instance
         if isinstance(v, _GenEvaluatorVersionCode):
@@ -125,7 +147,12 @@ class EvaluatorWithVersion(BaseModel):
 class EvaluatorVersionListResponse(BaseModel):
     """SDK view of the generated ``EvaluatorVersionListResponse`` with each version unwrapped."""
 
-    evaluator_versions: list[EvaluatorVersionCode | EvaluatorVersionTemplate]
+    evaluator_versions: list[
+        EvaluatorVersionCode
+        | EvaluatorVersionTemplate
+        | EvaluatorVersionHarness
+        | EvaluatorVersionRemote
+    ]
     pagination: PaginationMetadata
 
     model_config = ConfigDict(from_attributes=True)
@@ -134,7 +161,12 @@ class EvaluatorVersionListResponse(BaseModel):
     @classmethod
     def _coerce_evaluator_versions(
         cls, v: object
-    ) -> list[EvaluatorVersionCode | EvaluatorVersionTemplate]:
+    ) -> list[
+        EvaluatorVersionCode
+        | EvaluatorVersionTemplate
+        | EvaluatorVersionHarness
+        | EvaluatorVersionRemote
+    ]:
         result = []
         for item in v:  # type: ignore[attr-defined]
             if isinstance(item, _GenEvaluatorVersion):
@@ -158,7 +190,9 @@ __all__ = [
     "EvaluatorVersionCode",
     "EvaluatorVersionCodeCreate",
     "EvaluatorVersionCreate",
+    "EvaluatorVersionHarness",
     "EvaluatorVersionListResponse",
+    "EvaluatorVersionRemote",
     "EvaluatorVersionTemplate",
     "EvaluatorVersionTemplateCreate",
     "EvaluatorWithVersion",

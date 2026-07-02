@@ -19,6 +19,10 @@
    :members:
    :member-order: bysource
 
+.. autoclass:: AiIntegrationListResponse
+   :members:
+   :member-order: bysource
+
 .. autoclass:: AiIntegrationProvider
    :members:
    :member-order: bysource
@@ -27,7 +31,19 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: AiIntegrationsList200Response
+.. autoclass:: AwsProviderMetadata
+   :members:
+   :member-order: bysource
+
+.. autoclass:: AwsProviderMetadataKind
+   :members:
+   :member-order: bysource
+
+.. autoclass:: GcpProviderMetadata
+   :members:
+   :member-order: bysource
+
+.. autoclass:: GcpProviderMetadataKind
    :members:
    :member-order: bysource
 ```

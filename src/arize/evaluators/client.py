@@ -31,6 +31,8 @@ if TYPE_CHECKING:
     from arize.evaluators.types import (
         Evaluator,
         EvaluatorListResponse,
+        EvaluatorVersionHarness,
+        EvaluatorVersionRemote,
         EvaluatorVersionTemplate,
         TemplateConfig,
     )
@@ -406,7 +408,12 @@ class EvaluatorsClient:
     @prerelease_endpoint(key="evaluators.get_version", stage=ReleaseStage.BETA)
     def get_version(
         self, *, version_id: str
-    ) -> EvaluatorVersionCode | EvaluatorVersionTemplate:
+    ) -> (
+        EvaluatorVersionCode
+        | EvaluatorVersionTemplate
+        | EvaluatorVersionHarness
+        | EvaluatorVersionRemote
+    ):
         """Get a specific evaluator version by its global ID.
 
         Args:
@@ -414,8 +421,11 @@ class EvaluatorsClient:
 
         Returns:
             The evaluator version — a :class:`EvaluatorVersionCode` for code
-            evaluators (with ``code_config`` already unwrapped), or an
-            :class:`EvaluatorVersionTemplate` for template evaluators.
+            evaluators (with ``code_config`` already unwrapped), an
+            :class:`EvaluatorVersionTemplate` for template evaluators, or an
+            :class:`EvaluatorVersionHarness` / :class:`EvaluatorVersionRemote`
+            for harness and remote evaluators (common version metadata only —
+            their configurations are not yet accessible via the REST API).
 
         Raises:
             ApiException: If the API request fails

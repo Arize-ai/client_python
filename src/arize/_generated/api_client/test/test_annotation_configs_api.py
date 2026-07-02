@@ -54,6 +54,13 @@ class TestAnnotationConfigsApi(unittest.TestCase):
         """
         pass
 
+    def test_annotation_configs_update(self) -> None:
+        """Test case for annotation_configs_update
+
+        Update an annotation config
+        """
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()

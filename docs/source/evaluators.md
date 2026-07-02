@@ -11,7 +11,23 @@
 
 ```{eval-rst}
 .. currentmodule:: arize.evaluators.types
+.. autoclass:: CodeConfig
+   :members:
+   :member-order: bysource
+
+.. autoclass:: CustomCodeConfig
+   :members:
+   :member-order: bysource
+
+.. autoclass:: DataGranularity
+   :members:
+   :member-order: bysource
+
 .. autoclass:: Evaluator
+   :members:
+   :member-order: bysource
+
+.. autoclass:: EvaluatorListResponse
    :members:
    :member-order: bysource
 
@@ -19,19 +35,59 @@
    :members:
    :member-order: bysource
 
+.. autoclass:: EvaluatorType
+   :members:
+   :member-order: bysource
+
+.. autoclass:: EvaluatorVersionCode
+   :members:
+   :member-order: bysource
+
+.. autoclass:: EvaluatorVersionCodeCreate
+   :members:
+   :member-order: bysource
+
+.. autoclass:: EvaluatorVersionCreate
+   :members:
+   :member-order: bysource
+
+.. autoclass:: EvaluatorVersionListResponse
+   :members:
+   :member-order: bysource
+
+.. autoclass:: EvaluatorVersionTemplate
+   :members:
+   :member-order: bysource
+
+.. autoclass:: EvaluatorVersionTemplateCreate
+   :members:
+   :member-order: bysource
+
 .. autoclass:: EvaluatorWithVersion
    :members:
    :member-order: bysource
 
-.. autoclass:: EvaluatorVersion
+.. autoclass:: ManagedCodeConfig
    :members:
    :member-order: bysource
 
-.. autoclass:: EvaluatorsList200Response
+.. autoclass:: ManagedCodeEvaluator
    :members:
    :member-order: bysource
 
-.. autoclass:: EvaluatorVersionsList200Response
+.. autoclass:: OptimizationDirection
+   :members:
+   :member-order: bysource
+
+.. autoclass:: StaticParam
+   :members:
+   :member-order: bysource
+
+.. autoclass:: StaticParamDefaultValue
+   :members:
+   :member-order: bysource
+
+.. autoclass:: StaticParamType
    :members:
    :member-order: bysource
 

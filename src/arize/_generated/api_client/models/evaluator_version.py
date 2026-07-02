@@ -18,23 +18,29 @@ import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
 from arize._generated.api_client.models.evaluator_version_code import EvaluatorVersionCode
+from arize._generated.api_client.models.evaluator_version_harness import EvaluatorVersionHarness
+from arize._generated.api_client.models.evaluator_version_remote import EvaluatorVersionRemote
 from arize._generated.api_client.models.evaluator_version_template import EvaluatorVersionTemplate
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-EVALUATORVERSION_ONE_OF_SCHEMAS = ["EvaluatorVersionCode", "EvaluatorVersionTemplate"]
+EVALUATORVERSION_ONE_OF_SCHEMAS = ["EvaluatorVersionCode", "EvaluatorVersionHarness", "EvaluatorVersionRemote", "EvaluatorVersionTemplate"]
 
 class EvaluatorVersion(BaseModel):
     """
-    A versioned snapshot of an evaluator's configuration. Exactly one of `template_config` or `code_config` is present. The `type` field discriminates the branch and matches the parent evaluator's `type`. 
+    A versioned snapshot of an evaluator's configuration. The `type` field discriminates the branch and matches the parent evaluator's `type`. 
     """
     # data type: EvaluatorVersionTemplate
     oneof_schema_1_validator: Optional[EvaluatorVersionTemplate] = None
     # data type: EvaluatorVersionCode
     oneof_schema_2_validator: Optional[EvaluatorVersionCode] = None
-    actual_instance: Optional[Union[EvaluatorVersionCode, EvaluatorVersionTemplate]] = None
-    one_of_schemas: Set[str] = { "EvaluatorVersionCode", "EvaluatorVersionTemplate" }
+    # data type: EvaluatorVersionHarness
+    oneof_schema_3_validator: Optional[EvaluatorVersionHarness] = None
+    # data type: EvaluatorVersionRemote
+    oneof_schema_4_validator: Optional[EvaluatorVersionRemote] = None
+    actual_instance: Optional[Union[EvaluatorVersionCode, EvaluatorVersionHarness, EvaluatorVersionRemote, EvaluatorVersionTemplate]] = None
+    one_of_schemas: Set[str] = { "EvaluatorVersionCode", "EvaluatorVersionHarness", "EvaluatorVersionRemote", "EvaluatorVersionTemplate" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -70,12 +76,22 @@ class EvaluatorVersion(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `EvaluatorVersionCode`")
         else:
             match += 1
+        # validate data type: EvaluatorVersionHarness
+        if not isinstance(v, EvaluatorVersionHarness):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `EvaluatorVersionHarness`")
+        else:
+            match += 1
+        # validate data type: EvaluatorVersionRemote
+        if not isinstance(v, EvaluatorVersionRemote):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `EvaluatorVersionRemote`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionHarness, EvaluatorVersionRemote, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionHarness, EvaluatorVersionRemote, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -102,13 +118,25 @@ class EvaluatorVersion(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into EvaluatorVersionHarness
+        try:
+            instance.actual_instance = EvaluatorVersionHarness.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # deserialize data into EvaluatorVersionRemote
+        try:
+            instance.actual_instance = EvaluatorVersionRemote.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionHarness, EvaluatorVersionRemote, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into EvaluatorVersion with oneOf schemas: EvaluatorVersionCode, EvaluatorVersionHarness, EvaluatorVersionRemote, EvaluatorVersionTemplate. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -122,7 +150,7 @@ class EvaluatorVersion(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], EvaluatorVersionCode, EvaluatorVersionTemplate]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], EvaluatorVersionCode, EvaluatorVersionHarness, EvaluatorVersionRemote, EvaluatorVersionTemplate]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

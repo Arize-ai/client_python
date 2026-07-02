@@ -52,7 +52,31 @@
 
 ```{eval-rst}
 .. currentmodule:: arize.experiments.types
+.. autoclass:: AnnotateRecordInput
+   :members:
+   :member-order: bysource
+
+.. autoclass:: AnnotationInput
+   :members:
+   :member-order: bysource
+
 .. autoclass:: Example
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ExampleId
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ExampleInput
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ExampleMetadata
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ExampleOutput
    :members:
    :member-order: bysource
 
@@ -64,19 +88,15 @@
    :members:
    :member-order: bysource
 
+.. autoclass:: ExperimentId
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ExperimentListResponse
+   :members:
+   :member-order: bysource
+
 .. autoclass:: ExperimentRun
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ExperimentTaskFieldNames
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ExperimentsList200Response
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ExperimentsRunsList200Response
    :members:
    :member-order: bysource
 
@@ -84,19 +104,39 @@
    :members:
    :member-order: bysource
 
+.. autoclass:: ExperimentRunId
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ExperimentRunsListResponse
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ExperimentTask
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ExperimentTaskFieldNames
+   :members:
+   :member-order: bysource
+
 .. autoclass:: ExperimentWithRunIds
    :members:
    :member-order: bysource
 
-.. autoclass:: AnnotationBatchResult
+.. autoclass:: RepetitionNumber
    :members:
    :member-order: bysource
 
-.. autoclass:: AnnotateRecordInput
+.. autoclass:: TaskOutput
    :members:
    :member-order: bysource
 
-.. autoclass:: AnnotationInput
+.. autoclass:: TestCase
+   :members:
+   :member-order: bysource
+
+.. autoclass:: TraceId
    :members:
    :member-order: bysource
 ```

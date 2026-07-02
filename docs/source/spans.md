@@ -11,9 +11,14 @@
 
 ```{eval-rst}
 .. currentmodule:: arize.spans.types
+.. autoclass:: AnnotateRecordInput
+   :members:
+   :member-order: bysource
+
 .. autoclass:: SpanDeleteResponse
    :members:
    :member-order: bysource
+
 .. autoclass:: SpanListResponse
    :members:
    :member-order: bysource

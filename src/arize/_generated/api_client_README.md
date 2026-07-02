@@ -86,6 +86,7 @@ Class | Method | HTTP request | Description
 *AnnotationConfigsApi* | [**annotation_configs_delete**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_delete) | **DELETE** /v2/annotation-configs/{annotation_config_id} | Delete an annotation config
 *AnnotationConfigsApi* | [**annotation_configs_get**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_get) | **GET** /v2/annotation-configs/{annotation_config_id} | Get an annotation config
 *AnnotationConfigsApi* | [**annotation_configs_list**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_list) | **GET** /v2/annotation-configs | List annotation configs
+*AnnotationConfigsApi* | [**annotation_configs_update**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#annotation_configs_update) | **PATCH** /v2/annotation-configs/{annotation_config_id} | Update an annotation config
 *AnnotationQueuesApi* | [**annotation_queue_records_list**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queue_records_list) | **GET** /v2/annotation-queues/{annotation_queue_id}/records | List annotation queue records
 *AnnotationQueuesApi* | [**annotation_queues_create**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_create) | **POST** /v2/annotation-queues | Create an annotation queue
 *AnnotationQueuesApi* | [**annotation_queues_delete**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_delete) | **DELETE** /v2/annotation-queues/{annotation_queue_id} | Delete an annotation queue
@@ -96,6 +97,7 @@ Class | Method | HTTP request | Description
 *AnnotationQueuesApi* | [**annotation_queues_records_create**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_records_create) | **POST** /v2/annotation-queues/{annotation_queue_id}/records | Create annotation queue records
 *AnnotationQueuesApi* | [**annotation_queues_records_delete**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_records_delete) | **DELETE** /v2/annotation-queues/{annotation_queue_id}/records | Delete annotation queue records
 *AnnotationQueuesApi* | [**annotation_queues_update**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotation_queues_update) | **PATCH** /v2/annotation-queues/{annotation_queue_id} | Update an annotation queue
+*AuditLogsApi* | [**audit_logs_list**](arize/_generated/api_client/docs/AuditLogsApi.md#audit_logs_list) | **GET** /v2/audit-logs | List audit logs
 *DatasetsApi* | [**datasets_create**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_create) | **POST** /v2/datasets | Create a dataset
 *DatasetsApi* | [**datasets_delete**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_delete) | **DELETE** /v2/datasets/{dataset_id} | Delete a dataset
 *DatasetsApi* | [**datasets_example_delete**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_example_delete) | **DELETE** /v2/datasets/{dataset_id}/examples/{example_id} | Delete a dataset example
@@ -121,6 +123,11 @@ Class | Method | HTTP request | Description
 *ExperimentsApi* | [**experiments_runs_annotate**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_runs_annotate) | **POST** /v2/experiments/{experiment_id}/runs/annotate | Annotate a batch of experiment runs
 *ExperimentsApi* | [**experiments_runs_insert**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_runs_insert) | **POST** /v2/experiments/{experiment_id}/runs | Append runs to an experiment
 *ExperimentsApi* | [**experiments_runs_list**](arize/_generated/api_client/docs/ExperimentsApi.md#experiments_runs_list) | **GET** /v2/experiments/{experiment_id}/runs | List experiment runs
+*IntegrationsApi* | [**integrations_create**](arize/_generated/api_client/docs/IntegrationsApi.md#integrations_create) | **POST** /v2/integrations | Create an integration
+*IntegrationsApi* | [**integrations_delete**](arize/_generated/api_client/docs/IntegrationsApi.md#integrations_delete) | **DELETE** /v2/integrations/{integration_id} | Delete an integration
+*IntegrationsApi* | [**integrations_get**](arize/_generated/api_client/docs/IntegrationsApi.md#integrations_get) | **GET** /v2/integrations/{integration_id} | Get an integration
+*IntegrationsApi* | [**integrations_list**](arize/_generated/api_client/docs/IntegrationsApi.md#integrations_list) | **GET** /v2/integrations | List integrations
+*IntegrationsApi* | [**integrations_update**](arize/_generated/api_client/docs/IntegrationsApi.md#integrations_update) | **PATCH** /v2/integrations/{integration_id} | Update an integration
 *OrganizationsApi* | [**organizations_add_user**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_add_user) | **POST** /v2/organizations/{org_id}/users | Add a user to an organization
 *OrganizationsApi* | [**organizations_create**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_create) | **POST** /v2/organizations | Create an organization
 *OrganizationsApi* | [**organizations_delete**](arize/_generated/api_client/docs/OrganizationsApi.md#organizations_delete) | **DELETE** /v2/organizations/{org_id} | Delete an organization
@@ -146,6 +153,7 @@ Class | Method | HTTP request | Description
 *PromptsApi* | [**prompts_update**](arize/_generated/api_client/docs/PromptsApi.md#prompts_update) | **PATCH** /v2/prompts/{prompt_id} | Update a prompt
 *ResourceRestrictionsApi* | [**resource_restrictions_create**](arize/_generated/api_client/docs/ResourceRestrictionsApi.md#resource_restrictions_create) | **POST** /v2/resource-restrictions | Restrict a resource
 *ResourceRestrictionsApi* | [**resource_restrictions_delete**](arize/_generated/api_client/docs/ResourceRestrictionsApi.md#resource_restrictions_delete) | **DELETE** /v2/resource-restrictions/{resource_id} | Unrestrict a resource
+*ResourceRestrictionsApi* | [**resource_restrictions_list**](arize/_generated/api_client/docs/ResourceRestrictionsApi.md#resource_restrictions_list) | **GET** /v2/resource-restrictions | List resource restrictions the caller is permitted to manage.
 *RoleBindingsApi* | [**role_bindings_create**](arize/_generated/api_client/docs/RoleBindingsApi.md#role_bindings_create) | **POST** /v2/role-bindings | Create a role binding
 *RoleBindingsApi* | [**role_bindings_delete**](arize/_generated/api_client/docs/RoleBindingsApi.md#role_bindings_delete) | **DELETE** /v2/role-bindings/{binding_id} | Delete a role binding
 *RoleBindingsApi* | [**role_bindings_get**](arize/_generated/api_client/docs/RoleBindingsApi.md#role_bindings_get) | **GET** /v2/role-bindings/{binding_id} | Get a role binding
@@ -210,6 +218,7 @@ Class | Method | HTTP request | Description
  - [AnnotationConfigCreateBase](arize/_generated/api_client/docs/AnnotationConfigCreateBase.md)
  - [AnnotationConfigListResponse](arize/_generated/api_client/docs/AnnotationConfigListResponse.md)
  - [AnnotationConfigType](arize/_generated/api_client/docs/AnnotationConfigType.md)
+ - [AnnotationConfigUpdateBase](arize/_generated/api_client/docs/AnnotationConfigUpdateBase.md)
  - [AnnotationInput](arize/_generated/api_client/docs/AnnotationInput.md)
  - [AnnotationQueue](arize/_generated/api_client/docs/AnnotationQueue.md)
  - [AnnotationQueueAssignedUser](arize/_generated/api_client/docs/AnnotationQueueAssignedUser.md)
@@ -239,20 +248,28 @@ Class | Method | HTTP request | Description
  - [ApiKeyType](arize/_generated/api_client/docs/ApiKeyType.md)
  - [AssignAnnotationQueueRecordRequestBody](arize/_generated/api_client/docs/AssignAnnotationQueueRecordRequestBody.md)
  - [AssignmentMethod](arize/_generated/api_client/docs/AssignmentMethod.md)
+ - [AuditLog](arize/_generated/api_client/docs/AuditLog.md)
+ - [AuditLogOperationType](arize/_generated/api_client/docs/AuditLogOperationType.md)
+ - [AuditLogsList200Response](arize/_generated/api_client/docs/AuditLogsList200Response.md)
  - [AwsProviderMetadata](arize/_generated/api_client/docs/AwsProviderMetadata.md)
  - [AwsProviderMetadataKind](arize/_generated/api_client/docs/AwsProviderMetadataKind.md)
  - [BaseEvaluationTaskRequest](arize/_generated/api_client/docs/BaseEvaluationTaskRequest.md)
  - [BaseEvaluationTaskRequestEvaluatorsInner](arize/_generated/api_client/docs/BaseEvaluationTaskRequestEvaluatorsInner.md)
  - [CategoricalAnnotationConfig](arize/_generated/api_client/docs/CategoricalAnnotationConfig.md)
  - [CategoricalAnnotationConfigCreate](arize/_generated/api_client/docs/CategoricalAnnotationConfigCreate.md)
+ - [CategoricalAnnotationConfigUpdate](arize/_generated/api_client/docs/CategoricalAnnotationConfigUpdate.md)
  - [CategoricalAnnotationValue](arize/_generated/api_client/docs/CategoricalAnnotationValue.md)
  - [CodeConfig](arize/_generated/api_client/docs/CodeConfig.md)
  - [CodeConfigCommon](arize/_generated/api_client/docs/CodeConfigCommon.md)
  - [ContinuousAnnotationConfig](arize/_generated/api_client/docs/ContinuousAnnotationConfig.md)
  - [ContinuousAnnotationConfigCreate](arize/_generated/api_client/docs/ContinuousAnnotationConfigCreate.md)
+ - [ContinuousAnnotationConfigUpdate](arize/_generated/api_client/docs/ContinuousAnnotationConfigUpdate.md)
  - [CreateAnnotationConfigRequestBody](arize/_generated/api_client/docs/CreateAnnotationConfigRequestBody.md)
  - [CreateAnnotationQueueRequestBody](arize/_generated/api_client/docs/CreateAnnotationQueueRequestBody.md)
  - [CreateCodeEvaluationTaskRequest](arize/_generated/api_client/docs/CreateCodeEvaluationTaskRequest.md)
+ - [CreateLlmConfigBase](arize/_generated/api_client/docs/CreateLlmConfigBase.md)
+ - [CreateLlmIntegrationRequest](arize/_generated/api_client/docs/CreateLlmIntegrationRequest.md)
+ - [CreateOpenAiConfig](arize/_generated/api_client/docs/CreateOpenAiConfig.md)
  - [CreateRunExperimentTaskRequest](arize/_generated/api_client/docs/CreateRunExperimentTaskRequest.md)
  - [CreateTemplateEvaluationTaskRequest](arize/_generated/api_client/docs/CreateTemplateEvaluationTaskRequest.md)
  - [CreateUserRequest](arize/_generated/api_client/docs/CreateUserRequest.md)
@@ -283,7 +300,9 @@ Class | Method | HTTP request | Description
  - [EvaluatorVersionCodeCreate](arize/_generated/api_client/docs/EvaluatorVersionCodeCreate.md)
  - [EvaluatorVersionCommon](arize/_generated/api_client/docs/EvaluatorVersionCommon.md)
  - [EvaluatorVersionCreate](arize/_generated/api_client/docs/EvaluatorVersionCreate.md)
+ - [EvaluatorVersionHarness](arize/_generated/api_client/docs/EvaluatorVersionHarness.md)
  - [EvaluatorVersionListResponse](arize/_generated/api_client/docs/EvaluatorVersionListResponse.md)
+ - [EvaluatorVersionRemote](arize/_generated/api_client/docs/EvaluatorVersionRemote.md)
  - [EvaluatorVersionTemplate](arize/_generated/api_client/docs/EvaluatorVersionTemplate.md)
  - [EvaluatorVersionTemplateCreate](arize/_generated/api_client/docs/EvaluatorVersionTemplateCreate.md)
  - [EvaluatorWithVersion](arize/_generated/api_client/docs/EvaluatorWithVersion.md)
@@ -298,19 +317,28 @@ Class | Method | HTTP request | Description
  - [ExperimentsCreateRequest](arize/_generated/api_client/docs/ExperimentsCreateRequest.md)
  - [FreeformAnnotationConfig](arize/_generated/api_client/docs/FreeformAnnotationConfig.md)
  - [FreeformAnnotationConfigCreate](arize/_generated/api_client/docs/FreeformAnnotationConfigCreate.md)
+ - [FreeformAnnotationConfigUpdate](arize/_generated/api_client/docs/FreeformAnnotationConfigUpdate.md)
  - [GcpProviderMetadata](arize/_generated/api_client/docs/GcpProviderMetadata.md)
  - [GcpProviderMetadataKind](arize/_generated/api_client/docs/GcpProviderMetadataKind.md)
  - [InputVariableFormat](arize/_generated/api_client/docs/InputVariableFormat.md)
  - [InsertExperimentRunsBody](arize/_generated/api_client/docs/InsertExperimentRunsBody.md)
+ - [IntegrationBase](arize/_generated/api_client/docs/IntegrationBase.md)
+ - [IntegrationListResponse](arize/_generated/api_client/docs/IntegrationListResponse.md)
+ - [IntegrationScoping](arize/_generated/api_client/docs/IntegrationScoping.md)
+ - [IntegrationType](arize/_generated/api_client/docs/IntegrationType.md)
  - [InviteMode](arize/_generated/api_client/docs/InviteMode.md)
  - [InvocationParams](arize/_generated/api_client/docs/InvocationParams.md)
  - [LLMMessage](arize/_generated/api_client/docs/LLMMessage.md)
  - [ListSpansRequest](arize/_generated/api_client/docs/ListSpansRequest.md)
+ - [LlmConfigBase](arize/_generated/api_client/docs/LlmConfigBase.md)
  - [LlmGenerationRunConfig](arize/_generated/api_client/docs/LlmGenerationRunConfig.md)
+ - [LlmIntegration](arize/_generated/api_client/docs/LlmIntegration.md)
+ - [LlmIntegrationProvider](arize/_generated/api_client/docs/LlmIntegrationProvider.md)
  - [LlmProvider](arize/_generated/api_client/docs/LlmProvider.md)
  - [ManagedCodeConfig](arize/_generated/api_client/docs/ManagedCodeConfig.md)
  - [ManagedCodeEvaluator](arize/_generated/api_client/docs/ManagedCodeEvaluator.md)
  - [MessageRole](arize/_generated/api_client/docs/MessageRole.md)
+ - [OpenAiConfig](arize/_generated/api_client/docs/OpenAiConfig.md)
  - [OptimizationDirection](arize/_generated/api_client/docs/OptimizationDirection.md)
  - [Organization](arize/_generated/api_client/docs/Organization.md)
  - [OrganizationCreate](arize/_generated/api_client/docs/OrganizationCreate.md)
@@ -350,6 +378,7 @@ Class | Method | HTTP request | Description
  - [RecordGranularity](arize/_generated/api_client/docs/RecordGranularity.md)
  - [ResourceRestriction](arize/_generated/api_client/docs/ResourceRestriction.md)
  - [ResourceRestrictionCreate](arize/_generated/api_client/docs/ResourceRestrictionCreate.md)
+ - [ResourceRestrictionListResponse](arize/_generated/api_client/docs/ResourceRestrictionListResponse.md)
  - [ResourceRestrictionResponseBody](arize/_generated/api_client/docs/ResourceRestrictionResponseBody.md)
  - [ResourceRestrictionType](arize/_generated/api_client/docs/ResourceRestrictionType.md)
  - [ResponseFormat](arize/_generated/api_client/docs/ResponseFormat.md)
@@ -401,8 +430,11 @@ Class | Method | HTTP request | Description
  - [ToolConfig](arize/_generated/api_client/docs/ToolConfig.md)
  - [TriggerEvaluationTaskRunRequest](arize/_generated/api_client/docs/TriggerEvaluationTaskRunRequest.md)
  - [TriggerRunExperimentTaskRunRequest](arize/_generated/api_client/docs/TriggerRunExperimentTaskRunRequest.md)
+ - [UpdateAnnotationConfigRequestBody](arize/_generated/api_client/docs/UpdateAnnotationConfigRequestBody.md)
  - [UpdateAnnotationQueueRequestBody](arize/_generated/api_client/docs/UpdateAnnotationQueueRequestBody.md)
  - [UpdateEvaluationTaskRequest](arize/_generated/api_client/docs/UpdateEvaluationTaskRequest.md)
+ - [UpdateLlmConfig](arize/_generated/api_client/docs/UpdateLlmConfig.md)
+ - [UpdateLlmIntegrationRequest](arize/_generated/api_client/docs/UpdateLlmIntegrationRequest.md)
  - [UpdateRunExperimentTaskRequest](arize/_generated/api_client/docs/UpdateRunExperimentTaskRequest.md)
  - [User](arize/_generated/api_client/docs/User.md)
  - [UserCreatedResponse](arize/_generated/api_client/docs/UserCreatedResponse.md)

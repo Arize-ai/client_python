@@ -1,6 +1,6 @@
 # EvaluatorVersion
 
-A versioned snapshot of an evaluator's configuration. Exactly one of `template_config` or `code_config` is present. The `type` field discriminates the branch and matches the parent evaluator's `type`. 
+A versioned snapshot of an evaluator's configuration. The `type` field discriminates the branch and matches the parent evaluator's `type`. 
 
 ## Properties
 

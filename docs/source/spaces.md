@@ -11,11 +11,35 @@
 
 ```{eval-rst}
 .. currentmodule:: arize.spaces.types
+.. autoclass:: CustomSpaceRole
+   :members:
+   :member-order: bysource
+
+.. autoclass:: PredefinedSpaceRole
+   :members:
+   :member-order: bysource
+
 .. autoclass:: Space
    :members:
    :member-order: bysource
 
-.. autoclass:: SpacesList200Response
+.. autoclass:: SpaceListResponse
+   :members:
+   :member-order: bysource
+
+.. autoclass:: SpaceMembership
+   :members:
+   :member-order: bysource
+
+.. autoclass:: SpaceMembershipInput
+   :members:
+   :member-order: bysource
+
+.. autoclass:: SpaceRoleAssignment
+   :members:
+   :member-order: bysource
+
+.. autoclass:: UserSpaceRole
    :members:
    :member-order: bysource
 ```

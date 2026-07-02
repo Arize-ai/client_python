@@ -11,7 +11,27 @@
 
 ```{eval-rst}
 .. currentmodule:: arize.api_keys.types
+.. autoclass:: ApiKeyAccountRole
+   :members:
+   :member-order: bysource
+
 .. autoclass:: ApiKeyCreated
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ApiKeyListResponse
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ApiKeyOrganizationRole
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ApiKeyRoles
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ApiKeySpaceRole
    :members:
    :member-order: bysource
 
@@ -19,7 +39,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: ApiKeysList200Response
+.. autoclass:: ApiKeyType
    :members:
    :member-order: bysource
 ```

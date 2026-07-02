@@ -27,11 +27,15 @@
    :members:
    :member-order: bysource
 
+.. autoclass:: MessageRole
+   :members:
+   :member-order: bysource
+
 .. autoclass:: Prompt
    :members:
    :member-order: bysource
 
-.. autoclass:: PromptWithVersion
+.. autoclass:: PromptListResponse
    :members:
    :member-order: bysource
 
@@ -39,19 +43,23 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: PromptsList200Response
+.. autoclass:: PromptVersionLabelsResponse
    :members:
    :member-order: bysource
 
-.. autoclass:: PromptVersionsList200Response
+.. autoclass:: PromptVersionListResponse
    :members:
    :member-order: bysource
 
-.. autoclass:: PromptVersionLabelsSet200Response
+.. autoclass:: PromptWithVersion
    :members:
    :member-order: bysource
 
 .. autoclass:: ProviderParams
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ToolCallType
    :members:
    :member-order: bysource
 ```

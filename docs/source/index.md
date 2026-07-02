@@ -25,10 +25,13 @@ ml
 organizations
 projects
 prompts
+resource_restrictions
+role_bindings
 roles
 spaces
 spans
 tasks
+users
 ```
 
 ```{toctree}

@@ -22,6 +22,7 @@ from typing_extensions import Annotated
 from arize._generated.api_client.models.annotation_config import AnnotationConfig
 from arize._generated.api_client.models.annotation_config_list_response import AnnotationConfigListResponse
 from arize._generated.api_client.models.create_annotation_config_request_body import CreateAnnotationConfigRequestBody
+from arize._generated.api_client.models.update_annotation_config_request_body import UpdateAnnotationConfigRequestBody
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -1216,6 +1217,317 @@ class AnnotationConfigsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/annotation-configs',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def annotation_configs_update(
+        self,
+        annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
+        update_annotation_config_request_body: Annotated[UpdateAnnotationConfigRequestBody, Field(description="Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> AnnotationConfig:
+        """Update an annotation config
+
+        Update an annotation config by its ID.  **Payload Requirements** - `annotation_config_type` is required and must match the stored config's type. The   type is immutable and cannot be changed. - The updatable fields depend on the type:   - `categorical`: `name`, `values`, `optimization_direction`.   - `continuous`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.   - `freeform`: `name`. - All fields other than `annotation_config_type` are optional; omitted fields are left   unchanged. - `name`, if provided, must be unique within the space (409 Conflict if duplicate). - `values` replaces the full label set (2-100 labels). - System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.  **Valid example** (categorical config) ```json {   \"annotation_config_type\": \"categorical\",   \"name\": \"quality-v2\",   \"values\": [     { \"label\": \"good\", \"score\": 1 },     { \"label\": \"bad\", \"score\": 0 }   ],   \"optimization_direction\": \"maximize\" } ```  **Invalid example** (missing `annotation_config_type`) ```json {   \"name\": \"quality-v2\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param annotation_config_id: The unique annotation config identifier (base64) (required)
+        :type annotation_config_id: str
+        :param update_annotation_config_request_body: Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type. (required)
+        :type update_annotation_config_request_body: UpdateAnnotationConfigRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._annotation_configs_update_serialize(
+            annotation_config_id=annotation_config_id,
+            update_annotation_config_request_body=update_annotation_config_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AnnotationConfig",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '409': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def annotation_configs_update_with_http_info(
+        self,
+        annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
+        update_annotation_config_request_body: Annotated[UpdateAnnotationConfigRequestBody, Field(description="Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[AnnotationConfig]:
+        """Update an annotation config
+
+        Update an annotation config by its ID.  **Payload Requirements** - `annotation_config_type` is required and must match the stored config's type. The   type is immutable and cannot be changed. - The updatable fields depend on the type:   - `categorical`: `name`, `values`, `optimization_direction`.   - `continuous`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.   - `freeform`: `name`. - All fields other than `annotation_config_type` are optional; omitted fields are left   unchanged. - `name`, if provided, must be unique within the space (409 Conflict if duplicate). - `values` replaces the full label set (2-100 labels). - System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.  **Valid example** (categorical config) ```json {   \"annotation_config_type\": \"categorical\",   \"name\": \"quality-v2\",   \"values\": [     { \"label\": \"good\", \"score\": 1 },     { \"label\": \"bad\", \"score\": 0 }   ],   \"optimization_direction\": \"maximize\" } ```  **Invalid example** (missing `annotation_config_type`) ```json {   \"name\": \"quality-v2\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param annotation_config_id: The unique annotation config identifier (base64) (required)
+        :type annotation_config_id: str
+        :param update_annotation_config_request_body: Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type. (required)
+        :type update_annotation_config_request_body: UpdateAnnotationConfigRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._annotation_configs_update_serialize(
+            annotation_config_id=annotation_config_id,
+            update_annotation_config_request_body=update_annotation_config_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AnnotationConfig",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '409': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def annotation_configs_update_without_preload_content(
+        self,
+        annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
+        update_annotation_config_request_body: Annotated[UpdateAnnotationConfigRequestBody, Field(description="Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Update an annotation config
+
+        Update an annotation config by its ID.  **Payload Requirements** - `annotation_config_type` is required and must match the stored config's type. The   type is immutable and cannot be changed. - The updatable fields depend on the type:   - `categorical`: `name`, `values`, `optimization_direction`.   - `continuous`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.   - `freeform`: `name`. - All fields other than `annotation_config_type` are optional; omitted fields are left   unchanged. - `name`, if provided, must be unique within the space (409 Conflict if duplicate). - `values` replaces the full label set (2-100 labels). - System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.  **Valid example** (categorical config) ```json {   \"annotation_config_type\": \"categorical\",   \"name\": \"quality-v2\",   \"values\": [     { \"label\": \"good\", \"score\": 1 },     { \"label\": \"bad\", \"score\": 0 }   ],   \"optimization_direction\": \"maximize\" } ```  **Invalid example** (missing `annotation_config_type`) ```json {   \"name\": \"quality-v2\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param annotation_config_id: The unique annotation config identifier (base64) (required)
+        :type annotation_config_id: str
+        :param update_annotation_config_request_body: Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type. (required)
+        :type update_annotation_config_request_body: UpdateAnnotationConfigRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._annotation_configs_update_serialize(
+            annotation_config_id=annotation_config_id,
+            update_annotation_config_request_body=update_annotation_config_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AnnotationConfig",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '409': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _annotation_configs_update_serialize(
+        self,
+        annotation_config_id,
+        update_annotation_config_request_body,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if annotation_config_id is not None:
+            _path_params['annotation_config_id'] = annotation_config_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if update_annotation_config_request_body is not None:
+            _body_params = update_annotation_config_request_body
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='PATCH',
+            resource_path='/v2/annotation-configs/{annotation_config_id}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

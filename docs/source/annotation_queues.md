@@ -19,7 +19,19 @@
    :members:
    :member-order: bysource
 
+.. autoclass:: AnnotationQueueCompletionStatus
+   :members:
+   :member-order: bysource
+
 .. autoclass:: AnnotationQueueExampleRecordInput
+   :members:
+   :member-order: bysource
+
+.. autoclass:: AnnotationQueueListResponse
+   :members:
+   :member-order: bysource
+
+.. autoclass:: AnnotationQueueRecord
    :members:
    :member-order: bysource
 
@@ -31,11 +43,19 @@
    :members:
    :member-order: bysource
 
+.. autoclass:: AnnotationQueueRecordCreateResponse
+   :members:
+   :member-order: bysource
+
 .. autoclass:: AnnotationQueueRecordInput
    :members:
    :member-order: bysource
 
-.. autoclass:: AnnotationQueueRecordsList200Response
+.. autoclass:: AnnotationQueueRecordListResponse
+   :members:
+   :member-order: bysource
+
+.. autoclass:: AnnotationQueueSourceType
    :members:
    :member-order: bysource
 
@@ -43,15 +63,11 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: AnnotationQueuesList200Response
-   :members:
-   :member-order: bysource
-
-.. autoclass:: AnnotationQueuesRecordsCreate200Response
-   :members:
-   :member-order: bysource
-
 .. autoclass:: AssignmentMethod
+   :members:
+   :member-order: bysource
+
+.. autoclass:: PaginationMetadata
    :members:
    :member-order: bysource
 ```

@@ -5,9 +5,11 @@ from arize._generated.api_client.api.ai_integrations_api import AIIntegrationsAp
 from arize._generated.api_client.api.api_keys_api import APIKeysApi
 from arize._generated.api_client.api.annotation_configs_api import AnnotationConfigsApi
 from arize._generated.api_client.api.annotation_queues_api import AnnotationQueuesApi
+from arize._generated.api_client.api.audit_logs_api import AuditLogsApi
 from arize._generated.api_client.api.datasets_api import DatasetsApi
 from arize._generated.api_client.api.evaluators_api import EvaluatorsApi
 from arize._generated.api_client.api.experiments_api import ExperimentsApi
+from arize._generated.api_client.api.integrations_api import IntegrationsApi
 from arize._generated.api_client.api.organizations_api import OrganizationsApi
 from arize._generated.api_client.api.projects_api import ProjectsApi
 from arize._generated.api_client.api.prompts_api import PromptsApi

@@ -42,7 +42,7 @@ class TestAnnotationQueueListResponse(unittest.TestCase):
                         space_id = 'spc_xyz789', 
                         instructions = 'Review each response for accuracy and helpfulness', 
                         annotation_configs = [
-                            arize._generated.api_client.models.annotation_config.AnnotationConfig()
+                            { }
                             ], 
                         annotators = [
                             arize._generated.api_client.models.annotator_user.AnnotatorUser(
@@ -65,7 +65,7 @@ class TestAnnotationQueueListResponse(unittest.TestCase):
                         space_id = 'spc_xyz789', 
                         instructions = 'Review each response for accuracy and helpfulness', 
                         annotation_configs = [
-                            arize._generated.api_client.models.annotation_config.AnnotationConfig()
+                            { }
                             ], 
                         annotators = [
                             arize._generated.api_client.models.annotator_user.AnnotatorUser(

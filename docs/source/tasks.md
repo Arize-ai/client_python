@@ -2,7 +2,6 @@
 
 ```{eval-rst}
 .. currentmodule:: arize.tasks.client
-
 .. autoclass:: TasksClient
    :members:
    :member-order: bysource
@@ -12,22 +11,6 @@
 
 ```{eval-rst}
 .. currentmodule:: arize.tasks.types
-.. autoclass:: Task
-   :members:
-   :member-order: bysource
-
-.. autoclass:: TaskRun
-   :members:
-   :member-order: bysource
-
-.. autoclass:: TasksList200Response
-   :members:
-   :member-order: bysource
-
-.. autoclass:: TasksListRuns200Response
-   :members:
-   :member-order: bysource
-
 .. autoclass:: BaseEvaluationTaskRequestEvaluatorsInner
    :members:
    :member-order: bysource
@@ -36,11 +19,39 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: TemplateEvaluationRunConfig
+.. autoclass:: RunConfiguration
    :members:
    :member-order: bysource
 
-.. autoclass:: RunConfiguration
+.. autoclass:: RunStatus
+   :members:
+   :member-order: bysource
+
+.. autoclass:: Task
+   :members:
+   :member-order: bysource
+
+.. autoclass:: TaskEvaluator
+   :members:
+   :member-order: bysource
+
+.. autoclass:: TaskListResponse
+   :members:
+   :member-order: bysource
+
+.. autoclass:: TaskRun
+   :members:
+   :member-order: bysource
+
+.. autoclass:: TaskRunListResponse
+   :members:
+   :member-order: bysource
+
+.. autoclass:: TaskType
+   :members:
+   :member-order: bysource
+
+.. autoclass:: TemplateEvaluationRunConfig
    :members:
    :member-order: bysource
 ```

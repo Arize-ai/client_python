@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from arize.annotation_configs.client import AnnotationConfigsClient
     from arize.annotation_queues.client import AnnotationQueuesClient
     from arize.api_keys.client import ApiKeysClient
+    from arize.audit_logs.client import AuditLogsClient
     from arize.datasets.client import DatasetsClient
     from arize.evaluators.client import EvaluatorsClient
     from arize.experiments.client import ExperimentsClient
@@ -82,6 +83,10 @@ class ArizeClient(LazySubclientsMixin):
         "ai_integrations": (
             "arize.ai_integrations.client",
             "AiIntegrationsClient",
+        ),
+        "audit_logs": (
+            "arize.audit_logs.client",
+            "AuditLogsClient",
         ),
         "datasets": (
             "arize.datasets.client",
@@ -418,6 +423,11 @@ class ArizeClient(LazySubclientsMixin):
     def api_keys(self) -> ApiKeysClient:
         """Access the API keys client for API key operations (lazy-loaded)."""
         return cast("ApiKeysClient", self.__getattr__("api_keys"))
+
+    @property
+    def audit_logs(self) -> AuditLogsClient:
+        """Access the audit logs client for audit log retrieval operations (lazy-loaded)."""
+        return cast("AuditLogsClient", self.__getattr__("audit_logs"))
 
     @property
     def evaluators(self) -> EvaluatorsClient:

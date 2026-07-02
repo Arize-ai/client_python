@@ -36,7 +36,7 @@ class TestAnnotationConfigListResponse(unittest.TestCase):
         if include_optional:
             return AnnotationConfigListResponse(
                 annotation_configs = [
-                    arize._generated.api_client.models.annotation_config.AnnotationConfig()
+                    { }
                     ],
                 pagination = arize._generated.api_client.models.pagination_metadata.PaginationMetadata(
                     next_cursor = '', 
@@ -45,7 +45,7 @@ class TestAnnotationConfigListResponse(unittest.TestCase):
         else:
             return AnnotationConfigListResponse(
                 annotation_configs = [
-                    arize._generated.api_client.models.annotation_config.AnnotationConfig()
+                    { }
                     ],
                 pagination = arize._generated.api_client.models.pagination_metadata.PaginationMetadata(
                     next_cursor = '', 

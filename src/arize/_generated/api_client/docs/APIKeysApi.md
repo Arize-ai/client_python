@@ -180,7 +180,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     key_type = arize._generated.api_client.ApiKeyType() # ApiKeyType | Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication.  (optional)
     status = arize._generated.api_client.ApiKeyStatus() # ApiKeyStatus | Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`.  (optional)
     space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
-    user_id = 'VXNlcjoxMjM0NQ==' # str | Filter API keys by the user who created them (base64 identifier (base64)). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type.  (optional)
+    user_id = 'VXNlcjoxMjM0NQ==' # str | Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins.  (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
@@ -203,7 +203,7 @@ Name | Type | Description  | Notes
  **key_type** | [**ApiKeyType**](.md)| Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication.  | [optional] 
  **status** | [**ApiKeyStatus**](.md)| Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to &#x60;active&#x60;.  | [optional] 
  **space_id** | **str**| Filter search results to a particular space ID | [optional] 
- **user_id** | **str**| Filter API keys by the user who created them (base64 identifier (base64)). When used with &#x60;space_id&#x60;, filters service keys by creator — available to any user with space access. When used without &#x60;space_id&#x60;, filters user keys by creator — account admins only (non-admins receive &#x60;403&#x60;). Can be combined with &#x60;key_type&#x60; to further narrow results by key type.  | [optional] 
+ **user_id** | **str**| Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins.  | [optional] 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 

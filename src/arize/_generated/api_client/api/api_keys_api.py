@@ -343,7 +343,7 @@ class APIKeysApi:
         key_type: Annotated[Optional[ApiKeyType], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
         status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
-        user_id: Annotated[Optional[StrictStr], Field(description="Filter API keys by the user who created them (base64 identifier (base64)). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. ")] = None,
+        user_id: Annotated[Optional[StrictStr], Field(description="Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -369,7 +369,7 @@ class APIKeysApi:
         :type status: ApiKeyStatus
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
-        :param user_id: Filter API keys by the user who created them (base64 identifier (base64)). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. 
+        :param user_id: Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. 
         :type user_id: str
         :param limit: Maximum items to return
         :type limit: int
@@ -435,7 +435,7 @@ class APIKeysApi:
         key_type: Annotated[Optional[ApiKeyType], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
         status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
-        user_id: Annotated[Optional[StrictStr], Field(description="Filter API keys by the user who created them (base64 identifier (base64)). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. ")] = None,
+        user_id: Annotated[Optional[StrictStr], Field(description="Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -461,7 +461,7 @@ class APIKeysApi:
         :type status: ApiKeyStatus
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
-        :param user_id: Filter API keys by the user who created them (base64 identifier (base64)). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. 
+        :param user_id: Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. 
         :type user_id: str
         :param limit: Maximum items to return
         :type limit: int
@@ -527,7 +527,7 @@ class APIKeysApi:
         key_type: Annotated[Optional[ApiKeyType], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
         status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
-        user_id: Annotated[Optional[StrictStr], Field(description="Filter API keys by the user who created them (base64 identifier (base64)). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. ")] = None,
+        user_id: Annotated[Optional[StrictStr], Field(description="Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -553,7 +553,7 @@ class APIKeysApi:
         :type status: ApiKeyStatus
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
-        :param user_id: Filter API keys by the user who created them (base64 identifier (base64)). When used with `space_id`, filters service keys by creator — available to any user with space access. When used without `space_id`, filters user keys by creator — account admins only (non-admins receive `403`). Can be combined with `key_type` to further narrow results by key type. 
+        :param user_id: Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. 
         :type user_id: str
         :param limit: Maximum items to return
         :type limit: int

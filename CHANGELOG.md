@@ -1,5 +1,23 @@
 # Changelog
 
+## [8.38.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.37.1...arize-python-sdk/v8.38.0) (2026-07-02)
+
+
+### 🎁 New Features
+
+* **audit-logs:** GET /v2/audit-logs — paginated audit log retrieval for enterprise accounts ([#72292](https://github.com/Arize-ai/arize/issues/72292)) ([3a0a4d2](https://github.com/Arize-ai/arize/commit/3a0a4d28d8ee789ed72e1c6ce515c330d02782b1))
+* **experiments:** Cursor pagination for GET /v2/experiments/{experiment_id}/runs ([#76009](https://github.com/Arize-ai/arize/issues/76009)) ([fdafcb4](https://github.com/Arize-ai/arize/commit/fdafcb462ea9e95f45838e6f411b7199e3804bd6)), closes [#71230](https://github.com/Arize-ai/arize/issues/71230)
+
+
+### 🐛 Bug Fixes
+
+* add harness/remote evaluator to rest api for GET  ([#77172](https://github.com/Arize-ai/arize/issues/77172)) ([743115c](https://github.com/Arize-ai/arize/commit/743115cc8c24227f6148371e34f4967ccafcb93c)), closes [#77058](https://github.com/Arize-ai/arize/issues/77058)
+
+
+### 📚 Documentation
+
+* update sphinx docs ([#76270](https://github.com/Arize-ai/arize/issues/76270)) ([7622621](https://github.com/Arize-ai/arize/commit/7622621334872fb9ef8e6914c75a8bdbbf4f4460))
+
 ## [8.37.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.37.0...arize-python-sdk/v8.37.1) (2026-06-25)
 
 

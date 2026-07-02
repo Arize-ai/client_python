@@ -1838,6 +1838,7 @@ class ExperimentsApi:
         self,
         experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1853,12 +1854,14 @@ class ExperimentsApi:
     ) -> ExperimentRunsListResponse:
         """List experiment runs
 
-        List runs for a given experiment.  The runs are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List runs for a given experiment.  The runs are returned in a stable insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
         :param limit: Maximum items to return
         :type limit: int
+        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
+        :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1884,6 +1887,7 @@ class ExperimentsApi:
         _param = self._experiments_runs_list_serialize(
             experiment_id=experiment_id,
             limit=limit,
+            cursor=cursor,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1914,6 +1918,7 @@ class ExperimentsApi:
         self,
         experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1929,12 +1934,14 @@ class ExperimentsApi:
     ) -> ApiResponse[ExperimentRunsListResponse]:
         """List experiment runs
 
-        List runs for a given experiment.  The runs are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List runs for a given experiment.  The runs are returned in a stable insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
         :param limit: Maximum items to return
         :type limit: int
+        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
+        :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1960,6 +1967,7 @@ class ExperimentsApi:
         _param = self._experiments_runs_list_serialize(
             experiment_id=experiment_id,
             limit=limit,
+            cursor=cursor,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1990,6 +1998,7 @@ class ExperimentsApi:
         self,
         experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2005,12 +2014,14 @@ class ExperimentsApi:
     ) -> RESTResponseType:
         """List experiment runs
 
-        List runs for a given experiment.  The runs are sorted by insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` for forward compatibility. - **Currently not implemented**: `pagination.next_cursor` is omitted - When pagination is enabled in the future, the behavior will match other list endpoints (cursor-based, opaque tokens).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List runs for a given experiment.  The runs are returned in a stable insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
         :param limit: Maximum items to return
         :type limit: int
+        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
+        :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2036,6 +2047,7 @@ class ExperimentsApi:
         _param = self._experiments_runs_list_serialize(
             experiment_id=experiment_id,
             limit=limit,
+            cursor=cursor,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2061,6 +2073,7 @@ class ExperimentsApi:
         self,
         experiment_id,
         limit,
+        cursor,
         _request_auth,
         _content_type,
         _headers,
@@ -2088,6 +2101,10 @@ class ExperimentsApi:
         if limit is not None:
             
             _query_params.append(('limit', limit))
+            
+        if cursor is not None:
+            
+            _query_params.append(('cursor', cursor))
             
         # process the header parameters
         # process the form parameters
