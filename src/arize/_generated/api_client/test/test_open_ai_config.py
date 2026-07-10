@@ -35,14 +35,12 @@ class TestOpenAiConfig(unittest.TestCase):
         model = OpenAiConfig()
         if include_optional:
             return OpenAiConfig(
-                is_default_models_enabled = True,
                 is_function_calling_enabled = True,
                 provider = 'openAI',
                 has_api_key = True
             )
         else:
             return OpenAiConfig(
-                is_default_models_enabled = True,
                 is_function_calling_enabled = True,
                 provider = 'openAI',
                 has_api_key = True,

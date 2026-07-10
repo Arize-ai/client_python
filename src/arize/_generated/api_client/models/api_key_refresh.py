@@ -28,7 +28,7 @@ class ApiKeyRefresh(BaseModel):
     """
     ApiKeyRefresh
     """ # noqa: E501
-    expires_at: Optional[datetime] = Field(default=None, description="Expiration timestamp for the refreshed key. If omitted, the refreshed key has no expiration (infinite lifetime). ")
+    expires_at: Optional[datetime] = Field(default=None, description="Expiration timestamp for the refreshed key. Required when the existing key has an expiry — omitting it would extend the key's lifetime to unbounded, which is rejected with 422. For an unbounded existing key, `expires_at` may be omitted (the refreshed key is also unbounded) or provided to add a specific expiry. The value must be no later than the old key's expiry — a request that would extend the key's lifetime is rejected with 422. To create a key with a longer lifetime, use `POST /v2/api-keys` to issue a new key rather than refreshing. ")
     grace_period_seconds: Optional[Annotated[int, Field(le=86400, strict=True, ge=0)]] = Field(default=None, description="Grace period in seconds during which the old key remains valid after the refresh. When set, the old key's expiration is updated to `now + grace_period_seconds` instead of being immediately revoked — it expires naturally at the end of the window. If the old key already has an `expires_at` that is sooner than the grace window end, the shorter value is used (the grace period cannot extend a key's original lifetime). Defaults to 0 (immediate revocation). Maximum is 86400 (24 hours). ")
     __properties: ClassVar[List[str]] = ["expires_at", "grace_period_seconds"]
 

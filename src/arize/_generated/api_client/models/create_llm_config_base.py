@@ -26,9 +26,8 @@ class CreateLlmConfigBase(BaseModel):
     """
     CreateLlmConfigBase
     """ # noqa: E501
-    is_default_models_enabled: Optional[StrictBool] = Field(default=None, description="Enable the provider's default model list. Defaults to false.")
     is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Enable function/tool calling. Defaults to true.")
-    __properties: ClassVar[List[str]] = ["is_default_models_enabled", "is_function_calling_enabled"]
+    __properties: ClassVar[List[str]] = ["is_function_calling_enabled"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -86,7 +85,6 @@ class CreateLlmConfigBase(BaseModel):
                 raise ValueError("Error due to additional fields (not defined in CreateLlmConfigBase) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "is_default_models_enabled": obj.get("is_default_models_enabled"),
             "is_function_calling_enabled": obj.get("is_function_calling_enabled")
         })
         return _obj

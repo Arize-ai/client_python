@@ -228,7 +228,7 @@ class ApiKeysClient:
         )
         return self._api.api_keys_create(api_key_create=body)
 
-    @prerelease_endpoint(key="api_keys.revoke", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="api_keys.revoke", stage=ReleaseStage.BETA)
     def revoke(self, *, api_key_id: str) -> None:
         """Revoke an API key.
 

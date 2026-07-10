@@ -354,7 +354,7 @@ class SpansApi:
     ) -> SpanDeleteResponse:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if the operation could not fully complete (retry the full request). - `deleted_span_ids` — span IDs confirmed deleted in this request. - `not_deleted_span_ids` — requested IDs not deleted: either not found within   the supported lookback window, or not reached when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if the operation could not fully complete (retry the full request). - `deleted_span_ids` — span IDs confirmed deleted in this request. - `not_deleted_span_ids` — requested IDs not deleted: either not found within   the supported lookback window, or not reached when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param delete_spans_request: Body containing span IDs to delete (required)
         :type delete_spans_request: DeleteSpansRequest
@@ -428,7 +428,7 @@ class SpansApi:
     ) -> ApiResponse[SpanDeleteResponse]:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if the operation could not fully complete (retry the full request). - `deleted_span_ids` — span IDs confirmed deleted in this request. - `not_deleted_span_ids` — requested IDs not deleted: either not found within   the supported lookback window, or not reached when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if the operation could not fully complete (retry the full request). - `deleted_span_ids` — span IDs confirmed deleted in this request. - `not_deleted_span_ids` — requested IDs not deleted: either not found within   the supported lookback window, or not reached when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param delete_spans_request: Body containing span IDs to delete (required)
         :type delete_spans_request: DeleteSpansRequest
@@ -502,7 +502,7 @@ class SpansApi:
     ) -> RESTResponseType:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if the operation could not fully complete (retry the full request). - `deleted_span_ids` — span IDs confirmed deleted in this request. - `not_deleted_span_ids` — requested IDs not deleted: either not found within   the supported lookback window, or not reached when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if the operation could not fully complete (retry the full request). - `deleted_span_ids` — span IDs confirmed deleted in this request. - `not_deleted_span_ids` — requested IDs not deleted: either not found within   the supported lookback window, or not reached when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param delete_spans_request: Body containing span IDs to delete (required)
         :type delete_spans_request: DeleteSpansRequest
@@ -652,7 +652,7 @@ class SpansApi:
     ) -> SpanListResponse:
         """List spans
 
-        Returns a paginated list of spans.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Returns a paginated list of spans.  The spans are sorted by their timestamp, with the most recent coming first.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param list_spans_request: Body containing span query parameters (required)
         :type list_spans_request: ListSpansRequest
@@ -733,7 +733,7 @@ class SpansApi:
     ) -> ApiResponse[SpanListResponse]:
         """List spans
 
-        Returns a paginated list of spans.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Returns a paginated list of spans.  The spans are sorted by their timestamp, with the most recent coming first.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param list_spans_request: Body containing span query parameters (required)
         :type list_spans_request: ListSpansRequest
@@ -814,7 +814,7 @@ class SpansApi:
     ) -> RESTResponseType:
         """List spans
 
-        Returns a paginated list of spans.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Returns a paginated list of spans.  The spans are sorted by their timestamp, with the most recent coming first.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param list_spans_request: Body containing span query parameters (required)
         :type list_spans_request: ListSpansRequest

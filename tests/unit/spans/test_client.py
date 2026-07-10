@@ -192,19 +192,19 @@ class TestSpansClientDelete:
             span_ids=["span-1"],
         )
 
-    def test_delete_emits_alpha_prerelease_warning(
+    def test_delete_emits_beta_prerelease_warning(
         self,
         spans_client: SpansClient,
         mock_api: Mock,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         with patch("arize._generated.api_client.DeleteSpansRequest"):
             caplog.set_level(logging.WARNING)
             spans_client.delete(project=_PROJECT_ID, span_ids=["span-1"])
 
         assert any(
-            "ALPHA" in r.message and "spans.delete" in r.message
+            "BETA" in r.message and "spans.delete" in r.message
             for r in caplog.records
         )
 

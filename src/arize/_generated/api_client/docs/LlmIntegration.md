@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 **created_at** | **datetime** | When the integration was created. | 
 **updated_at** | **datetime** | When the integration was last updated. | 
 **created_by_user_id** | **str** | Global ID of the user who created the integration. | 
-**config** | [**OpenAiConfig**](OpenAiConfig.md) |  | 
+**config** | [**LlmConfig**](LlmConfig.md) |  | 
 
 ## Example
 

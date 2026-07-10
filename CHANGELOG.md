@@ -1,5 +1,23 @@
 # Changelog
 
+## [8.39.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.38.0...arize-python-sdk/v8.39.0) (2026-07-10)
+
+
+### 🎁 New Features
+
+* **resource-restrictions:** add list functionality  ([#77876](https://github.com/Arize-ai/arize/issues/77876)) ([d7b7746](https://github.com/Arize-ai/arize/commit/d7b774629cb2144688f489a224341bdf8714aba4))
+* **datasets:** add batched `delete_examples` ([#77131](https://github.com/Arize-ai/arize/issues/77131)) ([a713b5a](https://github.com/Arize-ai/arize/commit/a713b5a0f0aa74da6c5752fda2053cf67b476bdf))
+* **annotation-configs:** add update functionality ([#77822](https://github.com/Arize-ai/arize/issues/77822)) ([3d476a0](https://github.com/Arize-ai/arize/commit/3d476a0acdbe89fc1957f256b2f7f34fd12fc257))
+* **annotation-configs:** splitting create function into functions per type ([#78082](https://github.com/Arize-ai/arize/issues/78082)) ([c7ec542](https://github.com/Arize-ai/arize/commit/c7ec542450d3c34a1a6724176e3705db4a7b1eee))
+
+### 💫 Code Refactoring
+
+* promote 5 endpoints from alpha to beta ([#77386](https://github.com/Arize-ai/arize/issues/77386)) ([64fd321](https://github.com/Arize-ai/arize/commit/64fd321a7be190ed1e91d4b0133122644e11d441))
+
+### 🐛 Bug Fixes
+
+* **experiments:** generate SDK experiment run IDs as UUIDv7 ([#77766](https://github.com/Arize-ai/arize/issues/77766)) ([8a7ab70](https://github.com/Arize-ai/arize/commit/8a7ab7052a19fc9dde49e25797426e15866cad3e))
+
 ## [8.38.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.37.1...arize-python-sdk/v8.38.0) (2026-07-02)
 
 

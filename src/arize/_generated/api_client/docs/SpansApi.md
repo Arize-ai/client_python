@@ -175,7 +175,7 @@ A `200 OK` response always includes:
 
 The delete operation is idempotent — re-submitting already-deleted IDs is safe.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -263,6 +263,8 @@ Name | Type | Description  | Notes
 List spans
 
 Returns a paginated list of spans.
+
+The spans are sorted by their timestamp, with the most recent coming first.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 

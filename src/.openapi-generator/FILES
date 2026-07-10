@@ -19,6 +19,7 @@ arize/_generated/api_client/api/roles_api.py
 arize/_generated/api_client/api/spaces_api.py
 arize/_generated/api_client/api/spans_api.py
 arize/_generated/api_client/api/tasks_api.py
+arize/_generated/api_client/api/traces_api.py
 arize/_generated/api_client/api/users_api.py
 arize/_generated/api_client/api_client.py
 arize/_generated/api_client/api_response.py
@@ -68,6 +69,7 @@ arize/_generated/api_client/docs/AnnotationQueueSpanRecordInput.md
 arize/_generated/api_client/docs/AnnotationQueueTraceRecordInput.md
 arize/_generated/api_client/docs/AnnotationQueuesApi.md
 arize/_generated/api_client/docs/AnnotatorUser.md
+arize/_generated/api_client/docs/AnthropicConfig.md
 arize/_generated/api_client/docs/ApiKey.md
 arize/_generated/api_client/docs/ApiKeyAccountRole.md
 arize/_generated/api_client/docs/ApiKeyCreate.md
@@ -100,7 +102,9 @@ arize/_generated/api_client/docs/ContinuousAnnotationConfigCreate.md
 arize/_generated/api_client/docs/ContinuousAnnotationConfigUpdate.md
 arize/_generated/api_client/docs/CreateAnnotationConfigRequestBody.md
 arize/_generated/api_client/docs/CreateAnnotationQueueRequestBody.md
+arize/_generated/api_client/docs/CreateAnthropicConfig.md
 arize/_generated/api_client/docs/CreateCodeEvaluationTaskRequest.md
+arize/_generated/api_client/docs/CreateLlmConfig.md
 arize/_generated/api_client/docs/CreateLlmConfigBase.md
 arize/_generated/api_client/docs/CreateLlmIntegrationRequest.md
 arize/_generated/api_client/docs/CreateOpenAiConfig.md
@@ -113,6 +117,9 @@ arize/_generated/api_client/docs/CustomUserRoleAssignment.md
 arize/_generated/api_client/docs/DataGranularity.md
 arize/_generated/api_client/docs/Dataset.md
 arize/_generated/api_client/docs/DatasetExample.md
+arize/_generated/api_client/docs/DatasetExampleDeleteProblem.md
+arize/_generated/api_client/docs/DatasetExampleDeleteRequest.md
+arize/_generated/api_client/docs/DatasetExampleDeleteResponse.md
 arize/_generated/api_client/docs/DatasetExampleListResponse.md
 arize/_generated/api_client/docs/DatasetExampleUpdate.md
 arize/_generated/api_client/docs/DatasetListResponse.md
@@ -168,6 +175,8 @@ arize/_generated/api_client/docs/InviteMode.md
 arize/_generated/api_client/docs/InvocationParams.md
 arize/_generated/api_client/docs/LLMMessage.md
 arize/_generated/api_client/docs/ListSpansRequest.md
+arize/_generated/api_client/docs/ListTracesRequest.md
+arize/_generated/api_client/docs/LlmConfig.md
 arize/_generated/api_client/docs/LlmConfigBase.md
 arize/_generated/api_client/docs/LlmGenerationRunConfig.md
 arize/_generated/api_client/docs/LlmIntegration.md
@@ -275,6 +284,9 @@ arize/_generated/api_client/docs/ToolCall.md
 arize/_generated/api_client/docs/ToolCallFunction.md
 arize/_generated/api_client/docs/ToolCallType.md
 arize/_generated/api_client/docs/ToolConfig.md
+arize/_generated/api_client/docs/Trace.md
+arize/_generated/api_client/docs/TraceListResponse.md
+arize/_generated/api_client/docs/TracesApi.md
 arize/_generated/api_client/docs/TriggerEvaluationTaskRunRequest.md
 arize/_generated/api_client/docs/TriggerRunExperimentTaskRunRequest.md
 arize/_generated/api_client/docs/UpdateAnnotationConfigRequestBody.md
@@ -336,6 +348,7 @@ arize/_generated/api_client/models/annotation_queue_source_type.py
 arize/_generated/api_client/models/annotation_queue_span_record_input.py
 arize/_generated/api_client/models/annotation_queue_trace_record_input.py
 arize/_generated/api_client/models/annotator_user.py
+arize/_generated/api_client/models/anthropic_config.py
 arize/_generated/api_client/models/api_key.py
 arize/_generated/api_client/models/api_key_account_role.py
 arize/_generated/api_client/models/api_key_create.py
@@ -367,7 +380,9 @@ arize/_generated/api_client/models/continuous_annotation_config_create.py
 arize/_generated/api_client/models/continuous_annotation_config_update.py
 arize/_generated/api_client/models/create_annotation_config_request_body.py
 arize/_generated/api_client/models/create_annotation_queue_request_body.py
+arize/_generated/api_client/models/create_anthropic_config.py
 arize/_generated/api_client/models/create_code_evaluation_task_request.py
+arize/_generated/api_client/models/create_llm_config.py
 arize/_generated/api_client/models/create_llm_config_base.py
 arize/_generated/api_client/models/create_llm_integration_request.py
 arize/_generated/api_client/models/create_open_ai_config.py
@@ -380,6 +395,9 @@ arize/_generated/api_client/models/custom_user_role_assignment.py
 arize/_generated/api_client/models/data_granularity.py
 arize/_generated/api_client/models/dataset.py
 arize/_generated/api_client/models/dataset_example.py
+arize/_generated/api_client/models/dataset_example_delete_problem.py
+arize/_generated/api_client/models/dataset_example_delete_request.py
+arize/_generated/api_client/models/dataset_example_delete_response.py
 arize/_generated/api_client/models/dataset_example_list_response.py
 arize/_generated/api_client/models/dataset_example_update.py
 arize/_generated/api_client/models/dataset_list_response.py
@@ -430,6 +448,8 @@ arize/_generated/api_client/models/integration_type.py
 arize/_generated/api_client/models/invite_mode.py
 arize/_generated/api_client/models/invocation_params.py
 arize/_generated/api_client/models/list_spans_request.py
+arize/_generated/api_client/models/list_traces_request.py
+arize/_generated/api_client/models/llm_config.py
 arize/_generated/api_client/models/llm_config_base.py
 arize/_generated/api_client/models/llm_generation_run_config.py
 arize/_generated/api_client/models/llm_integration.py
@@ -529,6 +549,8 @@ arize/_generated/api_client/models/tool_call.py
 arize/_generated/api_client/models/tool_call_function.py
 arize/_generated/api_client/models/tool_call_type.py
 arize/_generated/api_client/models/tool_config.py
+arize/_generated/api_client/models/trace.py
+arize/_generated/api_client/models/trace_list_response.py
 arize/_generated/api_client/models/trigger_evaluation_task_run_request.py
 arize/_generated/api_client/models/trigger_run_experiment_task_run_request.py
 arize/_generated/api_client/models/update_annotation_config_request_body.py
@@ -587,6 +609,7 @@ arize/_generated/api_client/test/test_annotation_queue_record_input.py
 arize/_generated/api_client/test/test_annotation_queue_source_type.py
 arize/_generated/api_client/test/test_annotation_queue_trace_record_input.py
 arize/_generated/api_client/test/test_annotator_user.py
+arize/_generated/api_client/test/test_anthropic_config.py
 arize/_generated/api_client/test/test_api_key_account_role.py
 arize/_generated/api_client/test/test_api_key_created.py
 arize/_generated/api_client/test/test_api_key_list_response.py
@@ -613,12 +636,17 @@ arize/_generated/api_client/test/test_continuous_annotation_config_create.py
 arize/_generated/api_client/test/test_continuous_annotation_config_update.py
 arize/_generated/api_client/test/test_create_annotation_config_request_body.py
 arize/_generated/api_client/test/test_create_annotation_queue_request_body.py
+arize/_generated/api_client/test/test_create_anthropic_config.py
+arize/_generated/api_client/test/test_create_llm_config.py
 arize/_generated/api_client/test/test_create_llm_config_base.py
 arize/_generated/api_client/test/test_create_llm_integration_request.py
 arize/_generated/api_client/test/test_create_open_ai_config.py
 arize/_generated/api_client/test/test_custom_code_config.py
 arize/_generated/api_client/test/test_data_granularity.py
 arize/_generated/api_client/test/test_dataset_example.py
+arize/_generated/api_client/test/test_dataset_example_delete_problem.py
+arize/_generated/api_client/test/test_dataset_example_delete_request.py
+arize/_generated/api_client/test/test_dataset_example_delete_response.py
 arize/_generated/api_client/test/test_dataset_example_list_response.py
 arize/_generated/api_client/test/test_dataset_example_update.py
 arize/_generated/api_client/test/test_dataset_list_response.py
@@ -658,6 +686,8 @@ arize/_generated/api_client/test/test_integration_type.py
 arize/_generated/api_client/test/test_integrations_api.py
 arize/_generated/api_client/test/test_invocation_params.py
 arize/_generated/api_client/test/test_list_spans_request.py
+arize/_generated/api_client/test/test_list_traces_request.py
+arize/_generated/api_client/test/test_llm_config.py
 arize/_generated/api_client/test/test_llm_config_base.py
 arize/_generated/api_client/test/test_llm_integration.py
 arize/_generated/api_client/test/test_llm_integration_provider.py
@@ -724,6 +754,9 @@ arize/_generated/api_client/test/test_tool_call.py
 arize/_generated/api_client/test/test_tool_call_function.py
 arize/_generated/api_client/test/test_tool_call_type.py
 arize/_generated/api_client/test/test_tool_config.py
+arize/_generated/api_client/test/test_trace.py
+arize/_generated/api_client/test/test_trace_list_response.py
+arize/_generated/api_client/test/test_traces_api.py
 arize/_generated/api_client/test/test_update_llm_config.py
 arize/_generated/api_client/test/test_update_llm_integration_request.py
 arize/_generated/api_client/test/test_user.py

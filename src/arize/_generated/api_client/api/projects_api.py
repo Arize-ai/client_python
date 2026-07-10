@@ -1252,7 +1252,7 @@ class ProjectsApi:
     ) -> Project:
         """Update a project
 
-        Update a project by its ID (rename).  **Payload Requirements** - `name` must be provided and must be unique within the space. - System-managed fields (`id`, `created_at`, `updated_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Renamed Project\" } ```  **Invalid example** (empty body) ```json {} ```  <Note>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update a project by its ID (rename).  **Payload Requirements** - `name` must be provided and must be unique within the space. - System-managed fields (`id`, `created_at`, `updated_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Renamed Project\" } ```  **Invalid example** (empty body) ```json {} ```    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param project_id: The unique project identifier (base64) (required)
         :type project_id: str
@@ -1329,7 +1329,7 @@ class ProjectsApi:
     ) -> ApiResponse[Project]:
         """Update a project
 
-        Update a project by its ID (rename).  **Payload Requirements** - `name` must be provided and must be unique within the space. - System-managed fields (`id`, `created_at`, `updated_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Renamed Project\" } ```  **Invalid example** (empty body) ```json {} ```  <Note>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update a project by its ID (rename).  **Payload Requirements** - `name` must be provided and must be unique within the space. - System-managed fields (`id`, `created_at`, `updated_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Renamed Project\" } ```  **Invalid example** (empty body) ```json {} ```    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param project_id: The unique project identifier (base64) (required)
         :type project_id: str
@@ -1406,7 +1406,7 @@ class ProjectsApi:
     ) -> RESTResponseType:
         """Update a project
 
-        Update a project by its ID (rename).  **Payload Requirements** - `name` must be provided and must be unique within the space. - System-managed fields (`id`, `created_at`, `updated_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Renamed Project\" } ```  **Invalid example** (empty body) ```json {} ```  <Note>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update a project by its ID (rename).  **Payload Requirements** - `name` must be provided and must be unique within the space. - System-managed fields (`id`, `created_at`, `updated_at`) cannot be modified.  **Valid example** ```json {   \"name\": \"Renamed Project\" } ```  **Invalid example** (empty body) ```json {} ```    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param project_id: The unique project identifier (base64) (required)
         :type project_id: str

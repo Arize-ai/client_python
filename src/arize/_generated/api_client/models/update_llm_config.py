@@ -29,9 +29,8 @@ class UpdateLlmConfig(BaseModel):
     """ # noqa: E501
     provider: Optional[LlmIntegrationProvider] = None
     api_key: Optional[StrictStr] = Field(default=None, description="Rotate the API key. Pass null to clear it. Omit to keep unchanged.")
-    is_default_models_enabled: Optional[StrictBool] = None
     is_function_calling_enabled: Optional[StrictBool] = None
-    __properties: ClassVar[List[str]] = ["provider", "api_key", "is_default_models_enabled", "is_function_calling_enabled"]
+    __properties: ClassVar[List[str]] = ["provider", "api_key", "is_function_calling_enabled"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -96,7 +95,6 @@ class UpdateLlmConfig(BaseModel):
         _obj = cls.model_validate({
             "provider": obj.get("provider"),
             "api_key": obj.get("api_key"),
-            "is_default_models_enabled": obj.get("is_default_models_enabled"),
             "is_function_calling_enabled": obj.get("is_function_calling_enabled")
         })
         return _obj

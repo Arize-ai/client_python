@@ -45,7 +45,6 @@ class TestUpdateLlmIntegrationRequest(unittest.TestCase):
                 config = arize._generated.api_client.models.update_llm_config.UpdateLlmConfig(
                     provider = 'openAI', 
                     api_key = '', 
-                    is_default_models_enabled = True, 
                     is_function_calling_enabled = True, )
             )
         else:

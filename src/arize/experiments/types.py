@@ -3,17 +3,19 @@
 from __future__ import annotations
 
 import json
+import os
 import textwrap
+import time
 from collections.abc import Awaitable, Callable, Iterable, Mapping
 from copy import copy, deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from importlib.metadata import version
-from random import getrandbits
 from typing import (
     NoReturn,
     cast,
 )
+from uuid import UUID
 
 import pandas as pd
 from wrapt import ObjectProxy
@@ -192,12 +194,19 @@ class TestCase:
     repetition_number: RepetitionNumber
 
 
-EXP_ID: ExperimentId = "EXP_ID"
-
-
 def _exp_id() -> str:
-    suffix = getrandbits(24).to_bytes(3, "big").hex()
-    return f"{EXP_ID}_{suffix}"
+    """Generate a time-ordered UUIDv7 (RFC 9562) experiment run id.
+
+    UUIDv7 embeds a 48-bit millisecond timestamp, so lexicographic ordering
+    matches creation order, plus 74 random bits (collision-free at any
+    realistic scale).
+    """
+    unix_ms = int(time.time() * 1000)
+    data = bytearray(os.urandom(16))
+    data[0:6] = unix_ms.to_bytes(6, "big")
+    data[6] = (data[6] & 0x0F) | 0x70  # version 7
+    data[8] = (data[8] & 0x3F) | 0x80  # variant 10 (RFC 4122)
+    return str(UUID(bytes=bytes(data)))
 
 
 @dataclass(frozen=True)

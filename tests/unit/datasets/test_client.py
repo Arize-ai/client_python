@@ -185,6 +185,146 @@ class TestDatasetsClientListExamples:
 
 
 @pytest.mark.unit
+class TestDatasetsClientUpdateExamples:
+    """Tests for DatasetsClient.update_examples()."""
+
+    DATASET_ID = "RGF0YXNldDoxMjM6YWJj"
+
+    def test_update_examples_builds_request_with_ids(
+        self, datasets_client: DatasetsClient, mock_api: Mock
+    ) -> None:
+        """update_examples() should build a DatasetExampleUpdate per example, keyed by id."""
+        datasets_client.update_examples(
+            dataset=self.DATASET_ID,
+            examples=[
+                {"id": "ex_1", "question": "2+2?", "answer": "4"},
+                {"id": "ex_2", "question": "3+3?", "answer": "6"},
+            ],
+        )
+
+        _, kwargs = mock_api.datasets_examples_update.call_args
+        assert kwargs["dataset_id"] == self.DATASET_ID
+        body = kwargs["datasets_examples_update_request"]
+        assert [e.id for e in body.examples] == ["ex_1", "ex_2"]
+        assert body.examples[0].additional_properties == {
+            "question": "2+2?",
+            "answer": "4",
+        }
+
+    def test_update_examples_defaults_new_version_to_none(
+        self, datasets_client: DatasetsClient, mock_api: Mock
+    ) -> None:
+        """Omitting new_version should update the targeted version in place."""
+        datasets_client.update_examples(
+            dataset=self.DATASET_ID,
+            examples=[{"id": "ex_1", "answer": "4"}],
+        )
+
+        _, kwargs = mock_api.datasets_examples_update.call_args
+        assert kwargs["datasets_examples_update_request"].new_version is None
+        assert kwargs["dataset_version_id"] == ""
+
+    def test_update_examples_passes_new_version(
+        self, datasets_client: DatasetsClient, mock_api: Mock
+    ) -> None:
+        """A non-empty new_version should be forwarded to create a new version."""
+        datasets_client.update_examples(
+            dataset=self.DATASET_ID,
+            examples=[{"id": "ex_1", "answer": "4"}],
+            new_version="v2",
+        )
+
+        _, kwargs = mock_api.datasets_examples_update.call_args
+        assert kwargs["datasets_examples_update_request"].new_version == "v2"
+
+    def test_update_examples_passes_dataset_version_id(
+        self, datasets_client: DatasetsClient, mock_api: Mock
+    ) -> None:
+        """An explicit dataset_version_id should target that version's in-place update."""
+        datasets_client.update_examples(
+            dataset=self.DATASET_ID,
+            dataset_version_id="ver_1",
+            examples=[{"id": "ex_1", "answer": "4"}],
+        )
+
+        _, kwargs = mock_api.datasets_examples_update.call_args
+        assert kwargs["dataset_version_id"] == "ver_1"
+
+    def test_update_examples_returns_api_response(
+        self, datasets_client: DatasetsClient, mock_api: Mock
+    ) -> None:
+        """update_examples() should propagate the return value from datasets_examples_update."""
+        expected = Mock()
+        mock_api.datasets_examples_update.return_value = expected
+
+        result = datasets_client.update_examples(
+            dataset=self.DATASET_ID,
+            examples=[{"id": "ex_1", "answer": "4"}],
+        )
+
+        assert result is expected
+
+    def test_update_examples_emits_beta_prerelease_warning(
+        self,
+        datasets_client: DatasetsClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the BETA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        datasets_client.update_examples(
+            dataset=self.DATASET_ID,
+            examples=[{"id": "ex_1", "answer": "4"}],
+        )
+
+        assert any(
+            "BETA" in record.message
+            and "datasets.update_examples" in record.message
+            for record in caplog.records
+        )
+
+
+@pytest.mark.unit
+class TestDatasetsClientDeleteExamples:
+    """Tests for DatasetsClient.delete_examples()."""
+
+    # Base64-encoded dataset ID that bypasses name resolution
+    DATASET_ID = "RGF0YXNldDoxMjM6YWJj"
+
+    def test_delete_examples_builds_request_and_forwards(
+        self, datasets_client: DatasetsClient, mock_api: Mock
+    ) -> None:
+        """delete_examples() should build the request body and forward it."""
+        result = datasets_client.delete_examples(
+            dataset=self.DATASET_ID,
+            dataset_version_id="ver-1",
+            examples=["ex-1", "ex-2"],
+        )
+
+        mock_api.datasets_examples_delete.assert_called_once()
+        call = mock_api.datasets_examples_delete.call_args
+        assert call.kwargs["dataset_id"] == self.DATASET_ID
+        body = call.kwargs["dataset_example_delete_request"]
+        assert body.dataset_version_id == "ver-1"
+        assert body.example_ids == ["ex-1", "ex-2"]
+        assert result is mock_api.datasets_examples_delete.return_value
+
+    def test_delete_examples_rejects_empty_list(
+        self, datasets_client: DatasetsClient
+    ) -> None:
+        """delete_examples() should reject an empty example list (min_length=1)."""
+        with pytest.raises(Exception):
+            datasets_client.delete_examples(
+                dataset=self.DATASET_ID,
+                dataset_version_id="ver-1",
+                examples=[],
+            )
+
+
+@pytest.mark.unit
 class TestDatasetsClientListExamplesCaching:
     """Tests for DatasetsClient.list_examples() caching behaviour."""
 

@@ -21,6 +21,8 @@ from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.annotate_dataset_examples_request_body import AnnotateDatasetExamplesRequestBody
 from arize._generated.api_client.models.dataset import Dataset
+from arize._generated.api_client.models.dataset_example_delete_request import DatasetExampleDeleteRequest
+from arize._generated.api_client.models.dataset_example_delete_response import DatasetExampleDeleteResponse
 from arize._generated.api_client.models.dataset_example_list_response import DatasetExampleListResponse
 from arize._generated.api_client.models.dataset_list_response import DatasetListResponse
 from arize._generated.api_client.models.dataset_version_with_example_ids import DatasetVersionWithExampleIds
@@ -617,314 +619,6 @@ class DatasetsApi:
 
 
     @validate_call
-    def datasets_example_delete(
-        self,
-        dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
-        example_id: Annotated[StrictStr, Field(description="The unique dataset example identifier (UUID)")],
-        dataset_version_id: Annotated[Optional[StrictStr], Field(description="The unique identifier of the dataset version")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
-        """Delete a dataset example
-
-        Delete a single example from a dataset by its ID.  If `dataset_version_id` is provided, the example is deleted from that specific version. If omitted, the latest version is used. The example is removed in place from the selected version; no new version is created. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
-
-        :param dataset_id: The unique dataset identifier (base64) (required)
-        :type dataset_id: str
-        :param example_id: The unique dataset example identifier (UUID) (required)
-        :type example_id: str
-        :param dataset_version_id: The unique identifier of the dataset version
-        :type dataset_version_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._datasets_example_delete_serialize(
-            dataset_id=dataset_id,
-            example_id=example_id,
-            dataset_version_id=dataset_version_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '204': None,
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    def datasets_example_delete_with_http_info(
-        self,
-        dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
-        example_id: Annotated[StrictStr, Field(description="The unique dataset example identifier (UUID)")],
-        dataset_version_id: Annotated[Optional[StrictStr], Field(description="The unique identifier of the dataset version")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
-        """Delete a dataset example
-
-        Delete a single example from a dataset by its ID.  If `dataset_version_id` is provided, the example is deleted from that specific version. If omitted, the latest version is used. The example is removed in place from the selected version; no new version is created. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
-
-        :param dataset_id: The unique dataset identifier (base64) (required)
-        :type dataset_id: str
-        :param example_id: The unique dataset example identifier (UUID) (required)
-        :type example_id: str
-        :param dataset_version_id: The unique identifier of the dataset version
-        :type dataset_version_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._datasets_example_delete_serialize(
-            dataset_id=dataset_id,
-            example_id=example_id,
-            dataset_version_id=dataset_version_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '204': None,
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    def datasets_example_delete_without_preload_content(
-        self,
-        dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
-        example_id: Annotated[StrictStr, Field(description="The unique dataset example identifier (UUID)")],
-        dataset_version_id: Annotated[Optional[StrictStr], Field(description="The unique identifier of the dataset version")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Delete a dataset example
-
-        Delete a single example from a dataset by its ID.  If `dataset_version_id` is provided, the example is deleted from that specific version. If omitted, the latest version is used. The example is removed in place from the selected version; no new version is created. This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
-
-        :param dataset_id: The unique dataset identifier (base64) (required)
-        :type dataset_id: str
-        :param example_id: The unique dataset example identifier (UUID) (required)
-        :type example_id: str
-        :param dataset_version_id: The unique identifier of the dataset version
-        :type dataset_version_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._datasets_example_delete_serialize(
-            dataset_id=dataset_id,
-            example_id=example_id,
-            dataset_version_id=dataset_version_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '204': None,
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _datasets_example_delete_serialize(
-        self,
-        dataset_id,
-        example_id,
-        dataset_version_id,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        if dataset_id is not None:
-            _path_params['dataset_id'] = dataset_id
-        if example_id is not None:
-            _path_params['example_id'] = example_id
-        # process the query parameters
-        if dataset_version_id is not None:
-            
-            _query_params.append(('dataset_version_id', dataset_version_id))
-            
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/problem+json'
-                ]
-            )
-
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'bearerAuth'
-        ]
-
-        return self.api_client.param_serialize(
-            method='DELETE',
-            resource_path='/v2/datasets/{dataset_id}/examples/{example_id}',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
     def datasets_examples_annotate(
         self,
         dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
@@ -1216,6 +910,317 @@ class DatasetsApi:
         return self.api_client.param_serialize(
             method='POST',
             resource_path='/v2/datasets/{dataset_id}/examples/annotate',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def datasets_examples_delete(
+        self,
+        dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
+        dataset_example_delete_request: Annotated[DatasetExampleDeleteRequest, Field(description="Body containing the IDs of dataset examples to delete")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> DatasetExampleDeleteResponse:
+        """Delete dataset examples
+
+        Delete a collection of examples from a dataset by their IDs.  The delete is partial-tolerant: examples that exist in the selected version are deleted, and every requested ID that was not deleted is reported back.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if it could not fully complete (retry the full request). - `deleted_example_ids` — example IDs confirmed deleted in this request. - `not_deleted_example_ids` — requested IDs not deleted: either not found in   the selected version (never added, or already deleted), or not completed   when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.  **Payload Requirements** - `dataset_version_id` is required and identifies the version to delete from. - `example_ids` must contain at least one ID and at most 1000 IDs. - `example_ids` must not contain duplicate or empty IDs.  **Valid example** ```json {   \"dataset_version_id\": \"RGF0YXNldFZlcnNpb246MTIzNDU=\",   \"example_ids\": [     \"550e8400-e29b-41d4-a716-446655440000\",     \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"   ] } ```  **Invalid example** (missing `dataset_version_id`) ```json {   \"example_ids\": [\"550e8400-e29b-41d4-a716-446655440000\"] } ```    <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param dataset_id: The unique dataset identifier (base64) (required)
+        :type dataset_id: str
+        :param dataset_example_delete_request: Body containing the IDs of dataset examples to delete (required)
+        :type dataset_example_delete_request: DatasetExampleDeleteRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._datasets_examples_delete_serialize(
+            dataset_id=dataset_id,
+            dataset_example_delete_request=dataset_example_delete_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "DatasetExampleDeleteResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+            '503': "DatasetExampleDeleteProblem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def datasets_examples_delete_with_http_info(
+        self,
+        dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
+        dataset_example_delete_request: Annotated[DatasetExampleDeleteRequest, Field(description="Body containing the IDs of dataset examples to delete")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[DatasetExampleDeleteResponse]:
+        """Delete dataset examples
+
+        Delete a collection of examples from a dataset by their IDs.  The delete is partial-tolerant: examples that exist in the selected version are deleted, and every requested ID that was not deleted is reported back.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if it could not fully complete (retry the full request). - `deleted_example_ids` — example IDs confirmed deleted in this request. - `not_deleted_example_ids` — requested IDs not deleted: either not found in   the selected version (never added, or already deleted), or not completed   when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.  **Payload Requirements** - `dataset_version_id` is required and identifies the version to delete from. - `example_ids` must contain at least one ID and at most 1000 IDs. - `example_ids` must not contain duplicate or empty IDs.  **Valid example** ```json {   \"dataset_version_id\": \"RGF0YXNldFZlcnNpb246MTIzNDU=\",   \"example_ids\": [     \"550e8400-e29b-41d4-a716-446655440000\",     \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"   ] } ```  **Invalid example** (missing `dataset_version_id`) ```json {   \"example_ids\": [\"550e8400-e29b-41d4-a716-446655440000\"] } ```    <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param dataset_id: The unique dataset identifier (base64) (required)
+        :type dataset_id: str
+        :param dataset_example_delete_request: Body containing the IDs of dataset examples to delete (required)
+        :type dataset_example_delete_request: DatasetExampleDeleteRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._datasets_examples_delete_serialize(
+            dataset_id=dataset_id,
+            dataset_example_delete_request=dataset_example_delete_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "DatasetExampleDeleteResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+            '503': "DatasetExampleDeleteProblem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def datasets_examples_delete_without_preload_content(
+        self,
+        dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
+        dataset_example_delete_request: Annotated[DatasetExampleDeleteRequest, Field(description="Body containing the IDs of dataset examples to delete")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Delete dataset examples
+
+        Delete a collection of examples from a dataset by their IDs.  The delete is partial-tolerant: examples that exist in the selected version are deleted, and every requested ID that was not deleted is reported back.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if it could not fully complete (retry the full request). - `deleted_example_ids` — example IDs confirmed deleted in this request. - `not_deleted_example_ids` — requested IDs not deleted: either not found in   the selected version (never added, or already deleted), or not completed   when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.  **Payload Requirements** - `dataset_version_id` is required and identifies the version to delete from. - `example_ids` must contain at least one ID and at most 1000 IDs. - `example_ids` must not contain duplicate or empty IDs.  **Valid example** ```json {   \"dataset_version_id\": \"RGF0YXNldFZlcnNpb246MTIzNDU=\",   \"example_ids\": [     \"550e8400-e29b-41d4-a716-446655440000\",     \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"   ] } ```  **Invalid example** (missing `dataset_version_id`) ```json {   \"example_ids\": [\"550e8400-e29b-41d4-a716-446655440000\"] } ```    <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param dataset_id: The unique dataset identifier (base64) (required)
+        :type dataset_id: str
+        :param dataset_example_delete_request: Body containing the IDs of dataset examples to delete (required)
+        :type dataset_example_delete_request: DatasetExampleDeleteRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._datasets_examples_delete_serialize(
+            dataset_id=dataset_id,
+            dataset_example_delete_request=dataset_example_delete_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "DatasetExampleDeleteResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+            '503': "DatasetExampleDeleteProblem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _datasets_examples_delete_serialize(
+        self,
+        dataset_id,
+        dataset_example_delete_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if dataset_id is not None:
+            _path_params['dataset_id'] = dataset_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if dataset_example_delete_request is not None:
+            _body_params = dataset_example_delete_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/v2/datasets/{dataset_id}/examples',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -2850,7 +2855,7 @@ class DatasetsApi:
     ) -> Dataset:
         """Update a dataset
 
-        Update an existing dataset by its ID.  **Payload Requirements** - `name` is required. - `name` must be unique within the space (409 Conflict if duplicate). - `name` cannot be empty or whitespace-only.  **Valid example** ```json {   \"name\": \"Updated Dataset Name\" } ```  **Invalid example** (empty body — no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update an existing dataset by its ID.  **Payload Requirements** - `name` is required. - `name` must be unique within the space (409 Conflict if duplicate). - `name` cannot be empty or whitespace-only.  **Valid example** ```json {   \"name\": \"Updated Dataset Name\" } ```  **Invalid example** (empty body — no fields provided) ```json {} ```    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param dataset_id: The unique dataset identifier (base64) (required)
         :type dataset_id: str
@@ -2928,7 +2933,7 @@ class DatasetsApi:
     ) -> ApiResponse[Dataset]:
         """Update a dataset
 
-        Update an existing dataset by its ID.  **Payload Requirements** - `name` is required. - `name` must be unique within the space (409 Conflict if duplicate). - `name` cannot be empty or whitespace-only.  **Valid example** ```json {   \"name\": \"Updated Dataset Name\" } ```  **Invalid example** (empty body — no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update an existing dataset by its ID.  **Payload Requirements** - `name` is required. - `name` must be unique within the space (409 Conflict if duplicate). - `name` cannot be empty or whitespace-only.  **Valid example** ```json {   \"name\": \"Updated Dataset Name\" } ```  **Invalid example** (empty body — no fields provided) ```json {} ```    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param dataset_id: The unique dataset identifier (base64) (required)
         :type dataset_id: str
@@ -3006,7 +3011,7 @@ class DatasetsApi:
     ) -> RESTResponseType:
         """Update a dataset
 
-        Update an existing dataset by its ID.  **Payload Requirements** - `name` is required. - `name` must be unique within the space (409 Conflict if duplicate). - `name` cannot be empty or whitespace-only.  **Valid example** ```json {   \"name\": \"Updated Dataset Name\" } ```  **Invalid example** (empty body — no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update an existing dataset by its ID.  **Payload Requirements** - `name` is required. - `name` must be unique within the space (409 Conflict if duplicate). - `name` cannot be empty or whitespace-only.  **Valid example** ```json {   \"name\": \"Updated Dataset Name\" } ```  **Invalid example** (empty body — no fields provided) ```json {} ```    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param dataset_id: The unique dataset identifier (base64) (required)
         :type dataset_id: str

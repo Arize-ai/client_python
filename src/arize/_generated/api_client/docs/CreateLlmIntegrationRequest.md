@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **type** | **str** |  | 
 **name** | **str** | Integration name. Unique per (account, type). | 
 **scopings** | [**List[IntegrationScoping]**](IntegrationScoping.md) | Visibility scoping rules. Defaults to account-wide. | [optional] 
-**config** | [**CreateOpenAiConfig**](CreateOpenAiConfig.md) |  | 
+**config** | [**CreateLlmConfig**](CreateLlmConfig.md) |  | 
 
 ## Example
 

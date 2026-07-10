@@ -6,7 +6,6 @@ LLM config fields common across providers.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**is_default_models_enabled** | **bool** | Whether the provider&#39;s default model list is enabled. | 
 **is_function_calling_enabled** | **bool** | Whether function/tool calling is enabled. | 
 
 ## Example

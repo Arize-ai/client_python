@@ -36,6 +36,7 @@ __all__ = [
     "SpacesApi",
     "SpansApi",
     "TasksApi",
+    "TracesApi",
     "UsersApi",
     "ApiResponse",
     "ApiClient",
@@ -87,6 +88,7 @@ __all__ = [
     "AnnotationQueueSpanRecordInput",
     "AnnotationQueueTraceRecordInput",
     "AnnotatorUser",
+    "AnthropicConfig",
     "ApiKey",
     "ApiKeyAccountRole",
     "ApiKeyCreate",
@@ -118,7 +120,9 @@ __all__ = [
     "ContinuousAnnotationConfigUpdate",
     "CreateAnnotationConfigRequestBody",
     "CreateAnnotationQueueRequestBody",
+    "CreateAnthropicConfig",
     "CreateCodeEvaluationTaskRequest",
+    "CreateLlmConfig",
     "CreateLlmConfigBase",
     "CreateLlmIntegrationRequest",
     "CreateOpenAiConfig",
@@ -131,6 +135,9 @@ __all__ = [
     "DataGranularity",
     "Dataset",
     "DatasetExample",
+    "DatasetExampleDeleteProblem",
+    "DatasetExampleDeleteRequest",
+    "DatasetExampleDeleteResponse",
     "DatasetExampleListResponse",
     "DatasetExampleUpdate",
     "DatasetListResponse",
@@ -182,6 +189,8 @@ __all__ = [
     "InvocationParams",
     "LLMMessage",
     "ListSpansRequest",
+    "ListTracesRequest",
+    "LlmConfig",
     "LlmConfigBase",
     "LlmGenerationRunConfig",
     "LlmIntegration",
@@ -280,6 +289,8 @@ __all__ = [
     "ToolCallFunction",
     "ToolCallType",
     "ToolConfig",
+    "Trace",
+    "TraceListResponse",
     "TriggerEvaluationTaskRunRequest",
     "TriggerRunExperimentTaskRunRequest",
     "UpdateAnnotationConfigRequestBody",
@@ -318,6 +329,7 @@ from arize._generated.api_client.api.roles_api import RolesApi as RolesApi
 from arize._generated.api_client.api.spaces_api import SpacesApi as SpacesApi
 from arize._generated.api_client.api.spans_api import SpansApi as SpansApi
 from arize._generated.api_client.api.tasks_api import TasksApi as TasksApi
+from arize._generated.api_client.api.traces_api import TracesApi as TracesApi
 from arize._generated.api_client.api.users_api import UsersApi as UsersApi
 
 # import ApiClient
@@ -373,6 +385,7 @@ from arize._generated.api_client.models.annotation_queue_source_type import Anno
 from arize._generated.api_client.models.annotation_queue_span_record_input import AnnotationQueueSpanRecordInput as AnnotationQueueSpanRecordInput
 from arize._generated.api_client.models.annotation_queue_trace_record_input import AnnotationQueueTraceRecordInput as AnnotationQueueTraceRecordInput
 from arize._generated.api_client.models.annotator_user import AnnotatorUser as AnnotatorUser
+from arize._generated.api_client.models.anthropic_config import AnthropicConfig as AnthropicConfig
 from arize._generated.api_client.models.api_key import ApiKey as ApiKey
 from arize._generated.api_client.models.api_key_account_role import ApiKeyAccountRole as ApiKeyAccountRole
 from arize._generated.api_client.models.api_key_create import ApiKeyCreate as ApiKeyCreate
@@ -404,7 +417,9 @@ from arize._generated.api_client.models.continuous_annotation_config_create impo
 from arize._generated.api_client.models.continuous_annotation_config_update import ContinuousAnnotationConfigUpdate as ContinuousAnnotationConfigUpdate
 from arize._generated.api_client.models.create_annotation_config_request_body import CreateAnnotationConfigRequestBody as CreateAnnotationConfigRequestBody
 from arize._generated.api_client.models.create_annotation_queue_request_body import CreateAnnotationQueueRequestBody as CreateAnnotationQueueRequestBody
+from arize._generated.api_client.models.create_anthropic_config import CreateAnthropicConfig as CreateAnthropicConfig
 from arize._generated.api_client.models.create_code_evaluation_task_request import CreateCodeEvaluationTaskRequest as CreateCodeEvaluationTaskRequest
+from arize._generated.api_client.models.create_llm_config import CreateLlmConfig as CreateLlmConfig
 from arize._generated.api_client.models.create_llm_config_base import CreateLlmConfigBase as CreateLlmConfigBase
 from arize._generated.api_client.models.create_llm_integration_request import CreateLlmIntegrationRequest as CreateLlmIntegrationRequest
 from arize._generated.api_client.models.create_open_ai_config import CreateOpenAiConfig as CreateOpenAiConfig
@@ -417,6 +432,9 @@ from arize._generated.api_client.models.custom_user_role_assignment import Custo
 from arize._generated.api_client.models.data_granularity import DataGranularity as DataGranularity
 from arize._generated.api_client.models.dataset import Dataset as Dataset
 from arize._generated.api_client.models.dataset_example import DatasetExample as DatasetExample
+from arize._generated.api_client.models.dataset_example_delete_problem import DatasetExampleDeleteProblem as DatasetExampleDeleteProblem
+from arize._generated.api_client.models.dataset_example_delete_request import DatasetExampleDeleteRequest as DatasetExampleDeleteRequest
+from arize._generated.api_client.models.dataset_example_delete_response import DatasetExampleDeleteResponse as DatasetExampleDeleteResponse
 from arize._generated.api_client.models.dataset_example_list_response import DatasetExampleListResponse as DatasetExampleListResponse
 from arize._generated.api_client.models.dataset_example_update import DatasetExampleUpdate as DatasetExampleUpdate
 from arize._generated.api_client.models.dataset_list_response import DatasetListResponse as DatasetListResponse
@@ -468,6 +486,8 @@ from arize._generated.api_client.models.invite_mode import InviteMode as InviteM
 from arize._generated.api_client.models.invocation_params import InvocationParams as InvocationParams
 from arize._generated.api_client.models.llm_message import LLMMessage as LLMMessage
 from arize._generated.api_client.models.list_spans_request import ListSpansRequest as ListSpansRequest
+from arize._generated.api_client.models.list_traces_request import ListTracesRequest as ListTracesRequest
+from arize._generated.api_client.models.llm_config import LlmConfig as LlmConfig
 from arize._generated.api_client.models.llm_config_base import LlmConfigBase as LlmConfigBase
 from arize._generated.api_client.models.llm_generation_run_config import LlmGenerationRunConfig as LlmGenerationRunConfig
 from arize._generated.api_client.models.llm_integration import LlmIntegration as LlmIntegration
@@ -566,6 +586,8 @@ from arize._generated.api_client.models.tool_call import ToolCall as ToolCall
 from arize._generated.api_client.models.tool_call_function import ToolCallFunction as ToolCallFunction
 from arize._generated.api_client.models.tool_call_type import ToolCallType as ToolCallType
 from arize._generated.api_client.models.tool_config import ToolConfig as ToolConfig
+from arize._generated.api_client.models.trace import Trace as Trace
+from arize._generated.api_client.models.trace_list_response import TraceListResponse as TraceListResponse
 from arize._generated.api_client.models.trigger_evaluation_task_run_request import TriggerEvaluationTaskRunRequest as TriggerEvaluationTaskRunRequest
 from arize._generated.api_client.models.trigger_run_experiment_task_run_request import TriggerRunExperimentTaskRunRequest as TriggerRunExperimentTaskRunRequest
 from arize._generated.api_client.models.update_annotation_config_request_body import UpdateAnnotationConfigRequestBody as UpdateAnnotationConfigRequestBody

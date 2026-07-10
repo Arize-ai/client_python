@@ -77,17 +77,6 @@
     - [Get a Project](#get-a-project)
     - [Update a Project](#update-a-project)
     - [Delete a Project](#delete-a-project)
-  - [Operations on Annotation Configs](#operations-on-annotation-configs)
-    - [List Annotation Configs](#list-annotation-configs)
-    - [Create an Annotation Config](#create-an-annotation-config)
-    - [Get an Annotation Config](#get-an-annotation-config)
-    - [Delete an Annotation Config](#delete-an-annotation-config)
-  - [Operations on AI Integrations](#operations-on-ai-integrations)
-    - [List AI Integrations](#list-ai-integrations)
-    - [Create an AI Integration](#create-an-ai-integration)
-    - [Get an AI Integration](#get-an-ai-integration)
-    - [Update an AI Integration](#update-an-ai-integration)
-    - [Delete an AI Integration](#delete-an-ai-integration)
   - [Operations on Organizations](#operations-on-organizations)
     - [List Organizations](#list-organizations)
     - [Get an Organization](#get-an-organization)
@@ -114,6 +103,21 @@
     - [Create a Service Key](#create-a-service-key)
     - [Revoke an API Key](#revoke-an-api-key)
     - [Refresh an API Key](#refresh-an-api-key)
+  - [Operations on Annotation Configs](#operations-on-annotation-configs)
+    - [List Annotation Configs](#list-annotation-configs)
+    - [Create an Annotation Config](#create-an-annotation-config)
+    - [Get an Annotation Config](#get-an-annotation-config)
+    - [Delete an Annotation Config](#delete-an-annotation-config)
+  - [Operations on Resource Restrictions](#operations-on-resource-restrictions)
+    - [List Resource Restrictions](#list-resource-restrictions)
+    - [Restrict a Resource](#restrict-a-resource)
+    - [Unrestrict a Resource](#unrestrict-a-resource)
+  - [Operations on AI Integrations](#operations-on-ai-integrations)
+    - [List AI Integrations](#list-ai-integrations)
+    - [Create an AI Integration](#create-an-ai-integration)
+    - [Get an AI Integration](#get-an-ai-integration)
+    - [Update an AI Integration](#update-an-ai-integration)
+    - [Delete an AI Integration](#delete-an-ai-integration)
 - [SDK Configuration](#sdk-configuration)
   - [Logging](#logging)
     - [In Code](#in-code)
@@ -561,6 +565,46 @@ updated_dataset = client.datasets.append_examples(
     dataset_version_id="<version-id-to-append-to>",
     examples=..., # List of dictionaries or pandas dataframe
 )
+```
+
+### Update Dataset Examples
+
+You can update the content of existing dataset examples using `client.datasets.update_examples()`. Examples are matched by their existing `id`; an `id` not found in the targeted version is ignored (no error, no insert — use `append_examples` to add new examples). Pass `new_version` to snapshot the update as a new dataset version instead of updating in place.
+
+```python
+updated_version = client.datasets.update_examples(
+    dataset="<your-dataset-id-or-name>",
+    space=..., # Optional, space ID or name
+    dataset_version_id="<version-id-to-update>", # Optional, defaults to latest version
+    examples=[
+        {"id": "<existing-example-id>", "question": "...", "answer": "..."},
+    ],
+    new_version=..., # Optional, name for a new version; omit to update in place
+)
+```
+
+### Delete Dataset Examples
+
+You can delete a batch of examples from a dataset version using `client.datasets.delete_examples()`. Examples are removed in place from the given `dataset_version_id` (no new version is created). The delete is partial-tolerant and idempotent, so re-submitting already-deleted IDs is safe. Up to 1000 example IDs may be deleted per request, and they must not contain duplicate or empty values.
+
+```python
+resp = client.datasets.delete_examples(
+    dataset="<your-dataset-id-or-name>",
+    space=..., # Optional, space ID or name
+    dataset_version_id="<version-id-to-delete-from>",
+    examples=..., # List of example IDs to delete (1-1000, no duplicates or empty values)
+)
+```
+
+The response is an object of type `DatasetExampleDeleteResponse`. Use `completed` to check whether the operation finished (retry the full request if `False`), `deleted_example_ids` for the IDs confirmed deleted, and `not_deleted_example_ids` for requested IDs that were not deleted (not found in the selected version, or not completed).
+
+```python
+# Whether the operation finished and no retry is needed
+completed = resp.completed
+# IDs confirmed deleted in this request
+deleted = resp.deleted_example_ids
+# Requested IDs that were not deleted
+not_deleted = resp.not_deleted_example_ids
 ```
 
 ## Operations on Experiments
@@ -1470,29 +1514,35 @@ config_list = resp.annotation_configs
 
 ### Create an Annotation Config
 
+Three config types are supported: continuous (a numeric score in a range), categorical (a fixed set of labeled values), and freeform (open-ended text with no scale). Use whichever `create_*` method matches the config type you want.
+
 ```python
-from arize.annotation_configs.types import AnnotationConfigType, CategoricalAnnotationValue, OptimizationDirection
+from arize.annotation_configs.types import CategoricalAnnotationValue, OptimizationDirection
 
 # Continuous (numeric) annotation config
-config = client.annotation_configs.create(
+config = client.annotation_configs.create_continuous(
     name="quality-score",
     space="<space-id-or-name>",
-    config_type=AnnotationConfigType.CONTINUOUS,
     minimum_score=0.0,
     maximum_score=1.0,
     optimization_direction=OptimizationDirection.MAXIMIZE,
 )
 
 # Categorical annotation config
-config = client.annotation_configs.create(
+config = client.annotation_configs.create_categorical(
     name="correctness",
     space="<space-id-or-name>",
-    config_type=AnnotationConfigType.CATEGORICAL,
     values=[
         CategoricalAnnotationValue(label="correct", score=1),
         CategoricalAnnotationValue(label="incorrect", score=0),
     ],
     optimization_direction=OptimizationDirection.MAXIMIZE,
+)
+
+# Freeform (open-ended text) annotation config
+config = client.annotation_configs.create_freeform(
+    name="reviewer-notes",
+    space="<space-id-or-name>",
 )
 ```
 
@@ -1505,12 +1555,83 @@ config = client.annotation_configs.get(
 )
 ```
 
+### Update an Annotation Config
+
+Only the fields you pass are changed; omitted fields are left unchanged. Use
+the method matching the stored config's type, since the config type is immutable.
+
+```python
+from arize.annotation_configs.types import CategoricalAnnotationValue, OptimizationDirection
+
+# Rename a freeform config
+config = client.annotation_configs.update_freeform(
+    annotation_config="<config-id-or-name>",
+    space=..., # Optional, required when passing a name
+    name="renamed-config",
+)
+
+# Replace the label set of a categorical config
+config = client.annotation_configs.update_categorical(
+    annotation_config="<config-id-or-name>",
+    values=[
+        CategoricalAnnotationValue(label="good", score=1),
+        CategoricalAnnotationValue(label="bad", score=0),
+    ],
+    optimization_direction=OptimizationDirection.MAXIMIZE,
+)
+
+# Adjust the score bounds of a continuous config
+config = client.annotation_configs.update_continuous(
+    annotation_config="<config-id-or-name>",
+    minimum_score=0.0,
+    maximum_score=10.0,
+)
+```
+
 ### Delete an Annotation Config
 
 ```python
 client.annotation_configs.delete(
     annotation_config="<config-id-or-name>",
     space=..., # Optional
+)
+```
+
+## Operations on Resource Restrictions
+
+Use `client.resource_restrictions` to manage resource restrictions. Restricting a resource prevents roles bound at higher hierarchy levels (space, org, account) from granting access to it — access must be granted directly on the resource. Only space admins or users with the `PROJECT_RESTRICT` permission can manage restrictions. Currently only `PROJECT` resources are supported.
+
+> **Note:** Resource restrictions are an **alpha** API and may change without notice.
+
+### List Resource Restrictions
+
+You can list all resource restrictions that you are permitted to manage using `client.resource_restrictions.list()`. You can use the `limit` parameter to specify the maximum number of restrictions desired per page and you can specify `resource_type` to filter by resource type (currently only `PROJECT` is supported). You can use `cursor` for pagination, pass `pagination.next_cursor` from a previous response. Results are authorization-filtered after each page is fetched, so a page may contain fewer items than `limit` (or none) while `pagination.has_more` is still `True`; keep paging until `pagination.has_more` is `False`.
+
+```python
+from arize.resource_restrictions.types import ResourceRestrictionType
+
+resp = client.resource_restrictions.list(
+    resource_type=ResourceRestrictionType.PROJECT, # Optional filter
+    limit=..., # Optional, defaults to 50
+    cursor=..., # Optional, pagination cursor from a previous response
+)
+```
+
+### Restrict a Resource
+
+Idempotent. Restricting an already-restricted resource returns the existing restriction without error.
+
+```python
+restriction = client.resource_restrictions.restrict(
+    resource_id="<project-id>",
+)
+```
+
+### Unrestrict a Resource
+
+```python
+client.resource_restrictions.unrestrict(
+    resource_id="<project-id>",
 )
 ```
 

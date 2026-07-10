@@ -21,7 +21,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
 from arize._generated.api_client.models.integration_scoping import IntegrationScoping
-from arize._generated.api_client.models.open_ai_config import OpenAiConfig
+from arize._generated.api_client.models.llm_config import LlmConfig
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -36,7 +36,7 @@ class LlmIntegration(BaseModel):
     created_at: datetime = Field(description="When the integration was created.")
     updated_at: datetime = Field(description="When the integration was last updated.")
     created_by_user_id: StrictStr = Field(description="Global ID of the user who created the integration.")
-    config: OpenAiConfig
+    config: LlmConfig
     __properties: ClassVar[List[str]] = ["id", "type", "name", "scopings", "created_at", "updated_at", "created_by_user_id", "config"]
 
     @field_validator('type')
@@ -119,7 +119,7 @@ class LlmIntegration(BaseModel):
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at"),
             "created_by_user_id": obj.get("created_by_user_id"),
-            "config": OpenAiConfig.from_dict(obj["config"]) if obj.get("config") is not None else None
+            "config": LlmConfig.from_dict(obj["config"]) if obj.get("config") is not None else None
         })
         return _obj
 

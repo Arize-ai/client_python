@@ -65,6 +65,79 @@ class TestResourceRestrictionsClientInit:
 
 
 @pytest.mark.unit
+class TestResourceRestrictionsClientList:
+    """Tests for ResourceRestrictionsClient.list()."""
+
+    def test_list_uses_default_limit_and_no_filters(
+        self,
+        resource_restrictions_client: ResourceRestrictionsClient,
+        mock_api: Mock,
+    ) -> None:
+        """list() should forward the default limit and omit optional filters."""
+        from arize.constants.config import DEFAULT_LIST_LIMIT
+
+        resource_restrictions_client.list()
+
+        mock_api.resource_restrictions_list.assert_called_once_with(
+            resource_type=None,
+            limit=DEFAULT_LIST_LIMIT,
+            cursor=None,
+        )
+
+    def test_list_forwards_all_arguments(
+        self,
+        resource_restrictions_client: ResourceRestrictionsClient,
+        mock_api: Mock,
+    ) -> None:
+        """list() should forward resource_type, limit, and cursor to the API."""
+        from arize.resource_restrictions.types import ResourceRestrictionType
+
+        resource_restrictions_client.list(
+            resource_type=ResourceRestrictionType.PROJECT,
+            limit=25,
+            cursor="next-page-token",
+        )
+
+        mock_api.resource_restrictions_list.assert_called_once_with(
+            resource_type=ResourceRestrictionType.PROJECT,
+            limit=25,
+            cursor="next-page-token",
+        )
+
+    def test_list_returns_api_response(
+        self,
+        resource_restrictions_client: ResourceRestrictionsClient,
+        mock_api: Mock,
+    ) -> None:
+        """list() should return the response object from the API."""
+        mock_response = Mock()
+        mock_api.resource_restrictions_list.return_value = mock_response
+
+        result = resource_restrictions_client.list()
+
+        assert result is mock_response
+
+    def test_list_emits_alpha_prerelease_warning(
+        self,
+        resource_restrictions_client: ResourceRestrictionsClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the ALPHA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        resource_restrictions_client.list()
+
+        assert any(
+            "ALPHA" in record.message
+            and "resource_restrictions.list" in record.message
+            for record in caplog.records
+        )
+
+
+@pytest.mark.unit
 class TestResourceRestrictionsClientRestrict:
     """Tests for ResourceRestrictionsClient.restrict()."""
 

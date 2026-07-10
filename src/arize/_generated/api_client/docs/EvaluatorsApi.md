@@ -419,7 +419,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    evaluators_create_request = {"space_id":"U3BhY2U6NDkzOkJaSkc=","name":"Hallucination Eval","description":"Detects hallucinated content in LLM responses","type":"template","version":{"commit_message":"Initial version","template_config":{"name":"hallucination","template":"You are an evaluation assistant. Given the following input and output, determine if the output contains hallucinated content.\n\nInput: {input}\nOutput: {output}\nReference: {reference}","include_explanations":true,"use_function_calling_if_available":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"maximize","data_granularity":"span","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}}} # EvaluatorsCreateRequest | Body containing evaluator creation parameters with an initial version
+    evaluators_create_request = {"space_id":"U3BhY2U6NDkzOkJaSkc=","name":"Hallucination Eval","description":"Detects hallucinated content in LLM responses","type":"template","version":{"commit_message":"Initial version","template_config":{"name":"hallucination","template":"You are an evaluation assistant. Given the following input and output, determine if the output contains hallucinated content.\n\nInput: {input}\nOutput: {output}\nReference: {reference}","include_explanations":true,"use_function_calling_if_available":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"maximize","data_granularity":"span","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}}} # EvaluatorsCreateRequest | Body containing evaluator creation parameters with an initial version.  Only `type: template` and `type: code` are currently accepted on creation. 
 
     try:
         # Create evaluator
@@ -437,7 +437,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **evaluators_create_request** | [**EvaluatorsCreateRequest**](EvaluatorsCreateRequest.md)| Body containing evaluator creation parameters with an initial version | 
+ **evaluators_create_request** | [**EvaluatorsCreateRequest**](EvaluatorsCreateRequest.md)| Body containing evaluator creation parameters with an initial version.  Only &#x60;type: template&#x60; and &#x60;type: code&#x60; are currently accepted on creation.  | 
 
 ### Return type
 

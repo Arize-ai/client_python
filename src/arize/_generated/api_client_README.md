@@ -100,8 +100,8 @@ Class | Method | HTTP request | Description
 *AuditLogsApi* | [**audit_logs_list**](arize/_generated/api_client/docs/AuditLogsApi.md#audit_logs_list) | **GET** /v2/audit-logs | List audit logs
 *DatasetsApi* | [**datasets_create**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_create) | **POST** /v2/datasets | Create a dataset
 *DatasetsApi* | [**datasets_delete**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_delete) | **DELETE** /v2/datasets/{dataset_id} | Delete a dataset
-*DatasetsApi* | [**datasets_example_delete**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_example_delete) | **DELETE** /v2/datasets/{dataset_id}/examples/{example_id} | Delete a dataset example
 *DatasetsApi* | [**datasets_examples_annotate**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_examples_annotate) | **POST** /v2/datasets/{dataset_id}/examples/annotate | Annotate a batch of dataset examples
+*DatasetsApi* | [**datasets_examples_delete**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_examples_delete) | **DELETE** /v2/datasets/{dataset_id}/examples | Delete dataset examples
 *DatasetsApi* | [**datasets_examples_insert**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_examples_insert) | **POST** /v2/datasets/{dataset_id}/examples | Add new examples to a dataset
 *DatasetsApi* | [**datasets_examples_list**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_examples_list) | **GET** /v2/datasets/{dataset_id}/examples | List dataset examples
 *DatasetsApi* | [**datasets_examples_update**](arize/_generated/api_client/docs/DatasetsApi.md#datasets_examples_update) | **PATCH** /v2/datasets/{dataset_id}/examples | Update existing examples in a dataset
@@ -183,6 +183,7 @@ Class | Method | HTTP request | Description
 *TasksApi* | [**tasks_list**](arize/_generated/api_client/docs/TasksApi.md#tasks_list) | **GET** /v2/tasks | List tasks
 *TasksApi* | [**tasks_trigger_run**](arize/_generated/api_client/docs/TasksApi.md#tasks_trigger_run) | **POST** /v2/tasks/{task_id}/trigger | Trigger a task run
 *TasksApi* | [**tasks_update**](arize/_generated/api_client/docs/TasksApi.md#tasks_update) | **PATCH** /v2/tasks/{task_id} | Update task
+*TracesApi* | [**traces_list**](arize/_generated/api_client/docs/TracesApi.md#traces_list) | **POST** /v2/traces | List traces
 *UsersApi* | [**users_create**](arize/_generated/api_client/docs/UsersApi.md#users_create) | **POST** /v2/users | Create a user
 *UsersApi* | [**users_delete**](arize/_generated/api_client/docs/UsersApi.md#users_delete) | **DELETE** /v2/users/{user_id} | Delete a user
 *UsersApi* | [**users_get**](arize/_generated/api_client/docs/UsersApi.md#users_get) | **GET** /v2/users/{user_id} | Get a user
@@ -235,6 +236,7 @@ Class | Method | HTTP request | Description
  - [AnnotationQueueSpanRecordInput](arize/_generated/api_client/docs/AnnotationQueueSpanRecordInput.md)
  - [AnnotationQueueTraceRecordInput](arize/_generated/api_client/docs/AnnotationQueueTraceRecordInput.md)
  - [AnnotatorUser](arize/_generated/api_client/docs/AnnotatorUser.md)
+ - [AnthropicConfig](arize/_generated/api_client/docs/AnthropicConfig.md)
  - [ApiKey](arize/_generated/api_client/docs/ApiKey.md)
  - [ApiKeyAccountRole](arize/_generated/api_client/docs/ApiKeyAccountRole.md)
  - [ApiKeyCreate](arize/_generated/api_client/docs/ApiKeyCreate.md)
@@ -266,7 +268,9 @@ Class | Method | HTTP request | Description
  - [ContinuousAnnotationConfigUpdate](arize/_generated/api_client/docs/ContinuousAnnotationConfigUpdate.md)
  - [CreateAnnotationConfigRequestBody](arize/_generated/api_client/docs/CreateAnnotationConfigRequestBody.md)
  - [CreateAnnotationQueueRequestBody](arize/_generated/api_client/docs/CreateAnnotationQueueRequestBody.md)
+ - [CreateAnthropicConfig](arize/_generated/api_client/docs/CreateAnthropicConfig.md)
  - [CreateCodeEvaluationTaskRequest](arize/_generated/api_client/docs/CreateCodeEvaluationTaskRequest.md)
+ - [CreateLlmConfig](arize/_generated/api_client/docs/CreateLlmConfig.md)
  - [CreateLlmConfigBase](arize/_generated/api_client/docs/CreateLlmConfigBase.md)
  - [CreateLlmIntegrationRequest](arize/_generated/api_client/docs/CreateLlmIntegrationRequest.md)
  - [CreateOpenAiConfig](arize/_generated/api_client/docs/CreateOpenAiConfig.md)
@@ -279,6 +283,9 @@ Class | Method | HTTP request | Description
  - [DataGranularity](arize/_generated/api_client/docs/DataGranularity.md)
  - [Dataset](arize/_generated/api_client/docs/Dataset.md)
  - [DatasetExample](arize/_generated/api_client/docs/DatasetExample.md)
+ - [DatasetExampleDeleteProblem](arize/_generated/api_client/docs/DatasetExampleDeleteProblem.md)
+ - [DatasetExampleDeleteRequest](arize/_generated/api_client/docs/DatasetExampleDeleteRequest.md)
+ - [DatasetExampleDeleteResponse](arize/_generated/api_client/docs/DatasetExampleDeleteResponse.md)
  - [DatasetExampleListResponse](arize/_generated/api_client/docs/DatasetExampleListResponse.md)
  - [DatasetExampleUpdate](arize/_generated/api_client/docs/DatasetExampleUpdate.md)
  - [DatasetListResponse](arize/_generated/api_client/docs/DatasetListResponse.md)
@@ -330,6 +337,8 @@ Class | Method | HTTP request | Description
  - [InvocationParams](arize/_generated/api_client/docs/InvocationParams.md)
  - [LLMMessage](arize/_generated/api_client/docs/LLMMessage.md)
  - [ListSpansRequest](arize/_generated/api_client/docs/ListSpansRequest.md)
+ - [ListTracesRequest](arize/_generated/api_client/docs/ListTracesRequest.md)
+ - [LlmConfig](arize/_generated/api_client/docs/LlmConfig.md)
  - [LlmConfigBase](arize/_generated/api_client/docs/LlmConfigBase.md)
  - [LlmGenerationRunConfig](arize/_generated/api_client/docs/LlmGenerationRunConfig.md)
  - [LlmIntegration](arize/_generated/api_client/docs/LlmIntegration.md)
@@ -428,6 +437,8 @@ Class | Method | HTTP request | Description
  - [ToolCallFunction](arize/_generated/api_client/docs/ToolCallFunction.md)
  - [ToolCallType](arize/_generated/api_client/docs/ToolCallType.md)
  - [ToolConfig](arize/_generated/api_client/docs/ToolConfig.md)
+ - [Trace](arize/_generated/api_client/docs/Trace.md)
+ - [TraceListResponse](arize/_generated/api_client/docs/TraceListResponse.md)
  - [TriggerEvaluationTaskRunRequest](arize/_generated/api_client/docs/TriggerEvaluationTaskRunRequest.md)
  - [TriggerRunExperimentTaskRunRequest](arize/_generated/api_client/docs/TriggerRunExperimentTaskRunRequest.md)
  - [UpdateAnnotationConfigRequestBody](arize/_generated/api_client/docs/UpdateAnnotationConfigRequestBody.md)

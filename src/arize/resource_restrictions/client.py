@@ -5,12 +5,17 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 
 if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
-    from arize.resource_restrictions.types import ResourceRestriction
+    from arize.resource_restrictions.types import (
+        ResourceRestriction,
+        ResourceRestrictionListResponse,
+        ResourceRestrictionType,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +54,54 @@ class ResourceRestrictionsClient:
 
         # Use the provided client directly
         self._api = gen.ResourceRestrictionsApi(generated_client)
+
+    @prerelease_endpoint(
+        key="resource_restrictions.list", stage=ReleaseStage.ALPHA
+    )
+    def list(
+        self,
+        *,
+        resource_type: ResourceRestrictionType | None = None,
+        limit: int = DEFAULT_LIST_LIMIT,
+        cursor: str | None = None,
+    ) -> ResourceRestrictionListResponse:
+        """List resource restrictions the caller is permitted to manage.
+
+        Only restrictions the caller can manage are returned — i.e. an
+        account/org admin, a holder of the ``PROJECT_RESTRICT`` permission in the
+        resource's space, or a holder of ``PROJECT_RESTRICT`` granted directly on
+        the resource.
+
+        Results are paginated. Because entries are authorization-filtered after a
+        page is read, a page may contain fewer items than ``limit`` (or be empty)
+        while ``pagination.has_more`` is still ``True``. Keep paging until
+        ``pagination.has_more`` is ``False`` — do not stop on an empty page.
+
+        Currently only ``PROJECT`` resources are supported.
+
+        Args:
+            resource_type: Optional filter restricting results to a single
+                resource type. When omitted, restrictions of all supported
+                resource types are returned (currently only ``PROJECT``).
+            limit: Maximum number of restrictions to return per page. The server
+                enforces an upper bound.
+            cursor: Opaque pagination cursor returned from a previous response
+                (``pagination.next_cursor``). Treat it as an unreadable token; do
+                not attempt to parse or construct it.
+
+        Returns:
+            A response object with the resource restrictions and pagination
+            information.
+
+        Raises:
+            ApiException: If the API request fails (for example, invalid input
+                or insufficient permissions).
+        """
+        return self._api.resource_restrictions_list(
+            resource_type=resource_type,
+            limit=limit,
+            cursor=cursor,
+        )
 
     @prerelease_endpoint(
         key="resource_restrictions.restrict", stage=ReleaseStage.ALPHA

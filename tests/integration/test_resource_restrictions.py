@@ -102,3 +102,36 @@ class TestResourceRestrictionsClient:
                 resource_id=PROJECT_ID
             )
         assert exc_info.value.status == 404
+
+    def test_list_returns_restricted_resource(self, arize_client) -> None:
+        """list() should include a resource after it has been restricted."""
+        arize_client.resource_restrictions.restrict(resource_id=PROJECT_ID)
+        try:
+            resp = arize_client.resource_restrictions.list()
+            resource_ids = {r.resource_id for r in resp.resource_restrictions}
+            assert PROJECT_ID in resource_ids
+            assert isinstance(resp.pagination.has_more, bool)
+        finally:
+            arize_client.resource_restrictions.unrestrict(
+                resource_id=PROJECT_ID
+            )
+
+    def test_list_filter_by_resource_type(self, arize_client) -> None:
+        """list() should accept a resource_type filter."""
+        from arize.resource_restrictions.types import ResourceRestrictionType
+
+        arize_client.resource_restrictions.restrict(resource_id=PROJECT_ID)
+        try:
+            resp = arize_client.resource_restrictions.list(
+                resource_type=ResourceRestrictionType.PROJECT,
+                limit=10,
+            )
+            assert len(resp.resource_restrictions) >= 1
+            for restriction in resp.resource_restrictions:
+                assert (
+                    restriction.resource_type == ResourceRestrictionType.PROJECT
+                )
+        finally:
+            arize_client.resource_restrictions.unrestrict(
+                resource_id=PROJECT_ID
+            )

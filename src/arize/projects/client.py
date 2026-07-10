@@ -166,7 +166,7 @@ class ProjectsClient:
         )
         return self._api.projects_delete(project_id=project_id)
 
-    @prerelease_endpoint(key="projects.update", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="projects.update", stage=ReleaseStage.BETA)
     def update(
         self,
         *,

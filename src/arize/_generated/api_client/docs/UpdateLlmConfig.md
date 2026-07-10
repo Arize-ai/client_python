@@ -8,7 +8,6 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **provider** | [**LlmIntegrationProvider**](LlmIntegrationProvider.md) |  | [optional] 
 **api_key** | **str** | Rotate the API key. Pass null to clear it. Omit to keep unchanged. | [optional] 
-**is_default_models_enabled** | **bool** |  | [optional] 
 **is_function_calling_enabled** | **bool** |  | [optional] 
 
 ## Example

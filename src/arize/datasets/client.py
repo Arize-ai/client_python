@@ -258,7 +258,7 @@ class DatasetsClient:
         )
         return self._api.datasets_delete(dataset_id=dataset_id)
 
-    @prerelease_endpoint(key="datasets.update", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="datasets.update", stage=ReleaseStage.BETA)
     def update(
         self,
         *,
@@ -498,6 +498,74 @@ class DatasetsClient:
         )
 
     @prerelease_endpoint(
+        key="datasets.update_examples", stage=ReleaseStage.BETA
+    )
+    def update_examples(
+        self,
+        *,
+        dataset: str,
+        space: str | None = None,
+        dataset_version_id: str = "",
+        examples: builtins.list[dict[str, object]],
+        new_version: str | None = None,
+    ) -> models.DatasetVersionWithExampleIds:
+        """Update the content of existing dataset examples, matched by ID.
+
+        An example ID that doesn't exist in the targeted version is ignored
+        (no error, no insert).
+
+        Payload requirements (server-enforced):
+            - Each example must include `id` (the existing example's ID).
+            - Do not include other system-managed fields: `created_at`,
+              `updated_at` (requests containing these fields will be rejected).
+            - Adding columns not already in the dataset schema is allowed;
+              removing existing columns is not.
+            - 1 to 1000 examples per request.
+
+        Args:
+            dataset: Dataset ID or name.
+            space: Space ID or name. Required when *dataset* is a name.
+            dataset_version_id: Dataset version ID this update applies to. If
+                empty, the latest dataset version is selected.
+            examples: Examples to update, as a list of JSON-like dicts. Each dict
+                must include `id`; all other keys are treated as the example's
+                user-defined fields and replace its stored content.
+            new_version: Optional name for a new dataset version to create with
+                this update, leaving `dataset_version_id` unchanged. If omitted
+                or empty, the update is applied in place to `dataset_version_id`.
+
+        Returns:
+            A :class:`DatasetVersionWithExampleIds` containing the dataset attributes,
+            the version the update was written to (``dataset_version_id``), and the
+            IDs of the updated examples (``example_ids``).
+
+        Raises:
+            ApiException: If the REST API
+                returns an error response (e.g. 400/401/403/404/429).
+        """
+        dataset_id = _find_dataset_id(
+            api=self._api,
+            dataset=dataset,
+            space=space,
+        )
+        from arize._generated import api_client as gen
+
+        body = gen.DatasetsExamplesUpdateRequest(
+            examples=[
+                obj
+                for example in examples
+                if (obj := gen.DatasetExampleUpdate.from_dict(example))
+                is not None
+            ],
+            new_version=new_version or None,
+        )
+        return self._api.datasets_examples_update(
+            dataset_id=dataset_id,
+            datasets_examples_update_request=body,
+            dataset_version_id=dataset_version_id,
+        )
+
+    @prerelease_endpoint(
         key="datasets.annotate_examples", stage=ReleaseStage.BETA
     )
     def annotate_examples(
@@ -542,6 +610,59 @@ class DatasetsClient:
         return self._api.datasets_examples_annotate(
             dataset_id=dataset_id,
             annotate_dataset_examples_request_body=body,
+        )
+
+    @prerelease_endpoint(
+        key="datasets.delete_examples", stage=ReleaseStage.ALPHA
+    )
+    def delete_examples(
+        self,
+        *,
+        dataset: str,
+        space: str | None = None,
+        dataset_version_id: str,
+        examples: builtins.list[str],
+    ) -> models.DatasetExampleDeleteResponse:
+        """Delete a batch of examples from a dataset version.
+
+        Examples are removed in place from the given ``dataset_version_id``; no
+        new version is created. The delete is partial-tolerant and idempotent:
+        re-submitting already-deleted IDs is safe.
+
+        Up to 1000 examples may be deleted per request. ``example_ids`` must not
+        contain duplicate or empty IDs.
+
+        Args:
+            dataset: Dataset ID or name.
+            space: Space ID or name. Required when *dataset* is a name.
+            dataset_version_id: Dataset version ID to delete the examples from.
+            examples: IDs of the examples to delete (1-1000, no duplicates or
+                empty values).
+
+        Returns:
+            A :class:`DatasetExampleDeleteResponse` with ``completed`` (whether
+            the operation finished and no retry is needed), ``deleted_example_ids``
+            (IDs confirmed deleted), and ``not_deleted_example_ids`` (requested
+            IDs that were not deleted).
+
+        Raises:
+            ApiException: If the REST API returns an error response
+                (e.g. 400/401/403/404/429).
+        """
+        dataset_id = _find_dataset_id(
+            api=self._api,
+            dataset=dataset,
+            space=space,
+        )
+        from arize._generated import api_client as gen
+
+        body = gen.DatasetExampleDeleteRequest(
+            dataset_version_id=dataset_version_id,
+            example_ids=examples,
+        )
+        return self._api.datasets_examples_delete(
+            dataset_id=dataset_id,
+            dataset_example_delete_request=body,
         )
 
     def _create_dataset_via_flight(

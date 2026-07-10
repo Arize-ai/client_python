@@ -37,7 +37,6 @@ class TestUpdateLlmConfig(unittest.TestCase):
             return UpdateLlmConfig(
                 provider = 'openAI',
                 api_key = '',
-                is_default_models_enabled = True,
                 is_function_calling_enabled = True
             )
         else:

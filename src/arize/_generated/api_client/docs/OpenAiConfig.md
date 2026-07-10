@@ -6,7 +6,6 @@ Config for an OpenAI LLM integration.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**is_default_models_enabled** | **bool** | Whether the provider&#39;s default model list is enabled. | 
 **is_function_calling_enabled** | **bool** | Whether function/tool calling is enabled. | 
 **provider** | **str** | Discriminator identifying the OpenAI provider. | 
 **has_api_key** | **bool** | Whether an API key is configured (the key itself is never returned). | 

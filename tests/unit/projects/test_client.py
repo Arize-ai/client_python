@@ -267,12 +267,12 @@ class TestProjectsClientUpdate:
 
         assert result is expected
 
-    def test_update_emits_alpha_prerelease_warning(
+    def test_update_emits_beta_prerelease_warning(
         self,
         projects_client: ProjectsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -287,6 +287,6 @@ class TestProjectsClientUpdate:
             )
 
         assert any(
-            "ALPHA" in record.message and "projects.update" in record.message
+            "BETA" in record.message and "projects.update" in record.message
             for record in caplog.records
         )

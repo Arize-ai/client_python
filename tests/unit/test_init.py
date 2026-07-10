@@ -396,6 +396,7 @@ class TestMonkeyPatching:
         assert hasattr(models.TaskListResponse, "to_df")
         assert hasattr(models.TaskRunListResponse, "to_df")
         assert hasattr(models.AiIntegrationListResponse, "to_df")
+        assert hasattr(models.ResourceRestrictionListResponse, "to_df")
 
     def test_to_df_attached_to_domain_response_types(self) -> None:
         """to_df should be patched onto domain list-response types."""

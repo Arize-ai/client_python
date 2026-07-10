@@ -84,7 +84,7 @@ class SpansClient:
         self._api = gen.SpansApi(generated_client)
         self._projects_api = gen.ProjectsApi(generated_client)
 
-    @prerelease_endpoint(key="spans.delete", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="spans.delete", stage=ReleaseStage.BETA)
     def delete(
         self,
         *,

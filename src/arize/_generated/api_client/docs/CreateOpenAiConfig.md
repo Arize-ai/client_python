@@ -6,7 +6,6 @@ Create config for an OpenAI LLM integration. `api_key` is required and is write-
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**is_default_models_enabled** | **bool** | Enable the provider&#39;s default model list. Defaults to false. | [optional] 
 **is_function_calling_enabled** | **bool** | Enable function/tool calling. Defaults to true. | [optional] 
 **provider** | **str** |  | 
 **api_key** | **str** | API key for the provider (write-only, never returned). | 

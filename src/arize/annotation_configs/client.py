@@ -108,85 +108,136 @@ class AnnotationConfigsClient:
     @prerelease_endpoint(
         key="annotation_configs.create", stage=ReleaseStage.BETA
     )
-    def create(
+    def create_continuous(
         self,
         *,
         name: str,
         space: str,
-        config_type: AnnotationConfigType,
-        minimum_score: float | int | None = None,
-        maximum_score: float | int | None = None,
-        values: builtins.list[CategoricalAnnotationValue] | None = None,
+        minimum_score: float | int,
+        maximum_score: float | int,
         optimization_direction: OptimizationDirection | None = None,
-    ) -> (
-        CategoricalAnnotationConfig
-        | ContinuousAnnotationConfig
-        | FreeformAnnotationConfig
-    ):
-        """Create an annotation config.
+    ) -> ContinuousAnnotationConfig:
+        """Create a continuous annotation config.
 
-        Supported config types:
-            - `continuous` requires `minimum_score` and `maximum_score`
-            - `categorical` requires `values`
-            - `freeform` requires no additional fields
+        Continuous annotation configs let a scorer enter a numeric score
+        within a fixed range, e.g. a 0-1 quality score.
 
         Args:
             name: Annotation config name (must be unique within the target space).
             space: Space ID or name to create the annotation config in.
-            config_type: Type of annotation config to create.
-            minimum_score: Minimum score for continuous configs.
-            maximum_score: Maximum score for continuous configs.
-            values: Categorical values for categorical configs.
-            optimization_direction: Optional optimization direction for
-                continuous and categorical configs.
+            minimum_score: Minimum score a scorer is allowed to submit.
+            maximum_score: Maximum score a scorer is allowed to submit.
+            optimization_direction: Optional direction (e.g. maximize or
+                minimize) that indicates which end of the score range is
+                considered better.
 
         Returns:
-            The created annotation config object as returned by the API.
+            The created continuous annotation config.
 
         Raises:
-            ValueError: If required fields for the selected config type are missing.
             ApiException: If the REST API
                 returns an error response (e.g. 400/401/403/409/429).
         """
         from arize._generated import api_client as gen
 
         space_id = _find_space_id(self._spaces_api, space)
+        body = gen.CreateAnnotationConfigRequestBody(
+            actual_instance=gen.ContinuousAnnotationConfigCreate(
+                name=name,
+                space_id=space_id,
+                annotation_config_type=AnnotationConfigType.CONTINUOUS.value,
+                minimum_score=minimum_score,
+                maximum_score=maximum_score,
+                optimization_direction=optimization_direction,
+            )
+        )
+        result = self._api.annotation_configs_create(
+            create_annotation_config_request_body=body
+        )
+        return unwrap_oneof(result)  # type: ignore[return-value]
 
-        if config_type == AnnotationConfigType.CONTINUOUS:
-            if minimum_score is None or maximum_score is None:
-                raise ValueError(
-                    "minimum_score and maximum_score are required for continuous configs"
-                )
-            body = gen.CreateAnnotationConfigRequestBody(
-                actual_instance=gen.ContinuousAnnotationConfigCreate(
-                    name=name,
-                    space_id=space_id,
-                    annotation_config_type=AnnotationConfigType.CONTINUOUS.value,
-                    minimum_score=minimum_score,
-                    maximum_score=maximum_score,
-                    optimization_direction=optimization_direction,
-                )
+    @prerelease_endpoint(
+        key="annotation_configs.create", stage=ReleaseStage.BETA
+    )
+    def create_categorical(
+        self,
+        *,
+        name: str,
+        space: str,
+        values: builtins.list[CategoricalAnnotationValue],
+        optimization_direction: OptimizationDirection | None = None,
+    ) -> CategoricalAnnotationConfig:
+        """Create a categorical annotation config.
+
+        Categorical annotation configs let a scorer choose from a fixed
+        set of labeled values, e.g. "correct" / "incorrect".
+
+        Args:
+            name: Annotation config name (must be unique within the target space).
+            space: Space ID or name to create the annotation config in.
+            values: The labeled values a scorer can choose from.
+            optimization_direction: Optional direction (e.g. maximize or
+                minimize) that indicates which values are considered better.
+
+        Returns:
+            The created categorical annotation config.
+
+        Raises:
+            ApiException: If the REST API
+                returns an error response (e.g. 400/401/403/409/429).
+        """
+        from arize._generated import api_client as gen
+
+        space_id = _find_space_id(self._spaces_api, space)
+        body = gen.CreateAnnotationConfigRequestBody(
+            actual_instance=gen.CategoricalAnnotationConfigCreate(
+                name=name,
+                space_id=space_id,
+                annotation_config_type=AnnotationConfigType.CATEGORICAL.value,
+                values=values,
+                optimization_direction=optimization_direction,
             )
-        elif config_type == AnnotationConfigType.CATEGORICAL:
-            if values is None:
-                raise ValueError("values are required for categorical configs")
-            body = gen.CreateAnnotationConfigRequestBody(
-                actual_instance=gen.CategoricalAnnotationConfigCreate(
-                    name=name,
-                    space_id=space_id,
-                    annotation_config_type=AnnotationConfigType.CATEGORICAL.value,
-                    values=values,
-                    optimization_direction=optimization_direction,
-                )
+        )
+        result = self._api.annotation_configs_create(
+            create_annotation_config_request_body=body
+        )
+        return unwrap_oneof(result)  # type: ignore[return-value]
+
+    @prerelease_endpoint(
+        key="annotation_configs.create", stage=ReleaseStage.BETA
+    )
+    def create_freeform(
+        self,
+        *,
+        name: str,
+        space: str,
+    ) -> FreeformAnnotationConfig:
+        """Create a freeform annotation config.
+
+        Freeform annotation configs let a scorer leave open-ended text
+        feedback with no predefined scale or set of values.
+
+        Args:
+            name: Annotation config name (must be unique within the target space).
+            space: Space ID or name to create the annotation config in.
+
+        Returns:
+            The created freeform annotation config.
+
+        Raises:
+            ApiException: If the REST API
+                returns an error response (e.g. 400/401/403/409/429).
+        """
+        from arize._generated import api_client as gen
+
+        space_id = _find_space_id(self._spaces_api, space)
+        body = gen.CreateAnnotationConfigRequestBody(
+            actual_instance=gen.FreeformAnnotationConfigCreate(
+                name=name,
+                space_id=space_id,
+                annotation_config_type=AnnotationConfigType.FREEFORM.value,
             )
-        else:
-            body = gen.CreateAnnotationConfigRequestBody(
-                actual_instance=gen.FreeformAnnotationConfigCreate(
-                    name=name,
-                    space_id=space_id,
-                    annotation_config_type=AnnotationConfigType.FREEFORM.value,
-                )
-            )
+        )
         result = self._api.annotation_configs_create(
             create_annotation_config_request_body=body
         )
@@ -222,6 +273,169 @@ class AnnotationConfigsClient:
         )
         result = self._api.annotation_configs_get(
             annotation_config_id=annotation_config_id
+        )
+        return unwrap_oneof(result)  # type: ignore[return-value]
+
+    @prerelease_endpoint(
+        key="annotation_configs.update", stage=ReleaseStage.BETA
+    )
+    def update_continuous(
+        self,
+        *,
+        annotation_config: str,
+        space: str | None = None,
+        name: str | None = None,
+        minimum_score: float | int | None = None,
+        maximum_score: float | int | None = None,
+        optimization_direction: OptimizationDirection | None = None,
+    ) -> ContinuousAnnotationConfig:
+        """Update a continuous annotation config by ID or name.
+
+        Only the fields you pass are changed; omitted fields are left
+        unchanged. The stored config must already be of type `continuous`.
+
+        Args:
+            annotation_config: Annotation config ID or name. If a name is
+                provided, *space* is required for resolution.
+            space: Space ID or name. Required when *annotation_config* is a
+                name so it can be resolved to an ID.
+            name: New name for the annotation config. Must be unique within
+                the space.
+            minimum_score: New minimum score.
+            maximum_score: New maximum score.
+            optimization_direction: New optimization direction.
+
+        Returns:
+            The updated annotation config object as returned by the API.
+
+        Raises:
+            ApiException: If the REST API
+                returns an error response (e.g. 400/401/403/404/409/422/429).
+        """
+        from arize._generated import api_client as gen
+
+        annotation_config_id = _find_annotation_config_id(
+            api=self._api,
+            annotation_config=annotation_config,
+            space=space,
+        )
+        body = gen.UpdateAnnotationConfigRequestBody(
+            actual_instance=gen.ContinuousAnnotationConfigUpdate(
+                annotation_config_type=AnnotationConfigType.CONTINUOUS.value,
+                name=name,
+                minimum_score=minimum_score,
+                maximum_score=maximum_score,
+                optimization_direction=optimization_direction,
+            )
+        )
+        result = self._api.annotation_configs_update(
+            annotation_config_id=annotation_config_id,
+            update_annotation_config_request_body=body,
+        )
+        return unwrap_oneof(result)  # type: ignore[return-value]
+
+    @prerelease_endpoint(
+        key="annotation_configs.update", stage=ReleaseStage.BETA
+    )
+    def update_categorical(
+        self,
+        *,
+        annotation_config: str,
+        space: str | None = None,
+        name: str | None = None,
+        values: builtins.list[CategoricalAnnotationValue] | None = None,
+        optimization_direction: OptimizationDirection | None = None,
+    ) -> CategoricalAnnotationConfig:
+        """Update a categorical annotation config by ID or name.
+
+        Only the fields you pass are changed; omitted fields are left
+        unchanged. The stored config must already be of type `categorical`.
+
+        Args:
+            annotation_config: Annotation config ID or name. If a name is
+                provided, *space* is required for resolution.
+            space: Space ID or name. Required when *annotation_config* is a
+                name so it can be resolved to an ID.
+            name: New name for the annotation config. Must be unique within
+                the space.
+            values: Replacement set of categorical values. Replaces the full
+                label set.
+            optimization_direction: New optimization direction.
+
+        Returns:
+            The updated annotation config object as returned by the API.
+
+        Raises:
+            ApiException: If the REST API
+                returns an error response (e.g. 400/401/403/404/409/422/429).
+        """
+        from arize._generated import api_client as gen
+
+        annotation_config_id = _find_annotation_config_id(
+            api=self._api,
+            annotation_config=annotation_config,
+            space=space,
+        )
+        body = gen.UpdateAnnotationConfigRequestBody(
+            actual_instance=gen.CategoricalAnnotationConfigUpdate(
+                annotation_config_type=AnnotationConfigType.CATEGORICAL.value,
+                name=name,
+                values=values,
+                optimization_direction=optimization_direction,
+            )
+        )
+        result = self._api.annotation_configs_update(
+            annotation_config_id=annotation_config_id,
+            update_annotation_config_request_body=body,
+        )
+        return unwrap_oneof(result)  # type: ignore[return-value]
+
+    @prerelease_endpoint(
+        key="annotation_configs.update", stage=ReleaseStage.BETA
+    )
+    def update_freeform(
+        self,
+        *,
+        annotation_config: str,
+        space: str | None = None,
+        name: str | None = None,
+    ) -> FreeformAnnotationConfig:
+        """Update a freeform annotation config by ID or name.
+
+        Only the fields you pass are changed; omitted fields are left
+        unchanged. The stored config must already be of type `freeform`.
+
+        Args:
+            annotation_config: Annotation config ID or name. If a name is
+                provided, *space* is required for resolution.
+            space: Space ID or name. Required when *annotation_config* is a
+                name so it can be resolved to an ID.
+            name: New name for the annotation config. Must be unique within
+                the space.
+
+        Returns:
+            The updated annotation config object as returned by the API.
+
+        Raises:
+            ApiException: If the REST API
+                returns an error response (e.g. 400/401/403/404/409/422/429).
+        """
+        from arize._generated import api_client as gen
+
+        annotation_config_id = _find_annotation_config_id(
+            api=self._api,
+            annotation_config=annotation_config,
+            space=space,
+        )
+        body = gen.UpdateAnnotationConfigRequestBody(
+            actual_instance=gen.FreeformAnnotationConfigUpdate(
+                annotation_config_type=AnnotationConfigType.FREEFORM.value,
+                name=name,
+            )
+        )
+        result = self._api.annotation_configs_update(
+            annotation_config_id=annotation_config_id,
+            update_annotation_config_request_body=body,
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
 

@@ -450,12 +450,12 @@ class TestApiKeysClientRevoke:
 
         assert result is None
 
-    def test_revoke_emits_alpha_prerelease_warning(
+    def test_revoke_emits_beta_prerelease_warning(
         self,
         api_keys_client: ApiKeysClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call to revoke() should emit the ALPHA prerelease warning."""
+        """First call to revoke() should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -464,7 +464,7 @@ class TestApiKeysClientRevoke:
         api_keys_client.revoke(api_key_id="key-123")
 
         assert any(
-            "ALPHA" in record.message and "api_keys.revoke" in record.message
+            "BETA" in record.message and "api_keys.revoke" in record.message
             for record in caplog.records
         )
 

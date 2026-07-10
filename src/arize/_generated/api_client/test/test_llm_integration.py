@@ -46,7 +46,7 @@ class TestLlmIntegration(unittest.TestCase):
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = '',
-                config = None
+                config = arize._generated.api_client.models.llm_config.LlmConfig()
             )
         else:
             return LlmIntegration(
@@ -61,7 +61,7 @@ class TestLlmIntegration(unittest.TestCase):
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = '',
-                config = None,
+                config = arize._generated.api_client.models.llm_config.LlmConfig(),
         )
         """
 

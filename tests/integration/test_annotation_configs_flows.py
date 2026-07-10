@@ -212,3 +212,77 @@ class TestAnnotationConfigsCRUD:
             assert name in names
         finally:
             annotation_configs_client.delete(annotation_config=inner.id)
+
+
+class TestAnnotationConfigsTypedCreate:
+    """End-to-end flows for the typed create_continuous/create_categorical/create_freeform methods."""
+
+    def test_create_continuous_get_delete(
+        self, annotation_configs_client, space_id
+    ) -> None:
+        """create_continuous() creates a config retrievable by ID."""
+        name = _unique("sdk-test-ac")
+        ac = annotation_configs_client.create_continuous(
+            name=name,
+            space=space_id,
+            minimum_score=0.0,
+            maximum_score=1.0,
+        )
+        try:
+            assert ac.name == name
+            assert is_resource_id(ac.id)
+
+            fetched = annotation_configs_client.get(annotation_config=ac.id)
+            fetched_inner = fetched.actual_instance
+            assert fetched_inner is not None
+            assert fetched_inner.id == ac.id
+            assert fetched_inner.name == name
+        finally:
+            annotation_configs_client.delete(annotation_config=ac.id)
+
+    def test_create_categorical_get_delete(
+        self, annotation_configs_client, space_id
+    ) -> None:
+        """create_categorical() creates a config retrievable by ID."""
+        from arize._generated import api_client as gen
+
+        name = _unique("sdk-test-ac")
+        values = [
+            gen.CategoricalAnnotationValue(label="good", score=1.0),
+            gen.CategoricalAnnotationValue(label="bad", score=0.0),
+        ]
+        ac = annotation_configs_client.create_categorical(
+            name=name,
+            space=space_id,
+            values=values,
+        )
+        try:
+            assert ac.name == name
+            assert is_resource_id(ac.id)
+
+            fetched = annotation_configs_client.get(annotation_config=ac.id)
+            fetched_inner = fetched.actual_instance
+            assert fetched_inner is not None
+            assert fetched_inner.id == ac.id
+        finally:
+            annotation_configs_client.delete(annotation_config=ac.id)
+
+    def test_create_freeform_get_delete(
+        self, annotation_configs_client, space_id
+    ) -> None:
+        """create_freeform() creates a config retrievable by ID."""
+        name = _unique("sdk-test-ac")
+        ac = annotation_configs_client.create_freeform(
+            name=name,
+            space=space_id,
+        )
+        try:
+            assert ac.name == name
+            assert is_resource_id(ac.id)
+
+            fetched = annotation_configs_client.get(annotation_config=ac.id)
+            fetched_inner = fetched.actual_instance
+            assert fetched_inner is not None
+            assert fetched_inner.id == ac.id
+        finally:
+            annotation_configs_client.delete(annotation_config=ac.id)

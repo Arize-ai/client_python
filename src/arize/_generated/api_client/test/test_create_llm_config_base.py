@@ -35,7 +35,6 @@ class TestCreateLlmConfigBase(unittest.TestCase):
         model = CreateLlmConfigBase()
         if include_optional:
             return CreateLlmConfigBase(
-                is_default_models_enabled = True,
                 is_function_calling_enabled = True
             )
         else:

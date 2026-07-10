@@ -173,101 +173,13 @@ class TestAnnotationConfigsClientList:
 
 
 @pytest.mark.unit
-class TestAnnotationConfigsClientCreate:
-    """Tests for AnnotationConfigsClient.create() — covers the enum comparison bug fix."""
+class TestAnnotationConfigsClientCreateContinuous:
+    """Tests for AnnotationConfigsClient.create_continuous()."""
 
-    def test_continuous_creates_correct_type(
+    def test_passes_scores_to_api(
         self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
     ) -> None:
-        """--type continuous must create a ContinuousAnnotationConfigCreate, not freeform."""
-        with (
-            patch(
-                "arize._generated.api_client.ContinuousAnnotationConfigCreate"
-            ) as mock_continuous_cls,
-            patch(
-                "arize._generated.api_client.CategoricalAnnotationConfigCreate"
-            ) as mock_categorical_cls,
-            patch(
-                "arize._generated.api_client.FreeformAnnotationConfigCreate"
-            ) as mock_freeform_cls,
-            patch(
-                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
-            ),
-        ):
-            annotation_configs_client.create(
-                name="my-config",
-                space="U3BhY2U6OTA1MDoxSmtS",
-                config_type=AnnotationConfigType.CONTINUOUS,
-                minimum_score=0.0,
-                maximum_score=1.0,
-            )
-
-        mock_continuous_cls.assert_called_once()
-        mock_categorical_cls.assert_not_called()
-        mock_freeform_cls.assert_not_called()
-
-    def test_categorical_creates_correct_type(
-        self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
-    ) -> None:
-        """--type categorical must create a CategoricalAnnotationConfigCreate, not freeform."""
-        mock_values = [Mock(), Mock()]
-        with (
-            patch(
-                "arize._generated.api_client.ContinuousAnnotationConfigCreate"
-            ) as mock_continuous_cls,
-            patch(
-                "arize._generated.api_client.CategoricalAnnotationConfigCreate"
-            ) as mock_categorical_cls,
-            patch(
-                "arize._generated.api_client.FreeformAnnotationConfigCreate"
-            ) as mock_freeform_cls,
-            patch(
-                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
-            ),
-        ):
-            annotation_configs_client.create(
-                name="my-config",
-                space="U3BhY2U6OTA1MDoxSmtS",
-                config_type=AnnotationConfigType.CATEGORICAL,
-                values=mock_values,
-            )
-
-        mock_categorical_cls.assert_called_once()
-        mock_continuous_cls.assert_not_called()
-        mock_freeform_cls.assert_not_called()
-
-    def test_freeform_creates_correct_type(
-        self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
-    ) -> None:
-        """--type freeform must create a FreeformAnnotationConfigCreate."""
-        with (
-            patch(
-                "arize._generated.api_client.ContinuousAnnotationConfigCreate"
-            ) as mock_continuous_cls,
-            patch(
-                "arize._generated.api_client.CategoricalAnnotationConfigCreate"
-            ) as mock_categorical_cls,
-            patch(
-                "arize._generated.api_client.FreeformAnnotationConfigCreate"
-            ) as mock_freeform_cls,
-            patch(
-                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
-            ),
-        ):
-            annotation_configs_client.create(
-                name="my-config",
-                space="U3BhY2U6OTA1MDoxSmtS",
-                config_type=AnnotationConfigType.FREEFORM,
-            )
-
-        mock_freeform_cls.assert_called_once()
-        mock_continuous_cls.assert_not_called()
-        mock_categorical_cls.assert_not_called()
-
-    def test_continuous_passes_scores_to_api(
-        self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
-    ) -> None:
-        """Continuous create must forward minimum_score and maximum_score."""
+        """create_continuous() must forward minimum_score and maximum_score."""
         with (
             patch(
                 "arize._generated.api_client.ContinuousAnnotationConfigCreate"
@@ -276,10 +188,9 @@ class TestAnnotationConfigsClientCreate:
                 "arize._generated.api_client.CreateAnnotationConfigRequestBody"
             ),
         ):
-            annotation_configs_client.create(
+            annotation_configs_client.create_continuous(
                 name="score-config",
                 space="U3BhY2U6OTA1MDoxSmtS",
-                config_type=AnnotationConfigType.CONTINUOUS,
                 minimum_score=0.5,
                 maximum_score=10.0,
             )
@@ -293,10 +204,108 @@ class TestAnnotationConfigsClientCreate:
             optimization_direction=None,
         )
 
-    def test_categorical_passes_values_to_api(
+    def test_passes_optimization_direction_to_api(
         self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
     ) -> None:
-        """Categorical create must forward values."""
+        """create_continuous() must forward optimization_direction when given."""
+        with (
+            patch(
+                "arize._generated.api_client.ContinuousAnnotationConfigCreate"
+            ) as mock_continuous_cls,
+            patch(
+                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
+            ),
+        ):
+            annotation_configs_client.create_continuous(
+                name="score-config",
+                space="U3BhY2U6OTA1MDoxSmtS",
+                minimum_score=0.0,
+                maximum_score=1.0,
+                optimization_direction="maximize",
+            )
+
+        mock_continuous_cls.assert_called_once_with(
+            name="score-config",
+            space_id="U3BhY2U6OTA1MDoxSmtS",
+            annotation_config_type=AnnotationConfigType.CONTINUOUS.value,
+            minimum_score=0.0,
+            maximum_score=1.0,
+            optimization_direction="maximize",
+        )
+
+    def test_calls_api_and_returns_response(
+        self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
+    ) -> None:
+        """create_continuous() must call the API and unwrap the response."""
+        expected = Mock()
+        mock_api.annotation_configs_create.return_value.actual_instance = (
+            expected
+        )
+
+        with (
+            patch(
+                "arize._generated.api_client.ContinuousAnnotationConfigCreate"
+            ),
+            patch(
+                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
+            ) as mock_body_cls,
+        ):
+            mock_body = Mock()
+            mock_body_cls.return_value = mock_body
+
+            result = annotation_configs_client.create_continuous(
+                name="score-config",
+                space="U3BhY2U6OTA1MDoxSmtS",
+                minimum_score=0.0,
+                maximum_score=1.0,
+            )
+
+        mock_api.annotation_configs_create.assert_called_once_with(
+            create_annotation_config_request_body=mock_body
+        )
+        assert result is expected
+
+    def test_emits_beta_prerelease_warning(
+        self,
+        annotation_configs_client: AnnotationConfigsClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the BETA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        with (
+            patch(
+                "arize._generated.api_client.ContinuousAnnotationConfigCreate"
+            ),
+            patch(
+                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
+            ),
+        ):
+            annotation_configs_client.create_continuous(
+                name="score-config",
+                space="U3BhY2U6OTA1MDoxSmtS",
+                minimum_score=0.0,
+                maximum_score=1.0,
+            )
+
+        assert any(
+            "BETA" in record.message
+            and "annotation_configs.create" in record.message
+            for record in caplog.records
+        )
+
+
+@pytest.mark.unit
+class TestAnnotationConfigsClientCreateCategorical:
+    """Tests for AnnotationConfigsClient.create_categorical()."""
+
+    def test_passes_values_to_api(
+        self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
+    ) -> None:
+        """create_categorical() must forward space_id and values."""
         mock_values = [Mock(), Mock()]
         with (
             patch(
@@ -306,10 +315,9 @@ class TestAnnotationConfigsClientCreate:
                 "arize._generated.api_client.CreateAnnotationConfigRequestBody"
             ),
         ):
-            annotation_configs_client.create(
+            annotation_configs_client.create_categorical(
                 name="cat-config",
                 space="U3BhY2U6OTA1MDoxSmtS",
-                config_type=AnnotationConfigType.CATEGORICAL,
                 values=mock_values,
             )
 
@@ -321,66 +329,47 @@ class TestAnnotationConfigsClientCreate:
             optimization_direction=None,
         )
 
-    def test_continuous_raises_if_minimum_score_missing(
-        self, annotation_configs_client: AnnotationConfigsClient
-    ) -> None:
-        """Continuous create must raise ValueError when minimum_score is None."""
-        with pytest.raises(
-            ValueError, match="minimum_score and maximum_score are required"
-        ):
-            annotation_configs_client.create(
-                name="my-config",
-                space="U3BhY2U6OTA1MDoxSmtS",
-                config_type=AnnotationConfigType.CONTINUOUS,
-                maximum_score=1.0,
-            )
-
-    def test_continuous_raises_if_maximum_score_missing(
-        self, annotation_configs_client: AnnotationConfigsClient
-    ) -> None:
-        """Continuous create must raise ValueError when maximum_score is None."""
-        with pytest.raises(
-            ValueError, match="minimum_score and maximum_score are required"
-        ):
-            annotation_configs_client.create(
-                name="my-config",
-                space="U3BhY2U6OTA1MDoxSmtS",
-                config_type=AnnotationConfigType.CONTINUOUS,
-                minimum_score=0.0,
-            )
-
-    def test_continuous_raises_if_both_scores_missing(
-        self, annotation_configs_client: AnnotationConfigsClient
-    ) -> None:
-        """Continuous create must raise ValueError when both scores are None."""
-        with pytest.raises(
-            ValueError, match="minimum_score and maximum_score are required"
-        ):
-            annotation_configs_client.create(
-                name="my-config",
-                space="U3BhY2U6OTA1MDoxSmtS",
-                config_type=AnnotationConfigType.CONTINUOUS,
-            )
-
-    def test_categorical_raises_if_values_missing(
-        self, annotation_configs_client: AnnotationConfigsClient
-    ) -> None:
-        """Categorical create must raise ValueError when values is None."""
-        with pytest.raises(
-            ValueError, match="values are required for categorical configs"
-        ):
-            annotation_configs_client.create(
-                name="my-config",
-                space="U3BhY2U6OTA1MDoxSmtS",
-                config_type=AnnotationConfigType.CATEGORICAL,
-            )
-
-    def test_create_calls_api(
+    def test_passes_optimization_direction_to_api(
         self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
     ) -> None:
-        """create() must call annotation_configs_create with the built request body."""
+        """create_categorical() must forward optimization_direction when given."""
+        mock_values = [Mock()]
         with (
-            patch("arize._generated.api_client.FreeformAnnotationConfigCreate"),
+            patch(
+                "arize._generated.api_client.CategoricalAnnotationConfigCreate"
+            ) as mock_categorical_cls,
+            patch(
+                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
+            ),
+        ):
+            annotation_configs_client.create_categorical(
+                name="cat-config",
+                space="U3BhY2U6OTA1MDoxSmtS",
+                values=mock_values,
+                optimization_direction="maximize",
+            )
+
+        mock_categorical_cls.assert_called_once_with(
+            name="cat-config",
+            space_id="U3BhY2U6OTA1MDoxSmtS",
+            annotation_config_type=AnnotationConfigType.CATEGORICAL.value,
+            values=mock_values,
+            optimization_direction="maximize",
+        )
+
+    def test_calls_api_and_returns_response(
+        self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
+    ) -> None:
+        """create_categorical() must call the API and unwrap the response."""
+        expected = Mock()
+        mock_api.annotation_configs_create.return_value.actual_instance = (
+            expected
+        )
+
+        with (
+            patch(
+                "arize._generated.api_client.CategoricalAnnotationConfigCreate"
+            ),
             patch(
                 "arize._generated.api_client.CreateAnnotationConfigRequestBody"
             ) as mock_body_cls,
@@ -388,20 +377,80 @@ class TestAnnotationConfigsClientCreate:
             mock_body = Mock()
             mock_body_cls.return_value = mock_body
 
-            annotation_configs_client.create(
-                name="my-config",
+            result = annotation_configs_client.create_categorical(
+                name="cat-config",
                 space="U3BhY2U6OTA1MDoxSmtS",
-                config_type=AnnotationConfigType.FREEFORM,
+                values=[Mock()],
             )
 
         mock_api.annotation_configs_create.assert_called_once_with(
             create_annotation_config_request_body=mock_body
         )
+        assert result is expected
 
-    def test_create_returns_api_response(
+    def test_emits_beta_prerelease_warning(
+        self,
+        annotation_configs_client: AnnotationConfigsClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """First call should emit the BETA prerelease warning."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        with (
+            patch(
+                "arize._generated.api_client.CategoricalAnnotationConfigCreate"
+            ),
+            patch(
+                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
+            ),
+        ):
+            annotation_configs_client.create_categorical(
+                name="cat-config",
+                space="U3BhY2U6OTA1MDoxSmtS",
+                values=[Mock()],
+            )
+
+        assert any(
+            "BETA" in record.message
+            and "annotation_configs.create" in record.message
+            for record in caplog.records
+        )
+
+
+@pytest.mark.unit
+class TestAnnotationConfigsClientCreateFreeform:
+    """Tests for AnnotationConfigsClient.create_freeform()."""
+
+    def test_passes_name_and_space_id_to_api(
         self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
     ) -> None:
-        """create() must return the unwrapped actual_instance from the API response."""
+        """create_freeform() must forward name and the resolved space_id."""
+        with (
+            patch(
+                "arize._generated.api_client.FreeformAnnotationConfigCreate"
+            ) as mock_freeform_cls,
+            patch(
+                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
+            ),
+        ):
+            annotation_configs_client.create_freeform(
+                name="feedback",
+                space="U3BhY2U6OTA1MDoxSmtS",
+            )
+
+        mock_freeform_cls.assert_called_once_with(
+            name="feedback",
+            space_id="U3BhY2U6OTA1MDoxSmtS",
+            annotation_config_type=AnnotationConfigType.FREEFORM.value,
+        )
+
+    def test_calls_api_and_returns_response(
+        self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
+    ) -> None:
+        """create_freeform() must call the API and unwrap the response."""
         expected = Mock()
         mock_api.annotation_configs_create.return_value.actual_instance = (
             expected
@@ -411,22 +460,27 @@ class TestAnnotationConfigsClientCreate:
             patch("arize._generated.api_client.FreeformAnnotationConfigCreate"),
             patch(
                 "arize._generated.api_client.CreateAnnotationConfigRequestBody"
-            ),
+            ) as mock_body_cls,
         ):
-            result = annotation_configs_client.create(
-                name="my-config",
+            mock_body = Mock()
+            mock_body_cls.return_value = mock_body
+
+            result = annotation_configs_client.create_freeform(
+                name="feedback",
                 space="U3BhY2U6OTA1MDoxSmtS",
-                config_type=AnnotationConfigType.FREEFORM,
             )
 
+        mock_api.annotation_configs_create.assert_called_once_with(
+            create_annotation_config_request_body=mock_body
+        )
         assert result is expected
 
-    def test_create_emits_beta_prerelease_warning(
+    def test_emits_beta_prerelease_warning(
         self,
         annotation_configs_client: AnnotationConfigsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call to create() should emit the BETA prerelease warning."""
+        """First call to create_*() should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -438,10 +492,9 @@ class TestAnnotationConfigsClientCreate:
                 "arize._generated.api_client.CreateAnnotationConfigRequestBody"
             ),
         ):
-            annotation_configs_client.create(
-                name="my-config",
+            annotation_configs_client.create_freeform(
+                name="feedback",
                 space="U3BhY2U6OTA1MDoxSmtS",
-                config_type=AnnotationConfigType.FREEFORM,
             )
 
         assert any(

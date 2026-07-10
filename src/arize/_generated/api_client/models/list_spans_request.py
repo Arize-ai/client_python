@@ -30,7 +30,7 @@ class ListSpansRequest(BaseModel):
     project_id: StrictStr = Field(description="The project ID to list spans for")
     start_time: Optional[datetime] = Field(default=None, description="Filter to spans starting at or after this timestamp (inclusive). ISO 8601 format (e.g., `2024-01-01T00:00:00Z`). Defaults to 1 week ago. ")
     end_time: Optional[datetime] = Field(default=None, description="Filter to spans starting before this timestamp (exclusive). ISO 8601 format (e.g., `2024-01-02T00:00:00Z`). Defaults to the current time. ")
-    filter: Optional[StrictStr] = Field(default=None, description="Filter expression to apply to the query. Supports SQL-like syntax for filtering spans by attributes (e.g., `status_code = 'ERROR'`). ")
+    filter: Optional[StrictStr] = Field(default=None, description="Filter expression to apply to the query. Supports SQL-like syntax for filtering spans by attributes (e.g., `status_code = 'ERROR'`). Optional; omit it to apply no filter. If provided, it must not be empty or whitespace-only. ")
     __properties: ClassVar[List[str]] = ["project_id", "start_time", "end_time", "filter"]
 
     model_config = ConfigDict(

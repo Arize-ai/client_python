@@ -42,13 +42,13 @@ class TestCreateLlmIntegrationRequest(unittest.TestCase):
                         organization_id = '', 
                         space_id = '', )
                     ],
-                config = None
+                config = arize._generated.api_client.models.create_llm_config.CreateLlmConfig()
             )
         else:
             return CreateLlmIntegrationRequest(
                 type = 'llm',
                 name = '',
-                config = None,
+                config = arize._generated.api_client.models.create_llm_config.CreateLlmConfig(),
         )
         """
 

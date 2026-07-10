@@ -6,8 +6,8 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**datasets_create**](DatasetsApi.md#datasets_create) | **POST** /v2/datasets | Create a dataset
 [**datasets_delete**](DatasetsApi.md#datasets_delete) | **DELETE** /v2/datasets/{dataset_id} | Delete a dataset
-[**datasets_example_delete**](DatasetsApi.md#datasets_example_delete) | **DELETE** /v2/datasets/{dataset_id}/examples/{example_id} | Delete a dataset example
 [**datasets_examples_annotate**](DatasetsApi.md#datasets_examples_annotate) | **POST** /v2/datasets/{dataset_id}/examples/annotate | Annotate a batch of dataset examples
+[**datasets_examples_delete**](DatasetsApi.md#datasets_examples_delete) | **DELETE** /v2/datasets/{dataset_id}/examples | Delete dataset examples
 [**datasets_examples_insert**](DatasetsApi.md#datasets_examples_insert) | **POST** /v2/datasets/{dataset_id}/examples | Add new examples to a dataset
 [**datasets_examples_list**](DatasetsApi.md#datasets_examples_list) | **GET** /v2/datasets/{dataset_id}/examples | List dataset examples
 [**datasets_examples_update**](DatasetsApi.md#datasets_examples_update) | **PATCH** /v2/datasets/{dataset_id}/examples | Update existing examples in a dataset
@@ -228,98 +228,6 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **datasets_example_delete**
-> datasets_example_delete(dataset_id, example_id, dataset_version_id=dataset_version_id)
-
-Delete a dataset example
-
-Delete a single example from a dataset by its ID.
-
-If `dataset_version_id` is provided, the example is deleted from that
-specific version. If omitted, the latest version is used. The example
-is removed in place from the selected version; no new version is
-created. This operation is irreversible.
-
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
-
-
-### Example
-
-* Bearer (<api-key>) Authentication (bearerAuth):
-
-```python
-import arize._generated.api_client
-from arize._generated.api_client.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to https://api.arize.com
-# See configuration.py for a list of all supported configuration parameters.
-configuration = arize._generated.api_client.Configuration(
-    host = "https://api.arize.com"
-)
-
-# The client must configure the authentication and authorization parameters
-# in accordance with the API server security policy.
-# Examples for each auth method are provided below, use the example that
-# satisfies your auth use case.
-
-# Configure Bearer authorization (<api-key>): bearerAuth
-configuration = arize._generated.api_client.Configuration(
-    access_token = os.environ["BEARER_TOKEN"]
-)
-
-# Enter a context with an instance of the API client
-with arize._generated.api_client.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = arize._generated.api_client.DatasetsApi(api_client)
-    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique dataset identifier (base64)
-    example_id = '550e8400-e29b-41d4-a716-446655440000' # str | The unique dataset example identifier (UUID)
-    dataset_version_id = 'RGF0YXNldFZlcnNpb246MTIzNDU=' # str | The unique identifier of the dataset version (optional)
-
-    try:
-        # Delete a dataset example
-        api_instance.datasets_example_delete(dataset_id, example_id, dataset_version_id=dataset_version_id)
-    except Exception as e:
-        print("Exception when calling DatasetsApi->datasets_example_delete: %s\n" % e)
-```
-
-
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **dataset_id** | **str**| The unique dataset identifier (base64) | 
- **example_id** | **str**| The unique dataset example identifier (UUID) | 
- **dataset_version_id** | **str**| The unique identifier of the dataset version | [optional] 
-
-### Return type
-
-void (empty response body)
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/problem+json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**204** | Dataset example successfully deleted |  -  |
-**400** | Invalid request |  -  |
-**401** | Authentication is required |  -  |
-**403** | Insufficient permissions to access this resource |  -  |
-**404** | Not found |  -  |
-**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
 # **datasets_examples_annotate**
 > datasets_examples_annotate(dataset_id, annotate_dataset_examples_request_body)
 
@@ -440,6 +348,133 @@ void (empty response body)
 **404** | Not found |  -  |
 **422** | Unprocessable entity |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **datasets_examples_delete**
+> DatasetExampleDeleteResponse datasets_examples_delete(dataset_id, dataset_example_delete_request)
+
+Delete dataset examples
+
+Delete a collection of examples from a dataset by their IDs.
+
+The delete is partial-tolerant: examples that exist in the selected version
+are deleted, and every requested ID that was not deleted is reported back.
+
+A `200 OK` response always includes:
+- `completed` — `true` if the operation finished and no retry is needed;
+  `false` if it could not fully complete (retry the full request).
+- `deleted_example_ids` — example IDs confirmed deleted in this request.
+- `not_deleted_example_ids` — requested IDs not deleted: either not found in
+  the selected version (never added, or already deleted), or not completed
+  when `completed` is `false`.
+
+The delete operation is idempotent — re-submitting already-deleted IDs is safe.
+
+**Payload Requirements**
+- `dataset_version_id` is required and identifies the version to delete from.
+- `example_ids` must contain at least one ID and at most 1000 IDs.
+- `example_ids` must not contain duplicate or empty IDs.
+
+**Valid example**
+```json
+{
+  "dataset_version_id": "RGF0YXNldFZlcnNpb246MTIzNDU=",
+  "example_ids": [
+    "550e8400-e29b-41d4-a716-446655440000",
+    "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+  ]
+}
+```
+
+**Invalid example** (missing `dataset_version_id`)
+```json
+{
+  "example_ids": ["550e8400-e29b-41d4-a716-446655440000"]
+}
+```
+
+  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.dataset_example_delete_request import DatasetExampleDeleteRequest
+from arize._generated.api_client.models.dataset_example_delete_response import DatasetExampleDeleteResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.DatasetsApi(api_client)
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique dataset identifier (base64)
+    dataset_example_delete_request = {"dataset_version_id":"RGF0YXNldFZlcnNpb246MTIzNDU=","example_ids":["550e8400-e29b-41d4-a716-446655440000","6ba7b810-9dad-11d1-80b4-00c04fd430c8"]} # DatasetExampleDeleteRequest | Body containing the IDs of dataset examples to delete
+
+    try:
+        # Delete dataset examples
+        api_response = api_instance.datasets_examples_delete(dataset_id, dataset_example_delete_request)
+        print("The response of DatasetsApi->datasets_examples_delete:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling DatasetsApi->datasets_examples_delete: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **dataset_id** | **str**| The unique dataset identifier (base64) | 
+ **dataset_example_delete_request** | [**DatasetExampleDeleteRequest**](DatasetExampleDeleteRequest.md)| Body containing the IDs of dataset examples to delete | 
+
+### Return type
+
+[**DatasetExampleDeleteResponse**](DatasetExampleDeleteResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Dataset examples deleted. The delete is partial-tolerant: existing examples are deleted and every requested ID not deleted is reported back. The response body always includes: - &#x60;completed&#x60;: &#x60;true&#x60; if the operation finished; &#x60;false&#x60; if it could not fully   complete (retry the full request). - &#x60;deleted_example_ids&#x60;: IDs confirmed deleted. - &#x60;not_deleted_example_ids&#x60;: requested IDs not deleted — not found in the   selected version, or not completed when &#x60;completed&#x60; is &#x60;false&#x60;.  |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+**503** | Returned as &#x60;503 Service Unavailable&#x60; when the request fails after partially completing. &#x60;deleted_example_ids&#x60; lists what was already deleted and &#x60;not_deleted_example_ids&#x60; lists what still needs deletion. The caller should retry the original full request — the delete operation is idempotent.  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -1030,7 +1065,7 @@ Update an existing dataset by its ID.
 {}
 ```
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example

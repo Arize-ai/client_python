@@ -26,11 +26,10 @@ class OpenAiConfig(BaseModel):
     """
     Config for an OpenAI LLM integration.
     """ # noqa: E501
-    is_default_models_enabled: StrictBool = Field(description="Whether the provider's default model list is enabled.")
     is_function_calling_enabled: StrictBool = Field(description="Whether function/tool calling is enabled.")
     provider: StrictStr = Field(description="Discriminator identifying the OpenAI provider.")
     has_api_key: StrictBool = Field(description="Whether an API key is configured (the key itself is never returned).")
-    __properties: ClassVar[List[str]] = ["is_default_models_enabled", "is_function_calling_enabled", "provider", "has_api_key"]
+    __properties: ClassVar[List[str]] = ["is_function_calling_enabled", "provider", "has_api_key"]
 
     @field_validator('provider')
     def provider_validate_enum(cls, value):
@@ -95,7 +94,6 @@ class OpenAiConfig(BaseModel):
                 raise ValueError("Error due to additional fields (not defined in OpenAiConfig) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "is_default_models_enabled": obj.get("is_default_models_enabled"),
             "is_function_calling_enabled": obj.get("is_function_calling_enabled"),
             "provider": obj.get("provider"),
             "has_api_key": obj.get("has_api_key")

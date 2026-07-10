@@ -14,4 +14,12 @@
 .. autoclass:: ResourceRestriction
    :members:
    :member-order: bysource
+
+.. autoclass:: ResourceRestrictionListResponse
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ResourceRestrictionType
+   :members:
+   :member-order: bysource
 ```

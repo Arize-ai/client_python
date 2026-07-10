@@ -251,9 +251,11 @@ there is no window where neither key is valid. The full new key value (`key`) is
 - **Service keys:** space admins (and higher) may refresh any service key in their space.
   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.
 
-**Expiry behaviour:** Supply `expires_at` in the request body to set an expiration
-on the replacement key. Omit `expires_at` (or send an empty body `{}`) to create
-the replacement key with no expiration (infinite lifetime).
+**Expiry behaviour:** `expires_at` is **required** when the existing key has an expiry
+— omitting it would extend the key's lifetime to unbounded and is rejected with `422`.
+For unbounded existing keys, `expires_at` may be omitted (the replacement is also
+unbounded) or supplied to add a specific expiry. The value must not be later than the
+existing key's expiry; to issue a key with a longer lifetime, use `POST /v2/api-keys`.
 
 **Grace period:** Supply `grace_period_seconds` in the request body to keep the old key
 valid for that many seconds after the refresh. If not supplied, the old key is revoked immediately.
@@ -293,7 +295,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.APIKeysApi(api_client)
     api_key_id = 'QXBpS2V5OjEyMzQ1' # str | The unique API key identifier (base64)
-    api_key_refresh = {} # ApiKeyRefresh | Optional body for setting expiry on the new key and/or a grace period on the old key. (optional)
+    api_key_refresh = {} # ApiKeyRefresh | Optional body for tightening expiry on the new key and/or setting a grace period on the old key. Refresh cannot extend a key's lifetime: with an empty body the refreshed key inherits the old key's expiry, and an explicit `expires_at` later than the old key's expiry is rejected with 422.  (optional)
 
     try:
         # Refresh an API key
@@ -312,7 +314,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **api_key_id** | **str**| The unique API key identifier (base64) | 
- **api_key_refresh** | [**ApiKeyRefresh**](ApiKeyRefresh.md)| Optional body for setting expiry on the new key and/or a grace period on the old key. | [optional] 
+ **api_key_refresh** | [**ApiKeyRefresh**](ApiKeyRefresh.md)| Optional body for tightening expiry on the new key and/or setting a grace period on the old key. Refresh cannot extend a key&#39;s lifetime: with an empty body the refreshed key inherits the old key&#39;s expiry, and an explicit &#x60;expires_at&#x60; later than the old key&#39;s expiry is rejected with 422.  | [optional] 
 
 ### Return type
 
@@ -352,7 +354,7 @@ already-revoked key is a no-op and still returns `204`.
 **Authorization:** 
 Requires the `developer` user permission flag and account admin role. Returns `403` when conditions are not met.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example

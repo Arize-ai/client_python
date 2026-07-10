@@ -52,7 +52,7 @@ class RoleBindingsClient:
         # Use the provided client directly
         self._api = gen.RoleBindingsApi(generated_client)
 
-    @prerelease_endpoint(key="role_bindings.list", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="role_bindings.list", stage=ReleaseStage.BETA)
     def list(
         self,
         *,

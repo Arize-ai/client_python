@@ -255,6 +255,9 @@ models.TaskRunListResponse.to_df = make_to_df("task_runs")  # type: ignore[attr-
 models.AiIntegrationListResponse.to_df = make_to_df("ai_integrations")  # type: ignore[attr-defined]
 models.OrganizationListResponse.to_df = make_to_df("organizations")  # type: ignore[attr-defined]
 models.UserListResponse.to_df = make_to_df("users")  # type: ignore[attr-defined]
+models.ResourceRestrictionListResponse.to_df = make_to_df(  # type: ignore[attr-defined]
+    "resource_restrictions"
+)
 
 # Monkey-patch domain list-response types so .to_df() works on the
 # SDK-typed objects returned by sub-clients (e.g. client.users.list()).

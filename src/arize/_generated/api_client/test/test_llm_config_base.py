@@ -35,12 +35,10 @@ class TestLlmConfigBase(unittest.TestCase):
         model = LlmConfigBase()
         if include_optional:
             return LlmConfigBase(
-                is_default_models_enabled = True,
                 is_function_calling_enabled = True
             )
         else:
             return LlmConfigBase(
-                is_default_models_enabled = True,
                 is_function_calling_enabled = True,
         )
         """

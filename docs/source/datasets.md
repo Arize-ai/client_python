@@ -11,19 +11,7 @@
 
 ```{eval-rst}
 .. currentmodule:: arize.datasets.types
-.. autoclass:: AnnotateRecordInput
-   :members:
-   :member-order: bysource
-
-.. autoclass:: AnnotationInput
-   :members:
-   :member-order: bysource
-
 .. autoclass:: Dataset
-   :members:
-   :member-order: bysource
-
-.. autoclass:: DatasetExampleListResponse
    :members:
    :member-order: bysource
 
@@ -31,7 +19,23 @@
    :members:
    :member-order: bysource
 
+.. autoclass:: DatasetExampleListResponse
+   :members:
+   :member-order: bysource
+
 .. autoclass:: DatasetVersionWithExampleIds
+   :members:
+   :member-order: bysource
+
+.. autoclass:: DatasetExampleDeleteResponse
+   :members:
+   :member-order: bysource
+
+.. autoclass:: AnnotateRecordInput
+   :members:
+   :member-order: bysource
+
+.. autoclass:: AnnotationInput
    :members:
    :member-order: bysource
 ```

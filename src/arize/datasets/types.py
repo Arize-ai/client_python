@@ -5,6 +5,9 @@ from arize._generated.api_client.models.annotate_record_input import (
 )
 from arize._generated.api_client.models.annotation_input import AnnotationInput
 from arize._generated.api_client.models.dataset import Dataset
+from arize._generated.api_client.models.dataset_example_delete_response import (
+    DatasetExampleDeleteResponse,
+)
 from arize._generated.api_client.models.dataset_example_list_response import (
     DatasetExampleListResponse,
 )
@@ -19,6 +22,7 @@ __all__ = [
     "AnnotateRecordInput",
     "AnnotationInput",
     "Dataset",
+    "DatasetExampleDeleteResponse",
     "DatasetExampleListResponse",
     "DatasetListResponse",
     "DatasetVersionWithExampleIds",
