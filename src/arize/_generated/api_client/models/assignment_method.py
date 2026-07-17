@@ -20,14 +20,14 @@ from typing_extensions import Self
 
 class AssignmentMethod(str, Enum):
     """
-    How records are assigned to annotators. Defaults to \"all\". - `all`: Every annotator is assigned to every record. - `random`: Each record is randomly assigned to one annotator. 
+    How records are assigned to annotators. Defaults to \"ALL\". - `ALL`: Every annotator is assigned to every record. - `RANDOM`: Each record is randomly assigned to one annotator. 
     """
 
     """
     allowed enum values
     """
-    ALL = 'all'
-    RANDOM = 'random'
+    ALL = 'ALL'
+    RANDOM = 'RANDOM'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

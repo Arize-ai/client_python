@@ -34,15 +34,15 @@ class EvaluatorVersionTemplate(BaseModel):
     commit_message: Optional[StrictStr] = Field(description="A message describing the changes in this version")
     created_at: datetime = Field(description="When this version was created")
     created_by_user_id: Optional[StrictStr] = Field(description="The unique identifier for the user who created this version")
-    type: StrictStr = Field(description="Discriminator identifying this as a template evaluator version. Always `template` for this variant.")
+    type: StrictStr = Field(description="Discriminator identifying this as a template evaluator version. Always `TEMPLATE` for this variant.")
     template_config: TemplateConfig
     __properties: ClassVar[List[str]] = ["id", "evaluator_id", "commit_hash", "commit_message", "created_at", "created_by_user_id", "type", "template_config"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['template']):
-            raise ValueError("must be one of enum values ('template')")
+        if value not in set(['TEMPLATE']):
+            raise ValueError("must be one of enum values ('TEMPLATE')")
         return value
 
     model_config = ConfigDict(

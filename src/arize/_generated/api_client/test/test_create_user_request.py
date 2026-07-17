@@ -37,15 +37,16 @@ class TestCreateUserRequest(unittest.TestCase):
             return CreateUserRequest(
                 name = '0',
                 email = 'user@example.com',
-                role = 'admin',
-                invite_mode = 'none'
+                role = None,
+                invite_mode = 'NONE',
+                is_developer = True
             )
         else:
             return CreateUserRequest(
                 name = '0',
                 email = 'user@example.com',
-                role = 'admin',
-                invite_mode = 'none',
+                role = None,
+                invite_mode = 'NONE',
         )
         """
 

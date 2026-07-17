@@ -46,14 +46,10 @@ class TestInvocationParams(unittest.TestCase):
                     ],
                 response_format = arize._generated.api_client.models.response_format.ResponseFormat(
                     type = null, 
-                    json_schema = arize._generated.api_client.models.response_format_json_schema.ResponseFormat_json_schema(
-                        name = '', 
-                        description = '', 
-                        schema = arize._generated.api_client.models.schema.schema(), 
-                        strict = True, ), ),
+                    json_schema = null, ),
                 tool_config = arize._generated.api_client.models.tool_config.ToolConfig(
                     tools = [
-                        None
+                        arize._generated.api_client.models.tool_definition.ToolDefinition()
                         ], 
                     tool_choice = null, ),
                 top_k = 56,

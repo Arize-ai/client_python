@@ -1,14 +1,14 @@
 # TaskType
 
-The task type. - template_evaluation - An LLM template-based evaluation task. - code_evaluation - A code-based evaluation task. - run_experiment - A task that runs experiments. 
+The task type. - TEMPLATE_EVALUATION - An LLM template-based evaluation task. - CODE_EVALUATION - A code-based evaluation task. - RUN_EXPERIMENT - A task that runs experiments. 
 
 ## Enum
 
-* `TEMPLATE_EVALUATION` (value: `'template_evaluation'`)
+* `TEMPLATE_EVALUATION` (value: `'TEMPLATE_EVALUATION'`)
 
-* `CODE_EVALUATION` (value: `'code_evaluation'`)
+* `CODE_EVALUATION` (value: `'CODE_EVALUATION'`)
 
-* `RUN_EXPERIMENT` (value: `'run_experiment'`)
+* `RUN_EXPERIMENT` (value: `'RUN_EXPERIMENT'`)
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

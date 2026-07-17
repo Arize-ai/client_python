@@ -10,8 +10,8 @@ from arize._generated.api_client.models.pagination_metadata import (
     PaginationMetadata,
 )
 from arize.resource_restrictions.types import (
+    ListResourceRestrictionsResponse,
     ResourceRestriction,
-    ResourceRestrictionListResponse,
     ResourceRestrictionType,
 )
 
@@ -29,23 +29,23 @@ class TestResourceRestrictionsTypes:
     def test_expected_names_in_all(self) -> None:
         """__all__ should contain the expected public type names."""
         assert "ResourceRestriction" in types_module.__all__
-        assert "ResourceRestrictionListResponse" in types_module.__all__
+        assert "ListResourceRestrictionsResponse" in types_module.__all__
         assert "ResourceRestrictionType" in types_module.__all__
 
     def test_resource_restriction_is_class(self) -> None:
         assert isinstance(ResourceRestriction, type)
 
     def test_resource_restriction_list_response_is_class(self) -> None:
-        assert isinstance(ResourceRestrictionListResponse, type)
+        assert isinstance(ListResourceRestrictionsResponse, type)
 
     def test_resource_restriction_type_has_project(self) -> None:
         assert ResourceRestrictionType.PROJECT.value == "PROJECT"
 
     def test_resource_restriction_list_response_has_to_df(self) -> None:
-        assert hasattr(ResourceRestrictionListResponse, "to_df")
+        assert hasattr(ListResourceRestrictionsResponse, "to_df")
 
     def test_resource_restriction_list_response_to_df_empty(self) -> None:
-        response = ResourceRestrictionListResponse(
+        response = ListResourceRestrictionsResponse(
             resource_restrictions=[],
             pagination=PaginationMetadata(has_more=False, next_cursor=None),
         )

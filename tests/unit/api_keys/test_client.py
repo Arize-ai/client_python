@@ -4,17 +4,18 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
+from arize._generated.api_client import APIKeysApi
 from arize.api_keys.client import ApiKeysClient
 
 
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock ApiKeysApi instance."""
-    return Mock()
+    return create_autospec(APIKeysApi, instance=True)
 
 
 @pytest.fixture
@@ -71,17 +72,17 @@ class TestApiKeysClientList:
     ) -> None:
         """list() should forward all parameters to api_keys_list."""
         api_keys_client.list(
-            key_type="service",
-            status="active",
+            key_type="SERVICE",
+            status="ACTIVE",
             space=self._SPACE_ID,
             user_id="VXNlcjoxMjM0NQ==",
             limit=25,
             cursor="cursor-abc",
         )
 
-        mock_api.api_keys_list.assert_called_once_with(
-            key_type="service",
-            status="active",
+        mock_api.list_api_keys.assert_called_once_with(
+            key_type="SERVICE",
+            status="ACTIVE",
             space_id=self._SPACE_ID,
             user_id="VXNlcjoxMjM0NQ==",
             limit=25,
@@ -94,7 +95,7 @@ class TestApiKeysClientList:
         """list() should default all optional params to None and limit to 50."""
         api_keys_client.list()
 
-        mock_api.api_keys_list.assert_called_once_with(
+        mock_api.list_api_keys.assert_called_once_with(
             key_type=None,
             status=None,
             space_id=None,
@@ -116,7 +117,7 @@ class TestApiKeysClientList:
         mock_resolve.assert_called_once_with(
             api_keys_client._spaces_api, "my-space"
         )
-        mock_api.api_keys_list.assert_called_once_with(
+        mock_api.list_api_keys.assert_called_once_with(
             key_type=None,
             status=None,
             space_id="resolved-space-id",
@@ -130,18 +131,18 @@ class TestApiKeysClientList:
     ) -> None:
         """list() should propagate the return value from api_keys_list."""
         expected = Mock()
-        mock_api.api_keys_list.return_value = expected
+        mock_api.list_api_keys.return_value = expected
 
         result = api_keys_client.list()
 
         assert result is expected
 
-    def test_list_emits_alpha_prerelease_warning(
+    def test_list_emits_beta_prerelease_warning(
         self,
         api_keys_client: ApiKeysClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -150,7 +151,7 @@ class TestApiKeysClientList:
         api_keys_client.list()
 
         assert any(
-            "ALPHA" in record.message and "api_keys.list" in record.message
+            "BETA" in record.message and "api_keys.list" in record.message
             for record in caplog.records
         )
 
@@ -162,9 +163,9 @@ class TestApiKeysClientCreate:
     def test_create_user_key_builds_request_and_calls_api(
         self, api_keys_client: ApiKeysClient, mock_api: Mock
     ) -> None:
-        """create() should build ApiKeyCreate with key_type='user'."""
+        """create() should build CreateApiKeyRequest with key_type='USER'."""
         with patch(
-            "arize._generated.api_client.ApiKeyCreate"
+            "arize._generated.api_client.CreateApiKeyRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -174,11 +175,11 @@ class TestApiKeysClientCreate:
         mock_request_cls.assert_called_once_with(
             name="my-key",
             description=None,
-            key_type="user",
+            key_type="USER",
             expires_at=None,
         )
-        mock_api.api_keys_create.assert_called_once_with(
-            api_key_create=mock_body
+        mock_api.create_api_key.assert_called_once_with(
+            create_api_key_request=mock_body
         )
 
     def test_create_with_all_params(
@@ -188,7 +189,7 @@ class TestApiKeysClientCreate:
         expires = datetime(2030, 1, 1, tzinfo=timezone.utc)
 
         with patch(
-            "arize._generated.api_client.ApiKeyCreate"
+            "arize._generated.api_client.CreateApiKeyRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -202,11 +203,11 @@ class TestApiKeysClientCreate:
         mock_request_cls.assert_called_once_with(
             name="my-key",
             description="A user key",
-            key_type="user",
+            key_type="USER",
             expires_at=expires,
         )
-        mock_api.api_keys_create.assert_called_once_with(
-            api_key_create=mock_body
+        mock_api.create_api_key.assert_called_once_with(
+            create_api_key_request=mock_body
         )
 
     def test_create_returns_api_response(
@@ -214,29 +215,29 @@ class TestApiKeysClientCreate:
     ) -> None:
         """create() should propagate the return value from api_keys_create."""
         expected = Mock()
-        mock_api.api_keys_create.return_value = expected
+        mock_api.create_api_key.return_value = expected
 
-        with patch("arize._generated.api_client.ApiKeyCreate"):
+        with patch("arize._generated.api_client.CreateApiKeyRequest"):
             result = api_keys_client.create(name="my-key")
 
         assert result is expected
 
-    def test_create_emits_alpha_prerelease_warning(
+    def test_create_emits_beta_prerelease_warning(
         self,
         api_keys_client: ApiKeysClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call to create() should emit the ALPHA prerelease warning."""
+        """First call to create() should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        with patch("arize._generated.api_client.ApiKeyCreate"):
+        with patch("arize._generated.api_client.CreateApiKeyRequest"):
             api_keys_client.create(name="my-key")
 
         assert any(
-            "ALPHA" in record.message and "api_keys.create" in record.message
+            "BETA" in record.message and "api_keys.create" in record.message
             for record in caplog.records
         )
 
@@ -251,9 +252,9 @@ class TestApiKeysClientCreateServiceKey:
     def test_create_service_key_builds_request_and_calls_api(
         self, api_keys_client: ApiKeysClient, mock_api: Mock
     ) -> None:
-        """create_service_key() should build ApiKeyCreate with key_type='service'."""
+        """create_service_key() should build CreateApiKeyRequest with key_type='SERVICE'."""
         with patch(
-            "arize._generated.api_client.ApiKeyCreate"
+            "arize._generated.api_client.CreateApiKeyRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -265,13 +266,13 @@ class TestApiKeysClientCreateServiceKey:
         mock_request_cls.assert_called_once_with(
             name="svc-key",
             description=None,
-            key_type="service",
+            key_type="SERVICE",
             expires_at=None,
             space_id=self._SPACE_ID,
             roles=None,
         )
-        mock_api.api_keys_create.assert_called_once_with(
-            api_key_create=mock_body
+        mock_api.create_api_key.assert_called_once_with(
+            create_api_key_request=mock_body
         )
 
     def test_create_service_key_with_roles(
@@ -280,7 +281,7 @@ class TestApiKeysClientCreateServiceKey:
         """create_service_key() should build ApiKeyRoles when any role is set."""
         with (
             patch(
-                "arize._generated.api_client.ApiKeyCreate"
+                "arize._generated.api_client.CreateApiKeyRequest"
             ) as mock_create_cls,
             patch("arize._generated.api_client.ApiKeyRoles") as mock_roles_cls,
         ):
@@ -291,20 +292,20 @@ class TestApiKeysClientCreateServiceKey:
             api_keys_client.create_service_key(
                 name="svc-key",
                 space=self._SPACE_ID,
-                space_role="admin",
-                org_role="read-only",
-                account_role="member",
+                space_role="ADMIN",
+                org_role="READ_ONLY",
+                account_role="MEMBER",
             )
 
         mock_roles_cls.assert_called_once_with(
-            space_role="admin",
-            org_role="read-only",
-            account_role="member",
+            space_role="ADMIN",
+            org_role="READ_ONLY",
+            account_role="MEMBER",
         )
         mock_create_cls.assert_called_once_with(
             name="svc-key",
             description=None,
-            key_type="service",
+            key_type="SERVICE",
             expires_at=None,
             space_id=self._SPACE_ID,
             roles=mock_roles,
@@ -316,7 +317,7 @@ class TestApiKeysClientCreateServiceKey:
         """create_service_key() should build ApiKeyRoles when only one role is set."""
         with (
             patch(
-                "arize._generated.api_client.ApiKeyCreate"
+                "arize._generated.api_client.CreateApiKeyRequest"
             ) as mock_create_cls,
             patch("arize._generated.api_client.ApiKeyRoles") as mock_roles_cls,
         ):
@@ -326,11 +327,11 @@ class TestApiKeysClientCreateServiceKey:
             api_keys_client.create_service_key(
                 name="svc-key",
                 space=self._SPACE_ID,
-                space_role="read-only",
+                space_role="READ_ONLY",
             )
 
         mock_roles_cls.assert_called_once_with(
-            space_role="read-only",
+            space_role="READ_ONLY",
             org_role=None,
             account_role=None,
         )
@@ -345,7 +346,7 @@ class TestApiKeysClientCreateServiceKey:
                 return_value="resolved-space-id",
             ) as mock_resolve,
             patch(
-                "arize._generated.api_client.ApiKeyCreate"
+                "arize._generated.api_client.CreateApiKeyRequest"
             ) as mock_request_cls,
         ):
             mock_request_cls.return_value = Mock()
@@ -358,7 +359,7 @@ class TestApiKeysClientCreateServiceKey:
         mock_request_cls.assert_called_once_with(
             name="svc-key",
             description=None,
-            key_type="service",
+            key_type="SERVICE",
             expires_at=None,
             space_id="resolved-space-id",
             roles=None,
@@ -371,7 +372,7 @@ class TestApiKeysClientCreateServiceKey:
         expires = datetime(2030, 1, 1, tzinfo=timezone.utc)
 
         with patch(
-            "arize._generated.api_client.ApiKeyCreate"
+            "arize._generated.api_client.CreateApiKeyRequest"
         ) as mock_request_cls:
             mock_request_cls.return_value = Mock()
 
@@ -385,7 +386,7 @@ class TestApiKeysClientCreateServiceKey:
         mock_request_cls.assert_called_once_with(
             name="svc-key",
             description="My service key",
-            key_type="service",
+            key_type="SERVICE",
             expires_at=expires,
             space_id=self._SPACE_ID,
             roles=None,
@@ -396,33 +397,33 @@ class TestApiKeysClientCreateServiceKey:
     ) -> None:
         """create_service_key() should propagate the return value from api_keys_create."""
         expected = Mock()
-        mock_api.api_keys_create.return_value = expected
+        mock_api.create_api_key.return_value = expected
 
-        with patch("arize._generated.api_client.ApiKeyCreate"):
+        with patch("arize._generated.api_client.CreateApiKeyRequest"):
             result = api_keys_client.create_service_key(
                 name="svc-key", space=self._SPACE_ID
             )
 
         assert result is expected
 
-    def test_create_service_key_emits_alpha_prerelease_warning(
+    def test_create_service_key_emits_beta_prerelease_warning(
         self,
         api_keys_client: ApiKeysClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        with patch("arize._generated.api_client.ApiKeyCreate"):
+        with patch("arize._generated.api_client.CreateApiKeyRequest"):
             api_keys_client.create_service_key(
                 name="svc-key", space=self._SPACE_ID
             )
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "api_keys.create_service_key" in record.message
             for record in caplog.records
         )
@@ -438,13 +439,13 @@ class TestApiKeysClientRevoke:
         """revoke() should pass api_key_id to api_keys_revoke."""
         api_keys_client.revoke(api_key_id="key-123")
 
-        mock_api.api_keys_revoke.assert_called_once_with(api_key_id="key-123")
+        mock_api.revoke_api_key.assert_called_once_with(api_key_id="key-123")
 
     def test_revoke_returns_none(
         self, api_keys_client: ApiKeysClient, mock_api: Mock
     ) -> None:
         """revoke() should return None (204 No Content)."""
-        mock_api.api_keys_revoke.return_value = None
+        mock_api.revoke_api_key.return_value = None
 
         result = api_keys_client.revoke(api_key_id="key-123")
 
@@ -476,9 +477,9 @@ class TestApiKeysClientRefresh:
     def test_refresh_calls_api_with_key_id(
         self, api_keys_client: ApiKeysClient, mock_api: Mock
     ) -> None:
-        """refresh() should build ApiKeyRefresh and call api_keys_refresh."""
+        """refresh() should build RefreshApiKeyRequest and call api_keys_refresh."""
         with patch(
-            "arize._generated.api_client.ApiKeyRefresh"
+            "arize._generated.api_client.RefreshApiKeyRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -488,9 +489,9 @@ class TestApiKeysClientRefresh:
         mock_request_cls.assert_called_once_with(
             expires_at=None, grace_period_seconds=None
         )
-        mock_api.api_keys_refresh.assert_called_once_with(
+        mock_api.refresh_api_key.assert_called_once_with(
             api_key_id="key-123",
-            api_key_refresh=mock_body,
+            refresh_api_key_request=mock_body,
         )
 
     def test_refresh_passes_expires_at(
@@ -500,7 +501,7 @@ class TestApiKeysClientRefresh:
         expires = datetime(2030, 6, 1, tzinfo=timezone.utc)
 
         with patch(
-            "arize._generated.api_client.ApiKeyRefresh"
+            "arize._generated.api_client.RefreshApiKeyRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -516,7 +517,7 @@ class TestApiKeysClientRefresh:
     ) -> None:
         """refresh() should forward grace_period_seconds to request body."""
         with patch(
-            "arize._generated.api_client.ApiKeyRefresh"
+            "arize._generated.api_client.RefreshApiKeyRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -536,28 +537,28 @@ class TestApiKeysClientRefresh:
     ) -> None:
         """refresh() should propagate the return value from api_keys_refresh."""
         expected = Mock()
-        mock_api.api_keys_refresh.return_value = expected
+        mock_api.refresh_api_key.return_value = expected
 
-        with patch("arize._generated.api_client.ApiKeyRefresh"):
+        with patch("arize._generated.api_client.RefreshApiKeyRequest"):
             result = api_keys_client.refresh(api_key_id="key-123")
 
         assert result is expected
 
-    def test_refresh_emits_alpha_prerelease_warning(
+    def test_refresh_emits_beta_prerelease_warning(
         self,
         api_keys_client: ApiKeysClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call to refresh() should emit the ALPHA prerelease warning."""
+        """First call to refresh() should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        with patch("arize._generated.api_client.ApiKeyRefresh"):
+        with patch("arize._generated.api_client.RefreshApiKeyRequest"):
             api_keys_client.refresh(api_key_id="key-123")
 
         assert any(
-            "ALPHA" in record.message and "api_keys.refresh" in record.message
+            "BETA" in record.message and "api_keys.refresh" in record.message
             for record in caplog.records
         )

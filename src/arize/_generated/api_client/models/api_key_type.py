@@ -20,14 +20,14 @@ from typing_extensions import Self
 
 class ApiKeyType(str, Enum):
     """
-    Type of the API key. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. 
+    Type of the API key. - USER - Key associated with a specific user. - SERVICE - Key associated with a bot user for service authentication. 
     """
 
     """
     allowed enum values
     """
-    USER = 'user'
-    SERVICE = 'service'
+    USER = 'USER'
+    SERVICE = 'SERVICE'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

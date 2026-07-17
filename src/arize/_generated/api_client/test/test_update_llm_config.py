@@ -35,7 +35,7 @@ class TestUpdateLlmConfig(unittest.TestCase):
         model = UpdateLlmConfig()
         if include_optional:
             return UpdateLlmConfig(
-                provider = 'openAI',
+                provider = 'OPEN_AI',
                 api_key = '',
                 is_function_calling_enabled = True
             )

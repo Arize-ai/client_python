@@ -39,8 +39,8 @@ class EvaluatorVersionHarness(BaseModel):
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['harness']):
-            raise ValueError("must be one of enum values ('harness')")
+        if value not in set(['HARNESS']):
+            raise ValueError("must be one of enum values ('HARNESS')")
         return value
 
     model_config = ConfigDict(

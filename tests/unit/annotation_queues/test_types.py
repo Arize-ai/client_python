@@ -6,17 +6,17 @@ import pytest
 
 import arize.annotation_queues.types as types_module
 from arize.annotation_queues.types import (
+    AnnotateAnnotationQueueRecordResponse,
     AnnotationInput,
     AnnotationQueue,
     AnnotationQueueExampleRecordInput,
-    AnnotationQueueListResponse,
-    AnnotationQueueRecordAnnotateResult,
-    AnnotationQueueRecordAssignResult,
-    AnnotationQueueRecordCreateResponse,
     AnnotationQueueRecordInput,
-    AnnotationQueueRecordListResponse,
     AnnotationQueueSpanRecordInput,
+    AssignAnnotationQueueRecordResponse,
     AssignmentMethod,
+    CreateAnnotationQueueRecordResponse,
+    ListAnnotationQueueRecordsResponse,
+    ListAnnotationQueuesResponse,
 )
 
 
@@ -36,13 +36,13 @@ class TestAnnotationQueuesTypes:
             "AnnotationInput",
             "AnnotationQueue",
             "AnnotationQueueExampleRecordInput",
-            "AnnotationQueueRecordAnnotateResult",
-            "AnnotationQueueRecordAssignResult",
+            "AnnotateAnnotationQueueRecordResponse",
+            "AssignAnnotationQueueRecordResponse",
             "AnnotationQueueRecordInput",
-            "AnnotationQueueRecordListResponse",
+            "ListAnnotationQueueRecordsResponse",
             "AnnotationQueueSpanRecordInput",
-            "AnnotationQueueListResponse",
-            "AnnotationQueueRecordCreateResponse",
+            "ListAnnotationQueuesResponse",
+            "CreateAnnotationQueueRecordResponse",
             "AssignmentMethod",
         }
         assert expected.issubset(set(types_module.__all__))
@@ -58,13 +58,13 @@ class TestAnnotationQueuesTypes:
             AnnotationInput,
             AnnotationQueue,
             AnnotationQueueExampleRecordInput,
-            AnnotationQueueRecordAnnotateResult,
-            AnnotationQueueRecordAssignResult,
+            AnnotateAnnotationQueueRecordResponse,
+            AssignAnnotationQueueRecordResponse,
             AnnotationQueueRecordInput,
-            AnnotationQueueRecordListResponse,
+            ListAnnotationQueueRecordsResponse,
             AnnotationQueueSpanRecordInput,
-            AnnotationQueueListResponse,
-            AnnotationQueueRecordCreateResponse,
+            ListAnnotationQueuesResponse,
+            CreateAnnotationQueueRecordResponse,
         ],
     )
     def test_type_is_class(self, cls: type) -> None:

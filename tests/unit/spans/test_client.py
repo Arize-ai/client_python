@@ -5,10 +5,11 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, Mock, create_autospec, patch
 
 import pytest
 
+from arize._generated.api_client import SpansApi
 from arize.spans.client import SpansClient
 
 if TYPE_CHECKING:
@@ -35,7 +36,7 @@ def mock_sdk_config() -> Mock:
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock SpansApi instance."""
-    return Mock()
+    return create_autospec(SpansApi, instance=True)
 
 
 @pytest.fixture
@@ -121,7 +122,7 @@ class TestSpansClientDelete:
             project_id=_PROJECT_ID,
             span_ids=["span-1", "span-2"],
         )
-        mock_api.spans_delete.assert_called_once_with(
+        mock_api.delete_spans.assert_called_once_with(
             delete_spans_request=mock_body,
         )
 
@@ -130,7 +131,7 @@ class TestSpansClientDelete:
     ) -> None:
         """delete() should propagate the return value from spans_delete."""
         expected = Mock()
-        mock_api.spans_delete.return_value = expected
+        mock_api.delete_spans.return_value = expected
 
         with patch("arize._generated.api_client.DeleteSpansRequest"):
             result = spans_client.delete(
@@ -143,17 +144,17 @@ class TestSpansClientDelete:
     def test_delete_returns_response_on_full_success(
         self, spans_client: SpansClient, mock_api: Mock
     ) -> None:
-        """delete() should return a SpanDeleteResponse with completed/deleted/not_deleted lists."""
-        from arize._generated.api_client.models.span_delete_response import (
-            SpanDeleteResponse,
+        """delete() should return a DeleteSpansResponse with completed/deleted/not_deleted lists."""
+        from arize._generated.api_client.models.delete_spans_response import (
+            DeleteSpansResponse,
         )
 
-        expected = SpanDeleteResponse(
+        expected = DeleteSpansResponse(
             completed=True,
             deleted_span_ids=["span-1"],
             not_deleted_span_ids=[],
         )
-        mock_api.spans_delete.return_value = expected
+        mock_api.delete_spans.return_value = expected
 
         with patch("arize._generated.api_client.DeleteSpansRequest"):
             result = spans_client.delete(
@@ -171,7 +172,7 @@ class TestSpansClientDelete:
         mock_project.id = _PROJECT_ID
         mock_project.name = "my-project"
         mock_projects_api = Mock()
-        mock_projects_api.projects_list.return_value = Mock(
+        mock_projects_api.list_projects.return_value = Mock(
             projects=[mock_project],
             pagination=Mock(next_cursor=None),
         )
@@ -266,7 +267,7 @@ class TestSpansClientList:
                 cursor="cursor-abc",
             )
 
-        mock_api.spans_list.assert_called_once_with(
+        mock_api.list_spans.assert_called_once_with(
             list_spans_request=mock_body,
             limit=50,
             cursor="cursor-abc",
@@ -293,7 +294,7 @@ class TestSpansClientList:
             end_time=None,
             filter=None,
         )
-        mock_api.spans_list.assert_called_once_with(
+        mock_api.list_spans.assert_called_once_with(
             list_spans_request=mock_request_cls.return_value,
             limit=50,
             cursor=None,
@@ -308,7 +309,7 @@ class TestSpansClientList:
         pre_releases._WARNED.clear()
 
         expected = Mock()
-        mock_api.spans_list.return_value = expected
+        mock_api.list_spans.return_value = expected
 
         with patch("arize._generated.api_client.ListSpansRequest"):
             result = spans_client.list(project=_PROJECT_ID)
@@ -383,7 +384,7 @@ class TestSpansClientList:
         mock_project.id = _PROJECT_ID
         mock_project.name = "my-project"
         mock_projects_api = Mock()
-        mock_projects_api.projects_list.return_value = Mock(
+        mock_projects_api.list_projects.return_value = Mock(
             projects=[mock_project],
             pagination=Mock(next_cursor=None),
         )
@@ -418,7 +419,7 @@ class TestSpansClientAnnotate:
     def test_annotate_builds_request_and_calls_api(
         self, spans_client: SpansClient, mock_api: Mock
     ) -> None:
-        """annotate() should build an AnnotateSpansRequestBody and call spans_annotate."""
+        """annotate() should build an AnnotateSpansRequest and call spans_annotate."""
         from arize._generated.api_client import models
 
         annotations = [
@@ -429,7 +430,7 @@ class TestSpansClientAnnotate:
         ]
 
         with patch(
-            "arize._generated.api_client.AnnotateSpansRequestBody"
+            "arize._generated.api_client.AnnotateSpansRequest"
         ) as mock_body_cls:
             mock_body = Mock()
             mock_body_cls.return_value = mock_body
@@ -445,8 +446,8 @@ class TestSpansClientAnnotate:
             start_time=None,
             end_time=None,
         )
-        mock_api.spans_annotate.assert_called_once_with(
-            annotate_spans_request_body=mock_body
+        mock_api.annotate_spans.assert_called_once_with(
+            annotate_spans_request=mock_body
         )
 
     def test_annotate_forwards_time_window(
@@ -459,7 +460,7 @@ class TestSpansClientAnnotate:
         end = datetime(2024, 1, 31, tzinfo=timezone.utc)
 
         with patch(
-            "arize._generated.api_client.AnnotateSpansRequestBody"
+            "arize._generated.api_client.AnnotateSpansRequest"
         ) as mock_body_cls:
             mock_body_cls.return_value = Mock()
             spans_client.annotate(
@@ -487,9 +488,9 @@ class TestSpansClientAnnotate:
         """annotate() should return None (HTTP 202)."""
         from arize._generated.api_client import models
 
-        mock_api.spans_annotate.return_value = None
+        mock_api.annotate_spans.return_value = None
 
-        with patch("arize._generated.api_client.AnnotateSpansRequestBody"):
+        with patch("arize._generated.api_client.AnnotateSpansRequest"):
             result = spans_client.annotate(
                 project=_PROJECT_ID,
                 annotations=[
@@ -512,14 +513,14 @@ class TestSpansClientAnnotate:
         mock_project.id = _PROJECT_ID
         mock_project.name = "my-project"
         mock_projects_api = Mock()
-        mock_projects_api.projects_list.return_value = Mock(
+        mock_projects_api.list_projects.return_value = Mock(
             projects=[mock_project],
             pagination=Mock(next_cursor=None),
         )
         spans_client._projects_api = mock_projects_api
 
         with patch(
-            "arize._generated.api_client.AnnotateSpansRequestBody"
+            "arize._generated.api_client.AnnotateSpansRequest"
         ) as mock_body_cls:
             mock_body_cls.return_value = Mock()
             spans_client.annotate(
@@ -549,7 +550,7 @@ class TestSpansClientAnnotate:
         """First call should emit the BETA prerelease warning."""
         from arize._generated.api_client import models
 
-        with patch("arize._generated.api_client.AnnotateSpansRequestBody"):
+        with patch("arize._generated.api_client.AnnotateSpansRequest"):
             caplog.set_level(logging.WARNING)
             spans_client.annotate(
                 project=_PROJECT_ID,

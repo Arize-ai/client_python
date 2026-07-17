@@ -137,7 +137,7 @@ class TestFindProjectId:
         from arize._generated import api_client as gen
 
         api = gen.ProjectsApi(generated_client)
-        resp = api.projects_list(**_space_filter_kwargs(spaces_api), limit=1)
+        resp = api.list_projects(**_space_filter_kwargs(spaces_api), limit=1)
         if not resp.projects:
             pytest.skip("No projects in test space")
         p = resp.projects[0]
@@ -201,7 +201,7 @@ class TestFindDatasetId:
         from arize._generated import api_client as gen
 
         api = gen.DatasetsApi(generated_client)
-        resp = api.datasets_list(**_space_filter_kwargs(spaces_api), limit=1)
+        resp = api.list_datasets(**_space_filter_kwargs(spaces_api), limit=1)
         if not resp.datasets:
             pytest.skip("No datasets in test space")
         d = resp.datasets[0]
@@ -253,7 +253,7 @@ class TestFindPromptId:
         from arize._generated import api_client as gen
 
         api = gen.PromptsApi(generated_client)
-        resp = api.prompts_list(**_space_filter_kwargs(spaces_api), limit=1)
+        resp = api.list_prompts(**_space_filter_kwargs(spaces_api), limit=1)
         if not resp.prompts:
             pytest.skip("No prompts in test space")
         p = resp.prompts[0]
@@ -296,7 +296,7 @@ class TestFindEvaluatorId:
         from arize._generated import api_client as gen
 
         api = gen.EvaluatorsApi(generated_client)
-        resp = api.evaluators_list(**_space_filter_kwargs(spaces_api), limit=1)
+        resp = api.list_evaluators(**_space_filter_kwargs(spaces_api), limit=1)
         if not resp.evaluators:
             pytest.skip("No evaluators in test space")
         e = resp.evaluators[0]
@@ -341,7 +341,7 @@ class TestFindAnnotationConfigId:
         from arize._generated import api_client as gen
 
         api = gen.AnnotationConfigsApi(generated_client)
-        resp = api.annotation_configs_list(
+        resp = api.list_annotation_configs(
             **_space_filter_kwargs(spaces_api), limit=1
         )
         if not resp.annotation_configs:
@@ -401,7 +401,7 @@ class TestFindExperimentId:
         from arize._generated import api_client as gen
 
         datasets_api = gen.DatasetsApi(generated_client)
-        ds_resp = datasets_api.datasets_list(
+        ds_resp = datasets_api.list_datasets(
             **_space_filter_kwargs(spaces_api), limit=10
         )
         if not ds_resp.datasets:
@@ -409,7 +409,7 @@ class TestFindExperimentId:
 
         experiments_api = gen.ExperimentsApi(generated_client)
         for ds in ds_resp.datasets:
-            exp_resp = experiments_api.experiments_list(
+            exp_resp = experiments_api.list_experiments(
                 dataset_id=ds.id, limit=1
             )
             if exp_resp.experiments:
@@ -472,7 +472,7 @@ class TestFindTaskId:
         from arize._generated import api_client as gen
 
         api = gen.TasksApi(generated_client)
-        resp = api.tasks_list(**_space_filter_kwargs(spaces_api), limit=1)
+        resp = api.list_tasks(**_space_filter_kwargs(spaces_api), limit=1)
         if not resp.tasks:
             pytest.skip("No tasks in test space")
         t = resp.tasks[0]
@@ -515,7 +515,7 @@ class TestFindAiIntegrationId:
         from arize._generated import api_client as gen
 
         api = gen.AIIntegrationsApi(generated_client)
-        resp = api.ai_integrations_list(
+        resp = api.list_ai_integrations(
             **_space_filter_kwargs(spaces_api), limit=1
         )
         if not resp.ai_integrations:
@@ -567,7 +567,7 @@ class TestFindRoleId:
         from arize._generated import api_client as gen
 
         api = gen.RolesApi(generated_client)
-        resp = api.roles_list(limit=1)
+        resp = api.list_roles(limit=1)
         if not resp.roles:
             pytest.skip("No roles in account")
         r = resp.roles[0]

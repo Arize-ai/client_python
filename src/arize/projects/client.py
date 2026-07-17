@@ -16,7 +16,7 @@ from arize.utils.resolve import (
 if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
-    from arize.projects.types import Project, ProjectListResponse
+    from arize.projects.types import ListProjectsResponse, Project
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ class ProjectsClient:
         space: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> ProjectListResponse:
+    ) -> ListProjectsResponse:
         """List projects the user has access to.
 
         This endpoint supports cursor-based pagination. When ``space`` is provided,
@@ -80,7 +80,7 @@ class ProjectsClient:
             ApiException: If the API request fails.
         """
         resolved_space = _resolve_resource(space)
-        return self._api.projects_list(
+        return self._api.list_projects(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=name,
@@ -114,11 +114,11 @@ class ProjectsClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.ProjectCreate(
+        body = gen.CreateProjectRequest(
             name=name,
             space_id=space_id,
         )
-        return self._api.projects_create(project_create=body)
+        return self._api.create_project(create_project_request=body)
 
     @prerelease_endpoint(key="projects.get", stage=ReleaseStage.BETA)
     def get(self, *, project: str, space: str | None = None) -> Project:
@@ -140,7 +140,7 @@ class ProjectsClient:
             project=project,
             space=space,
         )
-        return self._api.projects_get(project_id=project_id)
+        return self._api.get_project(project_id=project_id)
 
     @prerelease_endpoint(key="projects.delete", stage=ReleaseStage.BETA)
     def delete(self, *, project: str, space: str | None = None) -> None:
@@ -164,7 +164,7 @@ class ProjectsClient:
             project=project,
             space=space,
         )
-        return self._api.projects_delete(project_id=project_id)
+        return self._api.delete_project(project_id=project_id)
 
     @prerelease_endpoint(key="projects.update", stage=ReleaseStage.BETA)
     def update(
@@ -195,7 +195,7 @@ class ProjectsClient:
             api=self._api, project=project, space=space
         )
 
-        body = gen.ProjectUpdate(name=name)
-        return self._api.projects_update(
-            project_id=project_id, project_update=body
+        body = gen.UpdateProjectRequest(name=name)
+        return self._api.update_project(
+            project_id=project_id, update_project_request=body
         )

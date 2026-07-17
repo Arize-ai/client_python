@@ -7,10 +7,13 @@ from unittest.mock import MagicMock
 import pytest
 
 import arize.organizations.types as types_module
+from arize._generated.api_client.models.organization_role_assignment_type import (
+    OrganizationRoleAssignmentType,
+)
 from arize.organizations.types import (
     CustomOrgRole,
+    ListOrganizationsResponse,
     Organization,
-    OrganizationListResponse,
     OrganizationMembership,
     OrganizationRole,
     PredefinedOrgRole,
@@ -33,13 +36,13 @@ class TestOrganizationsTypes:
         assert "CustomOrgRole" in types_module.__all__
         assert "OrganizationMembership" in types_module.__all__
         assert "Organization" in types_module.__all__
-        assert "OrganizationListResponse" in types_module.__all__
+        assert "ListOrganizationsResponse" in types_module.__all__
 
     def test_organization_is_class(self) -> None:
         assert isinstance(Organization, type)
 
-    def test_organizations_list_response_is_class(self) -> None:
-        assert isinstance(OrganizationListResponse, type)
+    def test_list_organizations_response_is_class(self) -> None:
+        assert isinstance(ListOrganizationsResponse, type)
 
 
 @pytest.mark.unit
@@ -52,8 +55,11 @@ class TestPredefinedOrgRole:
         assert issubclass(PredefinedOrgRole, BaseModel)
 
     def test_type_field_defaults_to_predefined(self) -> None:
+        # Regression: the hand-written Literal discriminator must stay in
+        # lockstep with the generated enum value (guards against a recase
+        # that isn't mirrored here).
         role = PredefinedOrgRole(name=OrganizationRole.MEMBER)
-        assert role.type == "predefined"
+        assert role.type == OrganizationRoleAssignmentType.PREDEFINED
 
     def test_accepts_all_org_roles(self) -> None:
         """PredefinedOrgRole should accept every OrganizationRole enum value."""
@@ -77,7 +83,7 @@ class TestCustomOrgRole:
 
     def test_type_field_defaults_to_custom(self) -> None:
         role = CustomOrgRole(id="role-abc-123")
-        assert role.type == "custom"
+        assert role.type == OrganizationRoleAssignmentType.CUSTOM
 
     def test_name_defaults_to_none(self) -> None:
         role = CustomOrgRole(id="role-abc-123")

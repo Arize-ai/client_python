@@ -20,12 +20,11 @@ from arize._generated.api_client.models.tool_call_function import (
 from arize._generated.api_client.models.tool_call_type import ToolCallType
 from arize.prompts.types import (
     InvocationParams,
+    ListPromptsResponse,
+    ListPromptVersionsResponse,
     LLMMessage,
     Prompt,
-    PromptListResponse,
     PromptVersion,
-    PromptVersionLabelsResponse,
-    PromptVersionListResponse,
     PromptWithVersion,
     ProviderParams,
 )
@@ -91,10 +90,9 @@ class TestPromptsTypes:
             "LlmProvider",
             "Prompt",
             "PromptVersion",
-            "PromptVersionLabelsResponse",
-            "PromptVersionListResponse",
+            "ListPromptVersionsResponse",
             "PromptWithVersion",
-            "PromptListResponse",
+            "ListPromptsResponse",
             "ProviderParams",
         }
         assert expected.issubset(set(types_module.__all__))
@@ -116,10 +114,9 @@ class TestPromptsTypes:
             LLMMessage,
             Prompt,
             PromptVersion,
-            PromptVersionLabelsResponse,
-            PromptVersionListResponse,
+            ListPromptVersionsResponse,
             PromptWithVersion,
-            PromptListResponse,
+            ListPromptsResponse,
             ProviderParams,
         ],
     )
@@ -171,10 +168,10 @@ class TestPromptVersionStr:
         )
         result = str(version)
         assert "commit: add greeting" in result
-        assert "user: Hello {name}" in result
+        assert "USER: Hello {name}" in result
         assert "gpt-4o" in result
-        assert "open_ai" in result
-        assert "f_string" in result
+        assert "OPEN_AI" in result
+        assert "F_STRING" in result
 
     def test_system_and_user_messages(self) -> None:
         version = _make_version(
@@ -184,8 +181,8 @@ class TestPromptVersionStr:
             ]
         )
         result = str(version)
-        assert "system: You are helpful." in result
-        assert "user: Hi" in result
+        assert "SYSTEM: You are helpful." in result
+        assert "USER: Hi" in result
 
     def test_provider_as_plain_string(self) -> None:
         """Non-enum provider falls back to str() rather than .value."""
@@ -246,7 +243,7 @@ class TestPromptVersionStr:
         )
         version = _make_version(messages=[msg])
         result = str(version)
-        assert "assistant" in result
+        assert "ASSISTANT" in result
         assert "search()" in result
 
     def test_message_with_tool_call_id(self) -> None:
@@ -264,7 +261,7 @@ class TestPromptVersionStr:
         msg = LLMMessage(role=MessageRole.ASSISTANT, content=None)
         version = _make_version(messages=[msg])
         result = str(version)
-        assert "assistant:" in result
+        assert "ASSISTANT:" in result
 
     def test_tool_call_with_no_function_attribute(self) -> None:
         """ToolCall whose function attribute is missing/None should show '?'."""
@@ -316,7 +313,7 @@ class TestPromptWithVersion:
         pwv = _make_prompt_with_version(pv)
         version_str = str(pwv.version)
         assert "commit: my commit" in version_str
-        assert "user: hi" in version_str
+        assert "USER: hi" in version_str
 
 
 @pytest.mark.unit
@@ -407,7 +404,7 @@ class TestProviderParamsForwardCompat:
 
 
 @pytest.mark.unit
-class TestPromptVersionListResponseToDF:
+class TestListPromptVersionsResponseToDF:
     """Contract tests: to_df() must return structured data, not display strings.
 
     Display formatting belongs in the CLI layer (ax/core/output.py).
@@ -416,12 +413,12 @@ class TestPromptVersionListResponseToDF:
 
     def _make_response(
         self, versions: list[PromptVersion]
-    ) -> PromptVersionListResponse:
+    ) -> ListPromptVersionsResponse:
         from arize._generated.api_client.models.pagination_metadata import (
             PaginationMetadata,
         )
 
-        return PromptVersionListResponse(
+        return ListPromptVersionsResponse(
             prompt_versions=versions,
             pagination=PaginationMetadata(has_more=False, next_cursor=None),
         )

@@ -35,8 +35,8 @@ class TestResponseFormat(unittest.TestCase):
         model = ResponseFormat()
         if include_optional:
             return ResponseFormat(
-                type = 'text',
-                json_schema = arize._generated.api_client.models.response_format_json_schema.ResponseFormat_json_schema(
+                type = 'TEXT',
+                json_schema = arize._generated.api_client.models.json_schema_config.JsonSchemaConfig(
                     name = '', 
                     description = '', 
                     schema = arize._generated.api_client.models.schema.schema(), 

@@ -26,7 +26,7 @@ class AwsProviderMetadataKind(str, Enum):
     """
     allowed enum values
     """
-    AWS = 'aws'
+    AWS = 'AWS'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

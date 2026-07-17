@@ -35,13 +35,13 @@ class TestCustomUserRoleAssignment(unittest.TestCase):
         model = CustomUserRoleAssignment()
         if include_optional:
             return CustomUserRoleAssignment(
-                type = 'builtin',
+                type = 'PREDEFINED',
                 id = 'RW50aXR5OjEyMzQ1',
                 name = ''
             )
         else:
             return CustomUserRoleAssignment(
-                type = 'builtin',
+                type = 'PREDEFINED',
                 id = 'RW50aXR5OjEyMzQ1',
         )
         """

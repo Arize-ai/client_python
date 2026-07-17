@@ -26,11 +26,11 @@ class ManagedCodeEvaluator(str, Enum):
     """
     allowed enum values
     """
-    MATCHESREGEX = 'MatchesRegex'
-    JSONPARSEABLE = 'JSONParseable'
-    CONTAINSANYKEYWORD = 'ContainsAnyKeyword'
-    CONTAINSALLKEYWORDS = 'ContainsAllKeywords'
-    EXACTMATCH = 'ExactMatch'
+    MATCHES_REGEX = 'MATCHES_REGEX'
+    JSON_PARSEABLE = 'JSON_PARSEABLE'
+    CONTAINS_ANY_KEYWORD = 'CONTAINS_ANY_KEYWORD'
+    CONTAINS_ALL_KEYWORDS = 'CONTAINS_ALL_KEYWORDS'
+    EXACT_MATCH = 'EXACT_MATCH'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

@@ -19,12 +19,12 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
-from arize._generated.api_client.models.api_key_create import ApiKeyCreate
-from arize._generated.api_client.models.api_key_created import ApiKeyCreated
-from arize._generated.api_client.models.api_key_list_response import ApiKeyListResponse
-from arize._generated.api_client.models.api_key_refresh import ApiKeyRefresh
+from arize._generated.api_client.models.api_key import ApiKey
 from arize._generated.api_client.models.api_key_status import ApiKeyStatus
 from arize._generated.api_client.models.api_key_type import ApiKeyType
+from arize._generated.api_client.models.create_api_key_request import CreateApiKeyRequest
+from arize._generated.api_client.models.list_api_keys_response import ListApiKeysResponse
+from arize._generated.api_client.models.refresh_api_key_request import RefreshApiKeyRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -45,9 +45,9 @@ class APIKeysApi:
 
 
     @validate_call
-    def api_keys_create(
+    def create_api_key(
         self,
-        api_key_create: Annotated[ApiKeyCreate, Field(description="Body containing API key creation parameters")],
+        create_api_key_request: Annotated[CreateApiKeyRequest, Field(description="Body containing API key creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -60,13 +60,13 @@ class APIKeysApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiKeyCreated:
+    ) -> ApiKey:
         """Create an API key
 
-        Create a new API key for the authenticated user.  - `key_type` defaults to `user` when omitted. - For `service` keys, `space_id` is required. The service key is   scoped to the given space, and a bot user will be created with the specified roles. - For `user` keys, `space_id` and `roles` must not be set — passing either returns `400`.   The key inherits the authenticated user's own permissions. - You may only assign roles at or below your own privilege level. Attempting to   assign a role higher than your own returns `400 Bad Request`. - All roles default to the minimum privilege when omitted: `space_role` → `member`,   `org_role` → `read-only`, `account_role` → `member`.  **Authorization:** - **User keys:** Requires the `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** Requires the `SERVICE_KEY_CREATE` permission in the target space (space   member or above).  The full API key value (`key`) is **only returned once** in the creation response. Store it securely — it cannot be retrieved again. Use the `redacted_key` field on subsequent reads.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new API key for the authenticated user.  - `key_type` defaults to `USER` when omitted. - For `SERVICE` keys, `space_id` is required. The service key is   scoped to the given space, and a bot user will be created with the specified roles. - For `USER` keys, `space_id` and `roles` must not be set — passing either returns `400`.   The key inherits the authenticated user's own permissions. - You may only assign roles at or below your own privilege level. Attempting to   assign a role higher than your own returns `400 Bad Request`. - All roles default to the minimum privilege when omitted: `space_role` → `MEMBER`,   `org_role` → `READ_ONLY`, `account_role` → `MEMBER`.  **Authorization:** - **User keys:** Requires the `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** Requires the `SERVICE_KEY_CREATE` permission in the target space (space   member or above).  The full API key value (`key`) is **only returned once** in the creation response. Store it securely — it cannot be retrieved again. Use the `redacted_key` field on subsequent reads.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param api_key_create: Body containing API key creation parameters (required)
-        :type api_key_create: ApiKeyCreate
+        :param create_api_key_request: Body containing API key creation parameters (required)
+        :type create_api_key_request: CreateApiKeyRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -89,8 +89,8 @@ class APIKeysApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._api_keys_create_serialize(
-            api_key_create=api_key_create,
+        _param = self._create_api_key_serialize(
+            create_api_key_request=create_api_key_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -98,7 +98,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "ApiKeyCreated",
+            '201': "ApiKey",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -118,9 +118,9 @@ class APIKeysApi:
 
 
     @validate_call
-    def api_keys_create_with_http_info(
+    def create_api_key_with_http_info(
         self,
-        api_key_create: Annotated[ApiKeyCreate, Field(description="Body containing API key creation parameters")],
+        create_api_key_request: Annotated[CreateApiKeyRequest, Field(description="Body containing API key creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -133,13 +133,13 @@ class APIKeysApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ApiKeyCreated]:
+    ) -> ApiResponse[ApiKey]:
         """Create an API key
 
-        Create a new API key for the authenticated user.  - `key_type` defaults to `user` when omitted. - For `service` keys, `space_id` is required. The service key is   scoped to the given space, and a bot user will be created with the specified roles. - For `user` keys, `space_id` and `roles` must not be set — passing either returns `400`.   The key inherits the authenticated user's own permissions. - You may only assign roles at or below your own privilege level. Attempting to   assign a role higher than your own returns `400 Bad Request`. - All roles default to the minimum privilege when omitted: `space_role` → `member`,   `org_role` → `read-only`, `account_role` → `member`.  **Authorization:** - **User keys:** Requires the `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** Requires the `SERVICE_KEY_CREATE` permission in the target space (space   member or above).  The full API key value (`key`) is **only returned once** in the creation response. Store it securely — it cannot be retrieved again. Use the `redacted_key` field on subsequent reads.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new API key for the authenticated user.  - `key_type` defaults to `USER` when omitted. - For `SERVICE` keys, `space_id` is required. The service key is   scoped to the given space, and a bot user will be created with the specified roles. - For `USER` keys, `space_id` and `roles` must not be set — passing either returns `400`.   The key inherits the authenticated user's own permissions. - You may only assign roles at or below your own privilege level. Attempting to   assign a role higher than your own returns `400 Bad Request`. - All roles default to the minimum privilege when omitted: `space_role` → `MEMBER`,   `org_role` → `READ_ONLY`, `account_role` → `MEMBER`.  **Authorization:** - **User keys:** Requires the `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** Requires the `SERVICE_KEY_CREATE` permission in the target space (space   member or above).  The full API key value (`key`) is **only returned once** in the creation response. Store it securely — it cannot be retrieved again. Use the `redacted_key` field on subsequent reads.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param api_key_create: Body containing API key creation parameters (required)
-        :type api_key_create: ApiKeyCreate
+        :param create_api_key_request: Body containing API key creation parameters (required)
+        :type create_api_key_request: CreateApiKeyRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -162,8 +162,8 @@ class APIKeysApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._api_keys_create_serialize(
-            api_key_create=api_key_create,
+        _param = self._create_api_key_serialize(
+            create_api_key_request=create_api_key_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -171,7 +171,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "ApiKeyCreated",
+            '201': "ApiKey",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -191,9 +191,9 @@ class APIKeysApi:
 
 
     @validate_call
-    def api_keys_create_without_preload_content(
+    def create_api_key_without_preload_content(
         self,
-        api_key_create: Annotated[ApiKeyCreate, Field(description="Body containing API key creation parameters")],
+        create_api_key_request: Annotated[CreateApiKeyRequest, Field(description="Body containing API key creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -209,10 +209,10 @@ class APIKeysApi:
     ) -> RESTResponseType:
         """Create an API key
 
-        Create a new API key for the authenticated user.  - `key_type` defaults to `user` when omitted. - For `service` keys, `space_id` is required. The service key is   scoped to the given space, and a bot user will be created with the specified roles. - For `user` keys, `space_id` and `roles` must not be set — passing either returns `400`.   The key inherits the authenticated user's own permissions. - You may only assign roles at or below your own privilege level. Attempting to   assign a role higher than your own returns `400 Bad Request`. - All roles default to the minimum privilege when omitted: `space_role` → `member`,   `org_role` → `read-only`, `account_role` → `member`.  **Authorization:** - **User keys:** Requires the `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** Requires the `SERVICE_KEY_CREATE` permission in the target space (space   member or above).  The full API key value (`key`) is **only returned once** in the creation response. Store it securely — it cannot be retrieved again. Use the `redacted_key` field on subsequent reads.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new API key for the authenticated user.  - `key_type` defaults to `USER` when omitted. - For `SERVICE` keys, `space_id` is required. The service key is   scoped to the given space, and a bot user will be created with the specified roles. - For `USER` keys, `space_id` and `roles` must not be set — passing either returns `400`.   The key inherits the authenticated user's own permissions. - You may only assign roles at or below your own privilege level. Attempting to   assign a role higher than your own returns `400 Bad Request`. - All roles default to the minimum privilege when omitted: `space_role` → `MEMBER`,   `org_role` → `READ_ONLY`, `account_role` → `MEMBER`.  **Authorization:** - **User keys:** Requires the `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** Requires the `SERVICE_KEY_CREATE` permission in the target space (space   member or above).  The full API key value (`key`) is **only returned once** in the creation response. Store it securely — it cannot be retrieved again. Use the `redacted_key` field on subsequent reads.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param api_key_create: Body containing API key creation parameters (required)
-        :type api_key_create: ApiKeyCreate
+        :param create_api_key_request: Body containing API key creation parameters (required)
+        :type create_api_key_request: CreateApiKeyRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -235,8 +235,8 @@ class APIKeysApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._api_keys_create_serialize(
-            api_key_create=api_key_create,
+        _param = self._create_api_key_serialize(
+            create_api_key_request=create_api_key_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -244,7 +244,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "ApiKeyCreated",
+            '201': "ApiKey",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -259,9 +259,9 @@ class APIKeysApi:
         return response_data.response
 
 
-    def _api_keys_create_serialize(
+    def _create_api_key_serialize(
         self,
-        api_key_create,
+        create_api_key_request,
         _request_auth,
         _content_type,
         _headers,
@@ -287,8 +287,8 @@ class APIKeysApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if api_key_create is not None:
-            _body_params = api_key_create
+        if create_api_key_request is not None:
+            _body_params = create_api_key_request
 
 
         # set the HTTP header `Accept`
@@ -338,10 +338,10 @@ class APIKeysApi:
 
 
     @validate_call
-    def api_keys_list(
+    def list_api_keys(
         self,
-        key_type: Annotated[Optional[ApiKeyType], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
-        status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
+        key_type: Annotated[Optional[ApiKeyType], Field(description="Filter by API key type. - USER - Key associated with a specific user. - SERVICE - Key associated with a bot user for service authentication. ")] = None,
+        status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - ACTIVE - Only return keys that are valid for use. - REVOKED - Only return keys that have been revoked.  When not specified, defaults to `ACTIVE`. ")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         user_id: Annotated[Optional[StrictStr], Field(description="Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -358,14 +358,14 @@ class APIKeysApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiKeyListResponse:
+    ) -> ListApiKeysResponse:
         """List API keys
 
-        List API keys. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, space, and creator. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Service keys (`key_type=service`):** Provide `space_id` to return all service keys for that space. When `key_type` is omitted alongside `space_id`, service keys are returned implicitly. Requires the `SERVICE_KEY_READ` permission in the space (or account/space admin). Optionally combine with `user_id` to filter service keys by their creator — available to any caller with space access (not admin-gated).  **User keys (`key_type=user`):** Returned by default (no `space_id`). Provide `user_id` to view keys belonging to a specific user — account admins only; non-admins receive `403`.  **Authorization:** Requires the `developer` user permission flag or account admin role. Returns `403` when neither condition is met.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List API keys. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, space, and creator. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Service keys (`key_type=SERVICE`):** Provide `space_id` to return all service keys for that space. When `key_type` is omitted alongside `space_id`, service keys are returned implicitly. Requires the `SERVICE_KEY_READ` permission in the space (or account/space admin). Optionally combine with `user_id` to filter service keys by their creator — available to any caller with space access (not admin-gated).  **User keys (`key_type=USER`):** Returned by default (no `space_id`). Provide `user_id` to view keys belonging to a specific user — account admins only; non-admins receive `403`.  **Authorization:** Requires the `developer` user permission flag or account admin role. Returns `403` when neither condition is met.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param key_type: Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. 
+        :param key_type: Filter by API key type. - USER - Key associated with a specific user. - SERVICE - Key associated with a bot user for service authentication. 
         :type key_type: ApiKeyType
-        :param status: Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. 
+        :param status: Filter by API key status. - ACTIVE - Only return keys that are valid for use. - REVOKED - Only return keys that have been revoked.  When not specified, defaults to `ACTIVE`. 
         :type status: ApiKeyStatus
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -397,7 +397,7 @@ class APIKeysApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._api_keys_list_serialize(
+        _param = self._list_api_keys_serialize(
             key_type=key_type,
             status=status,
             space_id=space_id,
@@ -411,7 +411,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ApiKeyListResponse",
+            '200': "ListApiKeysResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -430,10 +430,10 @@ class APIKeysApi:
 
 
     @validate_call
-    def api_keys_list_with_http_info(
+    def list_api_keys_with_http_info(
         self,
-        key_type: Annotated[Optional[ApiKeyType], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
-        status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
+        key_type: Annotated[Optional[ApiKeyType], Field(description="Filter by API key type. - USER - Key associated with a specific user. - SERVICE - Key associated with a bot user for service authentication. ")] = None,
+        status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - ACTIVE - Only return keys that are valid for use. - REVOKED - Only return keys that have been revoked.  When not specified, defaults to `ACTIVE`. ")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         user_id: Annotated[Optional[StrictStr], Field(description="Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -450,14 +450,14 @@ class APIKeysApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ApiKeyListResponse]:
+    ) -> ApiResponse[ListApiKeysResponse]:
         """List API keys
 
-        List API keys. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, space, and creator. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Service keys (`key_type=service`):** Provide `space_id` to return all service keys for that space. When `key_type` is omitted alongside `space_id`, service keys are returned implicitly. Requires the `SERVICE_KEY_READ` permission in the space (or account/space admin). Optionally combine with `user_id` to filter service keys by their creator — available to any caller with space access (not admin-gated).  **User keys (`key_type=user`):** Returned by default (no `space_id`). Provide `user_id` to view keys belonging to a specific user — account admins only; non-admins receive `403`.  **Authorization:** Requires the `developer` user permission flag or account admin role. Returns `403` when neither condition is met.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List API keys. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, space, and creator. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Service keys (`key_type=SERVICE`):** Provide `space_id` to return all service keys for that space. When `key_type` is omitted alongside `space_id`, service keys are returned implicitly. Requires the `SERVICE_KEY_READ` permission in the space (or account/space admin). Optionally combine with `user_id` to filter service keys by their creator — available to any caller with space access (not admin-gated).  **User keys (`key_type=USER`):** Returned by default (no `space_id`). Provide `user_id` to view keys belonging to a specific user — account admins only; non-admins receive `403`.  **Authorization:** Requires the `developer` user permission flag or account admin role. Returns `403` when neither condition is met.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param key_type: Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. 
+        :param key_type: Filter by API key type. - USER - Key associated with a specific user. - SERVICE - Key associated with a bot user for service authentication. 
         :type key_type: ApiKeyType
-        :param status: Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. 
+        :param status: Filter by API key status. - ACTIVE - Only return keys that are valid for use. - REVOKED - Only return keys that have been revoked.  When not specified, defaults to `ACTIVE`. 
         :type status: ApiKeyStatus
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -489,7 +489,7 @@ class APIKeysApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._api_keys_list_serialize(
+        _param = self._list_api_keys_serialize(
             key_type=key_type,
             status=status,
             space_id=space_id,
@@ -503,7 +503,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ApiKeyListResponse",
+            '200': "ListApiKeysResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -522,10 +522,10 @@ class APIKeysApi:
 
 
     @validate_call
-    def api_keys_list_without_preload_content(
+    def list_api_keys_without_preload_content(
         self,
-        key_type: Annotated[Optional[ApiKeyType], Field(description="Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. ")] = None,
-        status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. ")] = None,
+        key_type: Annotated[Optional[ApiKeyType], Field(description="Filter by API key type. - USER - Key associated with a specific user. - SERVICE - Key associated with a bot user for service authentication. ")] = None,
+        status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - ACTIVE - Only return keys that are valid for use. - REVOKED - Only return keys that have been revoked.  When not specified, defaults to `ACTIVE`. ")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         user_id: Annotated[Optional[StrictStr], Field(description="Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -545,11 +545,11 @@ class APIKeysApi:
     ) -> RESTResponseType:
         """List API keys
 
-        List API keys. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, space, and creator. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Service keys (`key_type=service`):** Provide `space_id` to return all service keys for that space. When `key_type` is omitted alongside `space_id`, service keys are returned implicitly. Requires the `SERVICE_KEY_READ` permission in the space (or account/space admin). Optionally combine with `user_id` to filter service keys by their creator — available to any caller with space access (not admin-gated).  **User keys (`key_type=user`):** Returned by default (no `space_id`). Provide `user_id` to view keys belonging to a specific user — account admins only; non-admins receive `403`.  **Authorization:** Requires the `developer` user permission flag or account admin role. Returns `403` when neither condition is met.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List API keys. Returns metadata for each key (id, name, description, key_type, status, redacted_key, created_at, expires_at, created_by_user_id). The raw key secret is never returned after creation.  Results can be filtered by key type, status, space, and creator. Responses are paginated; use `limit` and `cursor` and the response `pagination.next_cursor` for subsequent pages.  **Service keys (`key_type=SERVICE`):** Provide `space_id` to return all service keys for that space. When `key_type` is omitted alongside `space_id`, service keys are returned implicitly. Requires the `SERVICE_KEY_READ` permission in the space (or account/space admin). Optionally combine with `user_id` to filter service keys by their creator — available to any caller with space access (not admin-gated).  **User keys (`key_type=USER`):** Returned by default (no `space_id`). Provide `user_id` to view keys belonging to a specific user — account admins only; non-admins receive `403`.  **Authorization:** Requires the `developer` user permission flag or account admin role. Returns `403` when neither condition is met.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param key_type: Filter by API key type. - user - Key associated with a specific user. - service - Key associated with a bot user for service authentication. 
+        :param key_type: Filter by API key type. - USER - Key associated with a specific user. - SERVICE - Key associated with a bot user for service authentication. 
         :type key_type: ApiKeyType
-        :param status: Filter by API key status. - active - Only return keys that are valid for use. - deleted - Only return keys that have been deleted.  When not specified, defaults to `active`. 
+        :param status: Filter by API key status. - ACTIVE - Only return keys that are valid for use. - REVOKED - Only return keys that have been revoked.  When not specified, defaults to `ACTIVE`. 
         :type status: ApiKeyStatus
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -581,7 +581,7 @@ class APIKeysApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._api_keys_list_serialize(
+        _param = self._list_api_keys_serialize(
             key_type=key_type,
             status=status,
             space_id=space_id,
@@ -595,7 +595,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ApiKeyListResponse",
+            '200': "ListApiKeysResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -609,7 +609,7 @@ class APIKeysApi:
         return response_data.response
 
 
-    def _api_keys_list_serialize(
+    def _list_api_keys_serialize(
         self,
         key_type,
         status,
@@ -702,10 +702,10 @@ class APIKeysApi:
 
 
     @validate_call
-    def api_keys_refresh(
+    def refresh_api_key(
         self,
         api_key_id: Annotated[StrictStr, Field(description="The unique API key identifier (base64)")],
-        api_key_refresh: Annotated[Optional[ApiKeyRefresh], Field(description="Optional body for tightening expiry on the new key and/or setting a grace period on the old key. Refresh cannot extend a key's lifetime: with an empty body the refreshed key inherits the old key's expiry, and an explicit `expires_at` later than the old key's expiry is rejected with 422. ")] = None,
+        refresh_api_key_request: Annotated[Optional[RefreshApiKeyRequest], Field(description="Optional body for tightening expiry on the new key and/or setting a grace period on the old key. Refresh cannot extend a key's lifetime: with an empty body the refreshed key inherits the old key's expiry, and an explicit `expires_at` later than the old key's expiry is rejected with 422. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -718,15 +718,15 @@ class APIKeysApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiKeyCreated:
+    ) -> ApiKey:
         """Refresh an API key
 
-        Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** `expires_at` is **required** when the existing key has an expiry — omitting it would extend the key's lifetime to unbounded and is rejected with `422`. For unbounded existing keys, `expires_at` may be omitted (the replacement is also unbounded) or supplied to add a specific expiry. The value must not be later than the existing key's expiry; to issue a key with a longer lifetime, use `POST /v2/api-keys`.  **Grace period:** Supply `grace_period_seconds` in the request body to keep the old key valid for that many seconds after the refresh. If not supplied, the old key is revoked immediately.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** `expires_at` is **required** when the existing key has an expiry — omitting it would extend the key's lifetime to unbounded and is rejected with `422`. For unbounded existing keys, `expires_at` may be omitted (the replacement is also unbounded) or supplied to add a specific expiry. The value must not be later than the existing key's expiry; to issue a key with a longer lifetime, use `POST /v2/api-keys`.  **Grace period:** Supply `grace_period_seconds` in the request body to keep the old key valid for that many seconds after the refresh. If not supplied, the old key is revoked immediately.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param api_key_id: The unique API key identifier (base64) (required)
         :type api_key_id: str
-        :param api_key_refresh: Optional body for tightening expiry on the new key and/or setting a grace period on the old key. Refresh cannot extend a key's lifetime: with an empty body the refreshed key inherits the old key's expiry, and an explicit `expires_at` later than the old key's expiry is rejected with 422. 
-        :type api_key_refresh: ApiKeyRefresh
+        :param refresh_api_key_request: Optional body for tightening expiry on the new key and/or setting a grace period on the old key. Refresh cannot extend a key's lifetime: with an empty body the refreshed key inherits the old key's expiry, and an explicit `expires_at` later than the old key's expiry is rejected with 422. 
+        :type refresh_api_key_request: RefreshApiKeyRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -749,9 +749,9 @@ class APIKeysApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._api_keys_refresh_serialize(
+        _param = self._refresh_api_key_serialize(
             api_key_id=api_key_id,
-            api_key_refresh=api_key_refresh,
+            refresh_api_key_request=refresh_api_key_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -759,7 +759,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ApiKeyCreated",
+            '200': "ApiKey",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -779,10 +779,10 @@ class APIKeysApi:
 
 
     @validate_call
-    def api_keys_refresh_with_http_info(
+    def refresh_api_key_with_http_info(
         self,
         api_key_id: Annotated[StrictStr, Field(description="The unique API key identifier (base64)")],
-        api_key_refresh: Annotated[Optional[ApiKeyRefresh], Field(description="Optional body for tightening expiry on the new key and/or setting a grace period on the old key. Refresh cannot extend a key's lifetime: with an empty body the refreshed key inherits the old key's expiry, and an explicit `expires_at` later than the old key's expiry is rejected with 422. ")] = None,
+        refresh_api_key_request: Annotated[Optional[RefreshApiKeyRequest], Field(description="Optional body for tightening expiry on the new key and/or setting a grace period on the old key. Refresh cannot extend a key's lifetime: with an empty body the refreshed key inherits the old key's expiry, and an explicit `expires_at` later than the old key's expiry is rejected with 422. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -795,15 +795,15 @@ class APIKeysApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ApiKeyCreated]:
+    ) -> ApiResponse[ApiKey]:
         """Refresh an API key
 
-        Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** `expires_at` is **required** when the existing key has an expiry — omitting it would extend the key's lifetime to unbounded and is rejected with `422`. For unbounded existing keys, `expires_at` may be omitted (the replacement is also unbounded) or supplied to add a specific expiry. The value must not be later than the existing key's expiry; to issue a key with a longer lifetime, use `POST /v2/api-keys`.  **Grace period:** Supply `grace_period_seconds` in the request body to keep the old key valid for that many seconds after the refresh. If not supplied, the old key is revoked immediately.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** `expires_at` is **required** when the existing key has an expiry — omitting it would extend the key's lifetime to unbounded and is rejected with `422`. For unbounded existing keys, `expires_at` may be omitted (the replacement is also unbounded) or supplied to add a specific expiry. The value must not be later than the existing key's expiry; to issue a key with a longer lifetime, use `POST /v2/api-keys`.  **Grace period:** Supply `grace_period_seconds` in the request body to keep the old key valid for that many seconds after the refresh. If not supplied, the old key is revoked immediately.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param api_key_id: The unique API key identifier (base64) (required)
         :type api_key_id: str
-        :param api_key_refresh: Optional body for tightening expiry on the new key and/or setting a grace period on the old key. Refresh cannot extend a key's lifetime: with an empty body the refreshed key inherits the old key's expiry, and an explicit `expires_at` later than the old key's expiry is rejected with 422. 
-        :type api_key_refresh: ApiKeyRefresh
+        :param refresh_api_key_request: Optional body for tightening expiry on the new key and/or setting a grace period on the old key. Refresh cannot extend a key's lifetime: with an empty body the refreshed key inherits the old key's expiry, and an explicit `expires_at` later than the old key's expiry is rejected with 422. 
+        :type refresh_api_key_request: RefreshApiKeyRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -826,9 +826,9 @@ class APIKeysApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._api_keys_refresh_serialize(
+        _param = self._refresh_api_key_serialize(
             api_key_id=api_key_id,
-            api_key_refresh=api_key_refresh,
+            refresh_api_key_request=refresh_api_key_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -836,7 +836,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ApiKeyCreated",
+            '200': "ApiKey",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -856,10 +856,10 @@ class APIKeysApi:
 
 
     @validate_call
-    def api_keys_refresh_without_preload_content(
+    def refresh_api_key_without_preload_content(
         self,
         api_key_id: Annotated[StrictStr, Field(description="The unique API key identifier (base64)")],
-        api_key_refresh: Annotated[Optional[ApiKeyRefresh], Field(description="Optional body for tightening expiry on the new key and/or setting a grace period on the old key. Refresh cannot extend a key's lifetime: with an empty body the refreshed key inherits the old key's expiry, and an explicit `expires_at` later than the old key's expiry is rejected with 422. ")] = None,
+        refresh_api_key_request: Annotated[Optional[RefreshApiKeyRequest], Field(description="Optional body for tightening expiry on the new key and/or setting a grace period on the old key. Refresh cannot extend a key's lifetime: with an empty body the refreshed key inherits the old key's expiry, and an explicit `expires_at` later than the old key's expiry is rejected with 422. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -875,12 +875,12 @@ class APIKeysApi:
     ) -> RESTResponseType:
         """Refresh an API key
 
-        Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** `expires_at` is **required** when the existing key has an expiry — omitting it would extend the key's lifetime to unbounded and is rejected with `422`. For unbounded existing keys, `expires_at` may be omitted (the replacement is also unbounded) or supplied to add a specific expiry. The value must not be later than the existing key's expiry; to issue a key with a longer lifetime, use `POST /v2/api-keys`.  **Grace period:** Supply `grace_period_seconds` in the request body to keep the old key valid for that many seconds after the refresh. If not supplied, the old key is revoked immediately.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** `expires_at` is **required** when the existing key has an expiry — omitting it would extend the key's lifetime to unbounded and is rejected with `422`. For unbounded existing keys, `expires_at` may be omitted (the replacement is also unbounded) or supplied to add a specific expiry. The value must not be later than the existing key's expiry; to issue a key with a longer lifetime, use `POST /v2/api-keys`.  **Grace period:** Supply `grace_period_seconds` in the request body to keep the old key valid for that many seconds after the refresh. If not supplied, the old key is revoked immediately.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param api_key_id: The unique API key identifier (base64) (required)
         :type api_key_id: str
-        :param api_key_refresh: Optional body for tightening expiry on the new key and/or setting a grace period on the old key. Refresh cannot extend a key's lifetime: with an empty body the refreshed key inherits the old key's expiry, and an explicit `expires_at` later than the old key's expiry is rejected with 422. 
-        :type api_key_refresh: ApiKeyRefresh
+        :param refresh_api_key_request: Optional body for tightening expiry on the new key and/or setting a grace period on the old key. Refresh cannot extend a key's lifetime: with an empty body the refreshed key inherits the old key's expiry, and an explicit `expires_at` later than the old key's expiry is rejected with 422. 
+        :type refresh_api_key_request: RefreshApiKeyRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -903,9 +903,9 @@ class APIKeysApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._api_keys_refresh_serialize(
+        _param = self._refresh_api_key_serialize(
             api_key_id=api_key_id,
-            api_key_refresh=api_key_refresh,
+            refresh_api_key_request=refresh_api_key_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -913,7 +913,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ApiKeyCreated",
+            '200': "ApiKey",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -928,10 +928,10 @@ class APIKeysApi:
         return response_data.response
 
 
-    def _api_keys_refresh_serialize(
+    def _refresh_api_key_serialize(
         self,
         api_key_id,
-        api_key_refresh,
+        refresh_api_key_request,
         _request_auth,
         _content_type,
         _headers,
@@ -959,8 +959,8 @@ class APIKeysApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if api_key_refresh is not None:
-            _body_params = api_key_refresh
+        if refresh_api_key_request is not None:
+            _body_params = refresh_api_key_request
 
 
         # set the HTTP header `Accept`
@@ -1010,7 +1010,7 @@ class APIKeysApi:
 
 
     @validate_call
-    def api_keys_revoke(
+    def revoke_api_key(
         self,
         api_key_id: Annotated[StrictStr, Field(description="The unique API key identifier (base64)")],
         _request_timeout: Union[
@@ -1054,7 +1054,7 @@ class APIKeysApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._api_keys_revoke_serialize(
+        _param = self._revoke_api_key_serialize(
             api_key_id=api_key_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1082,7 +1082,7 @@ class APIKeysApi:
 
 
     @validate_call
-    def api_keys_revoke_with_http_info(
+    def revoke_api_key_with_http_info(
         self,
         api_key_id: Annotated[StrictStr, Field(description="The unique API key identifier (base64)")],
         _request_timeout: Union[
@@ -1126,7 +1126,7 @@ class APIKeysApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._api_keys_revoke_serialize(
+        _param = self._revoke_api_key_serialize(
             api_key_id=api_key_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1154,7 +1154,7 @@ class APIKeysApi:
 
 
     @validate_call
-    def api_keys_revoke_without_preload_content(
+    def revoke_api_key_without_preload_content(
         self,
         api_key_id: Annotated[StrictStr, Field(description="The unique API key identifier (base64)")],
         _request_timeout: Union[
@@ -1198,7 +1198,7 @@ class APIKeysApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._api_keys_revoke_serialize(
+        _param = self._revoke_api_key_serialize(
             api_key_id=api_key_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1221,7 +1221,7 @@ class APIKeysApi:
         return response_data.response
 
 
-    def _api_keys_revoke_serialize(
+    def _revoke_api_key_serialize(
         self,
         api_key_id,
         _request_auth,

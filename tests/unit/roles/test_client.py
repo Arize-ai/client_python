@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import logging
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
+from arize._generated.api_client import RolesApi
 from arize.roles.client import RolesClient
 
 # Base64 ID that passes is_resource_id() — decodes to "Role:123"
@@ -16,7 +17,7 @@ _ROLE_ID = "Um9sZToxMjM="
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock RolesApi instance."""
-    return Mock()
+    return create_autospec(RolesApi, instance=True)
 
 
 @pytest.fixture
@@ -75,7 +76,7 @@ class TestRolesClientList:
             is_predefined=True,
         )
 
-        mock_api.roles_list.assert_called_once_with(
+        mock_api.list_roles.assert_called_once_with(
             limit=50,
             cursor="cursor-abc",
             is_predefined=True,
@@ -87,7 +88,7 @@ class TestRolesClientList:
         """list() should default cursor/is_predefined to None and limit to 50."""
         roles_client.list()
 
-        mock_api.roles_list.assert_called_once_with(
+        mock_api.list_roles.assert_called_once_with(
             limit=50,
             cursor=None,
             is_predefined=None,
@@ -98,7 +99,7 @@ class TestRolesClientList:
     ) -> None:
         """list() should propagate the return value from roles_list."""
         expected = Mock()
-        mock_api.roles_list.return_value = expected
+        mock_api.list_roles.return_value = expected
 
         result = roles_client.list()
 
@@ -133,8 +134,8 @@ class TestRolesClientGet:
         """get() with a base64 ID should pass it directly to roles_get (no list call)."""
         roles_client.get(role=_ROLE_ID)
 
-        mock_api.roles_get.assert_called_once_with(role_id=_ROLE_ID)
-        mock_api.roles_list.assert_not_called()
+        mock_api.get_role.assert_called_once_with(role_id=_ROLE_ID)
+        mock_api.list_roles.assert_not_called()
 
     def test_get_with_name_resolves_via_roles_list(
         self, roles_client: RolesClient, mock_api: Mock
@@ -143,15 +144,15 @@ class TestRolesClientGet:
         mock_role = Mock()
         mock_role.id = _ROLE_ID
         mock_role.name = "My Role"
-        mock_api.roles_list.return_value = Mock(
+        mock_api.list_roles.return_value = Mock(
             roles=[mock_role],
             pagination=Mock(next_cursor=None),
         )
 
         roles_client.get(role="My Role")
 
-        mock_api.roles_list.assert_called_once_with(limit=100, cursor=None)
-        mock_api.roles_get.assert_called_once_with(role_id=_ROLE_ID)
+        mock_api.list_roles.assert_called_once_with(limit=100, cursor=None)
+        mock_api.get_role.assert_called_once_with(role_id=_ROLE_ID)
 
     def test_get_with_name_not_found_raises(
         self, roles_client: RolesClient, mock_api: Mock
@@ -159,7 +160,7 @@ class TestRolesClientGet:
         """get() should raise NotFoundError when the role name is not found."""
         from arize.utils.resolve import NotFoundError
 
-        mock_api.roles_list.return_value = Mock(
+        mock_api.list_roles.return_value = Mock(
             roles=[],
             pagination=Mock(next_cursor=None),
         )
@@ -172,7 +173,7 @@ class TestRolesClientGet:
     ) -> None:
         """get() should propagate the return value from roles_get."""
         expected = Mock()
-        mock_api.roles_get.return_value = expected
+        mock_api.get_role.return_value = expected
 
         result = roles_client.get(role=_ROLE_ID)
 
@@ -204,9 +205,9 @@ class TestRolesClientCreate:
     def test_create_builds_request_and_calls_api(
         self, roles_client: RolesClient, mock_api: Mock
     ) -> None:
-        """create() should build RoleCreate and pass it to roles_create."""
+        """create() should build CreateRoleRequest and pass it to roles_create."""
         with patch(
-            "arize._generated.api_client.RoleCreate"
+            "arize._generated.api_client.CreateRoleRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -222,14 +223,16 @@ class TestRolesClientCreate:
             permissions=["PROJECT_READ", "DATASET_CREATE"],
             description="Can read projects and create datasets.",
         )
-        mock_api.roles_create.assert_called_once_with(role_create=mock_body)
+        mock_api.create_role.assert_called_once_with(
+            create_role_request=mock_body
+        )
 
     def test_create_without_description(
         self, roles_client: RolesClient, mock_api: Mock
     ) -> None:
         """create() should pass description=None when not provided."""
         with patch(
-            "arize._generated.api_client.RoleCreate"
+            "arize._generated.api_client.CreateRoleRequest"
         ) as mock_request_cls:
             mock_request_cls.return_value = Mock()
 
@@ -249,9 +252,9 @@ class TestRolesClientCreate:
     ) -> None:
         """create() should propagate the return value from roles_create."""
         expected = Mock()
-        mock_api.roles_create.return_value = expected
+        mock_api.create_role.return_value = expected
 
-        with patch("arize._generated.api_client.RoleCreate"):
+        with patch("arize._generated.api_client.CreateRoleRequest"):
             result = roles_client.create(
                 name="Analyst",
                 permissions=["PROJECT_READ"],
@@ -277,9 +280,9 @@ class TestRolesClientUpdate:
     def test_update_builds_request_and_calls_api(
         self, roles_client: RolesClient, mock_api: Mock
     ) -> None:
-        """update() should build RoleUpdate and pass it to roles_update."""
+        """update() should build UpdateRoleRequest and pass it to roles_update."""
         with patch(
-            "arize._generated.api_client.RoleUpdate"
+            "arize._generated.api_client.UpdateRoleRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -296,9 +299,9 @@ class TestRolesClientUpdate:
             description="Updated description",
             permissions=["PROJECT_READ", "DATASET_READ"],
         )
-        mock_api.roles_update.assert_called_once_with(
+        mock_api.update_role.assert_called_once_with(
             role_id=_ROLE_ID,
-            role_update=mock_body,
+            update_role_request=mock_body,
         )
 
     def test_update_with_only_name(
@@ -306,7 +309,7 @@ class TestRolesClientUpdate:
     ) -> None:
         """update() with only name should pass None for other fields."""
         with patch(
-            "arize._generated.api_client.RoleUpdate"
+            "arize._generated.api_client.UpdateRoleRequest"
         ) as mock_request_cls:
             mock_request_cls.return_value = Mock()
 
@@ -323,9 +326,9 @@ class TestRolesClientUpdate:
     ) -> None:
         """update() should propagate the return value from roles_update."""
         expected = Mock()
-        mock_api.roles_update.return_value = expected
+        mock_api.update_role.return_value = expected
 
-        with patch("arize._generated.api_client.RoleUpdate"):
+        with patch("arize._generated.api_client.UpdateRoleRequest"):
             result = roles_client.update(
                 role=_ROLE_ID,
                 name="Updated Name",
@@ -344,8 +347,8 @@ class TestRolesClientDelete:
         """delete() with a base64 ID should pass it directly to roles_delete (no list call)."""
         roles_client.delete(role=_ROLE_ID)
 
-        mock_api.roles_delete.assert_called_once_with(role_id=_ROLE_ID)
-        mock_api.roles_list.assert_not_called()
+        mock_api.delete_role.assert_called_once_with(role_id=_ROLE_ID)
+        mock_api.list_roles.assert_not_called()
 
     def test_delete_with_name_resolves_via_roles_list(
         self, roles_client: RolesClient, mock_api: Mock
@@ -354,15 +357,15 @@ class TestRolesClientDelete:
         mock_role = Mock()
         mock_role.id = _ROLE_ID
         mock_role.name = "My Role"
-        mock_api.roles_list.return_value = Mock(
+        mock_api.list_roles.return_value = Mock(
             roles=[mock_role],
             pagination=Mock(next_cursor=None),
         )
 
         roles_client.delete(role="My Role")
 
-        mock_api.roles_list.assert_called_once_with(limit=100, cursor=None)
-        mock_api.roles_delete.assert_called_once_with(role_id=_ROLE_ID)
+        mock_api.list_roles.assert_called_once_with(limit=100, cursor=None)
+        mock_api.delete_role.assert_called_once_with(role_id=_ROLE_ID)
 
     def test_delete_with_name_not_found_raises(
         self, roles_client: RolesClient, mock_api: Mock
@@ -370,7 +373,7 @@ class TestRolesClientDelete:
         """delete() should raise NotFoundError when the role name is not found."""
         from arize.utils.resolve import NotFoundError
 
-        mock_api.roles_list.return_value = Mock(
+        mock_api.list_roles.return_value = Mock(
             roles=[],
             pagination=Mock(next_cursor=None),
         )
@@ -382,7 +385,7 @@ class TestRolesClientDelete:
         self, roles_client: RolesClient, mock_api: Mock
     ) -> None:
         """delete() should return None (204 No Content)."""
-        mock_api.roles_delete.return_value = None
+        mock_api.delete_role.return_value = None
 
         result = roles_client.delete(role=_ROLE_ID)
 

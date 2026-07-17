@@ -38,8 +38,8 @@ class AnnotationQueueTraceRecordInput(BaseModel):
     @field_validator('record_type')
     def record_type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['trace']):
-            raise ValueError("must be one of enum values ('trace')")
+        if value not in set(['TRACE']):
+            raise ValueError("must be one of enum values ('TRACE')")
         return value
 
     model_config = ConfigDict(

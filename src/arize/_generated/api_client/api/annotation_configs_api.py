@@ -20,9 +20,9 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.annotation_config import AnnotationConfig
-from arize._generated.api_client.models.annotation_config_list_response import AnnotationConfigListResponse
-from arize._generated.api_client.models.create_annotation_config_request_body import CreateAnnotationConfigRequestBody
-from arize._generated.api_client.models.update_annotation_config_request_body import UpdateAnnotationConfigRequestBody
+from arize._generated.api_client.models.create_annotation_config_request import CreateAnnotationConfigRequest
+from arize._generated.api_client.models.list_annotation_configs_response import ListAnnotationConfigsResponse
+from arize._generated.api_client.models.update_annotation_config_request import UpdateAnnotationConfigRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -43,9 +43,9 @@ class AnnotationConfigsApi:
 
 
     @validate_call
-    def annotation_configs_create(
+    def create_annotation_config(
         self,
-        create_annotation_config_request_body: Annotated[CreateAnnotationConfigRequestBody, Field(description="Body containing annotation config creation parameters")],
+        create_annotation_config_request: Annotated[CreateAnnotationConfigRequest, Field(description="Body containing annotation config creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -61,10 +61,10 @@ class AnnotationConfigsApi:
     ) -> AnnotationConfig:
         """Create an annotation config
 
-        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"categorical\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"maximize\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"CATEGORICAL\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"MAXIMIZE\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param create_annotation_config_request_body: Body containing annotation config creation parameters (required)
-        :type create_annotation_config_request_body: CreateAnnotationConfigRequestBody
+        :param create_annotation_config_request: Body containing annotation config creation parameters (required)
+        :type create_annotation_config_request: CreateAnnotationConfigRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -87,8 +87,8 @@ class AnnotationConfigsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._annotation_configs_create_serialize(
-            create_annotation_config_request_body=create_annotation_config_request_body,
+        _param = self._create_annotation_config_serialize(
+            create_annotation_config_request=create_annotation_config_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -117,9 +117,9 @@ class AnnotationConfigsApi:
 
 
     @validate_call
-    def annotation_configs_create_with_http_info(
+    def create_annotation_config_with_http_info(
         self,
-        create_annotation_config_request_body: Annotated[CreateAnnotationConfigRequestBody, Field(description="Body containing annotation config creation parameters")],
+        create_annotation_config_request: Annotated[CreateAnnotationConfigRequest, Field(description="Body containing annotation config creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -135,10 +135,10 @@ class AnnotationConfigsApi:
     ) -> ApiResponse[AnnotationConfig]:
         """Create an annotation config
 
-        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"categorical\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"maximize\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"CATEGORICAL\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"MAXIMIZE\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param create_annotation_config_request_body: Body containing annotation config creation parameters (required)
-        :type create_annotation_config_request_body: CreateAnnotationConfigRequestBody
+        :param create_annotation_config_request: Body containing annotation config creation parameters (required)
+        :type create_annotation_config_request: CreateAnnotationConfigRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -161,8 +161,8 @@ class AnnotationConfigsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._annotation_configs_create_serialize(
-            create_annotation_config_request_body=create_annotation_config_request_body,
+        _param = self._create_annotation_config_serialize(
+            create_annotation_config_request=create_annotation_config_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -191,9 +191,9 @@ class AnnotationConfigsApi:
 
 
     @validate_call
-    def annotation_configs_create_without_preload_content(
+    def create_annotation_config_without_preload_content(
         self,
-        create_annotation_config_request_body: Annotated[CreateAnnotationConfigRequestBody, Field(description="Body containing annotation config creation parameters")],
+        create_annotation_config_request: Annotated[CreateAnnotationConfigRequest, Field(description="Body containing annotation config creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -209,10 +209,10 @@ class AnnotationConfigsApi:
     ) -> RESTResponseType:
         """Create an annotation config
 
-        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"categorical\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"maximize\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"CATEGORICAL\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"MAXIMIZE\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param create_annotation_config_request_body: Body containing annotation config creation parameters (required)
-        :type create_annotation_config_request_body: CreateAnnotationConfigRequestBody
+        :param create_annotation_config_request: Body containing annotation config creation parameters (required)
+        :type create_annotation_config_request: CreateAnnotationConfigRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -235,8 +235,8 @@ class AnnotationConfigsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._annotation_configs_create_serialize(
-            create_annotation_config_request_body=create_annotation_config_request_body,
+        _param = self._create_annotation_config_serialize(
+            create_annotation_config_request=create_annotation_config_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -260,9 +260,9 @@ class AnnotationConfigsApi:
         return response_data.response
 
 
-    def _annotation_configs_create_serialize(
+    def _create_annotation_config_serialize(
         self,
-        create_annotation_config_request_body,
+        create_annotation_config_request,
         _request_auth,
         _content_type,
         _headers,
@@ -288,8 +288,8 @@ class AnnotationConfigsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if create_annotation_config_request_body is not None:
-            _body_params = create_annotation_config_request_body
+        if create_annotation_config_request is not None:
+            _body_params = create_annotation_config_request
 
 
         # set the HTTP header `Accept`
@@ -339,7 +339,7 @@ class AnnotationConfigsApi:
 
 
     @validate_call
-    def annotation_configs_delete(
+    def delete_annotation_config(
         self,
         annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
         _request_timeout: Union[
@@ -383,7 +383,7 @@ class AnnotationConfigsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._annotation_configs_delete_serialize(
+        _param = self._delete_annotation_config_serialize(
             annotation_config_id=annotation_config_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -411,7 +411,7 @@ class AnnotationConfigsApi:
 
 
     @validate_call
-    def annotation_configs_delete_with_http_info(
+    def delete_annotation_config_with_http_info(
         self,
         annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
         _request_timeout: Union[
@@ -455,7 +455,7 @@ class AnnotationConfigsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._annotation_configs_delete_serialize(
+        _param = self._delete_annotation_config_serialize(
             annotation_config_id=annotation_config_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -483,7 +483,7 @@ class AnnotationConfigsApi:
 
 
     @validate_call
-    def annotation_configs_delete_without_preload_content(
+    def delete_annotation_config_without_preload_content(
         self,
         annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
         _request_timeout: Union[
@@ -527,7 +527,7 @@ class AnnotationConfigsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._annotation_configs_delete_serialize(
+        _param = self._delete_annotation_config_serialize(
             annotation_config_id=annotation_config_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -550,7 +550,7 @@ class AnnotationConfigsApi:
         return response_data.response
 
 
-    def _annotation_configs_delete_serialize(
+    def _delete_annotation_config_serialize(
         self,
         annotation_config_id,
         _request_auth,
@@ -615,7 +615,7 @@ class AnnotationConfigsApi:
 
 
     @validate_call
-    def annotation_configs_get(
+    def get_annotation_config(
         self,
         annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
         _request_timeout: Union[
@@ -659,7 +659,7 @@ class AnnotationConfigsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._annotation_configs_get_serialize(
+        _param = self._get_annotation_config_serialize(
             annotation_config_id=annotation_config_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -686,7 +686,7 @@ class AnnotationConfigsApi:
 
 
     @validate_call
-    def annotation_configs_get_with_http_info(
+    def get_annotation_config_with_http_info(
         self,
         annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
         _request_timeout: Union[
@@ -730,7 +730,7 @@ class AnnotationConfigsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._annotation_configs_get_serialize(
+        _param = self._get_annotation_config_serialize(
             annotation_config_id=annotation_config_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -757,7 +757,7 @@ class AnnotationConfigsApi:
 
 
     @validate_call
-    def annotation_configs_get_without_preload_content(
+    def get_annotation_config_without_preload_content(
         self,
         annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
         _request_timeout: Union[
@@ -801,7 +801,7 @@ class AnnotationConfigsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._annotation_configs_get_serialize(
+        _param = self._get_annotation_config_serialize(
             annotation_config_id=annotation_config_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -823,7 +823,7 @@ class AnnotationConfigsApi:
         return response_data.response
 
 
-    def _annotation_configs_get_serialize(
+    def _get_annotation_config_serialize(
         self,
         annotation_config_id,
         _request_auth,
@@ -889,7 +889,7 @@ class AnnotationConfigsApi:
 
 
     @validate_call
-    def annotation_configs_list(
+    def list_annotation_configs(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
@@ -908,7 +908,7 @@ class AnnotationConfigsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AnnotationConfigListResponse:
+    ) -> ListAnnotationConfigsResponse:
         """List annotation configs
 
         List annotation configs the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -945,7 +945,7 @@ class AnnotationConfigsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._annotation_configs_list_serialize(
+        _param = self._list_annotation_configs_serialize(
             space_id=space_id,
             space_name=space_name,
             name=name,
@@ -958,10 +958,11 @@ class AnnotationConfigsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationConfigListResponse",
+            '200': "ListAnnotationConfigsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -976,7 +977,7 @@ class AnnotationConfigsApi:
 
 
     @validate_call
-    def annotation_configs_list_with_http_info(
+    def list_annotation_configs_with_http_info(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
@@ -995,7 +996,7 @@ class AnnotationConfigsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AnnotationConfigListResponse]:
+    ) -> ApiResponse[ListAnnotationConfigsResponse]:
         """List annotation configs
 
         List annotation configs the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1032,7 +1033,7 @@ class AnnotationConfigsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._annotation_configs_list_serialize(
+        _param = self._list_annotation_configs_serialize(
             space_id=space_id,
             space_name=space_name,
             name=name,
@@ -1045,10 +1046,11 @@ class AnnotationConfigsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationConfigListResponse",
+            '200': "ListAnnotationConfigsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1063,7 +1065,7 @@ class AnnotationConfigsApi:
 
 
     @validate_call
-    def annotation_configs_list_without_preload_content(
+    def list_annotation_configs_without_preload_content(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
@@ -1119,7 +1121,7 @@ class AnnotationConfigsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._annotation_configs_list_serialize(
+        _param = self._list_annotation_configs_serialize(
             space_id=space_id,
             space_name=space_name,
             name=name,
@@ -1132,10 +1134,11 @@ class AnnotationConfigsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AnnotationConfigListResponse",
+            '200': "ListAnnotationConfigsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1145,7 +1148,7 @@ class AnnotationConfigsApi:
         return response_data.response
 
 
-    def _annotation_configs_list_serialize(
+    def _list_annotation_configs_serialize(
         self,
         space_id,
         space_name,
@@ -1233,10 +1236,10 @@ class AnnotationConfigsApi:
 
 
     @validate_call
-    def annotation_configs_update(
+    def update_annotation_config(
         self,
         annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
-        update_annotation_config_request_body: Annotated[UpdateAnnotationConfigRequestBody, Field(description="Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type.")],
+        update_annotation_config_request: Annotated[UpdateAnnotationConfigRequest, Field(description="Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1252,12 +1255,12 @@ class AnnotationConfigsApi:
     ) -> AnnotationConfig:
         """Update an annotation config
 
-        Update an annotation config by its ID.  **Payload Requirements** - `annotation_config_type` is required and must match the stored config's type. The   type is immutable and cannot be changed. - The updatable fields depend on the type:   - `categorical`: `name`, `values`, `optimization_direction`.   - `continuous`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.   - `freeform`: `name`. - All fields other than `annotation_config_type` are optional; omitted fields are left   unchanged. - `name`, if provided, must be unique within the space (409 Conflict if duplicate). - `values` replaces the full label set (2-100 labels). - System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.  **Valid example** (categorical config) ```json {   \"annotation_config_type\": \"categorical\",   \"name\": \"quality-v2\",   \"values\": [     { \"label\": \"good\", \"score\": 1 },     { \"label\": \"bad\", \"score\": 0 }   ],   \"optimization_direction\": \"maximize\" } ```  **Invalid example** (missing `annotation_config_type`) ```json {   \"name\": \"quality-v2\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update an annotation config by its ID.  **Payload Requirements** - `annotation_config_type` is required and must match the stored config's type. The   type is immutable and cannot be changed. - The updatable fields depend on the type:   - `CATEGORICAL`: `name`, `values`, `optimization_direction`.   - `CONTINUOUS`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.   - `FREEFORM`: `name`. - All fields other than `annotation_config_type` are optional; omitted fields are left   unchanged. - `name`, if provided, must be unique within the space (409 Conflict if duplicate). - `values` replaces the full label set (2-100 labels). - System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.  **Valid example** (categorical config) ```json {   \"annotation_config_type\": \"CATEGORICAL\",   \"name\": \"quality-v2\",   \"values\": [     { \"label\": \"good\", \"score\": 1 },     { \"label\": \"bad\", \"score\": 0 }   ],   \"optimization_direction\": \"MAXIMIZE\" } ```  **Invalid example** (missing `annotation_config_type`) ```json {   \"name\": \"quality-v2\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
-        :param update_annotation_config_request_body: Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type. (required)
-        :type update_annotation_config_request_body: UpdateAnnotationConfigRequestBody
+        :param update_annotation_config_request: Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type. (required)
+        :type update_annotation_config_request: UpdateAnnotationConfigRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1280,9 +1283,9 @@ class AnnotationConfigsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._annotation_configs_update_serialize(
+        _param = self._update_annotation_config_serialize(
             annotation_config_id=annotation_config_id,
-            update_annotation_config_request_body=update_annotation_config_request_body,
+            update_annotation_config_request=update_annotation_config_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1311,10 +1314,10 @@ class AnnotationConfigsApi:
 
 
     @validate_call
-    def annotation_configs_update_with_http_info(
+    def update_annotation_config_with_http_info(
         self,
         annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
-        update_annotation_config_request_body: Annotated[UpdateAnnotationConfigRequestBody, Field(description="Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type.")],
+        update_annotation_config_request: Annotated[UpdateAnnotationConfigRequest, Field(description="Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1330,12 +1333,12 @@ class AnnotationConfigsApi:
     ) -> ApiResponse[AnnotationConfig]:
         """Update an annotation config
 
-        Update an annotation config by its ID.  **Payload Requirements** - `annotation_config_type` is required and must match the stored config's type. The   type is immutable and cannot be changed. - The updatable fields depend on the type:   - `categorical`: `name`, `values`, `optimization_direction`.   - `continuous`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.   - `freeform`: `name`. - All fields other than `annotation_config_type` are optional; omitted fields are left   unchanged. - `name`, if provided, must be unique within the space (409 Conflict if duplicate). - `values` replaces the full label set (2-100 labels). - System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.  **Valid example** (categorical config) ```json {   \"annotation_config_type\": \"categorical\",   \"name\": \"quality-v2\",   \"values\": [     { \"label\": \"good\", \"score\": 1 },     { \"label\": \"bad\", \"score\": 0 }   ],   \"optimization_direction\": \"maximize\" } ```  **Invalid example** (missing `annotation_config_type`) ```json {   \"name\": \"quality-v2\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update an annotation config by its ID.  **Payload Requirements** - `annotation_config_type` is required and must match the stored config's type. The   type is immutable and cannot be changed. - The updatable fields depend on the type:   - `CATEGORICAL`: `name`, `values`, `optimization_direction`.   - `CONTINUOUS`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.   - `FREEFORM`: `name`. - All fields other than `annotation_config_type` are optional; omitted fields are left   unchanged. - `name`, if provided, must be unique within the space (409 Conflict if duplicate). - `values` replaces the full label set (2-100 labels). - System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.  **Valid example** (categorical config) ```json {   \"annotation_config_type\": \"CATEGORICAL\",   \"name\": \"quality-v2\",   \"values\": [     { \"label\": \"good\", \"score\": 1 },     { \"label\": \"bad\", \"score\": 0 }   ],   \"optimization_direction\": \"MAXIMIZE\" } ```  **Invalid example** (missing `annotation_config_type`) ```json {   \"name\": \"quality-v2\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
-        :param update_annotation_config_request_body: Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type. (required)
-        :type update_annotation_config_request_body: UpdateAnnotationConfigRequestBody
+        :param update_annotation_config_request: Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type. (required)
+        :type update_annotation_config_request: UpdateAnnotationConfigRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1358,9 +1361,9 @@ class AnnotationConfigsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._annotation_configs_update_serialize(
+        _param = self._update_annotation_config_serialize(
             annotation_config_id=annotation_config_id,
-            update_annotation_config_request_body=update_annotation_config_request_body,
+            update_annotation_config_request=update_annotation_config_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1389,10 +1392,10 @@ class AnnotationConfigsApi:
 
 
     @validate_call
-    def annotation_configs_update_without_preload_content(
+    def update_annotation_config_without_preload_content(
         self,
         annotation_config_id: Annotated[StrictStr, Field(description="The unique annotation config identifier (base64)")],
-        update_annotation_config_request_body: Annotated[UpdateAnnotationConfigRequestBody, Field(description="Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type.")],
+        update_annotation_config_request: Annotated[UpdateAnnotationConfigRequest, Field(description="Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1408,12 +1411,12 @@ class AnnotationConfigsApi:
     ) -> RESTResponseType:
         """Update an annotation config
 
-        Update an annotation config by its ID.  **Payload Requirements** - `annotation_config_type` is required and must match the stored config's type. The   type is immutable and cannot be changed. - The updatable fields depend on the type:   - `categorical`: `name`, `values`, `optimization_direction`.   - `continuous`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.   - `freeform`: `name`. - All fields other than `annotation_config_type` are optional; omitted fields are left   unchanged. - `name`, if provided, must be unique within the space (409 Conflict if duplicate). - `values` replaces the full label set (2-100 labels). - System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.  **Valid example** (categorical config) ```json {   \"annotation_config_type\": \"categorical\",   \"name\": \"quality-v2\",   \"values\": [     { \"label\": \"good\", \"score\": 1 },     { \"label\": \"bad\", \"score\": 0 }   ],   \"optimization_direction\": \"maximize\" } ```  **Invalid example** (missing `annotation_config_type`) ```json {   \"name\": \"quality-v2\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update an annotation config by its ID.  **Payload Requirements** - `annotation_config_type` is required and must match the stored config's type. The   type is immutable and cannot be changed. - The updatable fields depend on the type:   - `CATEGORICAL`: `name`, `values`, `optimization_direction`.   - `CONTINUOUS`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.   - `FREEFORM`: `name`. - All fields other than `annotation_config_type` are optional; omitted fields are left   unchanged. - `name`, if provided, must be unique within the space (409 Conflict if duplicate). - `values` replaces the full label set (2-100 labels). - System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.  **Valid example** (categorical config) ```json {   \"annotation_config_type\": \"CATEGORICAL\",   \"name\": \"quality-v2\",   \"values\": [     { \"label\": \"good\", \"score\": 1 },     { \"label\": \"bad\", \"score\": 0 }   ],   \"optimization_direction\": \"MAXIMIZE\" } ```  **Invalid example** (missing `annotation_config_type`) ```json {   \"name\": \"quality-v2\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
-        :param update_annotation_config_request_body: Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type. (required)
-        :type update_annotation_config_request_body: UpdateAnnotationConfigRequestBody
+        :param update_annotation_config_request: Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type. (required)
+        :type update_annotation_config_request: UpdateAnnotationConfigRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1436,9 +1439,9 @@ class AnnotationConfigsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._annotation_configs_update_serialize(
+        _param = self._update_annotation_config_serialize(
             annotation_config_id=annotation_config_id,
-            update_annotation_config_request_body=update_annotation_config_request_body,
+            update_annotation_config_request=update_annotation_config_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1462,10 +1465,10 @@ class AnnotationConfigsApi:
         return response_data.response
 
 
-    def _annotation_configs_update_serialize(
+    def _update_annotation_config_serialize(
         self,
         annotation_config_id,
-        update_annotation_config_request_body,
+        update_annotation_config_request,
         _request_auth,
         _content_type,
         _headers,
@@ -1493,8 +1496,8 @@ class AnnotationConfigsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if update_annotation_config_request_body is not None:
-            _body_params = update_annotation_config_request_body
+        if update_annotation_config_request is not None:
+            _body_params = update_annotation_config_request
 
 
         # set the HTTP header `Accept`

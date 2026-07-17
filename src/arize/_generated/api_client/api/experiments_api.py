@@ -19,13 +19,13 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
-from arize._generated.api_client.models.annotate_experiment_runs_request_body import AnnotateExperimentRunsRequestBody
+from arize._generated.api_client.models.annotate_experiment_runs_request import AnnotateExperimentRunsRequest
+from arize._generated.api_client.models.create_experiment_request import CreateExperimentRequest
 from arize._generated.api_client.models.experiment import Experiment
-from arize._generated.api_client.models.experiment_list_response import ExperimentListResponse
-from arize._generated.api_client.models.experiment_runs_list_response import ExperimentRunsListResponse
 from arize._generated.api_client.models.experiment_with_run_ids import ExperimentWithRunIds
-from arize._generated.api_client.models.experiments_create_request import ExperimentsCreateRequest
-from arize._generated.api_client.models.insert_experiment_runs_body import InsertExperimentRunsBody
+from arize._generated.api_client.models.insert_experiment_runs_request import InsertExperimentRunsRequest
+from arize._generated.api_client.models.list_experiment_runs_response import ListExperimentRunsResponse
+from arize._generated.api_client.models.list_experiments_response import ListExperimentsResponse
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -46,9 +46,10 @@ class ExperimentsApi:
 
 
     @validate_call
-    def experiments_create(
+    def annotate_experiment_runs(
         self,
-        experiments_create_request: Annotated[ExperimentsCreateRequest, Field(description="Body containing experiment creation parameters")],
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
+        annotate_experiment_runs_request: Annotated[AnnotateExperimentRunsRequest, Field(description="Body containing experiment run annotation batch")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -61,13 +62,15 @@ class ExperimentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Experiment:
-        """Create an experiment
+    ) -> None:
+        """Annotate a batch of experiment runs
 
-        Create a new experiment. Empty experiments are not allowed.  Experiments are composed of \"runs\". Each experiment run (JSON object) must include an `example_id` field that corresponds to an example in the dataset, and a `output` field that contains the task's output for the example (the input).  Payload Requirements - The `name` must be unique within the target dataset - Provide at least one run in `experiment_runs`. - Each run must include:   - `example_id` -- the ID of an existing example in the dataset/version   - `output` -- model/task output for that example   - You may include any additional fields per run that can be used for   analysis or filtering. For exampple: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param experiments_create_request: Body containing experiment creation parameters (required)
-        :type experiments_create_request: ExperimentsCreateRequest
+        :param experiment_id: The unique experiment identifier (base64) (required)
+        :type experiment_id: str
+        :param annotate_experiment_runs_request: Body containing experiment run annotation batch (required)
+        :type annotate_experiment_runs_request: AnnotateExperimentRunsRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -90,8 +93,312 @@ class ExperimentsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._experiments_create_serialize(
-            experiments_create_request=experiments_create_request,
+        _param = self._annotate_experiment_runs_serialize(
+            experiment_id=experiment_id,
+            annotate_experiment_runs_request=annotate_experiment_runs_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '202': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def annotate_experiment_runs_with_http_info(
+        self,
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
+        annotate_experiment_runs_request: Annotated[AnnotateExperimentRunsRequest, Field(description="Body containing experiment run annotation batch")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[None]:
+        """Annotate a batch of experiment runs
+
+        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param experiment_id: The unique experiment identifier (base64) (required)
+        :type experiment_id: str
+        :param annotate_experiment_runs_request: Body containing experiment run annotation batch (required)
+        :type annotate_experiment_runs_request: AnnotateExperimentRunsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._annotate_experiment_runs_serialize(
+            experiment_id=experiment_id,
+            annotate_experiment_runs_request=annotate_experiment_runs_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '202': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def annotate_experiment_runs_without_preload_content(
+        self,
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
+        annotate_experiment_runs_request: Annotated[AnnotateExperimentRunsRequest, Field(description="Body containing experiment run annotation batch")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Annotate a batch of experiment runs
+
+        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param experiment_id: The unique experiment identifier (base64) (required)
+        :type experiment_id: str
+        :param annotate_experiment_runs_request: Body containing experiment run annotation batch (required)
+        :type annotate_experiment_runs_request: AnnotateExperimentRunsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._annotate_experiment_runs_serialize(
+            experiment_id=experiment_id,
+            annotate_experiment_runs_request=annotate_experiment_runs_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '202': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _annotate_experiment_runs_serialize(
+        self,
+        experiment_id,
+        annotate_experiment_runs_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if experiment_id is not None:
+            _path_params['experiment_id'] = experiment_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if annotate_experiment_runs_request is not None:
+            _body_params = annotate_experiment_runs_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/experiments/{experiment_id}/runs/annotate',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def create_experiment(
+        self,
+        create_experiment_request: Annotated[CreateExperimentRequest, Field(description="Body containing experiment creation parameters")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> Experiment:
+        """Create an experiment
+
+        Create a new experiment. Empty experiments are not allowed.  Experiments are composed of \"runs\". Each experiment run (JSON object) must include an `example_id` field that corresponds to an example in the dataset, and a `output` field that contains the task's output for the example (the input).  Payload Requirements - The `name` must be unique within the target dataset - Provide at least one run in `experiment_runs`. - Each run must include:   - `example_id` -- the ID of an existing example in the dataset/version   - `output` -- model/task output for that example   - You may include any additional fields per run that can be used for   analysis or filtering. For exampple: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param create_experiment_request: Body containing experiment creation parameters (required)
+        :type create_experiment_request: CreateExperimentRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_experiment_serialize(
+            create_experiment_request=create_experiment_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -120,9 +427,9 @@ class ExperimentsApi:
 
 
     @validate_call
-    def experiments_create_with_http_info(
+    def create_experiment_with_http_info(
         self,
-        experiments_create_request: Annotated[ExperimentsCreateRequest, Field(description="Body containing experiment creation parameters")],
+        create_experiment_request: Annotated[CreateExperimentRequest, Field(description="Body containing experiment creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -140,8 +447,8 @@ class ExperimentsApi:
 
         Create a new experiment. Empty experiments are not allowed.  Experiments are composed of \"runs\". Each experiment run (JSON object) must include an `example_id` field that corresponds to an example in the dataset, and a `output` field that contains the task's output for the example (the input).  Payload Requirements - The `name` must be unique within the target dataset - Provide at least one run in `experiment_runs`. - Each run must include:   - `example_id` -- the ID of an existing example in the dataset/version   - `output` -- model/task output for that example   - You may include any additional fields per run that can be used for   analysis or filtering. For exampple: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param experiments_create_request: Body containing experiment creation parameters (required)
-        :type experiments_create_request: ExperimentsCreateRequest
+        :param create_experiment_request: Body containing experiment creation parameters (required)
+        :type create_experiment_request: CreateExperimentRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -164,8 +471,8 @@ class ExperimentsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._experiments_create_serialize(
-            experiments_create_request=experiments_create_request,
+        _param = self._create_experiment_serialize(
+            create_experiment_request=create_experiment_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -194,9 +501,9 @@ class ExperimentsApi:
 
 
     @validate_call
-    def experiments_create_without_preload_content(
+    def create_experiment_without_preload_content(
         self,
-        experiments_create_request: Annotated[ExperimentsCreateRequest, Field(description="Body containing experiment creation parameters")],
+        create_experiment_request: Annotated[CreateExperimentRequest, Field(description="Body containing experiment creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -214,8 +521,8 @@ class ExperimentsApi:
 
         Create a new experiment. Empty experiments are not allowed.  Experiments are composed of \"runs\". Each experiment run (JSON object) must include an `example_id` field that corresponds to an example in the dataset, and a `output` field that contains the task's output for the example (the input).  Payload Requirements - The `name` must be unique within the target dataset - Provide at least one run in `experiment_runs`. - Each run must include:   - `example_id` -- the ID of an existing example in the dataset/version   - `output` -- model/task output for that example   - You may include any additional fields per run that can be used for   analysis or filtering. For exampple: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param experiments_create_request: Body containing experiment creation parameters (required)
-        :type experiments_create_request: ExperimentsCreateRequest
+        :param create_experiment_request: Body containing experiment creation parameters (required)
+        :type create_experiment_request: CreateExperimentRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -238,8 +545,8 @@ class ExperimentsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._experiments_create_serialize(
-            experiments_create_request=experiments_create_request,
+        _param = self._create_experiment_serialize(
+            create_experiment_request=create_experiment_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -263,9 +570,9 @@ class ExperimentsApi:
         return response_data.response
 
 
-    def _experiments_create_serialize(
+    def _create_experiment_serialize(
         self,
-        experiments_create_request,
+        create_experiment_request,
         _request_auth,
         _content_type,
         _headers,
@@ -291,8 +598,8 @@ class ExperimentsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if experiments_create_request is not None:
-            _body_params = experiments_create_request
+        if create_experiment_request is not None:
+            _body_params = create_experiment_request
 
 
         # set the HTTP header `Accept`
@@ -342,7 +649,7 @@ class ExperimentsApi:
 
 
     @validate_call
-    def experiments_delete(
+    def delete_experiment(
         self,
         experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         _request_timeout: Union[
@@ -386,7 +693,7 @@ class ExperimentsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._experiments_delete_serialize(
+        _param = self._delete_experiment_serialize(
             experiment_id=experiment_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -414,7 +721,7 @@ class ExperimentsApi:
 
 
     @validate_call
-    def experiments_delete_with_http_info(
+    def delete_experiment_with_http_info(
         self,
         experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         _request_timeout: Union[
@@ -458,7 +765,7 @@ class ExperimentsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._experiments_delete_serialize(
+        _param = self._delete_experiment_serialize(
             experiment_id=experiment_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -486,7 +793,7 @@ class ExperimentsApi:
 
 
     @validate_call
-    def experiments_delete_without_preload_content(
+    def delete_experiment_without_preload_content(
         self,
         experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         _request_timeout: Union[
@@ -530,7 +837,7 @@ class ExperimentsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._experiments_delete_serialize(
+        _param = self._delete_experiment_serialize(
             experiment_id=experiment_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -553,7 +860,7 @@ class ExperimentsApi:
         return response_data.response
 
 
-    def _experiments_delete_serialize(
+    def _delete_experiment_serialize(
         self,
         experiment_id,
         _request_auth,
@@ -618,7 +925,7 @@ class ExperimentsApi:
 
 
     @validate_call
-    def experiments_get(
+    def get_experiment(
         self,
         experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         _request_timeout: Union[
@@ -662,7 +969,7 @@ class ExperimentsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._experiments_get_serialize(
+        _param = self._get_experiment_serialize(
             experiment_id=experiment_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -689,7 +996,7 @@ class ExperimentsApi:
 
 
     @validate_call
-    def experiments_get_with_http_info(
+    def get_experiment_with_http_info(
         self,
         experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         _request_timeout: Union[
@@ -733,7 +1040,7 @@ class ExperimentsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._experiments_get_serialize(
+        _param = self._get_experiment_serialize(
             experiment_id=experiment_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -760,7 +1067,7 @@ class ExperimentsApi:
 
 
     @validate_call
-    def experiments_get_without_preload_content(
+    def get_experiment_without_preload_content(
         self,
         experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
         _request_timeout: Union[
@@ -804,7 +1111,7 @@ class ExperimentsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._experiments_get_serialize(
+        _param = self._get_experiment_serialize(
             experiment_id=experiment_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -826,7 +1133,7 @@ class ExperimentsApi:
         return response_data.response
 
 
-    def _experiments_get_serialize(
+    def _get_experiment_serialize(
         self,
         experiment_id,
         _request_auth,
@@ -892,12 +1199,10 @@ class ExperimentsApi:
 
 
     @validate_call
-    def experiments_list(
+    def insert_experiment_runs(
         self,
-        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
-        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
-        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
+        insert_experiment_runs_request: Annotated[InsertExperimentRunsRequest, Field(description="Body containing experiment runs to append to the experiment")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -910,19 +1215,15 @@ class ExperimentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ExperimentListResponse:
-        """List experiments
+    ) -> ExperimentWithRunIds:
+        """Append runs to an experiment
 
-        List all experiments a user has access to.  To filter experiments by the dataset they were run on, provide the `dataset_id` query parameter.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Append new runs to an existing experiment.  **Payload Requirements** - Provide between 1 and 1000 runs in `experiment_runs`. - Each run must include:   - `example_id` -- the ID of an existing example in the dataset version   - `output` -- model/task output for that example   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  **Valid example** ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\", \"output\": \"4\", \"model\": \"gpt-4o-mini\"}   ] } ```  **Invalid example** (missing required output field) ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\"}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
-        :type dataset_id: str
-        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
-        :type name: str
-        :param limit: Maximum items to return
-        :type limit: int
-        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
-        :type cursor: str
+        :param experiment_id: The unique experiment identifier (base64) (required)
+        :type experiment_id: str
+        :param insert_experiment_runs_request: Body containing experiment runs to append to the experiment (required)
+        :type insert_experiment_runs_request: InsertExperimentRunsRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -945,11 +1246,9 @@ class ExperimentsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._experiments_list_serialize(
-            dataset_id=dataset_id,
-            name=name,
-            limit=limit,
-            cursor=cursor,
+        _param = self._insert_experiment_runs_serialize(
+            experiment_id=experiment_id,
+            insert_experiment_runs_request=insert_experiment_runs_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -957,10 +1256,12 @@ class ExperimentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ExperimentListResponse",
+            '201': "ExperimentWithRunIds",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -975,7 +1276,549 @@ class ExperimentsApi:
 
 
     @validate_call
-    def experiments_list_with_http_info(
+    def insert_experiment_runs_with_http_info(
+        self,
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
+        insert_experiment_runs_request: Annotated[InsertExperimentRunsRequest, Field(description="Body containing experiment runs to append to the experiment")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ExperimentWithRunIds]:
+        """Append runs to an experiment
+
+        Append new runs to an existing experiment.  **Payload Requirements** - Provide between 1 and 1000 runs in `experiment_runs`. - Each run must include:   - `example_id` -- the ID of an existing example in the dataset version   - `output` -- model/task output for that example   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  **Valid example** ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\", \"output\": \"4\", \"model\": \"gpt-4o-mini\"}   ] } ```  **Invalid example** (missing required output field) ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\"}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param experiment_id: The unique experiment identifier (base64) (required)
+        :type experiment_id: str
+        :param insert_experiment_runs_request: Body containing experiment runs to append to the experiment (required)
+        :type insert_experiment_runs_request: InsertExperimentRunsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._insert_experiment_runs_serialize(
+            experiment_id=experiment_id,
+            insert_experiment_runs_request=insert_experiment_runs_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "ExperimentWithRunIds",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def insert_experiment_runs_without_preload_content(
+        self,
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
+        insert_experiment_runs_request: Annotated[InsertExperimentRunsRequest, Field(description="Body containing experiment runs to append to the experiment")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Append runs to an experiment
+
+        Append new runs to an existing experiment.  **Payload Requirements** - Provide between 1 and 1000 runs in `experiment_runs`. - Each run must include:   - `example_id` -- the ID of an existing example in the dataset version   - `output` -- model/task output for that example   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  **Valid example** ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\", \"output\": \"4\", \"model\": \"gpt-4o-mini\"}   ] } ```  **Invalid example** (missing required output field) ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\"}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param experiment_id: The unique experiment identifier (base64) (required)
+        :type experiment_id: str
+        :param insert_experiment_runs_request: Body containing experiment runs to append to the experiment (required)
+        :type insert_experiment_runs_request: InsertExperimentRunsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._insert_experiment_runs_serialize(
+            experiment_id=experiment_id,
+            insert_experiment_runs_request=insert_experiment_runs_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "ExperimentWithRunIds",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _insert_experiment_runs_serialize(
+        self,
+        experiment_id,
+        insert_experiment_runs_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if experiment_id is not None:
+            _path_params['experiment_id'] = experiment_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if insert_experiment_runs_request is not None:
+            _body_params = insert_experiment_runs_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/experiments/{experiment_id}/runs',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def list_experiment_runs(
+        self,
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ListExperimentRunsResponse:
+        """List experiment runs
+
+        List runs for a given experiment.  The runs are returned in a stable insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param experiment_id: The unique experiment identifier (base64) (required)
+        :type experiment_id: str
+        :param limit: Maximum items to return
+        :type limit: int
+        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
+        :type cursor: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_experiment_runs_serialize(
+            experiment_id=experiment_id,
+            limit=limit,
+            cursor=cursor,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListExperimentRunsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_experiment_runs_with_http_info(
+        self,
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ListExperimentRunsResponse]:
+        """List experiment runs
+
+        List runs for a given experiment.  The runs are returned in a stable insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param experiment_id: The unique experiment identifier (base64) (required)
+        :type experiment_id: str
+        :param limit: Maximum items to return
+        :type limit: int
+        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
+        :type cursor: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_experiment_runs_serialize(
+            experiment_id=experiment_id,
+            limit=limit,
+            cursor=cursor,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListExperimentRunsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def list_experiment_runs_without_preload_content(
+        self,
+        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List experiment runs
+
+        List runs for a given experiment.  The runs are returned in a stable insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param experiment_id: The unique experiment identifier (base64) (required)
+        :type experiment_id: str
+        :param limit: Maximum items to return
+        :type limit: int
+        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
+        :type cursor: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_experiment_runs_serialize(
+            experiment_id=experiment_id,
+            limit=limit,
+            cursor=cursor,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListExperimentRunsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_experiment_runs_serialize(
+        self,
+        experiment_id,
+        limit,
+        cursor,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if experiment_id is not None:
+            _path_params['experiment_id'] = experiment_id
+        # process the query parameters
+        if limit is not None:
+            
+            _query_params.append(('limit', limit))
+            
+        if cursor is not None:
+            
+            _query_params.append(('cursor', cursor))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/experiments/{experiment_id}/runs',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def list_experiments(
         self,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
@@ -993,7 +1836,7 @@ class ExperimentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ExperimentListResponse]:
+    ) -> ListExperimentsResponse:
         """List experiments
 
         List all experiments a user has access to.  To filter experiments by the dataset they were run on, provide the `dataset_id` query parameter.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1028,7 +1871,7 @@ class ExperimentsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._experiments_list_serialize(
+        _param = self._list_experiments_serialize(
             dataset_id=dataset_id,
             name=name,
             limit=limit,
@@ -1040,10 +1883,95 @@ class ExperimentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ExperimentListResponse",
+            '200': "ListExperimentsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_experiments_with_http_info(
+        self,
+        dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ListExperimentsResponse]:
+        """List experiments
+
+        List all experiments a user has access to.  To filter experiments by the dataset they were run on, provide the `dataset_id` query parameter.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
+        :type dataset_id: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
+        :type name: str
+        :param limit: Maximum items to return
+        :type limit: int
+        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
+        :type cursor: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_experiments_serialize(
+            dataset_id=dataset_id,
+            name=name,
+            limit=limit,
+            cursor=cursor,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListExperimentsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1058,7 +1986,7 @@ class ExperimentsApi:
 
 
     @validate_call
-    def experiments_list_without_preload_content(
+    def list_experiments_without_preload_content(
         self,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
@@ -1111,7 +2039,7 @@ class ExperimentsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._experiments_list_serialize(
+        _param = self._list_experiments_serialize(
             dataset_id=dataset_id,
             name=name,
             limit=limit,
@@ -1123,10 +2051,11 @@ class ExperimentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ExperimentListResponse",
+            '200': "ListExperimentsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1136,7 +2065,7 @@ class ExperimentsApi:
         return response_data.response
 
 
-    def _experiments_list_serialize(
+    def _list_experiments_serialize(
         self,
         dataset_id,
         name,
@@ -1203,932 +2132,6 @@ class ExperimentsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/experiments',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    def experiments_runs_annotate(
-        self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
-        annotate_experiment_runs_request_body: Annotated[AnnotateExperimentRunsRequestBody, Field(description="Body containing experiment run annotation batch")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
-        """Annotate a batch of experiment runs
-
-        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param experiment_id: The unique experiment identifier (base64) (required)
-        :type experiment_id: str
-        :param annotate_experiment_runs_request_body: Body containing experiment run annotation batch (required)
-        :type annotate_experiment_runs_request_body: AnnotateExperimentRunsRequestBody
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._experiments_runs_annotate_serialize(
-            experiment_id=experiment_id,
-            annotate_experiment_runs_request_body=annotate_experiment_runs_request_body,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '202': None,
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '422': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    def experiments_runs_annotate_with_http_info(
-        self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
-        annotate_experiment_runs_request_body: Annotated[AnnotateExperimentRunsRequestBody, Field(description="Body containing experiment run annotation batch")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
-        """Annotate a batch of experiment runs
-
-        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param experiment_id: The unique experiment identifier (base64) (required)
-        :type experiment_id: str
-        :param annotate_experiment_runs_request_body: Body containing experiment run annotation batch (required)
-        :type annotate_experiment_runs_request_body: AnnotateExperimentRunsRequestBody
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._experiments_runs_annotate_serialize(
-            experiment_id=experiment_id,
-            annotate_experiment_runs_request_body=annotate_experiment_runs_request_body,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '202': None,
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '422': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    def experiments_runs_annotate_without_preload_content(
-        self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
-        annotate_experiment_runs_request_body: Annotated[AnnotateExperimentRunsRequestBody, Field(description="Body containing experiment run annotation batch")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Annotate a batch of experiment runs
-
-        Write human annotations to a batch of runs in an experiment.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same run overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval. No response body is returned.  **Unmatched record IDs**: If a `record_id` does not correspond to an existing run in the experiment, the annotation for that record is silently ignored. No error is returned.  **Payload Requirements** - `experiment_id` is the path parameter for the target experiment. - `annotations` is a list of per-run annotation inputs, each identified by `record_id`. - Annotation names must match existing annotation configs in the experiment's space. - Up to 1000 runs may be annotated per request.  **Valid example** ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"quality\", \"label\": \"good\"}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"annotations\": [     {\"record_id\": \"run_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param experiment_id: The unique experiment identifier (base64) (required)
-        :type experiment_id: str
-        :param annotate_experiment_runs_request_body: Body containing experiment run annotation batch (required)
-        :type annotate_experiment_runs_request_body: AnnotateExperimentRunsRequestBody
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._experiments_runs_annotate_serialize(
-            experiment_id=experiment_id,
-            annotate_experiment_runs_request_body=annotate_experiment_runs_request_body,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '202': None,
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '422': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _experiments_runs_annotate_serialize(
-        self,
-        experiment_id,
-        annotate_experiment_runs_request_body,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        if experiment_id is not None:
-            _path_params['experiment_id'] = experiment_id
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-        if annotate_experiment_runs_request_body is not None:
-            _body_params = annotate_experiment_runs_request_body
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/problem+json'
-                ]
-            )
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'bearerAuth'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v2/experiments/{experiment_id}/runs/annotate',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    def experiments_runs_insert(
-        self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
-        insert_experiment_runs_body: Annotated[InsertExperimentRunsBody, Field(description="Body containing experiment runs to append to the experiment")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ExperimentWithRunIds:
-        """Append runs to an experiment
-
-        Append new runs to an existing experiment.  **Payload Requirements** - Provide between 1 and 1000 runs in `experiment_runs`. - Each run must include:   - `example_id` -- the ID of an existing example in the dataset version   - `output` -- model/task output for that example   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  **Valid example** ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\", \"output\": \"4\", \"model\": \"gpt-4o-mini\"}   ] } ```  **Invalid example** (missing required output field) ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\"}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param experiment_id: The unique experiment identifier (base64) (required)
-        :type experiment_id: str
-        :param insert_experiment_runs_body: Body containing experiment runs to append to the experiment (required)
-        :type insert_experiment_runs_body: InsertExperimentRunsBody
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._experiments_runs_insert_serialize(
-            experiment_id=experiment_id,
-            insert_experiment_runs_body=insert_experiment_runs_body,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "ExperimentWithRunIds",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '422': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    def experiments_runs_insert_with_http_info(
-        self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
-        insert_experiment_runs_body: Annotated[InsertExperimentRunsBody, Field(description="Body containing experiment runs to append to the experiment")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ExperimentWithRunIds]:
-        """Append runs to an experiment
-
-        Append new runs to an existing experiment.  **Payload Requirements** - Provide between 1 and 1000 runs in `experiment_runs`. - Each run must include:   - `example_id` -- the ID of an existing example in the dataset version   - `output` -- model/task output for that example   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  **Valid example** ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\", \"output\": \"4\", \"model\": \"gpt-4o-mini\"}   ] } ```  **Invalid example** (missing required output field) ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\"}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param experiment_id: The unique experiment identifier (base64) (required)
-        :type experiment_id: str
-        :param insert_experiment_runs_body: Body containing experiment runs to append to the experiment (required)
-        :type insert_experiment_runs_body: InsertExperimentRunsBody
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._experiments_runs_insert_serialize(
-            experiment_id=experiment_id,
-            insert_experiment_runs_body=insert_experiment_runs_body,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "ExperimentWithRunIds",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '422': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    def experiments_runs_insert_without_preload_content(
-        self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
-        insert_experiment_runs_body: Annotated[InsertExperimentRunsBody, Field(description="Body containing experiment runs to append to the experiment")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Append runs to an experiment
-
-        Append new runs to an existing experiment.  **Payload Requirements** - Provide between 1 and 1000 runs in `experiment_runs`. - Each run must include:   - `example_id` -- the ID of an existing example in the dataset version   - `output` -- model/task output for that example   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  **Valid example** ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\", \"output\": \"4\", \"model\": \"gpt-4o-mini\"}   ] } ```  **Invalid example** (missing required output field) ```json {   \"experiment_runs\": [     {\"example_id\": \"example_001\"}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param experiment_id: The unique experiment identifier (base64) (required)
-        :type experiment_id: str
-        :param insert_experiment_runs_body: Body containing experiment runs to append to the experiment (required)
-        :type insert_experiment_runs_body: InsertExperimentRunsBody
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._experiments_runs_insert_serialize(
-            experiment_id=experiment_id,
-            insert_experiment_runs_body=insert_experiment_runs_body,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "ExperimentWithRunIds",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '422': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _experiments_runs_insert_serialize(
-        self,
-        experiment_id,
-        insert_experiment_runs_body,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        if experiment_id is not None:
-            _path_params['experiment_id'] = experiment_id
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-        if insert_experiment_runs_body is not None:
-            _body_params = insert_experiment_runs_body
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json', 
-                    'application/problem+json'
-                ]
-            )
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'bearerAuth'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v2/experiments/{experiment_id}/runs',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    def experiments_runs_list(
-        self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
-        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
-        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ExperimentRunsListResponse:
-        """List experiment runs
-
-        List runs for a given experiment.  The runs are returned in a stable insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param experiment_id: The unique experiment identifier (base64) (required)
-        :type experiment_id: str
-        :param limit: Maximum items to return
-        :type limit: int
-        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
-        :type cursor: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._experiments_runs_list_serialize(
-            experiment_id=experiment_id,
-            limit=limit,
-            cursor=cursor,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ExperimentRunsListResponse",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    def experiments_runs_list_with_http_info(
-        self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
-        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
-        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ExperimentRunsListResponse]:
-        """List experiment runs
-
-        List runs for a given experiment.  The runs are returned in a stable insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param experiment_id: The unique experiment identifier (base64) (required)
-        :type experiment_id: str
-        :param limit: Maximum items to return
-        :type limit: int
-        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
-        :type cursor: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._experiments_runs_list_serialize(
-            experiment_id=experiment_id,
-            limit=limit,
-            cursor=cursor,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ExperimentRunsListResponse",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    def experiments_runs_list_without_preload_content(
-        self,
-        experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
-        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
-        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """List experiment runs
-
-        List runs for a given experiment.  The runs are returned in a stable insertion order.  **Human annotations**: returned in the structured `annotations` array on each run. Each entry includes `name`, optional `label` / `score` / `text` / `updated_at`, and an `annotator` (id + email) for per-user annotations.  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param experiment_id: The unique experiment identifier (base64) (required)
-        :type experiment_id: str
-        :param limit: Maximum items to return
-        :type limit: int
-        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
-        :type cursor: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._experiments_runs_list_serialize(
-            experiment_id=experiment_id,
-            limit=limit,
-            cursor=cursor,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ExperimentRunsListResponse",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _experiments_runs_list_serialize(
-        self,
-        experiment_id,
-        limit,
-        cursor,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        if experiment_id is not None:
-            _path_params['experiment_id'] = experiment_id
-        # process the query parameters
-        if limit is not None:
-            
-            _query_params.append(('limit', limit))
-            
-        if cursor is not None:
-            
-            _query_params.append(('cursor', cursor))
-            
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json', 
-                    'application/problem+json'
-                ]
-            )
-
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'bearerAuth'
-        ]
-
-        return self.api_client.param_serialize(
-            method='GET',
-            resource_path='/v2/experiments/{experiment_id}/runs',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

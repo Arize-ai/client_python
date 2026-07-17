@@ -20,15 +20,15 @@ from typing_extensions import Self
 
 class InputVariableFormat(str, Enum):
     """
-    The format for input variables in the prompt messages. Defaults to `f_string` if not provided. - `f_string`: Single curly braces ({variable_name}) - `mustache`: Double curly braces ({{variable_name}}) - `none`: **Deprecated.** Treated as `f_string`. Will be removed in a future version. 
+    The format for input variables in the prompt messages. Defaults to `F_STRING` if not provided. - `F_STRING`: Single curly braces ({variable_name}) - `MUSTACHE`: Double curly braces ({{variable_name}}) - `NONE`: **Deprecated.** Treated as `F_STRING`. Will be removed in a future version. 
     """
 
     """
     allowed enum values
     """
-    F_STRING = 'f_string'
-    MUSTACHE = 'mustache'
-    NONE = 'none'
+    F_STRING = 'F_STRING'
+    MUSTACHE = 'MUSTACHE'
+    NONE = 'NONE'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

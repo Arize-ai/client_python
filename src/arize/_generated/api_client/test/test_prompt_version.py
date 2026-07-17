@@ -41,20 +41,20 @@ class TestPromptVersion(unittest.TestCase):
                 commit_message = '',
                 messages = [
                     arize._generated.api_client.models.llm_message.LLMMessage(
-                        role = 'user', 
+                        role = 'USER', 
                         content = '', 
                         tool_call_id = '', 
                         tool_calls = [
                             arize._generated.api_client.models.tool_call.ToolCall(
                                 id = '', 
-                                type = 'function', 
+                                type = 'FUNCTION', 
                                 function = arize._generated.api_client.models.tool_call_function.ToolCallFunction(
                                     name = '', 
                                     arguments = '', ), )
                             ], )
                     ],
-                input_variable_format = 'f_string',
-                provider = 'open_ai',
+                input_variable_format = 'F_STRING',
+                provider = 'OPEN_AI',
                 model = '',
                 invocation_params = { },
                 provider_params = { },
@@ -72,20 +72,20 @@ class TestPromptVersion(unittest.TestCase):
                 commit_message = '',
                 messages = [
                     arize._generated.api_client.models.llm_message.LLMMessage(
-                        role = 'user', 
+                        role = 'USER', 
                         content = '', 
                         tool_call_id = '', 
                         tool_calls = [
                             arize._generated.api_client.models.tool_call.ToolCall(
                                 id = '', 
-                                type = 'function', 
+                                type = 'FUNCTION', 
                                 function = arize._generated.api_client.models.tool_call_function.ToolCallFunction(
                                     name = '', 
                                     arguments = '', ), )
                             ], )
                     ],
-                input_variable_format = 'f_string',
-                provider = 'open_ai',
+                input_variable_format = 'F_STRING',
+                provider = 'OPEN_AI',
                 model = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = '',

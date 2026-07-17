@@ -6,7 +6,7 @@ A predefined account-level role assignment.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | [**UserRoleAssignmentType**](UserRoleAssignmentType.md) | Discriminator identifying this as a predefined role assignment. Must be &#x60;predefined&#x60;. | 
+**type** | [**UserRoleAssignmentType**](UserRoleAssignmentType.md) | Discriminator identifying this as a predefined role assignment. Must be &#x60;PREDEFINED&#x60;. | 
 **name** | [**UserRole**](UserRole.md) |  | 
 
 ## Example

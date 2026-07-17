@@ -19,10 +19,10 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictBool, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.create_role_request import CreateRoleRequest
+from arize._generated.api_client.models.list_roles_response import ListRolesResponse
 from arize._generated.api_client.models.role import Role
-from arize._generated.api_client.models.role_create import RoleCreate
-from arize._generated.api_client.models.role_list_response import RoleListResponse
-from arize._generated.api_client.models.role_update import RoleUpdate
+from arize._generated.api_client.models.update_role_request import UpdateRoleRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -43,9 +43,9 @@ class RolesApi:
 
 
     @validate_call
-    def roles_create(
+    def create_role(
         self,
-        role_create: Annotated[RoleCreate, Field(description="Body containing role creation parameters.")],
+        create_role_request: Annotated[CreateRoleRequest, Field(description="Body containing role creation parameters.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -63,8 +63,8 @@ class RolesApi:
 
         Create a new custom role for the authenticated user's account.  **Payload Requirements** - `name` is required and must be unique within the account. - `permissions` is required and must contain at least one valid permission   identifier (e.g. `PROJECT_READ`, `DATASET_CREATE`). - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`)   are rejected if provided.  **Valid example** ```json {   \"name\": \"Data Scientist\",   \"description\": \"Can read and create datasets and experiments.\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\"] } ```  **Invalid example** (missing required `permissions`) ```json {   \"name\": \"Data Scientist\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param role_create: Body containing role creation parameters. (required)
-        :type role_create: RoleCreate
+        :param create_role_request: Body containing role creation parameters. (required)
+        :type create_role_request: CreateRoleRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -87,8 +87,8 @@ class RolesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._roles_create_serialize(
-            role_create=role_create,
+        _param = self._create_role_serialize(
+            create_role_request=create_role_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -116,9 +116,9 @@ class RolesApi:
 
 
     @validate_call
-    def roles_create_with_http_info(
+    def create_role_with_http_info(
         self,
-        role_create: Annotated[RoleCreate, Field(description="Body containing role creation parameters.")],
+        create_role_request: Annotated[CreateRoleRequest, Field(description="Body containing role creation parameters.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -136,8 +136,8 @@ class RolesApi:
 
         Create a new custom role for the authenticated user's account.  **Payload Requirements** - `name` is required and must be unique within the account. - `permissions` is required and must contain at least one valid permission   identifier (e.g. `PROJECT_READ`, `DATASET_CREATE`). - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`)   are rejected if provided.  **Valid example** ```json {   \"name\": \"Data Scientist\",   \"description\": \"Can read and create datasets and experiments.\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\"] } ```  **Invalid example** (missing required `permissions`) ```json {   \"name\": \"Data Scientist\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param role_create: Body containing role creation parameters. (required)
-        :type role_create: RoleCreate
+        :param create_role_request: Body containing role creation parameters. (required)
+        :type create_role_request: CreateRoleRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -160,8 +160,8 @@ class RolesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._roles_create_serialize(
-            role_create=role_create,
+        _param = self._create_role_serialize(
+            create_role_request=create_role_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -189,9 +189,9 @@ class RolesApi:
 
 
     @validate_call
-    def roles_create_without_preload_content(
+    def create_role_without_preload_content(
         self,
-        role_create: Annotated[RoleCreate, Field(description="Body containing role creation parameters.")],
+        create_role_request: Annotated[CreateRoleRequest, Field(description="Body containing role creation parameters.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -209,8 +209,8 @@ class RolesApi:
 
         Create a new custom role for the authenticated user's account.  **Payload Requirements** - `name` is required and must be unique within the account. - `permissions` is required and must contain at least one valid permission   identifier (e.g. `PROJECT_READ`, `DATASET_CREATE`). - System-managed fields (`id`, `created_at`, `updated_at`, `is_predefined`)   are rejected if provided.  **Valid example** ```json {   \"name\": \"Data Scientist\",   \"description\": \"Can read and create datasets and experiments.\",   \"permissions\": [\"PROJECT_READ\", \"DATASET_READ\", \"DATASET_CREATE\"] } ```  **Invalid example** (missing required `permissions`) ```json {   \"name\": \"Data Scientist\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param role_create: Body containing role creation parameters. (required)
-        :type role_create: RoleCreate
+        :param create_role_request: Body containing role creation parameters. (required)
+        :type create_role_request: CreateRoleRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -233,8 +233,8 @@ class RolesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._roles_create_serialize(
-            role_create=role_create,
+        _param = self._create_role_serialize(
+            create_role_request=create_role_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -257,9 +257,9 @@ class RolesApi:
         return response_data.response
 
 
-    def _roles_create_serialize(
+    def _create_role_serialize(
         self,
-        role_create,
+        create_role_request,
         _request_auth,
         _content_type,
         _headers,
@@ -285,8 +285,8 @@ class RolesApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if role_create is not None:
-            _body_params = role_create
+        if create_role_request is not None:
+            _body_params = create_role_request
 
 
         # set the HTTP header `Accept`
@@ -336,7 +336,7 @@ class RolesApi:
 
 
     @validate_call
-    def roles_delete(
+    def delete_role(
         self,
         role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
         _request_timeout: Union[
@@ -380,7 +380,7 @@ class RolesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._roles_delete_serialize(
+        _param = self._delete_role_serialize(
             role_id=role_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -408,7 +408,7 @@ class RolesApi:
 
 
     @validate_call
-    def roles_delete_with_http_info(
+    def delete_role_with_http_info(
         self,
         role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
         _request_timeout: Union[
@@ -452,7 +452,7 @@ class RolesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._roles_delete_serialize(
+        _param = self._delete_role_serialize(
             role_id=role_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -480,7 +480,7 @@ class RolesApi:
 
 
     @validate_call
-    def roles_delete_without_preload_content(
+    def delete_role_without_preload_content(
         self,
         role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
         _request_timeout: Union[
@@ -524,7 +524,7 @@ class RolesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._roles_delete_serialize(
+        _param = self._delete_role_serialize(
             role_id=role_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -547,7 +547,7 @@ class RolesApi:
         return response_data.response
 
 
-    def _roles_delete_serialize(
+    def _delete_role_serialize(
         self,
         role_id,
         _request_auth,
@@ -612,7 +612,7 @@ class RolesApi:
 
 
     @validate_call
-    def roles_get(
+    def get_role(
         self,
         role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
         _request_timeout: Union[
@@ -656,7 +656,7 @@ class RolesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._roles_get_serialize(
+        _param = self._get_role_serialize(
             role_id=role_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -683,7 +683,7 @@ class RolesApi:
 
 
     @validate_call
-    def roles_get_with_http_info(
+    def get_role_with_http_info(
         self,
         role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
         _request_timeout: Union[
@@ -727,7 +727,7 @@ class RolesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._roles_get_serialize(
+        _param = self._get_role_serialize(
             role_id=role_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -754,7 +754,7 @@ class RolesApi:
 
 
     @validate_call
-    def roles_get_without_preload_content(
+    def get_role_without_preload_content(
         self,
         role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
         _request_timeout: Union[
@@ -798,7 +798,7 @@ class RolesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._roles_get_serialize(
+        _param = self._get_role_serialize(
             role_id=role_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -820,7 +820,7 @@ class RolesApi:
         return response_data.response
 
 
-    def _roles_get_serialize(
+    def _get_role_serialize(
         self,
         role_id,
         _request_auth,
@@ -886,7 +886,7 @@ class RolesApi:
 
 
     @validate_call
-    def roles_list(
+    def list_roles(
         self,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
@@ -903,7 +903,7 @@ class RolesApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RoleListResponse:
+    ) -> ListRolesResponse:
         """List roles
 
         List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -936,7 +936,7 @@ class RolesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._roles_list_serialize(
+        _param = self._list_roles_serialize(
             limit=limit,
             cursor=cursor,
             is_predefined=is_predefined,
@@ -947,7 +947,7 @@ class RolesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "RoleListResponse",
+            '200': "ListRolesResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -965,7 +965,7 @@ class RolesApi:
 
 
     @validate_call
-    def roles_list_with_http_info(
+    def list_roles_with_http_info(
         self,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
@@ -982,7 +982,7 @@ class RolesApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[RoleListResponse]:
+    ) -> ApiResponse[ListRolesResponse]:
         """List roles
 
         List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1015,7 +1015,7 @@ class RolesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._roles_list_serialize(
+        _param = self._list_roles_serialize(
             limit=limit,
             cursor=cursor,
             is_predefined=is_predefined,
@@ -1026,7 +1026,7 @@ class RolesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "RoleListResponse",
+            '200': "ListRolesResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1044,7 +1044,7 @@ class RolesApi:
 
 
     @validate_call
-    def roles_list_without_preload_content(
+    def list_roles_without_preload_content(
         self,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
@@ -1094,7 +1094,7 @@ class RolesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._roles_list_serialize(
+        _param = self._list_roles_serialize(
             limit=limit,
             cursor=cursor,
             is_predefined=is_predefined,
@@ -1105,7 +1105,7 @@ class RolesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "RoleListResponse",
+            '200': "ListRolesResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1118,7 +1118,7 @@ class RolesApi:
         return response_data.response
 
 
-    def _roles_list_serialize(
+    def _list_roles_serialize(
         self,
         limit,
         cursor,
@@ -1196,10 +1196,10 @@ class RolesApi:
 
 
     @validate_call
-    def roles_update(
+    def update_role(
         self,
         role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
-        role_update: Annotated[RoleUpdate, Field(description="Body containing role update parameters. At least one field must be provided.")],
+        update_role_request: Annotated[UpdateRoleRequest, Field(description="Body containing role update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1219,8 +1219,8 @@ class RolesApi:
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
-        :param role_update: Body containing role update parameters. At least one field must be provided. (required)
-        :type role_update: RoleUpdate
+        :param update_role_request: Body containing role update parameters. At least one field must be provided. (required)
+        :type update_role_request: UpdateRoleRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1243,9 +1243,9 @@ class RolesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._roles_update_serialize(
+        _param = self._update_role_serialize(
             role_id=role_id,
-            role_update=role_update,
+            update_role_request=update_role_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1274,10 +1274,10 @@ class RolesApi:
 
 
     @validate_call
-    def roles_update_with_http_info(
+    def update_role_with_http_info(
         self,
         role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
-        role_update: Annotated[RoleUpdate, Field(description="Body containing role update parameters. At least one field must be provided.")],
+        update_role_request: Annotated[UpdateRoleRequest, Field(description="Body containing role update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1297,8 +1297,8 @@ class RolesApi:
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
-        :param role_update: Body containing role update parameters. At least one field must be provided. (required)
-        :type role_update: RoleUpdate
+        :param update_role_request: Body containing role update parameters. At least one field must be provided. (required)
+        :type update_role_request: UpdateRoleRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1321,9 +1321,9 @@ class RolesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._roles_update_serialize(
+        _param = self._update_role_serialize(
             role_id=role_id,
-            role_update=role_update,
+            update_role_request=update_role_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1352,10 +1352,10 @@ class RolesApi:
 
 
     @validate_call
-    def roles_update_without_preload_content(
+    def update_role_without_preload_content(
         self,
         role_id: Annotated[StrictStr, Field(description="The unique role identifier (base64)")],
-        role_update: Annotated[RoleUpdate, Field(description="Body containing role update parameters. At least one field must be provided.")],
+        update_role_request: Annotated[UpdateRoleRequest, Field(description="Body containing role update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1375,8 +1375,8 @@ class RolesApi:
 
         :param role_id: The unique role identifier (base64) (required)
         :type role_id: str
-        :param role_update: Body containing role update parameters. At least one field must be provided. (required)
-        :type role_update: RoleUpdate
+        :param update_role_request: Body containing role update parameters. At least one field must be provided. (required)
+        :type update_role_request: UpdateRoleRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1399,9 +1399,9 @@ class RolesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._roles_update_serialize(
+        _param = self._update_role_serialize(
             role_id=role_id,
-            role_update=role_update,
+            update_role_request=update_role_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1425,10 +1425,10 @@ class RolesApi:
         return response_data.response
 
 
-    def _roles_update_serialize(
+    def _update_role_serialize(
         self,
         role_id,
-        role_update,
+        update_role_request,
         _request_auth,
         _content_type,
         _headers,
@@ -1456,8 +1456,8 @@ class RolesApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if role_update is not None:
-            _body_params = role_update
+        if update_role_request is not None:
+            _body_params = update_role_request
 
 
         # set the HTTP header `Accept`

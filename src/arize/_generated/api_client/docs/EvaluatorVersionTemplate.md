@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **commit_message** | **str** | A message describing the changes in this version | 
 **created_at** | **datetime** | When this version was created | 
 **created_by_user_id** | **str** | The unique identifier for the user who created this version | 
-**type** | **str** | Discriminator identifying this as a template evaluator version. Always &#x60;template&#x60; for this variant. | 
+**type** | **str** | Discriminator identifying this as a template evaluator version. Always &#x60;TEMPLATE&#x60; for this variant. | 
 **template_config** | [**TemplateConfig**](TemplateConfig.md) |  | 
 
 ## Example

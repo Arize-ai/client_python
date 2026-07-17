@@ -26,50 +26,50 @@ class TestOrganizationsApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_organizations_add_user(self) -> None:
-        """Test case for organizations_add_user
+    def test_add_organization_user(self) -> None:
+        """Test case for add_organization_user
 
         Add a user to an organization
         """
         pass
 
-    def test_organizations_create(self) -> None:
-        """Test case for organizations_create
+    def test_create_organization(self) -> None:
+        """Test case for create_organization
 
         Create an organization
         """
         pass
 
-    def test_organizations_delete(self) -> None:
-        """Test case for organizations_delete
+    def test_delete_organization(self) -> None:
+        """Test case for delete_organization
 
         Delete an organization
         """
         pass
 
-    def test_organizations_get(self) -> None:
-        """Test case for organizations_get
+    def test_get_organization(self) -> None:
+        """Test case for get_organization
 
         Get an organization
         """
         pass
 
-    def test_organizations_list(self) -> None:
-        """Test case for organizations_list
+    def test_list_organizations(self) -> None:
+        """Test case for list_organizations
 
         List organizations
         """
         pass
 
-    def test_organizations_remove_user(self) -> None:
-        """Test case for organizations_remove_user
+    def test_remove_organization_user(self) -> None:
+        """Test case for remove_organization_user
 
         Remove a user from an organization
         """
         pass
 
-    def test_organizations_update(self) -> None:
-        """Test case for organizations_update
+    def test_update_organization(self) -> None:
+        """Test case for update_organization
 
         Update an organization
         """

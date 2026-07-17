@@ -35,13 +35,13 @@ class TestSpaceRoleAssignment(unittest.TestCase):
         model = SpaceRoleAssignment()
         if include_optional:
             return SpaceRoleAssignment(
-                type = 'builtin',
+                type = 'PREDEFINED',
                 name = '',
                 id = 'RW50aXR5OjEyMzQ1'
             )
         else:
             return SpaceRoleAssignment(
-                type = 'builtin',
+                type = 'PREDEFINED',
                 name = '',
                 id = 'RW50aXR5OjEyMzQ1',
         )

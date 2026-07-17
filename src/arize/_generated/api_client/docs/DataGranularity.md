@@ -1,14 +1,14 @@
 # DataGranularity
 
-Data granularity level for evaluation. - span - Evaluate at the individual span level. - trace - Evaluate at the full trace level. - session - Evaluate at the session level. 
+Data granularity level for evaluation. - SPAN - Evaluate at the individual span level. - TRACE - Evaluate at the full trace level. - SESSION - Evaluate at the session level. 
 
 ## Enum
 
-* `SPAN` (value: `'span'`)
+* `SPAN` (value: `'SPAN'`)
 
-* `TRACE` (value: `'trace'`)
+* `TRACE` (value: `'TRACE'`)
 
-* `SESSION` (value: `'session'`)
+* `SESSION` (value: `'SESSION'`)
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

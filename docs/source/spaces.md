@@ -23,7 +23,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: SpaceListResponse
+.. autoclass:: ListSpacesResponse
    :members:
    :member-order: bysource
 
@@ -31,7 +31,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: SpaceMembershipInput
+.. autoclass:: AddSpaceUserRequest
    :members:
    :member-order: bysource
 

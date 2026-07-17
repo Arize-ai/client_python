@@ -12,9 +12,10 @@ from arize._generated.api_client.models.run_configuration import (
 from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.tasks.types import (
+    ListTasksResponse,
     LlmGenerationRunConfig,
+    RunStatus,
     Task,
-    TaskListResponse,
     TaskType,
     TemplateEvaluationRunConfig,
 )
@@ -32,15 +33,16 @@ if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
     from arize.tasks.types import (
-        BaseEvaluationTaskRequestEvaluatorsInner,
-        RunStatus,
+        ListTaskRunsResponse,
+        TaskEvaluatorInput,
         TaskRun,
-        TaskRunListResponse,
     )
 
 logger = logging.getLogger(__name__)
 
-_TERMINAL_STATUSES = frozenset({"completed", "failed", "cancelled"})
+_TERMINAL_STATUSES: Final = frozenset(
+    {RunStatus.COMPLETED, RunStatus.FAILED, RunStatus.CANCELLED}
+)
 _DEFAULT_POLL_INTERVAL = 5.0  # seconds
 _DEFAULT_TIMEOUT = 600.0  # seconds
 
@@ -121,7 +123,7 @@ class TasksClient:
     # Tasks
     # -------------------------------------------------------------------------
 
-    @prerelease_endpoint(key="tasks.list", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="tasks.list", stage=ReleaseStage.BETA)
     def list(
         self,
         *,
@@ -132,7 +134,7 @@ class TasksClient:
         task_type: TaskType | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> TaskListResponse:
+    ) -> ListTasksResponse:
         """List tasks the user has access to.
 
         Results support cursor-based pagination. Optionally filter by space,
@@ -152,7 +154,7 @@ class TasksClient:
                 otherwise it is used as a case-insensitive substring filter on
                 the space name.
             task_type: Optional task type filter. One of
-                ``"template_evaluation"`` or ``"code_evaluation"``.
+                ``"TEMPLATE_EVALUATION"`` or ``"CODE_EVALUATION"``.
             limit: Maximum number of tasks to return (1-100).
             cursor: Opaque pagination cursor from a previous response.
 
@@ -181,7 +183,7 @@ class TasksClient:
             else None
         )
         resolved_space = _resolve_resource(space)
-        result = self._api.tasks_list(
+        result = self._api.list_tasks(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=name,
@@ -191,9 +193,9 @@ class TasksClient:
             limit=limit,
             cursor=cursor,
         )
-        return TaskListResponse.model_validate(result, from_attributes=True)
+        return ListTasksResponse.model_validate(result, from_attributes=True)
 
-    @prerelease_endpoint(key="tasks.get", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="tasks.get", stage=ReleaseStage.BETA)
     def get(self, *, task: str, space: str | None = None) -> Task:
         """Get a task by name or ID.
 
@@ -215,7 +217,7 @@ class TasksClient:
             task=task,
             space=space,
         )
-        result = self._api.tasks_get(task_id=task_id)
+        result = self._api.get_task(task_id=task_id)
         return Task.model_validate(result, from_attributes=True)
 
     def _create(
@@ -223,8 +225,7 @@ class TasksClient:
         *,
         name: str,
         task_type: TaskType,
-        evaluators: builtins.list[BaseEvaluationTaskRequestEvaluatorsInner]
-        | None = None,
+        evaluators: builtins.list[TaskEvaluatorInput] | None = None,
         run_configuration: RunConfiguration
         | LlmGenerationRunConfig
         | TemplateEvaluationRunConfig
@@ -242,22 +243,22 @@ class TasksClient:
 
         The required arguments depend on ``task_type``:
 
-        - ``"template_evaluation"`` / ``"code_evaluation"``: ``evaluators``
+        - ``"TEMPLATE_EVALUATION"`` / ``"CODE_EVALUATION"``: ``evaluators``
           is required. Either ``project`` or ``dataset`` must be provided.
           When ``dataset`` is provided, at least one entry in
           ``experiment_ids`` is required.
-        - ``"run_experiment"``: ``run_configuration`` and ``dataset`` are
+        - ``"RUN_EXPERIMENT"``: ``run_configuration`` and ``dataset`` are
           required. Eval-only fields (``evaluators``, ``project``,
           ``sampling_rate``, ``is_continuous``, ``query_filter``,
           ``experiment_ids``) must be omitted.
 
         Args:
             name: Task name (must be unique within the space).
-            task_type: Task type: ``"template_evaluation"``,
-                ``"code_evaluation"``, or ``"run_experiment"``.
+            task_type: Task type: ``"TEMPLATE_EVALUATION"``,
+                ``"CODE_EVALUATION"``, or ``"RUN_EXPERIMENT"``.
             evaluators: List of evaluators to attach. Required for eval task
-                types; must be omitted for ``"run_experiment"``. Each entry is
-                a :class:`arize.tasks.types.BaseEvaluationTaskRequestEvaluatorsInner`
+                types; must be omitted for ``"RUN_EXPERIMENT"``. Each entry is
+                a :class:`arize.tasks.types.TaskEvaluatorInput`
                 with the following fields:
 
                 - ``evaluator_id`` — Evaluator identifier (base64). Required.
@@ -267,7 +268,7 @@ class TasksClient:
                   names. Optional.
 
             run_configuration: Experiment run configuration. Required for
-                ``"run_experiment"`` tasks; must be omitted for eval task
+                ``"RUN_EXPERIMENT"`` tasks; must be omitted for eval task
                 types. Use
                 :class:`arize.tasks.types.LlmGenerationRunConfig` or
                 :class:`arize.tasks.types.TemplateEvaluationRunConfig`
@@ -276,14 +277,14 @@ class TasksClient:
             project: Project name or identifier (base64). For eval tasks,
                 required when ``dataset`` is not provided.
             dataset: Dataset name or identifier (base64). Required for
-                ``"run_experiment"`` tasks; for eval tasks, required when
+                ``"RUN_EXPERIMENT"`` tasks; for eval tasks, required when
                 ``project`` is not provided.
             space: Optional space name or ID used to disambiguate name-based
                 resolution for ``project`` and ``dataset``.
             experiment_ids: Experiment identifiers (base64). For eval tasks:
                 required (at least one) when ``dataset`` is provided; must
                 be omitted for project-based tasks. Not applicable for
-                ``"run_experiment"`` tasks.
+                ``"RUN_EXPERIMENT"`` tasks.
             sampling_rate: Fraction of data to evaluate (0-1). Only valid for
                 project-based eval tasks.
             is_continuous: Whether to run the task continuously. Only valid
@@ -302,7 +303,7 @@ class TasksClient:
         """
         from arize._generated import api_client as gen
 
-        if task_type == "run_experiment":
+        if task_type == TaskType.RUN_EXPERIMENT:
             eval_only = {
                 k: v
                 for k, v in {
@@ -335,14 +336,14 @@ class TasksClient:
             )
             run_exp_inner = gen.CreateRunExperimentTaskRequest(
                 name=name,
-                type="run_experiment",
+                type=TaskType.RUN_EXPERIMENT.value,
                 dataset_id=run_exp_dataset_id,
                 run_configuration=self._coerce_run_configuration(
                     run_configuration
                 ),
             )
-            body = gen.TasksCreateRequest(actual_instance=run_exp_inner)
-            result = self._api.tasks_create(tasks_create_request=body)
+            body = gen.CreateTaskRequest(actual_instance=run_exp_inner)
+            result = self._api.create_task(create_task_request=body)
             return Task.model_validate(result, from_attributes=True)
         if run_configuration is not None:
             raise ValueError(
@@ -373,7 +374,7 @@ class TasksClient:
         )
         inner_cls = (
             gen.CreateTemplateEvaluationTaskRequest
-            if task_type == "template_evaluation"
+            if task_type == TaskType.TEMPLATE_EVALUATION
             else gen.CreateCodeEvaluationTaskRequest
         )
         eval_inner = inner_cls(
@@ -389,19 +390,19 @@ class TasksClient:
             is_continuous=is_continuous,
             query_filter=query_filter,
         )
-        body = gen.TasksCreateRequest(actual_instance=eval_inner)
-        result = self._api.tasks_create(tasks_create_request=body)
+        body = gen.CreateTaskRequest(actual_instance=eval_inner)
+        result = self._api.create_task(create_task_request=body)
         return Task.model_validate(result, from_attributes=True)
 
     @prerelease_endpoint(
-        key="tasks.create_evaluation_task", stage=ReleaseStage.ALPHA
+        key="tasks.create_evaluation_task", stage=ReleaseStage.BETA
     )
     def create_evaluation_task(
         self,
         *,
         name: str,
         task_type: TaskType,
-        evaluators: builtins.list[BaseEvaluationTaskRequestEvaluatorsInner],
+        evaluators: builtins.list[TaskEvaluatorInput],
         project: str | None = None,
         dataset: str | None = None,
         space: str | None = None,
@@ -413,17 +414,17 @@ class TasksClient:
         """Create a new evaluation task.
 
         A typed convenience wrapper around the internal task-creation logic for
-        ``"template_evaluation"`` and ``"code_evaluation"`` task types.
+        ``"TEMPLATE_EVALUATION"`` and ``"CODE_EVALUATION"`` task types.
         Prefer this method when creating evaluation tasks
         for a cleaner, narrowly-typed signature.
 
         Args:
             name: Task name (must be unique within the space).
-            task_type: Task type: ``"template_evaluation"`` or
-                ``"code_evaluation"``.
+            task_type: Task type: ``"TEMPLATE_EVALUATION"`` or
+                ``"CODE_EVALUATION"``.
             evaluators: List of evaluators to attach (at least one required).
                 Each entry is a
-                :class:`arize.tasks.types.BaseEvaluationTaskRequestEvaluatorsInner`
+                :class:`arize.tasks.types.TaskEvaluatorInput`
                 with the following fields:
 
                 - ``evaluator_id`` — Evaluator identifier (base64). Required.
@@ -466,7 +467,7 @@ class TasksClient:
         )
 
     @prerelease_endpoint(
-        key="tasks.create_run_experiment_task", stage=ReleaseStage.ALPHA
+        key="tasks.create_run_experiment_task", stage=ReleaseStage.BETA
     )
     def create_run_experiment_task(
         self,
@@ -482,7 +483,7 @@ class TasksClient:
         """Create a new ``run_experiment`` task.
 
         A typed convenience wrapper around the internal task-creation logic for
-        ``"run_experiment"`` task types. The server drives all LLM calls
+        ``"RUN_EXPERIMENT"`` task types. The server drives all LLM calls
         using the AI integration specified in ``run_configuration`` — no
         local callable is required.
 
@@ -514,7 +515,7 @@ class TasksClient:
             space=space,
         )
 
-    @prerelease_endpoint(key="tasks.update", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="tasks.update", stage=ReleaseStage.BETA)
     def update(
         self,
         *,
@@ -525,8 +526,7 @@ class TasksClient:
         sampling_rate: float | _Missing = _MISSING,
         is_continuous: bool | _Missing = _MISSING,
         query_filter: str | None | _Missing = _MISSING,
-        evaluators: builtins.list[BaseEvaluationTaskRequestEvaluatorsInner]
-        | _Missing = _MISSING,
+        evaluators: builtins.list[TaskEvaluatorInput] | _Missing = _MISSING,
         # run_experiment-task fields
         run_configuration: RunConfiguration
         | LlmGenerationRunConfig
@@ -590,9 +590,9 @@ class TasksClient:
             task=task,
             space=space,
         )
-        task_obj = self._api.tasks_get(task_id=task_id)
+        task_obj = self._api.get_task(task_id=task_id)
 
-        if task_obj.type == "run_experiment":
+        if task_obj.type == TaskType.RUN_EXPERIMENT:
             # Validate that no eval-only fields were supplied.
             eval_only_supplied = {
                 k: v
@@ -625,7 +625,7 @@ class TasksClient:
             inner_run_exp = gen.UpdateRunExperimentTaskRequest(
                 **run_exp_payload
             )
-            body = gen.TasksUpdateRequest(actual_instance=inner_run_exp)
+            body = gen.UpdateTaskRequest(actual_instance=inner_run_exp)
         else:
             # Evaluation task.
             if not isinstance(run_configuration, _Missing):
@@ -650,15 +650,15 @@ class TasksClient:
                     "(name, sampling_rate, is_continuous, query_filter, or evaluators).",
                 )
             inner = gen.UpdateEvaluationTaskRequest(**eval_payload)
-            body = gen.TasksUpdateRequest(actual_instance=inner)
+            body = gen.UpdateTaskRequest(actual_instance=inner)
 
-        result = self._api.tasks_update(
+        result = self._api.update_task(
             task_id=task_id,
-            tasks_update_request=body,
+            update_task_request=body,
         )
         return Task.model_validate(result, from_attributes=True)
 
-    @prerelease_endpoint(key="tasks.delete", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="tasks.delete", stage=ReleaseStage.BETA)
     def delete(self, *, task: str, space: str | None = None) -> None:
         """Delete a task and its associated configuration.
 
@@ -674,13 +674,13 @@ class TasksClient:
             task=task,
             space=space,
         )
-        self._api.tasks_delete(task_id=task_id)
+        self._api.delete_task(task_id=task_id)
 
     # -------------------------------------------------------------------------
     # Task runs
     # -------------------------------------------------------------------------
 
-    @prerelease_endpoint(key="tasks.trigger_run", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="tasks.trigger_run", stage=ReleaseStage.BETA)
     def trigger_run(
         self,
         *,
@@ -774,9 +774,9 @@ class TasksClient:
             task=task,
             space=space,
         )
-        task_obj = self._api.tasks_get(task_id=task_id)
+        task_obj = self._api.get_task(task_id=task_id)
 
-        if task_obj.type == "run_experiment":
+        if task_obj.type == TaskType.RUN_EXPERIMENT:
             eval_only_supplied = {
                 k: v
                 for k, v in {
@@ -814,7 +814,7 @@ class TasksClient:
                 tracing_metadata=tracing_metadata,
                 evaluation_task_ids=evaluation_task_ids,
             )
-            body = gen.TasksTriggerRunRequest(actual_instance=inner_run_exp)
+            body = gen.TriggerTaskRunRequest(actual_instance=inner_run_exp)
         else:
             run_exp_only_supplied = {
                 k: v
@@ -842,14 +842,14 @@ class TasksClient:
                 override_evaluations=override_evaluations,
                 experiment_ids=experiment_ids,
             )
-            body = gen.TasksTriggerRunRequest(actual_instance=inner)
+            body = gen.TriggerTaskRunRequest(actual_instance=inner)
 
-        return self._api.tasks_trigger_run(
+        return self._api.trigger_task_run(
             task_id=task_id,
-            tasks_trigger_run_request=body,
+            trigger_task_run_request=body,
         )
 
-    @prerelease_endpoint(key="tasks.list_runs", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="tasks.list_runs", stage=ReleaseStage.BETA)
     def list_runs(
         self,
         *,
@@ -858,7 +858,7 @@ class TasksClient:
         status: RunStatus | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> TaskRunListResponse:
+    ) -> ListTaskRunsResponse:
         """List runs for a task.
 
         Results support cursor-based pagination. Optionally filter by run
@@ -885,14 +885,14 @@ class TasksClient:
             task=task,
             space=space,
         )
-        return self._api.task_runs_list(
+        return self._api.list_task_runs(
             task_id=task_id,
             status=status,
             limit=limit,
             cursor=cursor,
         )
 
-    @prerelease_endpoint(key="tasks.get_run", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="tasks.get_run", stage=ReleaseStage.BETA)
     def get_run(self, *, run_id: str) -> TaskRun:
         """Get a task run by its unique identifier.
 
@@ -906,9 +906,9 @@ class TasksClient:
             ApiException: If the API request fails
                 (for example, run not found).
         """
-        return self._api.task_runs_get(run_id=run_id)
+        return self._api.get_task_run(run_id=run_id)
 
-    @prerelease_endpoint(key="tasks.cancel_run", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="tasks.cancel_run", stage=ReleaseStage.BETA)
     def cancel_run(self, *, run_id: str) -> TaskRun:
         """Cancel a task run.
 
@@ -925,9 +925,9 @@ class TasksClient:
             ApiException: If the API request fails
                 (for example, run not found or already in terminal state).
         """
-        return self._api.task_runs_cancel(run_id=run_id)
+        return self._api.cancel_task_run(run_id=run_id)
 
-    @prerelease_endpoint(key="tasks.wait_for_run", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="tasks.wait_for_run", stage=ReleaseStage.BETA)
     def wait_for_run(
         self,
         *,
@@ -938,8 +938,8 @@ class TasksClient:
         """Poll a task run until it reaches a terminal state.
 
         Repeatedly calls :meth:`get_run` at ``poll_interval``-second intervals
-        until the run's status is one of ``"completed"``, ``"failed"``, or
-        ``"cancelled"``, or until ``timeout`` seconds have elapsed.
+        until the run's status is one of ``"COMPLETED"``, ``"FAILED"``, or
+        ``"CANCELLED"``, or until ``timeout`` seconds have elapsed.
 
         Args:
             run_id: Task run identifier (base64) to wait for.
@@ -967,7 +967,7 @@ class TasksClient:
             # Call the generated API directly instead of self.get_run() to
             # avoid firing the @prerelease_endpoint warning on every iteration;
             # the outer wait_for_run() method is already decorated.
-            run = self._api.task_runs_get(run_id=run_id)
+            run = self._api.get_task_run(run_id=run_id)
             if run.status in _TERMINAL_STATUSES:
                 return run
             remaining = deadline - time.monotonic()

@@ -26,7 +26,7 @@ class ToolCallType(str, Enum):
     """
     allowed enum values
     """
-    FUNCTION = 'function'
+    FUNCTION = 'FUNCTION'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

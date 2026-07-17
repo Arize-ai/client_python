@@ -26,7 +26,7 @@ class GcpProviderMetadataKind(str, Enum):
     """
     allowed enum values
     """
-    GCP = 'gcp'
+    GCP = 'GCP'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

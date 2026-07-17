@@ -35,7 +35,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: PromptListResponse
+.. autoclass:: ListPromptsResponse
    :members:
    :member-order: bysource
 
@@ -43,11 +43,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: PromptVersionLabelsResponse
-   :members:
-   :member-order: bysource
-
-.. autoclass:: PromptVersionListResponse
+.. autoclass:: ListPromptVersionsResponse
    :members:
    :member-order: bysource
 

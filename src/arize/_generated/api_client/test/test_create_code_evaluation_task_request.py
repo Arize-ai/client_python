@@ -36,7 +36,6 @@ class TestCreateCodeEvaluationTaskRequest(unittest.TestCase):
         if include_optional:
             return CreateCodeEvaluationTaskRequest(
                 name = '0',
-                type = 'code_evaluation',
                 project_id = '',
                 dataset_id = '',
                 experiment_ids = [
@@ -46,26 +45,27 @@ class TestCreateCodeEvaluationTaskRequest(unittest.TestCase):
                 is_continuous = True,
                 query_filter = '',
                 evaluators = [
-                    arize._generated.api_client.models.base_evaluation_task_request_evaluators_inner.BaseEvaluationTaskRequest_evaluators_inner(
-                        evaluator_id = '', 
-                        query_filter = '', 
-                        column_mappings = {
-                            'key' : ''
-                            }, )
-                    ]
-            )
-        else:
-            return CreateCodeEvaluationTaskRequest(
-                name = '0',
-                type = 'code_evaluation',
-                evaluators = [
-                    arize._generated.api_client.models.base_evaluation_task_request_evaluators_inner.BaseEvaluationTaskRequest_evaluators_inner(
+                    arize._generated.api_client.models.task_evaluator_input.TaskEvaluatorInput(
                         evaluator_id = '', 
                         query_filter = '', 
                         column_mappings = {
                             'key' : ''
                             }, )
                     ],
+                type = 'CODE_EVALUATION'
+            )
+        else:
+            return CreateCodeEvaluationTaskRequest(
+                name = '0',
+                evaluators = [
+                    arize._generated.api_client.models.task_evaluator_input.TaskEvaluatorInput(
+                        evaluator_id = '', 
+                        query_filter = '', 
+                        column_mappings = {
+                            'key' : ''
+                            }, )
+                    ],
+                type = 'CODE_EVALUATION',
         )
         """
 

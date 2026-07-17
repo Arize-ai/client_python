@@ -36,18 +36,18 @@ class TestPromptVersionCreateRequest(unittest.TestCase):
         if include_optional:
             return PromptVersionCreateRequest(
                 commit_message = '',
-                input_variable_format = 'f_string',
-                provider = 'open_ai',
+                input_variable_format = 'F_STRING',
+                provider = 'OPEN_AI',
                 model = '',
                 messages = [
                     arize._generated.api_client.models.llm_message.LLMMessage(
-                        role = 'user', 
+                        role = 'USER', 
                         content = '', 
                         tool_call_id = '', 
                         tool_calls = [
                             arize._generated.api_client.models.tool_call.ToolCall(
                                 id = '', 
-                                type = 'function', 
+                                type = 'FUNCTION', 
                                 function = arize._generated.api_client.models.tool_call_function.ToolCallFunction(
                                     name = '', 
                                     arguments = '', ), )
@@ -59,16 +59,16 @@ class TestPromptVersionCreateRequest(unittest.TestCase):
         else:
             return PromptVersionCreateRequest(
                 commit_message = '',
-                provider = 'open_ai',
+                provider = 'OPEN_AI',
                 messages = [
                     arize._generated.api_client.models.llm_message.LLMMessage(
-                        role = 'user', 
+                        role = 'USER', 
                         content = '', 
                         tool_call_id = '', 
                         tool_calls = [
                             arize._generated.api_client.models.tool_call.ToolCall(
                                 id = '', 
-                                type = 'function', 
+                                type = 'FUNCTION', 
                                 function = arize._generated.api_client.models.tool_call_function.ToolCallFunction(
                                     name = '', 
                                     arguments = '', ), )

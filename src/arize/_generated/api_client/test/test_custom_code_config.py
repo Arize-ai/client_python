@@ -35,9 +35,9 @@ class TestCustomCodeConfig(unittest.TestCase):
         model = CustomCodeConfig()
         if include_optional:
             return CustomCodeConfig(
-                data_granularity = 'span',
+                data_granularity = 'SPAN',
                 query_filter = '',
-                type = 'custom',
+                type = 'CUSTOM',
                 name = '2',
                 code = '',
                 imports = '',
@@ -53,7 +53,7 @@ class TestCustomCodeConfig(unittest.TestCase):
             )
         else:
             return CustomCodeConfig(
-                type = 'custom',
+                type = 'CUSTOM',
                 name = '2',
                 code = '',
                 variables = [

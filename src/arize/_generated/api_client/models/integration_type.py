@@ -20,13 +20,13 @@ from typing_extensions import Self
 
 class IntegrationType(str, Enum):
     """
-    The integration category. Selects the shape of `config`. Currently only `llm` is implemented; additional types (agent, alerting, webhook) are added non-breakingly.
+    The integration category. Selects the shape of `config`. Currently only `LLM` is implemented; additional types (agent, alerting, webhook) are added non-breakingly.
     """
 
     """
     allowed enum values
     """
-    LLM = 'llm'
+    LLM = 'LLM'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

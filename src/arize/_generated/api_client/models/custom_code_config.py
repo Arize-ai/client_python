@@ -42,8 +42,8 @@ class CustomCodeConfig(BaseModel):
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['custom']):
-            raise ValueError("must be one of enum values ('custom')")
+        if value not in set(['CUSTOM']):
+            raise ValueError("must be one of enum values ('CUSTOM')")
         return value
 
     @field_validator('name')

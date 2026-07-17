@@ -1,6 +1,6 @@
 # UpdateLlmIntegrationRequest
 
-PATCH body for an `llm` integration. `type` is required (it selects the union member) and immutable. Provide at least one updatable field (`name`, `scopings`, or `config`) in addition to `type`. `scopings` replaces on provide.
+PATCH body for an `LLM` integration. `type` is required (it selects the union member) and immutable. Provide at least one updatable field (`name`, `scopings`, or `config`) in addition to `type`. `scopings` replaces on provide.
 
 ## Properties
 

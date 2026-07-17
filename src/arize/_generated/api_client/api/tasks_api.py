@@ -19,15 +19,15 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.create_task_request import CreateTaskRequest
+from arize._generated.api_client.models.list_task_runs_response import ListTaskRunsResponse
+from arize._generated.api_client.models.list_tasks_response import ListTasksResponse
 from arize._generated.api_client.models.task import Task
-from arize._generated.api_client.models.task_list_response import TaskListResponse
 from arize._generated.api_client.models.task_run import TaskRun
-from arize._generated.api_client.models.task_run_list_response import TaskRunListResponse
 from arize._generated.api_client.models.task_run_status import TaskRunStatus
 from arize._generated.api_client.models.task_type import TaskType
-from arize._generated.api_client.models.tasks_create_request import TasksCreateRequest
-from arize._generated.api_client.models.tasks_trigger_run_request import TasksTriggerRunRequest
-from arize._generated.api_client.models.tasks_update_request import TasksUpdateRequest
+from arize._generated.api_client.models.trigger_task_run_request import TriggerTaskRunRequest
+from arize._generated.api_client.models.update_task_request import UpdateTaskRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -48,7 +48,7 @@ class TasksApi:
 
 
     @validate_call
-    def task_runs_cancel(
+    def cancel_task_run(
         self,
         run_id: Annotated[StrictStr, Field(description="The unique task run identifier (base64)")],
         _request_timeout: Union[
@@ -66,7 +66,7 @@ class TasksApi:
     ) -> TaskRun:
         """Cancel task run
 
-        Cancel a running task run. Only valid when the run's current status is `pending` or `running`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Cancel a running task run. Only valid when the run's current status is `pending` or `running`.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param run_id: The unique task run identifier (base64) (required)
         :type run_id: str
@@ -92,7 +92,7 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._task_runs_cancel_serialize(
+        _param = self._cancel_task_run_serialize(
             run_id=run_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -120,7 +120,7 @@ class TasksApi:
 
 
     @validate_call
-    def task_runs_cancel_with_http_info(
+    def cancel_task_run_with_http_info(
         self,
         run_id: Annotated[StrictStr, Field(description="The unique task run identifier (base64)")],
         _request_timeout: Union[
@@ -138,7 +138,7 @@ class TasksApi:
     ) -> ApiResponse[TaskRun]:
         """Cancel task run
 
-        Cancel a running task run. Only valid when the run's current status is `pending` or `running`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Cancel a running task run. Only valid when the run's current status is `pending` or `running`.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param run_id: The unique task run identifier (base64) (required)
         :type run_id: str
@@ -164,7 +164,7 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._task_runs_cancel_serialize(
+        _param = self._cancel_task_run_serialize(
             run_id=run_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -192,7 +192,7 @@ class TasksApi:
 
 
     @validate_call
-    def task_runs_cancel_without_preload_content(
+    def cancel_task_run_without_preload_content(
         self,
         run_id: Annotated[StrictStr, Field(description="The unique task run identifier (base64)")],
         _request_timeout: Union[
@@ -210,7 +210,7 @@ class TasksApi:
     ) -> RESTResponseType:
         """Cancel task run
 
-        Cancel a running task run. Only valid when the run's current status is `pending` or `running`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Cancel a running task run. Only valid when the run's current status is `pending` or `running`.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param run_id: The unique task run identifier (base64) (required)
         :type run_id: str
@@ -236,7 +236,7 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._task_runs_cancel_serialize(
+        _param = self._cancel_task_run_serialize(
             run_id=run_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -259,7 +259,7 @@ class TasksApi:
         return response_data.response
 
 
-    def _task_runs_cancel_serialize(
+    def _cancel_task_run_serialize(
         self,
         run_id,
         _request_auth,
@@ -325,7 +325,850 @@ class TasksApi:
 
 
     @validate_call
-    def task_runs_get(
+    def create_task(
+        self,
+        create_task_request: Annotated[CreateTaskRequest, Field(description="Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `TEMPLATE_EVALUATION` | `CreateTemplateEvaluationTaskRequest` | | `CODE_EVALUATION` | `CreateCodeEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `CreateRunExperimentTaskRequest` |  `RUN_EXPERIMENT` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> Task:
+        """Create task
+
+        Creates a new task. Supported task types:  | `type` | Data source | Notes | |---|---|---| | `TEMPLATE_EVALUATION` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `CODE_EVALUATION` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `RUN_EXPERIMENT` | `dataset_id` only | Requires `run_configuration`. Never continuous. |  For `RUN_EXPERIMENT` tasks the run configuration is stored on the task. Each trigger (`POST /v2/tasks/{task_id}/trigger`) supplies per-run fields (`experiment_name`, optional example subset, etc.) and starts an async run. Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.  **Payload Requirements (template_evaluation / code_evaluation)** - At least one evaluator is required. - Duplicate evaluator IDs are not allowed. - When `dataset_id` is provided, `experiment_ids` must contain at least one entry. - `sampling_rate` and `is_continuous` are only supported on project-based tasks. - System-managed fields (`id`, `created_at`, `updated_at`) are rejected on input.  **Payload Requirements (run_experiment)** - `dataset_id` is required; `project_id` must be omitted. - `run_configuration` is required; `evaluators`, `experiment_ids`, `sampling_rate`,   `is_continuous`, and `query_filter` must be omitted.  **Valid example** (template_evaluation, project-based) ```json {   \"name\": \"Production Hallucination Check\",   \"type\": \"TEMPLATE_EVALUATION\",   \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",   \"sampling_rate\": 1.0,   \"is_continuous\": true,   \"evaluators\": [     {       \"evaluator_id\": \"RXZhbHVhdG9yOjEyOmFCY0Q=\",       \"column_mappings\": {\"input\": \"attributes.input.value\", \"output\": \"attributes.output.value\"}     }   ] } ```  **Invalid example** (run_experiment missing `run_configuration`) ```json {   \"name\": \"My Experiment\",   \"type\": \"RUN_EXPERIMENT\",   \"dataset_id\": \"RGF0YXNldDo1NjpxUndY\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param create_task_request: Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `TEMPLATE_EVALUATION` | `CreateTemplateEvaluationTaskRequest` | | `CODE_EVALUATION` | `CreateCodeEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `CreateRunExperimentTaskRequest` |  `RUN_EXPERIMENT` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks.  (required)
+        :type create_task_request: CreateTaskRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_task_serialize(
+            create_task_request=create_task_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "Task",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def create_task_with_http_info(
+        self,
+        create_task_request: Annotated[CreateTaskRequest, Field(description="Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `TEMPLATE_EVALUATION` | `CreateTemplateEvaluationTaskRequest` | | `CODE_EVALUATION` | `CreateCodeEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `CreateRunExperimentTaskRequest` |  `RUN_EXPERIMENT` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[Task]:
+        """Create task
+
+        Creates a new task. Supported task types:  | `type` | Data source | Notes | |---|---|---| | `TEMPLATE_EVALUATION` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `CODE_EVALUATION` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `RUN_EXPERIMENT` | `dataset_id` only | Requires `run_configuration`. Never continuous. |  For `RUN_EXPERIMENT` tasks the run configuration is stored on the task. Each trigger (`POST /v2/tasks/{task_id}/trigger`) supplies per-run fields (`experiment_name`, optional example subset, etc.) and starts an async run. Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.  **Payload Requirements (template_evaluation / code_evaluation)** - At least one evaluator is required. - Duplicate evaluator IDs are not allowed. - When `dataset_id` is provided, `experiment_ids` must contain at least one entry. - `sampling_rate` and `is_continuous` are only supported on project-based tasks. - System-managed fields (`id`, `created_at`, `updated_at`) are rejected on input.  **Payload Requirements (run_experiment)** - `dataset_id` is required; `project_id` must be omitted. - `run_configuration` is required; `evaluators`, `experiment_ids`, `sampling_rate`,   `is_continuous`, and `query_filter` must be omitted.  **Valid example** (template_evaluation, project-based) ```json {   \"name\": \"Production Hallucination Check\",   \"type\": \"TEMPLATE_EVALUATION\",   \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",   \"sampling_rate\": 1.0,   \"is_continuous\": true,   \"evaluators\": [     {       \"evaluator_id\": \"RXZhbHVhdG9yOjEyOmFCY0Q=\",       \"column_mappings\": {\"input\": \"attributes.input.value\", \"output\": \"attributes.output.value\"}     }   ] } ```  **Invalid example** (run_experiment missing `run_configuration`) ```json {   \"name\": \"My Experiment\",   \"type\": \"RUN_EXPERIMENT\",   \"dataset_id\": \"RGF0YXNldDo1NjpxUndY\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param create_task_request: Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `TEMPLATE_EVALUATION` | `CreateTemplateEvaluationTaskRequest` | | `CODE_EVALUATION` | `CreateCodeEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `CreateRunExperimentTaskRequest` |  `RUN_EXPERIMENT` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks.  (required)
+        :type create_task_request: CreateTaskRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_task_serialize(
+            create_task_request=create_task_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "Task",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def create_task_without_preload_content(
+        self,
+        create_task_request: Annotated[CreateTaskRequest, Field(description="Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `TEMPLATE_EVALUATION` | `CreateTemplateEvaluationTaskRequest` | | `CODE_EVALUATION` | `CreateCodeEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `CreateRunExperimentTaskRequest` |  `RUN_EXPERIMENT` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Create task
+
+        Creates a new task. Supported task types:  | `type` | Data source | Notes | |---|---|---| | `TEMPLATE_EVALUATION` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `CODE_EVALUATION` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `RUN_EXPERIMENT` | `dataset_id` only | Requires `run_configuration`. Never continuous. |  For `RUN_EXPERIMENT` tasks the run configuration is stored on the task. Each trigger (`POST /v2/tasks/{task_id}/trigger`) supplies per-run fields (`experiment_name`, optional example subset, etc.) and starts an async run. Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.  **Payload Requirements (template_evaluation / code_evaluation)** - At least one evaluator is required. - Duplicate evaluator IDs are not allowed. - When `dataset_id` is provided, `experiment_ids` must contain at least one entry. - `sampling_rate` and `is_continuous` are only supported on project-based tasks. - System-managed fields (`id`, `created_at`, `updated_at`) are rejected on input.  **Payload Requirements (run_experiment)** - `dataset_id` is required; `project_id` must be omitted. - `run_configuration` is required; `evaluators`, `experiment_ids`, `sampling_rate`,   `is_continuous`, and `query_filter` must be omitted.  **Valid example** (template_evaluation, project-based) ```json {   \"name\": \"Production Hallucination Check\",   \"type\": \"TEMPLATE_EVALUATION\",   \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",   \"sampling_rate\": 1.0,   \"is_continuous\": true,   \"evaluators\": [     {       \"evaluator_id\": \"RXZhbHVhdG9yOjEyOmFCY0Q=\",       \"column_mappings\": {\"input\": \"attributes.input.value\", \"output\": \"attributes.output.value\"}     }   ] } ```  **Invalid example** (run_experiment missing `run_configuration`) ```json {   \"name\": \"My Experiment\",   \"type\": \"RUN_EXPERIMENT\",   \"dataset_id\": \"RGF0YXNldDo1NjpxUndY\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param create_task_request: Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `TEMPLATE_EVALUATION` | `CreateTemplateEvaluationTaskRequest` | | `CODE_EVALUATION` | `CreateCodeEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `CreateRunExperimentTaskRequest` |  `RUN_EXPERIMENT` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks.  (required)
+        :type create_task_request: CreateTaskRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_task_serialize(
+            create_task_request=create_task_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "Task",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _create_task_serialize(
+        self,
+        create_task_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if create_task_request is not None:
+            _body_params = create_task_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/tasks',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def delete_task(
+        self,
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> None:
+        """Delete task
+
+        Deletes a task and all its associated resources (evaluator configs, runs, etc.). This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param task_id: The unique task identifier (base64) (required)
+        :type task_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_task_serialize(
+            task_id=task_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def delete_task_with_http_info(
+        self,
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[None]:
+        """Delete task
+
+        Deletes a task and all its associated resources (evaluator configs, runs, etc.). This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param task_id: The unique task identifier (base64) (required)
+        :type task_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_task_serialize(
+            task_id=task_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def delete_task_without_preload_content(
+        self,
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Delete task
+
+        Deletes a task and all its associated resources (evaluator configs, runs, etc.). This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param task_id: The unique task identifier (base64) (required)
+        :type task_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_task_serialize(
+            task_id=task_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _delete_task_serialize(
+        self,
+        task_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if task_id is not None:
+            _path_params['task_id'] = task_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/v2/tasks/{task_id}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def get_task(
+        self,
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> Task:
+        """Get task
+
+        Returns a single task by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param task_id: The unique task identifier (base64) (required)
+        :type task_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_task_serialize(
+            task_id=task_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Task",
+            '400': "Problem",
+            '401': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def get_task_with_http_info(
+        self,
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[Task]:
+        """Get task
+
+        Returns a single task by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param task_id: The unique task identifier (base64) (required)
+        :type task_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_task_serialize(
+            task_id=task_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Task",
+            '400': "Problem",
+            '401': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def get_task_without_preload_content(
+        self,
+        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get task
+
+        Returns a single task by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param task_id: The unique task identifier (base64) (required)
+        :type task_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_task_serialize(
+            task_id=task_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Task",
+            '400': "Problem",
+            '401': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_task_serialize(
+        self,
+        task_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if task_id is not None:
+            _path_params['task_id'] = task_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/tasks/{task_id}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def get_task_run(
         self,
         run_id: Annotated[StrictStr, Field(description="The unique task run identifier (base64)")],
         _request_timeout: Union[
@@ -343,7 +1186,7 @@ class TasksApi:
     ) -> TaskRun:
         """Get task run
 
-        Returns a single task run. Use this to poll for status updates.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Returns a single task run. Use this to poll for status updates.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param run_id: The unique task run identifier (base64) (required)
         :type run_id: str
@@ -369,7 +1212,7 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._task_runs_get_serialize(
+        _param = self._get_task_run_serialize(
             run_id=run_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -396,7 +1239,7 @@ class TasksApi:
 
 
     @validate_call
-    def task_runs_get_with_http_info(
+    def get_task_run_with_http_info(
         self,
         run_id: Annotated[StrictStr, Field(description="The unique task run identifier (base64)")],
         _request_timeout: Union[
@@ -414,7 +1257,7 @@ class TasksApi:
     ) -> ApiResponse[TaskRun]:
         """Get task run
 
-        Returns a single task run. Use this to poll for status updates.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Returns a single task run. Use this to poll for status updates.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param run_id: The unique task run identifier (base64) (required)
         :type run_id: str
@@ -440,7 +1283,7 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._task_runs_get_serialize(
+        _param = self._get_task_run_serialize(
             run_id=run_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -467,7 +1310,7 @@ class TasksApi:
 
 
     @validate_call
-    def task_runs_get_without_preload_content(
+    def get_task_run_without_preload_content(
         self,
         run_id: Annotated[StrictStr, Field(description="The unique task run identifier (base64)")],
         _request_timeout: Union[
@@ -485,7 +1328,7 @@ class TasksApi:
     ) -> RESTResponseType:
         """Get task run
 
-        Returns a single task run. Use this to poll for status updates.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Returns a single task run. Use this to poll for status updates.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param run_id: The unique task run identifier (base64) (required)
         :type run_id: str
@@ -511,7 +1354,7 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._task_runs_get_serialize(
+        _param = self._get_task_run_serialize(
             run_id=run_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -533,7 +1376,7 @@ class TasksApi:
         return response_data.response
 
 
-    def _task_runs_get_serialize(
+    def _get_task_run_serialize(
         self,
         run_id,
         _request_auth,
@@ -599,10 +1442,10 @@ class TasksApi:
 
 
     @validate_call
-    def task_runs_list(
+    def list_task_runs(
         self,
         task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: pending, running, completed, failed, cancelled")] = None,
+        status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -617,14 +1460,14 @@ class TasksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> TaskRunListResponse:
+    ) -> ListTaskRunsResponse:
         """List task runs
 
-        List all runs for a task with cursor-based pagination.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List all runs for a task with cursor-based pagination.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
-        :param status: Filter by run status: pending, running, completed, failed, cancelled
+        :param status: Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED
         :type status: TaskRunStatus
         :param limit: Maximum items to return
         :type limit: int
@@ -652,7 +1495,7 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._task_runs_list_serialize(
+        _param = self._list_task_runs_serialize(
             task_id=task_id,
             status=status,
             limit=limit,
@@ -664,7 +1507,7 @@ class TasksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TaskRunListResponse",
+            '200': "ListTaskRunsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -683,10 +1526,10 @@ class TasksApi:
 
 
     @validate_call
-    def task_runs_list_with_http_info(
+    def list_task_runs_with_http_info(
         self,
         task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: pending, running, completed, failed, cancelled")] = None,
+        status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -701,14 +1544,14 @@ class TasksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[TaskRunListResponse]:
+    ) -> ApiResponse[ListTaskRunsResponse]:
         """List task runs
 
-        List all runs for a task with cursor-based pagination.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List all runs for a task with cursor-based pagination.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
-        :param status: Filter by run status: pending, running, completed, failed, cancelled
+        :param status: Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED
         :type status: TaskRunStatus
         :param limit: Maximum items to return
         :type limit: int
@@ -736,7 +1579,7 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._task_runs_list_serialize(
+        _param = self._list_task_runs_serialize(
             task_id=task_id,
             status=status,
             limit=limit,
@@ -748,7 +1591,7 @@ class TasksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TaskRunListResponse",
+            '200': "ListTaskRunsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -767,10 +1610,10 @@ class TasksApi:
 
 
     @validate_call
-    def task_runs_list_without_preload_content(
+    def list_task_runs_without_preload_content(
         self,
         task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: pending, running, completed, failed, cancelled")] = None,
+        status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -788,11 +1631,11 @@ class TasksApi:
     ) -> RESTResponseType:
         """List task runs
 
-        List all runs for a task with cursor-based pagination.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List all runs for a task with cursor-based pagination.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
-        :param status: Filter by run status: pending, running, completed, failed, cancelled
+        :param status: Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED
         :type status: TaskRunStatus
         :param limit: Maximum items to return
         :type limit: int
@@ -820,7 +1663,7 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._task_runs_list_serialize(
+        _param = self._list_task_runs_serialize(
             task_id=task_id,
             status=status,
             limit=limit,
@@ -832,7 +1675,7 @@ class TasksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TaskRunListResponse",
+            '200': "ListTaskRunsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -846,7 +1689,7 @@ class TasksApi:
         return response_data.response
 
 
-    def _task_runs_list_serialize(
+    def _list_task_runs_serialize(
         self,
         task_id,
         status,
@@ -927,857 +1770,14 @@ class TasksApi:
 
 
     @validate_call
-    def tasks_create(
-        self,
-        tasks_create_request: Annotated[TasksCreateRequest, Field(description="Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `template_evaluation` | `CreateTemplateEvaluationTaskRequest` | | `code_evaluation` | `CreateCodeEvaluationTaskRequest` | | `run_experiment` | `CreateRunExperimentTaskRequest` |  `run_experiment` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `template_evaluation` / `code_evaluation` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks. ")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Task:
-        """Create task
-
-        Creates a new task. Supported task types:  | `type` | Data source | Notes | |---|---|---| | `template_evaluation` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `code_evaluation` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `run_experiment` | `dataset_id` only | Requires `run_configuration`. Never continuous. |  For `run_experiment` tasks the run configuration is stored on the task. Each trigger (`POST /v2/tasks/{task_id}/trigger`) supplies per-run fields (`experiment_name`, optional example subset, etc.) and starts an async run. Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.  **Payload Requirements (template_evaluation / code_evaluation)** - At least one evaluator is required. - Duplicate evaluator IDs are not allowed. - When `dataset_id` is provided, `experiment_ids` must contain at least one entry. - `sampling_rate` and `is_continuous` are only supported on project-based tasks. - System-managed fields (`id`, `created_at`, `updated_at`) are rejected on input.  **Payload Requirements (run_experiment)** - `dataset_id` is required; `project_id` must be omitted. - `run_configuration` is required; `evaluators`, `experiment_ids`, `sampling_rate`,   `is_continuous`, and `query_filter` must be omitted.  **Valid example** (template_evaluation, project-based) ```json {   \"name\": \"Production Hallucination Check\",   \"type\": \"template_evaluation\",   \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",   \"sampling_rate\": 1.0,   \"is_continuous\": true,   \"evaluators\": [     {       \"evaluator_id\": \"RXZhbHVhdG9yOjEyOmFCY0Q=\",       \"column_mappings\": {\"input\": \"attributes.input.value\", \"output\": \"attributes.output.value\"}     }   ] } ```  **Invalid example** (run_experiment missing `run_configuration`) ```json {   \"name\": \"My Experiment\",   \"type\": \"run_experiment\",   \"dataset_id\": \"RGF0YXNldDo1NjpxUndY\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
-
-        :param tasks_create_request: Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `template_evaluation` | `CreateTemplateEvaluationTaskRequest` | | `code_evaluation` | `CreateCodeEvaluationTaskRequest` | | `run_experiment` | `CreateRunExperimentTaskRequest` |  `run_experiment` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `template_evaluation` / `code_evaluation` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks.  (required)
-        :type tasks_create_request: TasksCreateRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._tasks_create_serialize(
-            tasks_create_request=tasks_create_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Task",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '422': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    def tasks_create_with_http_info(
-        self,
-        tasks_create_request: Annotated[TasksCreateRequest, Field(description="Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `template_evaluation` | `CreateTemplateEvaluationTaskRequest` | | `code_evaluation` | `CreateCodeEvaluationTaskRequest` | | `run_experiment` | `CreateRunExperimentTaskRequest` |  `run_experiment` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `template_evaluation` / `code_evaluation` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks. ")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Task]:
-        """Create task
-
-        Creates a new task. Supported task types:  | `type` | Data source | Notes | |---|---|---| | `template_evaluation` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `code_evaluation` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `run_experiment` | `dataset_id` only | Requires `run_configuration`. Never continuous. |  For `run_experiment` tasks the run configuration is stored on the task. Each trigger (`POST /v2/tasks/{task_id}/trigger`) supplies per-run fields (`experiment_name`, optional example subset, etc.) and starts an async run. Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.  **Payload Requirements (template_evaluation / code_evaluation)** - At least one evaluator is required. - Duplicate evaluator IDs are not allowed. - When `dataset_id` is provided, `experiment_ids` must contain at least one entry. - `sampling_rate` and `is_continuous` are only supported on project-based tasks. - System-managed fields (`id`, `created_at`, `updated_at`) are rejected on input.  **Payload Requirements (run_experiment)** - `dataset_id` is required; `project_id` must be omitted. - `run_configuration` is required; `evaluators`, `experiment_ids`, `sampling_rate`,   `is_continuous`, and `query_filter` must be omitted.  **Valid example** (template_evaluation, project-based) ```json {   \"name\": \"Production Hallucination Check\",   \"type\": \"template_evaluation\",   \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",   \"sampling_rate\": 1.0,   \"is_continuous\": true,   \"evaluators\": [     {       \"evaluator_id\": \"RXZhbHVhdG9yOjEyOmFCY0Q=\",       \"column_mappings\": {\"input\": \"attributes.input.value\", \"output\": \"attributes.output.value\"}     }   ] } ```  **Invalid example** (run_experiment missing `run_configuration`) ```json {   \"name\": \"My Experiment\",   \"type\": \"run_experiment\",   \"dataset_id\": \"RGF0YXNldDo1NjpxUndY\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
-
-        :param tasks_create_request: Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `template_evaluation` | `CreateTemplateEvaluationTaskRequest` | | `code_evaluation` | `CreateCodeEvaluationTaskRequest` | | `run_experiment` | `CreateRunExperimentTaskRequest` |  `run_experiment` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `template_evaluation` / `code_evaluation` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks.  (required)
-        :type tasks_create_request: TasksCreateRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._tasks_create_serialize(
-            tasks_create_request=tasks_create_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Task",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '422': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    def tasks_create_without_preload_content(
-        self,
-        tasks_create_request: Annotated[TasksCreateRequest, Field(description="Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `template_evaluation` | `CreateTemplateEvaluationTaskRequest` | | `code_evaluation` | `CreateCodeEvaluationTaskRequest` | | `run_experiment` | `CreateRunExperimentTaskRequest` |  `run_experiment` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `template_evaluation` / `code_evaluation` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks. ")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Create task
-
-        Creates a new task. Supported task types:  | `type` | Data source | Notes | |---|---|---| | `template_evaluation` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `code_evaluation` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. | | `run_experiment` | `dataset_id` only | Requires `run_configuration`. Never continuous. |  For `run_experiment` tasks the run configuration is stored on the task. Each trigger (`POST /v2/tasks/{task_id}/trigger`) supplies per-run fields (`experiment_name`, optional example subset, etc.) and starts an async run. Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.  **Payload Requirements (template_evaluation / code_evaluation)** - At least one evaluator is required. - Duplicate evaluator IDs are not allowed. - When `dataset_id` is provided, `experiment_ids` must contain at least one entry. - `sampling_rate` and `is_continuous` are only supported on project-based tasks. - System-managed fields (`id`, `created_at`, `updated_at`) are rejected on input.  **Payload Requirements (run_experiment)** - `dataset_id` is required; `project_id` must be omitted. - `run_configuration` is required; `evaluators`, `experiment_ids`, `sampling_rate`,   `is_continuous`, and `query_filter` must be omitted.  **Valid example** (template_evaluation, project-based) ```json {   \"name\": \"Production Hallucination Check\",   \"type\": \"template_evaluation\",   \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",   \"sampling_rate\": 1.0,   \"is_continuous\": true,   \"evaluators\": [     {       \"evaluator_id\": \"RXZhbHVhdG9yOjEyOmFCY0Q=\",       \"column_mappings\": {\"input\": \"attributes.input.value\", \"output\": \"attributes.output.value\"}     }   ] } ```  **Invalid example** (run_experiment missing `run_configuration`) ```json {   \"name\": \"My Experiment\",   \"type\": \"run_experiment\",   \"dataset_id\": \"RGF0YXNldDo1NjpxUndY\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
-
-        :param tasks_create_request: Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `template_evaluation` | `CreateTemplateEvaluationTaskRequest` | | `code_evaluation` | `CreateCodeEvaluationTaskRequest` | | `run_experiment` | `CreateRunExperimentTaskRequest` |  `run_experiment` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `template_evaluation` / `code_evaluation` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks.  (required)
-        :type tasks_create_request: TasksCreateRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._tasks_create_serialize(
-            tasks_create_request=tasks_create_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Task",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '422': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _tasks_create_serialize(
-        self,
-        tasks_create_request,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-        if tasks_create_request is not None:
-            _body_params = tasks_create_request
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json', 
-                    'application/problem+json'
-                ]
-            )
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'bearerAuth'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v2/tasks',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    def tasks_delete(
-        self,
-        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
-        """Delete task
-
-        Deletes a task and all its associated resources (evaluator configs, runs, etc.). This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
-
-        :param task_id: The unique task identifier (base64) (required)
-        :type task_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._tasks_delete_serialize(
-            task_id=task_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '204': None,
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    def tasks_delete_with_http_info(
-        self,
-        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
-        """Delete task
-
-        Deletes a task and all its associated resources (evaluator configs, runs, etc.). This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
-
-        :param task_id: The unique task identifier (base64) (required)
-        :type task_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._tasks_delete_serialize(
-            task_id=task_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '204': None,
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    def tasks_delete_without_preload_content(
-        self,
-        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Delete task
-
-        Deletes a task and all its associated resources (evaluator configs, runs, etc.). This operation is irreversible.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
-
-        :param task_id: The unique task identifier (base64) (required)
-        :type task_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._tasks_delete_serialize(
-            task_id=task_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '204': None,
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _tasks_delete_serialize(
-        self,
-        task_id,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        if task_id is not None:
-            _path_params['task_id'] = task_id
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/problem+json'
-                ]
-            )
-
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'bearerAuth'
-        ]
-
-        return self.api_client.param_serialize(
-            method='DELETE',
-            resource_path='/v2/tasks/{task_id}',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    def tasks_get(
-        self,
-        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Task:
-        """Get task
-
-        Returns a single task by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
-
-        :param task_id: The unique task identifier (base64) (required)
-        :type task_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._tasks_get_serialize(
-            task_id=task_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Task",
-            '400': "Problem",
-            '401': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    def tasks_get_with_http_info(
-        self,
-        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Task]:
-        """Get task
-
-        Returns a single task by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
-
-        :param task_id: The unique task identifier (base64) (required)
-        :type task_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._tasks_get_serialize(
-            task_id=task_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Task",
-            '400': "Problem",
-            '401': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    def tasks_get_without_preload_content(
-        self,
-        task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Get task
-
-        Returns a single task by its ID.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
-
-        :param task_id: The unique task identifier (base64) (required)
-        :type task_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._tasks_get_serialize(
-            task_id=task_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Task",
-            '400': "Problem",
-            '401': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _tasks_get_serialize(
-        self,
-        task_id,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        if task_id is not None:
-            _path_params['task_id'] = task_id
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json', 
-                    'application/problem+json'
-                ]
-            )
-
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'bearerAuth'
-        ]
-
-        return self.api_client.param_serialize(
-            method='GET',
-            resource_path='/v2/tasks/{task_id}',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    def tasks_list(
+    def list_tasks(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 identifier (base64))")] = None,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
-        type: Annotated[Optional[TaskType], Field(description="Filter by task type: template_evaluation, code_evaluation, or run_experiment")] = None,
+        type: Annotated[Optional[TaskType], Field(description="Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, or RUN_EXPERIMENT")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1792,10 +1792,10 @@ class TasksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> TaskListResponse:
+    ) -> ListTasksResponse:
         """List tasks
 
-        List tasks the user has access to, with cursor-based pagination.  Filter by space, space name, task name, project, dataset, or task type using query parameters.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List tasks the user has access to, with cursor-based pagination.  Filter by space, space name, task name, project, dataset, or task type using query parameters.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -1807,7 +1807,7 @@ class TasksApi:
         :type project_id: str
         :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
         :type dataset_id: str
-        :param type: Filter by task type: template_evaluation, code_evaluation, or run_experiment
+        :param type: Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, or RUN_EXPERIMENT
         :type type: TaskType
         :param limit: Maximum items to return
         :type limit: int
@@ -1835,7 +1835,7 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._tasks_list_serialize(
+        _param = self._list_tasks_serialize(
             space_id=space_id,
             space_name=space_name,
             name=name,
@@ -1851,7 +1851,7 @@ class TasksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TaskListResponse",
+            '200': "ListTasksResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1870,14 +1870,14 @@ class TasksApi:
 
 
     @validate_call
-    def tasks_list_with_http_info(
+    def list_tasks_with_http_info(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 identifier (base64))")] = None,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
-        type: Annotated[Optional[TaskType], Field(description="Filter by task type: template_evaluation, code_evaluation, or run_experiment")] = None,
+        type: Annotated[Optional[TaskType], Field(description="Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, or RUN_EXPERIMENT")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1892,10 +1892,10 @@ class TasksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[TaskListResponse]:
+    ) -> ApiResponse[ListTasksResponse]:
         """List tasks
 
-        List tasks the user has access to, with cursor-based pagination.  Filter by space, space name, task name, project, dataset, or task type using query parameters.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List tasks the user has access to, with cursor-based pagination.  Filter by space, space name, task name, project, dataset, or task type using query parameters.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -1907,7 +1907,7 @@ class TasksApi:
         :type project_id: str
         :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
         :type dataset_id: str
-        :param type: Filter by task type: template_evaluation, code_evaluation, or run_experiment
+        :param type: Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, or RUN_EXPERIMENT
         :type type: TaskType
         :param limit: Maximum items to return
         :type limit: int
@@ -1935,7 +1935,7 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._tasks_list_serialize(
+        _param = self._list_tasks_serialize(
             space_id=space_id,
             space_name=space_name,
             name=name,
@@ -1951,7 +1951,7 @@ class TasksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TaskListResponse",
+            '200': "ListTasksResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1970,14 +1970,14 @@ class TasksApi:
 
 
     @validate_call
-    def tasks_list_without_preload_content(
+    def list_tasks_without_preload_content(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 identifier (base64))")] = None,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
-        type: Annotated[Optional[TaskType], Field(description="Filter by task type: template_evaluation, code_evaluation, or run_experiment")] = None,
+        type: Annotated[Optional[TaskType], Field(description="Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, or RUN_EXPERIMENT")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
@@ -1995,7 +1995,7 @@ class TasksApi:
     ) -> RESTResponseType:
         """List tasks
 
-        List tasks the user has access to, with cursor-based pagination.  Filter by space, space name, task name, project, dataset, or task type using query parameters.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List tasks the user has access to, with cursor-based pagination.  Filter by space, space name, task name, project, dataset, or task type using query parameters.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -2007,7 +2007,7 @@ class TasksApi:
         :type project_id: str
         :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
         :type dataset_id: str
-        :param type: Filter by task type: template_evaluation, code_evaluation, or run_experiment
+        :param type: Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, or RUN_EXPERIMENT
         :type type: TaskType
         :param limit: Maximum items to return
         :type limit: int
@@ -2035,7 +2035,7 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._tasks_list_serialize(
+        _param = self._list_tasks_serialize(
             space_id=space_id,
             space_name=space_name,
             name=name,
@@ -2051,7 +2051,7 @@ class TasksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TaskListResponse",
+            '200': "ListTasksResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -2065,7 +2065,7 @@ class TasksApi:
         return response_data.response
 
 
-    def _tasks_list_serialize(
+    def _list_tasks_serialize(
         self,
         space_id,
         space_name,
@@ -2168,10 +2168,10 @@ class TasksApi:
 
 
     @validate_call
-    def tasks_trigger_run(
+    def trigger_task_run(
         self,
         task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        tasks_trigger_run_request: Annotated[Optional[TasksTriggerRunRequest], Field(description="Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. ")] = None,
+        trigger_task_run_request: Annotated[Optional[TriggerTaskRunRequest], Field(description="Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `CODE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `RUN_EXPERIMENT` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks all trigger fields are optional — an empty body is valid and uses server defaults. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2187,12 +2187,12 @@ class TasksApi:
     ) -> TaskRun:
         """Trigger a task run
 
-        Triggers a new run on an existing task. The run is queued and processed asynchronously. Poll `GET /v2/task-runs/{run_id}` until the run reaches a terminal status (`completed`, `failed`, or `cancelled`).  **Payload Requirements** - Fields must match the task's type; sending inapplicable fields returns 400. - For `template_evaluation` / `code_evaluation` tasks, all trigger fields are optional — an empty body uses server defaults. - For `run_experiment` tasks, `experiment_name` is required.  **For `run_experiment` tasks**  Supply `experiment_name` (required) plus any of the optional per-run fields: `dataset_version_id`, `example_ids` (exclusive with `max_examples`), `max_examples`, `tracing_metadata`, `evaluation_task_ids`.  The fields `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and `experiment_ids` are not applicable and will return 400 if supplied.  The response includes `experiment_id` once the experiment is provisioned.  **For `template_evaluation` / `code_evaluation` tasks**  Supply `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and/or `experiment_ids` as needed. `run_experiment`-specific fields are not applicable for these task types.  **Valid example** (trigger a run_experiment run) ```json {   \"experiment_name\": \"GPT-4o Baseline v2\",   \"max_examples\": 50 } ```  **Invalid example** (run_experiment trigger missing required `experiment_name`) ```json {   \"max_examples\": 50 } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Triggers a new run on an existing task. The run is queued and processed asynchronously. Poll `GET /v2/task-runs/{run_id}` until the run reaches a terminal status (`completed`, `failed`, or `cancelled`).  **Payload Requirements** - Fields must match the task's type; sending inapplicable fields returns 400. - For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks, all trigger fields are optional — an empty body uses server defaults. - For `RUN_EXPERIMENT` tasks, `experiment_name` is required.  **For `RUN_EXPERIMENT` tasks**  Supply `experiment_name` (required) plus any of the optional per-run fields: `dataset_version_id`, `example_ids` (exclusive with `max_examples`), `max_examples`, `tracing_metadata`, `evaluation_task_ids`.  The fields `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and `experiment_ids` are not applicable and will return 400 if supplied.  The response includes `experiment_id` once the experiment is provisioned.  **For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks**  Supply `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and/or `experiment_ids` as needed. `RUN_EXPERIMENT`-specific fields are not applicable for these task types.  **Valid example** (trigger a run_experiment run) ```json {   \"experiment_name\": \"GPT-4o Baseline v2\",   \"max_examples\": 50 } ```  **Invalid example** (run_experiment trigger missing required `experiment_name`) ```json {   \"max_examples\": 50 } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
-        :param tasks_trigger_run_request: Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. 
-        :type tasks_trigger_run_request: TasksTriggerRunRequest
+        :param trigger_task_run_request: Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `CODE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `RUN_EXPERIMENT` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks all trigger fields are optional — an empty body is valid and uses server defaults. 
+        :type trigger_task_run_request: TriggerTaskRunRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2215,9 +2215,9 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._tasks_trigger_run_serialize(
+        _param = self._trigger_task_run_serialize(
             task_id=task_id,
-            tasks_trigger_run_request=tasks_trigger_run_request,
+            trigger_task_run_request=trigger_task_run_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2246,10 +2246,10 @@ class TasksApi:
 
 
     @validate_call
-    def tasks_trigger_run_with_http_info(
+    def trigger_task_run_with_http_info(
         self,
         task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        tasks_trigger_run_request: Annotated[Optional[TasksTriggerRunRequest], Field(description="Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. ")] = None,
+        trigger_task_run_request: Annotated[Optional[TriggerTaskRunRequest], Field(description="Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `CODE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `RUN_EXPERIMENT` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks all trigger fields are optional — an empty body is valid and uses server defaults. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2265,12 +2265,12 @@ class TasksApi:
     ) -> ApiResponse[TaskRun]:
         """Trigger a task run
 
-        Triggers a new run on an existing task. The run is queued and processed asynchronously. Poll `GET /v2/task-runs/{run_id}` until the run reaches a terminal status (`completed`, `failed`, or `cancelled`).  **Payload Requirements** - Fields must match the task's type; sending inapplicable fields returns 400. - For `template_evaluation` / `code_evaluation` tasks, all trigger fields are optional — an empty body uses server defaults. - For `run_experiment` tasks, `experiment_name` is required.  **For `run_experiment` tasks**  Supply `experiment_name` (required) plus any of the optional per-run fields: `dataset_version_id`, `example_ids` (exclusive with `max_examples`), `max_examples`, `tracing_metadata`, `evaluation_task_ids`.  The fields `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and `experiment_ids` are not applicable and will return 400 if supplied.  The response includes `experiment_id` once the experiment is provisioned.  **For `template_evaluation` / `code_evaluation` tasks**  Supply `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and/or `experiment_ids` as needed. `run_experiment`-specific fields are not applicable for these task types.  **Valid example** (trigger a run_experiment run) ```json {   \"experiment_name\": \"GPT-4o Baseline v2\",   \"max_examples\": 50 } ```  **Invalid example** (run_experiment trigger missing required `experiment_name`) ```json {   \"max_examples\": 50 } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Triggers a new run on an existing task. The run is queued and processed asynchronously. Poll `GET /v2/task-runs/{run_id}` until the run reaches a terminal status (`completed`, `failed`, or `cancelled`).  **Payload Requirements** - Fields must match the task's type; sending inapplicable fields returns 400. - For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks, all trigger fields are optional — an empty body uses server defaults. - For `RUN_EXPERIMENT` tasks, `experiment_name` is required.  **For `RUN_EXPERIMENT` tasks**  Supply `experiment_name` (required) plus any of the optional per-run fields: `dataset_version_id`, `example_ids` (exclusive with `max_examples`), `max_examples`, `tracing_metadata`, `evaluation_task_ids`.  The fields `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and `experiment_ids` are not applicable and will return 400 if supplied.  The response includes `experiment_id` once the experiment is provisioned.  **For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks**  Supply `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and/or `experiment_ids` as needed. `RUN_EXPERIMENT`-specific fields are not applicable for these task types.  **Valid example** (trigger a run_experiment run) ```json {   \"experiment_name\": \"GPT-4o Baseline v2\",   \"max_examples\": 50 } ```  **Invalid example** (run_experiment trigger missing required `experiment_name`) ```json {   \"max_examples\": 50 } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
-        :param tasks_trigger_run_request: Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. 
-        :type tasks_trigger_run_request: TasksTriggerRunRequest
+        :param trigger_task_run_request: Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `CODE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `RUN_EXPERIMENT` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks all trigger fields are optional — an empty body is valid and uses server defaults. 
+        :type trigger_task_run_request: TriggerTaskRunRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2293,9 +2293,9 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._tasks_trigger_run_serialize(
+        _param = self._trigger_task_run_serialize(
             task_id=task_id,
-            tasks_trigger_run_request=tasks_trigger_run_request,
+            trigger_task_run_request=trigger_task_run_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2324,10 +2324,10 @@ class TasksApi:
 
 
     @validate_call
-    def tasks_trigger_run_without_preload_content(
+    def trigger_task_run_without_preload_content(
         self,
         task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        tasks_trigger_run_request: Annotated[Optional[TasksTriggerRunRequest], Field(description="Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. ")] = None,
+        trigger_task_run_request: Annotated[Optional[TriggerTaskRunRequest], Field(description="Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `CODE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `RUN_EXPERIMENT` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks all trigger fields are optional — an empty body is valid and uses server defaults. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2343,12 +2343,12 @@ class TasksApi:
     ) -> RESTResponseType:
         """Trigger a task run
 
-        Triggers a new run on an existing task. The run is queued and processed asynchronously. Poll `GET /v2/task-runs/{run_id}` until the run reaches a terminal status (`completed`, `failed`, or `cancelled`).  **Payload Requirements** - Fields must match the task's type; sending inapplicable fields returns 400. - For `template_evaluation` / `code_evaluation` tasks, all trigger fields are optional — an empty body uses server defaults. - For `run_experiment` tasks, `experiment_name` is required.  **For `run_experiment` tasks**  Supply `experiment_name` (required) plus any of the optional per-run fields: `dataset_version_id`, `example_ids` (exclusive with `max_examples`), `max_examples`, `tracing_metadata`, `evaluation_task_ids`.  The fields `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and `experiment_ids` are not applicable and will return 400 if supplied.  The response includes `experiment_id` once the experiment is provisioned.  **For `template_evaluation` / `code_evaluation` tasks**  Supply `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and/or `experiment_ids` as needed. `run_experiment`-specific fields are not applicable for these task types.  **Valid example** (trigger a run_experiment run) ```json {   \"experiment_name\": \"GPT-4o Baseline v2\",   \"max_examples\": 50 } ```  **Invalid example** (run_experiment trigger missing required `experiment_name`) ```json {   \"max_examples\": 50 } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Triggers a new run on an existing task. The run is queued and processed asynchronously. Poll `GET /v2/task-runs/{run_id}` until the run reaches a terminal status (`completed`, `failed`, or `cancelled`).  **Payload Requirements** - Fields must match the task's type; sending inapplicable fields returns 400. - For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks, all trigger fields are optional — an empty body uses server defaults. - For `RUN_EXPERIMENT` tasks, `experiment_name` is required.  **For `RUN_EXPERIMENT` tasks**  Supply `experiment_name` (required) plus any of the optional per-run fields: `dataset_version_id`, `example_ids` (exclusive with `max_examples`), `max_examples`, `tracing_metadata`, `evaluation_task_ids`.  The fields `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and `experiment_ids` are not applicable and will return 400 if supplied.  The response includes `experiment_id` once the experiment is provisioned.  **For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks**  Supply `data_start_time`, `data_end_time`, `max_spans`, `override_evaluations`, and/or `experiment_ids` as needed. `RUN_EXPERIMENT`-specific fields are not applicable for these task types.  **Valid example** (trigger a run_experiment run) ```json {   \"experiment_name\": \"GPT-4o Baseline v2\",   \"max_examples\": 50 } ```  **Invalid example** (run_experiment trigger missing required `experiment_name`) ```json {   \"max_examples\": 50 } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
-        :param tasks_trigger_run_request: Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults. 
-        :type tasks_trigger_run_request: TasksTriggerRunRequest
+        :param trigger_task_run_request: Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `CODE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `RUN_EXPERIMENT` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks all trigger fields are optional — an empty body is valid and uses server defaults. 
+        :type trigger_task_run_request: TriggerTaskRunRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2371,9 +2371,9 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._tasks_trigger_run_serialize(
+        _param = self._trigger_task_run_serialize(
             task_id=task_id,
-            tasks_trigger_run_request=tasks_trigger_run_request,
+            trigger_task_run_request=trigger_task_run_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2397,10 +2397,10 @@ class TasksApi:
         return response_data.response
 
 
-    def _tasks_trigger_run_serialize(
+    def _trigger_task_run_serialize(
         self,
         task_id,
-        tasks_trigger_run_request,
+        trigger_task_run_request,
         _request_auth,
         _content_type,
         _headers,
@@ -2428,8 +2428,8 @@ class TasksApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if tasks_trigger_run_request is not None:
-            _body_params = tasks_trigger_run_request
+        if trigger_task_run_request is not None:
+            _body_params = trigger_task_run_request
 
 
         # set the HTTP header `Accept`
@@ -2479,10 +2479,10 @@ class TasksApi:
 
 
     @validate_call
-    def tasks_update(
+    def update_task(
         self,
         task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        tasks_update_request: Annotated[TasksUpdateRequest, Field(description="PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task). ")],
+        update_task_request: Annotated[UpdateTaskRequest, Field(description="PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `CODE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `UpdateRunExperimentTaskRequest` |  For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `RUN_EXPERIMENT` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `RUN_EXPERIMENT` task, or `run_configuration` on an evaluation task). ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2498,12 +2498,12 @@ class TasksApi:
     ) -> Task:
         """Update task
 
-        Update a task's mutable fields. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one mutable field must be provided. - When `evaluators` is provided, the entire evaluator list is replaced. - `sampling_rate` and `is_continuous` are only applicable for project-based tasks. - Fields not valid for the task's type return 400 (e.g. `run_configuration` on an evaluation task). - System-managed fields (`id`, `type`, `created_at`, `updated_at`) cannot be modified.  **Valid example** (update evaluation task) ```json {   \"name\": \"Updated Hallucination Check\",   \"sampling_rate\": 0.5,   \"query_filter\": \"metadata.environment = 'staging'\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a task's mutable fields. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one mutable field must be provided. - When `evaluators` is provided, the entire evaluator list is replaced. - `sampling_rate` and `is_continuous` are only applicable for project-based tasks. - Fields not valid for the task's type return 400 (e.g. `run_configuration` on an evaluation task). - System-managed fields (`id`, `type`, `created_at`, `updated_at`) cannot be modified.  **Valid example** (update evaluation task) ```json {   \"name\": \"Updated Hallucination Check\",   \"sampling_rate\": 0.5,   \"query_filter\": \"metadata.environment = 'staging'\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
-        :param tasks_update_request: PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task).  (required)
-        :type tasks_update_request: TasksUpdateRequest
+        :param update_task_request: PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `CODE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `UpdateRunExperimentTaskRequest` |  For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `RUN_EXPERIMENT` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `RUN_EXPERIMENT` task, or `run_configuration` on an evaluation task).  (required)
+        :type update_task_request: UpdateTaskRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2526,9 +2526,9 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._tasks_update_serialize(
+        _param = self._update_task_serialize(
             task_id=task_id,
-            tasks_update_request=tasks_update_request,
+            update_task_request=update_task_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2556,10 +2556,10 @@ class TasksApi:
 
 
     @validate_call
-    def tasks_update_with_http_info(
+    def update_task_with_http_info(
         self,
         task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        tasks_update_request: Annotated[TasksUpdateRequest, Field(description="PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task). ")],
+        update_task_request: Annotated[UpdateTaskRequest, Field(description="PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `CODE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `UpdateRunExperimentTaskRequest` |  For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `RUN_EXPERIMENT` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `RUN_EXPERIMENT` task, or `run_configuration` on an evaluation task). ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2575,12 +2575,12 @@ class TasksApi:
     ) -> ApiResponse[Task]:
         """Update task
 
-        Update a task's mutable fields. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one mutable field must be provided. - When `evaluators` is provided, the entire evaluator list is replaced. - `sampling_rate` and `is_continuous` are only applicable for project-based tasks. - Fields not valid for the task's type return 400 (e.g. `run_configuration` on an evaluation task). - System-managed fields (`id`, `type`, `created_at`, `updated_at`) cannot be modified.  **Valid example** (update evaluation task) ```json {   \"name\": \"Updated Hallucination Check\",   \"sampling_rate\": 0.5,   \"query_filter\": \"metadata.environment = 'staging'\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a task's mutable fields. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one mutable field must be provided. - When `evaluators` is provided, the entire evaluator list is replaced. - `sampling_rate` and `is_continuous` are only applicable for project-based tasks. - Fields not valid for the task's type return 400 (e.g. `run_configuration` on an evaluation task). - System-managed fields (`id`, `type`, `created_at`, `updated_at`) cannot be modified.  **Valid example** (update evaluation task) ```json {   \"name\": \"Updated Hallucination Check\",   \"sampling_rate\": 0.5,   \"query_filter\": \"metadata.environment = 'staging'\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
-        :param tasks_update_request: PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task).  (required)
-        :type tasks_update_request: TasksUpdateRequest
+        :param update_task_request: PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `CODE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `UpdateRunExperimentTaskRequest` |  For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `RUN_EXPERIMENT` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `RUN_EXPERIMENT` task, or `run_configuration` on an evaluation task).  (required)
+        :type update_task_request: UpdateTaskRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2603,9 +2603,9 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._tasks_update_serialize(
+        _param = self._update_task_serialize(
             task_id=task_id,
-            tasks_update_request=tasks_update_request,
+            update_task_request=update_task_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2633,10 +2633,10 @@ class TasksApi:
 
 
     @validate_call
-    def tasks_update_without_preload_content(
+    def update_task_without_preload_content(
         self,
         task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
-        tasks_update_request: Annotated[TasksUpdateRequest, Field(description="PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task). ")],
+        update_task_request: Annotated[UpdateTaskRequest, Field(description="PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `CODE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `UpdateRunExperimentTaskRequest` |  For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `RUN_EXPERIMENT` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `RUN_EXPERIMENT` task, or `run_configuration` on an evaluation task). ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2652,12 +2652,12 @@ class TasksApi:
     ) -> RESTResponseType:
         """Update task
 
-        Update a task's mutable fields. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one mutable field must be provided. - When `evaluators` is provided, the entire evaluator list is replaced. - `sampling_rate` and `is_continuous` are only applicable for project-based tasks. - Fields not valid for the task's type return 400 (e.g. `run_configuration` on an evaluation task). - System-managed fields (`id`, `type`, `created_at`, `updated_at`) cannot be modified.  **Valid example** (update evaluation task) ```json {   \"name\": \"Updated Hallucination Check\",   \"sampling_rate\": 0.5,   \"query_filter\": \"metadata.environment = 'staging'\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Update a task's mutable fields. At least one field must be provided. Omitted fields are left unchanged.  **Payload Requirements** - At least one mutable field must be provided. - When `evaluators` is provided, the entire evaluator list is replaced. - `sampling_rate` and `is_continuous` are only applicable for project-based tasks. - Fields not valid for the task's type return 400 (e.g. `run_configuration` on an evaluation task). - System-managed fields (`id`, `type`, `created_at`, `updated_at`) cannot be modified.  **Valid example** (update evaluation task) ```json {   \"name\": \"Updated Hallucination Check\",   \"sampling_rate\": 0.5,   \"query_filter\": \"metadata.environment = 'staging'\" } ```  **Invalid example** (no fields provided) ```json {} ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param task_id: The unique task identifier (base64) (required)
         :type task_id: str
-        :param tasks_update_request: PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task).  (required)
-        :type tasks_update_request: TasksUpdateRequest
+        :param update_task_request: PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `CODE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `UpdateRunExperimentTaskRequest` |  For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `RUN_EXPERIMENT` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `RUN_EXPERIMENT` task, or `run_configuration` on an evaluation task).  (required)
+        :type update_task_request: UpdateTaskRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2680,9 +2680,9 @@ class TasksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._tasks_update_serialize(
+        _param = self._update_task_serialize(
             task_id=task_id,
-            tasks_update_request=tasks_update_request,
+            update_task_request=update_task_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2705,10 +2705,10 @@ class TasksApi:
         return response_data.response
 
 
-    def _tasks_update_serialize(
+    def _update_task_serialize(
         self,
         task_id,
-        tasks_update_request,
+        update_task_request,
         _request_auth,
         _content_type,
         _headers,
@@ -2736,8 +2736,8 @@ class TasksApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if tasks_update_request is not None:
-            _body_params = tasks_update_request
+        if update_task_request is not None:
+            _body_params = update_task_request
 
 
         # set the HTTP header `Accept`

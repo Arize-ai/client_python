@@ -49,7 +49,7 @@ def users_client(arize_client) -> Any:
     return arize_client.users
 
 
-_MEMBER_ROLE = PredefinedUserRole(name="member")
+_MEMBER_ROLE = PredefinedUserRole(name="MEMBER")
 
 
 class TestUsersCRUD:
@@ -63,7 +63,7 @@ class TestUsersCRUD:
             name=name,
             email=email,
             role=_MEMBER_ROLE,
-            invite_mode="none",
+            invite_mode="NONE",
         )
         try:
             assert user.name == name
@@ -83,7 +83,7 @@ class TestUsersCRUD:
             name=name,
             email=email,
             role=_MEMBER_ROLE,
-            invite_mode="none",
+            invite_mode="NONE",
             is_developer=False,
         )
         try:
@@ -101,7 +101,7 @@ class TestUsersCRUD:
             name=name,
             email=email,
             role=_MEMBER_ROLE,
-            invite_mode="none",
+            invite_mode="NONE",
         )
         updated_name = _unique("sdk-test-user-upd")
         try:
@@ -126,7 +126,7 @@ class TestUsersCRUD:
             name=name,
             email=email,
             role=_MEMBER_ROLE,
-            invite_mode="none",
+            invite_mode="NONE",
         )
         try:
             resp = users_client.list(limit=100)
@@ -143,7 +143,7 @@ class TestUsersCRUD:
             name=name,
             email=email,
             role=_MEMBER_ROLE,
-            invite_mode="none",
+            invite_mode="NONE",
         )
         try:
             resp = users_client.list(email=email)
@@ -163,7 +163,7 @@ class TestUsersGetByEmail:
             name=name,
             email=email,
             role=_MEMBER_ROLE,
-            invite_mode="none",
+            invite_mode="NONE",
         )
         try:
             found = users_client.get(user=email)
@@ -194,7 +194,7 @@ class TestUsersDelete:
             name=name,
             email=email,
             role=_MEMBER_ROLE,
-            invite_mode="none",
+            invite_mode="NONE",
         )
 
         result = users_client.delete(user_id=user.id)
@@ -216,7 +216,7 @@ class TestUsersResendInvitation:
             name=name,
             email=email,
             role=_MEMBER_ROLE,
-            invite_mode="email_link",
+            invite_mode="EMAIL_LINK",
         )
         try:
             users_client.resend_invitation(user_id=user.id)
@@ -235,7 +235,7 @@ class TestUsersResetPassword:
             name=name,
             email=email,
             role=_MEMBER_ROLE,
-            invite_mode="none",
+            invite_mode="NONE",
         )
         try:
             result = users_client.reset_password(user_id=user.id)
@@ -260,7 +260,7 @@ class TestUsersBulkDelete:
                     name=name,
                     email=email,
                     role=_MEMBER_ROLE,
-                    invite_mode="none",
+                    invite_mode="NONE",
                 )
             )
 
@@ -283,7 +283,7 @@ class TestUsersBulkDelete:
             name=_unique("sdk-test-user"),
             email=email,
             role=_MEMBER_ROLE,
-            invite_mode="none",
+            invite_mode="NONE",
         )
 
         results = users_client.bulk_delete(emails=[email])
@@ -314,7 +314,7 @@ class TestUsersBulkDelete:
             name=_unique("sdk-test-user"),
             email=email,
             role=_MEMBER_ROLE,
-            invite_mode="none",
+            invite_mode="NONE",
         )
 
         results = users_client.bulk_delete(
@@ -342,13 +342,13 @@ class TestOrganizationAddUser:
             name=name,
             email=email,
             role=_MEMBER_ROLE,
-            invite_mode="none",
+            invite_mode="NONE",
         )
         try:
             membership = arize_client.organizations.add_user(
                 organization=ORG_ID,
                 user_id=user.id,
-                role=PredefinedOrgRole(name="member"),
+                role=PredefinedOrgRole(name="MEMBER"),
             )
             assert membership.user_id == user.id
             assert membership.organization_id == ORG_ID
@@ -369,18 +369,18 @@ class TestOrganizationAddUser:
             name=name,
             email=email,
             role=_MEMBER_ROLE,
-            invite_mode="none",
+            invite_mode="NONE",
         )
         try:
             arize_client.organizations.add_user(
                 organization=ORG_ID,
                 user_id=user.id,
-                role=PredefinedOrgRole(name="member"),
+                role=PredefinedOrgRole(name="MEMBER"),
             )
             updated = arize_client.organizations.add_user(
                 organization=ORG_ID,
                 user_id=user.id,
-                role=PredefinedOrgRole(name="read-only"),
+                role=PredefinedOrgRole(name="READ_ONLY"),
             )
             assert updated.user_id == user.id
         finally:
@@ -406,20 +406,20 @@ class TestSpaceAddUser:
             name=name,
             email=email,
             role=_MEMBER_ROLE,
-            invite_mode="none",
+            invite_mode="NONE",
         )
         try:
             # User must be in the org before being added to the space
             arize_client.organizations.add_user(
                 organization=ORG_ID,
                 user_id=user.id,
-                role=PredefinedOrgRole(name="member"),
+                role=PredefinedOrgRole(name="MEMBER"),
             )
 
             membership = arize_client.spaces.add_user(
                 space=SPACE_ID,
                 user_id=user.id,
-                role=PredefinedSpaceRole(name="member"),
+                role=PredefinedSpaceRole(name="MEMBER"),
             )
             assert membership.user_id == user.id
             assert membership.space_id == SPACE_ID
@@ -444,23 +444,23 @@ class TestSpaceAddUser:
             name=name,
             email=email,
             role=_MEMBER_ROLE,
-            invite_mode="none",
+            invite_mode="NONE",
         )
         try:
             arize_client.organizations.add_user(
                 organization=ORG_ID,
                 user_id=user.id,
-                role=PredefinedOrgRole(name="member"),
+                role=PredefinedOrgRole(name="MEMBER"),
             )
             arize_client.spaces.add_user(
                 space=SPACE_ID,
                 user_id=user.id,
-                role=PredefinedSpaceRole(name="member"),
+                role=PredefinedSpaceRole(name="MEMBER"),
             )
             updated = arize_client.spaces.add_user(
                 space=SPACE_ID,
                 user_id=user.id,
-                role=PredefinedSpaceRole(name="read-only"),
+                role=PredefinedSpaceRole(name="READ_ONLY"),
             )
             assert updated.user_id == user.id
         finally:

@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
 from arize._generated.api_client.models.organization_role import OrganizationRole
 from arize._generated.api_client.models.organization_role_assignment_type import OrganizationRoleAssignmentType
@@ -28,7 +28,7 @@ class OrganizationPredefinedRoleAssignment(BaseModel):
     """
     A predefined organization role assignment.
     """ # noqa: E501
-    type: OrganizationRoleAssignmentType
+    type: OrganizationRoleAssignmentType = Field(description="Discriminator identifying this as a predefined role assignment. Always `PREDEFINED` for this variant.")
     name: OrganizationRole
     __properties: ClassVar[List[str]] = ["type", "name"]
 

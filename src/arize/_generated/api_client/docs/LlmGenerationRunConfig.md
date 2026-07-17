@@ -6,7 +6,7 @@ Configuration for running an LLM prompt against each dataset example.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**experiment_type** | **str** | Discriminator. Must be &#x60;\&quot;llm_generation\&quot;&#x60;. | 
+**experiment_type** | **str** | Discriminator. Must be &#x60;\&quot;LLM_GENERATION\&quot;&#x60;. | 
 **ai_integration_id** | **str** | AI integration identifier (base64). | 
 **model_name** | **str** | Model name (e.g. &#x60;gpt-4o&#x60;). Falls back to the integration&#39;s default if omitted. | [optional] 
 **messages** | [**List[LLMMessage]**](LLMMessage.md) | Array of message objects (at least one). | 

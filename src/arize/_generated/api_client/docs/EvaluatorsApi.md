@@ -4,18 +4,161 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**evaluator_versions_create**](EvaluatorsApi.md#evaluator_versions_create) | **POST** /v2/evaluators/{evaluator_id}/versions | Create evaluator version
-[**evaluator_versions_get**](EvaluatorsApi.md#evaluator_versions_get) | **GET** /v2/evaluator-versions/{version_id} | Get evaluator version
-[**evaluator_versions_list**](EvaluatorsApi.md#evaluator_versions_list) | **GET** /v2/evaluators/{evaluator_id}/versions | List evaluator versions
-[**evaluators_create**](EvaluatorsApi.md#evaluators_create) | **POST** /v2/evaluators | Create evaluator
-[**evaluators_delete**](EvaluatorsApi.md#evaluators_delete) | **DELETE** /v2/evaluators/{evaluator_id} | Delete evaluator
-[**evaluators_get**](EvaluatorsApi.md#evaluators_get) | **GET** /v2/evaluators/{evaluator_id} | Get evaluator
-[**evaluators_list**](EvaluatorsApi.md#evaluators_list) | **GET** /v2/evaluators | List evaluators
-[**evaluators_update**](EvaluatorsApi.md#evaluators_update) | **PATCH** /v2/evaluators/{evaluator_id} | Update evaluator
+[**create_evaluator**](EvaluatorsApi.md#create_evaluator) | **POST** /v2/evaluators | Create evaluator
+[**create_evaluator_version**](EvaluatorsApi.md#create_evaluator_version) | **POST** /v2/evaluators/{evaluator_id}/versions | Create evaluator version
+[**delete_evaluator**](EvaluatorsApi.md#delete_evaluator) | **DELETE** /v2/evaluators/{evaluator_id} | Delete evaluator
+[**get_evaluator**](EvaluatorsApi.md#get_evaluator) | **GET** /v2/evaluators/{evaluator_id} | Get evaluator
+[**get_evaluator_version**](EvaluatorsApi.md#get_evaluator_version) | **GET** /v2/evaluator-versions/{version_id} | Get evaluator version
+[**list_evaluator_versions**](EvaluatorsApi.md#list_evaluator_versions) | **GET** /v2/evaluators/{evaluator_id}/versions | List evaluator versions
+[**list_evaluators**](EvaluatorsApi.md#list_evaluators) | **GET** /v2/evaluators | List evaluators
+[**update_evaluator**](EvaluatorsApi.md#update_evaluator) | **PATCH** /v2/evaluators/{evaluator_id} | Update evaluator
 
 
-# **evaluator_versions_create**
-> EvaluatorVersion evaluator_versions_create(evaluator_id, evaluator_version_create)
+# **create_evaluator**
+> EvaluatorWithVersion create_evaluator(create_evaluator_request)
+
+Create evaluator
+
+Creates a new evaluator with an initial version.
+
+**Payload Requirements**
+- The evaluator `name` must be unique within the given space.
+- `type` (top-level) selects the evaluator kind: `TEMPLATE` or `CODE`.
+  With `TEMPLATE`, provide `version.template_config`.
+  With `CODE`, provide `version.code_config` — where `code_config.type` is `MANAGED` or `CUSTOM` (a separate discriminator *within* `code_config`, independent of the top-level `type: CODE`).
+- For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\s\-&()]+$`.
+- For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`).
+- For template evaluators: `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{"relevant": 1, "irrelevant": 0}`). When omitted, the evaluator produces freeform output.
+- For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: MANAGED`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: CUSTOM`) use `code`, optional `imports`, and `variables`.
+- System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.
+
+**Valid example** (template evaluator)
+```json
+{
+  "name": "Hallucination Detector",
+  "space_id": "U3BhY2U6MTpWNEth",
+  "type": "TEMPLATE",
+  "version": {
+    "commit_message": "Initial version",
+    "template_config": {
+      "name": "hallucination",
+      "template": "Given the input: {input}\nand the output: {output}\nIs the output a hallucination?",
+      "include_explanations": true,
+      "use_function_calling_if_available": true,
+      "classification_choices": {"hallucinated": 0, "factual": 1},
+      "llm_config": {
+        "ai_integration_id": "TGxtSW50ZWdyYXRpb246MTI6YUJjRA==",
+        "model_name": "gpt-4o",
+        "invocation_parameters": {"temperature": 0},
+        "provider_parameters": {}
+      }
+    }
+  }
+}
+```
+
+**Invalid example** (type/config mismatch — `TEMPLATE` type with `code_config`)
+```json
+{
+  "name": "Bad Evaluator",
+  "space_id": "U3BhY2U6MTpWNEth",
+  "type": "TEMPLATE",
+  "version": {
+    "commit_message": "Wrong config",
+    "code_config": {
+      "type": "CUSTOM",
+      "name": "my_eval",
+      "code": "class Evaluator: ...",
+      "variables": ["input"]
+    }
+  }
+}
+```
+
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.create_evaluator_request import CreateEvaluatorRequest
+from arize._generated.api_client.models.evaluator_with_version import EvaluatorWithVersion
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
+    create_evaluator_request = {"space_id":"U3BhY2U6NDkzOkJaSkc=","name":"Hallucination Eval","description":"Detects hallucinated content in LLM responses","type":"TEMPLATE","version":{"commit_message":"Initial version","template_config":{"name":"hallucination","template":"You are an evaluation assistant. Given the following input and output, determine if the output contains hallucinated content.\n\nInput: {input}\nOutput: {output}\nReference: {reference}","include_explanations":true,"use_function_calling_if_available":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"MAXIMIZE","data_granularity":"SPAN","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}}} # CreateEvaluatorRequest | Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation. 
+
+    try:
+        # Create evaluator
+        api_response = api_instance.create_evaluator(create_evaluator_request)
+        print("The response of EvaluatorsApi->create_evaluator:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling EvaluatorsApi->create_evaluator: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **create_evaluator_request** | [**CreateEvaluatorRequest**](CreateEvaluatorRequest.md)| Body containing evaluator creation parameters with an initial version.  Only &#x60;type: TEMPLATE&#x60; and &#x60;type: CODE&#x60; are currently accepted on creation.  | 
+
+### Return type
+
+[**EvaluatorWithVersion**](EvaluatorWithVersion.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**201** | Returns an evaluator with a resolved version |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**409** | Resource conflict |  -  |
+**422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **create_evaluator_version**
+> EvaluatorVersion create_evaluator_version(evaluator_id, create_evaluator_version_request)
 
 Create evaluator version
 
@@ -25,7 +168,7 @@ version immediately (versioning is append-only).
 **Payload Requirements**
 - `commit_message` describes the changes in this version.
 - Provide either `template_config` or `code_config` to match the evaluator's `type`.
-  `code_config.type` is a separate inner discriminator (`managed` or `custom`) and is unrelated to the top-level `type`.
+  `code_config.type` is a separate inner discriminator (`MANAGED` or `CUSTOM`) and is unrelated to the top-level `type`.
   Schema and constraints match Create Evaluator.
 
 **Valid example** (template version)
@@ -75,8 +218,8 @@ version immediately (versioning is append-only).
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.create_evaluator_version_request import CreateEvaluatorVersionRequest
 from arize._generated.api_client.models.evaluator_version import EvaluatorVersion
-from arize._generated.api_client.models.evaluator_version_create import EvaluatorVersionCreate
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -101,15 +244,15 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
     evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
-    evaluator_version_create = {"commit_message":"Improve template wording","template_config":{"name":"hallucination","template":"Evaluate whether the output is factually grounded.\n\nInput: {input}\nOutput: {output}","include_explanations":true,"use_function_calling_if_available":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"maximize","data_granularity":"span","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}} # EvaluatorVersionCreate | Body containing evaluator version creation parameters
+    create_evaluator_version_request = {"commit_message":"Improve template wording","template_config":{"name":"hallucination","template":"Evaluate whether the output is factually grounded.\n\nInput: {input}\nOutput: {output}","include_explanations":true,"use_function_calling_if_available":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"MAXIMIZE","data_granularity":"SPAN","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}} # CreateEvaluatorVersionRequest | Body containing evaluator version creation parameters
 
     try:
         # Create evaluator version
-        api_response = api_instance.evaluator_versions_create(evaluator_id, evaluator_version_create)
-        print("The response of EvaluatorsApi->evaluator_versions_create:\n")
+        api_response = api_instance.create_evaluator_version(evaluator_id, create_evaluator_version_request)
+        print("The response of EvaluatorsApi->create_evaluator_version:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling EvaluatorsApi->evaluator_versions_create: %s\n" % e)
+        print("Exception when calling EvaluatorsApi->create_evaluator_version: %s\n" % e)
 ```
 
 
@@ -120,7 +263,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **evaluator_id** | **str**| The unique evaluator identifier (base64) | 
- **evaluator_version_create** | [**EvaluatorVersionCreate**](EvaluatorVersionCreate.md)| Body containing evaluator version creation parameters | 
+ **create_evaluator_version_request** | [**CreateEvaluatorVersionRequest**](CreateEvaluatorVersionRequest.md)| Body containing evaluator version creation parameters | 
 
 ### Return type
 
@@ -139,7 +282,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Returns the created evaluator version |  -  |
+**201** | Returns an evaluator version |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
@@ -149,326 +292,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **evaluator_versions_get**
-> EvaluatorVersion evaluator_versions_get(version_id)
-
-Get evaluator version
-
-Get a specific evaluator version by its unique identifier.
-
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
-
-
-### Example
-
-* Bearer (<api-key>) Authentication (bearerAuth):
-
-```python
-import arize._generated.api_client
-from arize._generated.api_client.models.evaluator_version import EvaluatorVersion
-from arize._generated.api_client.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to https://api.arize.com
-# See configuration.py for a list of all supported configuration parameters.
-configuration = arize._generated.api_client.Configuration(
-    host = "https://api.arize.com"
-)
-
-# The client must configure the authentication and authorization parameters
-# in accordance with the API server security policy.
-# Examples for each auth method are provided below, use the example that
-# satisfies your auth use case.
-
-# Configure Bearer authorization (<api-key>): bearerAuth
-configuration = arize._generated.api_client.Configuration(
-    access_token = os.environ["BEARER_TOKEN"]
-)
-
-# Enter a context with an instance of the API client
-with arize._generated.api_client.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    version_id = 'RXZhbHVhdG9yVmVyc2lvbjoxMjM0NQ==' # str | The unique evaluator version identifier (base64)
-
-    try:
-        # Get evaluator version
-        api_response = api_instance.evaluator_versions_get(version_id)
-        print("The response of EvaluatorsApi->evaluator_versions_get:\n")
-        pprint(api_response)
-    except Exception as e:
-        print("Exception when calling EvaluatorsApi->evaluator_versions_get: %s\n" % e)
-```
-
-
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **version_id** | **str**| The unique evaluator version identifier (base64) | 
-
-### Return type
-
-[**EvaluatorVersion**](EvaluatorVersion.md)
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json, application/problem+json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Returns an evaluator version |  -  |
-**400** | Invalid request |  -  |
-**401** | Authentication is required |  -  |
-**404** | Not found |  -  |
-**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **evaluator_versions_list**
-> EvaluatorVersionListResponse evaluator_versions_list(evaluator_id, limit=limit, cursor=cursor)
-
-List evaluator versions
-
-List all versions of an evaluator with cursor-based pagination.
-
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
-
-
-### Example
-
-* Bearer (<api-key>) Authentication (bearerAuth):
-
-```python
-import arize._generated.api_client
-from arize._generated.api_client.models.evaluator_version_list_response import EvaluatorVersionListResponse
-from arize._generated.api_client.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to https://api.arize.com
-# See configuration.py for a list of all supported configuration parameters.
-configuration = arize._generated.api_client.Configuration(
-    host = "https://api.arize.com"
-)
-
-# The client must configure the authentication and authorization parameters
-# in accordance with the API server security policy.
-# Examples for each auth method are provided below, use the example that
-# satisfies your auth use case.
-
-# Configure Bearer authorization (<api-key>): bearerAuth
-configuration = arize._generated.api_client.Configuration(
-    access_token = os.environ["BEARER_TOKEN"]
-)
-
-# Enter a context with an instance of the API client
-with arize._generated.api_client.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
-    cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
-
-    try:
-        # List evaluator versions
-        api_response = api_instance.evaluator_versions_list(evaluator_id, limit=limit, cursor=cursor)
-        print("The response of EvaluatorsApi->evaluator_versions_list:\n")
-        pprint(api_response)
-    except Exception as e:
-        print("Exception when calling EvaluatorsApi->evaluator_versions_list: %s\n" % e)
-```
-
-
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **evaluator_id** | **str**| The unique evaluator identifier (base64) | 
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
- **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
-
-### Return type
-
-[**EvaluatorVersionListResponse**](EvaluatorVersionListResponse.md)
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json, application/problem+json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Returns a list of evaluator version objects |  -  |
-**400** | Invalid request |  -  |
-**401** | Authentication is required |  -  |
-**403** | Insufficient permissions to access this resource |  -  |
-**404** | Not found |  -  |
-**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **evaluators_create**
-> EvaluatorWithVersion evaluators_create(evaluators_create_request)
-
-Create evaluator
-
-Creates a new evaluator with an initial version.
-
-**Payload Requirements**
-- The evaluator `name` must be unique within the given space.
-- `type` (top-level) selects the evaluator kind: `template` or `code`.
-  With `template`, provide `version.template_config`.
-  With `code`, provide `version.code_config` — where `code_config.type` is `managed` or `custom` (a separate discriminator *within* `code_config`, independent of the top-level `type: code`).
-- For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\s\-&()]+$`.
-- For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`).
-- For template evaluators: `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{"relevant": 1, "irrelevant": 0}`). When omitted, the evaluator produces freeform output.
-- For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: managed`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: custom`) use `code`, optional `imports`, and `variables`.
-- System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.
-
-**Valid example** (template evaluator)
-```json
-{
-  "name": "Hallucination Detector",
-  "space_id": "U3BhY2U6MTpWNEth",
-  "type": "template",
-  "version": {
-    "commit_message": "Initial version",
-    "template_config": {
-      "name": "hallucination",
-      "template": "Given the input: {input}\nand the output: {output}\nIs the output a hallucination?",
-      "include_explanations": true,
-      "use_function_calling_if_available": true,
-      "classification_choices": {"hallucinated": 0, "factual": 1},
-      "llm_config": {
-        "ai_integration_id": "TGxtSW50ZWdyYXRpb246MTI6YUJjRA==",
-        "model_name": "gpt-4o",
-        "invocation_parameters": {"temperature": 0},
-        "provider_parameters": {}
-      }
-    }
-  }
-}
-```
-
-**Invalid example** (type/config mismatch — `template` type with `code_config`)
-```json
-{
-  "name": "Bad Evaluator",
-  "space_id": "U3BhY2U6MTpWNEth",
-  "type": "template",
-  "version": {
-    "commit_message": "Wrong config",
-    "code_config": {
-      "type": "custom",
-      "name": "my_eval",
-      "code": "class Evaluator: ...",
-      "variables": ["input"]
-    }
-  }
-}
-```
-
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
-
-
-### Example
-
-* Bearer (<api-key>) Authentication (bearerAuth):
-
-```python
-import arize._generated.api_client
-from arize._generated.api_client.models.evaluator_with_version import EvaluatorWithVersion
-from arize._generated.api_client.models.evaluators_create_request import EvaluatorsCreateRequest
-from arize._generated.api_client.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to https://api.arize.com
-# See configuration.py for a list of all supported configuration parameters.
-configuration = arize._generated.api_client.Configuration(
-    host = "https://api.arize.com"
-)
-
-# The client must configure the authentication and authorization parameters
-# in accordance with the API server security policy.
-# Examples for each auth method are provided below, use the example that
-# satisfies your auth use case.
-
-# Configure Bearer authorization (<api-key>): bearerAuth
-configuration = arize._generated.api_client.Configuration(
-    access_token = os.environ["BEARER_TOKEN"]
-)
-
-# Enter a context with an instance of the API client
-with arize._generated.api_client.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    evaluators_create_request = {"space_id":"U3BhY2U6NDkzOkJaSkc=","name":"Hallucination Eval","description":"Detects hallucinated content in LLM responses","type":"template","version":{"commit_message":"Initial version","template_config":{"name":"hallucination","template":"You are an evaluation assistant. Given the following input and output, determine if the output contains hallucinated content.\n\nInput: {input}\nOutput: {output}\nReference: {reference}","include_explanations":true,"use_function_calling_if_available":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"maximize","data_granularity":"span","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}}} # EvaluatorsCreateRequest | Body containing evaluator creation parameters with an initial version.  Only `type: template` and `type: code` are currently accepted on creation. 
-
-    try:
-        # Create evaluator
-        api_response = api_instance.evaluators_create(evaluators_create_request)
-        print("The response of EvaluatorsApi->evaluators_create:\n")
-        pprint(api_response)
-    except Exception as e:
-        print("Exception when calling EvaluatorsApi->evaluators_create: %s\n" % e)
-```
-
-
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **evaluators_create_request** | [**EvaluatorsCreateRequest**](EvaluatorsCreateRequest.md)| Body containing evaluator creation parameters with an initial version.  Only &#x60;type: template&#x60; and &#x60;type: code&#x60; are currently accepted on creation.  | 
-
-### Return type
-
-[**EvaluatorWithVersion**](EvaluatorWithVersion.md)
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: application/json
- - **Accept**: application/json, application/problem+json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**201** | Returns the created evaluator with its initial version |  -  |
-**400** | Invalid request |  -  |
-**401** | Authentication is required |  -  |
-**403** | Insufficient permissions to access this resource |  -  |
-**404** | Not found |  -  |
-**409** | Resource conflict |  -  |
-**422** | Unprocessable entity |  -  |
-**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **evaluators_delete**
-> evaluators_delete(evaluator_id)
+# **delete_evaluator**
+> delete_evaluator(evaluator_id)
 
 Delete evaluator
 
@@ -510,9 +335,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Delete evaluator
-        api_instance.evaluators_delete(evaluator_id)
+        api_instance.delete_evaluator(evaluator_id)
     except Exception as e:
-        print("Exception when calling EvaluatorsApi->evaluators_delete: %s\n" % e)
+        print("Exception when calling EvaluatorsApi->delete_evaluator: %s\n" % e)
 ```
 
 
@@ -550,8 +375,8 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **evaluators_get**
-> EvaluatorWithVersion evaluators_get(evaluator_id, version_id=version_id)
+# **get_evaluator**
+> EvaluatorWithVersion get_evaluator(evaluator_id, version_id=version_id)
 
 Get evaluator
 
@@ -596,11 +421,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Get evaluator
-        api_response = api_instance.evaluators_get(evaluator_id, version_id=version_id)
-        print("The response of EvaluatorsApi->evaluators_get:\n")
+        api_response = api_instance.get_evaluator(evaluator_id, version_id=version_id)
+        print("The response of EvaluatorsApi->get_evaluator:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling EvaluatorsApi->evaluators_get: %s\n" % e)
+        print("Exception when calling EvaluatorsApi->get_evaluator: %s\n" % e)
 ```
 
 
@@ -638,8 +463,183 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **evaluators_list**
-> EvaluatorListResponse evaluators_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+# **get_evaluator_version**
+> EvaluatorVersion get_evaluator_version(version_id)
+
+Get evaluator version
+
+Get a specific evaluator version by its unique identifier.
+
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.evaluator_version import EvaluatorVersion
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
+    version_id = 'RXZhbHVhdG9yVmVyc2lvbjoxMjM0NQ==' # str | The unique evaluator version identifier (base64)
+
+    try:
+        # Get evaluator version
+        api_response = api_instance.get_evaluator_version(version_id)
+        print("The response of EvaluatorsApi->get_evaluator_version:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling EvaluatorsApi->get_evaluator_version: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **version_id** | **str**| The unique evaluator version identifier (base64) | 
+
+### Return type
+
+[**EvaluatorVersion**](EvaluatorVersion.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns an evaluator version |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_evaluator_versions**
+> ListEvaluatorVersionsResponse list_evaluator_versions(evaluator_id, limit=limit, cursor=cursor)
+
+List evaluator versions
+
+List all versions of an evaluator with cursor-based pagination.
+
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.list_evaluator_versions_response import ListEvaluatorVersionsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
+    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
+    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
+
+    try:
+        # List evaluator versions
+        api_response = api_instance.list_evaluator_versions(evaluator_id, limit=limit, cursor=cursor)
+        print("The response of EvaluatorsApi->list_evaluator_versions:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling EvaluatorsApi->list_evaluator_versions: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **evaluator_id** | **str**| The unique evaluator identifier (base64) | 
+ **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
+
+### Return type
+
+[**ListEvaluatorVersionsResponse**](ListEvaluatorVersionsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns a list of evaluator version objects |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_evaluators**
+> ListEvaluatorsResponse list_evaluators(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
 
 List evaluators
 
@@ -657,7 +657,7 @@ evaluators from all permitted spaces are returned.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.evaluator_list_response import EvaluatorListResponse
+from arize._generated.api_client.models.list_evaluators_response import ListEvaluatorsResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -689,11 +689,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # List evaluators
-        api_response = api_instance.evaluators_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
-        print("The response of EvaluatorsApi->evaluators_list:\n")
+        api_response = api_instance.list_evaluators(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+        print("The response of EvaluatorsApi->list_evaluators:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling EvaluatorsApi->evaluators_list: %s\n" % e)
+        print("Exception when calling EvaluatorsApi->list_evaluators: %s\n" % e)
 ```
 
 
@@ -711,7 +711,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**EvaluatorListResponse**](EvaluatorListResponse.md)
+[**ListEvaluatorsResponse**](ListEvaluatorsResponse.md)
 
 ### Authorization
 
@@ -730,12 +730,13 @@ Name | Type | Description  | Notes
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **evaluators_update**
-> Evaluator evaluators_update(evaluator_id, evaluators_update_request)
+# **update_evaluator**
+> Evaluator update_evaluator(evaluator_id, update_evaluator_request)
 
 Update evaluator
 
@@ -770,7 +771,7 @@ Omitted fields are left unchanged.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.evaluator import Evaluator
-from arize._generated.api_client.models.evaluators_update_request import EvaluatorsUpdateRequest
+from arize._generated.api_client.models.update_evaluator_request import UpdateEvaluatorRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -795,15 +796,15 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
     evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
-    evaluators_update_request = {"name":"Updated Evaluator Name","description":"Updated description"} # EvaluatorsUpdateRequest | Body containing evaluator update parameters
+    update_evaluator_request = {"name":"Updated Evaluator Name","description":"Updated description"} # UpdateEvaluatorRequest | Body containing evaluator update parameters
 
     try:
         # Update evaluator
-        api_response = api_instance.evaluators_update(evaluator_id, evaluators_update_request)
-        print("The response of EvaluatorsApi->evaluators_update:\n")
+        api_response = api_instance.update_evaluator(evaluator_id, update_evaluator_request)
+        print("The response of EvaluatorsApi->update_evaluator:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling EvaluatorsApi->evaluators_update: %s\n" % e)
+        print("Exception when calling EvaluatorsApi->update_evaluator: %s\n" % e)
 ```
 
 
@@ -814,7 +815,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **evaluator_id** | **str**| The unique evaluator identifier (base64) | 
- **evaluators_update_request** | [**EvaluatorsUpdateRequest**](EvaluatorsUpdateRequest.md)| Body containing evaluator update parameters | 
+ **update_evaluator_request** | [**UpdateEvaluatorRequest**](UpdateEvaluatorRequest.md)| Body containing evaluator update parameters | 
 
 ### Return type
 
@@ -833,7 +834,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**200** | Returns the updated evaluator |  -  |
+**200** | An evaluator object |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |

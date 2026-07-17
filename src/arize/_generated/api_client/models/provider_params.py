@@ -19,9 +19,9 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from arize._generated.api_client.models.provider_params_anthropic_headers import ProviderParamsAnthropicHeaders
-from arize._generated.api_client.models.provider_params_azure_params import ProviderParamsAzureParams
-from arize._generated.api_client.models.provider_params_bedrock_options import ProviderParamsBedrockOptions
+from arize._generated.api_client.models.anthropic_headers import AnthropicHeaders
+from arize._generated.api_client.models.azure_params import AzureParams
+from arize._generated.api_client.models.bedrock_options import BedrockOptions
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,10 +29,10 @@ class ProviderParams(BaseModel):
     """
     Provider-specific parameters
     """ # noqa: E501
-    azure_params: Optional[ProviderParamsAzureParams] = None
-    anthropic_headers: Optional[ProviderParamsAnthropicHeaders] = None
+    azure_params: Optional[AzureParams] = Field(default=None, description="Azure OpenAI specific parameters")
+    anthropic_headers: Optional[AnthropicHeaders] = Field(default=None, description="Anthropic-specific headers")
     anthropic_version: Optional[StrictStr] = Field(default=None, description="Anthropic API version")
-    bedrock_options: Optional[ProviderParamsBedrockOptions] = None
+    bedrock_options: Optional[BedrockOptions] = Field(default=None, description="AWS Bedrock options")
     region: Optional[StrictStr] = Field(default=None, description="Region for the model deployment")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["azure_params", "anthropic_headers", "anthropic_version", "bedrock_options", "region"]
@@ -104,10 +104,10 @@ class ProviderParams(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "azure_params": ProviderParamsAzureParams.from_dict(obj["azure_params"]) if obj.get("azure_params") is not None else None,
-            "anthropic_headers": ProviderParamsAnthropicHeaders.from_dict(obj["anthropic_headers"]) if obj.get("anthropic_headers") is not None else None,
+            "azure_params": AzureParams.from_dict(obj["azure_params"]) if obj.get("azure_params") is not None else None,
+            "anthropic_headers": AnthropicHeaders.from_dict(obj["anthropic_headers"]) if obj.get("anthropic_headers") is not None else None,
             "anthropic_version": obj.get("anthropic_version"),
-            "bedrock_options": ProviderParamsBedrockOptions.from_dict(obj["bedrock_options"]) if obj.get("bedrock_options") is not None else None,
+            "bedrock_options": BedrockOptions.from_dict(obj["bedrock_options"]) if obj.get("bedrock_options") is not None else None,
             "region": obj.get("region")
         })
         # store additional fields in additional_properties

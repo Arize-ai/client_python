@@ -39,8 +39,8 @@ class EvaluatorVersionRemote(BaseModel):
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['remote']):
-            raise ValueError("must be one of enum values ('remote')")
+        if value not in set(['REMOTE']):
+            raise ValueError("must be one of enum values ('REMOTE')")
         return value
 
     model_config = ConfigDict(

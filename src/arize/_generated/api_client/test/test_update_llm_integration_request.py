@@ -35,7 +35,7 @@ class TestUpdateLlmIntegrationRequest(unittest.TestCase):
         model = UpdateLlmIntegrationRequest()
         if include_optional:
             return UpdateLlmIntegrationRequest(
-                type = 'llm',
+                type = 'LLM',
                 name = '',
                 scopings = [
                     arize._generated.api_client.models.integration_scoping.IntegrationScoping(
@@ -43,13 +43,13 @@ class TestUpdateLlmIntegrationRequest(unittest.TestCase):
                         space_id = '', )
                     ],
                 config = arize._generated.api_client.models.update_llm_config.UpdateLlmConfig(
-                    provider = 'openAI', 
+                    provider = 'OPEN_AI', 
                     api_key = '', 
                     is_function_calling_enabled = True, )
             )
         else:
             return UpdateLlmIntegrationRequest(
-                type = 'llm',
+                type = 'LLM',
         )
         """
 

@@ -26,7 +26,7 @@ class AnnotationQueueExampleRecordInput(BaseModel):
     """
     AnnotationQueueExampleRecordInput
     """ # noqa: E501
-    record_type: StrictStr = Field(description="Discriminator identifying this record source as dataset examples. Must be `example` for dataset example records.")
+    record_type: StrictStr = Field(description="Discriminator identifying this record source as dataset examples. Must be `EXAMPLE` for dataset example records.")
     dataset_id: StrictStr = Field(description="The dataset ID these examples belong to")
     dataset_version_id: Optional[StrictStr] = Field(default=None, description="Optional. The specific dataset version to use. If omitted, the latest version is used. ")
     example_ids: Optional[List[StrictStr]] = Field(default=None, description="Optional. List of example IDs within the dataset to add to the queue. If omitted, all examples in the dataset (or dataset version) are added. ")
@@ -35,8 +35,8 @@ class AnnotationQueueExampleRecordInput(BaseModel):
     @field_validator('record_type')
     def record_type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['example']):
-            raise ValueError("must be one of enum values ('example')")
+        if value not in set(['EXAMPLE']):
+            raise ValueError("must be one of enum values ('EXAMPLE')")
         return value
 
     model_config = ConfigDict(

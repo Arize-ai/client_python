@@ -26,64 +26,64 @@ class TestTasksApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_task_runs_cancel(self) -> None:
-        """Test case for task_runs_cancel
+    def test_cancel_task_run(self) -> None:
+        """Test case for cancel_task_run
 
         Cancel task run
         """
         pass
 
-    def test_task_runs_get(self) -> None:
-        """Test case for task_runs_get
-
-        Get task run
-        """
-        pass
-
-    def test_task_runs_list(self) -> None:
-        """Test case for task_runs_list
-
-        List task runs
-        """
-        pass
-
-    def test_tasks_create(self) -> None:
-        """Test case for tasks_create
+    def test_create_task(self) -> None:
+        """Test case for create_task
 
         Create task
         """
         pass
 
-    def test_tasks_delete(self) -> None:
-        """Test case for tasks_delete
+    def test_delete_task(self) -> None:
+        """Test case for delete_task
 
         Delete task
         """
         pass
 
-    def test_tasks_get(self) -> None:
-        """Test case for tasks_get
+    def test_get_task(self) -> None:
+        """Test case for get_task
 
         Get task
         """
         pass
 
-    def test_tasks_list(self) -> None:
-        """Test case for tasks_list
+    def test_get_task_run(self) -> None:
+        """Test case for get_task_run
+
+        Get task run
+        """
+        pass
+
+    def test_list_task_runs(self) -> None:
+        """Test case for list_task_runs
+
+        List task runs
+        """
+        pass
+
+    def test_list_tasks(self) -> None:
+        """Test case for list_tasks
 
         List tasks
         """
         pass
 
-    def test_tasks_trigger_run(self) -> None:
-        """Test case for tasks_trigger_run
+    def test_trigger_task_run(self) -> None:
+        """Test case for trigger_task_run
 
         Trigger a task run
         """
         pass
 
-    def test_tasks_update(self) -> None:
-        """Test case for tasks_update
+    def test_update_task(self) -> None:
+        """Test case for update_task
 
         Update task
         """

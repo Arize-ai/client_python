@@ -27,7 +27,7 @@ RUNCONFIGURATION_ONE_OF_SCHEMAS = ["LlmGenerationRunConfig", "TemplateEvaluation
 
 class RunConfiguration(BaseModel):
     """
-    Experiment execution configuration for a `run_experiment` task. Exactly one variant must be supplied, identified by `experiment_type`. All fields sit at the top level alongside `experiment_type` (flat — no wrapper sub-object). 
+    Experiment execution configuration for a `RUN_EXPERIMENT` task. Exactly one variant must be supplied, identified by `experiment_type`. All fields sit at the top level alongside `experiment_type` (flat — no wrapper sub-object). 
     """
     # data type: LlmGenerationRunConfig
     oneof_schema_1_validator: Optional[LlmGenerationRunConfig] = None

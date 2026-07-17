@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Name of the span | 
 **context** | [**SpanContext**](SpanContext.md) |  | 
-**kind** | **str** | The kind of span (e.g., TOOL, CHAIN, LLM, RETRIEVER, EMBEDDING) | 
+**kind** | [**SpanKind**](SpanKind.md) |  | 
 **parent_id** | **str** | ID of the parent span | [optional] 
 **start_time** | **datetime** | Timestamp when the span started | 
 **end_time** | **datetime** | Timestamp when the span ended | 

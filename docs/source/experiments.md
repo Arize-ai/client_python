@@ -92,7 +92,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: ExperimentListResponse
+.. autoclass:: ListExperimentsResponse
    :members:
    :member-order: bysource
 
@@ -100,7 +100,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: ExperimentRunCreate
+.. autoclass:: ExperimentRunInput
    :members:
    :member-order: bysource
 
@@ -108,7 +108,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: ExperimentRunsListResponse
+.. autoclass:: ListExperimentRunsResponse
    :members:
    :member-order: bysource
 

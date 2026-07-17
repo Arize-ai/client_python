@@ -15,9 +15,9 @@ if TYPE_CHECKING:
     from arize.config import SDKConfiguration
     from arize.spaces.types import (
         CustomSpaceRole,
+        ListSpacesResponse,
         PredefinedSpaceRole,
         Space,
-        SpaceListResponse,
     )
 
 logger = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ class SpacesClient:
         name: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> SpaceListResponse:
+    ) -> ListSpacesResponse:
         """List spaces the user has access to.
 
         This endpoint supports cursor-based pagination. When provided,
@@ -80,7 +80,7 @@ class SpacesClient:
         Raises:
             ApiException: If the API request fails.
         """
-        return self._api.spaces_list(
+        return self._api.list_spaces(
             org_id=organization_id,
             name=name,
             limit=limit,
@@ -102,7 +102,7 @@ class SpacesClient:
                 (for example, space not found).
         """
         space_id = _find_space_id(self._api, space)
-        return self._api.spaces_get(space_id=space_id)
+        return self._api.get_space(space_id=space_id)
 
     @prerelease_endpoint(key="spaces.create", stage=ReleaseStage.BETA)
     def create(
@@ -129,12 +129,12 @@ class SpacesClient:
         """
         from arize._generated import api_client as gen
 
-        body = gen.SpacesCreateRequest(
+        body = gen.CreateSpaceRequest(
             name=name,
             organization_id=organization_id,
             description=description,
         )
-        return self._api.spaces_create(spaces_create_request=body)
+        return self._api.create_space(create_space_request=body)
 
     @prerelease_endpoint(key="spaces.delete", stage=ReleaseStage.BETA)
     def delete(self, *, space: str) -> None:
@@ -155,7 +155,7 @@ class SpacesClient:
                 (for example, space not found or insufficient permissions).
         """
         space_id = _find_space_id(self._api, space)
-        return self._api.spaces_delete(space_id=space_id)
+        return self._api.delete_space(space_id=space_id)
 
     @prerelease_endpoint(key="spaces.update", stage=ReleaseStage.BETA)
     def update(
@@ -189,15 +189,15 @@ class SpacesClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.SpacesUpdateRequest(
+        body = gen.UpdateSpaceRequest(
             name=name,
             description=description,
         )
-        return self._api.spaces_update(
-            space_id=space_id, spaces_update_request=body
+        return self._api.update_space(
+            space_id=space_id, update_space_request=body
         )
 
-    @prerelease_endpoint(key="spaces.add_user", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="spaces.add_user", stage=ReleaseStage.BETA)
     def add_user(
         self,
         *,
@@ -226,8 +226,8 @@ class SpacesClient:
             user_id: Global ID of the user to add.
             role: Role assignment for the user. Use
                 ``PredefinedSpaceRole(name="<role>")`` for predefined roles
-                (``admin``, ``member``, ``read-only``, ``annotator``), or
-                ``CustomRoleAssignment(type="custom", id="<role_id>")`` for a
+                (``ADMIN``, ``MEMBER``, ``READ_ONLY``, ``ANNOTATOR``), or
+                ``CustomRoleAssignment(type="CUSTOM", id="<role_id>")`` for a
                 custom RBAC role.
 
         Returns:
@@ -243,14 +243,17 @@ class SpacesClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.SpaceMembershipInput(
+        body = gen.AddSpaceUserRequest(
             user_id=user_id,
             role=gen.SpaceRoleAssignment(
                 gen.PredefinedRoleAssignment(
                     type=gen.SpaceRoleAssignmentType.PREDEFINED,
                     name=role.name,
                 )
-                if role.type == "predefined"
+                # String literal (not the enum) so mypy narrows the
+                # discriminated union; drift is guarded by the test asserting
+                # the Literal matches SpaceRoleAssignmentType.
+                if role.type == "PREDEFINED"
                 else gen.CustomRoleAssignment(
                     type=gen.SpaceRoleAssignmentType.CUSTOM,
                     id=role.id,
@@ -258,13 +261,13 @@ class SpacesClient:
             ),
         )
         return SpaceMembership.model_validate(
-            self._api.spaces_add_user(
-                space_id=space_id, space_membership_input=body
+            self._api.add_space_user(
+                space_id=space_id, add_space_user_request=body
             ),
             from_attributes=True,
         )
 
-    @prerelease_endpoint(key="spaces.remove_user", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="spaces.remove_user", stage=ReleaseStage.BETA)
     def remove_user(self, *, space: str, user_id: str) -> None:
         """Remove a user from a space.
 
@@ -287,4 +290,4 @@ class SpacesClient:
                 of the space).
         """
         space_id = _find_space_id(self._api, space)
-        return self._api.spaces_remove_user(space_id=space_id, user_id=user_id)
+        return self._api.remove_space_user(space_id=space_id, user_id=user_id)

@@ -26,78 +26,78 @@ class TestPromptsApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_prompt_labels_get(self) -> None:
-        """Test case for prompt_labels_get
-
-        Resolve a label to a prompt version
-        """
-        pass
-
-    def test_prompt_version_labels_delete(self) -> None:
-        """Test case for prompt_version_labels_delete
-
-        Remove a label from a prompt version
-        """
-        pass
-
-    def test_prompt_version_labels_set(self) -> None:
-        """Test case for prompt_version_labels_set
-
-        Set labels on a prompt version
-        """
-        pass
-
-    def test_prompt_versions_create(self) -> None:
-        """Test case for prompt_versions_create
-
-        Create a prompt version
-        """
-        pass
-
-    def test_prompt_versions_get(self) -> None:
-        """Test case for prompt_versions_get
-
-        Get a prompt version
-        """
-        pass
-
-    def test_prompt_versions_list(self) -> None:
-        """Test case for prompt_versions_list
-
-        List prompt versions
-        """
-        pass
-
-    def test_prompts_create(self) -> None:
-        """Test case for prompts_create
+    def test_create_prompt(self) -> None:
+        """Test case for create_prompt
 
         Create a prompt
         """
         pass
 
-    def test_prompts_delete(self) -> None:
-        """Test case for prompts_delete
+    def test_create_prompt_version(self) -> None:
+        """Test case for create_prompt_version
+
+        Create a prompt version
+        """
+        pass
+
+    def test_delete_prompt(self) -> None:
+        """Test case for delete_prompt
 
         Delete a prompt
         """
         pass
 
-    def test_prompts_get(self) -> None:
-        """Test case for prompts_get
+    def test_delete_prompt_version_label(self) -> None:
+        """Test case for delete_prompt_version_label
+
+        Remove a label from a prompt version
+        """
+        pass
+
+    def test_get_prompt(self) -> None:
+        """Test case for get_prompt
 
         Get a prompt
         """
         pass
 
-    def test_prompts_list(self) -> None:
-        """Test case for prompts_list
+    def test_get_prompt_label(self) -> None:
+        """Test case for get_prompt_label
+
+        Resolve a label to a prompt version
+        """
+        pass
+
+    def test_get_prompt_version(self) -> None:
+        """Test case for get_prompt_version
+
+        Get a prompt version
+        """
+        pass
+
+    def test_list_prompt_versions(self) -> None:
+        """Test case for list_prompt_versions
+
+        List prompt versions
+        """
+        pass
+
+    def test_list_prompts(self) -> None:
+        """Test case for list_prompts
 
         List prompts
         """
         pass
 
-    def test_prompts_update(self) -> None:
-        """Test case for prompts_update
+    def test_set_prompt_version_label(self) -> None:
+        """Test case for set_prompt_version_label
+
+        Set labels on a prompt version
+        """
+        pass
+
+    def test_update_prompt(self) -> None:
+        """Test case for update_prompt
 
         Update a prompt
         """

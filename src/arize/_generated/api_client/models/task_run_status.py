@@ -20,17 +20,17 @@ from typing_extensions import Self
 
 class TaskRunStatus(str, Enum):
     """
-    Status of a task run. - pending - The run has been created but not yet started. - running - The run is currently in progress. - completed - The run finished successfully. - failed - The run encountered an error and stopped. - cancelled - The run was cancelled before completion. 
+    Status of a task run. - PENDING - The run has been created but not yet started. - RUNNING - The run is currently in progress. - COMPLETED - The run finished successfully. - FAILED - The run encountered an error and stopped. - CANCELLED - The run was cancelled before completion. 
     """
 
     """
     allowed enum values
     """
-    PENDING = 'pending'
-    RUNNING = 'running'
-    COMPLETED = 'completed'
-    FAILED = 'failed'
-    CANCELLED = 'cancelled'
+    PENDING = 'PENDING'
+    RUNNING = 'RUNNING'
+    COMPLETED = 'COMPLETED'
+    FAILED = 'FAILED'
+    CANCELLED = 'CANCELLED'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

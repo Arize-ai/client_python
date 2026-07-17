@@ -1,12 +1,12 @@
 # OrganizationRoleAssignment
 
-A role assignment for an organization membership. Discriminated by `type`: - `predefined`: one of the predefined roles (`admin`, `member`, `read-only`, `annotator`) - `custom`: a custom RBAC role identified by its ID 
+A role assignment for an organization membership. Discriminated by `type`: - `PREDEFINED`: one of the predefined roles (`ADMIN`, `MEMBER`, `READ_ONLY`, `ANNOTATOR`) - `CUSTOM`: a custom RBAC role identified by its ID 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | [**OrganizationRoleAssignmentType**](OrganizationRoleAssignmentType.md) |  | 
+**type** | [**OrganizationRoleAssignmentType**](OrganizationRoleAssignmentType.md) | Discriminator identifying this as a custom RBAC role assignment. Always &#x60;CUSTOM&#x60; for this variant. | 
 **name** | **str** | Human-readable name of the custom role. Returned in responses only; ignored on input.  | [readonly] 
 **id** | **str** | The unique identifier of the custom RBAC role. | 
 

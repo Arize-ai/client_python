@@ -1,6 +1,6 @@
 # TriggerEvaluationTaskRunRequest
 
-Trigger request for `template_evaluation` or `code_evaluation` tasks. `data_start_time` and `data_end_time` together must span no more than 30 days. `data_start_time` must be before `data_end_time`. 
+Trigger request for `TEMPLATE_EVALUATION` or `CODE_EVALUATION` tasks. `data_start_time` and `data_end_time` together must span no more than 30 days. `data_start_time` must be before `data_end_time`. 
 
 ## Properties
 
@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **data_end_time** | **datetime** | ISO 8601 end of the data window to evaluate. For model-based tasks, defaults to now. Not applicable to dataset-based tasks.  | [optional] 
 **max_spans** | **int** | Maximum number of spans to process (default 10000). | [optional] 
 **override_evaluations** | **bool** | Whether to re-evaluate data that already has evaluation labels (default &#x60;false&#x60;).  | [optional] 
-**experiment_ids** | **List[str]** | Experiment identifiers (base64) to run against. Only for dataset-based &#x60;template_evaluation&#x60; / &#x60;code_evaluation&#x60; tasks.  | [optional] 
+**experiment_ids** | **List[str]** | Experiment identifiers (base64) to run against. Only for dataset-based &#x60;TEMPLATE_EVALUATION&#x60; / &#x60;CODE_EVALUATION&#x60; tasks.  | [optional] 
 
 ## Example
 

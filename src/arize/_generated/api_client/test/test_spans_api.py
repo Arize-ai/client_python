@@ -26,8 +26,22 @@ class TestSpansApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_spans_list(self) -> None:
-        """Test case for spans_list
+    def test_annotate_spans(self) -> None:
+        """Test case for annotate_spans
+
+        Annotate a batch of project spans
+        """
+        pass
+
+    def test_delete_spans(self) -> None:
+        """Test case for delete_spans
+
+        Delete spans
+        """
+        pass
+
+    def test_list_spans(self) -> None:
+        """Test case for list_spans
 
         List spans
         """

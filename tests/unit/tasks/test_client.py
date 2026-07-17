@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import logging
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
+from arize._generated.api_client import TasksApi
 from arize._generated.api_client.models.run_configuration import (
     RunConfiguration,
 )
@@ -15,7 +16,7 @@ from arize.tasks.client import (
     _DEFAULT_TIMEOUT,
     TasksClient,
 )
-from arize.tasks.types import Task, TaskListResponse
+from arize.tasks.types import ListTasksResponse, Task
 
 # Base64 IDs that pass _is_resource_id() — decode to "Type:123"
 _TASK_ID = "VGFzazoxMjM="  # Task:123
@@ -26,7 +27,7 @@ _DATASET_ID = "RGF0YXNldDoxMjM="  # Dataset:123
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock TasksApi instance."""
-    return Mock()
+    return create_autospec(TasksApi, instance=True)
 
 
 @pytest.fixture
@@ -78,7 +79,7 @@ class TestTasksClientList:
     @pytest.fixture(autouse=True)
     def _bypass_model_validate(self) -> None:
         with patch.object(
-            TaskListResponse,
+            ListTasksResponse,
             "model_validate",
             side_effect=lambda v, **kw: v,
         ):
@@ -93,18 +94,18 @@ class TestTasksClientList:
             space="U3BhY2U6OTA1MDoxSmtS",
             project=_PROJECT_ID,
             dataset=_DATASET_ID,
-            task_type="template_evaluation",
+            task_type="TEMPLATE_EVALUATION",
             limit=50,
             cursor="cursor-xyz",
         )
 
-        mock_api.tasks_list.assert_called_once_with(
+        mock_api.list_tasks.assert_called_once_with(
             space_id="U3BhY2U6OTA1MDoxSmtS",
             space_name=None,
             name="my-task",
             project_id=_PROJECT_ID,
             dataset_id=_DATASET_ID,
-            type="template_evaluation",
+            type="TEMPLATE_EVALUATION",
             limit=50,
             cursor="cursor-xyz",
         )
@@ -118,7 +119,7 @@ class TestTasksClientList:
             space="my-space",
         )
 
-        mock_api.tasks_list.assert_called_once_with(
+        mock_api.list_tasks.assert_called_once_with(
             space_id=None,
             space_name="my-space",
             name="my-task",
@@ -137,7 +138,7 @@ class TestTasksClientList:
         mock_project.id = _PROJECT_ID
         mock_project.name = "my-project"
         mock_projects_api = Mock()
-        mock_projects_api.projects_list.return_value = Mock(
+        mock_projects_api.list_projects.return_value = Mock(
             projects=[mock_project],
             pagination=Mock(next_cursor=None),
         )
@@ -145,7 +146,7 @@ class TestTasksClientList:
 
         tasks_client.list(project="my-project", space="U3BhY2U6OTA1MDoxSmtS")
 
-        mock_api.tasks_list.assert_called_once_with(
+        mock_api.list_tasks.assert_called_once_with(
             space_id="U3BhY2U6OTA1MDoxSmtS",
             space_name=None,
             name=None,
@@ -162,7 +163,7 @@ class TestTasksClientList:
         """list() should default all filters to None and limit to 50."""
         tasks_client.list()
 
-        mock_api.tasks_list.assert_called_once_with(
+        mock_api.list_tasks.assert_called_once_with(
             space_id=None,
             space_name=None,
             name=None,
@@ -178,18 +179,18 @@ class TestTasksClientList:
     ) -> None:
         """list() should propagate the return value from tasks_list."""
         expected = Mock()
-        mock_api.tasks_list.return_value = expected
+        mock_api.list_tasks.return_value = expected
 
         result = tasks_client.list()
 
         assert result is expected
 
-    def test_list_emits_alpha_prerelease_warning(
+    def test_list_emits_beta_prerelease_warning(
         self,
         tasks_client: TasksClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -198,7 +199,7 @@ class TestTasksClientList:
         tasks_client.list()
 
         assert any(
-            "ALPHA" in record.message and "tasks.list" in record.message
+            "BETA" in record.message and "tasks.list" in record.message
             for record in caplog.records
         )
 
@@ -220,25 +221,25 @@ class TestTasksClientGet:
         """get() should resolve task and forward task_id to tasks_get."""
         tasks_client.get(task=_TASK_ID)
 
-        mock_api.tasks_get.assert_called_once_with(task_id=_TASK_ID)
+        mock_api.get_task.assert_called_once_with(task_id=_TASK_ID)
 
     def test_get_returns_api_response(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
         """get() should propagate the return value from tasks_get."""
         expected = Mock()
-        mock_api.tasks_get.return_value = expected
+        mock_api.get_task.return_value = expected
 
         result = tasks_client.get(task=_TASK_ID)
 
         assert result is expected
 
-    def test_get_emits_alpha_prerelease_warning(
+    def test_get_emits_beta_prerelease_warning(
         self,
         tasks_client: TasksClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -247,7 +248,7 @@ class TestTasksClientGet:
         tasks_client.get(task=_TASK_ID)
 
         assert any(
-            "ALPHA" in record.message and "tasks.get" in record.message
+            "BETA" in record.message and "tasks.get" in record.message
             for record in caplog.records
         )
 
@@ -274,7 +275,7 @@ class TestTasksClientCreate:
                 "arize._generated.api_client.CreateTemplateEvaluationTaskRequest"
             ) as mock_inner_cls,
             patch(
-                "arize._generated.api_client.TasksCreateRequest"
+                "arize._generated.api_client.CreateTaskRequest"
             ) as mock_wrapper_cls,
         ):
             mock_inner = Mock()
@@ -284,14 +285,14 @@ class TestTasksClientCreate:
 
             tasks_client._create(
                 name="my-task",
-                task_type="template_evaluation",
+                task_type="TEMPLATE_EVALUATION",
                 evaluators=[mock_evaluator],
                 project=_PROJECT_ID,
             )
 
         mock_inner_cls.assert_called_once_with(
             name="my-task",
-            type="template_evaluation",
+            type="TEMPLATE_EVALUATION",
             evaluators=[mock_evaluator],
             project_id=_PROJECT_ID,
             dataset_id=None,
@@ -301,8 +302,8 @@ class TestTasksClientCreate:
             query_filter=None,
         )
         mock_wrapper_cls.assert_called_once_with(actual_instance=mock_inner)
-        mock_api.tasks_create.assert_called_once_with(
-            tasks_create_request=mock_wrapper
+        mock_api.create_task.assert_called_once_with(
+            create_task_request=mock_wrapper
         )
 
     def test_create_code_evaluation_uses_code_eval_inner(
@@ -313,20 +314,20 @@ class TestTasksClientCreate:
             patch(
                 "arize._generated.api_client.CreateCodeEvaluationTaskRequest"
             ) as mock_inner_cls,
-            patch("arize._generated.api_client.TasksCreateRequest"),
+            patch("arize._generated.api_client.CreateTaskRequest"),
         ):
             mock_inner_cls.return_value = Mock()
 
             tasks_client._create(
                 name="ds-task",
-                task_type="code_evaluation",
+                task_type="CODE_EVALUATION",
                 evaluators=[Mock()],
                 dataset=_DATASET_ID,
                 experiment_ids=["exp-1", "exp-2"],
             )
 
         _, kwargs = mock_inner_cls.call_args
-        assert kwargs["type"] == "code_evaluation"
+        assert kwargs["type"] == "CODE_EVALUATION"
         assert kwargs["dataset_id"] == _DATASET_ID
         assert kwargs["experiment_ids"] == ["exp-1", "exp-2"]
         assert kwargs["project_id"] is None
@@ -339,13 +340,13 @@ class TestTasksClientCreate:
             patch(
                 "arize._generated.api_client.CreateTemplateEvaluationTaskRequest"
             ) as mock_inner_cls,
-            patch("arize._generated.api_client.TasksCreateRequest"),
+            patch("arize._generated.api_client.CreateTaskRequest"),
         ):
             mock_inner_cls.return_value = Mock()
 
             tasks_client._create(
                 name="my-task",
-                task_type="template_evaluation",
+                task_type="TEMPLATE_EVALUATION",
                 evaluators=[Mock()],
                 project=_PROJECT_ID,
                 sampling_rate=0.5,
@@ -361,7 +362,7 @@ class TestTasksClientCreate:
     def test_create_run_experiment_builds_correct_request(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """create(task_type='run_experiment') should use CreateRunExperimentTaskRequest."""
+        """create(task_type='RUN_EXPERIMENT') should use CreateRunExperimentTaskRequest."""
         mock_run_config = Mock(spec=RunConfiguration)
 
         with (
@@ -369,7 +370,7 @@ class TestTasksClientCreate:
                 "arize._generated.api_client.CreateRunExperimentTaskRequest"
             ) as mock_inner_cls,
             patch(
-                "arize._generated.api_client.TasksCreateRequest"
+                "arize._generated.api_client.CreateTaskRequest"
             ) as mock_wrapper_cls,
         ):
             mock_inner = Mock()
@@ -379,49 +380,49 @@ class TestTasksClientCreate:
 
             tasks_client._create(
                 name="exp-task",
-                task_type="run_experiment",
+                task_type="RUN_EXPERIMENT",
                 run_configuration=mock_run_config,
                 dataset=_DATASET_ID,
             )
 
         mock_inner_cls.assert_called_once_with(
             name="exp-task",
-            type="run_experiment",
+            type="RUN_EXPERIMENT",
             dataset_id=_DATASET_ID,
             run_configuration=mock_run_config,
         )
         mock_wrapper_cls.assert_called_once_with(actual_instance=mock_inner)
-        mock_api.tasks_create.assert_called_once_with(
-            tasks_create_request=mock_wrapper
+        mock_api.create_task.assert_called_once_with(
+            create_task_request=mock_wrapper
         )
 
     def test_create_run_experiment_rejects_eval_only_fields(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """create(task_type='run_experiment') should raise if eval-only fields are set."""
+        """create(task_type='RUN_EXPERIMENT') should raise if eval-only fields are set."""
         with pytest.raises(ValueError, match="eval-only fields"):
             tasks_client._create(
                 name="bad",
-                task_type="run_experiment",
+                task_type="RUN_EXPERIMENT",
                 evaluators=[Mock()],
                 run_configuration=Mock(spec=RunConfiguration),
                 dataset=_DATASET_ID,
             )
 
-        mock_api.tasks_create.assert_not_called()
+        mock_api.create_task.assert_not_called()
 
     def test_create_run_experiment_requires_run_configuration(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """create(task_type='run_experiment') should raise when run_configuration is absent."""
+        """create(task_type='RUN_EXPERIMENT') should raise when run_configuration is absent."""
         with pytest.raises(ValueError, match="run_configuration"):
             tasks_client._create(
                 name="bad",
-                task_type="run_experiment",
+                task_type="RUN_EXPERIMENT",
                 dataset=_DATASET_ID,
             )
 
-        mock_api.tasks_create.assert_not_called()
+        mock_api.create_task.assert_not_called()
 
     def test_create_eval_rejects_run_configuration(
         self, tasks_client: TasksClient, mock_api: Mock
@@ -430,30 +431,30 @@ class TestTasksClientCreate:
         with pytest.raises(ValueError, match="run_configuration"):
             tasks_client._create(
                 name="bad",
-                task_type="template_evaluation",
+                task_type="TEMPLATE_EVALUATION",
                 evaluators=[Mock()],
                 run_configuration=Mock(spec=RunConfiguration),
                 project=_PROJECT_ID,
             )
 
-        mock_api.tasks_create.assert_not_called()
+        mock_api.create_task.assert_not_called()
 
     def test_create_returns_api_response(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
         """create() should propagate the return value from tasks_create."""
         expected = Mock()
-        mock_api.tasks_create.return_value = expected
+        mock_api.create_task.return_value = expected
 
         with (
             patch(
                 "arize._generated.api_client.CreateTemplateEvaluationTaskRequest"
             ),
-            patch("arize._generated.api_client.TasksCreateRequest"),
+            patch("arize._generated.api_client.CreateTaskRequest"),
         ):
             result = tasks_client._create(
                 name="my-task",
-                task_type="template_evaluation",
+                task_type="TEMPLATE_EVALUATION",
                 evaluators=[Mock()],
                 project=_PROJECT_ID,
             )
@@ -482,20 +483,20 @@ class TestTasksClientCreateEvaluationTask:
             patch(
                 "arize._generated.api_client.CreateTemplateEvaluationTaskRequest"
             ) as mock_inner_cls,
-            patch("arize._generated.api_client.TasksCreateRequest"),
+            patch("arize._generated.api_client.CreateTaskRequest"),
         ):
             mock_inner_cls.return_value = Mock()
             tasks_client.create_evaluation_task(
                 name="my-task",
-                task_type="template_evaluation",
+                task_type="TEMPLATE_EVALUATION",
                 evaluators=[mock_evaluator],
                 project=_PROJECT_ID,
             )
 
         _, kwargs = mock_inner_cls.call_args
-        assert kwargs["type"] == "template_evaluation"
+        assert kwargs["type"] == "TEMPLATE_EVALUATION"
         assert kwargs["project_id"] == _PROJECT_ID
-        mock_api.tasks_create.assert_called_once()
+        mock_api.create_task.assert_called_once()
 
     def test_delegates_code_evaluation_to_create(
         self, tasks_client: TasksClient, mock_api: Mock
@@ -505,19 +506,19 @@ class TestTasksClientCreateEvaluationTask:
             patch(
                 "arize._generated.api_client.CreateCodeEvaluationTaskRequest"
             ) as mock_inner_cls,
-            patch("arize._generated.api_client.TasksCreateRequest"),
+            patch("arize._generated.api_client.CreateTaskRequest"),
         ):
             mock_inner_cls.return_value = Mock()
             tasks_client.create_evaluation_task(
                 name="code-task",
-                task_type="code_evaluation",
+                task_type="CODE_EVALUATION",
                 evaluators=[Mock()],
                 dataset=_DATASET_ID,
                 experiment_ids=["exp-1"],
             )
 
         _, kwargs = mock_inner_cls.call_args
-        assert kwargs["type"] == "code_evaluation"
+        assert kwargs["type"] == "CODE_EVALUATION"
         assert kwargs["dataset_id"] == _DATASET_ID
         assert kwargs["experiment_ids"] == ["exp-1"]
 
@@ -526,17 +527,17 @@ class TestTasksClientCreateEvaluationTask:
     ) -> None:
         """create_evaluation_task() should return the task from the API."""
         expected = Mock()
-        mock_api.tasks_create.return_value = expected
+        mock_api.create_task.return_value = expected
 
         with (
             patch(
                 "arize._generated.api_client.CreateTemplateEvaluationTaskRequest"
             ),
-            patch("arize._generated.api_client.TasksCreateRequest"),
+            patch("arize._generated.api_client.CreateTaskRequest"),
         ):
             result = tasks_client.create_evaluation_task(
                 name="my-task",
-                task_type="template_evaluation",
+                task_type="TEMPLATE_EVALUATION",
                 evaluators=[Mock()],
                 project=_PROJECT_ID,
             )
@@ -568,7 +569,7 @@ class TestTasksClientCreateRunExperimentTask:
             patch(
                 "arize._generated.api_client.CreateRunExperimentTaskRequest"
             ) as mock_inner_cls,
-            patch("arize._generated.api_client.TasksCreateRequest"),
+            patch("arize._generated.api_client.CreateTaskRequest"),
         ):
             mock_rc_cls.return_value = Mock()
             mock_inner_cls.return_value = Mock()
@@ -579,9 +580,9 @@ class TestTasksClientCreateRunExperimentTask:
             )
 
         _, kwargs = mock_inner_cls.call_args
-        assert kwargs["type"] == "run_experiment"
+        assert kwargs["type"] == "RUN_EXPERIMENT"
         assert kwargs["dataset_id"] == _DATASET_ID
-        mock_api.tasks_create.assert_called_once()
+        mock_api.create_task.assert_called_once()
 
     def test_forwards_space_for_dataset_resolution(
         self, tasks_client: TasksClient, mock_api: Mock
@@ -591,7 +592,7 @@ class TestTasksClientCreateRunExperimentTask:
         mock_dataset.id = _DATASET_ID
         mock_dataset.name = "my-dataset"
         mock_datasets_api = Mock()
-        mock_datasets_api.datasets_list.return_value = Mock(
+        mock_datasets_api.list_datasets.return_value = Mock(
             datasets=[mock_dataset],
             pagination=Mock(next_cursor=None),
         )
@@ -602,7 +603,7 @@ class TestTasksClientCreateRunExperimentTask:
             patch(
                 "arize._generated.api_client.CreateRunExperimentTaskRequest"
             ) as mock_inner_cls,
-            patch("arize._generated.api_client.TasksCreateRequest"),
+            patch("arize._generated.api_client.CreateTaskRequest"),
         ):
             mock_inner_cls.return_value = Mock()
             tasks_client.create_run_experiment_task(
@@ -620,12 +621,12 @@ class TestTasksClientCreateRunExperimentTask:
     ) -> None:
         """create_run_experiment_task() should return the task from the API."""
         expected = Mock()
-        mock_api.tasks_create.return_value = expected
+        mock_api.create_task.return_value = expected
 
         with (
             patch("arize._generated.api_client.RunConfiguration"),
             patch("arize._generated.api_client.CreateRunExperimentTaskRequest"),
-            patch("arize._generated.api_client.TasksCreateRequest"),
+            patch("arize._generated.api_client.CreateTaskRequest"),
         ):
             result = tasks_client.create_run_experiment_task(
                 name="run-exp-task",
@@ -656,7 +657,7 @@ class TestTasksClientUpdate:
                 "arize._generated.api_client.UpdateEvaluationTaskRequest"
             ) as mock_inner_cls,
             patch(
-                "arize._generated.api_client.TasksUpdateRequest"
+                "arize._generated.api_client.UpdateTaskRequest"
             ) as mock_wrapper_cls,
         ):
             mock_inner = Mock()
@@ -668,9 +669,9 @@ class TestTasksClientUpdate:
 
         mock_inner_cls.assert_called_once_with(name="new-name")
         mock_wrapper_cls.assert_called_once_with(actual_instance=mock_inner)
-        mock_api.tasks_update.assert_called_once_with(
+        mock_api.update_task.assert_called_once_with(
             task_id=_TASK_ID,
-            tasks_update_request=mock_wrapper,
+            update_task_request=mock_wrapper,
         )
 
     def test_update_with_all_optional_fields(
@@ -682,7 +683,7 @@ class TestTasksClientUpdate:
             patch(
                 "arize._generated.api_client.UpdateEvaluationTaskRequest"
             ) as mock_inner_cls,
-            patch("arize._generated.api_client.TasksUpdateRequest"),
+            patch("arize._generated.api_client.UpdateTaskRequest"),
         ):
             mock_inner_cls.return_value = Mock()
 
@@ -711,7 +712,7 @@ class TestTasksClientUpdate:
             patch(
                 "arize._generated.api_client.UpdateEvaluationTaskRequest"
             ) as mock_inner_cls,
-            patch("arize._generated.api_client.TasksUpdateRequest"),
+            patch("arize._generated.api_client.UpdateTaskRequest"),
         ):
             mock_inner_cls.return_value = Mock()
 
@@ -726,29 +727,29 @@ class TestTasksClientUpdate:
         with pytest.raises(ValueError, match="At least one update field"):
             tasks_client.update(task=_TASK_ID)
 
-        mock_api.tasks_update.assert_not_called()
+        mock_api.update_task.assert_not_called()
 
     def test_update_returns_api_response(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
         """update() should propagate the return value from tasks_update."""
         expected = Mock()
-        mock_api.tasks_update.return_value = expected
+        mock_api.update_task.return_value = expected
 
         with (
             patch("arize._generated.api_client.UpdateEvaluationTaskRequest"),
-            patch("arize._generated.api_client.TasksUpdateRequest"),
+            patch("arize._generated.api_client.UpdateTaskRequest"),
         ):
             result = tasks_client.update(task=_TASK_ID, name="y")
 
         assert result is expected
 
-    def test_update_emits_alpha_prerelease_warning(
+    def test_update_emits_beta_prerelease_warning(
         self,
         tasks_client: TasksClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call to update() should emit the ALPHA prerelease warning."""
+        """First call to update() should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -756,12 +757,12 @@ class TestTasksClientUpdate:
 
         with (
             patch("arize._generated.api_client.UpdateEvaluationTaskRequest"),
-            patch("arize._generated.api_client.TasksUpdateRequest"),
+            patch("arize._generated.api_client.UpdateTaskRequest"),
         ):
             tasks_client.update(task=_TASK_ID, name="z")
 
         assert any(
-            "ALPHA" in record.message and "tasks.update" in record.message
+            "BETA" in record.message and "tasks.update" in record.message
             for record in caplog.records
         )
 
@@ -776,24 +777,24 @@ class TestTasksClientDelete:
         """delete() should resolve task and forward task_id to tasks_delete."""
         tasks_client.delete(task=_TASK_ID)
 
-        mock_api.tasks_delete.assert_called_once_with(task_id=_TASK_ID)
+        mock_api.delete_task.assert_called_once_with(task_id=_TASK_ID)
 
     def test_delete_returns_none(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
         """delete() should return None when the API succeeds."""
-        mock_api.tasks_delete.return_value = None
+        mock_api.delete_task.return_value = None
 
         result = tasks_client.delete(task=_TASK_ID)
 
         assert result is None
 
-    def test_delete_emits_alpha_prerelease_warning(
+    def test_delete_emits_beta_prerelease_warning(
         self,
         tasks_client: TasksClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call to delete() should emit the ALPHA prerelease warning."""
+        """First call to delete() should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -802,7 +803,7 @@ class TestTasksClientDelete:
         tasks_client.delete(task=_TASK_ID)
 
         assert any(
-            "ALPHA" in record.message and "tasks.delete" in record.message
+            "BETA" in record.message and "tasks.delete" in record.message
             for record in caplog.records
         )
 
@@ -820,7 +821,7 @@ class TestTasksClientTriggerRun:
                 "arize._generated.api_client.TriggerEvaluationTaskRunRequest"
             ) as mock_inner_cls,
             patch(
-                "arize._generated.api_client.TasksTriggerRunRequest"
+                "arize._generated.api_client.TriggerTaskRunRequest"
             ) as mock_wrapper_cls,
         ):
             mock_inner = Mock()
@@ -838,9 +839,9 @@ class TestTasksClientTriggerRun:
             experiment_ids=None,
         )
         mock_wrapper_cls.assert_called_once_with(actual_instance=mock_inner)
-        mock_api.tasks_trigger_run.assert_called_once_with(
+        mock_api.trigger_task_run.assert_called_once_with(
             task_id=_TASK_ID,
-            tasks_trigger_run_request=mock_wrapper,
+            trigger_task_run_request=mock_wrapper,
         )
 
     def test_trigger_run_with_all_params(
@@ -856,7 +857,7 @@ class TestTasksClientTriggerRun:
             patch(
                 "arize._generated.api_client.TriggerEvaluationTaskRunRequest"
             ) as mock_inner_cls,
-            patch("arize._generated.api_client.TasksTriggerRunRequest"),
+            patch("arize._generated.api_client.TriggerTaskRunRequest"),
         ):
             mock_inner_cls.return_value = Mock()
 
@@ -881,24 +882,24 @@ class TestTasksClientTriggerRun:
     ) -> None:
         """trigger_run() should propagate the return value."""
         expected = Mock()
-        mock_api.tasks_trigger_run.return_value = expected
+        mock_api.trigger_task_run.return_value = expected
 
         with (
             patch(
                 "arize._generated.api_client.TriggerEvaluationTaskRunRequest"
             ),
-            patch("arize._generated.api_client.TasksTriggerRunRequest"),
+            patch("arize._generated.api_client.TriggerTaskRunRequest"),
         ):
             result = tasks_client.trigger_run(task=_TASK_ID)
 
         assert result is expected
 
-    def test_trigger_run_emits_alpha_prerelease_warning(
+    def test_trigger_run_emits_beta_prerelease_warning(
         self,
         tasks_client: TasksClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call to trigger_run() should emit the ALPHA prerelease warning."""
+        """First call to trigger_run() should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -908,12 +909,12 @@ class TestTasksClientTriggerRun:
             patch(
                 "arize._generated.api_client.TriggerEvaluationTaskRunRequest"
             ),
-            patch("arize._generated.api_client.TasksTriggerRunRequest"),
+            patch("arize._generated.api_client.TriggerTaskRunRequest"),
         ):
             tasks_client.trigger_run(task=_TASK_ID)
 
         assert any(
-            "ALPHA" in record.message and "tasks.trigger_run" in record.message
+            "BETA" in record.message and "tasks.trigger_run" in record.message
             for record in caplog.records
         )
 
@@ -932,7 +933,7 @@ class TestTasksClientTriggerRun:
         value: object,
     ) -> None:
         """trigger_run() against an eval task should reject run_experiment-only fields."""
-        mock_api.tasks_get.return_value.type = "template_evaluation"
+        mock_api.get_task.return_value.type = "TEMPLATE_EVALUATION"
 
         with pytest.raises(ValueError, match=field):
             tasks_client.trigger_run(task=_TASK_ID, **{field: value})
@@ -944,7 +945,7 @@ class TestTasksClientTriggerRunExperiment:
 
     @staticmethod
     def _set_run_experiment_task(mock_api: Mock) -> None:
-        mock_api.tasks_get.return_value.type = "run_experiment"
+        mock_api.get_task.return_value.type = "RUN_EXPERIMENT"
 
     def test_trigger_run_run_experiment_minimal(
         self, tasks_client: TasksClient, mock_api: Mock
@@ -957,7 +958,7 @@ class TestTasksClientTriggerRunExperiment:
                 "arize._generated.api_client.TriggerRunExperimentTaskRunRequest"
             ) as mock_inner_cls,
             patch(
-                "arize._generated.api_client.TasksTriggerRunRequest"
+                "arize._generated.api_client.TriggerTaskRunRequest"
             ) as mock_wrapper_cls,
         ):
             mock_inner = Mock()
@@ -976,9 +977,9 @@ class TestTasksClientTriggerRunExperiment:
             evaluation_task_ids=None,
         )
         mock_wrapper_cls.assert_called_once_with(actual_instance=mock_inner)
-        mock_api.tasks_trigger_run.assert_called_once_with(
+        mock_api.trigger_task_run.assert_called_once_with(
             task_id=_TASK_ID,
-            tasks_trigger_run_request=mock_wrapper,
+            trigger_task_run_request=mock_wrapper,
         )
 
     def test_trigger_run_run_experiment_forwards_all_fields(
@@ -991,7 +992,7 @@ class TestTasksClientTriggerRunExperiment:
             patch(
                 "arize._generated.api_client.TriggerRunExperimentTaskRunRequest"
             ) as mock_inner_cls,
-            patch("arize._generated.api_client.TasksTriggerRunRequest"),
+            patch("arize._generated.api_client.TriggerTaskRunRequest"),
         ):
             mock_inner_cls.return_value = Mock()
 
@@ -1022,7 +1023,7 @@ class TestTasksClientTriggerRunExperiment:
             patch(
                 "arize._generated.api_client.TriggerRunExperimentTaskRunRequest"
             ) as mock_inner_cls,
-            patch("arize._generated.api_client.TasksTriggerRunRequest"),
+            patch("arize._generated.api_client.TriggerTaskRunRequest"),
         ):
             mock_inner_cls.return_value = Mock()
 
@@ -1095,14 +1096,14 @@ class TestTasksClientListRuns:
         """list_runs() should forward all parameters to task_runs_list."""
         tasks_client.list_runs(
             task=_TASK_ID,
-            status="completed",
+            status="COMPLETED",
             limit=25,
             cursor="cursor-abc",
         )
 
-        mock_api.task_runs_list.assert_called_once_with(
+        mock_api.list_task_runs.assert_called_once_with(
             task_id=_TASK_ID,
-            status="completed",
+            status="COMPLETED",
             limit=25,
             cursor="cursor-abc",
         )
@@ -1113,7 +1114,7 @@ class TestTasksClientListRuns:
         """list_runs() should default status/cursor to None and limit to 50."""
         tasks_client.list_runs(task=_TASK_ID)
 
-        mock_api.task_runs_list.assert_called_once_with(
+        mock_api.list_task_runs.assert_called_once_with(
             task_id=_TASK_ID,
             status=None,
             limit=50,
@@ -1125,18 +1126,18 @@ class TestTasksClientListRuns:
     ) -> None:
         """list_runs() should propagate the return value."""
         expected = Mock()
-        mock_api.task_runs_list.return_value = expected
+        mock_api.list_task_runs.return_value = expected
 
         result = tasks_client.list_runs(task=_TASK_ID)
 
         assert result is expected
 
-    def test_list_runs_emits_alpha_prerelease_warning(
+    def test_list_runs_emits_beta_prerelease_warning(
         self,
         tasks_client: TasksClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -1145,7 +1146,7 @@ class TestTasksClientListRuns:
         tasks_client.list_runs(task=_TASK_ID)
 
         assert any(
-            "ALPHA" in record.message and "tasks.list_runs" in record.message
+            "BETA" in record.message and "tasks.list_runs" in record.message
             for record in caplog.records
         )
 
@@ -1160,25 +1161,25 @@ class TestTasksClientGetRun:
         """get_run() should pass run_id to task_runs_get."""
         tasks_client.get_run(run_id="run-456")
 
-        mock_api.task_runs_get.assert_called_once_with(run_id="run-456")
+        mock_api.get_task_run.assert_called_once_with(run_id="run-456")
 
     def test_get_run_returns_api_response(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
         """get_run() should propagate the return value."""
         expected = Mock()
-        mock_api.task_runs_get.return_value = expected
+        mock_api.get_task_run.return_value = expected
 
         result = tasks_client.get_run(run_id="run-456")
 
         assert result is expected
 
-    def test_get_run_emits_alpha_prerelease_warning(
+    def test_get_run_emits_beta_prerelease_warning(
         self,
         tasks_client: TasksClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -1187,7 +1188,7 @@ class TestTasksClientGetRun:
         tasks_client.get_run(run_id="run-456")
 
         assert any(
-            "ALPHA" in record.message and "tasks.get_run" in record.message
+            "BETA" in record.message and "tasks.get_run" in record.message
             for record in caplog.records
         )
 
@@ -1202,25 +1203,25 @@ class TestTasksClientCancelRun:
         """cancel_run() should pass run_id to task_runs_cancel."""
         tasks_client.cancel_run(run_id="run-456")
 
-        mock_api.task_runs_cancel.assert_called_once_with(run_id="run-456")
+        mock_api.cancel_task_run.assert_called_once_with(run_id="run-456")
 
     def test_cancel_run_returns_api_response(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
         """cancel_run() should propagate the return value."""
         expected = Mock()
-        mock_api.task_runs_cancel.return_value = expected
+        mock_api.cancel_task_run.return_value = expected
 
         result = tasks_client.cancel_run(run_id="run-456")
 
         assert result is expected
 
-    def test_cancel_run_emits_alpha_prerelease_warning(
+    def test_cancel_run_emits_beta_prerelease_warning(
         self,
         tasks_client: TasksClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -1229,7 +1230,7 @@ class TestTasksClientCancelRun:
         tasks_client.cancel_run(run_id="run-456")
 
         assert any(
-            "ALPHA" in record.message and "tasks.cancel_run" in record.message
+            "BETA" in record.message and "tasks.cancel_run" in record.message
             for record in caplog.records
         )
 
@@ -1247,8 +1248,8 @@ class TestTasksClientWaitForRun:
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
         """wait_for_run() should return at once when the run is already terminal."""
-        for status in ("completed", "failed", "cancelled"):
-            mock_api.task_runs_get.return_value = self._make_run(status)
+        for status in ("COMPLETED", "FAILED", "CANCELLED"):
+            mock_api.get_task_run.return_value = self._make_run(status)
             result = tasks_client.wait_for_run(run_id="run-456")
             assert result.status == status
 
@@ -1257,19 +1258,19 @@ class TestTasksClientWaitForRun:
     ) -> None:
         """wait_for_run() should keep polling until a terminal status appears."""
         runs = [
-            self._make_run("pending"),
-            self._make_run("running"),
-            self._make_run("completed"),
+            self._make_run("PENDING"),
+            self._make_run("RUNNING"),
+            self._make_run("COMPLETED"),
         ]
-        mock_api.task_runs_get.side_effect = runs
+        mock_api.get_task_run.side_effect = runs
 
         with patch("time.sleep") as mock_sleep:
             result = tasks_client.wait_for_run(
                 run_id="run-456", poll_interval=2.0
             )
 
-        assert result.status == "completed"
-        assert mock_api.task_runs_get.call_count == 3
+        assert result.status == "COMPLETED"
+        assert mock_api.get_task_run.call_count == 3
         assert mock_sleep.call_count == 2
         mock_sleep.assert_called_with(2.0)
 
@@ -1277,7 +1278,7 @@ class TestTasksClientWaitForRun:
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
         """wait_for_run() should raise TimeoutError when timeout is exceeded."""
-        mock_api.task_runs_get.return_value = self._make_run("running")
+        mock_api.get_task_run.return_value = self._make_run("RUNNING")
 
         with (
             patch("time.sleep"),
@@ -1295,7 +1296,7 @@ class TestTasksClientWaitForRun:
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
         """wait_for_run() should use the module-level defaults when not specified."""
-        mock_api.task_runs_get.return_value = self._make_run("completed")
+        mock_api.get_task_run.return_value = self._make_run("COMPLETED")
 
         # Patch sleep so we don't actually sleep; confirm defaults by checking
         # the import-level constants.
@@ -1305,25 +1306,25 @@ class TestTasksClientWaitForRun:
         with patch("time.sleep"):
             result = tasks_client.wait_for_run(run_id="run-456")
 
-        assert result.status == "completed"
+        assert result.status == "COMPLETED"
 
-    def test_wait_for_run_emits_alpha_prerelease_warning(
+    def test_wait_for_run_emits_beta_prerelease_warning(
         self,
         tasks_client: TasksClient,
         mock_api: Mock,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
-        mock_api.task_runs_get.return_value = self._make_run("completed")
+        mock_api.get_task_run.return_value = self._make_run("COMPLETED")
 
         tasks_client.wait_for_run(run_id="run-456")
 
         assert any(
-            "ALPHA" in record.message and "tasks.wait_for_run" in record.message
+            "BETA" in record.message and "tasks.wait_for_run" in record.message
             for record in caplog.records
         )
 

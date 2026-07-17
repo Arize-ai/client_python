@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
-    from arize.roles.types import Permission, Role, RoleListResponse
+    from arize.roles.types import ListRolesResponse, Permission, Role
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class RolesClient:
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
         is_predefined: bool | None = None,
-    ) -> RoleListResponse:
+    ) -> ListRolesResponse:
         """List roles for the authenticated user's account.
 
         This endpoint supports cursor-based pagination. When provided,
@@ -76,7 +76,7 @@ class RolesClient:
         Raises:
             ApiException: If the API request fails.
         """
-        return self._api.roles_list(
+        return self._api.list_roles(
             limit=limit,
             cursor=cursor,
             is_predefined=is_predefined,
@@ -99,7 +99,7 @@ class RolesClient:
                 (for example, role not found).
         """
         role_id = _find_role_id(self._api, role)
-        return self._api.roles_get(role_id=role_id)
+        return self._api.get_role(role_id=role_id)
 
     @prerelease_endpoint(key="roles.create", stage=ReleaseStage.BETA)
     def create(
@@ -129,12 +129,12 @@ class RolesClient:
         """
         from arize._generated import api_client as gen
 
-        body = gen.RoleCreate(
+        body = gen.CreateRoleRequest(
             name=name,
             permissions=permissions,
             description=description,
         )
-        return self._api.roles_create(role_create=body)
+        return self._api.create_role(create_role_request=body)
 
     @prerelease_endpoint(key="roles.update", stage=ReleaseStage.BETA)
     def update(
@@ -179,12 +179,12 @@ class RolesClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.RoleUpdate(
+        body = gen.UpdateRoleRequest(
             name=name,
             description=description,
             permissions=permissions,
         )
-        return self._api.roles_update(role_id=role_id, role_update=body)
+        return self._api.update_role(role_id=role_id, update_role_request=body)
 
     @prerelease_endpoint(key="roles.delete", stage=ReleaseStage.BETA)
     def delete(self, *, role: str) -> None:
@@ -205,4 +205,4 @@ class RolesClient:
         from arize.utils.resolve import _find_role_id
 
         role_id = _find_role_id(self._api, role)
-        return self._api.roles_delete(role_id=role_id)
+        return self._api.delete_role(role_id=role_id)

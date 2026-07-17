@@ -26,36 +26,36 @@ class TestRolesApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_roles_create(self) -> None:
-        """Test case for roles_create
+    def test_create_role(self) -> None:
+        """Test case for create_role
 
         Create a role
         """
         pass
 
-    def test_roles_delete(self) -> None:
-        """Test case for roles_delete
+    def test_delete_role(self) -> None:
+        """Test case for delete_role
 
         Delete a role
         """
         pass
 
-    def test_roles_get(self) -> None:
-        """Test case for roles_get
+    def test_get_role(self) -> None:
+        """Test case for get_role
 
         Get a role
         """
         pass
 
-    def test_roles_list(self) -> None:
-        """Test case for roles_list
+    def test_list_roles(self) -> None:
+        """Test case for list_roles
 
         List roles
         """
         pass
 
-    def test_roles_update(self) -> None:
-        """Test case for roles_update
+    def test_update_role(self) -> None:
+        """Test case for update_role
 
         Update a role
         """

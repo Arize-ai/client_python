@@ -20,14 +20,14 @@ from typing_extensions import Self
 
 class AnnotationQueueSourceType(str, Enum):
     """
-    Source type of the annotation queue record. - spans - The record originates from span data. - dataset - The record originates from a dataset example. 
+    Source type of the annotation queue record. - SPANS - The record originates from span data. - DATASET - The record originates from a dataset example. 
     """
 
     """
     allowed enum values
     """
-    SPANS = 'spans'
-    DATASET = 'dataset'
+    SPANS = 'SPANS'
+    DATASET = 'DATASET'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

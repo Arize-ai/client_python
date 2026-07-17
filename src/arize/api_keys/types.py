@@ -1,11 +1,8 @@
 """Public type re-exports for the api_keys subdomain."""
 
+from arize._generated.api_client.models.api_key import ApiKey
 from arize._generated.api_client.models.api_key_account_role import (
     ApiKeyAccountRole,
-)
-from arize._generated.api_client.models.api_key_created import ApiKeyCreated
-from arize._generated.api_client.models.api_key_list_response import (
-    ApiKeyListResponse,
 )
 from arize._generated.api_client.models.api_key_organization_role import (
     ApiKeyOrganizationRole,
@@ -16,14 +13,17 @@ from arize._generated.api_client.models.api_key_space_role import (
 )
 from arize._generated.api_client.models.api_key_status import ApiKeyStatus
 from arize._generated.api_client.models.api_key_type import ApiKeyType
+from arize._generated.api_client.models.list_api_keys_response import (
+    ListApiKeysResponse,
+)
 
 __all__ = [
+    "ApiKey",
     "ApiKeyAccountRole",
-    "ApiKeyCreated",
-    "ApiKeyListResponse",
     "ApiKeyOrganizationRole",
     "ApiKeyRoles",
     "ApiKeySpaceRole",
     "ApiKeyStatus",
     "ApiKeyType",
+    "ListApiKeysResponse",
 ]

@@ -35,7 +35,7 @@ class TestAnnotationQueueSpanRecordInput(unittest.TestCase):
         model = AnnotationQueueSpanRecordInput()
         if include_optional:
             return AnnotationQueueSpanRecordInput(
-                record_type = 'span',
+                record_type = 'SPAN',
                 project_id = '',
                 start_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 end_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
@@ -45,7 +45,7 @@ class TestAnnotationQueueSpanRecordInput(unittest.TestCase):
             )
         else:
             return AnnotationQueueSpanRecordInput(
-                record_type = 'span',
+                record_type = 'SPAN',
                 project_id = '',
                 start_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 end_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),

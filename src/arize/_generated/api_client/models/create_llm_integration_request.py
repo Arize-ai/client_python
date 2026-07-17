@@ -37,8 +37,8 @@ class CreateLlmIntegrationRequest(BaseModel):
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['llm']):
-            raise ValueError("must be one of enum values ('llm')")
+        if value not in set(['LLM']):
+            raise ValueError("must be one of enum values ('LLM')")
         return value
 
     model_config = ConfigDict(

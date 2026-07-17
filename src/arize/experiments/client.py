@@ -54,12 +54,12 @@ if TYPE_CHECKING:
     from arize.experiments.types import (
         AnnotateRecordInput,
         Experiment,
-        ExperimentListResponse,
-        ExperimentRunCreate,
-        ExperimentRunsListResponse,
+        ExperimentRunInput,
         ExperimentTask,
         ExperimentTaskFieldNames,
         ExperimentWithRunIds,
+        ListExperimentRunsResponse,
+        ListExperimentsResponse,
     )
 
 logger = logging.getLogger(__name__)
@@ -102,7 +102,7 @@ class ExperimentsClient:
         space: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> ExperimentListResponse:
+    ) -> ListExperimentsResponse:
         """List experiments the user has access to.
 
         To filter experiments by the dataset they were run on, provide `dataset`.
@@ -130,7 +130,7 @@ class ExperimentsClient:
             if dataset
             else None
         )
-        return self._api.experiments_list(
+        return self._api.list_experiments(
             dataset_id=dataset_id,
             limit=limit,
             cursor=cursor,
@@ -215,18 +215,18 @@ class ExperimentsClient:
                 obj
                 for run in data
                 if (
-                    obj := gen.ExperimentRunCreate.from_dict(
+                    obj := gen.ExperimentRunInput.from_dict(
                         cast("dict[str, Any]", run)
                     )
                 )
                 is not None
             ]
-            body = gen.ExperimentsCreateRequest(
+            body = gen.CreateExperimentRequest(
                 name=name,
                 dataset_id=dataset_id,
                 experiment_runs=runs_create,
             )
-            return self._api.experiments_create(experiments_create_request=body)
+            return self._api.create_experiment(create_experiment_request=body)
 
         # If we have too many examples, try to convert to a dataframe
         # and log via gRPC + flight
@@ -237,7 +237,7 @@ class ExperimentsClient:
 
         # TODO(Kiko): Space ID should not be needed,
         # should work on server tech debt to remove this
-        dataset_obj = self._datasets_api.datasets_get(dataset_id=dataset_id)
+        dataset_obj = self._datasets_api.get_dataset(dataset_id=dataset_id)
         space_id = dataset_obj.space_id
 
         self._init_experiment_via_flight(
@@ -284,7 +284,7 @@ class ExperimentsClient:
             dataset=dataset,
             space=space,
         )
-        return self._api.experiments_get(experiment_id=experiment_id)
+        return self._api.get_experiment(experiment_id=experiment_id)
 
     @prerelease_endpoint(key="experiments.delete", stage=ReleaseStage.BETA)
     def delete(
@@ -318,7 +318,7 @@ class ExperimentsClient:
             space=space,
         )
 
-        return self._api.experiments_delete(
+        return self._api.delete_experiment(
             experiment_id=experiment_id,
         )
 
@@ -332,7 +332,7 @@ class ExperimentsClient:
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
         all: bool = False,
-    ) -> ExperimentRunsListResponse:
+    ) -> ListExperimentRunsResponse:
         """List runs for an experiment.
 
         Runs are sorted by ``id ASC`` — a stable total order that survives
@@ -374,7 +374,7 @@ class ExperimentsClient:
             space=space,
         )
         if not all:
-            return self._api.experiments_runs_list(
+            return self._api.list_experiment_runs(
                 experiment_id=experiment_id,
                 limit=limit,
                 cursor=cursor,
@@ -384,7 +384,7 @@ class ExperimentsClient:
         experiment_updated_at = getattr(experiment_obj, "updated_at", None)
         # TODO(Kiko): Space ID should not be needed,
         # should work on server tech debt to remove this
-        dataset_obj = self._datasets_api.datasets_get(
+        dataset_obj = self._datasets_api.get_dataset(
             dataset_id=experiment_obj.dataset_id
         )
         space_id = dataset_obj.space_id
@@ -409,7 +409,7 @@ class ExperimentsClient:
                 )
                 is not None
             ]
-            return models.ExperimentRunsListResponse(
+            return models.ListExperimentRunsResponse(
                 experiment_runs=experiment_runs,
                 pagination=models.PaginationMetadata(
                     has_more=False,  # Note that all=True
@@ -453,7 +453,7 @@ class ExperimentsClient:
             )
             is not None
         ]
-        return models.ExperimentRunsListResponse(
+        return models.ListExperimentRunsResponse(
             experiment_runs=experiment_runs,
             pagination=models.PaginationMetadata(
                 has_more=False,  # Note that all=True
@@ -467,7 +467,7 @@ class ExperimentsClient:
         experiment: str,
         dataset: str | None = None,
         space: str | None = None,
-        experiment_runs: builtins.list[ExperimentRunCreate] | pd.DataFrame,
+        experiment_runs: builtins.list[ExperimentRunInput] | pd.DataFrame,
     ) -> ExperimentWithRunIds:
         """Append new runs to an existing experiment.
 
@@ -516,7 +516,7 @@ class ExperimentsClient:
                 obj
                 for run in data
                 if (
-                    obj := gen.ExperimentRunCreate.from_dict(
+                    obj := gen.ExperimentRunInput.from_dict(
                         cast("dict[str, Any]", run)
                     )
                 )
@@ -524,10 +524,10 @@ class ExperimentsClient:
             ]
         else:
             runs_create = list(experiment_runs)
-        body = gen.InsertExperimentRunsBody(experiment_runs=runs_create)
-        return self._api.experiments_runs_insert(
+        body = gen.InsertExperimentRunsRequest(experiment_runs=runs_create)
+        return self._api.insert_experiment_runs(
             experiment_id=experiment_id,
-            insert_experiment_runs_body=body,
+            insert_experiment_runs_request=body,
         )
 
     @prerelease_endpoint(
@@ -576,10 +576,10 @@ class ExperimentsClient:
         )
         from arize._generated import api_client as gen
 
-        body = gen.AnnotateExperimentRunsRequestBody(annotations=annotations)
-        return self._api.experiments_runs_annotate(
+        body = gen.AnnotateExperimentRunsRequest(annotations=annotations)
+        return self._api.annotate_experiment_runs(
             experiment_id=experiment_id,
-            annotate_experiment_runs_request_body=body,
+            annotate_experiment_runs_request=body,
         )
 
     def run(
@@ -661,7 +661,7 @@ class ExperimentsClient:
         )
         # TODO(Kiko): Space ID should not be needed,
         # should work on server tech debt to remove this
-        dataset_obj = self._datasets_api.datasets_get(dataset_id=dataset_id)
+        dataset_obj = self._datasets_api.get_dataset(dataset_id=dataset_id)
         space_id = dataset_obj.space_id
         dataset_updated_at = getattr(dataset_obj, "updated_at", None)
 
@@ -697,7 +697,7 @@ class ExperimentsClient:
         dataset_version_id: str | None = None
         if not dry_run:
             try:
-                exp_obj = self._api.experiments_get(experiment_id=experiment_id)
+                exp_obj = self._api.get_experiment(experiment_id=experiment_id)
                 dataset_version_id = exp_obj.dataset_version_id
             except ApiException:
                 logger.debug(
@@ -806,14 +806,14 @@ class ExperimentsClient:
     # ) -> Experiment:
     #     from arize._generated import api_client as gen
     #
-    #     body = gen.ExperimentsCreateRequest(
+    #     body = gen.CreateExperimentRequest(
     #         name=experiment_name,
     #         dataset_id=dataset_id,
     #         experiment_runs=[],
     #     )
     #     try:
-    #         response = self._api.experiments_create(
-    #             experiments_create_request=body
+    #         response = self._api.create_experiment(
+    #             create_experiment_request=body
     #         )
     #     except Exception as e:
     #         msg = f"Error during REST request: {e!s}"
@@ -854,7 +854,7 @@ class ExperimentsClient:
         dataset_id: str,
     ) -> pd.DataFrame:
         try:
-            response = self._datasets_api.datasets_examples_list(
+            response = self._datasets_api.list_dataset_examples(
                 dataset_id=dataset_id,
                 limit=500,
             )
@@ -903,18 +903,18 @@ class ExperimentsClient:
             obj
             for run in data
             if (
-                obj := gen.ExperimentRunCreate.from_dict(
+                obj := gen.ExperimentRunInput.from_dict(
                     cast("dict[str, Any]", run)
                 )
             )
             is not None
         ]
-        body = gen.ExperimentsCreateRequest(
+        body = gen.CreateExperimentRequest(
             name=name,
             dataset_id=dataset_id,
             experiment_runs=runs_create,
         )
-        return self._api.experiments_create(experiments_create_request=body)
+        return self._api.create_experiment(create_experiment_request=body)
 
     def _post_experiment_runs_via_flight(
         self,

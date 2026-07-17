@@ -1,6 +1,6 @@
 # Task
 
-A task is a typed, configurable unit of work that ties one or more evaluators to a data source (project or dataset). `run_experiment` tasks additionally carry a `run_configuration` that defines the LLM or evaluator settings for each triggered run. 
+A task is a typed, configurable unit of work that ties one or more evaluators to a data source (project or dataset). `RUN_EXPERIMENT` tasks additionally carry a `run_configuration` that defines the LLM or evaluator settings for each triggered run. 
 
 ## Properties
 
@@ -16,7 +16,7 @@ Name | Type | Description | Notes
 **query_filter** | **str** | Task-level query filter applied to all data. | 
 **evaluators** | [**List[TaskEvaluator]**](TaskEvaluator.md) | The evaluators attached to this task. Empty for run_experiment tasks. | 
 **experiment_ids** | **List[str]** | Experiment identifiers (base64) for dataset-based tasks. | 
-**run_configuration** | [**RunConfiguration**](RunConfiguration.md) | The run configuration for a &#x60;run_experiment&#x60; task. Present only when &#x60;type&#x60; is &#x60;run_experiment&#x60;. Null for all other task types.  | [optional] 
+**run_configuration** | [**RunConfiguration**](RunConfiguration.md) | The run configuration for a &#x60;RUN_EXPERIMENT&#x60; task. Present only when &#x60;type&#x60; is &#x60;RUN_EXPERIMENT&#x60;. Null for all other task types.  | [optional] 
 **last_run_at** | **datetime** | When the task was last run. | 
 **created_at** | **datetime** | When the task was created. | 
 **updated_at** | **datetime** | When the task was last updated. | 

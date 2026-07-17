@@ -20,14 +20,14 @@ from typing_extensions import Self
 
 class ApiKeyAccountRole(str, Enum):
     """
-    Account-level role for a service key's bot user. - admin - Full account administrative access. - member - Standard account access. 
+    Account-level role for a service key's bot user. - ADMIN - Full account administrative access. - MEMBER - Standard account access. 
     """
 
     """
     allowed enum values
     """
-    ADMIN = 'admin'
-    MEMBER = 'member'
+    ADMIN = 'ADMIN'
+    MEMBER = 'MEMBER'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

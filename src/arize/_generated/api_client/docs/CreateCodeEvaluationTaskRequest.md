@@ -1,20 +1,20 @@
 # CreateCodeEvaluationTaskRequest
 
-Request body for creating a `code_evaluation` task. Requires `evaluators` and exactly one of `project_id` or `dataset_id`. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. 
+Request body for creating a `CODE_EVALUATION` task. Requires `evaluators` and exactly one of `project_id` or `dataset_id`. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Task name | 
-**type** | **str** | Task type discriminator. Must be &#x60;\&quot;code_evaluation\&quot;&#x60;. | 
 **project_id** | **str** | Project identifier (base64). Required when &#x60;dataset_id&#x60; is not provided. Mutually exclusive with &#x60;dataset_id&#x60;.  | [optional] 
 **dataset_id** | **str** | Dataset identifier (base64). Required when &#x60;project_id&#x60; is not provided. Mutually exclusive with &#x60;project_id&#x60;.  | [optional] 
 **experiment_ids** | **List[str]** | Experiment identifiers (base64). Required when &#x60;dataset_id&#x60; is provided (at least one entry). Must be omitted or empty for project-based tasks.  | [optional] 
 **sampling_rate** | **float** | Sampling rate between 0 and 1. Only supported on project-based tasks.  | [optional] 
 **is_continuous** | **bool** | Whether the task runs continuously. Only supported on project-based tasks. Must be &#x60;false&#x60; or omitted for dataset-based tasks.  | [optional] 
 **query_filter** | **str** | Task-level query filter applied to all evaluated data. | [optional] 
-**evaluators** | [**List[BaseEvaluationTaskRequestEvaluatorsInner]**](BaseEvaluationTaskRequestEvaluatorsInner.md) | Evaluators to attach (at least one required). | 
+**evaluators** | [**List[TaskEvaluatorInput]**](TaskEvaluatorInput.md) | Evaluators to attach (at least one required). | 
+**type** | **str** | Task type discriminator. Must be &#x60;\&quot;CODE_EVALUATION\&quot;&#x60;. | 
 
 ## Example
 

@@ -1,5 +1,60 @@
 # Changelog
 
+## [8.40.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.39.0...arize-python-sdk/v8.40.0) (2026-07-16)
+
+> **Minor release.** The v2 REST API standardization ([#78907](https://github.com/Arize-ai/arize/pull/78907)) is technically breaking, but **only affects endpoints/methods in `alpha` or `beta`** — all gated behind the pre-release opt-in and documented with a warning. **No stable surface changes.**
+
+### ⚠ BREAKING CHANGES (pre-release only)
+
+* **enums:** standardize all enum values to `SCREAMING_SNAKE_CASE` — AI integrations, prompts, evaluators, tasks, orgs, spaces, users, API keys, and roles ([#78718](https://github.com/Arize-ai/arize/issues/78718), [#78720](https://github.com/Arize-ai/arize/issues/78720), [#78721](https://github.com/Arize-ai/arize/issues/78721), [#78722](https://github.com/Arize-ai/arize/issues/78722)) ([b17b78d](https://github.com/Arize-ai/arize/commit/b17b78d6a68bf8a6e0736df251a73a9dc0c33cab))
+* **types:** apply type-naming convention across dataset, org/space/user, access-control, and API-key/audit-log schemas ([#78740](https://github.com/Arize-ai/arize/issues/78740), [#79098](https://github.com/Arize-ai/arize/issues/79098), [#79101](https://github.com/Arize-ai/arize/issues/79101), [#79099](https://github.com/Arize-ai/arize/issues/79099)) ([b17b78d](https://github.com/Arize-ai/arize/commit/b17b78d6a68bf8a6e0736df251a73a9dc0c33cab))
+* **openapi:** enforce verb-first `operationId` naming (`*ListResponse` → `List*Response`), incl. annotation-config & evaluator-version request schemas ([#79270](https://github.com/Arize-ai/arize/issues/79270), [#79433](https://github.com/Arize-ai/arize/issues/79433)) ([b17b78d](https://github.com/Arize-ai/arize/commit/b17b78d6a68bf8a6e0736df251a73a9dc0c33cab))
+* **prompts:** `set-prompt-version-labels` now returns the full `PromptVersion` ([#79278](https://github.com/Arize-ai/arize/issues/79278)) ([b17b78d](https://github.com/Arize-ai/arize/commit/b17b78d6a68bf8a6e0736df251a73a9dc0c33cab))
+
+### 🎁 New Features
+
+* **api:** return `404` for list endpoints when the scoped resource is missing or inaccessible ([#79279](https://github.com/Arize-ai/arize/issues/79279)) ([b17b78d](https://github.com/Arize-ai/arize/commit/b17b78d6a68bf8a6e0736df251a73a9dc0c33cab))
+* **openapi:** enforce naming conventions and extract shared nested schemas ([#79103](https://github.com/Arize-ai/arize/issues/79103)) ([b17b78d](https://github.com/Arize-ai/arize/commit/b17b78d6a68bf8a6e0736df251a73a9dc0c33cab))
+* **spectral:** enforce lockstep naming and strict nested-schema lint rules ([#79280](https://github.com/Arize-ai/arize/issues/79280)) ([b17b78d](https://github.com/Arize-ai/arize/commit/b17b78d6a68bf8a6e0736df251a73a9dc0c33cab))
+
+### 🐛 Bug Fixes
+
+* **ci:** fix the OpenAPI lint check ([#78913](https://github.com/Arize-ai/arize/issues/78913)) ([b17b78d](https://github.com/Arize-ai/arize/commit/b17b78d6a68bf8a6e0736df251a73a9dc0c33cab))
+* **openapi:** resolve follow-up gaps from the REST API audit ([#79440](https://github.com/Arize-ai/arize/issues/79440)) ([b17b78d](https://github.com/Arize-ai/arize/commit/b17b78d6a68bf8a6e0736df251a73a9dc0c33cab))
+
+### ❔ Miscellaneous Chores
+
+* promote pre-release stage from `alpha` to `beta` ([#78707](https://github.com/Arize-ai/arize/issues/78707)) ([b17b78d](https://github.com/Arize-ai/arize/commit/b17b78d6a68bf8a6e0736df251a73a9dc0c33cab))
+
+---
+
+## Migration notes — pre-release (`alpha`/`beta`) consumers only
+
+These renames flow from the OpenAPI spec into the generated v2 REST client. **Public client method names are unchanged** (e.g. `client.tasks.list()`, `client.users.create()`) — what changed are the enum values you pass/receive and the model classes you import.
+
+**Enum values → `SCREAMING_SNAKE_CASE`:**
+
+| Context | Before | After |
+|---|---|---|
+| Role names | `"admin"`, `"member"`, `"read-only"`, `"annotator"` | `"ADMIN"`, `"MEMBER"`, `"READ_ONLY"`, `"ANNOTATOR"` |
+| Role type | `"predefined"`, `"custom"` | `"PREDEFINED"`, `"CUSTOM"` |
+| User status | `"active"`, `"invited"`, `"expired"` | `"ACTIVE"`, `"INVITED"`, `"EXPIRED"` |
+| Invite mode | `"email_link"`, `"temporary_password"`, `"none"` | `"EMAIL_LINK"`, `"TEMPORARY_PASSWORD"`, `"NONE"` |
+| API key type | `"user"`, `"service"` | `"USER"`, `"SERVICE"` |
+| Task / experiment type | `"template_evaluation"`, `"llm_generation"` | `"TEMPLATE_EVALUATION"`, `"LLM_GENERATION"` |
+| Input variable format | `"f_string"`, `"mustache"` | `"F_STRING"`, `"MUSTACHE"` |
+
+⚠️ **Value change, not just casing** — API key `status`: `"deleted"` → **`"REVOKED"`**.
+
+**Enum-class members renamed:** `InputVariableFormat.FSTRING` → `F_STRING`; `LlmProvider.OPENAI` → `OPEN_AI`; `AiIntegrationProvider.OPENAI` → `OPEN_AI`.
+
+**Model types renamed** (if you import from `arize.<domain>.types`):
+
+* List responses: `<Noun>ListResponse` → `List<Nouns>Response` (e.g. `UserListResponse` → `ListUsersResponse`, `TaskListResponse` → `ListTasksResponse`).
+* `UserCreatedResponse` → `CreateUserResponse`; `UserUpdate` → `UpdateUserRequest`; `ApiKeyCreated` → `ApiKey`; `DatasetExampleDeleteResponse` → `DeleteDatasetExamplesResponse`.
+* `BuiltinUserRoleAssignment(type="builtin", name="member")` → `PredefinedUserRole(name="MEMBER")` (type renamed, `type` discriminator dropped).
+* `BaseEvaluationTaskRequestEvaluatorsInner` → `TaskEvaluatorInput`.
+
 ## [8.39.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.38.0...arize-python-sdk/v8.39.0) (2026-07-10)
 
 

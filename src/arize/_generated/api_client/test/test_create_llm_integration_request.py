@@ -35,7 +35,7 @@ class TestCreateLlmIntegrationRequest(unittest.TestCase):
         model = CreateLlmIntegrationRequest()
         if include_optional:
             return CreateLlmIntegrationRequest(
-                type = 'llm',
+                type = 'LLM',
                 name = '',
                 scopings = [
                     arize._generated.api_client.models.integration_scoping.IntegrationScoping(
@@ -46,7 +46,7 @@ class TestCreateLlmIntegrationRequest(unittest.TestCase):
             )
         else:
             return CreateLlmIntegrationRequest(
-                type = 'llm',
+                type = 'LLM',
                 name = '',
                 config = arize._generated.api_client.models.create_llm_config.CreateLlmConfig(),
         )

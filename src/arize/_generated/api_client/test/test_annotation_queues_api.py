@@ -26,59 +26,73 @@ class TestAnnotationQueuesApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_annotation_queue_records_list(self) -> None:
-        """Test case for annotation_queue_records_list
+    def test_annotate_annotation_queue_record(self) -> None:
+        """Test case for annotate_annotation_queue_record
 
-        List annotation queue records
+        Annotate a record
         """
         pass
 
-    def test_annotation_queues_create(self) -> None:
-        """Test case for annotation_queues_create
+    def test_assign_annotation_queue_record(self) -> None:
+        """Test case for assign_annotation_queue_record
+
+        Assign users to a record
+        """
+        pass
+
+    def test_create_annotation_queue(self) -> None:
+        """Test case for create_annotation_queue
 
         Create an annotation queue
         """
         pass
 
-    def test_annotation_queues_delete(self) -> None:
-        """Test case for annotation_queues_delete
-
-        Delete an annotation queue
-        """
-        pass
-
-    def test_annotation_queues_get(self) -> None:
-        """Test case for annotation_queues_get
-
-        Get an annotation queue
-        """
-        pass
-
-    def test_annotation_queues_list(self) -> None:
-        """Test case for annotation_queues_list
-
-        List annotation queues
-        """
-        pass
-
-    def test_annotation_queues_records_create(self) -> None:
-        """Test case for annotation_queues_records_create
+    def test_create_annotation_queue_record(self) -> None:
+        """Test case for create_annotation_queue_record
 
         Create annotation queue records
         """
         pass
 
-    def test_annotation_queues_update(self) -> None:
-        """Test case for annotation_queues_update
+    def test_delete_annotation_queue(self) -> None:
+        """Test case for delete_annotation_queue
 
-        Update an annotation queue
+        Delete an annotation queue
         """
         pass
 
-    def test_annotation_queues_records_update(self) -> None:
-        """Test case for annotation_queues_records_update
+    def test_delete_annotation_queue_record(self) -> None:
+        """Test case for delete_annotation_queue_record
 
-        Update an annotation queue record
+        Delete annotation queue records
+        """
+        pass
+
+    def test_get_annotation_queue(self) -> None:
+        """Test case for get_annotation_queue
+
+        Get an annotation queue
+        """
+        pass
+
+    def test_list_annotation_queue_records(self) -> None:
+        """Test case for list_annotation_queue_records
+
+        List annotation queue records
+        """
+        pass
+
+    def test_list_annotation_queues(self) -> None:
+        """Test case for list_annotation_queues
+
+        List annotation queues
+        """
+        pass
+
+    def test_update_annotation_queue(self) -> None:
+        """Test case for update_annotation_queue
+
+        Update an annotation queue
         """
         pass
 

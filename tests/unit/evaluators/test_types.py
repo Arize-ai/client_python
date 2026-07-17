@@ -37,8 +37,8 @@ from arize.evaluators.types import (
     Evaluator,
     EvaluatorLlmConfig,
     EvaluatorVersionCode,
-    EvaluatorVersionListResponse,
     EvaluatorWithVersion,
+    ListEvaluatorVersionsResponse,
     TemplateConfig,
 )
 
@@ -49,13 +49,13 @@ from arize.evaluators.types import (
 
 def _make_custom_code_config() -> CustomCodeConfig:
     return CustomCodeConfig.model_construct(
-        type="custom", name="test_eval", code="pass", variables=[]
+        type="CUSTOM", name="test_eval", code="pass", variables=[]
     )
 
 
 def _make_managed_code_config() -> ManagedCodeConfig:
     return ManagedCodeConfig.model_construct(
-        type="managed", name="test_eval", managed_evaluator=None, variables=[]
+        type="MANAGED", name="test_eval", managed_evaluator=None, variables=[]
     )
 
 
@@ -73,7 +73,7 @@ def _make_gen_evaluator_version_code(
         commit_message=None,
         created_at=datetime(2024, 1, 1),
         created_by_user_id=None,
-        type="code",
+        type="CODE",
         code_config=code_config,
     )
 
@@ -86,7 +86,7 @@ def _make_evaluator_version_template() -> EvaluatorVersionTemplate:
         commit_message=None,
         created_at=datetime(2024, 1, 1),
         created_by_user_id=None,
-        type="template",
+        type="TEMPLATE",
         template_config=None,
     )
 
@@ -99,7 +99,7 @@ def _make_evaluator_version_harness() -> EvaluatorVersionHarness:
         commit_message=None,
         created_at=datetime(2024, 1, 1),
         created_by_user_id=None,
-        type="harness",
+        type="HARNESS",
     )
 
 
@@ -111,7 +111,7 @@ def _make_evaluator_version_remote() -> EvaluatorVersionRemote:
         commit_message=None,
         created_at=datetime(2024, 1, 1),
         created_by_user_id=None,
-        type="remote",
+        type="REMOTE",
     )
 
 
@@ -127,7 +127,7 @@ def _make_sdk_evaluator_version_code(
         commit_message=None,
         created_at=datetime(2024, 1, 1),
         created_by_user_id=None,
-        type="code",
+        type="CODE",
         code_config=code_config,
     )
 
@@ -147,9 +147,9 @@ class TestEvaluatorsTypes:
         expected = {
             "Evaluator",
             "EvaluatorLlmConfig",
-            "EvaluatorVersionListResponse",
+            "ListEvaluatorVersionsResponse",
             "EvaluatorWithVersion",
-            "EvaluatorListResponse",
+            "ListEvaluatorsResponse",
             "TemplateConfig",
         }
         assert expected.issubset(set(types_module.__all__))
@@ -159,7 +159,7 @@ class TestEvaluatorsTypes:
         [
             Evaluator,
             EvaluatorLlmConfig,
-            EvaluatorVersionListResponse,
+            ListEvaluatorVersionsResponse,
             EvaluatorWithVersion,
             TemplateConfig,
         ],
@@ -184,7 +184,7 @@ class TestEvaluatorVersionCodeCoercion:
             commit_message=None,
             created_at=datetime(2024, 1, 1),
             created_by_user_id=None,
-            type="code",
+            type="CODE",
             code_config=wrapper,
         )
 
@@ -202,7 +202,7 @@ class TestEvaluatorVersionCodeCoercion:
             commit_message=None,
             created_at=datetime(2024, 1, 1),
             created_by_user_id=None,
-            type="code",
+            type="CODE",
             code_config=wrapper,
         )
 
@@ -220,7 +220,7 @@ class TestEvaluatorVersionCodeCoercion:
                 commit_message=None,
                 created_at=datetime(2024, 1, 1),
                 created_by_user_id=None,
-                type="code",
+                type="CODE",
                 code_config=null_wrapper,
             )
 
@@ -235,7 +235,7 @@ class TestEvaluatorVersionCodeCoercion:
             commit_message=None,
             created_at=datetime(2024, 1, 1),
             created_by_user_id=None,
-            type="code",
+            type="CODE",
             code_config=custom,
         )
 
@@ -252,7 +252,7 @@ class TestEvaluatorVersionCodeCoercion:
             commit_message=None,
             created_at=datetime(2024, 1, 1),
             created_by_user_id=None,
-            type="code",
+            type="CODE",
             code_config=managed,
         )
 
@@ -360,7 +360,7 @@ class TestEvaluatorWithVersionCoercion:
         result = self._make_evaluator_with_version(gen_version)
 
         assert isinstance(result.version, EvaluatorVersionHarness)
-        assert result.version.type == "harness"
+        assert result.version.type == "HARNESS"
 
     def test_passes_through_remote_version_from_wrapper(self) -> None:
         """EvaluatorVersion wrapping an EvaluatorVersionRemote should yield EvaluatorVersionRemote."""
@@ -372,12 +372,12 @@ class TestEvaluatorWithVersionCoercion:
         result = self._make_evaluator_with_version(gen_version)
 
         assert isinstance(result.version, EvaluatorVersionRemote)
-        assert result.version.type == "remote"
+        assert result.version.type == "REMOTE"
 
 
 @pytest.mark.unit
 class TestEvaluatorVersionsListCoercion:
-    """Tests for EvaluatorVersionListResponse._coerce_evaluator_versions validator."""
+    """Tests for ListEvaluatorVersionsResponse._coerce_evaluator_versions validator."""
 
     def _make_pagination(self) -> PaginationMetadata:
         return PaginationMetadata.model_construct(
@@ -388,7 +388,7 @@ class TestEvaluatorVersionsListCoercion:
         """_GenEvaluatorVersionCode items in the list should be converted to SDK EvaluatorVersionCode."""
         gen_code = _make_gen_evaluator_version_code()
 
-        response = EvaluatorVersionListResponse(
+        response = ListEvaluatorVersionsResponse(
             evaluator_versions=[gen_code],
             pagination=self._make_pagination(),
         )
@@ -403,7 +403,7 @@ class TestEvaluatorVersionsListCoercion:
             actual_instance=gen_code
         )
 
-        response = EvaluatorVersionListResponse(
+        response = ListEvaluatorVersionsResponse(
             evaluator_versions=[gen_version],
             pagination=self._make_pagination(),
         )
@@ -414,7 +414,7 @@ class TestEvaluatorVersionsListCoercion:
         """EvaluatorVersionTemplate items should pass through unchanged."""
         tmpl = _make_evaluator_version_template()
 
-        response = EvaluatorVersionListResponse(
+        response = ListEvaluatorVersionsResponse(
             evaluator_versions=[tmpl],
             pagination=self._make_pagination(),
         )
@@ -428,7 +428,7 @@ class TestEvaluatorVersionsListCoercion:
         harness = _make_evaluator_version_harness()
         remote = _make_evaluator_version_remote()
 
-        response = EvaluatorVersionListResponse(
+        response = ListEvaluatorVersionsResponse(
             evaluator_versions=[harness, remote],
             pagination=self._make_pagination(),
         )
@@ -447,7 +447,7 @@ class TestEvaluatorVersionsListCoercion:
         harness = _make_evaluator_version_harness()
         remote = _make_evaluator_version_remote()
 
-        response = EvaluatorVersionListResponse(
+        response = ListEvaluatorVersionsResponse(
             evaluator_versions=[gen_code, tmpl, harness, remote],
             pagination=self._make_pagination(),
         )
@@ -465,7 +465,7 @@ class TestEvaluatorVersionsListCoercion:
 
     def test_handles_empty_list(self) -> None:
         """An empty list should produce an empty evaluator_versions list."""
-        response = EvaluatorVersionListResponse(
+        response = ListEvaluatorVersionsResponse(
             evaluator_versions=[],
             pagination=self._make_pagination(),
         )

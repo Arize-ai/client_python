@@ -37,8 +37,8 @@ class FreeformAnnotationConfig(BaseModel):
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['freeform']):
-            raise ValueError("must be one of enum values ('freeform')")
+        if value not in set(['FREEFORM']):
+            raise ValueError("must be one of enum values ('FREEFORM')")
         return value
 
     model_config = ConfigDict(

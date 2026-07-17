@@ -35,14 +35,14 @@ class TestGcpProviderMetadata(unittest.TestCase):
         model = GcpProviderMetadata()
         if include_optional:
             return GcpProviderMetadata(
-                kind = 'gcp',
+                kind = 'GCP',
                 project_id = '',
                 location = '',
                 project_access_label = ''
             )
         else:
             return GcpProviderMetadata(
-                kind = 'gcp',
+                kind = 'GCP',
                 project_id = '',
                 location = '',
                 project_access_label = '',

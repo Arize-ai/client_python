@@ -11,7 +11,7 @@
 
 ```{eval-rst}
 .. currentmodule:: arize.tasks.types
-.. autoclass:: BaseEvaluationTaskRequestEvaluatorsInner
+.. autoclass:: TaskEvaluatorInput
    :members:
    :member-order: bysource
 
@@ -35,7 +35,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: TaskListResponse
+.. autoclass:: ListTasksResponse
    :members:
    :member-order: bysource
 
@@ -43,7 +43,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: TaskRunListResponse
+.. autoclass:: ListTaskRunsResponse
    :members:
    :member-order: bysource
 

@@ -9,6 +9,9 @@ from pydantic import BaseModel, Field, field_validator
 from arize._generated.api_client.models.create_user_request import (
     CreateUserRequest,
 )
+from arize._generated.api_client.models.create_user_response import (
+    CreateUserResponse,
+)
 from arize._generated.api_client.models.custom_user_role_assignment import (
     CustomUserRoleAssignment,
 )
@@ -19,28 +22,27 @@ from arize._generated.api_client.models.pagination_metadata import (
 from arize._generated.api_client.models.predefined_user_role_assignment import (
     PredefinedUserRoleAssignment,
 )
-from arize._generated.api_client.models.user_created_response import (
-    UserCreatedResponse,
+from arize._generated.api_client.models.update_user_request import (
+    UpdateUserRequest,
 )
 from arize._generated.api_client.models.user_role import UserRole
 from arize._generated.api_client.models.user_role_assignment import (
     UserRoleAssignment,
 )
 from arize._generated.api_client.models.user_status import UserStatus
-from arize._generated.api_client.models.user_update import UserUpdate
 
 
 class PredefinedUserRole(PredefinedUserRoleAssignment):
     """A predefined account-level role assignment.
 
-    The ``type`` discriminator is set to ``"predefined"`` automatically.
+    The ``type`` discriminator is set to ``"PREDEFINED"`` automatically.
 
     Args:
-        name: The predefined role name (``"admin"``, ``"member"``, or
-            ``"annotator"``).
+        name: The predefined role name (``"ADMIN"``, ``"MEMBER"``, or
+            ``"ANNOTATOR"``).
     """
 
-    type: Literal["predefined"] = "predefined"  # type: ignore[assignment]
+    type: Literal["PREDEFINED"] = "PREDEFINED"  # type: ignore[assignment]
 
     def __str__(self) -> str:
         """Return the role name as a string."""
@@ -50,7 +52,7 @@ class PredefinedUserRole(PredefinedUserRoleAssignment):
 class CustomUserRole(CustomUserRoleAssignment):
     """A custom RBAC role assignment.
 
-    The ``type`` discriminator is set to ``"custom"`` automatically.
+    The ``type`` discriminator is set to ``"CUSTOM"`` automatically.
 
     Args:
         id: The unique identifier of the custom RBAC role.
@@ -58,7 +60,7 @@ class CustomUserRole(CustomUserRoleAssignment):
             only; ignored on input).
     """
 
-    type: Literal["custom"] = "custom"  # type: ignore[assignment]
+    type: Literal["CUSTOM"] = "CUSTOM"  # type: ignore[assignment]
 
     def __str__(self) -> str:
         """Return the role name if available, otherwise the role id."""
@@ -95,7 +97,7 @@ class User(BaseModel):
         return v
 
 
-class UserListResponse(BaseModel):
+class ListUsersResponse(BaseModel):
     """Paginated list of users with domain-typed roles."""
 
     users: list[User]
@@ -143,14 +145,14 @@ __all__ = [
     "BulkDeleteResponse",
     "BulkUserDeletionResult",
     "CreateUserRequest",
+    "CreateUserResponse",
     "CustomUserRole",
     "DeletionStatus",
     "InviteMode",
+    "ListUsersResponse",
     "PredefinedUserRole",
+    "UpdateUserRequest",
     "User",
-    "UserCreatedResponse",
-    "UserListResponse",
     "UserRole",
     "UserStatus",
-    "UserUpdate",
 ]

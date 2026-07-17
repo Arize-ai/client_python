@@ -19,12 +19,12 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.add_organization_user_request import AddOrganizationUserRequest
+from arize._generated.api_client.models.create_organization_request import CreateOrganizationRequest
+from arize._generated.api_client.models.list_organizations_response import ListOrganizationsResponse
 from arize._generated.api_client.models.organization import Organization
-from arize._generated.api_client.models.organization_create import OrganizationCreate
-from arize._generated.api_client.models.organization_list_response import OrganizationListResponse
 from arize._generated.api_client.models.organization_membership import OrganizationMembership
-from arize._generated.api_client.models.organization_membership_input import OrganizationMembershipInput
-from arize._generated.api_client.models.organization_update import OrganizationUpdate
+from arize._generated.api_client.models.update_organization_request import UpdateOrganizationRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -45,10 +45,10 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_add_user(
+    def add_organization_user(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
-        organization_membership_input: Annotated[OrganizationMembershipInput, Field(description="Body containing the user to add to the organization")],
+        add_organization_user_request: Annotated[AddOrganizationUserRequest, Field(description="Body containing the user to add to the organization")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -64,12 +64,12 @@ class OrganizationsApi:
     ) -> OrganizationMembership:
         """Add a user to an organization
 
-        Add a single existing account user to an organization with a specified role.  **Payload Requirements** - `user_id` and `role` are both required. - If the user is already a member, their role is updated to the specified value (upsert).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` organization role. - Users with a non-annotator account role cannot be assigned the `annotator` organization role.  Requires organization admin.  **Valid example** ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"member\" } ```  **Invalid example** (annotator account user assigned non-annotator org role — returns 400) ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"admin\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Add a single existing account user to an organization with a specified role.  **Payload Requirements** - `user_id` and `role` are both required. - If the user is already a member, their role is updated to the specified value (upsert).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` organization role. - Users with a non-annotator account role cannot be assigned the `annotator` organization role.  Requires organization admin.  **Valid example** ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"MEMBER\" } ```  **Invalid example** (annotator account user assigned non-annotator org role — returns 400) ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"ADMIN\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
-        :param organization_membership_input: Body containing the user to add to the organization (required)
-        :type organization_membership_input: OrganizationMembershipInput
+        :param add_organization_user_request: Body containing the user to add to the organization (required)
+        :type add_organization_user_request: AddOrganizationUserRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -92,9 +92,9 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_add_user_serialize(
+        _param = self._add_organization_user_serialize(
             org_id=org_id,
-            organization_membership_input=organization_membership_input,
+            add_organization_user_request=add_organization_user_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -122,10 +122,10 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_add_user_with_http_info(
+    def add_organization_user_with_http_info(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
-        organization_membership_input: Annotated[OrganizationMembershipInput, Field(description="Body containing the user to add to the organization")],
+        add_organization_user_request: Annotated[AddOrganizationUserRequest, Field(description="Body containing the user to add to the organization")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -141,12 +141,12 @@ class OrganizationsApi:
     ) -> ApiResponse[OrganizationMembership]:
         """Add a user to an organization
 
-        Add a single existing account user to an organization with a specified role.  **Payload Requirements** - `user_id` and `role` are both required. - If the user is already a member, their role is updated to the specified value (upsert).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` organization role. - Users with a non-annotator account role cannot be assigned the `annotator` organization role.  Requires organization admin.  **Valid example** ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"member\" } ```  **Invalid example** (annotator account user assigned non-annotator org role — returns 400) ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"admin\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Add a single existing account user to an organization with a specified role.  **Payload Requirements** - `user_id` and `role` are both required. - If the user is already a member, their role is updated to the specified value (upsert).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` organization role. - Users with a non-annotator account role cannot be assigned the `annotator` organization role.  Requires organization admin.  **Valid example** ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"MEMBER\" } ```  **Invalid example** (annotator account user assigned non-annotator org role — returns 400) ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"ADMIN\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
-        :param organization_membership_input: Body containing the user to add to the organization (required)
-        :type organization_membership_input: OrganizationMembershipInput
+        :param add_organization_user_request: Body containing the user to add to the organization (required)
+        :type add_organization_user_request: AddOrganizationUserRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -169,9 +169,9 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_add_user_serialize(
+        _param = self._add_organization_user_serialize(
             org_id=org_id,
-            organization_membership_input=organization_membership_input,
+            add_organization_user_request=add_organization_user_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -199,10 +199,10 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_add_user_without_preload_content(
+    def add_organization_user_without_preload_content(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
-        organization_membership_input: Annotated[OrganizationMembershipInput, Field(description="Body containing the user to add to the organization")],
+        add_organization_user_request: Annotated[AddOrganizationUserRequest, Field(description="Body containing the user to add to the organization")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -218,12 +218,12 @@ class OrganizationsApi:
     ) -> RESTResponseType:
         """Add a user to an organization
 
-        Add a single existing account user to an organization with a specified role.  **Payload Requirements** - `user_id` and `role` are both required. - If the user is already a member, their role is updated to the specified value (upsert).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` organization role. - Users with a non-annotator account role cannot be assigned the `annotator` organization role.  Requires organization admin.  **Valid example** ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"member\" } ```  **Invalid example** (annotator account user assigned non-annotator org role — returns 400) ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"admin\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Add a single existing account user to an organization with a specified role.  **Payload Requirements** - `user_id` and `role` are both required. - If the user is already a member, their role is updated to the specified value (upsert).  **Role constraints** - Users with an `annotator` account role can only be assigned the `annotator` organization role. - Users with a non-annotator account role cannot be assigned the `annotator` organization role.  Requires organization admin.  **Valid example** ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"MEMBER\" } ```  **Invalid example** (annotator account user assigned non-annotator org role — returns 400) ```json {   \"user_id\": \"VXNlcjo0MjphQmNE\",   \"role\": \"ADMIN\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
-        :param organization_membership_input: Body containing the user to add to the organization (required)
-        :type organization_membership_input: OrganizationMembershipInput
+        :param add_organization_user_request: Body containing the user to add to the organization (required)
+        :type add_organization_user_request: AddOrganizationUserRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -246,9 +246,9 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_add_user_serialize(
+        _param = self._add_organization_user_serialize(
             org_id=org_id,
-            organization_membership_input=organization_membership_input,
+            add_organization_user_request=add_organization_user_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -271,10 +271,10 @@ class OrganizationsApi:
         return response_data.response
 
 
-    def _organizations_add_user_serialize(
+    def _add_organization_user_serialize(
         self,
         org_id,
-        organization_membership_input,
+        add_organization_user_request,
         _request_auth,
         _content_type,
         _headers,
@@ -302,8 +302,8 @@ class OrganizationsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if organization_membership_input is not None:
-            _body_params = organization_membership_input
+        if add_organization_user_request is not None:
+            _body_params = add_organization_user_request
 
 
         # set the HTTP header `Accept`
@@ -353,9 +353,9 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_create(
+    def create_organization(
         self,
-        organization_create: Annotated[OrganizationCreate, Field(description="Body containing organization creation parameters")],
+        create_organization_request: Annotated[CreateOrganizationRequest, Field(description="Body containing organization creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -373,8 +373,8 @@ class OrganizationsApi:
 
         Create a new organization within the account.  **Payload Requirements** - `name` is required and must be unique within the account. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated automatically and rejected if provided.  **Valid example** ```json {   \"name\": \"Agent Engineering Team\",   \"description\": \"Organization for the Agent Engineering team\" } ```  **Invalid example** (duplicate name) ```json {   \"name\": \"Agent Engineering Team\" } ``` Fails with 409 Conflict if an organization with that name already exists in the account.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param organization_create: Body containing organization creation parameters (required)
-        :type organization_create: OrganizationCreate
+        :param create_organization_request: Body containing organization creation parameters (required)
+        :type create_organization_request: CreateOrganizationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -397,8 +397,8 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_create_serialize(
-            organization_create=organization_create,
+        _param = self._create_organization_serialize(
+            create_organization_request=create_organization_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -426,9 +426,9 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_create_with_http_info(
+    def create_organization_with_http_info(
         self,
-        organization_create: Annotated[OrganizationCreate, Field(description="Body containing organization creation parameters")],
+        create_organization_request: Annotated[CreateOrganizationRequest, Field(description="Body containing organization creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -446,8 +446,8 @@ class OrganizationsApi:
 
         Create a new organization within the account.  **Payload Requirements** - `name` is required and must be unique within the account. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated automatically and rejected if provided.  **Valid example** ```json {   \"name\": \"Agent Engineering Team\",   \"description\": \"Organization for the Agent Engineering team\" } ```  **Invalid example** (duplicate name) ```json {   \"name\": \"Agent Engineering Team\" } ``` Fails with 409 Conflict if an organization with that name already exists in the account.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param organization_create: Body containing organization creation parameters (required)
-        :type organization_create: OrganizationCreate
+        :param create_organization_request: Body containing organization creation parameters (required)
+        :type create_organization_request: CreateOrganizationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -470,8 +470,8 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_create_serialize(
-            organization_create=organization_create,
+        _param = self._create_organization_serialize(
+            create_organization_request=create_organization_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -499,9 +499,9 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_create_without_preload_content(
+    def create_organization_without_preload_content(
         self,
-        organization_create: Annotated[OrganizationCreate, Field(description="Body containing organization creation parameters")],
+        create_organization_request: Annotated[CreateOrganizationRequest, Field(description="Body containing organization creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -519,8 +519,8 @@ class OrganizationsApi:
 
         Create a new organization within the account.  **Payload Requirements** - `name` is required and must be unique within the account. - `description` is optional and defaults to an empty string if omitted. - System-managed fields (`id`, `created_at`) are generated automatically and rejected if provided.  **Valid example** ```json {   \"name\": \"Agent Engineering Team\",   \"description\": \"Organization for the Agent Engineering team\" } ```  **Invalid example** (duplicate name) ```json {   \"name\": \"Agent Engineering Team\" } ``` Fails with 409 Conflict if an organization with that name already exists in the account.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param organization_create: Body containing organization creation parameters (required)
-        :type organization_create: OrganizationCreate
+        :param create_organization_request: Body containing organization creation parameters (required)
+        :type create_organization_request: CreateOrganizationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -543,8 +543,8 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_create_serialize(
-            organization_create=organization_create,
+        _param = self._create_organization_serialize(
+            create_organization_request=create_organization_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -567,9 +567,9 @@ class OrganizationsApi:
         return response_data.response
 
 
-    def _organizations_create_serialize(
+    def _create_organization_serialize(
         self,
-        organization_create,
+        create_organization_request,
         _request_auth,
         _content_type,
         _headers,
@@ -595,8 +595,8 @@ class OrganizationsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if organization_create is not None:
-            _body_params = organization_create
+        if create_organization_request is not None:
+            _body_params = create_organization_request
 
 
         # set the HTTP header `Accept`
@@ -646,7 +646,7 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_delete(
+    def delete_organization(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         _request_timeout: Union[
@@ -690,7 +690,7 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_delete_serialize(
+        _param = self._delete_organization_serialize(
             org_id=org_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -718,7 +718,7 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_delete_with_http_info(
+    def delete_organization_with_http_info(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         _request_timeout: Union[
@@ -762,7 +762,7 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_delete_serialize(
+        _param = self._delete_organization_serialize(
             org_id=org_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -790,7 +790,7 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_delete_without_preload_content(
+    def delete_organization_without_preload_content(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         _request_timeout: Union[
@@ -834,7 +834,7 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_delete_serialize(
+        _param = self._delete_organization_serialize(
             org_id=org_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -857,7 +857,7 @@ class OrganizationsApi:
         return response_data.response
 
 
-    def _organizations_delete_serialize(
+    def _delete_organization_serialize(
         self,
         org_id,
         _request_auth,
@@ -922,7 +922,7 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_get(
+    def get_organization(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         _request_timeout: Union[
@@ -966,7 +966,7 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_get_serialize(
+        _param = self._get_organization_serialize(
             org_id=org_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -993,7 +993,7 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_get_with_http_info(
+    def get_organization_with_http_info(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         _request_timeout: Union[
@@ -1037,7 +1037,7 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_get_serialize(
+        _param = self._get_organization_serialize(
             org_id=org_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1064,7 +1064,7 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_get_without_preload_content(
+    def get_organization_without_preload_content(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         _request_timeout: Union[
@@ -1108,7 +1108,7 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_get_serialize(
+        _param = self._get_organization_serialize(
             org_id=org_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1130,7 +1130,7 @@ class OrganizationsApi:
         return response_data.response
 
 
-    def _organizations_get_serialize(
+    def _get_organization_serialize(
         self,
         org_id,
         _request_auth,
@@ -1196,7 +1196,7 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_list(
+    def list_organizations(
         self,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -1213,7 +1213,7 @@ class OrganizationsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> OrganizationListResponse:
+    ) -> ListOrganizationsResponse:
         """List organizations
 
         List organizations the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1246,7 +1246,7 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_list_serialize(
+        _param = self._list_organizations_serialize(
             name=name,
             limit=limit,
             cursor=cursor,
@@ -1257,7 +1257,7 @@ class OrganizationsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "OrganizationListResponse",
+            '200': "ListOrganizationsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1275,7 +1275,7 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_list_with_http_info(
+    def list_organizations_with_http_info(
         self,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -1292,7 +1292,7 @@ class OrganizationsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[OrganizationListResponse]:
+    ) -> ApiResponse[ListOrganizationsResponse]:
         """List organizations
 
         List organizations the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1325,7 +1325,7 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_list_serialize(
+        _param = self._list_organizations_serialize(
             name=name,
             limit=limit,
             cursor=cursor,
@@ -1336,7 +1336,7 @@ class OrganizationsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "OrganizationListResponse",
+            '200': "ListOrganizationsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1354,7 +1354,7 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_list_without_preload_content(
+    def list_organizations_without_preload_content(
         self,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -1404,7 +1404,7 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_list_serialize(
+        _param = self._list_organizations_serialize(
             name=name,
             limit=limit,
             cursor=cursor,
@@ -1415,7 +1415,7 @@ class OrganizationsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "OrganizationListResponse",
+            '200': "ListOrganizationsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1428,7 +1428,7 @@ class OrganizationsApi:
         return response_data.response
 
 
-    def _organizations_list_serialize(
+    def _list_organizations_serialize(
         self,
         name,
         limit,
@@ -1506,7 +1506,7 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_remove_user(
+    def remove_organization_user(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
@@ -1525,7 +1525,7 @@ class OrganizationsApi:
     ) -> None:
         """Remove a user from an organization
 
-        Remove a user from the organization and all its child spaces (membership cascade).  Requires organization admin.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Remove a user from the organization and all its child spaces (membership cascade).  Requires organization admin.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
@@ -1553,7 +1553,7 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_remove_user_serialize(
+        _param = self._remove_organization_user_serialize(
             org_id=org_id,
             user_id=user_id,
             _request_auth=_request_auth,
@@ -1582,7 +1582,7 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_remove_user_with_http_info(
+    def remove_organization_user_with_http_info(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
@@ -1601,7 +1601,7 @@ class OrganizationsApi:
     ) -> ApiResponse[None]:
         """Remove a user from an organization
 
-        Remove a user from the organization and all its child spaces (membership cascade).  Requires organization admin.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Remove a user from the organization and all its child spaces (membership cascade).  Requires organization admin.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
@@ -1629,7 +1629,7 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_remove_user_serialize(
+        _param = self._remove_organization_user_serialize(
             org_id=org_id,
             user_id=user_id,
             _request_auth=_request_auth,
@@ -1658,7 +1658,7 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_remove_user_without_preload_content(
+    def remove_organization_user_without_preload_content(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
         user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
@@ -1677,7 +1677,7 @@ class OrganizationsApi:
     ) -> RESTResponseType:
         """Remove a user from an organization
 
-        Remove a user from the organization and all its child spaces (membership cascade).  Requires organization admin.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Remove a user from the organization and all its child spaces (membership cascade).  Requires organization admin.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
@@ -1705,7 +1705,7 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_remove_user_serialize(
+        _param = self._remove_organization_user_serialize(
             org_id=org_id,
             user_id=user_id,
             _request_auth=_request_auth,
@@ -1729,7 +1729,7 @@ class OrganizationsApi:
         return response_data.response
 
 
-    def _organizations_remove_user_serialize(
+    def _remove_organization_user_serialize(
         self,
         org_id,
         user_id,
@@ -1797,10 +1797,10 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_update(
+    def update_organization(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
-        organization_update: Annotated[OrganizationUpdate, Field(description="Body containing organization update parameters. At least one field must be provided.")],
+        update_organization_request: Annotated[UpdateOrganizationRequest, Field(description="Body containing organization update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1820,8 +1820,8 @@ class OrganizationsApi:
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
-        :param organization_update: Body containing organization update parameters. At least one field must be provided. (required)
-        :type organization_update: OrganizationUpdate
+        :param update_organization_request: Body containing organization update parameters. At least one field must be provided. (required)
+        :type update_organization_request: UpdateOrganizationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1844,9 +1844,9 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_update_serialize(
+        _param = self._update_organization_serialize(
             org_id=org_id,
-            organization_update=organization_update,
+            update_organization_request=update_organization_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1875,10 +1875,10 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_update_with_http_info(
+    def update_organization_with_http_info(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
-        organization_update: Annotated[OrganizationUpdate, Field(description="Body containing organization update parameters. At least one field must be provided.")],
+        update_organization_request: Annotated[UpdateOrganizationRequest, Field(description="Body containing organization update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1898,8 +1898,8 @@ class OrganizationsApi:
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
-        :param organization_update: Body containing organization update parameters. At least one field must be provided. (required)
-        :type organization_update: OrganizationUpdate
+        :param update_organization_request: Body containing organization update parameters. At least one field must be provided. (required)
+        :type update_organization_request: UpdateOrganizationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1922,9 +1922,9 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_update_serialize(
+        _param = self._update_organization_serialize(
             org_id=org_id,
-            organization_update=organization_update,
+            update_organization_request=update_organization_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1953,10 +1953,10 @@ class OrganizationsApi:
 
 
     @validate_call
-    def organizations_update_without_preload_content(
+    def update_organization_without_preload_content(
         self,
         org_id: Annotated[StrictStr, Field(description="The unique organization identifier (base64)")],
-        organization_update: Annotated[OrganizationUpdate, Field(description="Body containing organization update parameters. At least one field must be provided.")],
+        update_organization_request: Annotated[UpdateOrganizationRequest, Field(description="Body containing organization update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1976,8 +1976,8 @@ class OrganizationsApi:
 
         :param org_id: The unique organization identifier (base64) (required)
         :type org_id: str
-        :param organization_update: Body containing organization update parameters. At least one field must be provided. (required)
-        :type organization_update: OrganizationUpdate
+        :param update_organization_request: Body containing organization update parameters. At least one field must be provided. (required)
+        :type update_organization_request: UpdateOrganizationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2000,9 +2000,9 @@ class OrganizationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._organizations_update_serialize(
+        _param = self._update_organization_serialize(
             org_id=org_id,
-            organization_update=organization_update,
+            update_organization_request=update_organization_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2026,10 +2026,10 @@ class OrganizationsApi:
         return response_data.response
 
 
-    def _organizations_update_serialize(
+    def _update_organization_serialize(
         self,
         org_id,
-        organization_update,
+        update_organization_request,
         _request_auth,
         _content_type,
         _headers,
@@ -2057,8 +2057,8 @@ class OrganizationsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if organization_update is not None:
-            _body_params = organization_update
+        if update_organization_request is not None:
+            _body_params = update_organization_request
 
 
         # set the HTTP header `Accept`

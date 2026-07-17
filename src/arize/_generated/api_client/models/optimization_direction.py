@@ -20,15 +20,15 @@ from typing_extensions import Self
 
 class OptimizationDirection(str, Enum):
     """
-    The direction for optimization. Defaults to `none` when omitted. - maximize: higher scores are better - minimize: lower scores are better - none: higher or lower scores are neither better nor worse 
+    The direction for optimization. Defaults to `NONE` when omitted. - MAXIMIZE: higher scores are better - MINIMIZE: lower scores are better - NONE: higher or lower scores are neither better nor worse 
     """
 
     """
     allowed enum values
     """
-    MAXIMIZE = 'maximize'
-    MINIMIZE = 'minimize'
-    NONE = 'none'
+    MAXIMIZE = 'MAXIMIZE'
+    MINIMIZE = 'MINIMIZE'
+    NONE = 'NONE'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

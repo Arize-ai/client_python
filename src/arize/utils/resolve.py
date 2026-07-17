@@ -132,7 +132,7 @@ def _find_space_id(api: SpacesApi, space: str) -> str:
     cursor: str | None = None
 
     while True:
-        response = api.spaces_list(
+        response = api.list_spaces(
             name=space,
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
@@ -188,7 +188,7 @@ def _find_project_id(
     cursor: str | None = None
 
     while True:
-        response = api.projects_list(
+        response = api.list_projects(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=project,
@@ -243,7 +243,7 @@ def _find_dataset_id(
     cursor: str | None = None
 
     while True:
-        response = api.datasets_list(
+        response = api.list_datasets(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=dataset,
@@ -321,7 +321,7 @@ def _find_experiment_id(
     cursor: str | None = None
 
     while True:
-        response = api.experiments_list(
+        response = api.list_experiments(
             dataset_id=dataset_id,
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
@@ -374,7 +374,7 @@ def _find_prompt_id(
     cursor: str | None = None
 
     while True:
-        response = api.prompts_list(
+        response = api.list_prompts(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=prompt,
@@ -429,7 +429,7 @@ def _find_evaluator_id(
     cursor: str | None = None
 
     while True:
-        response = api.evaluators_list(
+        response = api.list_evaluators(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=evaluator,
@@ -484,7 +484,7 @@ def _find_annotation_config_id(
     cursor: str | None = None
 
     while True:
-        response = api.annotation_configs_list(
+        response = api.list_annotation_configs(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=annotation_config,
@@ -546,7 +546,7 @@ def _find_ai_integration_id(
     cursor: str | None = None
 
     while True:
-        response = api.ai_integrations_list(
+        response = api.list_ai_integrations(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=integration,
@@ -603,7 +603,7 @@ def _find_annotation_queue_id(
     cursor: str | None = None
 
     while True:
-        response = api.annotation_queues_list(
+        response = api.list_annotation_queues(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=annotation_queue,
@@ -662,7 +662,7 @@ def _find_task_id(
     cursor: str | None = None
 
     while True:
-        response = api.tasks_list(
+        response = api.list_tasks(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=task,
@@ -705,7 +705,7 @@ def _find_organization_id(api: OrganizationsApi, organization: str) -> str:
     cursor: str | None = None
 
     while True:
-        response = api.organizations_list(
+        response = api.list_organizations(
             name=organization,
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
@@ -744,7 +744,7 @@ def _find_role_id(api: RolesApi, role: str) -> str:
     cursor: str | None = None
 
     while True:
-        response = api.roles_list(limit=_LIST_PAGE_SIZE, cursor=cursor)
+        response = api.list_roles(limit=_LIST_PAGE_SIZE, cursor=cursor)
         for r in response.roles:
             if r.name == role:
                 logger.debug("Resolved role '%s' → %s", role, r.id)
@@ -776,7 +776,7 @@ def _find_user_id_by_email(api: UsersApi, email: str) -> str:
     cursor: str | None = None
 
     while True:
-        response = api.users_list(
+        response = api.list_users(
             email=email,
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,

@@ -10,8 +10,8 @@ from arize.pre_releases import ReleaseStage, prerelease_endpoint
 
 if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
-    from arize._generated.api_client.models.role_binding_list_response import (
-        RoleBindingListResponse,
+    from arize._generated.api_client.models.list_role_bindings_response import (
+        ListRoleBindingsResponse,
     )
     from arize.config import SDKConfiguration
     from arize.role_bindings.types import RoleBinding, RoleBindingResourceType
@@ -60,7 +60,7 @@ class RoleBindingsClient:
         user_id: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> RoleBindingListResponse:
+    ) -> ListRoleBindingsResponse:
         """List role bindings for the authenticated user's account.
 
         Supports cursor-based pagination. Use ``user_id`` to filter by a
@@ -82,7 +82,7 @@ class RoleBindingsClient:
         Raises:
             ApiException: If the API request fails.
         """
-        return self._api.role_bindings_list(
+        return self._api.list_role_bindings(
             limit=limit,
             cursor=cursor,
             user_id=user_id,
@@ -134,13 +134,13 @@ class RoleBindingsClient:
         """
         from arize._generated import api_client as gen
 
-        body = gen.RoleBindingCreate(
+        body = gen.CreateRoleBindingRequest(
             user_id=user_id,
             role_id=role_id,
             resource_type=resource_type,
             resource_id=resource_id,
         )
-        return self._api.role_bindings_create(body)
+        return self._api.create_role_binding(body)
 
     @prerelease_endpoint(key="role_bindings.get", stage=ReleaseStage.BETA)
     def get(self, *, binding_id: str) -> RoleBinding:
@@ -156,7 +156,7 @@ class RoleBindingsClient:
             ApiException: If the API request fails
                 (for example, binding not found).
         """
-        return self._api.role_bindings_get(binding_id)
+        return self._api.get_role_binding(binding_id)
 
     @prerelease_endpoint(key="role_bindings.update", stage=ReleaseStage.BETA)
     def update(self, *, binding_id: str, role_id: str) -> RoleBinding:
@@ -187,8 +187,8 @@ class RoleBindingsClient:
         """
         from arize._generated import api_client as gen
 
-        body = gen.RoleBindingUpdate(role_id=role_id)
-        return self._api.role_bindings_update(binding_id, body)
+        body = gen.UpdateRoleBindingRequest(role_id=role_id)
+        return self._api.update_role_binding(binding_id, body)
 
     @prerelease_endpoint(key="role_bindings.delete", stage=ReleaseStage.BETA)
     def delete(self, *, binding_id: str) -> None:
@@ -201,4 +201,4 @@ class RoleBindingsClient:
             ApiException: If the API request fails
                 (for example, binding not found or insufficient permissions).
         """
-        return self._api.role_bindings_delete(binding_id)
+        return self._api.delete_role_binding(binding_id)

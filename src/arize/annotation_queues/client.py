@@ -23,14 +23,14 @@ if TYPE_CHECKING:
 
     from arize._generated.api_client.api_client import ApiClient
     from arize.annotation_queues.types import (
+        AnnotateAnnotationQueueRecordResponse,
         AnnotationInput,
         AnnotationQueue,
-        AnnotationQueueListResponse,
-        AnnotationQueueRecordAnnotateResult,
-        AnnotationQueueRecordAssignResult,
-        AnnotationQueueRecordCreateResponse,
-        AnnotationQueueRecordListResponse,
+        AssignAnnotationQueueRecordResponse,
         AssignmentMethod,
+        CreateAnnotationQueueRecordResponse,
+        ListAnnotationQueueRecordsResponse,
+        ListAnnotationQueuesResponse,
     )
     from arize.config import SDKConfiguration
 
@@ -114,7 +114,7 @@ class AnnotationQueuesClient:
         name: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> AnnotationQueueListResponse:
+    ) -> ListAnnotationQueuesResponse:
         """List annotation queues the user has access to.
 
         Annotation queues are returned in descending creation order (most recently
@@ -137,7 +137,7 @@ class AnnotationQueuesClient:
                 (e.g. 400/401/403/429).
         """
         resolved_space = _resolve_resource(space)
-        return self._api.annotation_queues_list(
+        return self._api.list_annotation_queues(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=name,
@@ -170,7 +170,7 @@ class AnnotationQueuesClient:
             annotation_queue=annotation_queue,
             space=space,
         )
-        return self._api.annotation_queues_get(
+        return self._api.get_annotation_queue(
             annotation_queue_id=annotation_queue_id
         )
 
@@ -229,7 +229,7 @@ class AnnotationQueuesClient:
             else None
         )
 
-        body = gen.CreateAnnotationQueueRequestBody(
+        body = gen.CreateAnnotationQueueRequest(
             name=name,
             space_id=space_id,
             annotation_config_ids=annotation_config_ids,
@@ -238,8 +238,8 @@ class AnnotationQueuesClient:
             assignment_method=assignment_method,
             record_sources=coerced_sources,
         )
-        return self._api.annotation_queues_create(
-            create_annotation_queue_request_body=body
+        return self._api.create_annotation_queue(
+            create_annotation_queue_request=body
         )
 
     @prerelease_endpoint(
@@ -306,10 +306,10 @@ class AnnotationQueuesClient:
             annotation_queue=annotation_queue,
             space=space,
         )
-        body = gen.UpdateAnnotationQueueRequestBody(**kwargs)
-        return self._api.annotation_queues_update(
+        body = gen.UpdateAnnotationQueueRequest(**kwargs)
+        return self._api.update_annotation_queue(
             annotation_queue_id=annotation_queue_id,
-            update_annotation_queue_request_body=body,
+            update_annotation_queue_request=body,
         )
 
     @prerelease_endpoint(
@@ -341,7 +341,7 @@ class AnnotationQueuesClient:
             annotation_queue=annotation_queue,
             space=space,
         )
-        return self._api.annotation_queues_delete(
+        return self._api.delete_annotation_queue(
             annotation_queue_id=annotation_queue_id
         )
 
@@ -359,7 +359,7 @@ class AnnotationQueuesClient:
         space: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> AnnotationQueueRecordListResponse:
+    ) -> ListAnnotationQueueRecordsResponse:
         """List records in an annotation queue.
 
         Each record includes its data as flat key-value pairs, any annotations
@@ -387,7 +387,7 @@ class AnnotationQueuesClient:
             annotation_queue=annotation_queue,
             space=space,
         )
-        return self._api.annotation_queue_records_list(
+        return self._api.list_annotation_queue_records(
             annotation_queue_id=annotation_queue_id,
             limit=limit,
             cursor=cursor,
@@ -407,7 +407,7 @@ class AnnotationQueuesClient:
             | AnnotationQueueSpanRecordInput
             | dict
         ],
-    ) -> AnnotationQueueRecordCreateResponse:
+    ) -> CreateAnnotationQueueRecordResponse:
         """Add records to an annotation queue.
 
         Records may come from spans (a project time range) or dataset examples.
@@ -443,12 +443,12 @@ class AnnotationQueuesClient:
         coerced_sources = [
             self._coerce_record_source(s) for s in record_sources
         ]
-        body = gen.AddAnnotationQueueRecordsRequestBody(
+        body = gen.AddAnnotationQueueRecordsRequest(
             record_sources=coerced_sources,
         )
-        return self._api.annotation_queues_records_create(
+        return self._api.create_annotation_queue_record(
             annotation_queue_id=annotation_queue_id,
-            add_annotation_queue_records_request_body=body,
+            add_annotation_queue_records_request=body,
         )
 
     @prerelease_endpoint(
@@ -489,12 +489,12 @@ class AnnotationQueuesClient:
             annotation_queue=annotation_queue,
             space=space,
         )
-        body = gen.DeleteAnnotationQueueRecordsRequestBody(
+        body = gen.DeleteAnnotationQueueRecordsRequest(
             record_ids=record_ids,
         )
-        return self._api.annotation_queues_records_delete(
+        return self._api.delete_annotation_queue_record(
             annotation_queue_id=annotation_queue_id,
-            delete_annotation_queue_records_request_body=body,
+            delete_annotation_queue_records_request=body,
         )
 
     @prerelease_endpoint(
@@ -507,7 +507,7 @@ class AnnotationQueuesClient:
         space: str | None = None,
         record_id: str,
         annotations: builtins.list[AnnotationInput],
-    ) -> AnnotationQueueRecordAnnotateResult:
+    ) -> AnnotateAnnotationQueueRecordResponse:
         """Submit annotations for an annotation queue record.
 
         Annotations are upserted by annotation config name; omitted configs are
@@ -538,13 +538,13 @@ class AnnotationQueuesClient:
             annotation_queue=annotation_queue,
             space=space,
         )
-        body = gen.AnnotateAnnotationQueueRecordRequestBody(
+        body = gen.AnnotateAnnotationQueueRecordRequest(
             annotations=annotations,
         )
-        return self._api.annotation_queues_records_annotate(
+        return self._api.annotate_annotation_queue_record(
             annotation_queue_id=annotation_queue_id,
             annotation_queue_record_id=record_id,
-            annotate_annotation_queue_record_request_body=body,
+            annotate_annotation_queue_record_request=body,
         )
 
     @prerelease_endpoint(
@@ -557,7 +557,7 @@ class AnnotationQueuesClient:
         space: str | None = None,
         record_id: str,
         assigned_user_emails: builtins.list[str],
-    ) -> AnnotationQueueRecordAssignResult:
+    ) -> AssignAnnotationQueueRecordResponse:
         """Assign users to an annotation queue record.
 
         Fully replaces the current record-level user assignment. Pass an empty
@@ -587,11 +587,11 @@ class AnnotationQueuesClient:
             annotation_queue=annotation_queue,
             space=space,
         )
-        body = gen.AssignAnnotationQueueRecordRequestBody(
+        body = gen.AssignAnnotationQueueRecordRequest(
             assigned_user_emails=assigned_user_emails,
         )
-        return self._api.annotation_queues_records_assign(
+        return self._api.assign_annotation_queue_record(
             annotation_queue_id=annotation_queue_id,
             annotation_queue_record_id=record_id,
-            assign_annotation_queue_record_request_body=body,
+            assign_annotation_queue_record_request=body,
         )

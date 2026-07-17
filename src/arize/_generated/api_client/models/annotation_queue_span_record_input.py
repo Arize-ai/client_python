@@ -28,9 +28,9 @@ class AnnotationQueueSpanRecordInput(BaseModel):
     """
     AnnotationQueueSpanRecordInput
     """ # noqa: E501
-    record_type: StrictStr = Field(description="Discriminator identifying this record source as project spans. Must be `span` for span records.")
+    record_type: StrictStr = Field(description="Discriminator identifying this record source as project spans. Must be `SPAN` for span records.")
     project_id: StrictStr = Field(description="The project ID these spans belong to")
-    start_time: datetime = Field(description="Start of the time range to search for spans in Druid. The range (end_time - start_time) must not exceed 7 days. ")
+    start_time: datetime = Field(description="Start of the time range to search for spans. The range (end_time - start_time) must not exceed 7 days. ")
     end_time: datetime = Field(description="End of the time range. Must be after start_time. ")
     span_ids: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="List of span IDs to add to the queue")
     __properties: ClassVar[List[str]] = ["record_type", "project_id", "start_time", "end_time", "span_ids"]
@@ -38,8 +38,8 @@ class AnnotationQueueSpanRecordInput(BaseModel):
     @field_validator('record_type')
     def record_type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['span']):
-            raise ValueError("must be one of enum values ('span')")
+        if value not in set(['SPAN']):
+            raise ValueError("must be one of enum values ('SPAN')")
         return value
 
     model_config = ConfigDict(

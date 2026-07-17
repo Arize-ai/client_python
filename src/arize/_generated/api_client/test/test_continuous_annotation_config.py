@@ -39,10 +39,10 @@ class TestContinuousAnnotationConfig(unittest.TestCase):
                 name = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 space_id = '',
-                type = 'continuous',
+                type = 'CONTINUOUS',
                 minimum_score = 1.337,
                 maximum_score = 1.337,
-                optimization_direction = 'none'
+                optimization_direction = 'NONE'
             )
         else:
             return ContinuousAnnotationConfig(
@@ -50,7 +50,7 @@ class TestContinuousAnnotationConfig(unittest.TestCase):
                 name = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 space_id = '',
-                type = 'continuous',
+                type = 'CONTINUOUS',
                 minimum_score = 1.337,
                 maximum_score = 1.337,
         )

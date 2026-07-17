@@ -20,15 +20,15 @@ from typing_extensions import Self
 
 class ApiKeyOrganizationRole(str, Enum):
     """
-    Organization-level role for a service key's bot user. - admin - Full control within the organization. - member - Standard organization access. - read-only - View-only access. 
+    Organization-level role for a service key's bot user. - ADMIN - Full control within the organization. - MEMBER - Standard organization access. - READ_ONLY - View-only access. 
     """
 
     """
     allowed enum values
     """
-    ADMIN = 'admin'
-    MEMBER = 'member'
-    READ_MINUS_ONLY = 'read-only'
+    ADMIN = 'ADMIN'
+    MEMBER = 'MEMBER'
+    READ_ONLY = 'READ_ONLY'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

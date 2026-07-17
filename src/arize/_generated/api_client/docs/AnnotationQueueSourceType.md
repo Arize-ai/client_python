@@ -1,12 +1,12 @@
 # AnnotationQueueSourceType
 
-Source type of the annotation queue record. - spans - The record originates from span data. - dataset - The record originates from a dataset example. 
+Source type of the annotation queue record. - SPANS - The record originates from span data. - DATASET - The record originates from a dataset example. 
 
 ## Enum
 
-* `SPANS` (value: `'spans'`)
+* `SPANS` (value: `'SPANS'`)
 
-* `DATASET` (value: `'dataset'`)
+* `DATASET` (value: `'DATASET'`)
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

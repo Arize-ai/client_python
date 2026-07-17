@@ -4,48 +4,48 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**users_create**](UsersApi.md#users_create) | **POST** /v2/users | Create a user
-[**users_delete**](UsersApi.md#users_delete) | **DELETE** /v2/users/{user_id} | Delete a user
-[**users_get**](UsersApi.md#users_get) | **GET** /v2/users/{user_id} | Get a user
-[**users_list**](UsersApi.md#users_list) | **GET** /v2/users | List users
-[**users_password_reset**](UsersApi.md#users_password_reset) | **POST** /v2/users/{user_id}/reset-password | Trigger a password-reset email for a user
-[**users_resend_invitation**](UsersApi.md#users_resend_invitation) | **POST** /v2/users/{user_id}/resend-invitation | Resend a user invitation
-[**users_update**](UsersApi.md#users_update) | **PATCH** /v2/users/{user_id} | Update a user
+[**create_user**](UsersApi.md#create_user) | **POST** /v2/users | Create a user
+[**delete_user**](UsersApi.md#delete_user) | **DELETE** /v2/users/{user_id} | Delete a user
+[**get_user**](UsersApi.md#get_user) | **GET** /v2/users/{user_id} | Get a user
+[**list_users**](UsersApi.md#list_users) | **GET** /v2/users | List users
+[**resend_user_invitation**](UsersApi.md#resend_user_invitation) | **POST** /v2/users/{user_id}/resend-invitation | Resend a user invitation
+[**reset_user_password**](UsersApi.md#reset_user_password) | **POST** /v2/users/{user_id}/reset-password | Trigger a password-reset email for a user
+[**update_user**](UsersApi.md#update_user) | **PATCH** /v2/users/{user_id} | Update a user
 
 
-# **users_create**
-> User users_create(create_user_request)
+# **create_user**
+> User create_user(create_user_request)
 
 Create a user
 
 Create a new account user with explicit invite control.
 
 **Invite modes**
-- `none` — add the user directly with no invitation (for SSO-only accounts). The user
+- `NONE` — add the user directly with no invitation (for SSO-only accounts). The user
   is immediately active and can log in via the configured identity provider.
-- `email_link` — create an `invited` invitation and send the user an email with a
+- `EMAIL_LINK` — create an `INVITED` invitation and send the user an email with a
   verification link to complete registration.
-- `temporary_password` — create an `invited` invitation with a temporary password
+- `TEMPORARY_PASSWORD` — create an `INVITED` invitation with a temporary password
   (returned once in the response). The user must reset it on first login.
 
-**Idempotency on `email`** (applies when `invite_mode != "none"`)
+**Idempotency on `email`** (applies when `invite_mode != "NONE"`)
 
 | Existing state | Behavior | Response |
 | --- | --- | --- |
-| No prior invitation | Create a new `invited` invitation | `201 Created` |
-| `invited` (not yet accepted) | Return the existing invitation as-is; do not resend | `200 OK` |
-| `active` | Email belongs to an existing member | `409 Conflict` |
-| `expired` | Create a new `invited` invitation | `201 Created` |
+| No prior invitation | Create a new `INVITED` invitation | `201 Created` |
+| `INVITED` (not yet accepted) | Return the existing invitation as-is; do not resend | `200 OK` |
+| `ACTIVE` | Email belongs to an existing member | `409 Conflict` |
+| `EXPIRED` | Create a new `INVITED` invitation | `201 Created` |
 | `inactive` | User has been deactivated and cannot be re-invited | `409 Conflict` |
 
-When `invite_mode` is `none` and the email already belongs to an active account member,
+When `invite_mode` is `NONE` and the email already belongs to an active account member,
 the request returns `409 Conflict`.
 
 **Payload requirements**
 - `name` — required, 1–255 characters
 - `email` — required, must be a valid email address; used as the idempotency key
-- `role` — required, one of `admin`, `member`, `annotator`; sets the account-level role
-- `invite_mode` — required, one of `none`, `email_link`, `temporary_password`
+- `role` — required, one of `ADMIN`, `MEMBER`, `ANNOTATOR`; sets the account-level role
+- `invite_mode` — required, one of `NONE`, `EMAIL_LINK`, `TEMPORARY_PASSWORD`
 
 Requires account admin role or USER_CREATE permission.
 
@@ -83,15 +83,15 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.UsersApi(api_client)
-    create_user_request = {"name":"Jane Smith","email":"jane.smith@example.com","role":{"type":"predefined","name":"member"},"invite_mode":"email_link"} # CreateUserRequest | Body containing user creation parameters and invite control.
+    create_user_request = {"name":"Jane Smith","email":"jane.smith@example.com","role":{"type":"PREDEFINED","name":"MEMBER"},"invite_mode":"EMAIL_LINK"} # CreateUserRequest | Body containing user creation parameters and invite control.
 
     try:
         # Create a user
-        api_response = api_instance.users_create(create_user_request)
-        print("The response of UsersApi->users_create:\n")
+        api_response = api_instance.create_user(create_user_request)
+        print("The response of UsersApi->create_user:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling UsersApi->users_create: %s\n" % e)
+        print("Exception when calling UsersApi->create_user: %s\n" % e)
 ```
 
 
@@ -132,8 +132,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **users_delete**
-> users_delete(user_id)
+# **delete_user**
+> delete_user(user_id)
 
 Delete a user
 
@@ -186,9 +186,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Delete a user
-        api_instance.users_delete(user_id)
+        api_instance.delete_user(user_id)
     except Exception as e:
-        print("Exception when calling UsersApi->users_delete: %s\n" % e)
+        print("Exception when calling UsersApi->delete_user: %s\n" % e)
 ```
 
 
@@ -226,8 +226,8 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **users_get**
-> User users_get(user_id)
+# **get_user**
+> User get_user(user_id)
 
 Get a user
 
@@ -274,11 +274,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Get a user
-        api_response = api_instance.users_get(user_id)
-        print("The response of UsersApi->users_get:\n")
+        api_response = api_instance.get_user(user_id)
+        print("The response of UsersApi->get_user:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling UsersApi->users_get: %s\n" % e)
+        print("Exception when calling UsersApi->get_user: %s\n" % e)
 ```
 
 
@@ -315,8 +315,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **users_list**
-> UserListResponse users_list(limit=limit, cursor=cursor, email=email, status=status)
+# **list_users**
+> ListUsersResponse list_users(limit=limit, cursor=cursor, email=email, status=status)
 
 List users
 
@@ -335,7 +335,7 @@ account level.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.user_list_response import UserListResponse
+from arize._generated.api_client.models.list_users_response import ListUsersResponse
 from arize._generated.api_client.models.user_status import UserStatus
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
@@ -363,15 +363,15 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
     email = 'jane@example.com' # str | Filter users by email address (case-insensitive partial match, up to 255 characters). Results are scoped to users visible to the caller.  (optional)
-    status = [arize._generated.api_client.UserStatus()] # List[UserStatus] | Filter users by account status. When omitted, `active`, `invited`, and `expired` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=active&status=invited`).  (optional)
+    status = [arize._generated.api_client.UserStatus()] # List[UserStatus] | Filter users by account status. When omitted, `ACTIVE`, `INVITED`, and `EXPIRED` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=ACTIVE&status=INVITED`).  (optional)
 
     try:
         # List users
-        api_response = api_instance.users_list(limit=limit, cursor=cursor, email=email, status=status)
-        print("The response of UsersApi->users_list:\n")
+        api_response = api_instance.list_users(limit=limit, cursor=cursor, email=email, status=status)
+        print("The response of UsersApi->list_users:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling UsersApi->users_list: %s\n" % e)
+        print("Exception when calling UsersApi->list_users: %s\n" % e)
 ```
 
 
@@ -384,11 +384,11 @@ Name | Type | Description  | Notes
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
  **email** | **str**| Filter users by email address (case-insensitive partial match, up to 255 characters). Results are scoped to users visible to the caller.  | [optional] 
- **status** | [**List[UserStatus]**](UserStatus.md)| Filter users by account status. When omitted, &#x60;active&#x60;, &#x60;invited&#x60;, and &#x60;expired&#x60; users are returned. Can be specified multiple times to filter by multiple statuses (e.g., &#x60;?status&#x3D;active&amp;status&#x3D;invited&#x60;).  | [optional] 
+ **status** | [**List[UserStatus]**](UserStatus.md)| Filter users by account status. When omitted, &#x60;ACTIVE&#x60;, &#x60;INVITED&#x60;, and &#x60;EXPIRED&#x60; users are returned. Can be specified multiple times to filter by multiple statuses (e.g., &#x60;?status&#x3D;ACTIVE&amp;status&#x3D;INVITED&#x60;).  | [optional] 
 
 ### Return type
 
-[**UserListResponse**](UserListResponse.md)
+[**ListUsersResponse**](ListUsersResponse.md)
 
 ### Authorization
 
@@ -411,102 +411,15 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **users_password_reset**
-> users_password_reset(user_id)
-
-Trigger a password-reset email for a user
-
-Generates a reset token and sends the user a password-reset email with a 30-minute link.
-
-- Requires account admin role or USER_UPDATE permission.
-- Returns 400 if the target user authenticates via SSO/SAML or has not
-  yet verified their account (no password hash to key the token against).
-
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
-
-
-### Example
-
-* Bearer (<api-key>) Authentication (bearerAuth):
-
-```python
-import arize._generated.api_client
-from arize._generated.api_client.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to https://api.arize.com
-# See configuration.py for a list of all supported configuration parameters.
-configuration = arize._generated.api_client.Configuration(
-    host = "https://api.arize.com"
-)
-
-# The client must configure the authentication and authorization parameters
-# in accordance with the API server security policy.
-# Examples for each auth method are provided below, use the example that
-# satisfies your auth use case.
-
-# Configure Bearer authorization (<api-key>): bearerAuth
-configuration = arize._generated.api_client.Configuration(
-    access_token = os.environ["BEARER_TOKEN"]
-)
-
-# Enter a context with an instance of the API client
-with arize._generated.api_client.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = arize._generated.api_client.UsersApi(api_client)
-    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique user identifier (base64)
-
-    try:
-        # Trigger a password-reset email for a user
-        api_instance.users_password_reset(user_id)
-    except Exception as e:
-        print("Exception when calling UsersApi->users_password_reset: %s\n" % e)
-```
-
-
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **user_id** | **str**| The unique user identifier (base64) | 
-
-### Return type
-
-void (empty response body)
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/problem+json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**204** | Password-reset email sent successfully (no content). |  -  |
-**400** | Invalid request |  -  |
-**401** | Authentication is required |  -  |
-**403** | Insufficient permissions to access this resource |  -  |
-**404** | Not found |  -  |
-**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **users_resend_invitation**
-> users_resend_invitation(user_id)
+# **resend_user_invitation**
+> resend_user_invitation(user_id)
 
 Resend a user invitation
 
 Resend the invitation email for a pending (unverified) user. Generates a
 new verification token and sends a fresh email to the user's address.
 
-The target user must be in the `invited` state (unverified and active).
+The target user must be in the `INVITED` state (unverified and active).
 Returns 400 if the user has already verified their account, or if
 SAML/IdP login is enforced for the account.
 
@@ -552,9 +465,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Resend a user invitation
-        api_instance.users_resend_invitation(user_id)
+        api_instance.resend_user_invitation(user_id)
     except Exception as e:
-        print("Exception when calling UsersApi->users_resend_invitation: %s\n" % e)
+        print("Exception when calling UsersApi->resend_user_invitation: %s\n" % e)
 ```
 
 
@@ -592,8 +505,95 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **users_update**
-> User users_update(user_id, user_update)
+# **reset_user_password**
+> reset_user_password(user_id)
+
+Trigger a password-reset email for a user
+
+Generates a reset token and sends the user a password-reset email with a 30-minute link.
+
+- Requires account admin role or USER_UPDATE permission.
+- Returns 400 if the target user authenticates via SSO/SAML or has not
+  yet verified their account (no password hash to key the token against).
+
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.UsersApi(api_client)
+    user_id = 'VXNlcjoxMjM0NQ==' # str | The unique user identifier (base64)
+
+    try:
+        # Trigger a password-reset email for a user
+        api_instance.reset_user_password(user_id)
+    except Exception as e:
+        print("Exception when calling UsersApi->reset_user_password: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **user_id** | **str**| The unique user identifier (base64) | 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**204** | Password-reset email sent successfully (no content). |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **update_user**
+> User update_user(user_id, update_user_request)
 
 Update a user
 
@@ -630,8 +630,8 @@ Updating `is_developer` requires account admin role. Callers without account adm
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.update_user_request import UpdateUserRequest
 from arize._generated.api_client.models.user import User
-from arize._generated.api_client.models.user_update import UserUpdate
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -656,15 +656,15 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.UsersApi(api_client)
     user_id = 'VXNlcjoxMjM0NQ==' # str | The unique user identifier (base64)
-    user_update = {"name":"Jane Smith","is_developer":false} # UserUpdate | Body containing user update parameters. At least one field must be provided.
+    update_user_request = {"name":"Jane Smith","is_developer":false} # UpdateUserRequest | Body containing user update parameters. At least one field must be provided.
 
     try:
         # Update a user
-        api_response = api_instance.users_update(user_id, user_update)
-        print("The response of UsersApi->users_update:\n")
+        api_response = api_instance.update_user(user_id, update_user_request)
+        print("The response of UsersApi->update_user:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling UsersApi->users_update: %s\n" % e)
+        print("Exception when calling UsersApi->update_user: %s\n" % e)
 ```
 
 
@@ -675,7 +675,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **user_id** | **str**| The unique user identifier (base64) | 
- **user_update** | [**UserUpdate**](UserUpdate.md)| Body containing user update parameters. At least one field must be provided. | 
+ **update_user_request** | [**UpdateUserRequest**](UpdateUserRequest.md)| Body containing user update parameters. At least one field must be provided. | 
 
 ### Return type
 

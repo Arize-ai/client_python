@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+from arize._generated.api_client import SpacesApi
 from arize.spaces.client import SpacesClient
 from arize.spaces.types import (
     PredefinedSpaceRole,
@@ -31,7 +32,7 @@ def _stub_from_generated() -> Generator[None, None, None]:
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock SpacesApi instance."""
-    return Mock()
+    return create_autospec(SpacesApi, instance=True)
 
 
 @pytest.fixture
@@ -91,7 +92,7 @@ class TestSpacesClientList:
             cursor="cursor-abc",
         )
 
-        mock_api.spaces_list.assert_called_once_with(
+        mock_api.list_spaces.assert_called_once_with(
             org_id="org-123",
             name="prod-space",
             limit=50,
@@ -104,7 +105,7 @@ class TestSpacesClientList:
         """list() should default organization_id/name/cursor to None and limit to 50."""
         spaces_client.list()
 
-        mock_api.spaces_list.assert_called_once_with(
+        mock_api.list_spaces.assert_called_once_with(
             org_id=None,
             name=None,
             limit=50,
@@ -116,7 +117,7 @@ class TestSpacesClientList:
     ) -> None:
         """list() should propagate the return value from spaces_list."""
         expected = Mock()
-        mock_api.spaces_list.return_value = expected
+        mock_api.list_spaces.return_value = expected
 
         result = spaces_client.list()
 
@@ -151,7 +152,7 @@ class TestSpacesClientGet:
         """get() should resolve space and pass space_id to spaces_get."""
         spaces_client.get(space="U3BhY2U6OTA1MDoxSmtS")
 
-        mock_api.spaces_get.assert_called_once_with(
+        mock_api.get_space.assert_called_once_with(
             space_id="U3BhY2U6OTA1MDoxSmtS"
         )
 
@@ -160,7 +161,7 @@ class TestSpacesClientGet:
     ) -> None:
         """get() should propagate the return value from spaces_get."""
         expected = Mock()
-        mock_api.spaces_get.return_value = expected
+        mock_api.get_space.return_value = expected
 
         result = spaces_client.get(space="U3BhY2U6OTA1MDoxSmtS")
 
@@ -174,9 +175,9 @@ class TestSpacesClientCreate:
     def test_create_builds_request_and_calls_api(
         self, spaces_client: SpacesClient, mock_api: Mock
     ) -> None:
-        """create() should build SpacesCreateRequest and pass it to spaces_create."""
+        """create() should build CreateSpaceRequest and pass it to spaces_create."""
         with patch(
-            "arize._generated.api_client.SpacesCreateRequest"
+            "arize._generated.api_client.CreateSpaceRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -192,8 +193,8 @@ class TestSpacesClientCreate:
             organization_id="org-123",
             description="my description",
         )
-        mock_api.spaces_create.assert_called_once_with(
-            spaces_create_request=mock_body
+        mock_api.create_space.assert_called_once_with(
+            create_space_request=mock_body
         )
 
     def test_create_returns_api_response(
@@ -201,9 +202,9 @@ class TestSpacesClientCreate:
     ) -> None:
         """create() should propagate the return value from spaces_create."""
         expected = Mock()
-        mock_api.spaces_create.return_value = expected
+        mock_api.create_space.return_value = expected
 
-        with patch("arize._generated.api_client.SpacesCreateRequest"):
+        with patch("arize._generated.api_client.CreateSpaceRequest"):
             result = spaces_client.create(
                 name="my-space",
                 organization_id="org-123",
@@ -222,7 +223,7 @@ class TestSpacesClientDelete:
         """delete() should resolve space and pass space_id to spaces_delete."""
         spaces_client.delete(space="U3BhY2U6OTA1MDoxSmtS")
 
-        mock_api.spaces_delete.assert_called_once_with(
+        mock_api.delete_space.assert_called_once_with(
             space_id="U3BhY2U6OTA1MDoxSmtS"
         )
 
@@ -230,7 +231,7 @@ class TestSpacesClientDelete:
         self, spaces_client: SpacesClient, mock_api: Mock
     ) -> None:
         """delete() should return None on success (204 response)."""
-        mock_api.spaces_delete.return_value = None
+        mock_api.delete_space.return_value = None
 
         result = spaces_client.delete(space="U3BhY2U6OTA1MDoxSmtS")
 
@@ -272,9 +273,9 @@ class TestSpacesClientUpdate:
     def test_update_builds_request_and_calls_api(
         self, spaces_client: SpacesClient, mock_api: Mock
     ) -> None:
-        """update() should build SpacesUpdateRequest and pass it to spaces_update."""
+        """update() should build UpdateSpaceRequest and pass it to spaces_update."""
         with patch(
-            "arize._generated.api_client.SpacesUpdateRequest"
+            "arize._generated.api_client.UpdateSpaceRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -289,9 +290,9 @@ class TestSpacesClientUpdate:
             name="updated-space",
             description="updated description",
         )
-        mock_api.spaces_update.assert_called_once_with(
+        mock_api.update_space.assert_called_once_with(
             space_id="U3BhY2U6OTA1MDoxSmtS",
-            spaces_update_request=mock_body,
+            update_space_request=mock_body,
         )
 
     def test_update_returns_api_response(
@@ -299,9 +300,9 @@ class TestSpacesClientUpdate:
     ) -> None:
         """update() should propagate the return value from spaces_update."""
         expected = Mock()
-        mock_api.spaces_update.return_value = expected
+        mock_api.update_space.return_value = expected
 
-        with patch("arize._generated.api_client.SpacesUpdateRequest"):
+        with patch("arize._generated.api_client.UpdateSpaceRequest"):
             result = spaces_client.update(
                 space="U3BhY2U6OTA1MDoxSmtS",
                 name="updated-space",
@@ -321,7 +322,7 @@ class TestSpacesClientAddUser:
         role = PredefinedSpaceRole(name=UserSpaceRole.MEMBER)
         with (
             patch(
-                "arize._generated.api_client.SpaceMembershipInput"
+                "arize._generated.api_client.AddSpaceUserRequest"
             ) as mock_input_cls,
             patch(
                 "arize._generated.api_client.SpaceRoleAssignment"
@@ -349,9 +350,9 @@ class TestSpacesClientAddUser:
             user_id="VXNlcjoxMjM0NQ==",
             role=mock_role,
         )
-        mock_api.spaces_add_user.assert_called_once_with(
+        mock_api.add_space_user.assert_called_once_with(
             space_id="U3BhY2U6OTA1MDoxSmtS",
-            space_membership_input=mock_body,
+            add_space_user_request=mock_body,
         )
 
     def test_add_user_returns_domain_membership(
@@ -359,11 +360,11 @@ class TestSpacesClientAddUser:
     ) -> None:
         """add_user() should convert the raw API response to a domain SpaceMembership."""
         raw = Mock()
-        mock_api.spaces_add_user.return_value = raw
+        mock_api.add_space_user.return_value = raw
         domain = Mock()
 
         with (
-            patch("arize._generated.api_client.SpaceMembershipInput"),
+            patch("arize._generated.api_client.AddSpaceUserRequest"),
             patch("arize._generated.api_client.SpaceRoleAssignment"),
             patch.object(
                 SpaceMembership, "model_validate", return_value=domain
@@ -378,19 +379,19 @@ class TestSpacesClientAddUser:
         mock_conv.assert_called_once_with(raw, from_attributes=True)
         assert result is domain
 
-    def test_add_user_emits_alpha_prerelease_warning(
+    def test_add_user_emits_beta_prerelease_warning(
         self,
         spaces_client: SpacesClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
         with (
-            patch("arize._generated.api_client.SpaceMembershipInput"),
+            patch("arize._generated.api_client.AddSpaceUserRequest"),
             patch("arize._generated.api_client.SpaceRoleAssignment"),
         ):
             spaces_client.add_user(
@@ -400,6 +401,6 @@ class TestSpacesClientAddUser:
             )
 
         assert any(
-            "ALPHA" in record.message and "spaces.add_user" in record.message
+            "BETA" in record.message and "spaces.add_user" in record.message
             for record in caplog.records
         )

@@ -35,13 +35,13 @@ class TestOrganizationCustomRoleAssignment(unittest.TestCase):
         model = OrganizationCustomRoleAssignment()
         if include_optional:
             return OrganizationCustomRoleAssignment(
-                type = 'builtin',
+                type = 'PREDEFINED',
                 id = 'RW50aXR5OjEyMzQ1',
                 name = ''
             )
         else:
             return OrganizationCustomRoleAssignment(
-                type = 'builtin',
+                type = 'PREDEFINED',
                 id = 'RW50aXR5OjEyMzQ1',
         )
         """

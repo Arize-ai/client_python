@@ -3,16 +3,17 @@
 from __future__ import annotations
 
 import logging
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
+from arize._generated.api_client import EvaluatorsApi
 from arize.evaluators.client import EvaluatorsClient
 from arize.evaluators.types import (
     CodeConfig,
     EvaluatorVersionCode,
-    EvaluatorVersionListResponse,
     EvaluatorWithVersion,
+    ListEvaluatorVersionsResponse,
 )
 
 # Base64 ID that decodes to "Evaluator:123" — passes _is_resource_id()
@@ -22,7 +23,7 @@ _EVALUATOR_ID = "RXZhbHVhdG9yOjEyMw=="
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock EvaluatorsApi instance."""
-    return Mock()
+    return create_autospec(EvaluatorsApi, instance=True)
 
 
 @pytest.fixture
@@ -86,7 +87,7 @@ class TestEvaluatorsClientList:
             cursor="cursor-xyz",
         )
 
-        mock_api.evaluators_list.assert_called_once_with(
+        mock_api.list_evaluators.assert_called_once_with(
             space_id="U3BhY2U6OTA1MDoxSmtS",
             space_name=None,
             name="my-evaluator",
@@ -105,7 +106,7 @@ class TestEvaluatorsClientList:
             cursor="cursor-xyz",
         )
 
-        mock_api.evaluators_list.assert_called_once_with(
+        mock_api.list_evaluators.assert_called_once_with(
             space_id=None,
             space_name="my-space",
             name="my-evaluator",
@@ -119,7 +120,7 @@ class TestEvaluatorsClientList:
         """list() should default space/name/cursor to None and limit to 50."""
         evaluators_client.list()
 
-        mock_api.evaluators_list.assert_called_once_with(
+        mock_api.list_evaluators.assert_called_once_with(
             space_id=None,
             space_name=None,
             name=None,
@@ -132,7 +133,7 @@ class TestEvaluatorsClientList:
     ) -> None:
         """list() should propagate the return value from evaluators_list."""
         expected = Mock()
-        mock_api.evaluators_list.return_value = expected
+        mock_api.list_evaluators.return_value = expected
 
         result = evaluators_client.list()
 
@@ -176,7 +177,7 @@ class TestEvaluatorsClientGet:
         """get() should resolve evaluator and forward evaluator_id to evaluators_get."""
         evaluators_client.get(evaluator=_EVALUATOR_ID)
 
-        mock_api.evaluators_get.assert_called_once_with(
+        mock_api.get_evaluator.assert_called_once_with(
             evaluator_id=_EVALUATOR_ID,
             version_id=None,
         )
@@ -187,7 +188,7 @@ class TestEvaluatorsClientGet:
         """get() should forward version_id when provided."""
         evaluators_client.get(evaluator=_EVALUATOR_ID, version_id="ver-456")
 
-        mock_api.evaluators_get.assert_called_once_with(
+        mock_api.get_evaluator.assert_called_once_with(
             evaluator_id=_EVALUATOR_ID,
             version_id="ver-456",
         )
@@ -197,7 +198,7 @@ class TestEvaluatorsClientGet:
     ) -> None:
         """get() should propagate the return value from evaluators_get."""
         expected = Mock()
-        mock_api.evaluators_get.return_value = expected
+        mock_api.get_evaluator.return_value = expected
 
         result = evaluators_client.get(evaluator=_EVALUATOR_ID)
 
@@ -243,13 +244,13 @@ class TestEvaluatorsClientCreateTemplate:
 
         with (
             patch(
-                "arize._generated.api_client.EvaluatorVersionTemplateCreate"
+                "arize._generated.api_client.CreateTemplateEvaluatorVersionRequest"
             ) as mock_template_cls,
             patch(
-                "arize._generated.api_client.EvaluatorVersionCreate"
+                "arize._generated.api_client.CreateEvaluatorVersionRequest"
             ) as mock_version_cls,
             patch(
-                "arize._generated.api_client.EvaluatorsCreateRequest"
+                "arize._generated.api_client.CreateEvaluatorRequest"
             ) as mock_request_cls,
         ):
             mock_template = Mock()
@@ -274,23 +275,25 @@ class TestEvaluatorsClientCreateTemplate:
         mock_request_cls.assert_called_once_with(
             name="my-evaluator",
             space_id="U3BhY2U6OTA1MDoxSmtS",
-            type="template",
+            type="TEMPLATE",
             description=None,
             version=mock_version_wrap,
         )
-        mock_api.evaluators_create.assert_called_once_with(
-            evaluators_create_request=mock_body
+        mock_api.create_evaluator.assert_called_once_with(
+            create_evaluator_request=mock_body
         )
 
     def test_create_template_with_description(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """create_template_evaluator() should forward description to EvaluatorsCreateRequest."""
+        """create_template_evaluator() should forward description to CreateEvaluatorRequest."""
         with (
-            patch("arize._generated.api_client.EvaluatorVersionTemplateCreate"),
-            patch("arize._generated.api_client.EvaluatorVersionCreate"),
             patch(
-                "arize._generated.api_client.EvaluatorsCreateRequest"
+                "arize._generated.api_client.CreateTemplateEvaluatorVersionRequest"
+            ),
+            patch("arize._generated.api_client.CreateEvaluatorVersionRequest"),
+            patch(
+                "arize._generated.api_client.CreateEvaluatorRequest"
             ) as mock_request_cls,
         ):
             mock_request_cls.return_value = Mock()
@@ -311,12 +314,14 @@ class TestEvaluatorsClientCreateTemplate:
     ) -> None:
         """create_template_evaluator() should propagate the return value from evaluators_create."""
         expected = Mock()
-        mock_api.evaluators_create.return_value = expected
+        mock_api.create_evaluator.return_value = expected
 
         with (
-            patch("arize._generated.api_client.EvaluatorVersionTemplateCreate"),
-            patch("arize._generated.api_client.EvaluatorVersionCreate"),
-            patch("arize._generated.api_client.EvaluatorsCreateRequest"),
+            patch(
+                "arize._generated.api_client.CreateTemplateEvaluatorVersionRequest"
+            ),
+            patch("arize._generated.api_client.CreateEvaluatorVersionRequest"),
+            patch("arize._generated.api_client.CreateEvaluatorRequest"),
         ):
             result = evaluators_client.create_template_evaluator(
                 name="my-evaluator",
@@ -339,9 +344,11 @@ class TestEvaluatorsClientCreateTemplate:
         caplog.set_level(logging.WARNING)
 
         with (
-            patch("arize._generated.api_client.EvaluatorVersionTemplateCreate"),
-            patch("arize._generated.api_client.EvaluatorVersionCreate"),
-            patch("arize._generated.api_client.EvaluatorsCreateRequest"),
+            patch(
+                "arize._generated.api_client.CreateTemplateEvaluatorVersionRequest"
+            ),
+            patch("arize._generated.api_client.CreateEvaluatorVersionRequest"),
+            patch("arize._generated.api_client.CreateEvaluatorRequest"),
         ):
             evaluators_client.create_template_evaluator(
                 name="my-evaluator",
@@ -378,13 +385,13 @@ class TestEvaluatorsClientCreateCode:
 
         with (
             patch(
-                "arize._generated.api_client.EvaluatorVersionCodeCreate"
+                "arize._generated.api_client.CreateCodeEvaluatorVersionRequest"
             ) as mock_code_cls,
             patch(
-                "arize._generated.api_client.EvaluatorVersionCreate"
+                "arize._generated.api_client.CreateEvaluatorVersionRequest"
             ) as mock_version_cls,
             patch(
-                "arize._generated.api_client.EvaluatorsCreateRequest"
+                "arize._generated.api_client.CreateEvaluatorRequest"
             ) as mock_request_cls,
         ):
             mock_code = Mock()
@@ -409,7 +416,7 @@ class TestEvaluatorsClientCreateCode:
         mock_request_cls.assert_called_once_with(
             name="code-eval",
             space_id="U3BhY2U6OTA1MDoxSmtS",
-            type="code",
+            type="CODE",
             description=None,
             version=mock_version_wrap,
         )
@@ -419,12 +426,14 @@ class TestEvaluatorsClientCreateCode:
     ) -> None:
         """create_code_evaluator() should propagate the return value."""
         expected = Mock()
-        mock_api.evaluators_create.return_value = expected
+        mock_api.create_evaluator.return_value = expected
 
         with (
-            patch("arize._generated.api_client.EvaluatorVersionCodeCreate"),
-            patch("arize._generated.api_client.EvaluatorVersionCreate"),
-            patch("arize._generated.api_client.EvaluatorsCreateRequest"),
+            patch(
+                "arize._generated.api_client.CreateCodeEvaluatorVersionRequest"
+            ),
+            patch("arize._generated.api_client.CreateEvaluatorVersionRequest"),
+            patch("arize._generated.api_client.CreateEvaluatorRequest"),
         ):
             result = evaluators_client.create_code_evaluator(
                 name="code-eval",
@@ -447,9 +456,11 @@ class TestEvaluatorsClientCreateCode:
         caplog.set_level(logging.WARNING)
 
         with (
-            patch("arize._generated.api_client.EvaluatorVersionCodeCreate"),
-            patch("arize._generated.api_client.EvaluatorVersionCreate"),
-            patch("arize._generated.api_client.EvaluatorsCreateRequest"),
+            patch(
+                "arize._generated.api_client.CreateCodeEvaluatorVersionRequest"
+            ),
+            patch("arize._generated.api_client.CreateEvaluatorVersionRequest"),
+            patch("arize._generated.api_client.CreateEvaluatorRequest"),
         ):
             evaluators_client.create_code_evaluator(
                 name="code-eval",
@@ -472,9 +483,9 @@ class TestEvaluatorsClientUpdate:
     def test_update_with_name(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """update() should build EvaluatorsUpdateRequest with only name when only name is given."""
+        """update() should build UpdateEvaluatorRequest with only name when only name is given."""
         with patch(
-            "arize._generated.api_client.EvaluatorsUpdateRequest"
+            "arize._generated.api_client.UpdateEvaluatorRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -484,17 +495,17 @@ class TestEvaluatorsClientUpdate:
         mock_request_cls.assert_called_once_with(
             name="new-name", description=None
         )
-        mock_api.evaluators_update.assert_called_once_with(
+        mock_api.update_evaluator.assert_called_once_with(
             evaluator_id=_EVALUATOR_ID,
-            evaluators_update_request=mock_body,
+            update_evaluator_request=mock_body,
         )
 
     def test_update_with_description(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """update() should forward description to EvaluatorsUpdateRequest."""
+        """update() should forward description to UpdateEvaluatorRequest."""
         with patch(
-            "arize._generated.api_client.EvaluatorsUpdateRequest"
+            "arize._generated.api_client.UpdateEvaluatorRequest"
         ) as mock_request_cls:
             mock_request_cls.return_value = Mock()
 
@@ -511,7 +522,7 @@ class TestEvaluatorsClientUpdate:
     ) -> None:
         """update() should forward both name and description."""
         with patch(
-            "arize._generated.api_client.EvaluatorsUpdateRequest"
+            "arize._generated.api_client.UpdateEvaluatorRequest"
         ) as mock_request_cls:
             mock_request_cls.return_value = Mock()
 
@@ -530,9 +541,9 @@ class TestEvaluatorsClientUpdate:
     ) -> None:
         """update() should propagate the return value from evaluators_update."""
         expected = Mock()
-        mock_api.evaluators_update.return_value = expected
+        mock_api.update_evaluator.return_value = expected
 
-        with patch("arize._generated.api_client.EvaluatorsUpdateRequest"):
+        with patch("arize._generated.api_client.UpdateEvaluatorRequest"):
             result = evaluators_client.update(evaluator=_EVALUATOR_ID, name="x")
 
         assert result is expected
@@ -548,7 +559,7 @@ class TestEvaluatorsClientUpdate:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        with patch("arize._generated.api_client.EvaluatorsUpdateRequest"):
+        with patch("arize._generated.api_client.UpdateEvaluatorRequest"):
             evaluators_client.update(evaluator=_EVALUATOR_ID, name="x")
 
         assert any(
@@ -567,7 +578,7 @@ class TestEvaluatorsClientDelete:
         """delete() should resolve evaluator and pass evaluator_id to evaluators_delete."""
         evaluators_client.delete(evaluator=_EVALUATOR_ID)
 
-        mock_api.evaluators_delete.assert_called_once_with(
+        mock_api.delete_evaluator.assert_called_once_with(
             evaluator_id=_EVALUATOR_ID
         )
 
@@ -575,7 +586,7 @@ class TestEvaluatorsClientDelete:
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
         """delete() should always return None (204 No Content) regardless of API return."""
-        mock_api.evaluators_delete.return_value = "unexpected"
+        mock_api.delete_evaluator.return_value = "unexpected"
 
         result = evaluators_client.delete(evaluator=_EVALUATOR_ID)
 
@@ -607,7 +618,7 @@ class TestEvaluatorsClientListVersions:
     @pytest.fixture(autouse=True)
     def _bypass_model_validate(self) -> None:
         with patch.object(
-            EvaluatorVersionListResponse,
+            ListEvaluatorVersionsResponse,
             "model_validate",
             side_effect=lambda v, **kw: v,
         ):
@@ -623,7 +634,7 @@ class TestEvaluatorsClientListVersions:
             cursor="cursor-abc",
         )
 
-        mock_api.evaluator_versions_list.assert_called_once_with(
+        mock_api.list_evaluator_versions.assert_called_once_with(
             evaluator_id=_EVALUATOR_ID,
             limit=50,
             cursor="cursor-abc",
@@ -635,7 +646,7 @@ class TestEvaluatorsClientListVersions:
         """list_versions() should default limit to 50 and cursor to None."""
         evaluators_client.list_versions(evaluator=_EVALUATOR_ID)
 
-        mock_api.evaluator_versions_list.assert_called_once_with(
+        mock_api.list_evaluator_versions.assert_called_once_with(
             evaluator_id=_EVALUATOR_ID,
             limit=50,
             cursor=None,
@@ -646,7 +657,7 @@ class TestEvaluatorsClientListVersions:
     ) -> None:
         """list_versions() should propagate the return value."""
         expected = Mock()
-        mock_api.evaluator_versions_list.return_value = expected
+        mock_api.list_evaluator_versions.return_value = expected
 
         result = evaluators_client.list_versions(evaluator=_EVALUATOR_ID)
 
@@ -682,7 +693,7 @@ class TestEvaluatorsClientGetVersion:
         """get_version() should pass version_id to evaluator_versions_get."""
         evaluators_client.get_version(version_id="ver-456")
 
-        mock_api.evaluator_versions_get.assert_called_once_with(
+        mock_api.get_evaluator_version.assert_called_once_with(
             version_id="ver-456"
         )
 
@@ -691,7 +702,7 @@ class TestEvaluatorsClientGetVersion:
     ) -> None:
         """get_version() should propagate the unwrapped return value."""
         expected = Mock()
-        mock_api.evaluator_versions_get.return_value.actual_instance = expected
+        mock_api.get_evaluator_version.return_value.actual_instance = expected
 
         result = evaluators_client.get_version(version_id="ver-456")
 
@@ -729,10 +740,10 @@ class TestEvaluatorsClientCreateTemplateVersion:
 
         with (
             patch(
-                "arize._generated.api_client.EvaluatorVersionTemplateCreate"
+                "arize._generated.api_client.CreateTemplateEvaluatorVersionRequest"
             ) as mock_template_cls,
             patch(
-                "arize._generated.api_client.EvaluatorVersionCreate"
+                "arize._generated.api_client.CreateEvaluatorVersionRequest"
             ) as mock_version_cls,
         ):
             mock_template = Mock()
@@ -751,9 +762,9 @@ class TestEvaluatorsClientCreateTemplateVersion:
             template_config=mock_template_config,
         )
         mock_version_cls.assert_called_once_with(mock_template)
-        mock_api.evaluator_versions_create.assert_called_once_with(
+        mock_api.create_evaluator_version.assert_called_once_with(
             evaluator_id=_EVALUATOR_ID,
-            evaluator_version_create=mock_body,
+            create_evaluator_version_request=mock_body,
         )
 
     def test_create_template_version_returns_api_response(
@@ -761,13 +772,15 @@ class TestEvaluatorsClientCreateTemplateVersion:
     ) -> None:
         """create_template_version() should propagate the unwrapped return value."""
         expected = Mock()
-        mock_api.evaluator_versions_create.return_value.actual_instance = (
+        mock_api.create_evaluator_version.return_value.actual_instance = (
             expected
         )
 
         with (
-            patch("arize._generated.api_client.EvaluatorVersionTemplateCreate"),
-            patch("arize._generated.api_client.EvaluatorVersionCreate"),
+            patch(
+                "arize._generated.api_client.CreateTemplateEvaluatorVersionRequest"
+            ),
+            patch("arize._generated.api_client.CreateEvaluatorVersionRequest"),
         ):
             result = evaluators_client.create_template_version(
                 evaluator=_EVALUATOR_ID,
@@ -789,8 +802,10 @@ class TestEvaluatorsClientCreateTemplateVersion:
         caplog.set_level(logging.WARNING)
 
         with (
-            patch("arize._generated.api_client.EvaluatorVersionTemplateCreate"),
-            patch("arize._generated.api_client.EvaluatorVersionCreate"),
+            patch(
+                "arize._generated.api_client.CreateTemplateEvaluatorVersionRequest"
+            ),
+            patch("arize._generated.api_client.CreateEvaluatorVersionRequest"),
         ):
             evaluators_client.create_template_version(
                 evaluator=_EVALUATOR_ID,
@@ -826,10 +841,10 @@ class TestEvaluatorsClientCreateCodeVersion:
 
         with (
             patch(
-                "arize._generated.api_client.EvaluatorVersionCodeCreate"
+                "arize._generated.api_client.CreateCodeEvaluatorVersionRequest"
             ) as mock_code_cls,
             patch(
-                "arize._generated.api_client.EvaluatorVersionCreate"
+                "arize._generated.api_client.CreateEvaluatorVersionRequest"
             ) as mock_version_cls,
         ):
             mock_code = Mock()
@@ -848,9 +863,9 @@ class TestEvaluatorsClientCreateCodeVersion:
             code_config=mock_code_config,
         )
         mock_version_cls.assert_called_once_with(mock_code)
-        mock_api.evaluator_versions_create.assert_called_once_with(
+        mock_api.create_evaluator_version.assert_called_once_with(
             evaluator_id=_EVALUATOR_ID,
-            evaluator_version_create=mock_body,
+            create_evaluator_version_request=mock_body,
         )
 
     def test_create_code_version_returns_api_response(
@@ -858,13 +873,15 @@ class TestEvaluatorsClientCreateCodeVersion:
     ) -> None:
         """create_code_version() should propagate the unwrapped return value."""
         expected = Mock()
-        mock_api.evaluator_versions_create.return_value.actual_instance = (
+        mock_api.create_evaluator_version.return_value.actual_instance = (
             expected
         )
 
         with (
-            patch("arize._generated.api_client.EvaluatorVersionCodeCreate"),
-            patch("arize._generated.api_client.EvaluatorVersionCreate"),
+            patch(
+                "arize._generated.api_client.CreateCodeEvaluatorVersionRequest"
+            ),
+            patch("arize._generated.api_client.CreateEvaluatorVersionRequest"),
         ):
             result = evaluators_client.create_code_version(
                 evaluator=_EVALUATOR_ID,
@@ -886,8 +903,10 @@ class TestEvaluatorsClientCreateCodeVersion:
         caplog.set_level(logging.WARNING)
 
         with (
-            patch("arize._generated.api_client.EvaluatorVersionCodeCreate"),
-            patch("arize._generated.api_client.EvaluatorVersionCreate"),
+            patch(
+                "arize._generated.api_client.CreateCodeEvaluatorVersionRequest"
+            ),
+            patch("arize._generated.api_client.CreateEvaluatorVersionRequest"),
         ):
             evaluators_client.create_code_version(
                 evaluator=_EVALUATOR_ID,
@@ -906,8 +925,8 @@ class TestEvaluatorsClientCreateCodeVersion:
 # Real-instance round-trip tests
 # ---------------------------------------------------------------------------
 # These tests use the actual generated Pydantic classes (no mocking of
-# EvaluatorVersionTemplateCreate, EvaluatorVersionCodeCreate, or
-# EvaluatorVersionCreate) to verify that the oneOf Pydantic validation is
+# CreateTemplateEvaluatorVersionRequest, CreateCodeEvaluatorVersionRequest, or
+# CreateEvaluatorVersionRequest) to verify that the oneOf Pydantic validation is
 # exercised.  A refactor that passes type checks but produces an invalid
 # payload would fail here.
 # ---------------------------------------------------------------------------
@@ -943,9 +962,9 @@ def _make_real_code_config() -> object:
     from arize._generated import api_client as gen
 
     managed = gen.ManagedCodeConfig(
-        type="managed",
+        type="MANAGED",
         name="json_parseable",
-        managed_evaluator=gen.ManagedCodeEvaluator("JSONParseable"),
+        managed_evaluator=gen.ManagedCodeEvaluator("JSON_PARSEABLE"),
         variables=["output"],
     )
     return gen.CodeConfig(managed)
@@ -967,7 +986,7 @@ class TestEvaluatorsClientCreateTemplateRealInstance:
     def test_create_template_real_instance_builds_valid_payload(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """create_template_evaluator() with a real TemplateConfig produces a valid EvaluatorVersionCreate."""
+        """create_template_evaluator() with a real TemplateConfig produces a valid CreateEvaluatorVersionRequest."""
         evaluators_client.create_template_evaluator(
             name="my-evaluator",
             space="U3BhY2U6OTA1MDoxSmtS",
@@ -975,10 +994,10 @@ class TestEvaluatorsClientCreateTemplateRealInstance:
             template_config=_make_real_template_config(),
         )
 
-        mock_api.evaluators_create.assert_called_once()
-        _, kwargs = mock_api.evaluators_create.call_args
-        body = kwargs["evaluators_create_request"]
-        assert body.type == "template"
+        mock_api.create_evaluator.assert_called_once()
+        _, kwargs = mock_api.create_evaluator.call_args
+        body = kwargs["create_evaluator_request"]
+        assert body.type == "TEMPLATE"
         assert body.version is not None
 
 
@@ -998,7 +1017,7 @@ class TestEvaluatorsClientCreateCodeRealInstance:
     def test_create_code_real_instance_builds_valid_payload(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """create_code_evaluator() with a real CodeConfig produces a valid EvaluatorVersionCreate."""
+        """create_code_evaluator() with a real CodeConfig produces a valid CreateEvaluatorVersionRequest."""
         evaluators_client.create_code_evaluator(
             name="code-eval",
             space="U3BhY2U6OTA1MDoxSmtS",
@@ -1006,10 +1025,10 @@ class TestEvaluatorsClientCreateCodeRealInstance:
             code_config=_make_real_code_config(),
         )
 
-        mock_api.evaluators_create.assert_called_once()
-        _, kwargs = mock_api.evaluators_create.call_args
-        body = kwargs["evaluators_create_request"]
-        assert body.type == "code"
+        mock_api.create_evaluator.assert_called_once()
+        _, kwargs = mock_api.create_evaluator.call_args
+        body = kwargs["create_evaluator_request"]
+        assert body.type == "CODE"
         assert body.version is not None
 
 
@@ -1027,9 +1046,9 @@ class TestEvaluatorsClientCreateTemplateVersionRealInstance:
             template_config=_make_real_template_config(),
         )
 
-        mock_api.evaluator_versions_create.assert_called_once()
-        _, kwargs = mock_api.evaluator_versions_create.call_args
-        assert kwargs["evaluator_version_create"] is not None
+        mock_api.create_evaluator_version.assert_called_once()
+        _, kwargs = mock_api.create_evaluator_version.call_args
+        assert kwargs["create_evaluator_version_request"] is not None
 
 
 @pytest.mark.unit
@@ -1055,6 +1074,6 @@ class TestEvaluatorsClientCreateCodeVersionRealInstance:
             code_config=_make_real_code_config(),
         )
 
-        mock_api.evaluator_versions_create.assert_called_once()
-        _, kwargs = mock_api.evaluator_versions_create.call_args
-        assert kwargs["evaluator_version_create"] is not None
+        mock_api.create_evaluator_version.assert_called_once()
+        _, kwargs = mock_api.create_evaluator_version.call_args
+        assert kwargs["create_evaluator_version_request"] is not None

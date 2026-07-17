@@ -15,7 +15,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: RoleBindingListResponse
+.. autoclass:: ListRoleBindingsResponse
    :members:
    :member-order: bysource
 

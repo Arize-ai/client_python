@@ -28,7 +28,7 @@ from arize._generated.api_client.models.pagination_metadata import (
 )
 
 
-class AnnotationConfigListResponse(BaseModel):
+class ListAnnotationConfigsResponse(BaseModel):
     """SDK view of the generated list response with each ``AnnotationConfig`` unwrapped.
 
     The ``annotation_configs`` field contains the concrete inner types
@@ -67,12 +67,12 @@ class AnnotationConfigListResponse(BaseModel):
 
 
 __all__ = [
-    "AnnotationConfigListResponse",
     "AnnotationConfigType",
     "CategoricalAnnotationConfig",
     "CategoricalAnnotationValue",
     "ContinuousAnnotationConfig",
     "FreeformAnnotationConfig",
+    "ListAnnotationConfigsResponse",
     "OptimizationDirection",
     "PaginationMetadata",
 ]

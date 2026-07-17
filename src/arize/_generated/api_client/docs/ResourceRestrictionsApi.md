@@ -4,13 +4,13 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**resource_restrictions_create**](ResourceRestrictionsApi.md#resource_restrictions_create) | **POST** /v2/resource-restrictions | Restrict a resource
-[**resource_restrictions_delete**](ResourceRestrictionsApi.md#resource_restrictions_delete) | **DELETE** /v2/resource-restrictions/{resource_id} | Unrestrict a resource
-[**resource_restrictions_list**](ResourceRestrictionsApi.md#resource_restrictions_list) | **GET** /v2/resource-restrictions | List resource restrictions the caller is permitted to manage.
+[**create_resource_restriction**](ResourceRestrictionsApi.md#create_resource_restriction) | **POST** /v2/resource-restrictions | Restrict a resource
+[**delete_resource_restriction**](ResourceRestrictionsApi.md#delete_resource_restriction) | **DELETE** /v2/resource-restrictions/{resource_id} | Unrestrict a resource
+[**list_resource_restrictions**](ResourceRestrictionsApi.md#list_resource_restrictions) | **GET** /v2/resource-restrictions | List resource restrictions the caller is permitted to manage.
 
 
-# **resource_restrictions_create**
-> ResourceRestrictionResponseBody resource_restrictions_create(resource_restriction_create)
+# **create_resource_restriction**
+> ResourceRestriction create_resource_restriction(create_resource_restriction_request)
 
 Restrict a resource
 
@@ -32,7 +32,7 @@ permission can perform this action. Idempotent.
 ```
 Returns 400 — only Project / Model IDs are accepted 
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -41,8 +41,8 @@ Returns 400 — only Project / Model IDs are accepted
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.resource_restriction_create import ResourceRestrictionCreate
-from arize._generated.api_client.models.resource_restriction_response_body import ResourceRestrictionResponseBody
+from arize._generated.api_client.models.create_resource_restriction_request import CreateResourceRestrictionRequest
+from arize._generated.api_client.models.resource_restriction import ResourceRestriction
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -66,15 +66,15 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ResourceRestrictionsApi(api_client)
-    resource_restriction_create = {"resource_id":"TW9kZWw6MTIxOmFCY0Q="} # ResourceRestrictionCreate | Body containing resource restriction creation parameters.
+    create_resource_restriction_request = {"resource_id":"TW9kZWw6MTIxOmFCY0Q="} # CreateResourceRestrictionRequest | Body containing resource restriction creation parameters.
 
     try:
         # Restrict a resource
-        api_response = api_instance.resource_restrictions_create(resource_restriction_create)
-        print("The response of ResourceRestrictionsApi->resource_restrictions_create:\n")
+        api_response = api_instance.create_resource_restriction(create_resource_restriction_request)
+        print("The response of ResourceRestrictionsApi->create_resource_restriction:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling ResourceRestrictionsApi->resource_restrictions_create: %s\n" % e)
+        print("Exception when calling ResourceRestrictionsApi->create_resource_restriction: %s\n" % e)
 ```
 
 
@@ -84,11 +84,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **resource_restriction_create** | [**ResourceRestrictionCreate**](ResourceRestrictionCreate.md)| Body containing resource restriction creation parameters. | 
+ **create_resource_restriction_request** | [**CreateResourceRestrictionRequest**](CreateResourceRestrictionRequest.md)| Body containing resource restriction creation parameters. | 
 
 ### Return type
 
-[**ResourceRestrictionResponseBody**](ResourceRestrictionResponseBody.md)
+[**ResourceRestriction**](ResourceRestriction.md)
 
 ### Authorization
 
@@ -113,14 +113,14 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **resource_restrictions_delete**
-> resource_restrictions_delete(resource_id)
+# **delete_resource_restriction**
+> delete_resource_restriction(resource_id)
 
 Unrestrict a resource
 
 Remove restriction from a resource. Removing a restriction from a resource means that roles bound at other levels of the hierarchy (space, org, account) can grant access to the resource. Returns 404 if the resource is not restricted.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -156,9 +156,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Unrestrict a resource
-        api_instance.resource_restrictions_delete(resource_id)
+        api_instance.delete_resource_restriction(resource_id)
     except Exception as e:
-        print("Exception when calling ResourceRestrictionsApi->resource_restrictions_delete: %s\n" % e)
+        print("Exception when calling ResourceRestrictionsApi->delete_resource_restriction: %s\n" % e)
 ```
 
 
@@ -196,8 +196,8 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **resource_restrictions_list**
-> ResourceRestrictionListResponse resource_restrictions_list(resource_type=resource_type, limit=limit, cursor=cursor)
+# **list_resource_restrictions**
+> ListResourceRestrictionsResponse list_resource_restrictions(resource_type=resource_type, limit=limit, cursor=cursor)
 
 List resource restrictions the caller is permitted to manage.
 
@@ -214,7 +214,7 @@ are authorization-filtered after a page is read, a page may contain fewer items 
 Use the optional `resource_type` query param to filter to a single resource type.
 When omitted, `PROJECT` restrictions are returned (currently the only supported type).
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -223,7 +223,7 @@ When omitted, `PROJECT` restrictions are returned (currently the only supported 
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.resource_restriction_list_response import ResourceRestrictionListResponse
+from arize._generated.api_client.models.list_resource_restrictions_response import ListResourceRestrictionsResponse
 from arize._generated.api_client.models.resource_restriction_type import ResourceRestrictionType
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
@@ -254,11 +254,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # List resource restrictions the caller is permitted to manage.
-        api_response = api_instance.resource_restrictions_list(resource_type=resource_type, limit=limit, cursor=cursor)
-        print("The response of ResourceRestrictionsApi->resource_restrictions_list:\n")
+        api_response = api_instance.list_resource_restrictions(resource_type=resource_type, limit=limit, cursor=cursor)
+        print("The response of ResourceRestrictionsApi->list_resource_restrictions:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling ResourceRestrictionsApi->resource_restrictions_list: %s\n" % e)
+        print("Exception when calling ResourceRestrictionsApi->list_resource_restrictions: %s\n" % e)
 ```
 
 
@@ -274,7 +274,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ResourceRestrictionListResponse**](ResourceRestrictionListResponse.md)
+[**ListResourceRestrictionsResponse**](ListResourceRestrictionsResponse.md)
 
 ### Authorization
 

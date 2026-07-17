@@ -26,7 +26,7 @@ from typing_extensions import Self
 
 class Evaluator(BaseModel):
     """
-    An evaluator defines reusable evaluation logic that can be attached to evaluation tasks. The type field determines the kind of evaluation: template (LLM-based template evaluation) or code (custom code evaluation). 
+    An evaluator defines reusable evaluation logic that can be attached to evaluation tasks. The type field determines the kind of evaluation: TEMPLATE (LLM-based template evaluation) or CODE (custom code evaluation). 
     """ # noqa: E501
     id: StrictStr = Field(description="The unique identifier for the evaluator")
     name: StrictStr = Field(description="The name of the evaluator")

@@ -35,16 +35,16 @@ class TestProviderParams(unittest.TestCase):
         model = ProviderParams()
         if include_optional:
             return ProviderParams(
-                azure_params = arize._generated.api_client.models.provider_params_azure_params.ProviderParams_azure_params(
+                azure_params = arize._generated.api_client.models.azure_params.AzureParams(
                     azure_deployment_name = '', 
                     azure_openai_endpoint = '', 
                     azure_openai_version = '', ),
-                anthropic_headers = arize._generated.api_client.models.provider_params_anthropic_headers.ProviderParams_anthropic_headers(
+                anthropic_headers = arize._generated.api_client.models.anthropic_headers.AnthropicHeaders(
                     anthropic_beta = [
                         ''
                         ], ),
                 anthropic_version = '',
-                bedrock_options = arize._generated.api_client.models.provider_params_bedrock_options.ProviderParams_bedrock_options(
+                bedrock_options = arize._generated.api_client.models.bedrock_options.BedrockOptions(
                     use_converse_endpoint = True, ),
                 region = ''
             )

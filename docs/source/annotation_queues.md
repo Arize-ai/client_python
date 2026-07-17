@@ -27,23 +27,19 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: AnnotationQueueListResponse
-   :members:
-   :member-order: bysource
-
 .. autoclass:: AnnotationQueueRecord
    :members:
    :member-order: bysource
 
-.. autoclass:: AnnotationQueueRecordAnnotateResult
+.. autoclass:: AnnotateAnnotationQueueRecordResponse
    :members:
    :member-order: bysource
 
-.. autoclass:: AnnotationQueueRecordAssignResult
+.. autoclass:: AssignAnnotationQueueRecordResponse
    :members:
    :member-order: bysource
 
-.. autoclass:: AnnotationQueueRecordCreateResponse
+.. autoclass:: CreateAnnotationQueueRecordResponse
    :members:
    :member-order: bysource
 
@@ -51,7 +47,11 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: AnnotationQueueRecordListResponse
+.. autoclass:: ListAnnotationQueueRecordsResponse
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ListAnnotationQueuesResponse
    :members:
    :member-order: bysource
 

@@ -26,9 +26,9 @@ class ResponseFormatType(str, Enum):
     """
     allowed enum values
     """
-    TEXT = 'text'
-    JSON_OBJECT = 'json_object'
-    JSON_SCHEMA = 'json_schema'
+    TEXT = 'TEXT'
+    JSON_OBJECT = 'JSON_OBJECT'
+    JSON_SCHEMA = 'JSON_SCHEMA'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

@@ -3,17 +3,18 @@
 from __future__ import annotations
 
 import logging
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
+from arize._generated.api_client import ProjectsApi
 from arize.projects.client import ProjectsClient
 
 
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock ProjectsApi instance."""
-    return Mock()
+    return create_autospec(ProjectsApi, instance=True)
 
 
 @pytest.fixture
@@ -75,7 +76,7 @@ class TestProjectsClientList:
             cursor="cursor-xyz",
         )
 
-        mock_api.projects_list.assert_called_once_with(
+        mock_api.list_projects.assert_called_once_with(
             space_id="U3BhY2U6OTA1MDoxSmtS",
             space_name=None,
             name="my-project",
@@ -94,7 +95,7 @@ class TestProjectsClientList:
             cursor="cursor-xyz",
         )
 
-        mock_api.projects_list.assert_called_once_with(
+        mock_api.list_projects.assert_called_once_with(
             space_id=None,
             space_name="my-space",
             name="my-project",
@@ -108,7 +109,7 @@ class TestProjectsClientList:
         """list() should default space/name/cursor to None and limit to 50."""
         projects_client.list()
 
-        mock_api.projects_list.assert_called_once_with(
+        mock_api.list_projects.assert_called_once_with(
             space_id=None,
             space_name=None,
             name=None,
@@ -121,7 +122,7 @@ class TestProjectsClientList:
     ) -> None:
         """list() should propagate the return value from projects_list."""
         expected = Mock()
-        mock_api.projects_list.return_value = expected
+        mock_api.list_projects.return_value = expected
 
         result = projects_client.list()
 
@@ -153,14 +154,14 @@ class TestProjectsClientCreate:
     def test_create_resolves_space_and_builds_request(
         self, projects_client: ProjectsClient, mock_api: Mock
     ) -> None:
-        """create() should resolve space, build ProjectCreate, and call projects_create."""
+        """create() should resolve space, build CreateProjectRequest, and call projects_create."""
         with (
             patch(
                 "arize.projects.client._find_space_id",
                 return_value="resolved-space-id",
             ) as mock_resolve,
             patch(
-                "arize._generated.api_client.ProjectCreate"
+                "arize._generated.api_client.CreateProjectRequest"
             ) as mock_request_cls,
         ):
             mock_request_cls.return_value = Mock()
@@ -174,8 +175,8 @@ class TestProjectsClientCreate:
             name="my-project",
             space_id="resolved-space-id",
         )
-        mock_api.projects_create.assert_called_once_with(
-            project_create=mock_request_cls.return_value
+        mock_api.create_project.assert_called_once_with(
+            create_project_request=mock_request_cls.return_value
         )
 
     def test_create_returns_api_response(
@@ -183,11 +184,11 @@ class TestProjectsClientCreate:
     ) -> None:
         """create() should propagate the return value from projects_create."""
         expected = Mock()
-        mock_api.projects_create.return_value = expected
+        mock_api.create_project.return_value = expected
 
         with (
             patch("arize.projects.client._find_space_id", return_value="sid"),
-            patch("arize._generated.api_client.ProjectCreate"),
+            patch("arize._generated.api_client.CreateProjectRequest"),
         ):
             result = projects_client.create(name="proj", space="space-id")
 
@@ -201,14 +202,14 @@ class TestProjectsClientUpdate:
     def test_update_resolves_project_and_builds_request(
         self, projects_client: ProjectsClient, mock_api: Mock
     ) -> None:
-        """update() should resolve the project ID, build ProjectUpdate, and call projects_update."""
+        """update() should resolve the project ID, build UpdateProjectRequest, and call projects_update."""
         with (
             patch(
                 "arize.projects.client._find_project_id",
                 return_value="resolved-project-id",
             ) as mock_resolve,
             patch(
-                "arize._generated.api_client.ProjectUpdate"
+                "arize._generated.api_client.UpdateProjectRequest"
             ) as mock_request_cls,
         ):
             mock_request_cls.return_value = Mock()
@@ -225,9 +226,9 @@ class TestProjectsClientUpdate:
             space="my-space",
         )
         mock_request_cls.assert_called_once_with(name="renamed-project")
-        mock_api.projects_update.assert_called_once_with(
+        mock_api.update_project.assert_called_once_with(
             project_id="resolved-project-id",
-            project_update=mock_request_cls.return_value,
+            update_project_request=mock_request_cls.return_value,
         )
 
     def test_update_with_project_id_skips_space(
@@ -240,7 +241,7 @@ class TestProjectsClientUpdate:
                 "arize.projects.client._find_project_id",
                 return_value=project_id,
             ) as mock_resolve,
-            patch("arize._generated.api_client.ProjectUpdate"),
+            patch("arize._generated.api_client.UpdateProjectRequest"),
         ):
             projects_client.update(project=project_id, name="renamed-project")
 
@@ -255,11 +256,11 @@ class TestProjectsClientUpdate:
     ) -> None:
         """update() should propagate the return value from projects_update."""
         expected = Mock()
-        mock_api.projects_update.return_value = expected
+        mock_api.update_project.return_value = expected
 
         with (
             patch("arize.projects.client._find_project_id", return_value="pid"),
-            patch("arize._generated.api_client.ProjectUpdate"),
+            patch("arize._generated.api_client.UpdateProjectRequest"),
         ):
             result = projects_client.update(
                 project="proj", space="space-id", name="new-name"
@@ -280,7 +281,7 @@ class TestProjectsClientUpdate:
 
         with (
             patch("arize.projects.client._find_project_id", return_value="pid"),
-            patch("arize._generated.api_client.ProjectUpdate"),
+            patch("arize._generated.api_client.UpdateProjectRequest"),
         ):
             projects_client.update(
                 project="proj", space="space-id", name="new-name"

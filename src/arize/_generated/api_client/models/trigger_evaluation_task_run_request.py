@@ -26,13 +26,13 @@ from typing_extensions import Self
 
 class TriggerEvaluationTaskRunRequest(BaseModel):
     """
-    Trigger request for `template_evaluation` or `code_evaluation` tasks. `data_start_time` and `data_end_time` together must span no more than 30 days. `data_start_time` must be before `data_end_time`. 
+    Trigger request for `TEMPLATE_EVALUATION` or `CODE_EVALUATION` tasks. `data_start_time` and `data_end_time` together must span no more than 30 days. `data_start_time` must be before `data_end_time`. 
     """ # noqa: E501
     data_start_time: Optional[datetime] = Field(default=None, description="ISO 8601 start of the data window to evaluate. For model-based tasks, defaults to the task's last run time. Required on the first run (when no previous run exists). Not applicable to dataset-based tasks. ")
     data_end_time: Optional[datetime] = Field(default=None, description="ISO 8601 end of the data window to evaluate. For model-based tasks, defaults to now. Not applicable to dataset-based tasks. ")
     max_spans: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Maximum number of spans to process (default 10000).")
     override_evaluations: Optional[StrictBool] = Field(default=None, description="Whether to re-evaluate data that already has evaluation labels (default `false`). ")
-    experiment_ids: Optional[List[StrictStr]] = Field(default=None, description="Experiment identifiers (base64) to run against. Only for dataset-based `template_evaluation` / `code_evaluation` tasks. ")
+    experiment_ids: Optional[List[StrictStr]] = Field(default=None, description="Experiment identifiers (base64) to run against. Only for dataset-based `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks. ")
     __properties: ClassVar[List[str]] = ["data_start_time", "data_end_time", "max_spans", "override_evaluations", "experiment_ids"]
 
     model_config = ConfigDict(

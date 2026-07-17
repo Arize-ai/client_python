@@ -4,11 +4,11 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**audit_logs_list**](AuditLogsApi.md#audit_logs_list) | **GET** /v2/audit-logs | List audit logs
+[**list_audit_logs**](AuditLogsApi.md#list_audit_logs) | **GET** /v2/audit-logs | List audit logs
 
 
-# **audit_logs_list**
-> AuditLogsList200Response audit_logs_list(start_time=start_time, end_time=end_time, user_id=user_id, operation_type=operation_type, limit=limit, cursor=cursor)
+# **list_audit_logs**
+> ListAuditLogsResponse list_audit_logs(start_time=start_time, end_time=end_time, user_id=user_id, operation_type=operation_type, limit=limit, cursor=cursor)
 
 List audit logs
 
@@ -21,7 +21,7 @@ account. Results are ordered newest first.
 
 Returns `403` if either condition is not met.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -31,7 +31,7 @@ Returns `403` if either condition is not met.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.audit_log_operation_type import AuditLogOperationType
-from arize._generated.api_client.models.audit_logs_list200_response import AuditLogsList200Response
+from arize._generated.api_client.models.list_audit_logs_response import ListAuditLogsResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -64,11 +64,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # List audit logs
-        api_response = api_instance.audit_logs_list(start_time=start_time, end_time=end_time, user_id=user_id, operation_type=operation_type, limit=limit, cursor=cursor)
-        print("The response of AuditLogsApi->audit_logs_list:\n")
+        api_response = api_instance.list_audit_logs(start_time=start_time, end_time=end_time, user_id=user_id, operation_type=operation_type, limit=limit, cursor=cursor)
+        print("The response of AuditLogsApi->list_audit_logs:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling AuditLogsApi->audit_logs_list: %s\n" % e)
+        print("Exception when calling AuditLogsApi->list_audit_logs: %s\n" % e)
 ```
 
 
@@ -87,7 +87,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AuditLogsList200Response**](AuditLogsList200Response.md)
+[**ListAuditLogsResponse**](ListAuditLogsResponse.md)
 
 ### Authorization
 

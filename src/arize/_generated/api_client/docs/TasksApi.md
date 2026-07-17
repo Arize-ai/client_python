@@ -4,26 +4,26 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**task_runs_cancel**](TasksApi.md#task_runs_cancel) | **POST** /v2/task-runs/{run_id}/cancel | Cancel task run
-[**task_runs_get**](TasksApi.md#task_runs_get) | **GET** /v2/task-runs/{run_id} | Get task run
-[**task_runs_list**](TasksApi.md#task_runs_list) | **GET** /v2/tasks/{task_id}/runs | List task runs
-[**tasks_create**](TasksApi.md#tasks_create) | **POST** /v2/tasks | Create task
-[**tasks_delete**](TasksApi.md#tasks_delete) | **DELETE** /v2/tasks/{task_id} | Delete task
-[**tasks_get**](TasksApi.md#tasks_get) | **GET** /v2/tasks/{task_id} | Get task
-[**tasks_list**](TasksApi.md#tasks_list) | **GET** /v2/tasks | List tasks
-[**tasks_trigger_run**](TasksApi.md#tasks_trigger_run) | **POST** /v2/tasks/{task_id}/trigger | Trigger a task run
-[**tasks_update**](TasksApi.md#tasks_update) | **PATCH** /v2/tasks/{task_id} | Update task
+[**cancel_task_run**](TasksApi.md#cancel_task_run) | **POST** /v2/task-runs/{run_id}/cancel | Cancel task run
+[**create_task**](TasksApi.md#create_task) | **POST** /v2/tasks | Create task
+[**delete_task**](TasksApi.md#delete_task) | **DELETE** /v2/tasks/{task_id} | Delete task
+[**get_task**](TasksApi.md#get_task) | **GET** /v2/tasks/{task_id} | Get task
+[**get_task_run**](TasksApi.md#get_task_run) | **GET** /v2/task-runs/{run_id} | Get task run
+[**list_task_runs**](TasksApi.md#list_task_runs) | **GET** /v2/tasks/{task_id}/runs | List task runs
+[**list_tasks**](TasksApi.md#list_tasks) | **GET** /v2/tasks | List tasks
+[**trigger_task_run**](TasksApi.md#trigger_task_run) | **POST** /v2/tasks/{task_id}/trigger | Trigger a task run
+[**update_task**](TasksApi.md#update_task) | **PATCH** /v2/tasks/{task_id} | Update task
 
 
-# **task_runs_cancel**
-> TaskRun task_runs_cancel(run_id)
+# **cancel_task_run**
+> TaskRun cancel_task_run(run_id)
 
 Cancel task run
 
 Cancel a running task run. Only valid when the run's current status
 is `pending` or `running`.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -60,11 +60,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Cancel task run
-        api_response = api_instance.task_runs_cancel(run_id)
-        print("The response of TasksApi->task_runs_cancel:\n")
+        api_response = api_instance.cancel_task_run(run_id)
+        print("The response of TasksApi->cancel_task_run:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling TasksApi->task_runs_cancel: %s\n" % e)
+        print("Exception when calling TasksApi->cancel_task_run: %s\n" % e)
 ```
 
 
@@ -102,186 +102,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **task_runs_get**
-> TaskRun task_runs_get(run_id)
-
-Get task run
-
-Returns a single task run. Use this to poll for status updates.
-
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
-
-
-### Example
-
-* Bearer (<api-key>) Authentication (bearerAuth):
-
-```python
-import arize._generated.api_client
-from arize._generated.api_client.models.task_run import TaskRun
-from arize._generated.api_client.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to https://api.arize.com
-# See configuration.py for a list of all supported configuration parameters.
-configuration = arize._generated.api_client.Configuration(
-    host = "https://api.arize.com"
-)
-
-# The client must configure the authentication and authorization parameters
-# in accordance with the API server security policy.
-# Examples for each auth method are provided below, use the example that
-# satisfies your auth use case.
-
-# Configure Bearer authorization (<api-key>): bearerAuth
-configuration = arize._generated.api_client.Configuration(
-    access_token = os.environ["BEARER_TOKEN"]
-)
-
-# Enter a context with an instance of the API client
-with arize._generated.api_client.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = arize._generated.api_client.TasksApi(api_client)
-    run_id = 'VGFza1J1bjoxMjM0NQ==' # str | The unique task run identifier (base64)
-
-    try:
-        # Get task run
-        api_response = api_instance.task_runs_get(run_id)
-        print("The response of TasksApi->task_runs_get:\n")
-        pprint(api_response)
-    except Exception as e:
-        print("Exception when calling TasksApi->task_runs_get: %s\n" % e)
-```
-
-
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **run_id** | **str**| The unique task run identifier (base64) | 
-
-### Return type
-
-[**TaskRun**](TaskRun.md)
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json, application/problem+json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Returns a single task run object |  -  |
-**400** | Invalid request |  -  |
-**401** | Authentication is required |  -  |
-**404** | Not found |  -  |
-**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **task_runs_list**
-> TaskRunListResponse task_runs_list(task_id, status=status, limit=limit, cursor=cursor)
-
-List task runs
-
-List all runs for a task with cursor-based pagination.
-
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
-
-
-### Example
-
-* Bearer (<api-key>) Authentication (bearerAuth):
-
-```python
-import arize._generated.api_client
-from arize._generated.api_client.models.task_run_list_response import TaskRunListResponse
-from arize._generated.api_client.models.task_run_status import TaskRunStatus
-from arize._generated.api_client.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to https://api.arize.com
-# See configuration.py for a list of all supported configuration parameters.
-configuration = arize._generated.api_client.Configuration(
-    host = "https://api.arize.com"
-)
-
-# The client must configure the authentication and authorization parameters
-# in accordance with the API server security policy.
-# Examples for each auth method are provided below, use the example that
-# satisfies your auth use case.
-
-# Configure Bearer authorization (<api-key>): bearerAuth
-configuration = arize._generated.api_client.Configuration(
-    access_token = os.environ["BEARER_TOKEN"]
-)
-
-# Enter a context with an instance of the API client
-with arize._generated.api_client.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = arize._generated.api_client.TasksApi(api_client)
-    task_id = 'VGFzazoxMjM0NQ==' # str | The unique task identifier (base64)
-    status = arize._generated.api_client.TaskRunStatus() # TaskRunStatus | Filter by run status: pending, running, completed, failed, cancelled (optional)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
-    cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
-
-    try:
-        # List task runs
-        api_response = api_instance.task_runs_list(task_id, status=status, limit=limit, cursor=cursor)
-        print("The response of TasksApi->task_runs_list:\n")
-        pprint(api_response)
-    except Exception as e:
-        print("Exception when calling TasksApi->task_runs_list: %s\n" % e)
-```
-
-
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **task_id** | **str**| The unique task identifier (base64) | 
- **status** | [**TaskRunStatus**](.md)| Filter by run status: pending, running, completed, failed, cancelled | [optional] 
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
- **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
-
-### Return type
-
-[**TaskRunListResponse**](TaskRunListResponse.md)
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json, application/problem+json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Returns a list of task run objects |  -  |
-**400** | Invalid request |  -  |
-**401** | Authentication is required |  -  |
-**403** | Insufficient permissions to access this resource |  -  |
-**404** | Not found |  -  |
-**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **tasks_create**
-> Task tasks_create(tasks_create_request)
+# **create_task**
+> Task create_task(create_task_request)
 
 Create task
 
@@ -289,11 +111,11 @@ Creates a new task. Supported task types:
 
 | `type` | Data source | Notes |
 |---|---|---|
-| `template_evaluation` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. |
-| `code_evaluation` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. |
-| `run_experiment` | `dataset_id` only | Requires `run_configuration`. Never continuous. |
+| `TEMPLATE_EVALUATION` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. |
+| `CODE_EVALUATION` | `project_id` or `dataset_id` | Requires `evaluators`. Supports continuous operation. |
+| `RUN_EXPERIMENT` | `dataset_id` only | Requires `run_configuration`. Never continuous. |
 
-For `run_experiment` tasks the run configuration is stored on the task.
+For `RUN_EXPERIMENT` tasks the run configuration is stored on the task.
 Each trigger (`POST /v2/tasks/{task_id}/trigger`) supplies per-run fields
 (`experiment_name`, optional example subset, etc.) and starts an async run.
 Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.
@@ -314,7 +136,7 @@ Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.
 ```json
 {
   "name": "Production Hallucination Check",
-  "type": "template_evaluation",
+  "type": "TEMPLATE_EVALUATION",
   "project_id": "TW9kZWw6MTIzOmFCY0Q=",
   "sampling_rate": 1.0,
   "is_continuous": true,
@@ -331,12 +153,12 @@ Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.
 ```json
 {
   "name": "My Experiment",
-  "type": "run_experiment",
+  "type": "RUN_EXPERIMENT",
   "dataset_id": "RGF0YXNldDo1NjpxUndY"
 }
 ```
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -345,8 +167,8 @@ Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.create_task_request import CreateTaskRequest
 from arize._generated.api_client.models.task import Task
-from arize._generated.api_client.models.tasks_create_request import TasksCreateRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -370,15 +192,15 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
-    tasks_create_request = {"name":"Production Hallucination Check","type":"template_evaluation","project_id":"TW9kZWw6MTIzOmFCY0Q=","sampling_rate":1,"is_continuous":true,"query_filter":"metadata.environment = 'production'","evaluators":[{"evaluator_id":"RXZhbHVhdG9yOjEyOmFCY0Q=","column_mappings":{"input":"attributes.input.value","output":"attributes.output.value"}}]} # TasksCreateRequest | Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `template_evaluation` | `CreateTemplateEvaluationTaskRequest` | | `code_evaluation` | `CreateCodeEvaluationTaskRequest` | | `run_experiment` | `CreateRunExperimentTaskRequest` |  `run_experiment` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `template_evaluation` / `code_evaluation` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks. 
+    create_task_request = {"name":"Production Hallucination Check","type":"TEMPLATE_EVALUATION","project_id":"TW9kZWw6MTIzOmFCY0Q=","sampling_rate":1,"is_continuous":true,"query_filter":"metadata.environment = 'production'","evaluators":[{"evaluator_id":"RXZhbHVhdG9yOjEyOmFCY0Q=","column_mappings":{"input":"attributes.input.value","output":"attributes.output.value"}}]} # CreateTaskRequest | Body containing task creation parameters. The `type` field is the discriminator.  | `type` | Schema | |---|---| | `TEMPLATE_EVALUATION` | `CreateTemplateEvaluationTaskRequest` | | `CODE_EVALUATION` | `CreateCodeEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `CreateRunExperimentTaskRequest` |  `RUN_EXPERIMENT` tasks do not run continuously — they must be triggered explicitly via `POST /v2/tasks/{task_id}/trigger` each time.  For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks, exactly one of `project_id` or `dataset_id` must be provided. When `dataset_id` is provided, `experiment_ids` must contain at least one entry. `is_continuous` and `sampling_rate` are only supported for project-based tasks. 
 
     try:
         # Create task
-        api_response = api_instance.tasks_create(tasks_create_request)
-        print("The response of TasksApi->tasks_create:\n")
+        api_response = api_instance.create_task(create_task_request)
+        print("The response of TasksApi->create_task:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling TasksApi->tasks_create: %s\n" % e)
+        print("Exception when calling TasksApi->create_task: %s\n" % e)
 ```
 
 
@@ -388,7 +210,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **tasks_create_request** | [**TasksCreateRequest**](TasksCreateRequest.md)| Body containing task creation parameters. The &#x60;type&#x60; field is the discriminator.  | &#x60;type&#x60; | Schema | |---|---| | &#x60;template_evaluation&#x60; | &#x60;CreateTemplateEvaluationTaskRequest&#x60; | | &#x60;code_evaluation&#x60; | &#x60;CreateCodeEvaluationTaskRequest&#x60; | | &#x60;run_experiment&#x60; | &#x60;CreateRunExperimentTaskRequest&#x60; |  &#x60;run_experiment&#x60; tasks do not run continuously — they must be triggered explicitly via &#x60;POST /v2/tasks/{task_id}/trigger&#x60; each time.  For &#x60;template_evaluation&#x60; / &#x60;code_evaluation&#x60; tasks, exactly one of &#x60;project_id&#x60; or &#x60;dataset_id&#x60; must be provided. When &#x60;dataset_id&#x60; is provided, &#x60;experiment_ids&#x60; must contain at least one entry. &#x60;is_continuous&#x60; and &#x60;sampling_rate&#x60; are only supported for project-based tasks.  | 
+ **create_task_request** | [**CreateTaskRequest**](CreateTaskRequest.md)| Body containing task creation parameters. The &#x60;type&#x60; field is the discriminator.  | &#x60;type&#x60; | Schema | |---|---| | &#x60;TEMPLATE_EVALUATION&#x60; | &#x60;CreateTemplateEvaluationTaskRequest&#x60; | | &#x60;CODE_EVALUATION&#x60; | &#x60;CreateCodeEvaluationTaskRequest&#x60; | | &#x60;RUN_EXPERIMENT&#x60; | &#x60;CreateRunExperimentTaskRequest&#x60; |  &#x60;RUN_EXPERIMENT&#x60; tasks do not run continuously — they must be triggered explicitly via &#x60;POST /v2/tasks/{task_id}/trigger&#x60; each time.  For &#x60;TEMPLATE_EVALUATION&#x60; / &#x60;CODE_EVALUATION&#x60; tasks, exactly one of &#x60;project_id&#x60; or &#x60;dataset_id&#x60; must be provided. When &#x60;dataset_id&#x60; is provided, &#x60;experiment_ids&#x60; must contain at least one entry. &#x60;is_continuous&#x60; and &#x60;sampling_rate&#x60; are only supported for project-based tasks.  | 
 
 ### Return type
 
@@ -407,7 +229,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Returns the created task |  -  |
+**201** | Returns a single task object |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
@@ -417,15 +239,15 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **tasks_delete**
-> tasks_delete(task_id)
+# **delete_task**
+> delete_task(task_id)
 
 Delete task
 
 Deletes a task and all its associated resources (evaluator configs, runs, etc.).
 This operation is irreversible.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -461,9 +283,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Delete task
-        api_instance.tasks_delete(task_id)
+        api_instance.delete_task(task_id)
     except Exception as e:
-        print("Exception when calling TasksApi->tasks_delete: %s\n" % e)
+        print("Exception when calling TasksApi->delete_task: %s\n" % e)
 ```
 
 
@@ -501,14 +323,14 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **tasks_get**
-> Task tasks_get(task_id)
+# **get_task**
+> Task get_task(task_id)
 
 Get task
 
 Returns a single task by its ID.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -545,11 +367,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Get task
-        api_response = api_instance.tasks_get(task_id)
-        print("The response of TasksApi->tasks_get:\n")
+        api_response = api_instance.get_task(task_id)
+        print("The response of TasksApi->get_task:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling TasksApi->tasks_get: %s\n" % e)
+        print("Exception when calling TasksApi->get_task: %s\n" % e)
 ```
 
 
@@ -586,16 +408,14 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **tasks_list**
-> TaskListResponse tasks_list(space_id=space_id, space_name=space_name, name=name, project_id=project_id, dataset_id=dataset_id, type=type, limit=limit, cursor=cursor)
+# **get_task_run**
+> TaskRun get_task_run(run_id)
 
-List tasks
+Get task run
 
-List tasks the user has access to, with cursor-based pagination.
+Returns a single task run. Use this to poll for status updates.
 
-Filter by space, space name, task name, project, dataset, or task type using query parameters.
-
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -604,7 +424,187 @@ Filter by space, space name, task name, project, dataset, or task type using que
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.task_list_response import TaskListResponse
+from arize._generated.api_client.models.task_run import TaskRun
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.TasksApi(api_client)
+    run_id = 'VGFza1J1bjoxMjM0NQ==' # str | The unique task run identifier (base64)
+
+    try:
+        # Get task run
+        api_response = api_instance.get_task_run(run_id)
+        print("The response of TasksApi->get_task_run:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling TasksApi->get_task_run: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **run_id** | **str**| The unique task run identifier (base64) | 
+
+### Return type
+
+[**TaskRun**](TaskRun.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns a single task run object |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_task_runs**
+> ListTaskRunsResponse list_task_runs(task_id, status=status, limit=limit, cursor=cursor)
+
+List task runs
+
+List all runs for a task with cursor-based pagination.
+
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.list_task_runs_response import ListTaskRunsResponse
+from arize._generated.api_client.models.task_run_status import TaskRunStatus
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.TasksApi(api_client)
+    task_id = 'VGFzazoxMjM0NQ==' # str | The unique task identifier (base64)
+    status = arize._generated.api_client.TaskRunStatus() # TaskRunStatus | Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED (optional)
+    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
+
+    try:
+        # List task runs
+        api_response = api_instance.list_task_runs(task_id, status=status, limit=limit, cursor=cursor)
+        print("The response of TasksApi->list_task_runs:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling TasksApi->list_task_runs: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **task_id** | **str**| The unique task identifier (base64) | 
+ **status** | [**TaskRunStatus**](.md)| Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED | [optional] 
+ **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
+
+### Return type
+
+[**ListTaskRunsResponse**](ListTaskRunsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns a list of task run objects |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_tasks**
+> ListTasksResponse list_tasks(space_id=space_id, space_name=space_name, name=name, project_id=project_id, dataset_id=dataset_id, type=type, limit=limit, cursor=cursor)
+
+List tasks
+
+List tasks the user has access to, with cursor-based pagination.
+
+Filter by space, space name, task name, project, dataset, or task type using query parameters.
+
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.list_tasks_response import ListTasksResponse
 from arize._generated.api_client.models.task_type import TaskType
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
@@ -634,17 +634,17 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
     project_id = 'UHJvamVjdDoxMjM0NQ==' # str | Filter to tasks for a specific project (base64 identifier (base64)) (optional)
     dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | Filter to a specific dataset (base64 identifier (base64)) (optional)
-    type = arize._generated.api_client.TaskType() # TaskType | Filter by task type: template_evaluation, code_evaluation, or run_experiment (optional)
+    type = arize._generated.api_client.TaskType() # TaskType | Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, or RUN_EXPERIMENT (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
         # List tasks
-        api_response = api_instance.tasks_list(space_id=space_id, space_name=space_name, name=name, project_id=project_id, dataset_id=dataset_id, type=type, limit=limit, cursor=cursor)
-        print("The response of TasksApi->tasks_list:\n")
+        api_response = api_instance.list_tasks(space_id=space_id, space_name=space_name, name=name, project_id=project_id, dataset_id=dataset_id, type=type, limit=limit, cursor=cursor)
+        print("The response of TasksApi->list_tasks:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling TasksApi->tasks_list: %s\n" % e)
+        print("Exception when calling TasksApi->list_tasks: %s\n" % e)
 ```
 
 
@@ -659,13 +659,13 @@ Name | Type | Description  | Notes
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
  **project_id** | **str**| Filter to tasks for a specific project (base64 identifier (base64)) | [optional] 
  **dataset_id** | **str**| Filter to a specific dataset (base64 identifier (base64)) | [optional] 
- **type** | [**TaskType**](.md)| Filter by task type: template_evaluation, code_evaluation, or run_experiment | [optional] 
+ **type** | [**TaskType**](.md)| Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, or RUN_EXPERIMENT | [optional] 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
 ### Return type
 
-[**TaskListResponse**](TaskListResponse.md)
+[**ListTasksResponse**](ListTasksResponse.md)
 
 ### Authorization
 
@@ -689,8 +689,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **tasks_trigger_run**
-> TaskRun tasks_trigger_run(task_id, tasks_trigger_run_request=tasks_trigger_run_request)
+# **trigger_task_run**
+> TaskRun trigger_task_run(task_id, trigger_task_run_request=trigger_task_run_request)
 
 Trigger a task run
 
@@ -700,10 +700,10 @@ terminal status (`completed`, `failed`, or `cancelled`).
 
 **Payload Requirements**
 - Fields must match the task's type; sending inapplicable fields returns 400.
-- For `template_evaluation` / `code_evaluation` tasks, all trigger fields are optional — an empty body uses server defaults.
-- For `run_experiment` tasks, `experiment_name` is required.
+- For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks, all trigger fields are optional — an empty body uses server defaults.
+- For `RUN_EXPERIMENT` tasks, `experiment_name` is required.
 
-**For `run_experiment` tasks**
+**For `RUN_EXPERIMENT` tasks**
 
 Supply `experiment_name` (required) plus any of the optional per-run fields:
 `dataset_version_id`, `example_ids` (exclusive with `max_examples`),
@@ -715,11 +715,11 @@ return 400 if supplied.
 
 The response includes `experiment_id` once the experiment is provisioned.
 
-**For `template_evaluation` / `code_evaluation` tasks**
+**For `TEMPLATE_EVALUATION` / `CODE_EVALUATION` tasks**
 
 Supply `data_start_time`, `data_end_time`, `max_spans`,
 `override_evaluations`, and/or `experiment_ids` as needed.
-`run_experiment`-specific fields are not applicable for these task types.
+`RUN_EXPERIMENT`-specific fields are not applicable for these task types.
 
 **Valid example** (trigger a run_experiment run)
 ```json
@@ -736,7 +736,7 @@ Supply `data_start_time`, `data_end_time`, `max_spans`,
 }
 ```
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -746,7 +746,7 @@ Supply `data_start_time`, `data_end_time`, `max_spans`,
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.task_run import TaskRun
-from arize._generated.api_client.models.tasks_trigger_run_request import TasksTriggerRunRequest
+from arize._generated.api_client.models.trigger_task_run_request import TriggerTaskRunRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -771,15 +771,15 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
     task_id = 'VGFzazoxMjM0NQ==' # str | The unique task identifier (base64)
-    tasks_trigger_run_request = {"data_start_time":"2026-03-01T00:00:00Z","data_end_time":"2026-03-07T00:00:00Z","max_spans":5000,"override_evaluations":false} # TasksTriggerRunRequest | Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `TriggerEvaluationTaskRunRequest` | | `code_evaluation` | `TriggerEvaluationTaskRunRequest` | | `run_experiment` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `template_evaluation` and `code_evaluation` tasks all trigger fields are optional — an empty body is valid and uses server defaults.  (optional)
+    trigger_task_run_request = {"data_start_time":"2026-03-01T00:00:00Z","data_end_time":"2026-03-07T00:00:00Z","max_spans":5000,"override_evaluations":false} # TriggerTaskRunRequest | Trigger body for `POST /v2/tasks/{task_id}/trigger`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `task_type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `CODE_EVALUATION` | `TriggerEvaluationTaskRunRequest` | | `RUN_EXPERIMENT` | `TriggerRunExperimentTaskRunRequest` |  Sending a field that is not valid for the resolved task type returns 400. For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks all trigger fields are optional — an empty body is valid and uses server defaults.  (optional)
 
     try:
         # Trigger a task run
-        api_response = api_instance.tasks_trigger_run(task_id, tasks_trigger_run_request=tasks_trigger_run_request)
-        print("The response of TasksApi->tasks_trigger_run:\n")
+        api_response = api_instance.trigger_task_run(task_id, trigger_task_run_request=trigger_task_run_request)
+        print("The response of TasksApi->trigger_task_run:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling TasksApi->tasks_trigger_run: %s\n" % e)
+        print("Exception when calling TasksApi->trigger_task_run: %s\n" % e)
 ```
 
 
@@ -790,7 +790,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **task_id** | **str**| The unique task identifier (base64) | 
- **tasks_trigger_run_request** | [**TasksTriggerRunRequest**](TasksTriggerRunRequest.md)| Trigger body for &#x60;POST /v2/tasks/{task_id}/trigger&#x60;. The server derives the task type from the URL&#39;s task record and selects the appropriate schema; the body itself does not carry a &#x60;task_type&#x60; field.  | Task type | Schema | |---|---| | &#x60;template_evaluation&#x60; | &#x60;TriggerEvaluationTaskRunRequest&#x60; | | &#x60;code_evaluation&#x60; | &#x60;TriggerEvaluationTaskRunRequest&#x60; | | &#x60;run_experiment&#x60; | &#x60;TriggerRunExperimentTaskRunRequest&#x60; |  Sending a field that is not valid for the resolved task type returns 400. For &#x60;template_evaluation&#x60; and &#x60;code_evaluation&#x60; tasks all trigger fields are optional — an empty body is valid and uses server defaults.  | [optional] 
+ **trigger_task_run_request** | [**TriggerTaskRunRequest**](TriggerTaskRunRequest.md)| Trigger body for &#x60;POST /v2/tasks/{task_id}/trigger&#x60;. The server derives the task type from the URL&#39;s task record and selects the appropriate schema; the body itself does not carry a &#x60;task_type&#x60; field.  | Task type | Schema | |---|---| | &#x60;TEMPLATE_EVALUATION&#x60; | &#x60;TriggerEvaluationTaskRunRequest&#x60; | | &#x60;CODE_EVALUATION&#x60; | &#x60;TriggerEvaluationTaskRunRequest&#x60; | | &#x60;RUN_EXPERIMENT&#x60; | &#x60;TriggerRunExperimentTaskRunRequest&#x60; |  Sending a field that is not valid for the resolved task type returns 400. For &#x60;TEMPLATE_EVALUATION&#x60; and &#x60;CODE_EVALUATION&#x60; tasks all trigger fields are optional — an empty body is valid and uses server defaults.  | [optional] 
 
 ### Return type
 
@@ -809,7 +809,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Returns the created task run |  -  |
+**201** | Returns a single task run object |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
@@ -820,8 +820,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **tasks_update**
-> Task tasks_update(task_id, tasks_update_request)
+# **update_task**
+> Task update_task(task_id, update_task_request)
 
 Update task
 
@@ -849,7 +849,7 @@ Omitted fields are left unchanged.
 {}
 ```
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -859,7 +859,7 @@ Omitted fields are left unchanged.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.task import Task
-from arize._generated.api_client.models.tasks_update_request import TasksUpdateRequest
+from arize._generated.api_client.models.update_task_request import UpdateTaskRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -884,15 +884,15 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TasksApi(api_client)
     task_id = 'VGFzazoxMjM0NQ==' # str | The unique task identifier (base64)
-    tasks_update_request = {"name":"Updated Task Name","sampling_rate":0.5,"query_filter":"metadata.environment = 'staging'"} # TasksUpdateRequest | PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `template_evaluation` | `UpdateEvaluationTaskRequest` | | `code_evaluation` | `UpdateEvaluationTaskRequest` | | `run_experiment` | `UpdateRunExperimentTaskRequest` |  For `template_evaluation` and `code_evaluation` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `run_experiment` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `run_experiment` task, or `run_configuration` on an evaluation task). 
+    update_task_request = {"name":"Updated Task Name","sampling_rate":0.5,"query_filter":"metadata.environment = 'staging'"} # UpdateTaskRequest | PATCH body for `PATCH /v2/tasks/{task_id}`. The server derives the task type from the URL's task record and selects the appropriate schema; the body itself does not carry a `type` field.  | Task type | Schema | |---|---| | `TEMPLATE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `CODE_EVALUATION` | `UpdateEvaluationTaskRequest` | | `RUN_EXPERIMENT` | `UpdateRunExperimentTaskRequest` |  For `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks, at least one of `name`, `sampling_rate`, `is_continuous`, `query_filter`, or `evaluators` must be provided.  For `RUN_EXPERIMENT` tasks, at least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. `evaluators` on a `RUN_EXPERIMENT` task, or `run_configuration` on an evaluation task). 
 
     try:
         # Update task
-        api_response = api_instance.tasks_update(task_id, tasks_update_request)
-        print("The response of TasksApi->tasks_update:\n")
+        api_response = api_instance.update_task(task_id, update_task_request)
+        print("The response of TasksApi->update_task:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling TasksApi->tasks_update: %s\n" % e)
+        print("Exception when calling TasksApi->update_task: %s\n" % e)
 ```
 
 
@@ -903,7 +903,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **task_id** | **str**| The unique task identifier (base64) | 
- **tasks_update_request** | [**TasksUpdateRequest**](TasksUpdateRequest.md)| PATCH body for &#x60;PATCH /v2/tasks/{task_id}&#x60;. The server derives the task type from the URL&#39;s task record and selects the appropriate schema; the body itself does not carry a &#x60;type&#x60; field.  | Task type | Schema | |---|---| | &#x60;template_evaluation&#x60; | &#x60;UpdateEvaluationTaskRequest&#x60; | | &#x60;code_evaluation&#x60; | &#x60;UpdateEvaluationTaskRequest&#x60; | | &#x60;run_experiment&#x60; | &#x60;UpdateRunExperimentTaskRequest&#x60; |  For &#x60;template_evaluation&#x60; and &#x60;code_evaluation&#x60; tasks, at least one of &#x60;name&#x60;, &#x60;sampling_rate&#x60;, &#x60;is_continuous&#x60;, &#x60;query_filter&#x60;, or &#x60;evaluators&#x60; must be provided.  For &#x60;run_experiment&#x60; tasks, at least one of &#x60;name&#x60; or &#x60;run_configuration&#x60; must be provided. When &#x60;run_configuration&#x60; is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. &#x60;evaluators&#x60; on a &#x60;run_experiment&#x60; task, or &#x60;run_configuration&#x60; on an evaluation task).  | 
+ **update_task_request** | [**UpdateTaskRequest**](UpdateTaskRequest.md)| PATCH body for &#x60;PATCH /v2/tasks/{task_id}&#x60;. The server derives the task type from the URL&#39;s task record and selects the appropriate schema; the body itself does not carry a &#x60;type&#x60; field.  | Task type | Schema | |---|---| | &#x60;TEMPLATE_EVALUATION&#x60; | &#x60;UpdateEvaluationTaskRequest&#x60; | | &#x60;CODE_EVALUATION&#x60; | &#x60;UpdateEvaluationTaskRequest&#x60; | | &#x60;RUN_EXPERIMENT&#x60; | &#x60;UpdateRunExperimentTaskRequest&#x60; |  For &#x60;TEMPLATE_EVALUATION&#x60; and &#x60;CODE_EVALUATION&#x60; tasks, at least one of &#x60;name&#x60;, &#x60;sampling_rate&#x60;, &#x60;is_continuous&#x60;, &#x60;query_filter&#x60;, or &#x60;evaluators&#x60; must be provided.  For &#x60;RUN_EXPERIMENT&#x60; tasks, at least one of &#x60;name&#x60; or &#x60;run_configuration&#x60; must be provided. When &#x60;run_configuration&#x60; is provided the stored config is atomically replaced.  Sending a field that is not valid for the resolved task type returns 400 (e.g. &#x60;evaluators&#x60; on a &#x60;RUN_EXPERIMENT&#x60; task, or &#x60;run_configuration&#x60; on an evaluation task).  | 
 
 ### Return type
 
@@ -922,7 +922,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**200** | Returns the updated task |  -  |
+**200** | Returns a single task object |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |

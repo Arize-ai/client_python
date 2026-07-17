@@ -41,7 +41,7 @@ class TestEvaluatorVersionHarness(unittest.TestCase):
                 commit_message = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = '',
-                type = 'harness'
+                type = 'HARNESS'
             )
         else:
             return EvaluatorVersionHarness(
@@ -51,7 +51,7 @@ class TestEvaluatorVersionHarness(unittest.TestCase):
                 commit_message = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = '',
-                type = 'harness',
+                type = 'HARNESS',
         )
         """
 

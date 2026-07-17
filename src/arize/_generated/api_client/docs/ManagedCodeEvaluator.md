@@ -4,15 +4,15 @@ Built-in managed code evaluator name
 
 ## Enum
 
-* `MATCHESREGEX` (value: `'MatchesRegex'`)
+* `MATCHES_REGEX` (value: `'MATCHES_REGEX'`)
 
-* `JSONPARSEABLE` (value: `'JSONParseable'`)
+* `JSON_PARSEABLE` (value: `'JSON_PARSEABLE'`)
 
-* `CONTAINSANYKEYWORD` (value: `'ContainsAnyKeyword'`)
+* `CONTAINS_ANY_KEYWORD` (value: `'CONTAINS_ANY_KEYWORD'`)
 
-* `CONTAINSALLKEYWORDS` (value: `'ContainsAllKeywords'`)
+* `CONTAINS_ALL_KEYWORDS` (value: `'CONTAINS_ALL_KEYWORDS'`)
 
-* `EXACTMATCH` (value: `'ExactMatch'`)
+* `EXACT_MATCH` (value: `'EXACT_MATCH'`)
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

@@ -19,7 +19,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: RoleListResponse
+.. autoclass:: ListRolesResponse
    :members:
    :member-order: bysource
 ```

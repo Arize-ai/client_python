@@ -42,8 +42,8 @@ class ManagedCodeConfig(BaseModel):
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['managed']):
-            raise ValueError("must be one of enum values ('managed')")
+        if value not in set(['MANAGED']):
+            raise ValueError("must be one of enum values ('MANAGED')")
         return value
 
     @field_validator('name')

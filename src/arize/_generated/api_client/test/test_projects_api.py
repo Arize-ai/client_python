@@ -26,31 +26,38 @@ class TestProjectsApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_projects_create(self) -> None:
-        """Test case for projects_create
+    def test_create_project(self) -> None:
+        """Test case for create_project
 
         Create a project
         """
         pass
 
-    def test_projects_delete(self) -> None:
-        """Test case for projects_delete
+    def test_delete_project(self) -> None:
+        """Test case for delete_project
 
         Delete a project
         """
         pass
 
-    def test_projects_get(self) -> None:
-        """Test case for projects_get
+    def test_get_project(self) -> None:
+        """Test case for get_project
 
         Get a project
         """
         pass
 
-    def test_projects_list(self) -> None:
-        """Test case for projects_list
+    def test_list_projects(self) -> None:
+        """Test case for list_projects
 
         List projects
+        """
+        pass
+
+    def test_update_project(self) -> None:
+        """Test case for update_project
+
+        Update a project
         """
         pass
 

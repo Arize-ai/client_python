@@ -1,6 +1,6 @@
 # TaskRun
 
-A task run is an async job that executes the work defined on a task. Runs are created by triggering an existing task (`POST /v2/tasks/{task_id}/trigger`). For `run_experiment` tasks, `experiment_id` is populated after the experiment is provisioned; poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state. 
+A task run is an async job that executes the work defined on a task. Runs are created by triggering an existing task (`POST /v2/tasks/{task_id}/trigger`). For `RUN_EXPERIMENT` tasks, `experiment_id` is populated after the experiment is provisioned; poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state. 
 
 ## Properties
 
@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | The unique identifier for the task run. | 
 **task_id** | **str** | The parent task identifier (base64). | 
-**experiment_id** | **str** | Created experiment identifier (base64). Present only for &#x60;run_experiment&#x60; task runs; null for all other task types.  | [optional] 
+**experiment_id** | **str** | Created experiment identifier (base64). Present only for &#x60;RUN_EXPERIMENT&#x60; task runs; null for all other task types.  | [optional] 
 **status** | [**TaskRunStatus**](TaskRunStatus.md) |  | 
 **run_started_at** | **datetime** | When the run started processing. | 
 **run_finished_at** | **datetime** | When the run finished processing. | 

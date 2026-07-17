@@ -1,14 +1,14 @@
 # AnnotationConfigType
 
-The type of annotation config: - continuous: a numeric score within a defined range - categorical: a set of labeled values each with an optional score - freeform: free-text annotation with no structured scoring 
+The type of annotation config: - CONTINUOUS: a numeric score within a defined range - CATEGORICAL: a set of labeled values each with an optional score - FREEFORM: free-text annotation with no structured scoring 
 
 ## Enum
 
-* `CONTINUOUS` (value: `'continuous'`)
+* `CONTINUOUS` (value: `'CONTINUOUS'`)
 
-* `CATEGORICAL` (value: `'categorical'`)
+* `CATEGORICAL` (value: `'CATEGORICAL'`)
 
-* `FREEFORM` (value: `'freeform'`)
+* `FREEFORM` (value: `'FREEFORM'`)
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

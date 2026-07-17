@@ -77,7 +77,7 @@ class TestApiKeysCRUD:
         )
         try:
             resp = api_keys_client.list(
-                key_type="service", space=SPACE_ID, limit=100
+                key_type="SERVICE", space=SPACE_ID, limit=100
             )
             key_ids = [k.id for k in resp.api_keys]
             assert created.id in key_ids
@@ -103,7 +103,7 @@ class TestApiKeysCRUD:
             assert refreshed.name == created.name
 
             active_resp = api_keys_client.list(
-                key_type="service", space=SPACE_ID, status="active", limit=100
+                key_type="SERVICE", space=SPACE_ID, status="ACTIVE", limit=100
             )
             active_ids = [k.id for k in active_resp.api_keys]
             assert refreshed.id in active_ids
@@ -144,7 +144,7 @@ class TestApiKeysCRUD:
             assert refreshed.id != created.id
 
             active_resp = api_keys_client.list(
-                key_type="service", space=SPACE_ID, status="active", limit=100
+                key_type="SERVICE", space=SPACE_ID, status="ACTIVE", limit=100
             )
             active_by_id = {k.id: k for k in active_resp.api_keys}
             assert refreshed.id in active_by_id

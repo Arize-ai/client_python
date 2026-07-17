@@ -36,7 +36,6 @@ class TestCreateTemplateEvaluationTaskRequest(unittest.TestCase):
         if include_optional:
             return CreateTemplateEvaluationTaskRequest(
                 name = '0',
-                type = 'template_evaluation',
                 project_id = '',
                 dataset_id = '',
                 experiment_ids = [
@@ -46,26 +45,27 @@ class TestCreateTemplateEvaluationTaskRequest(unittest.TestCase):
                 is_continuous = True,
                 query_filter = '',
                 evaluators = [
-                    arize._generated.api_client.models.base_evaluation_task_request_evaluators_inner.BaseEvaluationTaskRequest_evaluators_inner(
-                        evaluator_id = '', 
-                        query_filter = '', 
-                        column_mappings = {
-                            'key' : ''
-                            }, )
-                    ]
-            )
-        else:
-            return CreateTemplateEvaluationTaskRequest(
-                name = '0',
-                type = 'template_evaluation',
-                evaluators = [
-                    arize._generated.api_client.models.base_evaluation_task_request_evaluators_inner.BaseEvaluationTaskRequest_evaluators_inner(
+                    arize._generated.api_client.models.task_evaluator_input.TaskEvaluatorInput(
                         evaluator_id = '', 
                         query_filter = '', 
                         column_mappings = {
                             'key' : ''
                             }, )
                     ],
+                type = 'TEMPLATE_EVALUATION'
+            )
+        else:
+            return CreateTemplateEvaluationTaskRequest(
+                name = '0',
+                evaluators = [
+                    arize._generated.api_client.models.task_evaluator_input.TaskEvaluatorInput(
+                        evaluator_id = '', 
+                        query_filter = '', 
+                        column_mappings = {
+                            'key' : ''
+                            }, )
+                    ],
+                type = 'TEMPLATE_EVALUATION',
         )
         """
 

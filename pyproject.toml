@@ -305,6 +305,7 @@ exclude_lines = [
 directory = "htmlcov"
 
 [tool.taskipy.tasks]
+all = { cmd = "task lint && task type-check && task test", cwd = ".", help = "Run all tasks" }
 lint = { cmd = "ruff format . && ruff check --fix .", cwd = ".", help = "Run ruff to format and lint the package." }
 type-check = {cmd = "mypy --no-incremental --show-traceback --config-file pyproject.toml .", cwd = ".", help = "Run mypy for type checking."}
 test = {cmd = "pytest --cov --cov-report=term-missing -v tests/unit/", cwd = ".", help = "Run the test suite with coverage."}

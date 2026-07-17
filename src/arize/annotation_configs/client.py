@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING
 
 from arize._utils import unwrap_oneof
 from arize.annotation_configs.types import (
-    AnnotationConfigListResponse,
     AnnotationConfigType,
+    ListAnnotationConfigsResponse,
 )
 from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
@@ -71,7 +71,7 @@ class AnnotationConfigsClient:
         space: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> AnnotationConfigListResponse:
+    ) -> ListAnnotationConfigsResponse:
         """List annotation configs the user has access to.
 
         Annotation configs are returned in descending creation order (most recently created
@@ -94,14 +94,14 @@ class AnnotationConfigsClient:
                 returns an error response (e.g. 401/403/429).
         """
         resolved_space = _resolve_resource(space)
-        result = self._api.annotation_configs_list(
+        result = self._api.list_annotation_configs(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=name,
             limit=limit,
             cursor=cursor,
         )
-        return AnnotationConfigListResponse.model_validate(
+        return ListAnnotationConfigsResponse.model_validate(
             result, from_attributes=True
         )
 
@@ -141,8 +141,8 @@ class AnnotationConfigsClient:
         from arize._generated import api_client as gen
 
         space_id = _find_space_id(self._spaces_api, space)
-        body = gen.CreateAnnotationConfigRequestBody(
-            actual_instance=gen.ContinuousAnnotationConfigCreate(
+        body = gen.CreateAnnotationConfigRequest(
+            actual_instance=gen.CreateContinuousAnnotationConfigRequest(
                 name=name,
                 space_id=space_id,
                 annotation_config_type=AnnotationConfigType.CONTINUOUS.value,
@@ -151,8 +151,8 @@ class AnnotationConfigsClient:
                 optimization_direction=optimization_direction,
             )
         )
-        result = self._api.annotation_configs_create(
-            create_annotation_config_request_body=body
+        result = self._api.create_annotation_config(
+            create_annotation_config_request=body
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
 
@@ -189,8 +189,8 @@ class AnnotationConfigsClient:
         from arize._generated import api_client as gen
 
         space_id = _find_space_id(self._spaces_api, space)
-        body = gen.CreateAnnotationConfigRequestBody(
-            actual_instance=gen.CategoricalAnnotationConfigCreate(
+        body = gen.CreateAnnotationConfigRequest(
+            actual_instance=gen.CreateCategoricalAnnotationConfigRequest(
                 name=name,
                 space_id=space_id,
                 annotation_config_type=AnnotationConfigType.CATEGORICAL.value,
@@ -198,8 +198,8 @@ class AnnotationConfigsClient:
                 optimization_direction=optimization_direction,
             )
         )
-        result = self._api.annotation_configs_create(
-            create_annotation_config_request_body=body
+        result = self._api.create_annotation_config(
+            create_annotation_config_request=body
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
 
@@ -231,15 +231,15 @@ class AnnotationConfigsClient:
         from arize._generated import api_client as gen
 
         space_id = _find_space_id(self._spaces_api, space)
-        body = gen.CreateAnnotationConfigRequestBody(
-            actual_instance=gen.FreeformAnnotationConfigCreate(
+        body = gen.CreateAnnotationConfigRequest(
+            actual_instance=gen.CreateFreeformAnnotationConfigRequest(
                 name=name,
                 space_id=space_id,
                 annotation_config_type=AnnotationConfigType.FREEFORM.value,
             )
         )
-        result = self._api.annotation_configs_create(
-            create_annotation_config_request_body=body
+        result = self._api.create_annotation_config(
+            create_annotation_config_request=body
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
 
@@ -271,7 +271,7 @@ class AnnotationConfigsClient:
             annotation_config=annotation_config,
             space=space,
         )
-        result = self._api.annotation_configs_get(
+        result = self._api.get_annotation_config(
             annotation_config_id=annotation_config_id
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
@@ -319,8 +319,8 @@ class AnnotationConfigsClient:
             annotation_config=annotation_config,
             space=space,
         )
-        body = gen.UpdateAnnotationConfigRequestBody(
-            actual_instance=gen.ContinuousAnnotationConfigUpdate(
+        body = gen.UpdateAnnotationConfigRequest(
+            actual_instance=gen.UpdateContinuousAnnotationConfigRequest(
                 annotation_config_type=AnnotationConfigType.CONTINUOUS.value,
                 name=name,
                 minimum_score=minimum_score,
@@ -328,9 +328,9 @@ class AnnotationConfigsClient:
                 optimization_direction=optimization_direction,
             )
         )
-        result = self._api.annotation_configs_update(
+        result = self._api.update_annotation_config(
             annotation_config_id=annotation_config_id,
-            update_annotation_config_request_body=body,
+            update_annotation_config_request=body,
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
 
@@ -376,17 +376,17 @@ class AnnotationConfigsClient:
             annotation_config=annotation_config,
             space=space,
         )
-        body = gen.UpdateAnnotationConfigRequestBody(
-            actual_instance=gen.CategoricalAnnotationConfigUpdate(
+        body = gen.UpdateAnnotationConfigRequest(
+            actual_instance=gen.UpdateCategoricalAnnotationConfigRequest(
                 annotation_config_type=AnnotationConfigType.CATEGORICAL.value,
                 name=name,
                 values=values,
                 optimization_direction=optimization_direction,
             )
         )
-        result = self._api.annotation_configs_update(
+        result = self._api.update_annotation_config(
             annotation_config_id=annotation_config_id,
-            update_annotation_config_request_body=body,
+            update_annotation_config_request=body,
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
 
@@ -427,15 +427,15 @@ class AnnotationConfigsClient:
             annotation_config=annotation_config,
             space=space,
         )
-        body = gen.UpdateAnnotationConfigRequestBody(
-            actual_instance=gen.FreeformAnnotationConfigUpdate(
+        body = gen.UpdateAnnotationConfigRequest(
+            actual_instance=gen.UpdateFreeformAnnotationConfigRequest(
                 annotation_config_type=AnnotationConfigType.FREEFORM.value,
                 name=name,
             )
         )
-        result = self._api.annotation_configs_update(
+        result = self._api.update_annotation_config(
             annotation_config_id=annotation_config_id,
-            update_annotation_config_request_body=body,
+            update_annotation_config_request=body,
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
 
@@ -467,6 +467,6 @@ class AnnotationConfigsClient:
             annotation_config=annotation_config,
             space=space,
         )
-        return self._api.annotation_configs_delete(
+        return self._api.delete_annotation_config(
             annotation_config_id=annotation_config_id
         )

@@ -14,8 +14,8 @@ from arize.evaluators.types import (
     CodeConfig,
     CustomCodeConfig,
     EvaluatorVersionCode,
-    EvaluatorVersionListResponse,
     EvaluatorWithVersion,
+    ListEvaluatorVersionsResponse,
     ManagedCodeConfig,
 )
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
@@ -30,10 +30,10 @@ if TYPE_CHECKING:
     from arize.config import SDKConfiguration
     from arize.evaluators.types import (
         Evaluator,
-        EvaluatorListResponse,
         EvaluatorVersionHarness,
         EvaluatorVersionRemote,
         EvaluatorVersionTemplate,
+        ListEvaluatorsResponse,
         TemplateConfig,
     )
 
@@ -109,7 +109,7 @@ class EvaluatorsClient:
         space: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> EvaluatorListResponse:
+    ) -> ListEvaluatorsResponse:
         """List evaluators the user has access to.
 
         Results are sorted by update date (most recent first). This endpoint
@@ -132,7 +132,7 @@ class EvaluatorsClient:
             ApiException: If the API request fails.
         """
         resolved_space = _resolve_resource(space)
-        return self._api.evaluators_list(
+        return self._api.list_evaluators(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=name,
@@ -172,7 +172,7 @@ class EvaluatorsClient:
             evaluator=evaluator,
             space=space,
         )
-        result = self._api.evaluators_get(
+        result = self._api.get_evaluator(
             evaluator_id=evaluator_id,
             version_id=version_id,
         )
@@ -228,21 +228,21 @@ class EvaluatorsClient:
         """
         from arize._generated import api_client as gen
 
-        version = gen.EvaluatorVersionCreate(
-            gen.EvaluatorVersionTemplateCreate(
+        version = gen.CreateEvaluatorVersionRequest(
+            gen.CreateTemplateEvaluatorVersionRequest(
                 commit_message=commit_message,
                 template_config=template_config,
             )
         )
         space_id = _find_space_id(self._spaces_api, space)
-        body = gen.EvaluatorsCreateRequest(
+        body = gen.CreateEvaluatorRequest(
             name=name,
             space_id=space_id,
             type=gen.EvaluatorType.TEMPLATE,
             description=description,
             version=version,
         )
-        result = self._api.evaluators_create(evaluators_create_request=body)
+        result = self._api.create_evaluator(create_evaluator_request=body)
         return EvaluatorWithVersion.model_validate(result, from_attributes=True)
 
     @prerelease_endpoint(key="evaluators.create_code", stage=ReleaseStage.BETA)
@@ -279,21 +279,21 @@ class EvaluatorsClient:
         """
         from arize._generated import api_client as gen
 
-        version = gen.EvaluatorVersionCreate(
-            gen.EvaluatorVersionCodeCreate(
+        version = gen.CreateEvaluatorVersionRequest(
+            gen.CreateCodeEvaluatorVersionRequest(
                 commit_message=commit_message,
                 code_config=self._coerce_code_config(code_config),
             )
         )
         space_id = _find_space_id(self._spaces_api, space)
-        body = gen.EvaluatorsCreateRequest(
+        body = gen.CreateEvaluatorRequest(
             name=name,
             space_id=space_id,
             type=gen.EvaluatorType.CODE,
             description=description,
             version=version,
         )
-        result = self._api.evaluators_create(evaluators_create_request=body)
+        result = self._api.create_evaluator(create_evaluator_request=body)
         return EvaluatorWithVersion.model_validate(result, from_attributes=True)
 
     @prerelease_endpoint(key="evaluators.update", stage=ReleaseStage.BETA)
@@ -328,10 +328,10 @@ class EvaluatorsClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.EvaluatorsUpdateRequest(name=name, description=description)
-        return self._api.evaluators_update(
+        body = gen.UpdateEvaluatorRequest(name=name, description=description)
+        return self._api.update_evaluator(
             evaluator_id=evaluator_id,
-            evaluators_update_request=body,
+            update_evaluator_request=body,
         )
 
     @prerelease_endpoint(key="evaluators.delete", stage=ReleaseStage.BETA)
@@ -357,7 +357,7 @@ class EvaluatorsClient:
             evaluator=evaluator,
             space=space,
         )
-        self._api.evaluators_delete(evaluator_id=evaluator_id)
+        self._api.delete_evaluator(evaluator_id=evaluator_id)
 
     # -------------------------------------------------------------------------
     # Evaluator versions
@@ -373,7 +373,7 @@ class EvaluatorsClient:
         space: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> EvaluatorVersionListResponse:
+    ) -> ListEvaluatorVersionsResponse:
         """List all versions of an evaluator.
 
         Results are returned with cursor-based pagination.
@@ -396,12 +396,12 @@ class EvaluatorsClient:
             evaluator=evaluator,
             space=space,
         )
-        result = self._api.evaluator_versions_list(
+        result = self._api.list_evaluator_versions(
             evaluator_id=evaluator_id,
             limit=limit,
             cursor=cursor,
         )
-        return EvaluatorVersionListResponse.model_validate(
+        return ListEvaluatorVersionsResponse.model_validate(
             result, from_attributes=True
         )
 
@@ -431,7 +431,7 @@ class EvaluatorsClient:
             ApiException: If the API request fails
                 (for example, version not found).
         """
-        result = self._api.evaluator_versions_get(version_id=version_id)
+        result = self._api.get_evaluator_version(version_id=version_id)
         v = unwrap_oneof(result)
         if isinstance(v, _GenEvaluatorVersionCode):
             return EvaluatorVersionCode.model_validate(v, from_attributes=True)
@@ -475,15 +475,15 @@ class EvaluatorsClient:
             evaluator=evaluator,
             space=space,
         )
-        body = gen.EvaluatorVersionCreate(
-            gen.EvaluatorVersionTemplateCreate(
+        body = gen.CreateEvaluatorVersionRequest(
+            gen.CreateTemplateEvaluatorVersionRequest(
                 commit_message=commit_message,
                 template_config=template_config,
             )
         )
-        result = self._api.evaluator_versions_create(
+        result = self._api.create_evaluator_version(
             evaluator_id=evaluator_id,
-            evaluator_version_create=body,
+            create_evaluator_version_request=body,
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
 
@@ -528,15 +528,15 @@ class EvaluatorsClient:
             evaluator=evaluator,
             space=space,
         )
-        body = gen.EvaluatorVersionCreate(
-            gen.EvaluatorVersionCodeCreate(
+        body = gen.CreateEvaluatorVersionRequest(
+            gen.CreateCodeEvaluatorVersionRequest(
                 commit_message=commit_message,
                 code_config=self._coerce_code_config(code_config),
             )
         )
-        result = self._api.evaluator_versions_create(
+        result = self._api.create_evaluator_version(
             evaluator_id=evaluator_id,
-            evaluator_version_create=body,
+            create_evaluator_version_request=body,
         )
         return EvaluatorVersionCode.model_validate(
             unwrap_oneof(result), from_attributes=True

@@ -39,7 +39,7 @@ class TestFreeformAnnotationConfig(unittest.TestCase):
                 name = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 space_id = '',
-                type = 'freeform'
+                type = 'FREEFORM'
             )
         else:
             return FreeformAnnotationConfig(
@@ -47,7 +47,7 @@ class TestFreeformAnnotationConfig(unittest.TestCase):
                 name = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 space_id = '',
-                type = 'freeform',
+                type = 'FREEFORM',
         )
         """
 

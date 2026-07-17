@@ -20,15 +20,15 @@ from typing_extensions import Self
 
 class DataGranularity(str, Enum):
     """
-    Data granularity level for evaluation. - span - Evaluate at the individual span level. - trace - Evaluate at the full trace level. - session - Evaluate at the session level. 
+    Data granularity level for evaluation. - SPAN - Evaluate at the individual span level. - TRACE - Evaluate at the full trace level. - SESSION - Evaluate at the session level. 
     """
 
     """
     allowed enum values
     """
-    SPAN = 'span'
-    TRACE = 'trace'
-    SESSION = 'session'
+    SPAN = 'SPAN'
+    TRACE = 'TRACE'
+    SESSION = 'SESSION'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

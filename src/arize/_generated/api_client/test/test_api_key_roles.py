@@ -35,9 +35,9 @@ class TestApiKeyRoles(unittest.TestCase):
         model = ApiKeyRoles()
         if include_optional:
             return ApiKeyRoles(
-                space_role = 'member',
-                org_role = 'read-only',
-                account_role = 'member'
+                space_role = 'ADMIN',
+                org_role = 'ADMIN',
+                account_role = 'ADMIN'
             )
         else:
             return ApiKeyRoles(

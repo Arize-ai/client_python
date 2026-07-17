@@ -36,7 +36,7 @@ class TestLlmIntegration(unittest.TestCase):
         if include_optional:
             return LlmIntegration(
                 id = '',
-                type = 'llm',
+                type = 'LLM',
                 name = '',
                 scopings = [
                     arize._generated.api_client.models.integration_scoping.IntegrationScoping(
@@ -51,7 +51,7 @@ class TestLlmIntegration(unittest.TestCase):
         else:
             return LlmIntegration(
                 id = '',
-                type = 'llm',
+                type = 'LLM',
                 name = '',
                 scopings = [
                     arize._generated.api_client.models.integration_scoping.IntegrationScoping(

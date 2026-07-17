@@ -22,12 +22,11 @@ if TYPE_CHECKING:
     from arize.prompts.types import (
         InputVariableFormat,
         InvocationParams,
+        ListPromptsResponse,
+        ListPromptVersionsResponse,
         LLMMessage,
         LlmProvider,
         Prompt,
-        PromptListResponse,
-        PromptVersionLabelsResponse,
-        PromptVersionListResponse,
         ProviderParams,
     )
 
@@ -71,7 +70,7 @@ class PromptsClient:
         space: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> PromptListResponse:
+    ) -> ListPromptsResponse:
         """List prompts in a space.
 
         Args:
@@ -91,7 +90,7 @@ class PromptsClient:
                 returns an error response (e.g. 401/403/429).
         """
         resolved_space = _resolve_resource(space)
-        return self._api.prompts_list(
+        return self._api.list_prompts(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=name,
@@ -152,13 +151,13 @@ class PromptsClient:
             invocation_params=invocation_params,
             provider_params=provider_params,
         )
-        body = gen.PromptsCreateRequest(
+        body = gen.CreatePromptRequest(
             space_id=space_id,
             name=name,
             description=description,
             version=version,
         )
-        result = self._api.prompts_create(prompts_create_request=body)
+        result = self._api.create_prompt(create_prompt_request=body)
         return PromptWithVersion.model_validate(result, from_attributes=True)
 
     @prerelease_endpoint(key="prompts.get", stage=ReleaseStage.BETA)
@@ -194,14 +193,14 @@ class PromptsClient:
             prompt=prompt,
             space=space,
         )
-        result = self._api.prompts_get(
+        result = self._api.get_prompt(
             prompt_id=prompt_id,
             version_id=version_id,
             label=label,
         )
         return PromptWithVersion.model_validate(result, from_attributes=True)
 
-    @prerelease_endpoint(key="prompts.get_version", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="prompts.get_version", stage=ReleaseStage.BETA)
     def get_version(self, *, version_id: str) -> PromptVersion:
         """Get a single prompt version by its ID.
 
@@ -217,7 +216,7 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 400/401/404/429).
         """
-        result = self._api.prompt_versions_get(version_id=version_id)
+        result = self._api.get_prompt_version(version_id=version_id)
         return PromptVersion.model_validate(result, from_attributes=True)
 
     @prerelease_endpoint(key="prompts.update", stage=ReleaseStage.BETA)
@@ -252,9 +251,9 @@ class PromptsClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.PromptsUpdateRequest(description=description)
-        return self._api.prompts_update(
-            prompt_id=prompt_id, prompts_update_request=body
+        body = gen.UpdatePromptRequest(description=description)
+        return self._api.update_prompt(
+            prompt_id=prompt_id, update_prompt_request=body
         )
 
     @prerelease_endpoint(key="prompts.delete", stage=ReleaseStage.BETA)
@@ -280,7 +279,7 @@ class PromptsClient:
             prompt=prompt,
             space=space,
         )
-        return self._api.prompts_delete(prompt_id=prompt_id)
+        return self._api.delete_prompt(prompt_id=prompt_id)
 
     @prerelease_endpoint(key="prompts.list_versions", stage=ReleaseStage.BETA)
     def list_versions(
@@ -290,7 +289,7 @@ class PromptsClient:
         space: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> PromptVersionListResponse:
+    ) -> ListPromptVersionsResponse:
         """List versions for a prompt.
 
         Args:
@@ -313,7 +312,7 @@ class PromptsClient:
             prompt=prompt,
             space=space,
         )
-        return self._api.prompt_versions_list(
+        return self._api.list_prompt_versions(
             prompt_id=prompt_id,
             limit=limit,
             cursor=cursor,
@@ -365,7 +364,7 @@ class PromptsClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.PromptVersionsCreateRequest(
+        body = gen.CreatePromptVersionRequest(
             commit_message=commit_message,
             input_variable_format=input_variable_format,
             provider=provider,
@@ -374,8 +373,8 @@ class PromptsClient:
             invocation_params=invocation_params,
             provider_params=provider_params,
         )
-        result = self._api.prompt_versions_create(
-            prompt_id=prompt_id, prompt_versions_create_request=body
+        result = self._api.create_prompt_version(
+            prompt_id=prompt_id, create_prompt_version_request=body
         )
         return PromptVersion.model_validate(result, from_attributes=True)
 
@@ -405,7 +404,7 @@ class PromptsClient:
             prompt=prompt,
             space=space,
         )
-        result = self._api.prompt_labels_get(
+        result = self._api.get_prompt_label(
             prompt_id=prompt_id, label_name=label_name
         )
         return PromptVersion.model_validate(result, from_attributes=True)
@@ -416,7 +415,7 @@ class PromptsClient:
         *,
         version_id: str,
         labels: builtins.list[str],
-    ) -> PromptVersionLabelsResponse:
+    ) -> PromptVersion:
         """Set labels on a prompt version.
 
         Replaces all existing labels on the version with the provided list.
@@ -426,7 +425,7 @@ class PromptsClient:
             labels: List of label names to assign (replaces all existing labels).
 
         Returns:
-            The response with the updated labels.
+            The updated prompt version.
 
         Raises:
             ApiException: If the REST API
@@ -434,10 +433,11 @@ class PromptsClient:
         """
         from arize._generated import api_client as gen
 
-        body = gen.PromptVersionLabelsSetRequest(labels=labels)
-        return self._api.prompt_version_labels_set(
-            version_id=version_id, prompt_version_labels_set_request=body
+        body = gen.SetPromptVersionLabelsRequest(labels=labels)
+        result = self._api.set_prompt_version_label(
+            version_id=version_id, set_prompt_version_labels_request=body
         )
+        return PromptVersion.model_validate(result, from_attributes=True)
 
     @prerelease_endpoint(key="prompts.delete_label", stage=ReleaseStage.BETA)
     def delete_label(self, *, version_id: str, label_name: str) -> None:
@@ -454,6 +454,6 @@ class PromptsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
-        return self._api.prompt_version_labels_delete(
+        return self._api.delete_prompt_version_label(
             version_id=version_id, label_name=label_name
         )

@@ -47,151 +47,161 @@ __all__ = [
     "ApiKeyError",
     "ApiAttributeError",
     "ApiException",
-    "AddAnnotationQueueRecordsRequestBody",
+    "AddAnnotationQueueRecordsRequest",
+    "AddOrganizationUserRequest",
+    "AddSpaceUserRequest",
     "AiIntegration",
     "AiIntegrationAuthType",
-    "AiIntegrationListResponse",
     "AiIntegrationProvider",
-    "AiIntegrationProviderMetadata",
     "AiIntegrationScoping",
-    "AiIntegrationsCreateRequest",
-    "AiIntegrationsCreateRequestProviderMetadata",
-    "AiIntegrationsUpdateRequest",
-    "AiIntegrationsUpdateRequestProviderMetadata",
-    "AnnotateAnnotationQueueRecordRequestBody",
-    "AnnotateDatasetExamplesRequestBody",
-    "AnnotateExperimentRunsRequestBody",
+    "AnnotateAnnotationQueueRecordRequest",
+    "AnnotateAnnotationQueueRecordResponse",
+    "AnnotateDatasetExamplesRequest",
+    "AnnotateExperimentRunsRequest",
     "AnnotateRecordInput",
     "AnnotateRecordResult",
-    "AnnotateSpansRequestBody",
+    "AnnotateSpansRequest",
     "Annotation",
     "AnnotationBatchResult",
     "AnnotationConfig",
-    "AnnotationConfigBase",
-    "AnnotationConfigCreateBase",
-    "AnnotationConfigListResponse",
     "AnnotationConfigType",
-    "AnnotationConfigUpdateBase",
     "AnnotationInput",
     "AnnotationQueue",
     "AnnotationQueueAssignedUser",
     "AnnotationQueueCompletionStatus",
     "AnnotationQueueExampleRecordInput",
-    "AnnotationQueueListResponse",
     "AnnotationQueueRecord",
-    "AnnotationQueueRecordAnnotateResult",
-    "AnnotationQueueRecordAssignResult",
-    "AnnotationQueueRecordCreateResponse",
     "AnnotationQueueRecordInput",
-    "AnnotationQueueRecordListResponse",
     "AnnotationQueueSourceType",
     "AnnotationQueueSpanRecordInput",
     "AnnotationQueueTraceRecordInput",
     "AnnotatorUser",
     "AnthropicConfig",
+    "AnthropicHeaders",
     "ApiKey",
     "ApiKeyAccountRole",
-    "ApiKeyCreate",
-    "ApiKeyCreated",
-    "ApiKeyListResponse",
     "ApiKeyOrganizationRole",
-    "ApiKeyRefresh",
+    "ApiKeyRedacted",
     "ApiKeyRoles",
     "ApiKeySpaceRole",
     "ApiKeyStatus",
     "ApiKeyType",
-    "AssignAnnotationQueueRecordRequestBody",
+    "AssignAnnotationQueueRecordRequest",
+    "AssignAnnotationQueueRecordResponse",
     "AssignmentMethod",
     "AuditLog",
     "AuditLogOperationType",
-    "AuditLogsList200Response",
     "AwsProviderMetadata",
     "AwsProviderMetadataKind",
-    "BaseEvaluationTaskRequest",
-    "BaseEvaluationTaskRequestEvaluatorsInner",
+    "AzureParams",
+    "BedrockOptions",
     "CategoricalAnnotationConfig",
-    "CategoricalAnnotationConfigCreate",
-    "CategoricalAnnotationConfigUpdate",
     "CategoricalAnnotationValue",
     "CodeConfig",
-    "CodeConfigCommon",
     "ContinuousAnnotationConfig",
-    "ContinuousAnnotationConfigCreate",
-    "ContinuousAnnotationConfigUpdate",
-    "CreateAnnotationConfigRequestBody",
-    "CreateAnnotationQueueRequestBody",
+    "CreateAiIntegrationRequest",
+    "CreateAnnotationConfigRequest",
+    "CreateAnnotationQueueRecordResponse",
+    "CreateAnnotationQueueRequest",
     "CreateAnthropicConfig",
+    "CreateApiKeyRequest",
+    "CreateCategoricalAnnotationConfigRequest",
     "CreateCodeEvaluationTaskRequest",
+    "CreateCodeEvaluatorVersionRequest",
+    "CreateContinuousAnnotationConfigRequest",
+    "CreateDatasetRequest",
+    "CreateEvaluatorRequest",
+    "CreateEvaluatorVersionRequest",
+    "CreateExperimentRequest",
+    "CreateFreeformAnnotationConfigRequest",
     "CreateLlmConfig",
-    "CreateLlmConfigBase",
     "CreateLlmIntegrationRequest",
     "CreateOpenAiConfig",
+    "CreateOrganizationRequest",
+    "CreateProjectRequest",
+    "CreatePromptRequest",
+    "CreatePromptVersionRequest",
+    "CreateResourceRestrictionRequest",
+    "CreateRoleBindingRequest",
+    "CreateRoleRequest",
     "CreateRunExperimentTaskRequest",
+    "CreateSpaceRequest",
+    "CreateTaskRequest",
     "CreateTemplateEvaluationTaskRequest",
+    "CreateTemplateEvaluatorVersionRequest",
     "CreateUserRequest",
+    "CreateUserResponse",
     "CustomCodeConfig",
     "CustomRoleAssignment",
     "CustomUserRoleAssignment",
     "DataGranularity",
     "Dataset",
     "DatasetExample",
-    "DatasetExampleDeleteProblem",
-    "DatasetExampleDeleteRequest",
-    "DatasetExampleDeleteResponse",
-    "DatasetExampleListResponse",
-    "DatasetExampleUpdate",
-    "DatasetListResponse",
     "DatasetVersion",
     "DatasetVersionWithExampleIds",
-    "DatasetsCreateRequest",
-    "DatasetsExamplesInsertRequest",
-    "DatasetsExamplesUpdateRequest",
-    "DatasetsUpdateRequest",
-    "DeleteAnnotationQueueRecordsRequestBody",
+    "DeleteAnnotationQueueRecordsRequest",
+    "DeleteDatasetExamplesProblem",
+    "DeleteDatasetExamplesRequest",
+    "DeleteDatasetExamplesResponse",
+    "DeleteSpansProblem",
     "DeleteSpansRequest",
+    "DeleteSpansResponse",
     "Evaluation",
     "Evaluator",
-    "EvaluatorListResponse",
     "EvaluatorLlmConfig",
     "EvaluatorType",
     "EvaluatorVersion",
     "EvaluatorVersionCode",
-    "EvaluatorVersionCodeCreate",
     "EvaluatorVersionCommon",
-    "EvaluatorVersionCreate",
     "EvaluatorVersionHarness",
-    "EvaluatorVersionListResponse",
     "EvaluatorVersionRemote",
     "EvaluatorVersionTemplate",
-    "EvaluatorVersionTemplateCreate",
     "EvaluatorWithVersion",
-    "EvaluatorsCreateRequest",
-    "EvaluatorsUpdateRequest",
     "Experiment",
-    "ExperimentListResponse",
     "ExperimentRun",
-    "ExperimentRunCreate",
-    "ExperimentRunsListResponse",
+    "ExperimentRunInput",
     "ExperimentWithRunIds",
-    "ExperimentsCreateRequest",
     "FreeformAnnotationConfig",
-    "FreeformAnnotationConfigCreate",
-    "FreeformAnnotationConfigUpdate",
     "GcpProviderMetadata",
     "GcpProviderMetadataKind",
     "InputVariableFormat",
-    "InsertExperimentRunsBody",
-    "IntegrationBase",
-    "IntegrationListResponse",
+    "InsertDatasetExamplesRequest",
+    "InsertExperimentRunsRequest",
     "IntegrationScoping",
     "IntegrationType",
     "InviteMode",
     "InvocationParams",
+    "JsonSchemaConfig",
     "LLMMessage",
+    "ListAiIntegrationsResponse",
+    "ListAnnotationConfigsResponse",
+    "ListAnnotationQueueRecordsResponse",
+    "ListAnnotationQueuesResponse",
+    "ListApiKeysResponse",
+    "ListAuditLogsResponse",
+    "ListDatasetExamplesResponse",
+    "ListDatasetsResponse",
+    "ListEvaluatorVersionsResponse",
+    "ListEvaluatorsResponse",
+    "ListExperimentRunsResponse",
+    "ListExperimentsResponse",
+    "ListIntegrationsResponse",
+    "ListOrganizationsResponse",
+    "ListProjectsResponse",
+    "ListPromptVersionsResponse",
+    "ListPromptsResponse",
+    "ListResourceRestrictionsResponse",
+    "ListRoleBindingsResponse",
+    "ListRolesResponse",
+    "ListSpacesResponse",
     "ListSpansRequest",
+    "ListSpansResponse",
+    "ListTaskRunsResponse",
+    "ListTasksResponse",
     "ListTracesRequest",
+    "ListTracesResponse",
+    "ListUsersResponse",
     "LlmConfig",
-    "LlmConfigBase",
     "LlmGenerationRunConfig",
     "LlmIntegration",
     "LlmIntegrationProvider",
@@ -202,87 +212,53 @@ __all__ = [
     "OpenAiConfig",
     "OptimizationDirection",
     "Organization",
-    "OrganizationCreate",
     "OrganizationCustomRoleAssignment",
-    "OrganizationListResponse",
     "OrganizationMembership",
-    "OrganizationMembershipInput",
     "OrganizationPredefinedRoleAssignment",
     "OrganizationRole",
     "OrganizationRoleAssignment",
     "OrganizationRoleAssignmentType",
-    "OrganizationUpdate",
     "PaginationMetadata",
     "Permission",
     "PredefinedRoleAssignment",
     "PredefinedUserRoleAssignment",
     "Problem",
     "Project",
-    "ProjectCreate",
-    "ProjectListResponse",
-    "ProjectUpdate",
     "Prompt",
-    "PromptListResponse",
     "PromptVersion",
     "PromptVersionCreateRequest",
-    "PromptVersionLabelsResponse",
-    "PromptVersionLabelsSetRequest",
-    "PromptVersionListResponse",
-    "PromptVersionsCreateRequest",
     "PromptWithVersion",
-    "PromptsCreateRequest",
-    "PromptsUpdateRequest",
+    "ProviderMetadata",
     "ProviderParams",
-    "ProviderParamsAnthropicHeaders",
-    "ProviderParamsAzureParams",
-    "ProviderParamsBedrockOptions",
     "RecordGranularity",
+    "RefreshApiKeyRequest",
     "ResourceRestriction",
-    "ResourceRestrictionCreate",
-    "ResourceRestrictionListResponse",
-    "ResourceRestrictionResponseBody",
     "ResourceRestrictionType",
     "ResponseFormat",
-    "ResponseFormatJsonSchema",
     "ResponseFormatType",
     "Role",
     "RoleBinding",
-    "RoleBindingCreate",
-    "RoleBindingListResponse",
     "RoleBindingResourceType",
-    "RoleBindingUpdate",
-    "RoleCreate",
-    "RoleListResponse",
-    "RoleUpdate",
     "RunConfiguration",
+    "SetPromptVersionLabelsRequest",
     "Space",
-    "SpaceListResponse",
     "SpaceMembership",
-    "SpaceMembershipInput",
     "SpaceRoleAssignment",
     "SpaceRoleAssignmentType",
-    "SpacesCreateRequest",
-    "SpacesUpdateRequest",
     "Span",
     "SpanContext",
-    "SpanDeleteProblem",
-    "SpanDeleteResponse",
     "SpanEvent",
-    "SpanListResponse",
+    "SpanKind",
     "SpanStatusCode",
     "StaticParam",
     "StaticParamDefaultValue",
     "StaticParamType",
     "Task",
     "TaskEvaluator",
-    "TaskListResponse",
+    "TaskEvaluatorInput",
     "TaskRun",
-    "TaskRunListResponse",
     "TaskRunStatus",
     "TaskType",
-    "TasksCreateRequest",
-    "TasksTriggerRunRequest",
-    "TasksUpdateRequest",
     "TemplateConfig",
     "TemplateEvaluationRunConfig",
     "ToolCall",
@@ -290,24 +266,37 @@ __all__ = [
     "ToolCallType",
     "ToolConfig",
     "Trace",
-    "TraceListResponse",
     "TriggerEvaluationTaskRunRequest",
     "TriggerRunExperimentTaskRunRequest",
-    "UpdateAnnotationConfigRequestBody",
-    "UpdateAnnotationQueueRequestBody",
+    "TriggerTaskRunRequest",
+    "UpdateAiIntegrationRequest",
+    "UpdateAnnotationConfigRequest",
+    "UpdateAnnotationQueueRequest",
+    "UpdateCategoricalAnnotationConfigRequest",
+    "UpdateContinuousAnnotationConfigRequest",
+    "UpdateDatasetExampleInput",
+    "UpdateDatasetExamplesRequest",
+    "UpdateDatasetRequest",
     "UpdateEvaluationTaskRequest",
+    "UpdateEvaluatorRequest",
+    "UpdateFreeformAnnotationConfigRequest",
     "UpdateLlmConfig",
     "UpdateLlmIntegrationRequest",
+    "UpdateOrganizationRequest",
+    "UpdateProjectRequest",
+    "UpdatePromptRequest",
+    "UpdateRoleBindingRequest",
+    "UpdateRoleRequest",
     "UpdateRunExperimentTaskRequest",
+    "UpdateSpaceRequest",
+    "UpdateTaskRequest",
+    "UpdateUserRequest",
     "User",
-    "UserCreatedResponse",
-    "UserListResponse",
     "UserRole",
     "UserRoleAssignment",
     "UserRoleAssignmentType",
     "UserSpaceRole",
     "UserStatus",
-    "UserUpdate",
 ]
 
 # import apis into sdk package
@@ -344,151 +333,161 @@ from arize._generated.api_client.exceptions import ApiAttributeError as ApiAttri
 from arize._generated.api_client.exceptions import ApiException as ApiException
 
 # import models into sdk package
-from arize._generated.api_client.models.add_annotation_queue_records_request_body import AddAnnotationQueueRecordsRequestBody as AddAnnotationQueueRecordsRequestBody
+from arize._generated.api_client.models.add_annotation_queue_records_request import AddAnnotationQueueRecordsRequest as AddAnnotationQueueRecordsRequest
+from arize._generated.api_client.models.add_organization_user_request import AddOrganizationUserRequest as AddOrganizationUserRequest
+from arize._generated.api_client.models.add_space_user_request import AddSpaceUserRequest as AddSpaceUserRequest
 from arize._generated.api_client.models.ai_integration import AiIntegration as AiIntegration
 from arize._generated.api_client.models.ai_integration_auth_type import AiIntegrationAuthType as AiIntegrationAuthType
-from arize._generated.api_client.models.ai_integration_list_response import AiIntegrationListResponse as AiIntegrationListResponse
 from arize._generated.api_client.models.ai_integration_provider import AiIntegrationProvider as AiIntegrationProvider
-from arize._generated.api_client.models.ai_integration_provider_metadata import AiIntegrationProviderMetadata as AiIntegrationProviderMetadata
 from arize._generated.api_client.models.ai_integration_scoping import AiIntegrationScoping as AiIntegrationScoping
-from arize._generated.api_client.models.ai_integrations_create_request import AiIntegrationsCreateRequest as AiIntegrationsCreateRequest
-from arize._generated.api_client.models.ai_integrations_create_request_provider_metadata import AiIntegrationsCreateRequestProviderMetadata as AiIntegrationsCreateRequestProviderMetadata
-from arize._generated.api_client.models.ai_integrations_update_request import AiIntegrationsUpdateRequest as AiIntegrationsUpdateRequest
-from arize._generated.api_client.models.ai_integrations_update_request_provider_metadata import AiIntegrationsUpdateRequestProviderMetadata as AiIntegrationsUpdateRequestProviderMetadata
-from arize._generated.api_client.models.annotate_annotation_queue_record_request_body import AnnotateAnnotationQueueRecordRequestBody as AnnotateAnnotationQueueRecordRequestBody
-from arize._generated.api_client.models.annotate_dataset_examples_request_body import AnnotateDatasetExamplesRequestBody as AnnotateDatasetExamplesRequestBody
-from arize._generated.api_client.models.annotate_experiment_runs_request_body import AnnotateExperimentRunsRequestBody as AnnotateExperimentRunsRequestBody
+from arize._generated.api_client.models.annotate_annotation_queue_record_request import AnnotateAnnotationQueueRecordRequest as AnnotateAnnotationQueueRecordRequest
+from arize._generated.api_client.models.annotate_annotation_queue_record_response import AnnotateAnnotationQueueRecordResponse as AnnotateAnnotationQueueRecordResponse
+from arize._generated.api_client.models.annotate_dataset_examples_request import AnnotateDatasetExamplesRequest as AnnotateDatasetExamplesRequest
+from arize._generated.api_client.models.annotate_experiment_runs_request import AnnotateExperimentRunsRequest as AnnotateExperimentRunsRequest
 from arize._generated.api_client.models.annotate_record_input import AnnotateRecordInput as AnnotateRecordInput
 from arize._generated.api_client.models.annotate_record_result import AnnotateRecordResult as AnnotateRecordResult
-from arize._generated.api_client.models.annotate_spans_request_body import AnnotateSpansRequestBody as AnnotateSpansRequestBody
+from arize._generated.api_client.models.annotate_spans_request import AnnotateSpansRequest as AnnotateSpansRequest
 from arize._generated.api_client.models.annotation import Annotation as Annotation
 from arize._generated.api_client.models.annotation_batch_result import AnnotationBatchResult as AnnotationBatchResult
 from arize._generated.api_client.models.annotation_config import AnnotationConfig as AnnotationConfig
-from arize._generated.api_client.models.annotation_config_base import AnnotationConfigBase as AnnotationConfigBase
-from arize._generated.api_client.models.annotation_config_create_base import AnnotationConfigCreateBase as AnnotationConfigCreateBase
-from arize._generated.api_client.models.annotation_config_list_response import AnnotationConfigListResponse as AnnotationConfigListResponse
 from arize._generated.api_client.models.annotation_config_type import AnnotationConfigType as AnnotationConfigType
-from arize._generated.api_client.models.annotation_config_update_base import AnnotationConfigUpdateBase as AnnotationConfigUpdateBase
 from arize._generated.api_client.models.annotation_input import AnnotationInput as AnnotationInput
 from arize._generated.api_client.models.annotation_queue import AnnotationQueue as AnnotationQueue
 from arize._generated.api_client.models.annotation_queue_assigned_user import AnnotationQueueAssignedUser as AnnotationQueueAssignedUser
 from arize._generated.api_client.models.annotation_queue_completion_status import AnnotationQueueCompletionStatus as AnnotationQueueCompletionStatus
 from arize._generated.api_client.models.annotation_queue_example_record_input import AnnotationQueueExampleRecordInput as AnnotationQueueExampleRecordInput
-from arize._generated.api_client.models.annotation_queue_list_response import AnnotationQueueListResponse as AnnotationQueueListResponse
 from arize._generated.api_client.models.annotation_queue_record import AnnotationQueueRecord as AnnotationQueueRecord
-from arize._generated.api_client.models.annotation_queue_record_annotate_result import AnnotationQueueRecordAnnotateResult as AnnotationQueueRecordAnnotateResult
-from arize._generated.api_client.models.annotation_queue_record_assign_result import AnnotationQueueRecordAssignResult as AnnotationQueueRecordAssignResult
-from arize._generated.api_client.models.annotation_queue_record_create_response import AnnotationQueueRecordCreateResponse as AnnotationQueueRecordCreateResponse
 from arize._generated.api_client.models.annotation_queue_record_input import AnnotationQueueRecordInput as AnnotationQueueRecordInput
-from arize._generated.api_client.models.annotation_queue_record_list_response import AnnotationQueueRecordListResponse as AnnotationQueueRecordListResponse
 from arize._generated.api_client.models.annotation_queue_source_type import AnnotationQueueSourceType as AnnotationQueueSourceType
 from arize._generated.api_client.models.annotation_queue_span_record_input import AnnotationQueueSpanRecordInput as AnnotationQueueSpanRecordInput
 from arize._generated.api_client.models.annotation_queue_trace_record_input import AnnotationQueueTraceRecordInput as AnnotationQueueTraceRecordInput
 from arize._generated.api_client.models.annotator_user import AnnotatorUser as AnnotatorUser
 from arize._generated.api_client.models.anthropic_config import AnthropicConfig as AnthropicConfig
+from arize._generated.api_client.models.anthropic_headers import AnthropicHeaders as AnthropicHeaders
 from arize._generated.api_client.models.api_key import ApiKey as ApiKey
 from arize._generated.api_client.models.api_key_account_role import ApiKeyAccountRole as ApiKeyAccountRole
-from arize._generated.api_client.models.api_key_create import ApiKeyCreate as ApiKeyCreate
-from arize._generated.api_client.models.api_key_created import ApiKeyCreated as ApiKeyCreated
-from arize._generated.api_client.models.api_key_list_response import ApiKeyListResponse as ApiKeyListResponse
 from arize._generated.api_client.models.api_key_organization_role import ApiKeyOrganizationRole as ApiKeyOrganizationRole
-from arize._generated.api_client.models.api_key_refresh import ApiKeyRefresh as ApiKeyRefresh
+from arize._generated.api_client.models.api_key_redacted import ApiKeyRedacted as ApiKeyRedacted
 from arize._generated.api_client.models.api_key_roles import ApiKeyRoles as ApiKeyRoles
 from arize._generated.api_client.models.api_key_space_role import ApiKeySpaceRole as ApiKeySpaceRole
 from arize._generated.api_client.models.api_key_status import ApiKeyStatus as ApiKeyStatus
 from arize._generated.api_client.models.api_key_type import ApiKeyType as ApiKeyType
-from arize._generated.api_client.models.assign_annotation_queue_record_request_body import AssignAnnotationQueueRecordRequestBody as AssignAnnotationQueueRecordRequestBody
+from arize._generated.api_client.models.assign_annotation_queue_record_request import AssignAnnotationQueueRecordRequest as AssignAnnotationQueueRecordRequest
+from arize._generated.api_client.models.assign_annotation_queue_record_response import AssignAnnotationQueueRecordResponse as AssignAnnotationQueueRecordResponse
 from arize._generated.api_client.models.assignment_method import AssignmentMethod as AssignmentMethod
 from arize._generated.api_client.models.audit_log import AuditLog as AuditLog
 from arize._generated.api_client.models.audit_log_operation_type import AuditLogOperationType as AuditLogOperationType
-from arize._generated.api_client.models.audit_logs_list200_response import AuditLogsList200Response as AuditLogsList200Response
 from arize._generated.api_client.models.aws_provider_metadata import AwsProviderMetadata as AwsProviderMetadata
 from arize._generated.api_client.models.aws_provider_metadata_kind import AwsProviderMetadataKind as AwsProviderMetadataKind
-from arize._generated.api_client.models.base_evaluation_task_request import BaseEvaluationTaskRequest as BaseEvaluationTaskRequest
-from arize._generated.api_client.models.base_evaluation_task_request_evaluators_inner import BaseEvaluationTaskRequestEvaluatorsInner as BaseEvaluationTaskRequestEvaluatorsInner
+from arize._generated.api_client.models.azure_params import AzureParams as AzureParams
+from arize._generated.api_client.models.bedrock_options import BedrockOptions as BedrockOptions
 from arize._generated.api_client.models.categorical_annotation_config import CategoricalAnnotationConfig as CategoricalAnnotationConfig
-from arize._generated.api_client.models.categorical_annotation_config_create import CategoricalAnnotationConfigCreate as CategoricalAnnotationConfigCreate
-from arize._generated.api_client.models.categorical_annotation_config_update import CategoricalAnnotationConfigUpdate as CategoricalAnnotationConfigUpdate
 from arize._generated.api_client.models.categorical_annotation_value import CategoricalAnnotationValue as CategoricalAnnotationValue
 from arize._generated.api_client.models.code_config import CodeConfig as CodeConfig
-from arize._generated.api_client.models.code_config_common import CodeConfigCommon as CodeConfigCommon
 from arize._generated.api_client.models.continuous_annotation_config import ContinuousAnnotationConfig as ContinuousAnnotationConfig
-from arize._generated.api_client.models.continuous_annotation_config_create import ContinuousAnnotationConfigCreate as ContinuousAnnotationConfigCreate
-from arize._generated.api_client.models.continuous_annotation_config_update import ContinuousAnnotationConfigUpdate as ContinuousAnnotationConfigUpdate
-from arize._generated.api_client.models.create_annotation_config_request_body import CreateAnnotationConfigRequestBody as CreateAnnotationConfigRequestBody
-from arize._generated.api_client.models.create_annotation_queue_request_body import CreateAnnotationQueueRequestBody as CreateAnnotationQueueRequestBody
+from arize._generated.api_client.models.create_ai_integration_request import CreateAiIntegrationRequest as CreateAiIntegrationRequest
+from arize._generated.api_client.models.create_annotation_config_request import CreateAnnotationConfigRequest as CreateAnnotationConfigRequest
+from arize._generated.api_client.models.create_annotation_queue_record_response import CreateAnnotationQueueRecordResponse as CreateAnnotationQueueRecordResponse
+from arize._generated.api_client.models.create_annotation_queue_request import CreateAnnotationQueueRequest as CreateAnnotationQueueRequest
 from arize._generated.api_client.models.create_anthropic_config import CreateAnthropicConfig as CreateAnthropicConfig
+from arize._generated.api_client.models.create_api_key_request import CreateApiKeyRequest as CreateApiKeyRequest
+from arize._generated.api_client.models.create_categorical_annotation_config_request import CreateCategoricalAnnotationConfigRequest as CreateCategoricalAnnotationConfigRequest
 from arize._generated.api_client.models.create_code_evaluation_task_request import CreateCodeEvaluationTaskRequest as CreateCodeEvaluationTaskRequest
+from arize._generated.api_client.models.create_code_evaluator_version_request import CreateCodeEvaluatorVersionRequest as CreateCodeEvaluatorVersionRequest
+from arize._generated.api_client.models.create_continuous_annotation_config_request import CreateContinuousAnnotationConfigRequest as CreateContinuousAnnotationConfigRequest
+from arize._generated.api_client.models.create_dataset_request import CreateDatasetRequest as CreateDatasetRequest
+from arize._generated.api_client.models.create_evaluator_request import CreateEvaluatorRequest as CreateEvaluatorRequest
+from arize._generated.api_client.models.create_evaluator_version_request import CreateEvaluatorVersionRequest as CreateEvaluatorVersionRequest
+from arize._generated.api_client.models.create_experiment_request import CreateExperimentRequest as CreateExperimentRequest
+from arize._generated.api_client.models.create_freeform_annotation_config_request import CreateFreeformAnnotationConfigRequest as CreateFreeformAnnotationConfigRequest
 from arize._generated.api_client.models.create_llm_config import CreateLlmConfig as CreateLlmConfig
-from arize._generated.api_client.models.create_llm_config_base import CreateLlmConfigBase as CreateLlmConfigBase
 from arize._generated.api_client.models.create_llm_integration_request import CreateLlmIntegrationRequest as CreateLlmIntegrationRequest
 from arize._generated.api_client.models.create_open_ai_config import CreateOpenAiConfig as CreateOpenAiConfig
+from arize._generated.api_client.models.create_organization_request import CreateOrganizationRequest as CreateOrganizationRequest
+from arize._generated.api_client.models.create_project_request import CreateProjectRequest as CreateProjectRequest
+from arize._generated.api_client.models.create_prompt_request import CreatePromptRequest as CreatePromptRequest
+from arize._generated.api_client.models.create_prompt_version_request import CreatePromptVersionRequest as CreatePromptVersionRequest
+from arize._generated.api_client.models.create_resource_restriction_request import CreateResourceRestrictionRequest as CreateResourceRestrictionRequest
+from arize._generated.api_client.models.create_role_binding_request import CreateRoleBindingRequest as CreateRoleBindingRequest
+from arize._generated.api_client.models.create_role_request import CreateRoleRequest as CreateRoleRequest
 from arize._generated.api_client.models.create_run_experiment_task_request import CreateRunExperimentTaskRequest as CreateRunExperimentTaskRequest
+from arize._generated.api_client.models.create_space_request import CreateSpaceRequest as CreateSpaceRequest
+from arize._generated.api_client.models.create_task_request import CreateTaskRequest as CreateTaskRequest
 from arize._generated.api_client.models.create_template_evaluation_task_request import CreateTemplateEvaluationTaskRequest as CreateTemplateEvaluationTaskRequest
+from arize._generated.api_client.models.create_template_evaluator_version_request import CreateTemplateEvaluatorVersionRequest as CreateTemplateEvaluatorVersionRequest
 from arize._generated.api_client.models.create_user_request import CreateUserRequest as CreateUserRequest
+from arize._generated.api_client.models.create_user_response import CreateUserResponse as CreateUserResponse
 from arize._generated.api_client.models.custom_code_config import CustomCodeConfig as CustomCodeConfig
 from arize._generated.api_client.models.custom_role_assignment import CustomRoleAssignment as CustomRoleAssignment
 from arize._generated.api_client.models.custom_user_role_assignment import CustomUserRoleAssignment as CustomUserRoleAssignment
 from arize._generated.api_client.models.data_granularity import DataGranularity as DataGranularity
 from arize._generated.api_client.models.dataset import Dataset as Dataset
 from arize._generated.api_client.models.dataset_example import DatasetExample as DatasetExample
-from arize._generated.api_client.models.dataset_example_delete_problem import DatasetExampleDeleteProblem as DatasetExampleDeleteProblem
-from arize._generated.api_client.models.dataset_example_delete_request import DatasetExampleDeleteRequest as DatasetExampleDeleteRequest
-from arize._generated.api_client.models.dataset_example_delete_response import DatasetExampleDeleteResponse as DatasetExampleDeleteResponse
-from arize._generated.api_client.models.dataset_example_list_response import DatasetExampleListResponse as DatasetExampleListResponse
-from arize._generated.api_client.models.dataset_example_update import DatasetExampleUpdate as DatasetExampleUpdate
-from arize._generated.api_client.models.dataset_list_response import DatasetListResponse as DatasetListResponse
 from arize._generated.api_client.models.dataset_version import DatasetVersion as DatasetVersion
 from arize._generated.api_client.models.dataset_version_with_example_ids import DatasetVersionWithExampleIds as DatasetVersionWithExampleIds
-from arize._generated.api_client.models.datasets_create_request import DatasetsCreateRequest as DatasetsCreateRequest
-from arize._generated.api_client.models.datasets_examples_insert_request import DatasetsExamplesInsertRequest as DatasetsExamplesInsertRequest
-from arize._generated.api_client.models.datasets_examples_update_request import DatasetsExamplesUpdateRequest as DatasetsExamplesUpdateRequest
-from arize._generated.api_client.models.datasets_update_request import DatasetsUpdateRequest as DatasetsUpdateRequest
-from arize._generated.api_client.models.delete_annotation_queue_records_request_body import DeleteAnnotationQueueRecordsRequestBody as DeleteAnnotationQueueRecordsRequestBody
+from arize._generated.api_client.models.delete_annotation_queue_records_request import DeleteAnnotationQueueRecordsRequest as DeleteAnnotationQueueRecordsRequest
+from arize._generated.api_client.models.delete_dataset_examples_problem import DeleteDatasetExamplesProblem as DeleteDatasetExamplesProblem
+from arize._generated.api_client.models.delete_dataset_examples_request import DeleteDatasetExamplesRequest as DeleteDatasetExamplesRequest
+from arize._generated.api_client.models.delete_dataset_examples_response import DeleteDatasetExamplesResponse as DeleteDatasetExamplesResponse
+from arize._generated.api_client.models.delete_spans_problem import DeleteSpansProblem as DeleteSpansProblem
 from arize._generated.api_client.models.delete_spans_request import DeleteSpansRequest as DeleteSpansRequest
+from arize._generated.api_client.models.delete_spans_response import DeleteSpansResponse as DeleteSpansResponse
 from arize._generated.api_client.models.evaluation import Evaluation as Evaluation
 from arize._generated.api_client.models.evaluator import Evaluator as Evaluator
-from arize._generated.api_client.models.evaluator_list_response import EvaluatorListResponse as EvaluatorListResponse
 from arize._generated.api_client.models.evaluator_llm_config import EvaluatorLlmConfig as EvaluatorLlmConfig
 from arize._generated.api_client.models.evaluator_type import EvaluatorType as EvaluatorType
 from arize._generated.api_client.models.evaluator_version import EvaluatorVersion as EvaluatorVersion
 from arize._generated.api_client.models.evaluator_version_code import EvaluatorVersionCode as EvaluatorVersionCode
-from arize._generated.api_client.models.evaluator_version_code_create import EvaluatorVersionCodeCreate as EvaluatorVersionCodeCreate
 from arize._generated.api_client.models.evaluator_version_common import EvaluatorVersionCommon as EvaluatorVersionCommon
-from arize._generated.api_client.models.evaluator_version_create import EvaluatorVersionCreate as EvaluatorVersionCreate
 from arize._generated.api_client.models.evaluator_version_harness import EvaluatorVersionHarness as EvaluatorVersionHarness
-from arize._generated.api_client.models.evaluator_version_list_response import EvaluatorVersionListResponse as EvaluatorVersionListResponse
 from arize._generated.api_client.models.evaluator_version_remote import EvaluatorVersionRemote as EvaluatorVersionRemote
 from arize._generated.api_client.models.evaluator_version_template import EvaluatorVersionTemplate as EvaluatorVersionTemplate
-from arize._generated.api_client.models.evaluator_version_template_create import EvaluatorVersionTemplateCreate as EvaluatorVersionTemplateCreate
 from arize._generated.api_client.models.evaluator_with_version import EvaluatorWithVersion as EvaluatorWithVersion
-from arize._generated.api_client.models.evaluators_create_request import EvaluatorsCreateRequest as EvaluatorsCreateRequest
-from arize._generated.api_client.models.evaluators_update_request import EvaluatorsUpdateRequest as EvaluatorsUpdateRequest
 from arize._generated.api_client.models.experiment import Experiment as Experiment
-from arize._generated.api_client.models.experiment_list_response import ExperimentListResponse as ExperimentListResponse
 from arize._generated.api_client.models.experiment_run import ExperimentRun as ExperimentRun
-from arize._generated.api_client.models.experiment_run_create import ExperimentRunCreate as ExperimentRunCreate
-from arize._generated.api_client.models.experiment_runs_list_response import ExperimentRunsListResponse as ExperimentRunsListResponse
+from arize._generated.api_client.models.experiment_run_input import ExperimentRunInput as ExperimentRunInput
 from arize._generated.api_client.models.experiment_with_run_ids import ExperimentWithRunIds as ExperimentWithRunIds
-from arize._generated.api_client.models.experiments_create_request import ExperimentsCreateRequest as ExperimentsCreateRequest
 from arize._generated.api_client.models.freeform_annotation_config import FreeformAnnotationConfig as FreeformAnnotationConfig
-from arize._generated.api_client.models.freeform_annotation_config_create import FreeformAnnotationConfigCreate as FreeformAnnotationConfigCreate
-from arize._generated.api_client.models.freeform_annotation_config_update import FreeformAnnotationConfigUpdate as FreeformAnnotationConfigUpdate
 from arize._generated.api_client.models.gcp_provider_metadata import GcpProviderMetadata as GcpProviderMetadata
 from arize._generated.api_client.models.gcp_provider_metadata_kind import GcpProviderMetadataKind as GcpProviderMetadataKind
 from arize._generated.api_client.models.input_variable_format import InputVariableFormat as InputVariableFormat
-from arize._generated.api_client.models.insert_experiment_runs_body import InsertExperimentRunsBody as InsertExperimentRunsBody
-from arize._generated.api_client.models.integration_base import IntegrationBase as IntegrationBase
-from arize._generated.api_client.models.integration_list_response import IntegrationListResponse as IntegrationListResponse
+from arize._generated.api_client.models.insert_dataset_examples_request import InsertDatasetExamplesRequest as InsertDatasetExamplesRequest
+from arize._generated.api_client.models.insert_experiment_runs_request import InsertExperimentRunsRequest as InsertExperimentRunsRequest
 from arize._generated.api_client.models.integration_scoping import IntegrationScoping as IntegrationScoping
 from arize._generated.api_client.models.integration_type import IntegrationType as IntegrationType
 from arize._generated.api_client.models.invite_mode import InviteMode as InviteMode
 from arize._generated.api_client.models.invocation_params import InvocationParams as InvocationParams
+from arize._generated.api_client.models.json_schema_config import JsonSchemaConfig as JsonSchemaConfig
 from arize._generated.api_client.models.llm_message import LLMMessage as LLMMessage
+from arize._generated.api_client.models.list_ai_integrations_response import ListAiIntegrationsResponse as ListAiIntegrationsResponse
+from arize._generated.api_client.models.list_annotation_configs_response import ListAnnotationConfigsResponse as ListAnnotationConfigsResponse
+from arize._generated.api_client.models.list_annotation_queue_records_response import ListAnnotationQueueRecordsResponse as ListAnnotationQueueRecordsResponse
+from arize._generated.api_client.models.list_annotation_queues_response import ListAnnotationQueuesResponse as ListAnnotationQueuesResponse
+from arize._generated.api_client.models.list_api_keys_response import ListApiKeysResponse as ListApiKeysResponse
+from arize._generated.api_client.models.list_audit_logs_response import ListAuditLogsResponse as ListAuditLogsResponse
+from arize._generated.api_client.models.list_dataset_examples_response import ListDatasetExamplesResponse as ListDatasetExamplesResponse
+from arize._generated.api_client.models.list_datasets_response import ListDatasetsResponse as ListDatasetsResponse
+from arize._generated.api_client.models.list_evaluator_versions_response import ListEvaluatorVersionsResponse as ListEvaluatorVersionsResponse
+from arize._generated.api_client.models.list_evaluators_response import ListEvaluatorsResponse as ListEvaluatorsResponse
+from arize._generated.api_client.models.list_experiment_runs_response import ListExperimentRunsResponse as ListExperimentRunsResponse
+from arize._generated.api_client.models.list_experiments_response import ListExperimentsResponse as ListExperimentsResponse
+from arize._generated.api_client.models.list_integrations_response import ListIntegrationsResponse as ListIntegrationsResponse
+from arize._generated.api_client.models.list_organizations_response import ListOrganizationsResponse as ListOrganizationsResponse
+from arize._generated.api_client.models.list_projects_response import ListProjectsResponse as ListProjectsResponse
+from arize._generated.api_client.models.list_prompt_versions_response import ListPromptVersionsResponse as ListPromptVersionsResponse
+from arize._generated.api_client.models.list_prompts_response import ListPromptsResponse as ListPromptsResponse
+from arize._generated.api_client.models.list_resource_restrictions_response import ListResourceRestrictionsResponse as ListResourceRestrictionsResponse
+from arize._generated.api_client.models.list_role_bindings_response import ListRoleBindingsResponse as ListRoleBindingsResponse
+from arize._generated.api_client.models.list_roles_response import ListRolesResponse as ListRolesResponse
+from arize._generated.api_client.models.list_spaces_response import ListSpacesResponse as ListSpacesResponse
 from arize._generated.api_client.models.list_spans_request import ListSpansRequest as ListSpansRequest
+from arize._generated.api_client.models.list_spans_response import ListSpansResponse as ListSpansResponse
+from arize._generated.api_client.models.list_task_runs_response import ListTaskRunsResponse as ListTaskRunsResponse
+from arize._generated.api_client.models.list_tasks_response import ListTasksResponse as ListTasksResponse
 from arize._generated.api_client.models.list_traces_request import ListTracesRequest as ListTracesRequest
+from arize._generated.api_client.models.list_traces_response import ListTracesResponse as ListTracesResponse
+from arize._generated.api_client.models.list_users_response import ListUsersResponse as ListUsersResponse
 from arize._generated.api_client.models.llm_config import LlmConfig as LlmConfig
-from arize._generated.api_client.models.llm_config_base import LlmConfigBase as LlmConfigBase
 from arize._generated.api_client.models.llm_generation_run_config import LlmGenerationRunConfig as LlmGenerationRunConfig
 from arize._generated.api_client.models.llm_integration import LlmIntegration as LlmIntegration
 from arize._generated.api_client.models.llm_integration_provider import LlmIntegrationProvider as LlmIntegrationProvider
@@ -499,87 +498,53 @@ from arize._generated.api_client.models.message_role import MessageRole as Messa
 from arize._generated.api_client.models.open_ai_config import OpenAiConfig as OpenAiConfig
 from arize._generated.api_client.models.optimization_direction import OptimizationDirection as OptimizationDirection
 from arize._generated.api_client.models.organization import Organization as Organization
-from arize._generated.api_client.models.organization_create import OrganizationCreate as OrganizationCreate
 from arize._generated.api_client.models.organization_custom_role_assignment import OrganizationCustomRoleAssignment as OrganizationCustomRoleAssignment
-from arize._generated.api_client.models.organization_list_response import OrganizationListResponse as OrganizationListResponse
 from arize._generated.api_client.models.organization_membership import OrganizationMembership as OrganizationMembership
-from arize._generated.api_client.models.organization_membership_input import OrganizationMembershipInput as OrganizationMembershipInput
 from arize._generated.api_client.models.organization_predefined_role_assignment import OrganizationPredefinedRoleAssignment as OrganizationPredefinedRoleAssignment
 from arize._generated.api_client.models.organization_role import OrganizationRole as OrganizationRole
 from arize._generated.api_client.models.organization_role_assignment import OrganizationRoleAssignment as OrganizationRoleAssignment
 from arize._generated.api_client.models.organization_role_assignment_type import OrganizationRoleAssignmentType as OrganizationRoleAssignmentType
-from arize._generated.api_client.models.organization_update import OrganizationUpdate as OrganizationUpdate
 from arize._generated.api_client.models.pagination_metadata import PaginationMetadata as PaginationMetadata
 from arize._generated.api_client.models.permission import Permission as Permission
 from arize._generated.api_client.models.predefined_role_assignment import PredefinedRoleAssignment as PredefinedRoleAssignment
 from arize._generated.api_client.models.predefined_user_role_assignment import PredefinedUserRoleAssignment as PredefinedUserRoleAssignment
 from arize._generated.api_client.models.problem import Problem as Problem
 from arize._generated.api_client.models.project import Project as Project
-from arize._generated.api_client.models.project_create import ProjectCreate as ProjectCreate
-from arize._generated.api_client.models.project_list_response import ProjectListResponse as ProjectListResponse
-from arize._generated.api_client.models.project_update import ProjectUpdate as ProjectUpdate
 from arize._generated.api_client.models.prompt import Prompt as Prompt
-from arize._generated.api_client.models.prompt_list_response import PromptListResponse as PromptListResponse
 from arize._generated.api_client.models.prompt_version import PromptVersion as PromptVersion
 from arize._generated.api_client.models.prompt_version_create_request import PromptVersionCreateRequest as PromptVersionCreateRequest
-from arize._generated.api_client.models.prompt_version_labels_response import PromptVersionLabelsResponse as PromptVersionLabelsResponse
-from arize._generated.api_client.models.prompt_version_labels_set_request import PromptVersionLabelsSetRequest as PromptVersionLabelsSetRequest
-from arize._generated.api_client.models.prompt_version_list_response import PromptVersionListResponse as PromptVersionListResponse
-from arize._generated.api_client.models.prompt_versions_create_request import PromptVersionsCreateRequest as PromptVersionsCreateRequest
 from arize._generated.api_client.models.prompt_with_version import PromptWithVersion as PromptWithVersion
-from arize._generated.api_client.models.prompts_create_request import PromptsCreateRequest as PromptsCreateRequest
-from arize._generated.api_client.models.prompts_update_request import PromptsUpdateRequest as PromptsUpdateRequest
+from arize._generated.api_client.models.provider_metadata import ProviderMetadata as ProviderMetadata
 from arize._generated.api_client.models.provider_params import ProviderParams as ProviderParams
-from arize._generated.api_client.models.provider_params_anthropic_headers import ProviderParamsAnthropicHeaders as ProviderParamsAnthropicHeaders
-from arize._generated.api_client.models.provider_params_azure_params import ProviderParamsAzureParams as ProviderParamsAzureParams
-from arize._generated.api_client.models.provider_params_bedrock_options import ProviderParamsBedrockOptions as ProviderParamsBedrockOptions
 from arize._generated.api_client.models.record_granularity import RecordGranularity as RecordGranularity
+from arize._generated.api_client.models.refresh_api_key_request import RefreshApiKeyRequest as RefreshApiKeyRequest
 from arize._generated.api_client.models.resource_restriction import ResourceRestriction as ResourceRestriction
-from arize._generated.api_client.models.resource_restriction_create import ResourceRestrictionCreate as ResourceRestrictionCreate
-from arize._generated.api_client.models.resource_restriction_list_response import ResourceRestrictionListResponse as ResourceRestrictionListResponse
-from arize._generated.api_client.models.resource_restriction_response_body import ResourceRestrictionResponseBody as ResourceRestrictionResponseBody
 from arize._generated.api_client.models.resource_restriction_type import ResourceRestrictionType as ResourceRestrictionType
 from arize._generated.api_client.models.response_format import ResponseFormat as ResponseFormat
-from arize._generated.api_client.models.response_format_json_schema import ResponseFormatJsonSchema as ResponseFormatJsonSchema
 from arize._generated.api_client.models.response_format_type import ResponseFormatType as ResponseFormatType
 from arize._generated.api_client.models.role import Role as Role
 from arize._generated.api_client.models.role_binding import RoleBinding as RoleBinding
-from arize._generated.api_client.models.role_binding_create import RoleBindingCreate as RoleBindingCreate
-from arize._generated.api_client.models.role_binding_list_response import RoleBindingListResponse as RoleBindingListResponse
 from arize._generated.api_client.models.role_binding_resource_type import RoleBindingResourceType as RoleBindingResourceType
-from arize._generated.api_client.models.role_binding_update import RoleBindingUpdate as RoleBindingUpdate
-from arize._generated.api_client.models.role_create import RoleCreate as RoleCreate
-from arize._generated.api_client.models.role_list_response import RoleListResponse as RoleListResponse
-from arize._generated.api_client.models.role_update import RoleUpdate as RoleUpdate
 from arize._generated.api_client.models.run_configuration import RunConfiguration as RunConfiguration
+from arize._generated.api_client.models.set_prompt_version_labels_request import SetPromptVersionLabelsRequest as SetPromptVersionLabelsRequest
 from arize._generated.api_client.models.space import Space as Space
-from arize._generated.api_client.models.space_list_response import SpaceListResponse as SpaceListResponse
 from arize._generated.api_client.models.space_membership import SpaceMembership as SpaceMembership
-from arize._generated.api_client.models.space_membership_input import SpaceMembershipInput as SpaceMembershipInput
 from arize._generated.api_client.models.space_role_assignment import SpaceRoleAssignment as SpaceRoleAssignment
 from arize._generated.api_client.models.space_role_assignment_type import SpaceRoleAssignmentType as SpaceRoleAssignmentType
-from arize._generated.api_client.models.spaces_create_request import SpacesCreateRequest as SpacesCreateRequest
-from arize._generated.api_client.models.spaces_update_request import SpacesUpdateRequest as SpacesUpdateRequest
 from arize._generated.api_client.models.span import Span as Span
 from arize._generated.api_client.models.span_context import SpanContext as SpanContext
-from arize._generated.api_client.models.span_delete_problem import SpanDeleteProblem as SpanDeleteProblem
-from arize._generated.api_client.models.span_delete_response import SpanDeleteResponse as SpanDeleteResponse
 from arize._generated.api_client.models.span_event import SpanEvent as SpanEvent
-from arize._generated.api_client.models.span_list_response import SpanListResponse as SpanListResponse
+from arize._generated.api_client.models.span_kind import SpanKind as SpanKind
 from arize._generated.api_client.models.span_status_code import SpanStatusCode as SpanStatusCode
 from arize._generated.api_client.models.static_param import StaticParam as StaticParam
 from arize._generated.api_client.models.static_param_default_value import StaticParamDefaultValue as StaticParamDefaultValue
 from arize._generated.api_client.models.static_param_type import StaticParamType as StaticParamType
 from arize._generated.api_client.models.task import Task as Task
 from arize._generated.api_client.models.task_evaluator import TaskEvaluator as TaskEvaluator
-from arize._generated.api_client.models.task_list_response import TaskListResponse as TaskListResponse
+from arize._generated.api_client.models.task_evaluator_input import TaskEvaluatorInput as TaskEvaluatorInput
 from arize._generated.api_client.models.task_run import TaskRun as TaskRun
-from arize._generated.api_client.models.task_run_list_response import TaskRunListResponse as TaskRunListResponse
 from arize._generated.api_client.models.task_run_status import TaskRunStatus as TaskRunStatus
 from arize._generated.api_client.models.task_type import TaskType as TaskType
-from arize._generated.api_client.models.tasks_create_request import TasksCreateRequest as TasksCreateRequest
-from arize._generated.api_client.models.tasks_trigger_run_request import TasksTriggerRunRequest as TasksTriggerRunRequest
-from arize._generated.api_client.models.tasks_update_request import TasksUpdateRequest as TasksUpdateRequest
 from arize._generated.api_client.models.template_config import TemplateConfig as TemplateConfig
 from arize._generated.api_client.models.template_evaluation_run_config import TemplateEvaluationRunConfig as TemplateEvaluationRunConfig
 from arize._generated.api_client.models.tool_call import ToolCall as ToolCall
@@ -587,22 +552,35 @@ from arize._generated.api_client.models.tool_call_function import ToolCallFuncti
 from arize._generated.api_client.models.tool_call_type import ToolCallType as ToolCallType
 from arize._generated.api_client.models.tool_config import ToolConfig as ToolConfig
 from arize._generated.api_client.models.trace import Trace as Trace
-from arize._generated.api_client.models.trace_list_response import TraceListResponse as TraceListResponse
 from arize._generated.api_client.models.trigger_evaluation_task_run_request import TriggerEvaluationTaskRunRequest as TriggerEvaluationTaskRunRequest
 from arize._generated.api_client.models.trigger_run_experiment_task_run_request import TriggerRunExperimentTaskRunRequest as TriggerRunExperimentTaskRunRequest
-from arize._generated.api_client.models.update_annotation_config_request_body import UpdateAnnotationConfigRequestBody as UpdateAnnotationConfigRequestBody
-from arize._generated.api_client.models.update_annotation_queue_request_body import UpdateAnnotationQueueRequestBody as UpdateAnnotationQueueRequestBody
+from arize._generated.api_client.models.trigger_task_run_request import TriggerTaskRunRequest as TriggerTaskRunRequest
+from arize._generated.api_client.models.update_ai_integration_request import UpdateAiIntegrationRequest as UpdateAiIntegrationRequest
+from arize._generated.api_client.models.update_annotation_config_request import UpdateAnnotationConfigRequest as UpdateAnnotationConfigRequest
+from arize._generated.api_client.models.update_annotation_queue_request import UpdateAnnotationQueueRequest as UpdateAnnotationQueueRequest
+from arize._generated.api_client.models.update_categorical_annotation_config_request import UpdateCategoricalAnnotationConfigRequest as UpdateCategoricalAnnotationConfigRequest
+from arize._generated.api_client.models.update_continuous_annotation_config_request import UpdateContinuousAnnotationConfigRequest as UpdateContinuousAnnotationConfigRequest
+from arize._generated.api_client.models.update_dataset_example_input import UpdateDatasetExampleInput as UpdateDatasetExampleInput
+from arize._generated.api_client.models.update_dataset_examples_request import UpdateDatasetExamplesRequest as UpdateDatasetExamplesRequest
+from arize._generated.api_client.models.update_dataset_request import UpdateDatasetRequest as UpdateDatasetRequest
 from arize._generated.api_client.models.update_evaluation_task_request import UpdateEvaluationTaskRequest as UpdateEvaluationTaskRequest
+from arize._generated.api_client.models.update_evaluator_request import UpdateEvaluatorRequest as UpdateEvaluatorRequest
+from arize._generated.api_client.models.update_freeform_annotation_config_request import UpdateFreeformAnnotationConfigRequest as UpdateFreeformAnnotationConfigRequest
 from arize._generated.api_client.models.update_llm_config import UpdateLlmConfig as UpdateLlmConfig
 from arize._generated.api_client.models.update_llm_integration_request import UpdateLlmIntegrationRequest as UpdateLlmIntegrationRequest
+from arize._generated.api_client.models.update_organization_request import UpdateOrganizationRequest as UpdateOrganizationRequest
+from arize._generated.api_client.models.update_project_request import UpdateProjectRequest as UpdateProjectRequest
+from arize._generated.api_client.models.update_prompt_request import UpdatePromptRequest as UpdatePromptRequest
+from arize._generated.api_client.models.update_role_binding_request import UpdateRoleBindingRequest as UpdateRoleBindingRequest
+from arize._generated.api_client.models.update_role_request import UpdateRoleRequest as UpdateRoleRequest
 from arize._generated.api_client.models.update_run_experiment_task_request import UpdateRunExperimentTaskRequest as UpdateRunExperimentTaskRequest
+from arize._generated.api_client.models.update_space_request import UpdateSpaceRequest as UpdateSpaceRequest
+from arize._generated.api_client.models.update_task_request import UpdateTaskRequest as UpdateTaskRequest
+from arize._generated.api_client.models.update_user_request import UpdateUserRequest as UpdateUserRequest
 from arize._generated.api_client.models.user import User as User
-from arize._generated.api_client.models.user_created_response import UserCreatedResponse as UserCreatedResponse
-from arize._generated.api_client.models.user_list_response import UserListResponse as UserListResponse
 from arize._generated.api_client.models.user_role import UserRole as UserRole
 from arize._generated.api_client.models.user_role_assignment import UserRoleAssignment as UserRoleAssignment
 from arize._generated.api_client.models.user_role_assignment_type import UserRoleAssignmentType as UserRoleAssignmentType
 from arize._generated.api_client.models.user_space_role import UserSpaceRole as UserSpaceRole
 from arize._generated.api_client.models.user_status import UserStatus as UserStatus
-from arize._generated.api_client.models.user_update import UserUpdate as UserUpdate
 

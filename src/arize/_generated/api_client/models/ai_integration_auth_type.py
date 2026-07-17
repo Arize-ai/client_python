@@ -26,9 +26,9 @@ class AiIntegrationAuthType(str, Enum):
     """
     allowed enum values
     """
-    DEFAULT = 'default'
-    PROXY_WITH_HEADERS = 'proxy_with_headers'
-    BEARER_TOKEN = 'bearer_token'
+    DEFAULT = 'DEFAULT'
+    PROXY_WITH_HEADERS = 'PROXY_WITH_HEADERS'
+    BEARER_TOKEN = 'BEARER_TOKEN'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

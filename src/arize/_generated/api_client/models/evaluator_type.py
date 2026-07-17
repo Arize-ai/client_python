@@ -20,16 +20,16 @@ from typing_extensions import Self
 
 class EvaluatorType(str, Enum):
     """
-    The evaluator type:  - `template` — LLM-based evaluator. - `code` — managed built-in evaluators or custom Python code (both are   subtypes of `code`, discriminated by the nested `CodeConfig.type` =   `managed` | `custom`). - `harness` — test harness evaluator. - `remote` — remote evaluator.  Applies to both the parent `Evaluator.type` field and every version's `type` discriminator — a version's `type` must always match its parent evaluator's `type`. 
+    The evaluator type:  - `TEMPLATE` — LLM-based evaluator. - `CODE` — managed built-in evaluators or custom Python code (both are   subtypes of `CODE`, discriminated by the nested `CodeConfig.type` =   `MANAGED` | `CUSTOM`). - `HARNESS` — test harness evaluator. - `REMOTE` — remote evaluator.  Applies to both the parent `Evaluator.type` field and every version's `type` discriminator — a version's `type` must always match its parent evaluator's `type`. 
     """
 
     """
     allowed enum values
     """
-    TEMPLATE = 'template'
-    CODE = 'code'
-    HARNESS = 'harness'
-    REMOTE = 'remote'
+    TEMPLATE = 'TEMPLATE'
+    CODE = 'CODE'
+    HARNESS = 'HARNESS'
+    REMOTE = 'REMOTE'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

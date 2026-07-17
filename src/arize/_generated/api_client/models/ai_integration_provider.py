@@ -26,14 +26,14 @@ class AiIntegrationProvider(str, Enum):
     """
     allowed enum values
     """
-    OPENAI = 'openAI'
-    AZUREOPENAI = 'azureOpenAI'
-    AWSBEDROCK = 'awsBedrock'
-    VERTEXAI = 'vertexAI'
-    ANTHROPIC = 'anthropic'
-    CUSTOM = 'custom'
-    NVIDIANIM = 'nvidiaNim'
-    GEMINI = 'gemini'
+    OPEN_AI = 'OPEN_AI'
+    AZURE_OPEN_AI = 'AZURE_OPEN_AI'
+    AWS_BEDROCK = 'AWS_BEDROCK'
+    VERTEX_AI = 'VERTEX_AI'
+    ANTHROPIC = 'ANTHROPIC'
+    CUSTOM = 'CUSTOM'
+    NVIDIA_NIM = 'NVIDIA_NIM'
+    GEMINI = 'GEMINI'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

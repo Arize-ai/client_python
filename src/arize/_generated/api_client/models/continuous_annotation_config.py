@@ -35,14 +35,14 @@ class ContinuousAnnotationConfig(BaseModel):
     type: StrictStr = Field(description="Discriminator value identifying a continuous annotation config.")
     minimum_score: Union[StrictFloat, StrictInt] = Field(description="The minimum score value")
     maximum_score: Union[StrictFloat, StrictInt] = Field(description="The maximum score value")
-    optimization_direction: Optional[OptimizationDirection] = Field(default=None, description="Direction for optimization. When absent, the server treats the value as `none`.")
+    optimization_direction: Optional[OptimizationDirection] = Field(default=None, description="Direction for optimization. When absent, the server treats the value as `NONE`.")
     __properties: ClassVar[List[str]] = ["id", "name", "created_at", "space_id", "type", "minimum_score", "maximum_score", "optimization_direction"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['continuous']):
-            raise ValueError("must be one of enum values ('continuous')")
+        if value not in set(['CONTINUOUS']):
+            raise ValueError("must be one of enum values ('CONTINUOUS')")
         return value
 
     model_config = ConfigDict(

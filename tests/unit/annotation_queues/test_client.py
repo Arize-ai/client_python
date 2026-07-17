@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import logging
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
+from arize._generated.api_client import AnnotationQueuesApi
 from arize._generated.api_client.models.assignment_method import (
     AssignmentMethod,
 )
@@ -20,7 +21,7 @@ _QUEUE_ID = "QW5ub3RhdGlvblF1ZXVlOjEyMw=="  # AnnotationQueue:123
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock AnnotationQueuesApi instance."""
-    return Mock()
+    return create_autospec(AnnotationQueuesApi, instance=True)
 
 
 @pytest.fixture
@@ -95,7 +96,7 @@ class TestAnnotationQueuesClientList:
             cursor="cursor-abc",
         )
 
-        mock_api.annotation_queues_list.assert_called_once_with(
+        mock_api.list_annotation_queues.assert_called_once_with(
             space_id="U3BhY2U6OTA1MDoxSmtS",
             space_name=None,
             name="review",
@@ -114,7 +115,7 @@ class TestAnnotationQueuesClientList:
             cursor="cursor-abc",
         )
 
-        mock_api.annotation_queues_list.assert_called_once_with(
+        mock_api.list_annotation_queues.assert_called_once_with(
             space_id=None,
             space_name="my-space",
             name="review",
@@ -128,7 +129,7 @@ class TestAnnotationQueuesClientList:
         """list() must default limit to 50 when not provided."""
         annotation_queues_client.list()
 
-        _, kwargs = mock_api.annotation_queues_list.call_args
+        _, kwargs = mock_api.list_annotation_queues.call_args
         assert kwargs["limit"] == 50
 
     def test_returns_api_response(
@@ -136,7 +137,7 @@ class TestAnnotationQueuesClientList:
     ) -> None:
         """list() must return the response from the API."""
         expected = Mock()
-        mock_api.annotation_queues_list.return_value = expected
+        mock_api.list_annotation_queues.return_value = expected
 
         result = annotation_queues_client.list()
 
@@ -172,7 +173,7 @@ class TestAnnotationQueuesClientGet:
         """get() with a base64 resource ID must pass it directly as annotation_queue_id."""
         annotation_queues_client.get(annotation_queue=_QUEUE_ID)
 
-        mock_api.annotation_queues_get.assert_called_once_with(
+        mock_api.get_annotation_queue.assert_called_once_with(
             annotation_queue_id=_QUEUE_ID
         )
 
@@ -181,7 +182,7 @@ class TestAnnotationQueuesClientGet:
     ) -> None:
         """get() must return the response from the API."""
         expected = Mock()
-        mock_api.annotation_queues_get.return_value = expected
+        mock_api.get_annotation_queue.return_value = expected
 
         result = annotation_queues_client.get(annotation_queue=_QUEUE_ID)
 
@@ -195,11 +196,11 @@ class TestAnnotationQueuesClientCreate:
     def test_builds_request_body_with_required_fields(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
     ) -> None:
-        """create() must build CreateAnnotationQueueRequestBody with required args."""
+        """create() must build CreateAnnotationQueueRequest with required args."""
         # Use a base64 resource ID so find_space_id returns it directly without
         # calling the spaces API.
         with patch(
-            "arize._generated.api_client.CreateAnnotationQueueRequestBody"
+            "arize._generated.api_client.CreateAnnotationQueueRequest"
         ) as mock_body_cls:
             mock_body = Mock()
             mock_body_cls.return_value = mock_body
@@ -220,8 +221,8 @@ class TestAnnotationQueuesClientCreate:
             assignment_method=None,
             record_sources=None,
         )
-        mock_api.annotation_queues_create.assert_called_once_with(
-            create_annotation_queue_request_body=mock_body
+        mock_api.create_annotation_queue.assert_called_once_with(
+            create_annotation_queue_request=mock_body
         )
 
     def test_converts_assignment_method_enum_to_value(
@@ -229,7 +230,7 @@ class TestAnnotationQueuesClientCreate:
     ) -> None:
         """create() must pass assignment_method.value (str), not the enum itself."""
         with patch(
-            "arize._generated.api_client.CreateAnnotationQueueRequestBody"
+            "arize._generated.api_client.CreateAnnotationQueueRequest"
         ) as mock_body_cls:
             annotation_queues_client.create(
                 name="Q",
@@ -240,14 +241,14 @@ class TestAnnotationQueuesClientCreate:
             )
 
         _, kwargs = mock_body_cls.call_args
-        assert kwargs["assignment_method"] == "random"
+        assert kwargs["assignment_method"] == "RANDOM"
 
     def test_assignment_method_all_value(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
     ) -> None:
-        """AssignmentMethod.ALL must map to the string 'all'."""
+        """AssignmentMethod.ALL must map to the string 'ALL'."""
         with patch(
-            "arize._generated.api_client.CreateAnnotationQueueRequestBody"
+            "arize._generated.api_client.CreateAnnotationQueueRequest"
         ) as mock_body_cls:
             annotation_queues_client.create(
                 name="Q",
@@ -258,18 +259,16 @@ class TestAnnotationQueuesClientCreate:
             )
 
         _, kwargs = mock_body_cls.call_args
-        assert kwargs["assignment_method"] == "all"
+        assert kwargs["assignment_method"] == "ALL"
 
     def test_returns_api_response(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
     ) -> None:
         """create() must return the response from the API."""
         expected = Mock()
-        mock_api.annotation_queues_create.return_value = expected
+        mock_api.create_annotation_queue.return_value = expected
 
-        with patch(
-            "arize._generated.api_client.CreateAnnotationQueueRequestBody"
-        ):
+        with patch("arize._generated.api_client.CreateAnnotationQueueRequest"):
             result = annotation_queues_client.create(
                 name="Q",
                 space="U3BhY2U6OTA1MDoxSmtS",
@@ -290,9 +289,7 @@ class TestAnnotationQueuesClientCreate:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        with patch(
-            "arize._generated.api_client.CreateAnnotationQueueRequestBody"
-        ):
+        with patch("arize._generated.api_client.CreateAnnotationQueueRequest"):
             annotation_queues_client.create(
                 name="Q",
                 space="U3BhY2U6OTA1MDoxSmtS",
@@ -316,7 +313,7 @@ class TestAnnotationQueuesClientUpdate:
     ) -> None:
         """update() must only include the fields that were explicitly provided."""
         with patch(
-            "arize._generated.api_client.UpdateAnnotationQueueRequestBody"
+            "arize._generated.api_client.UpdateAnnotationQueueRequest"
         ) as mock_body_cls:
             mock_body = Mock()
             mock_body_cls.return_value = mock_body
@@ -332,9 +329,9 @@ class TestAnnotationQueuesClientUpdate:
             name="New Name",
             instructions="Please review carefully.",
         )
-        mock_api.annotation_queues_update.assert_called_once_with(
+        mock_api.update_annotation_queue.assert_called_once_with(
             annotation_queue_id=_QUEUE_ID,
-            update_annotation_queue_request_body=mock_body,
+            update_annotation_queue_request=mock_body,
         )
 
     def test_raises_when_no_fields_provided(
@@ -349,7 +346,7 @@ class TestAnnotationQueuesClientUpdate:
     ) -> None:
         """update() should send instructions='' as-is to clear it on the server."""
         with patch(
-            "arize._generated.api_client.UpdateAnnotationQueueRequestBody"
+            "arize._generated.api_client.UpdateAnnotationQueueRequest"
         ) as mock_body_cls:
             mock_body_cls.return_value = Mock()
 
@@ -365,11 +362,9 @@ class TestAnnotationQueuesClientUpdate:
     ) -> None:
         """update() must return the response from the API."""
         expected = Mock()
-        mock_api.annotation_queues_update.return_value = expected
+        mock_api.update_annotation_queue.return_value = expected
 
-        with patch(
-            "arize._generated.api_client.UpdateAnnotationQueueRequestBody"
-        ):
+        with patch("arize._generated.api_client.UpdateAnnotationQueueRequest"):
             result = annotation_queues_client.update(
                 annotation_queue=_QUEUE_ID, name="New"
             )
@@ -387,7 +382,7 @@ class TestAnnotationQueuesClientDelete:
         """delete() with a base64 resource ID must pass it directly as annotation_queue_id."""
         annotation_queues_client.delete(annotation_queue=_QUEUE_ID)
 
-        mock_api.annotation_queues_delete.assert_called_once_with(
+        mock_api.delete_annotation_queue.assert_called_once_with(
             annotation_queue_id=_QUEUE_ID
         )
 
@@ -395,7 +390,7 @@ class TestAnnotationQueuesClientDelete:
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
     ) -> None:
         """delete() must return the API result (None on 204)."""
-        mock_api.annotation_queues_delete.return_value = None
+        mock_api.delete_annotation_queue.return_value = None
 
         result = annotation_queues_client.delete(annotation_queue=_QUEUE_ID)
 
@@ -416,7 +411,7 @@ class TestAnnotationQueuesClientListRecords:
             cursor="cursor-xyz",
         )
 
-        mock_api.annotation_queue_records_list.assert_called_once_with(
+        mock_api.list_annotation_queue_records.assert_called_once_with(
             annotation_queue_id=_QUEUE_ID,
             limit=50,
             cursor="cursor-xyz",
@@ -428,7 +423,7 @@ class TestAnnotationQueuesClientListRecords:
         """list_records() must default limit to 50."""
         annotation_queues_client.list_records(annotation_queue=_QUEUE_ID)
 
-        _, kwargs = mock_api.annotation_queue_records_list.call_args
+        _, kwargs = mock_api.list_annotation_queue_records.call_args
         assert kwargs["limit"] == 50
 
     def test_returns_api_response(
@@ -436,7 +431,7 @@ class TestAnnotationQueuesClientListRecords:
     ) -> None:
         """list_records() must return the response from the API."""
         expected = Mock()
-        mock_api.annotation_queue_records_list.return_value = expected
+        mock_api.list_annotation_queue_records.return_value = expected
 
         result = annotation_queues_client.list_records(
             annotation_queue=_QUEUE_ID
@@ -452,14 +447,14 @@ class TestAnnotationQueuesClientAddRecords:
     def test_builds_request_body(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
     ) -> None:
-        """add_records() must build AddAnnotationQueueRecordsRequestBody."""
+        """add_records() must build AddAnnotationQueueRecordsRequest."""
         mock_sources = [
             Mock(spec=AnnotationQueueRecordInput),
             Mock(spec=AnnotationQueueRecordInput),
         ]
 
         with patch(
-            "arize._generated.api_client.AddAnnotationQueueRecordsRequestBody"
+            "arize._generated.api_client.AddAnnotationQueueRecordsRequest"
         ) as mock_body_cls:
             mock_body = Mock()
             mock_body_cls.return_value = mock_body
@@ -470,9 +465,9 @@ class TestAnnotationQueuesClientAddRecords:
             )
 
         mock_body_cls.assert_called_once_with(record_sources=mock_sources)
-        mock_api.annotation_queues_records_create.assert_called_once_with(
+        mock_api.create_annotation_queue_record.assert_called_once_with(
             annotation_queue_id=_QUEUE_ID,
-            add_annotation_queue_records_request_body=mock_body,
+            add_annotation_queue_records_request=mock_body,
         )
 
     def test_returns_api_response(
@@ -480,10 +475,10 @@ class TestAnnotationQueuesClientAddRecords:
     ) -> None:
         """add_records() must return the response from the API."""
         expected = Mock()
-        mock_api.annotation_queues_records_create.return_value = expected
+        mock_api.create_annotation_queue_record.return_value = expected
 
         with patch(
-            "arize._generated.api_client.AddAnnotationQueueRecordsRequestBody"
+            "arize._generated.api_client.AddAnnotationQueueRecordsRequest"
         ):
             result = annotation_queues_client.add_records(
                 annotation_queue=_QUEUE_ID,
@@ -500,9 +495,9 @@ class TestAnnotationQueuesClientDeleteRecords:
     def test_builds_request_body(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
     ) -> None:
-        """delete_records() must build DeleteAnnotationQueueRecordsRequestBody."""
+        """delete_records() must build DeleteAnnotationQueueRecordsRequest."""
         with patch(
-            "arize._generated.api_client.DeleteAnnotationQueueRecordsRequestBody"
+            "arize._generated.api_client.DeleteAnnotationQueueRecordsRequest"
         ) as mock_body_cls:
             mock_body = Mock()
             mock_body_cls.return_value = mock_body
@@ -513,19 +508,19 @@ class TestAnnotationQueuesClientDeleteRecords:
             )
 
         mock_body_cls.assert_called_once_with(record_ids=["rec_001", "rec_002"])
-        mock_api.annotation_queues_records_delete.assert_called_once_with(
+        mock_api.delete_annotation_queue_record.assert_called_once_with(
             annotation_queue_id=_QUEUE_ID,
-            delete_annotation_queue_records_request_body=mock_body,
+            delete_annotation_queue_records_request=mock_body,
         )
 
     def test_returns_none(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
     ) -> None:
         """delete_records() must return the API result (None on 204)."""
-        mock_api.annotation_queues_records_delete.return_value = None
+        mock_api.delete_annotation_queue_record.return_value = None
 
         with patch(
-            "arize._generated.api_client.DeleteAnnotationQueueRecordsRequestBody"
+            "arize._generated.api_client.DeleteAnnotationQueueRecordsRequest"
         ):
             result = annotation_queues_client.delete_records(
                 annotation_queue=_QUEUE_ID, record_ids=["rec_001"]
@@ -541,11 +536,11 @@ class TestAnnotationQueuesClientAnnotateRecord:
     def test_builds_request_body(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
     ) -> None:
-        """annotate_record() must build AnnotateAnnotationQueueRecordRequestBody."""
+        """annotate_record() must build AnnotateAnnotationQueueRecordRequest."""
         mock_annotations = [Mock(), Mock()]
 
         with patch(
-            "arize._generated.api_client.AnnotateAnnotationQueueRecordRequestBody"
+            "arize._generated.api_client.AnnotateAnnotationQueueRecordRequest"
         ) as mock_body_cls:
             mock_body = Mock()
             mock_body_cls.return_value = mock_body
@@ -557,10 +552,10 @@ class TestAnnotationQueuesClientAnnotateRecord:
             )
 
         mock_body_cls.assert_called_once_with(annotations=mock_annotations)
-        mock_api.annotation_queues_records_annotate.assert_called_once_with(
+        mock_api.annotate_annotation_queue_record.assert_called_once_with(
             annotation_queue_id=_QUEUE_ID,
             annotation_queue_record_id="rec_001",
-            annotate_annotation_queue_record_request_body=mock_body,
+            annotate_annotation_queue_record_request=mock_body,
         )
 
     def test_returns_api_response(
@@ -568,10 +563,10 @@ class TestAnnotationQueuesClientAnnotateRecord:
     ) -> None:
         """annotate_record() must return the response from the API."""
         expected = Mock()
-        mock_api.annotation_queues_records_annotate.return_value = expected
+        mock_api.annotate_annotation_queue_record.return_value = expected
 
         with patch(
-            "arize._generated.api_client.AnnotateAnnotationQueueRecordRequestBody"
+            "arize._generated.api_client.AnnotateAnnotationQueueRecordRequest"
         ):
             result = annotation_queues_client.annotate_record(
                 annotation_queue=_QUEUE_ID,
@@ -593,7 +588,7 @@ class TestAnnotationQueuesClientAnnotateRecord:
         caplog.set_level(logging.WARNING)
 
         with patch(
-            "arize._generated.api_client.AnnotateAnnotationQueueRecordRequestBody"
+            "arize._generated.api_client.AnnotateAnnotationQueueRecordRequest"
         ):
             annotation_queues_client.annotate_record(
                 annotation_queue=_QUEUE_ID,
@@ -615,11 +610,11 @@ class TestAnnotationQueuesClientAssignRecord:
     def test_builds_request_body(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
     ) -> None:
-        """assign_record() must build AssignAnnotationQueueRecordRequestBody."""
+        """assign_record() must build AssignAnnotationQueueRecordRequest."""
         emails = ["alice@example.com", "bob@example.com"]
 
         with patch(
-            "arize._generated.api_client.AssignAnnotationQueueRecordRequestBody"
+            "arize._generated.api_client.AssignAnnotationQueueRecordRequest"
         ) as mock_body_cls:
             mock_body = Mock()
             mock_body_cls.return_value = mock_body
@@ -631,10 +626,10 @@ class TestAnnotationQueuesClientAssignRecord:
             )
 
         mock_body_cls.assert_called_once_with(assigned_user_emails=emails)
-        mock_api.annotation_queues_records_assign.assert_called_once_with(
+        mock_api.assign_annotation_queue_record.assert_called_once_with(
             annotation_queue_id=_QUEUE_ID,
             annotation_queue_record_id="rec_001",
-            assign_annotation_queue_record_request_body=mock_body,
+            assign_annotation_queue_record_request=mock_body,
         )
 
     def test_supports_empty_email_list(
@@ -642,7 +637,7 @@ class TestAnnotationQueuesClientAssignRecord:
     ) -> None:
         """assign_record() must accept an empty list to remove all assignments."""
         with patch(
-            "arize._generated.api_client.AssignAnnotationQueueRecordRequestBody"
+            "arize._generated.api_client.AssignAnnotationQueueRecordRequest"
         ) as mock_body_cls:
             annotation_queues_client.assign_record(
                 annotation_queue=_QUEUE_ID,
@@ -658,10 +653,10 @@ class TestAnnotationQueuesClientAssignRecord:
     ) -> None:
         """assign_record() must return the response from the API."""
         expected = Mock()
-        mock_api.annotation_queues_records_assign.return_value = expected
+        mock_api.assign_annotation_queue_record.return_value = expected
 
         with patch(
-            "arize._generated.api_client.AssignAnnotationQueueRecordRequestBody"
+            "arize._generated.api_client.AssignAnnotationQueueRecordRequest"
         ):
             result = annotation_queues_client.assign_record(
                 annotation_queue=_QUEUE_ID,
@@ -683,7 +678,7 @@ class TestAnnotationQueuesClientAssignRecord:
         caplog.set_level(logging.WARNING)
 
         with patch(
-            "arize._generated.api_client.AssignAnnotationQueueRecordRequestBody"
+            "arize._generated.api_client.AssignAnnotationQueueRecordRequest"
         ):
             annotation_queues_client.assign_record(
                 annotation_queue=_QUEUE_ID,

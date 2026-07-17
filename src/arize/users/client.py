@@ -10,8 +10,8 @@ from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.users.types import (
     BulkUserDeletionResult,
     DeletionStatus,
+    ListUsersResponse,
     User,
-    UserListResponse,
 )
 from arize.utils.resolve import NotFoundError, _find_user_id_by_email
 
@@ -69,7 +69,7 @@ class UsersClient:
         status: list[UserStatus] | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> UserListResponse:
+    ) -> ListUsersResponse:
         """List users in the account.
 
         This endpoint supports cursor-based pagination. When provided,
@@ -79,7 +79,7 @@ class UsersClient:
         Args:
             email: Optional case-insensitive partial-match filter on email address.
             status: Optional list of statuses to filter by
-                (e.g. ``["active", "invited"]``).
+                (e.g. ``["ACTIVE", "INVITED"]``).
             limit: Maximum number of users to return (1-100). The server
                 enforces an upper bound of 100.
             cursor: Opaque pagination cursor from a previous response.
@@ -90,8 +90,8 @@ class UsersClient:
         Raises:
             ApiException: If the API request fails.
         """
-        return UserListResponse.model_validate(
-            self._api.users_list(
+        return ListUsersResponse.model_validate(
+            self._api.list_users(
                 limit=limit,
                 cursor=cursor,
                 email=email,
@@ -132,7 +132,7 @@ class UsersClient:
                     return u
             return None
         return User.model_validate(
-            self._api.users_get(user_id=user), from_attributes=True
+            self._api.get_user(user_id=user), from_attributes=True
         )
 
     @prerelease_endpoint(key="users.create", stage=ReleaseStage.BETA)
@@ -152,14 +152,14 @@ class UsersClient:
             email: Email address (used as the idempotency key).
             role: Account-level role assignment. Use
                 ``PredefinedUserRole(name="<role>")`` for predefined roles
-                (``admin``, ``member``, ``annotator``), or
+                (``ADMIN``, ``MEMBER``, ``ANNOTATOR``), or
                 ``CustomUserRole(id="<role-id>")`` for custom RBAC roles.
-            invite_mode: Invite mode (``"none"``, ``"email_link"``, or
-                ``"temporary_password"``).
+            invite_mode: Invite mode (``"NONE"``, ``"EMAIL_LINK"``, or
+                ``"TEMPORARY_PASSWORD"``).
             is_developer: Whether the user should have developer permissions
                 (can create GraphQL API keys). Defaults to ``True`` for
-                ``admin`` and ``member`` roles, and ``False`` for
-                ``annotator``.
+                ``ADMIN`` and ``MEMBER`` roles, and ``False`` for
+                ``ANNOTATOR``.
 
         Returns:
             The created user object.
@@ -181,7 +181,10 @@ class UsersClient:
                     type=gen.UserRoleAssignmentType.PREDEFINED,
                     name=role.name,
                 )
-                if role.type == "predefined"
+                # String literal (not the enum) so mypy narrows the
+                # discriminated union; drift is guarded by the test asserting
+                # the Literal matches UserRoleAssignmentType.
+                if role.type == "PREDEFINED"
                 else gen.CustomUserRoleAssignment(
                     type=gen.UserRoleAssignmentType.CUSTOM,
                     id=role.id,
@@ -191,7 +194,7 @@ class UsersClient:
             **kwargs,
         )
         return User.model_validate(
-            self._api.users_create(create_user_request=body),
+            self._api.create_user(create_user_request=body),
             from_attributes=True,
         )
 
@@ -225,12 +228,12 @@ class UsersClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.UserUpdate(
+        body = gen.UpdateUserRequest(
             name=name,
             is_developer=is_developer,
         )
         return User.model_validate(
-            self._api.users_update(user_id=user_id, user_update=body),
+            self._api.update_user(user_id=user_id, update_user_request=body),
             from_attributes=True,
         )
 
@@ -252,13 +255,13 @@ class UsersClient:
                 (for example, user not found or insufficient
                 permissions).
         """
-        return self._api.users_delete(user_id=user_id)
+        return self._api.delete_user(user_id=user_id)
 
     @prerelease_endpoint(key="users.resend_invitation", stage=ReleaseStage.BETA)
     def resend_invitation(self, *, user_id: str) -> None:
         """Resend an invitation email for a pending user.
 
-        The target user must be in the ``invited`` state.
+        The target user must be in the ``INVITED`` state.
 
         Args:
             user_id: User ID to resend the invitation for.
@@ -270,7 +273,7 @@ class UsersClient:
             ApiException: If the API request fails
                 (for example, user not found or user already active).
         """
-        return self._api.users_resend_invitation(user_id=user_id)
+        return self._api.resend_user_invitation(user_id=user_id)
 
     @prerelease_endpoint(key="users.bulk_delete", stage=ReleaseStage.BETA)
     def bulk_delete(
@@ -372,4 +375,4 @@ class UsersClient:
                 (for example, user not found, user authenticates via SSO,
                 or user has not yet verified their account).
         """
-        return self._api.users_password_reset(user_id=user_id)
+        return self._api.reset_user_password(user_id=user_id)

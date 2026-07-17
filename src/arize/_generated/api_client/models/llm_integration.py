@@ -27,7 +27,7 @@ from typing_extensions import Self
 
 class LlmIntegration(BaseModel):
     """
-    An LLM integration (type=llm).
+    An LLM integration (type=LLM).
     """ # noqa: E501
     id: StrictStr = Field(description="The integration ID (base64 global ID).")
     type: StrictStr = Field(description="Discriminator identifying an LLM integration.")
@@ -42,8 +42,8 @@ class LlmIntegration(BaseModel):
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['llm']):
-            raise ValueError("must be one of enum values ('llm')")
+        if value not in set(['LLM']):
+            raise ValueError("must be one of enum values ('LLM')")
         return value
 
     model_config = ConfigDict(

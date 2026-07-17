@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import logging
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
+from arize._generated.api_client import AIIntegrationsApi
 from arize.ai_integrations.client import AiIntegrationsClient
 
 # Base64 ID that decodes to "Integration:123" — passes _is_resource_id()
@@ -16,7 +17,7 @@ _INTEGRATION_ID = "SW50ZWdyYXRpb246MTIz"
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock AIIntegrationsApi instance."""
-    return Mock()
+    return create_autospec(AIIntegrationsApi, instance=True)
 
 
 @pytest.fixture
@@ -80,7 +81,7 @@ class TestAiIntegrationsClientList:
             cursor="cursor-abc",
         )
 
-        mock_api.ai_integrations_list.assert_called_once_with(
+        mock_api.list_ai_integrations.assert_called_once_with(
             space_id="U3BhY2U6OTA1MDoxSmtS",
             space_name=None,
             name=None,
@@ -98,7 +99,7 @@ class TestAiIntegrationsClientList:
             cursor="cursor-abc",
         )
 
-        mock_api.ai_integrations_list.assert_called_once_with(
+        mock_api.list_ai_integrations.assert_called_once_with(
             space_id=None,
             space_name="my-space",
             name=None,
@@ -112,7 +113,7 @@ class TestAiIntegrationsClientList:
         """list() should default space/name/cursor to None and limit to 50."""
         ai_integrations_client.list()
 
-        mock_api.ai_integrations_list.assert_called_once_with(
+        mock_api.list_ai_integrations.assert_called_once_with(
             space_id=None,
             space_name=None,
             name=None,
@@ -125,7 +126,7 @@ class TestAiIntegrationsClientList:
     ) -> None:
         """list() should propagate the return value from ai_integrations_list."""
         expected = Mock()
-        mock_api.ai_integrations_list.return_value = expected
+        mock_api.list_ai_integrations.return_value = expected
 
         result = ai_integrations_client.list()
 
@@ -161,7 +162,7 @@ class TestAiIntegrationsClientGet:
         """get() should resolve integration and pass integration_id to ai_integrations_get."""
         ai_integrations_client.get(integration=_INTEGRATION_ID)
 
-        mock_api.ai_integrations_get.assert_called_once_with(
+        mock_api.get_ai_integration.assert_called_once_with(
             integration_id=_INTEGRATION_ID
         )
 
@@ -170,7 +171,7 @@ class TestAiIntegrationsClientGet:
     ) -> None:
         """get() should propagate the return value from ai_integrations_get."""
         expected = Mock()
-        mock_api.ai_integrations_get.return_value = expected
+        mock_api.get_ai_integration.return_value = expected
 
         result = ai_integrations_client.get(integration=_INTEGRATION_ID)
 
@@ -184,16 +185,16 @@ class TestAiIntegrationsClientCreate:
     def test_create_builds_request_and_calls_api(
         self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
     ) -> None:
-        """create() should build AiIntegrationsCreateRequest and pass it to ai_integrations_create."""
+        """create() should build CreateAiIntegrationRequest and pass it to ai_integrations_create."""
         with patch(
-            "arize._generated.api_client.AiIntegrationsCreateRequest"
+            "arize._generated.api_client.CreateAiIntegrationRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
 
             ai_integrations_client.create(
                 name="Production OpenAI",
-                provider="openAI",
+                provider="OPEN_AI",
                 api_key="sk-abc123",
                 model_names=["gpt-4", "gpt-4o"],
                 enable_default_models=True,
@@ -201,7 +202,7 @@ class TestAiIntegrationsClientCreate:
 
         mock_request_cls.assert_called_once_with(
             name="Production OpenAI",
-            provider="openAI",
+            provider="OPEN_AI",
             api_key="sk-abc123",
             base_url=None,
             model_names=["gpt-4", "gpt-4o"],
@@ -212,8 +213,8 @@ class TestAiIntegrationsClientCreate:
             provider_metadata=None,
             scopings=None,
         )
-        mock_api.ai_integrations_create.assert_called_once_with(
-            ai_integrations_create_request=mock_body
+        mock_api.create_ai_integration.assert_called_once_with(
+            create_ai_integration_request=mock_body
         )
 
     def test_create_returns_api_response(
@@ -221,12 +222,12 @@ class TestAiIntegrationsClientCreate:
     ) -> None:
         """create() should propagate the return value from ai_integrations_create."""
         expected = Mock()
-        mock_api.ai_integrations_create.return_value = expected
+        mock_api.create_ai_integration.return_value = expected
 
-        with patch("arize._generated.api_client.AiIntegrationsCreateRequest"):
+        with patch("arize._generated.api_client.CreateAiIntegrationRequest"):
             result = ai_integrations_client.create(
                 name="My Integration",
-                provider="openAI",
+                provider="OPEN_AI",
             )
 
         assert result is expected
@@ -240,18 +241,17 @@ class TestAiIntegrationsClientCreate:
         )
 
         aws_meta = AwsProviderMetadata(
-            kind="aws",
+            kind="AWS",
             role_arn="arn:aws:iam::role/x",
             external_id=None,
         )
         mock_wrapped = Mock()
         with (
             patch(
-                "arize._generated.api_client.AiIntegrationsCreateRequest"
+                "arize._generated.api_client.CreateAiIntegrationRequest"
             ) as mock_request_cls,
             patch(
-                "arize._generated.api_client"
-                ".AiIntegrationsCreateRequestProviderMetadata"
+                "arize._generated.api_client.ProviderMetadata"
             ) as mock_meta_cls,
         ):
             mock_meta_cls.return_value = mock_wrapped
@@ -259,7 +259,7 @@ class TestAiIntegrationsClientCreate:
 
             ai_integrations_client.create(
                 name="AWS Bedrock",
-                provider="awsBedrock",
+                provider="AWS_BEDROCK",
                 provider_metadata=aws_meta,
             )
 
@@ -278,8 +278,8 @@ class TestAiIntegrationsClientCreate:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        with patch("arize._generated.api_client.AiIntegrationsCreateRequest"):
-            ai_integrations_client.create(name="test", provider="openAI")
+        with patch("arize._generated.api_client.CreateAiIntegrationRequest"):
+            ai_integrations_client.create(name="test", provider="OPEN_AI")
 
         assert any(
             "ALPHA" in record.message
@@ -295,9 +295,9 @@ class TestAiIntegrationsClientUpdate:
     def test_update_only_sends_provided_fields(
         self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
     ) -> None:
-        """update() should only pass caller-provided fields to AiIntegrationsUpdateRequest."""
+        """update() should only pass caller-provided fields to UpdateAiIntegrationRequest."""
         with patch(
-            "arize._generated.api_client.AiIntegrationsUpdateRequest"
+            "arize._generated.api_client.UpdateAiIntegrationRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -313,9 +313,9 @@ class TestAiIntegrationsClientUpdate:
             name="Updated Integration",
             model_names=["gpt-4"],
         )
-        mock_api.ai_integrations_update.assert_called_once_with(
+        mock_api.update_ai_integration.assert_called_once_with(
             integration_id=_INTEGRATION_ID,
-            ai_integrations_update_request=mock_body,
+            update_ai_integration_request=mock_body,
         )
 
     def test_update_explicit_none_is_forwarded(
@@ -323,7 +323,7 @@ class TestAiIntegrationsClientUpdate:
     ) -> None:
         """update() should forward explicit None so the server clears the field."""
         with patch(
-            "arize._generated.api_client.AiIntegrationsUpdateRequest"
+            "arize._generated.api_client.UpdateAiIntegrationRequest"
         ) as mock_request_cls:
             mock_request_cls.return_value = Mock()
 
@@ -343,7 +343,7 @@ class TestAiIntegrationsClientUpdate:
     ) -> None:
         """update() with no optional fields should send an empty request body."""
         with patch(
-            "arize._generated.api_client.AiIntegrationsUpdateRequest"
+            "arize._generated.api_client.UpdateAiIntegrationRequest"
         ) as mock_request_cls:
             mock_request_cls.return_value = Mock()
 
@@ -356,7 +356,7 @@ class TestAiIntegrationsClientUpdate:
     ) -> None:
         """update() should forward falsy (but non-None) boolean values."""
         with patch(
-            "arize._generated.api_client.AiIntegrationsUpdateRequest"
+            "arize._generated.api_client.UpdateAiIntegrationRequest"
         ) as mock_request_cls:
             mock_request_cls.return_value = Mock()
 
@@ -378,18 +378,17 @@ class TestAiIntegrationsClientUpdate:
         )
 
         aws_meta = AwsProviderMetadata(
-            kind="aws",
+            kind="AWS",
             role_arn="arn:aws:iam::role/x",
             external_id=None,
         )
         mock_wrapped = Mock()
         with (
             patch(
-                "arize._generated.api_client.AiIntegrationsUpdateRequest"
+                "arize._generated.api_client.UpdateAiIntegrationRequest"
             ) as mock_request_cls,
             patch(
-                "arize._generated.api_client"
-                ".AiIntegrationsUpdateRequestProviderMetadata"
+                "arize._generated.api_client.ProviderMetadata"
             ) as mock_meta_cls,
         ):
             mock_meta_cls.return_value = mock_wrapped
@@ -409,7 +408,7 @@ class TestAiIntegrationsClientUpdate:
     ) -> None:
         """update() should forward explicit None for provider_metadata without wrapping."""
         with patch(
-            "arize._generated.api_client.AiIntegrationsUpdateRequest"
+            "arize._generated.api_client.UpdateAiIntegrationRequest"
         ) as mock_request_cls:
             mock_request_cls.return_value = Mock()
 
@@ -427,9 +426,9 @@ class TestAiIntegrationsClientUpdate:
     ) -> None:
         """update() should propagate the return value from ai_integrations_update."""
         expected = Mock()
-        mock_api.ai_integrations_update.return_value = expected
+        mock_api.update_ai_integration.return_value = expected
 
-        with patch("arize._generated.api_client.AiIntegrationsUpdateRequest"):
+        with patch("arize._generated.api_client.UpdateAiIntegrationRequest"):
             result = ai_integrations_client.update(
                 integration=_INTEGRATION_ID,
                 name="Updated Integration",
@@ -448,7 +447,7 @@ class TestAiIntegrationsClientUpdate:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        with patch("arize._generated.api_client.AiIntegrationsUpdateRequest"):
+        with patch("arize._generated.api_client.UpdateAiIntegrationRequest"):
             ai_integrations_client.update(
                 integration=_INTEGRATION_ID, name="Updated"
             )
@@ -470,7 +469,7 @@ class TestAiIntegrationsClientDelete:
         """delete() should resolve integration and pass integration_id to ai_integrations_delete."""
         ai_integrations_client.delete(integration=_INTEGRATION_ID)
 
-        mock_api.ai_integrations_delete.assert_called_once_with(
+        mock_api.delete_ai_integration.assert_called_once_with(
             integration_id=_INTEGRATION_ID
         )
 
@@ -478,7 +477,7 @@ class TestAiIntegrationsClientDelete:
         self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
     ) -> None:
         """delete() should return None."""
-        mock_api.ai_integrations_delete.return_value = None
+        mock_api.delete_ai_integration.return_value = None
 
         result = ai_integrations_client.delete(integration=_INTEGRATION_ID)
 

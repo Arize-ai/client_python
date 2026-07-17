@@ -20,15 +20,15 @@ from typing_extensions import Self
 
 class TaskType(str, Enum):
     """
-    The task type. - template_evaluation - An LLM template-based evaluation task. - code_evaluation - A code-based evaluation task. - run_experiment - A task that runs experiments. 
+    The task type. - TEMPLATE_EVALUATION - An LLM template-based evaluation task. - CODE_EVALUATION - A code-based evaluation task. - RUN_EXPERIMENT - A task that runs experiments. 
     """
 
     """
     allowed enum values
     """
-    TEMPLATE_EVALUATION = 'template_evaluation'
-    CODE_EVALUATION = 'code_evaluation'
-    RUN_EXPERIMENT = 'run_experiment'
+    TEMPLATE_EVALUATION = 'TEMPLATE_EVALUATION'
+    CODE_EVALUATION = 'CODE_EVALUATION'
+    RUN_EXPERIMENT = 'RUN_EXPERIMENT'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

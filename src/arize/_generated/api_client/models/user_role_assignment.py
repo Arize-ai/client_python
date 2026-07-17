@@ -27,7 +27,7 @@ USERROLEASSIGNMENT_ONE_OF_SCHEMAS = ["CustomUserRoleAssignment", "PredefinedUser
 
 class UserRoleAssignment(BaseModel):
     """
-    An account-level role assignment. Discriminated by `type`: - `predefined`: one of the predefined roles (`admin`, `member`, `annotator`) - `custom`: a custom RBAC role identified by its ID  Note: `custom` role assignments are not yet supported and are reserved for future use. 
+    An account-level role assignment. Discriminated by `type`: - `PREDEFINED`: one of the predefined roles (`admin`, `member`, `annotator`) - `CUSTOM`: a custom RBAC role identified by its ID  Note: `CUSTOM` role assignments are not yet supported and are reserved for future use. 
     """
     # data type: PredefinedUserRoleAssignment
     oneof_schema_1_validator: Optional[PredefinedUserRoleAssignment] = None

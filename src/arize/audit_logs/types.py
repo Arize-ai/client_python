@@ -4,16 +4,12 @@ from arize._generated.api_client.models.audit_log import AuditLog
 from arize._generated.api_client.models.audit_log_operation_type import (
     AuditLogOperationType,
 )
-from arize._generated.api_client.models.audit_logs_list200_response import (
-    AuditLogsList200Response,
+from arize._generated.api_client.models.list_audit_logs_response import (
+    ListAuditLogsResponse,
 )
-
-# Semantic alias: prefer this name in public API surfaces.
-AuditLogListResponse = AuditLogsList200Response
 
 __all__ = [
     "AuditLog",
-    "AuditLogListResponse",
     "AuditLogOperationType",
-    "AuditLogsList200Response",
+    "ListAuditLogsResponse",
 ]

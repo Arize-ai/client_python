@@ -15,11 +15,11 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: ApiKeyCreated
+.. autoclass:: ApiKey
    :members:
    :member-order: bysource
 
-.. autoclass:: ApiKeyListResponse
+.. autoclass:: ListApiKeysResponse
    :members:
    :member-order: bysource
 

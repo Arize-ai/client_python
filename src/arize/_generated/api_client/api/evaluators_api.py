@@ -19,14 +19,14 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.create_evaluator_request import CreateEvaluatorRequest
+from arize._generated.api_client.models.create_evaluator_version_request import CreateEvaluatorVersionRequest
 from arize._generated.api_client.models.evaluator import Evaluator
-from arize._generated.api_client.models.evaluator_list_response import EvaluatorListResponse
 from arize._generated.api_client.models.evaluator_version import EvaluatorVersion
-from arize._generated.api_client.models.evaluator_version_create import EvaluatorVersionCreate
-from arize._generated.api_client.models.evaluator_version_list_response import EvaluatorVersionListResponse
 from arize._generated.api_client.models.evaluator_with_version import EvaluatorWithVersion
-from arize._generated.api_client.models.evaluators_create_request import EvaluatorsCreateRequest
-from arize._generated.api_client.models.evaluators_update_request import EvaluatorsUpdateRequest
+from arize._generated.api_client.models.list_evaluator_versions_response import ListEvaluatorVersionsResponse
+from arize._generated.api_client.models.list_evaluators_response import ListEvaluatorsResponse
+from arize._generated.api_client.models.update_evaluator_request import UpdateEvaluatorRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -47,10 +47,9 @@ class EvaluatorsApi:
 
 
     @validate_call
-    def evaluator_versions_create(
+    def create_evaluator(
         self,
-        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
-        evaluator_version_create: Annotated[EvaluatorVersionCreate, Field(description="Body containing evaluator version creation parameters")],
+        create_evaluator_request: Annotated[CreateEvaluatorRequest, Field(description="Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -63,15 +62,13 @@ class EvaluatorsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> EvaluatorVersion:
-        """Create evaluator version
+    ) -> EvaluatorWithVersion:
+        """Create evaluator
 
-        Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide either `template_config` or `code_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`managed` or `custom`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator.  **Valid example** (template version) ```json {   \"commit_message\": \"Improve prompt template for better accuracy\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given the input: {input}\\nand output: {output}\\nIs the output a hallucination? Explain your reasoning.\",     \"include_explanations\": true,     \"use_function_calling_if_available\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {\"temperature\": 0},       \"provider_parameters\": {}     }   } } ```  **Invalid example** (missing required `commit_message`) ```json {   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Is this a hallucination?\",     \"include_explanations\": false,     \"use_function_calling_if_available\": false,     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` (top-level) selects the evaluator kind: `TEMPLATE` or `CODE`.   With `TEMPLATE`, provide `version.template_config`.   With `CODE`, provide `version.code_config` — where `code_config.type` is `MANAGED` or `CUSTOM` (a separate discriminator *within* `code_config`, independent of the top-level `type: CODE`). - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - For template evaluators: `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). When omitted, the evaluator produces freeform output. - For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: MANAGED`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: CUSTOM`) use `code`, optional `imports`, and `variables`. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  **Valid example** (template evaluator) ```json {   \"name\": \"Hallucination Detector\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Initial version\",     \"template_config\": {       \"name\": \"hallucination\",       \"template\": \"Given the input: {input}\\nand the output: {output}\\nIs the output a hallucination?\",       \"include_explanations\": true,       \"use_function_calling_if_available\": true,       \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},       \"llm_config\": {         \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",         \"model_name\": \"gpt-4o\",         \"invocation_parameters\": {\"temperature\": 0},         \"provider_parameters\": {}       }     }   } } ```  **Invalid example** (type/config mismatch — `TEMPLATE` type with `code_config`) ```json {   \"name\": \"Bad Evaluator\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Wrong config\",     \"code_config\": {       \"type\": \"CUSTOM\",       \"name\": \"my_eval\",       \"code\": \"class Evaluator: ...\",       \"variables\": [\"input\"]     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param evaluator_id: The unique evaluator identifier (base64) (required)
-        :type evaluator_id: str
-        :param evaluator_version_create: Body containing evaluator version creation parameters (required)
-        :type evaluator_version_create: EvaluatorVersionCreate
+        :param create_evaluator_request: Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation.  (required)
+        :type create_evaluator_request: CreateEvaluatorRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -94,9 +91,308 @@ class EvaluatorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._evaluator_versions_create_serialize(
+        _param = self._create_evaluator_serialize(
+            create_evaluator_request=create_evaluator_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "EvaluatorWithVersion",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '409': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def create_evaluator_with_http_info(
+        self,
+        create_evaluator_request: Annotated[CreateEvaluatorRequest, Field(description="Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[EvaluatorWithVersion]:
+        """Create evaluator
+
+        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` (top-level) selects the evaluator kind: `TEMPLATE` or `CODE`.   With `TEMPLATE`, provide `version.template_config`.   With `CODE`, provide `version.code_config` — where `code_config.type` is `MANAGED` or `CUSTOM` (a separate discriminator *within* `code_config`, independent of the top-level `type: CODE`). - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - For template evaluators: `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). When omitted, the evaluator produces freeform output. - For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: MANAGED`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: CUSTOM`) use `code`, optional `imports`, and `variables`. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  **Valid example** (template evaluator) ```json {   \"name\": \"Hallucination Detector\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Initial version\",     \"template_config\": {       \"name\": \"hallucination\",       \"template\": \"Given the input: {input}\\nand the output: {output}\\nIs the output a hallucination?\",       \"include_explanations\": true,       \"use_function_calling_if_available\": true,       \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},       \"llm_config\": {         \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",         \"model_name\": \"gpt-4o\",         \"invocation_parameters\": {\"temperature\": 0},         \"provider_parameters\": {}       }     }   } } ```  **Invalid example** (type/config mismatch — `TEMPLATE` type with `code_config`) ```json {   \"name\": \"Bad Evaluator\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Wrong config\",     \"code_config\": {       \"type\": \"CUSTOM\",       \"name\": \"my_eval\",       \"code\": \"class Evaluator: ...\",       \"variables\": [\"input\"]     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param create_evaluator_request: Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation.  (required)
+        :type create_evaluator_request: CreateEvaluatorRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_evaluator_serialize(
+            create_evaluator_request=create_evaluator_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "EvaluatorWithVersion",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '409': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def create_evaluator_without_preload_content(
+        self,
+        create_evaluator_request: Annotated[CreateEvaluatorRequest, Field(description="Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Create evaluator
+
+        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` (top-level) selects the evaluator kind: `TEMPLATE` or `CODE`.   With `TEMPLATE`, provide `version.template_config`.   With `CODE`, provide `version.code_config` — where `code_config.type` is `MANAGED` or `CUSTOM` (a separate discriminator *within* `code_config`, independent of the top-level `type: CODE`). - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - For template evaluators: `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). When omitted, the evaluator produces freeform output. - For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: MANAGED`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: CUSTOM`) use `code`, optional `imports`, and `variables`. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  **Valid example** (template evaluator) ```json {   \"name\": \"Hallucination Detector\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Initial version\",     \"template_config\": {       \"name\": \"hallucination\",       \"template\": \"Given the input: {input}\\nand the output: {output}\\nIs the output a hallucination?\",       \"include_explanations\": true,       \"use_function_calling_if_available\": true,       \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},       \"llm_config\": {         \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",         \"model_name\": \"gpt-4o\",         \"invocation_parameters\": {\"temperature\": 0},         \"provider_parameters\": {}       }     }   } } ```  **Invalid example** (type/config mismatch — `TEMPLATE` type with `code_config`) ```json {   \"name\": \"Bad Evaluator\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Wrong config\",     \"code_config\": {       \"type\": \"CUSTOM\",       \"name\": \"my_eval\",       \"code\": \"class Evaluator: ...\",       \"variables\": [\"input\"]     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param create_evaluator_request: Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation.  (required)
+        :type create_evaluator_request: CreateEvaluatorRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_evaluator_serialize(
+            create_evaluator_request=create_evaluator_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "EvaluatorWithVersion",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '409': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _create_evaluator_serialize(
+        self,
+        create_evaluator_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if create_evaluator_request is not None:
+            _body_params = create_evaluator_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/evaluators',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def create_evaluator_version(
+        self,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        create_evaluator_version_request: Annotated[CreateEvaluatorVersionRequest, Field(description="Body containing evaluator version creation parameters")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> EvaluatorVersion:
+        """Create evaluator version
+
+        Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide either `template_config` or `code_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`MANAGED` or `CUSTOM`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator.  **Valid example** (template version) ```json {   \"commit_message\": \"Improve prompt template for better accuracy\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given the input: {input}\\nand output: {output}\\nIs the output a hallucination? Explain your reasoning.\",     \"include_explanations\": true,     \"use_function_calling_if_available\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {\"temperature\": 0},       \"provider_parameters\": {}     }   } } ```  **Invalid example** (missing required `commit_message`) ```json {   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Is this a hallucination?\",     \"include_explanations\": false,     \"use_function_calling_if_available\": false,     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
+        :type evaluator_id: str
+        :param create_evaluator_version_request: Body containing evaluator version creation parameters (required)
+        :type create_evaluator_version_request: CreateEvaluatorVersionRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_evaluator_version_serialize(
             evaluator_id=evaluator_id,
-            evaluator_version_create=evaluator_version_create,
+            create_evaluator_version_request=create_evaluator_version_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -124,10 +420,10 @@ class EvaluatorsApi:
 
 
     @validate_call
-    def evaluator_versions_create_with_http_info(
+    def create_evaluator_version_with_http_info(
         self,
         evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
-        evaluator_version_create: Annotated[EvaluatorVersionCreate, Field(description="Body containing evaluator version creation parameters")],
+        create_evaluator_version_request: Annotated[CreateEvaluatorVersionRequest, Field(description="Body containing evaluator version creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -143,12 +439,12 @@ class EvaluatorsApi:
     ) -> ApiResponse[EvaluatorVersion]:
         """Create evaluator version
 
-        Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide either `template_config` or `code_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`managed` or `custom`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator.  **Valid example** (template version) ```json {   \"commit_message\": \"Improve prompt template for better accuracy\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given the input: {input}\\nand output: {output}\\nIs the output a hallucination? Explain your reasoning.\",     \"include_explanations\": true,     \"use_function_calling_if_available\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {\"temperature\": 0},       \"provider_parameters\": {}     }   } } ```  **Invalid example** (missing required `commit_message`) ```json {   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Is this a hallucination?\",     \"include_explanations\": false,     \"use_function_calling_if_available\": false,     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide either `template_config` or `code_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`MANAGED` or `CUSTOM`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator.  **Valid example** (template version) ```json {   \"commit_message\": \"Improve prompt template for better accuracy\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given the input: {input}\\nand output: {output}\\nIs the output a hallucination? Explain your reasoning.\",     \"include_explanations\": true,     \"use_function_calling_if_available\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {\"temperature\": 0},       \"provider_parameters\": {}     }   } } ```  **Invalid example** (missing required `commit_message`) ```json {   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Is this a hallucination?\",     \"include_explanations\": false,     \"use_function_calling_if_available\": false,     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
-        :param evaluator_version_create: Body containing evaluator version creation parameters (required)
-        :type evaluator_version_create: EvaluatorVersionCreate
+        :param create_evaluator_version_request: Body containing evaluator version creation parameters (required)
+        :type create_evaluator_version_request: CreateEvaluatorVersionRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -171,9 +467,9 @@ class EvaluatorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._evaluator_versions_create_serialize(
+        _param = self._create_evaluator_version_serialize(
             evaluator_id=evaluator_id,
-            evaluator_version_create=evaluator_version_create,
+            create_evaluator_version_request=create_evaluator_version_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -201,10 +497,10 @@ class EvaluatorsApi:
 
 
     @validate_call
-    def evaluator_versions_create_without_preload_content(
+    def create_evaluator_version_without_preload_content(
         self,
         evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
-        evaluator_version_create: Annotated[EvaluatorVersionCreate, Field(description="Body containing evaluator version creation parameters")],
+        create_evaluator_version_request: Annotated[CreateEvaluatorVersionRequest, Field(description="Body containing evaluator version creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -220,12 +516,12 @@ class EvaluatorsApi:
     ) -> RESTResponseType:
         """Create evaluator version
 
-        Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide either `template_config` or `code_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`managed` or `custom`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator.  **Valid example** (template version) ```json {   \"commit_message\": \"Improve prompt template for better accuracy\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given the input: {input}\\nand output: {output}\\nIs the output a hallucination? Explain your reasoning.\",     \"include_explanations\": true,     \"use_function_calling_if_available\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {\"temperature\": 0},       \"provider_parameters\": {}     }   } } ```  **Invalid example** (missing required `commit_message`) ```json {   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Is this a hallucination?\",     \"include_explanations\": false,     \"use_function_calling_if_available\": false,     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new version of an existing evaluator. The new version becomes the latest version immediately (versioning is append-only).  **Payload Requirements** - `commit_message` describes the changes in this version. - Provide either `template_config` or `code_config` to match the evaluator's `type`.   `code_config.type` is a separate inner discriminator (`MANAGED` or `CUSTOM`) and is unrelated to the top-level `type`.   Schema and constraints match Create Evaluator.  **Valid example** (template version) ```json {   \"commit_message\": \"Improve prompt template for better accuracy\",   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Given the input: {input}\\nand output: {output}\\nIs the output a hallucination? Explain your reasoning.\",     \"include_explanations\": true,     \"use_function_calling_if_available\": true,     \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {\"temperature\": 0},       \"provider_parameters\": {}     }   } } ```  **Invalid example** (missing required `commit_message`) ```json {   \"template_config\": {     \"name\": \"hallucination\",     \"template\": \"Is this a hallucination?\",     \"include_explanations\": false,     \"use_function_calling_if_available\": false,     \"llm_config\": {       \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",       \"model_name\": \"gpt-4o\",       \"invocation_parameters\": {},       \"provider_parameters\": {}     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
-        :param evaluator_version_create: Body containing evaluator version creation parameters (required)
-        :type evaluator_version_create: EvaluatorVersionCreate
+        :param create_evaluator_version_request: Body containing evaluator version creation parameters (required)
+        :type create_evaluator_version_request: CreateEvaluatorVersionRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -248,9 +544,9 @@ class EvaluatorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._evaluator_versions_create_serialize(
+        _param = self._create_evaluator_version_serialize(
             evaluator_id=evaluator_id,
-            evaluator_version_create=evaluator_version_create,
+            create_evaluator_version_request=create_evaluator_version_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -273,10 +569,10 @@ class EvaluatorsApi:
         return response_data.response
 
 
-    def _evaluator_versions_create_serialize(
+    def _create_evaluator_version_serialize(
         self,
         evaluator_id,
-        evaluator_version_create,
+        create_evaluator_version_request,
         _request_auth,
         _content_type,
         _headers,
@@ -304,8 +600,8 @@ class EvaluatorsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if evaluator_version_create is not None:
-            _body_params = evaluator_version_create
+        if create_evaluator_version_request is not None:
+            _body_params = create_evaluator_version_request
 
 
         # set the HTTP header `Accept`
@@ -355,7 +651,574 @@ class EvaluatorsApi:
 
 
     @validate_call
-    def evaluator_versions_get(
+    def delete_evaluator(
+        self,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> None:
+        """Delete evaluator
+
+        Deletes an evaluator and all its versions. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
+        :type evaluator_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_evaluator_serialize(
+            evaluator_id=evaluator_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def delete_evaluator_with_http_info(
+        self,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[None]:
+        """Delete evaluator
+
+        Deletes an evaluator and all its versions. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
+        :type evaluator_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_evaluator_serialize(
+            evaluator_id=evaluator_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def delete_evaluator_without_preload_content(
+        self,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Delete evaluator
+
+        Deletes an evaluator and all its versions. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
+        :type evaluator_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_evaluator_serialize(
+            evaluator_id=evaluator_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _delete_evaluator_serialize(
+        self,
+        evaluator_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if evaluator_id is not None:
+            _path_params['evaluator_id'] = evaluator_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/v2/evaluators/{evaluator_id}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def get_evaluator(
+        self,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        version_id: Annotated[Optional[StrictStr], Field(description="Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> EvaluatorWithVersion:
+        """Get evaluator
+
+        Returns an evaluator and a resolved version. By default, the latest version is included. Use the version_id query parameter to resolve a specific version.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
+        :type evaluator_id: str
+        :param version_id: Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.
+        :type version_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_evaluator_serialize(
+            evaluator_id=evaluator_id,
+            version_id=version_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvaluatorWithVersion",
+            '400': "Problem",
+            '401': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def get_evaluator_with_http_info(
+        self,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        version_id: Annotated[Optional[StrictStr], Field(description="Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[EvaluatorWithVersion]:
+        """Get evaluator
+
+        Returns an evaluator and a resolved version. By default, the latest version is included. Use the version_id query parameter to resolve a specific version.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
+        :type evaluator_id: str
+        :param version_id: Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.
+        :type version_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_evaluator_serialize(
+            evaluator_id=evaluator_id,
+            version_id=version_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvaluatorWithVersion",
+            '400': "Problem",
+            '401': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def get_evaluator_without_preload_content(
+        self,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        version_id: Annotated[Optional[StrictStr], Field(description="Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get evaluator
+
+        Returns an evaluator and a resolved version. By default, the latest version is included. Use the version_id query parameter to resolve a specific version.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
+        :type evaluator_id: str
+        :param version_id: Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.
+        :type version_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_evaluator_serialize(
+            evaluator_id=evaluator_id,
+            version_id=version_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvaluatorWithVersion",
+            '400': "Problem",
+            '401': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_evaluator_serialize(
+        self,
+        evaluator_id,
+        version_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if evaluator_id is not None:
+            _path_params['evaluator_id'] = evaluator_id
+        # process the query parameters
+        if version_id is not None:
+            
+            _query_params.append(('version_id', version_id))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/evaluators/{evaluator_id}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def get_evaluator_version(
         self,
         version_id: Annotated[StrictStr, Field(description="The unique evaluator version identifier (base64)")],
         _request_timeout: Union[
@@ -399,7 +1262,7 @@ class EvaluatorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._evaluator_versions_get_serialize(
+        _param = self._get_evaluator_version_serialize(
             version_id=version_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -426,7 +1289,7 @@ class EvaluatorsApi:
 
 
     @validate_call
-    def evaluator_versions_get_with_http_info(
+    def get_evaluator_version_with_http_info(
         self,
         version_id: Annotated[StrictStr, Field(description="The unique evaluator version identifier (base64)")],
         _request_timeout: Union[
@@ -470,7 +1333,7 @@ class EvaluatorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._evaluator_versions_get_serialize(
+        _param = self._get_evaluator_version_serialize(
             version_id=version_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -497,7 +1360,7 @@ class EvaluatorsApi:
 
 
     @validate_call
-    def evaluator_versions_get_without_preload_content(
+    def get_evaluator_version_without_preload_content(
         self,
         version_id: Annotated[StrictStr, Field(description="The unique evaluator version identifier (base64)")],
         _request_timeout: Union[
@@ -541,7 +1404,7 @@ class EvaluatorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._evaluator_versions_get_serialize(
+        _param = self._get_evaluator_version_serialize(
             version_id=version_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -563,7 +1426,7 @@ class EvaluatorsApi:
         return response_data.response
 
 
-    def _evaluator_versions_get_serialize(
+    def _get_evaluator_version_serialize(
         self,
         version_id,
         _request_auth,
@@ -629,7 +1492,7 @@ class EvaluatorsApi:
 
 
     @validate_call
-    def evaluator_versions_list(
+    def list_evaluator_versions(
         self,
         evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -646,7 +1509,7 @@ class EvaluatorsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> EvaluatorVersionListResponse:
+    ) -> ListEvaluatorVersionsResponse:
         """List evaluator versions
 
         List all versions of an evaluator with cursor-based pagination.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -679,7 +1542,7 @@ class EvaluatorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._evaluator_versions_list_serialize(
+        _param = self._list_evaluator_versions_serialize(
             evaluator_id=evaluator_id,
             limit=limit,
             cursor=cursor,
@@ -690,7 +1553,7 @@ class EvaluatorsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvaluatorVersionListResponse",
+            '200': "ListEvaluatorVersionsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -709,7 +1572,7 @@ class EvaluatorsApi:
 
 
     @validate_call
-    def evaluator_versions_list_with_http_info(
+    def list_evaluator_versions_with_http_info(
         self,
         evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -726,7 +1589,7 @@ class EvaluatorsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[EvaluatorVersionListResponse]:
+    ) -> ApiResponse[ListEvaluatorVersionsResponse]:
         """List evaluator versions
 
         List all versions of an evaluator with cursor-based pagination.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -759,7 +1622,7 @@ class EvaluatorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._evaluator_versions_list_serialize(
+        _param = self._list_evaluator_versions_serialize(
             evaluator_id=evaluator_id,
             limit=limit,
             cursor=cursor,
@@ -770,7 +1633,7 @@ class EvaluatorsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvaluatorVersionListResponse",
+            '200': "ListEvaluatorVersionsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -789,7 +1652,7 @@ class EvaluatorsApi:
 
 
     @validate_call
-    def evaluator_versions_list_without_preload_content(
+    def list_evaluator_versions_without_preload_content(
         self,
         evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -839,7 +1702,7 @@ class EvaluatorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._evaluator_versions_list_serialize(
+        _param = self._list_evaluator_versions_serialize(
             evaluator_id=evaluator_id,
             limit=limit,
             cursor=cursor,
@@ -850,7 +1713,7 @@ class EvaluatorsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvaluatorVersionListResponse",
+            '200': "ListEvaluatorVersionsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -864,7 +1727,7 @@ class EvaluatorsApi:
         return response_data.response
 
 
-    def _evaluator_versions_list_serialize(
+    def _list_evaluator_versions_serialize(
         self,
         evaluator_id,
         limit,
@@ -940,870 +1803,7 @@ class EvaluatorsApi:
 
 
     @validate_call
-    def evaluators_create(
-        self,
-        evaluators_create_request: Annotated[EvaluatorsCreateRequest, Field(description="Body containing evaluator creation parameters with an initial version.  Only `type: template` and `type: code` are currently accepted on creation. ")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> EvaluatorWithVersion:
-        """Create evaluator
-
-        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` (top-level) selects the evaluator kind: `template` or `code`.   With `template`, provide `version.template_config`.   With `code`, provide `version.code_config` — where `code_config.type` is `managed` or `custom` (a separate discriminator *within* `code_config`, independent of the top-level `type: code`). - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - For template evaluators: `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). When omitted, the evaluator produces freeform output. - For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: managed`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: custom`) use `code`, optional `imports`, and `variables`. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  **Valid example** (template evaluator) ```json {   \"name\": \"Hallucination Detector\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"template\",   \"version\": {     \"commit_message\": \"Initial version\",     \"template_config\": {       \"name\": \"hallucination\",       \"template\": \"Given the input: {input}\\nand the output: {output}\\nIs the output a hallucination?\",       \"include_explanations\": true,       \"use_function_calling_if_available\": true,       \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},       \"llm_config\": {         \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",         \"model_name\": \"gpt-4o\",         \"invocation_parameters\": {\"temperature\": 0},         \"provider_parameters\": {}       }     }   } } ```  **Invalid example** (type/config mismatch — `template` type with `code_config`) ```json {   \"name\": \"Bad Evaluator\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"template\",   \"version\": {     \"commit_message\": \"Wrong config\",     \"code_config\": {       \"type\": \"custom\",       \"name\": \"my_eval\",       \"code\": \"class Evaluator: ...\",       \"variables\": [\"input\"]     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param evaluators_create_request: Body containing evaluator creation parameters with an initial version.  Only `type: template` and `type: code` are currently accepted on creation.  (required)
-        :type evaluators_create_request: EvaluatorsCreateRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._evaluators_create_serialize(
-            evaluators_create_request=evaluators_create_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "EvaluatorWithVersion",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '409': "Problem",
-            '422': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    def evaluators_create_with_http_info(
-        self,
-        evaluators_create_request: Annotated[EvaluatorsCreateRequest, Field(description="Body containing evaluator creation parameters with an initial version.  Only `type: template` and `type: code` are currently accepted on creation. ")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[EvaluatorWithVersion]:
-        """Create evaluator
-
-        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` (top-level) selects the evaluator kind: `template` or `code`.   With `template`, provide `version.template_config`.   With `code`, provide `version.code_config` — where `code_config.type` is `managed` or `custom` (a separate discriminator *within* `code_config`, independent of the top-level `type: code`). - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - For template evaluators: `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). When omitted, the evaluator produces freeform output. - For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: managed`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: custom`) use `code`, optional `imports`, and `variables`. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  **Valid example** (template evaluator) ```json {   \"name\": \"Hallucination Detector\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"template\",   \"version\": {     \"commit_message\": \"Initial version\",     \"template_config\": {       \"name\": \"hallucination\",       \"template\": \"Given the input: {input}\\nand the output: {output}\\nIs the output a hallucination?\",       \"include_explanations\": true,       \"use_function_calling_if_available\": true,       \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},       \"llm_config\": {         \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",         \"model_name\": \"gpt-4o\",         \"invocation_parameters\": {\"temperature\": 0},         \"provider_parameters\": {}       }     }   } } ```  **Invalid example** (type/config mismatch — `template` type with `code_config`) ```json {   \"name\": \"Bad Evaluator\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"template\",   \"version\": {     \"commit_message\": \"Wrong config\",     \"code_config\": {       \"type\": \"custom\",       \"name\": \"my_eval\",       \"code\": \"class Evaluator: ...\",       \"variables\": [\"input\"]     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param evaluators_create_request: Body containing evaluator creation parameters with an initial version.  Only `type: template` and `type: code` are currently accepted on creation.  (required)
-        :type evaluators_create_request: EvaluatorsCreateRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._evaluators_create_serialize(
-            evaluators_create_request=evaluators_create_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "EvaluatorWithVersion",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '409': "Problem",
-            '422': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    def evaluators_create_without_preload_content(
-        self,
-        evaluators_create_request: Annotated[EvaluatorsCreateRequest, Field(description="Body containing evaluator creation parameters with an initial version.  Only `type: template` and `type: code` are currently accepted on creation. ")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Create evaluator
-
-        Creates a new evaluator with an initial version.  **Payload Requirements** - The evaluator `name` must be unique within the given space. - `type` (top-level) selects the evaluator kind: `template` or `code`.   With `template`, provide `version.template_config`.   With `code`, provide `version.code_config` — where `code_config.type` is `managed` or `custom` (a separate discriminator *within* `code_config`, independent of the top-level `type: code`). - For template evaluators: `version.template_config.name` is the eval column name; must match `^[a-zA-Z0-9_\\s\\-&()]+$`. - For template evaluators: `version.template_config.template` is the prompt template; use `{variable}` for placeholders (f-string format, e.g. `{input}`, `{output}`). - For template evaluators: `version.template_config.classification_choices` maps choice labels to numeric scores (e.g. `{\"relevant\": 1, \"irrelevant\": 0}`). When omitted, the evaluator produces freeform output. - For code evaluators: see `CodeConfig` — managed evaluators (`code_config.type: managed`) use `managed_evaluator` and `variables`; custom evaluators (`code_config.type: custom`) use `code`, optional `imports`, and `variables`. - System-managed fields (`id`, `created_at`, `updated_at`, `created_by_user_id`) are rejected on input.  **Valid example** (template evaluator) ```json {   \"name\": \"Hallucination Detector\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"template\",   \"version\": {     \"commit_message\": \"Initial version\",     \"template_config\": {       \"name\": \"hallucination\",       \"template\": \"Given the input: {input}\\nand the output: {output}\\nIs the output a hallucination?\",       \"include_explanations\": true,       \"use_function_calling_if_available\": true,       \"classification_choices\": {\"hallucinated\": 0, \"factual\": 1},       \"llm_config\": {         \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",         \"model_name\": \"gpt-4o\",         \"invocation_parameters\": {\"temperature\": 0},         \"provider_parameters\": {}       }     }   } } ```  **Invalid example** (type/config mismatch — `template` type with `code_config`) ```json {   \"name\": \"Bad Evaluator\",   \"space_id\": \"U3BhY2U6MTpWNEth\",   \"type\": \"template\",   \"version\": {     \"commit_message\": \"Wrong config\",     \"code_config\": {       \"type\": \"custom\",       \"name\": \"my_eval\",       \"code\": \"class Evaluator: ...\",       \"variables\": [\"input\"]     }   } } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param evaluators_create_request: Body containing evaluator creation parameters with an initial version.  Only `type: template` and `type: code` are currently accepted on creation.  (required)
-        :type evaluators_create_request: EvaluatorsCreateRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._evaluators_create_serialize(
-            evaluators_create_request=evaluators_create_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "EvaluatorWithVersion",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '409': "Problem",
-            '422': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _evaluators_create_serialize(
-        self,
-        evaluators_create_request,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-        if evaluators_create_request is not None:
-            _body_params = evaluators_create_request
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json', 
-                    'application/problem+json'
-                ]
-            )
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'bearerAuth'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v2/evaluators',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    def evaluators_delete(
-        self,
-        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
-        """Delete evaluator
-
-        Deletes an evaluator and all its versions. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param evaluator_id: The unique evaluator identifier (base64) (required)
-        :type evaluator_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._evaluators_delete_serialize(
-            evaluator_id=evaluator_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '204': None,
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    def evaluators_delete_with_http_info(
-        self,
-        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
-        """Delete evaluator
-
-        Deletes an evaluator and all its versions. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param evaluator_id: The unique evaluator identifier (base64) (required)
-        :type evaluator_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._evaluators_delete_serialize(
-            evaluator_id=evaluator_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '204': None,
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    def evaluators_delete_without_preload_content(
-        self,
-        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Delete evaluator
-
-        Deletes an evaluator and all its versions. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param evaluator_id: The unique evaluator identifier (base64) (required)
-        :type evaluator_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._evaluators_delete_serialize(
-            evaluator_id=evaluator_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '204': None,
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _evaluators_delete_serialize(
-        self,
-        evaluator_id,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        if evaluator_id is not None:
-            _path_params['evaluator_id'] = evaluator_id
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/problem+json'
-                ]
-            )
-
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'bearerAuth'
-        ]
-
-        return self.api_client.param_serialize(
-            method='DELETE',
-            resource_path='/v2/evaluators/{evaluator_id}',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    def evaluators_get(
-        self,
-        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
-        version_id: Annotated[Optional[StrictStr], Field(description="Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> EvaluatorWithVersion:
-        """Get evaluator
-
-        Returns an evaluator and a resolved version. By default, the latest version is included. Use the version_id query parameter to resolve a specific version.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param evaluator_id: The unique evaluator identifier (base64) (required)
-        :type evaluator_id: str
-        :param version_id: Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.
-        :type version_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._evaluators_get_serialize(
-            evaluator_id=evaluator_id,
-            version_id=version_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvaluatorWithVersion",
-            '400': "Problem",
-            '401': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    def evaluators_get_with_http_info(
-        self,
-        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
-        version_id: Annotated[Optional[StrictStr], Field(description="Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[EvaluatorWithVersion]:
-        """Get evaluator
-
-        Returns an evaluator and a resolved version. By default, the latest version is included. Use the version_id query parameter to resolve a specific version.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param evaluator_id: The unique evaluator identifier (base64) (required)
-        :type evaluator_id: str
-        :param version_id: Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.
-        :type version_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._evaluators_get_serialize(
-            evaluator_id=evaluator_id,
-            version_id=version_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvaluatorWithVersion",
-            '400': "Problem",
-            '401': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    def evaluators_get_without_preload_content(
-        self,
-        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
-        version_id: Annotated[Optional[StrictStr], Field(description="Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Get evaluator
-
-        Returns an evaluator and a resolved version. By default, the latest version is included. Use the version_id query parameter to resolve a specific version.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param evaluator_id: The unique evaluator identifier (base64) (required)
-        :type evaluator_id: str
-        :param version_id: Return the evaluator with this specific version (base64 identifier (base64)). If omitted, returns the latest version.
-        :type version_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._evaluators_get_serialize(
-            evaluator_id=evaluator_id,
-            version_id=version_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvaluatorWithVersion",
-            '400': "Problem",
-            '401': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _evaluators_get_serialize(
-        self,
-        evaluator_id,
-        version_id,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        if evaluator_id is not None:
-            _path_params['evaluator_id'] = evaluator_id
-        # process the query parameters
-        if version_id is not None:
-            
-            _query_params.append(('version_id', version_id))
-            
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json', 
-                    'application/problem+json'
-                ]
-            )
-
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'bearerAuth'
-        ]
-
-        return self.api_client.param_serialize(
-            method='GET',
-            resource_path='/v2/evaluators/{evaluator_id}',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    def evaluators_list(
+    def list_evaluators(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
@@ -1822,7 +1822,7 @@ class EvaluatorsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> EvaluatorListResponse:
+    ) -> ListEvaluatorsResponse:
         """List evaluators
 
         List evaluators the user has access to, sorted by update date (most recent first).  When `space_id` is provided, results are limited to that space. When omitted, evaluators from all permitted spaces are returned.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1859,7 +1859,7 @@ class EvaluatorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._evaluators_list_serialize(
+        _param = self._list_evaluators_serialize(
             space_id=space_id,
             space_name=space_name,
             name=name,
@@ -1872,10 +1872,11 @@ class EvaluatorsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvaluatorListResponse",
+            '200': "ListEvaluatorsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1890,7 +1891,7 @@ class EvaluatorsApi:
 
 
     @validate_call
-    def evaluators_list_with_http_info(
+    def list_evaluators_with_http_info(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
@@ -1909,7 +1910,7 @@ class EvaluatorsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[EvaluatorListResponse]:
+    ) -> ApiResponse[ListEvaluatorsResponse]:
         """List evaluators
 
         List evaluators the user has access to, sorted by update date (most recent first).  When `space_id` is provided, results are limited to that space. When omitted, evaluators from all permitted spaces are returned.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1946,7 +1947,7 @@ class EvaluatorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._evaluators_list_serialize(
+        _param = self._list_evaluators_serialize(
             space_id=space_id,
             space_name=space_name,
             name=name,
@@ -1959,10 +1960,11 @@ class EvaluatorsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvaluatorListResponse",
+            '200': "ListEvaluatorsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1977,7 +1979,7 @@ class EvaluatorsApi:
 
 
     @validate_call
-    def evaluators_list_without_preload_content(
+    def list_evaluators_without_preload_content(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
@@ -2033,7 +2035,7 @@ class EvaluatorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._evaluators_list_serialize(
+        _param = self._list_evaluators_serialize(
             space_id=space_id,
             space_name=space_name,
             name=name,
@@ -2046,10 +2048,11 @@ class EvaluatorsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "EvaluatorListResponse",
+            '200': "ListEvaluatorsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2059,7 +2062,7 @@ class EvaluatorsApi:
         return response_data.response
 
 
-    def _evaluators_list_serialize(
+    def _list_evaluators_serialize(
         self,
         space_id,
         space_name,
@@ -2147,10 +2150,10 @@ class EvaluatorsApi:
 
 
     @validate_call
-    def evaluators_update(
+    def update_evaluator(
         self,
         evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
-        evaluators_update_request: Annotated[EvaluatorsUpdateRequest, Field(description="Body containing evaluator update parameters")],
+        update_evaluator_request: Annotated[UpdateEvaluatorRequest, Field(description="Body containing evaluator update parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2170,8 +2173,8 @@ class EvaluatorsApi:
 
         :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
-        :param evaluators_update_request: Body containing evaluator update parameters (required)
-        :type evaluators_update_request: EvaluatorsUpdateRequest
+        :param update_evaluator_request: Body containing evaluator update parameters (required)
+        :type update_evaluator_request: UpdateEvaluatorRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2194,9 +2197,9 @@ class EvaluatorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._evaluators_update_serialize(
+        _param = self._update_evaluator_serialize(
             evaluator_id=evaluator_id,
-            evaluators_update_request=evaluators_update_request,
+            update_evaluator_request=update_evaluator_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2225,10 +2228,10 @@ class EvaluatorsApi:
 
 
     @validate_call
-    def evaluators_update_with_http_info(
+    def update_evaluator_with_http_info(
         self,
         evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
-        evaluators_update_request: Annotated[EvaluatorsUpdateRequest, Field(description="Body containing evaluator update parameters")],
+        update_evaluator_request: Annotated[UpdateEvaluatorRequest, Field(description="Body containing evaluator update parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2248,8 +2251,8 @@ class EvaluatorsApi:
 
         :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
-        :param evaluators_update_request: Body containing evaluator update parameters (required)
-        :type evaluators_update_request: EvaluatorsUpdateRequest
+        :param update_evaluator_request: Body containing evaluator update parameters (required)
+        :type update_evaluator_request: UpdateEvaluatorRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2272,9 +2275,9 @@ class EvaluatorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._evaluators_update_serialize(
+        _param = self._update_evaluator_serialize(
             evaluator_id=evaluator_id,
-            evaluators_update_request=evaluators_update_request,
+            update_evaluator_request=update_evaluator_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2303,10 +2306,10 @@ class EvaluatorsApi:
 
 
     @validate_call
-    def evaluators_update_without_preload_content(
+    def update_evaluator_without_preload_content(
         self,
         evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
-        evaluators_update_request: Annotated[EvaluatorsUpdateRequest, Field(description="Body containing evaluator update parameters")],
+        update_evaluator_request: Annotated[UpdateEvaluatorRequest, Field(description="Body containing evaluator update parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2326,8 +2329,8 @@ class EvaluatorsApi:
 
         :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
-        :param evaluators_update_request: Body containing evaluator update parameters (required)
-        :type evaluators_update_request: EvaluatorsUpdateRequest
+        :param update_evaluator_request: Body containing evaluator update parameters (required)
+        :type update_evaluator_request: UpdateEvaluatorRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2350,9 +2353,9 @@ class EvaluatorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._evaluators_update_serialize(
+        _param = self._update_evaluator_serialize(
             evaluator_id=evaluator_id,
-            evaluators_update_request=evaluators_update_request,
+            update_evaluator_request=update_evaluator_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2376,10 +2379,10 @@ class EvaluatorsApi:
         return response_data.response
 
 
-    def _evaluators_update_serialize(
+    def _update_evaluator_serialize(
         self,
         evaluator_id,
-        evaluators_update_request,
+        update_evaluator_request,
         _request_auth,
         _content_type,
         _headers,
@@ -2407,8 +2410,8 @@ class EvaluatorsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if evaluators_update_request is not None:
-            _body_params = evaluators_update_request
+        if update_evaluator_request is not None:
+            _body_params = update_evaluator_request
 
 
         # set the HTTP header `Accept`

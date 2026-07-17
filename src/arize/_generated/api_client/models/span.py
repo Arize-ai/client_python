@@ -24,6 +24,7 @@ from arize._generated.api_client.models.annotation import Annotation
 from arize._generated.api_client.models.evaluation import Evaluation
 from arize._generated.api_client.models.span_context import SpanContext
 from arize._generated.api_client.models.span_event import SpanEvent
+from arize._generated.api_client.models.span_kind import SpanKind
 from arize._generated.api_client.models.span_status_code import SpanStatusCode
 from typing import Optional, Set
 from typing_extensions import Self
@@ -34,7 +35,7 @@ class Span(BaseModel):
     """ # noqa: E501
     name: StrictStr = Field(description="Name of the span")
     context: SpanContext
-    kind: StrictStr = Field(description="The kind of span (e.g., TOOL, CHAIN, LLM, RETRIEVER, EMBEDDING)")
+    kind: SpanKind
     parent_id: Optional[StrictStr] = Field(default=None, description="ID of the parent span")
     start_time: datetime = Field(description="Timestamp when the span started")
     end_time: datetime = Field(description="Timestamp when the span ended")

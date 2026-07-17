@@ -26,50 +26,50 @@ class TestUsersApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_users_create(self) -> None:
-        """Test case for users_create
+    def test_create_user(self) -> None:
+        """Test case for create_user
 
         Create a user
         """
         pass
 
-    def test_users_delete(self) -> None:
-        """Test case for users_delete
+    def test_delete_user(self) -> None:
+        """Test case for delete_user
 
         Delete a user
         """
         pass
 
-    def test_users_get(self) -> None:
-        """Test case for users_get
+    def test_get_user(self) -> None:
+        """Test case for get_user
 
         Get a user
         """
         pass
 
-    def test_users_list(self) -> None:
-        """Test case for users_list
+    def test_list_users(self) -> None:
+        """Test case for list_users
 
         List users
         """
         pass
 
-    def test_users_password_reset(self) -> None:
-        """Test case for users_password_reset
-
-        Trigger a password-reset email for a user
-        """
-        pass
-
-    def test_users_resend_invitation(self) -> None:
-        """Test case for users_resend_invitation
+    def test_resend_user_invitation(self) -> None:
+        """Test case for resend_user_invitation
 
         Resend a user invitation
         """
         pass
 
-    def test_users_update(self) -> None:
-        """Test case for users_update
+    def test_reset_user_password(self) -> None:
+        """Test case for reset_user_password
+
+        Trigger a password-reset email for a user
+        """
+        pass
+
+    def test_update_user(self) -> None:
+        """Test case for update_user
 
         Update a user
         """

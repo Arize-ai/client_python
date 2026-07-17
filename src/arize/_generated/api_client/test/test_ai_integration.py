@@ -37,7 +37,7 @@ class TestAiIntegration(unittest.TestCase):
             return AiIntegration(
                 id = '',
                 name = '',
-                provider = 'openAI',
+                provider = 'OPEN_AI',
                 has_api_key = True,
                 base_url = '',
                 model_names = [
@@ -48,8 +48,8 @@ class TestAiIntegration(unittest.TestCase):
                     },
                 enable_default_models = True,
                 function_calling_enabled = True,
-                auth_type = 'default',
-                provider_metadata = arize._generated.api_client.models.ai_integration_provider_metadata.AiIntegration_provider_metadata(),
+                auth_type = 'DEFAULT',
+                provider_metadata = arize._generated.api_client.models.provider_metadata.ProviderMetadata(),
                 scopings = [
                     arize._generated.api_client.models.ai_integration_scoping.AiIntegrationScoping(
                         organization_id = '', 
@@ -63,11 +63,11 @@ class TestAiIntegration(unittest.TestCase):
             return AiIntegration(
                 id = '',
                 name = '',
-                provider = 'openAI',
+                provider = 'OPEN_AI',
                 has_api_key = True,
                 enable_default_models = True,
                 function_calling_enabled = True,
-                auth_type = 'default',
+                auth_type = 'DEFAULT',
                 scopings = [
                     arize._generated.api_client.models.ai_integration_scoping.AiIntegrationScoping(
                         organization_id = '', 

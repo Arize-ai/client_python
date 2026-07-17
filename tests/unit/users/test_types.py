@@ -11,22 +11,25 @@ import arize.users.types as types_module
 from arize._generated.api_client.models.pagination_metadata import (
     PaginationMetadata,
 )
+from arize._generated.api_client.models.user_role_assignment_type import (
+    UserRoleAssignmentType,
+)
 from arize.users.types import (
     CreateUserRequest,
+    CreateUserResponse,
     CustomUserRole,
+    ListUsersResponse,
     PredefinedUserRole,
+    UpdateUserRequest,
     User,
-    UserCreatedResponse,
-    UserListResponse,
     UserRole,
     UserStatus,
-    UserUpdate,
 )
 
 # `datetime` and `PaginationMetadata` are imported only under TYPE_CHECKING in
 # users/types.py, so Pydantic v2 cannot resolve them at runtime without help.
 User.model_rebuild(_types_namespace={"datetime": datetime})
-UserListResponse.model_rebuild(
+ListUsersResponse.model_rebuild(
     _types_namespace={
         "datetime": datetime,
         "PaginationMetadata": PaginationMetadata,
@@ -50,11 +53,11 @@ class TestUsersTypes:
         assert "CustomUserRole" in types_module.__all__
         assert "CreateUserRequest" in types_module.__all__
         assert "User" in types_module.__all__
-        assert "UserCreatedResponse" in types_module.__all__
+        assert "CreateUserResponse" in types_module.__all__
         assert "UserRole" in types_module.__all__
         assert "UserStatus" in types_module.__all__
-        assert "UserUpdate" in types_module.__all__
-        assert "UserListResponse" in types_module.__all__
+        assert "UpdateUserRequest" in types_module.__all__
+        assert "ListUsersResponse" in types_module.__all__
 
     def test_user_is_class(self) -> None:
         assert isinstance(User, type)
@@ -62,8 +65,8 @@ class TestUsersTypes:
     def test_create_user_request_is_class(self) -> None:
         assert isinstance(CreateUserRequest, type)
 
-    def test_user_created_response_is_class(self) -> None:
-        assert isinstance(UserCreatedResponse, type)
+    def test_create_user_response_is_class(self) -> None:
+        assert isinstance(CreateUserResponse, type)
 
     def test_user_role_is_class(self) -> None:
         assert isinstance(UserRole, type)
@@ -71,11 +74,11 @@ class TestUsersTypes:
     def test_user_status_is_class(self) -> None:
         assert isinstance(UserStatus, type)
 
-    def test_user_update_is_class(self) -> None:
-        assert isinstance(UserUpdate, type)
+    def test_update_user_request_is_class(self) -> None:
+        assert isinstance(UpdateUserRequest, type)
 
-    def test_users_list_response_is_class(self) -> None:
-        assert isinstance(UserListResponse, type)
+    def test_list_users_response_is_class(self) -> None:
+        assert isinstance(ListUsersResponse, type)
 
 
 @pytest.mark.unit
@@ -89,9 +92,14 @@ class TestPredefinedUserRole:
         assert issubclass(PredefinedUserRole, BaseModel)
 
     def test_type_field_defaults_to_predefined(self) -> None:
-        """Type field should default to 'predefined' without explicit arg."""
+        """Type field should default to the PREDEFINED discriminator.
+
+        Regression: the hand-written Literal discriminator must stay in
+        lockstep with the generated enum value (guards against a recase
+        that isn't mirrored here).
+        """
         role = PredefinedUserRole(name=UserRole.MEMBER)
-        assert role.type == "predefined"
+        assert role.type == UserRoleAssignmentType.PREDEFINED
 
     def test_accepts_all_user_roles(self) -> None:
         """PredefinedUserRole should accept every UserRole enum value."""
@@ -111,9 +119,9 @@ class TestCustomUserRole:
         assert issubclass(CustomUserRole, BaseModel)
 
     def test_type_field_defaults_to_custom(self) -> None:
-        """Type field should default to 'custom' without explicit arg."""
+        """Type field should default to the CUSTOM discriminator."""
         role = CustomUserRole(id="role-abc-123")
-        assert role.type == "custom"
+        assert role.type == UserRoleAssignmentType.CUSTOM
 
     def test_name_defaults_to_none(self) -> None:
         """Name should be optional, defaulting to None."""
@@ -228,8 +236,8 @@ class TestUser:
 
 
 @pytest.mark.unit
-class TestUserListResponse:
-    """Tests for UserListResponse."""
+class TestListUsersResponse:
+    """Tests for ListUsersResponse."""
 
     def _make_user(self, role_name: UserRole = UserRole.MEMBER) -> User:
         return User(
@@ -249,7 +257,7 @@ class TestUserListResponse:
         pagination = self._make_pagination()
         users = [self._make_user(), self._make_user(UserRole.ADMIN)]
 
-        result = UserListResponse(users=users, pagination=pagination)
+        result = ListUsersResponse(users=users, pagination=pagination)
 
         assert len(result.users) == 2
         assert result.pagination == pagination
@@ -258,7 +266,7 @@ class TestUserListResponse:
     def test_from_generated_handles_none_users(self) -> None:
         pagination = self._make_pagination()
 
-        result = UserListResponse(users=[], pagination=pagination)
+        result = ListUsersResponse(users=[], pagination=pagination)
 
         assert result.users == []
         assert result.pagination == pagination

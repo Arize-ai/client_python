@@ -4,17 +4,17 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**organizations_add_user**](OrganizationsApi.md#organizations_add_user) | **POST** /v2/organizations/{org_id}/users | Add a user to an organization
-[**organizations_create**](OrganizationsApi.md#organizations_create) | **POST** /v2/organizations | Create an organization
-[**organizations_delete**](OrganizationsApi.md#organizations_delete) | **DELETE** /v2/organizations/{org_id} | Delete an organization
-[**organizations_get**](OrganizationsApi.md#organizations_get) | **GET** /v2/organizations/{org_id} | Get an organization
-[**organizations_list**](OrganizationsApi.md#organizations_list) | **GET** /v2/organizations | List organizations
-[**organizations_remove_user**](OrganizationsApi.md#organizations_remove_user) | **DELETE** /v2/organizations/{org_id}/users/{user_id} | Remove a user from an organization
-[**organizations_update**](OrganizationsApi.md#organizations_update) | **PATCH** /v2/organizations/{org_id} | Update an organization
+[**add_organization_user**](OrganizationsApi.md#add_organization_user) | **POST** /v2/organizations/{org_id}/users | Add a user to an organization
+[**create_organization**](OrganizationsApi.md#create_organization) | **POST** /v2/organizations | Create an organization
+[**delete_organization**](OrganizationsApi.md#delete_organization) | **DELETE** /v2/organizations/{org_id} | Delete an organization
+[**get_organization**](OrganizationsApi.md#get_organization) | **GET** /v2/organizations/{org_id} | Get an organization
+[**list_organizations**](OrganizationsApi.md#list_organizations) | **GET** /v2/organizations | List organizations
+[**remove_organization_user**](OrganizationsApi.md#remove_organization_user) | **DELETE** /v2/organizations/{org_id}/users/{user_id} | Remove a user from an organization
+[**update_organization**](OrganizationsApi.md#update_organization) | **PATCH** /v2/organizations/{org_id} | Update an organization
 
 
-# **organizations_add_user**
-> OrganizationMembership organizations_add_user(org_id, organization_membership_input)
+# **add_organization_user**
+> OrganizationMembership add_organization_user(org_id, add_organization_user_request)
 
 Add a user to an organization
 
@@ -34,7 +34,7 @@ Requires organization admin.
 ```json
 {
   "user_id": "VXNlcjo0MjphQmNE",
-  "role": "member"
+  "role": "MEMBER"
 }
 ```
 
@@ -42,11 +42,11 @@ Requires organization admin.
 ```json
 {
   "user_id": "VXNlcjo0MjphQmNE",
-  "role": "admin"
+  "role": "ADMIN"
 }
 ```
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -55,8 +55,8 @@ Requires organization admin.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.add_organization_user_request import AddOrganizationUserRequest
 from arize._generated.api_client.models.organization_membership import OrganizationMembership
-from arize._generated.api_client.models.organization_membership_input import OrganizationMembershipInput
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -81,15 +81,15 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.OrganizationsApi(api_client)
     org_id = 'T3JnYW5pemF0aW9uOjEyMzQ1' # str | The unique organization identifier (base64)
-    organization_membership_input = {"user_id":"VXNlcjoxMjM0NQ==","role":{"type":"predefined","name":"member"}} # OrganizationMembershipInput | Body containing the user to add to the organization
+    add_organization_user_request = {"user_id":"VXNlcjoxMjM0NQ==","role":{"type":"PREDEFINED","name":"MEMBER"}} # AddOrganizationUserRequest | Body containing the user to add to the organization
 
     try:
         # Add a user to an organization
-        api_response = api_instance.organizations_add_user(org_id, organization_membership_input)
-        print("The response of OrganizationsApi->organizations_add_user:\n")
+        api_response = api_instance.add_organization_user(org_id, add_organization_user_request)
+        print("The response of OrganizationsApi->add_organization_user:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling OrganizationsApi->organizations_add_user: %s\n" % e)
+        print("Exception when calling OrganizationsApi->add_organization_user: %s\n" % e)
 ```
 
 
@@ -100,7 +100,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **org_id** | **str**| The unique organization identifier (base64) | 
- **organization_membership_input** | [**OrganizationMembershipInput**](OrganizationMembershipInput.md)| Body containing the user to add to the organization | 
+ **add_organization_user_request** | [**AddOrganizationUserRequest**](AddOrganizationUserRequest.md)| Body containing the user to add to the organization | 
 
 ### Return type
 
@@ -129,8 +129,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **organizations_create**
-> Organization organizations_create(organization_create)
+# **create_organization**
+> Organization create_organization(create_organization_request)
 
 Create an organization
 
@@ -166,8 +166,8 @@ Fails with 409 Conflict if an organization with that name already exists in the 
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.create_organization_request import CreateOrganizationRequest
 from arize._generated.api_client.models.organization import Organization
-from arize._generated.api_client.models.organization_create import OrganizationCreate
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -191,15 +191,15 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.OrganizationsApi(api_client)
-    organization_create = {"name":"Agent Engineering Team","description":"Organization for the Agent Engineering team"} # OrganizationCreate | Body containing organization creation parameters
+    create_organization_request = {"name":"Agent Engineering Team","description":"Organization for the Agent Engineering team"} # CreateOrganizationRequest | Body containing organization creation parameters
 
     try:
         # Create an organization
-        api_response = api_instance.organizations_create(organization_create)
-        print("The response of OrganizationsApi->organizations_create:\n")
+        api_response = api_instance.create_organization(create_organization_request)
+        print("The response of OrganizationsApi->create_organization:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling OrganizationsApi->organizations_create: %s\n" % e)
+        print("Exception when calling OrganizationsApi->create_organization: %s\n" % e)
 ```
 
 
@@ -209,7 +209,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **organization_create** | [**OrganizationCreate**](OrganizationCreate.md)| Body containing organization creation parameters | 
+ **create_organization_request** | [**CreateOrganizationRequest**](CreateOrganizationRequest.md)| Body containing organization creation parameters | 
 
 ### Return type
 
@@ -238,8 +238,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **organizations_delete**
-> organizations_delete(org_id)
+# **delete_organization**
+> delete_organization(org_id)
 
 Delete an organization
 
@@ -288,9 +288,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Delete an organization
-        api_instance.organizations_delete(org_id)
+        api_instance.delete_organization(org_id)
     except Exception as e:
-        print("Exception when calling OrganizationsApi->organizations_delete: %s\n" % e)
+        print("Exception when calling OrganizationsApi->delete_organization: %s\n" % e)
 ```
 
 
@@ -328,8 +328,8 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **organizations_get**
-> Organization organizations_get(org_id)
+# **get_organization**
+> Organization get_organization(org_id)
 
 Get an organization
 
@@ -372,11 +372,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Get an organization
-        api_response = api_instance.organizations_get(org_id)
-        print("The response of OrganizationsApi->organizations_get:\n")
+        api_response = api_instance.get_organization(org_id)
+        print("The response of OrganizationsApi->get_organization:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling OrganizationsApi->organizations_get: %s\n" % e)
+        print("Exception when calling OrganizationsApi->get_organization: %s\n" % e)
 ```
 
 
@@ -413,8 +413,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **organizations_list**
-> OrganizationListResponse organizations_list(name=name, limit=limit, cursor=cursor)
+# **list_organizations**
+> ListOrganizationsResponse list_organizations(name=name, limit=limit, cursor=cursor)
 
 List organizations
 
@@ -429,7 +429,7 @@ List organizations the user has access to.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.organization_list_response import OrganizationListResponse
+from arize._generated.api_client.models.list_organizations_response import ListOrganizationsResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -459,11 +459,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # List organizations
-        api_response = api_instance.organizations_list(name=name, limit=limit, cursor=cursor)
-        print("The response of OrganizationsApi->organizations_list:\n")
+        api_response = api_instance.list_organizations(name=name, limit=limit, cursor=cursor)
+        print("The response of OrganizationsApi->list_organizations:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling OrganizationsApi->organizations_list: %s\n" % e)
+        print("Exception when calling OrganizationsApi->list_organizations: %s\n" % e)
 ```
 
 
@@ -479,7 +479,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**OrganizationListResponse**](OrganizationListResponse.md)
+[**ListOrganizationsResponse**](ListOrganizationsResponse.md)
 
 ### Authorization
 
@@ -502,8 +502,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **organizations_remove_user**
-> organizations_remove_user(org_id, user_id)
+# **remove_organization_user**
+> remove_organization_user(org_id, user_id)
 
 Remove a user from an organization
 
@@ -511,7 +511,7 @@ Remove a user from the organization and all its child spaces (membership cascade
 
 Requires organization admin.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -548,9 +548,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Remove a user from an organization
-        api_instance.organizations_remove_user(org_id, user_id)
+        api_instance.remove_organization_user(org_id, user_id)
     except Exception as e:
-        print("Exception when calling OrganizationsApi->organizations_remove_user: %s\n" % e)
+        print("Exception when calling OrganizationsApi->remove_organization_user: %s\n" % e)
 ```
 
 
@@ -589,8 +589,8 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **organizations_update**
-> Organization organizations_update(org_id, organization_update)
+# **update_organization**
+> Organization update_organization(org_id, update_organization_request)
 
 Update an organization
 
@@ -624,7 +624,7 @@ Update an organization's metadata by its ID. At least one field must be provided
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.organization import Organization
-from arize._generated.api_client.models.organization_update import OrganizationUpdate
+from arize._generated.api_client.models.update_organization_request import UpdateOrganizationRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -649,15 +649,15 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.OrganizationsApi(api_client)
     org_id = 'T3JnYW5pemF0aW9uOjEyMzQ1' # str | The unique organization identifier (base64)
-    organization_update = {"name":"Updated Org Name","description":"Updated organization description"} # OrganizationUpdate | Body containing organization update parameters. At least one field must be provided.
+    update_organization_request = {"name":"Updated Org Name","description":"Updated organization description"} # UpdateOrganizationRequest | Body containing organization update parameters. At least one field must be provided.
 
     try:
         # Update an organization
-        api_response = api_instance.organizations_update(org_id, organization_update)
-        print("The response of OrganizationsApi->organizations_update:\n")
+        api_response = api_instance.update_organization(org_id, update_organization_request)
+        print("The response of OrganizationsApi->update_organization:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling OrganizationsApi->organizations_update: %s\n" % e)
+        print("Exception when calling OrganizationsApi->update_organization: %s\n" % e)
 ```
 
 
@@ -668,7 +668,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **org_id** | **str**| The unique organization identifier (base64) | 
- **organization_update** | [**OrganizationUpdate**](OrganizationUpdate.md)| Body containing organization update parameters. At least one field must be provided. | 
+ **update_organization_request** | [**UpdateOrganizationRequest**](UpdateOrganizationRequest.md)| Body containing organization update parameters. At least one field must be provided. | 
 
 ### Return type
 

@@ -26,38 +26,52 @@ class TestExperimentsApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_experiments_create(self) -> None:
-        """Test case for experiments_create
+    def test_annotate_experiment_runs(self) -> None:
+        """Test case for annotate_experiment_runs
+
+        Annotate a batch of experiment runs
+        """
+        pass
+
+    def test_create_experiment(self) -> None:
+        """Test case for create_experiment
 
         Create an experiment
         """
         pass
 
-    def test_experiments_delete(self) -> None:
-        """Test case for experiments_delete
+    def test_delete_experiment(self) -> None:
+        """Test case for delete_experiment
 
         Delete an experiment
         """
         pass
 
-    def test_experiments_get(self) -> None:
-        """Test case for experiments_get
+    def test_get_experiment(self) -> None:
+        """Test case for get_experiment
 
         Get an experiment
         """
         pass
 
-    def test_experiments_list(self) -> None:
-        """Test case for experiments_list
+    def test_insert_experiment_runs(self) -> None:
+        """Test case for insert_experiment_runs
 
-        List experiments
+        Append runs to an experiment
         """
         pass
 
-    def test_experiments_runs_list(self) -> None:
-        """Test case for experiments_runs_list
+    def test_list_experiment_runs(self) -> None:
+        """Test case for list_experiment_runs
 
         List experiment runs
+        """
+        pass
+
+    def test_list_experiments(self) -> None:
+        """Test case for list_experiments
+
+        List experiments
         """
         pass
 

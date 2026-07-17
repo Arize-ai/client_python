@@ -27,7 +27,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: EvaluatorListResponse
+.. autoclass:: ListEvaluatorsResponse
    :members:
    :member-order: bysource
 
@@ -43,15 +43,15 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: EvaluatorVersionCodeCreate
+.. autoclass:: CreateCodeEvaluatorVersionRequest
    :members:
    :member-order: bysource
 
-.. autoclass:: EvaluatorVersionCreate
+.. autoclass:: CreateEvaluatorVersionRequest
    :members:
    :member-order: bysource
 
-.. autoclass:: EvaluatorVersionListResponse
+.. autoclass:: ListEvaluatorVersionsResponse
    :members:
    :member-order: bysource
 
@@ -59,7 +59,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: EvaluatorVersionTemplateCreate
+.. autoclass:: CreateTemplateEvaluatorVersionRequest
    :members:
    :member-order: bysource
 

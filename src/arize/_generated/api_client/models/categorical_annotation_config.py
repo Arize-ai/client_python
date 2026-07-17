@@ -35,14 +35,14 @@ class CategoricalAnnotationConfig(BaseModel):
     space_id: StrictStr = Field(description="The space id the annotation config belongs to")
     type: StrictStr = Field(description="Discriminator value identifying a categorical annotation config.")
     values: List[CategoricalAnnotationValue] = Field(description="An array of categorical annotation values")
-    optimization_direction: Optional[OptimizationDirection] = Field(default=None, description="Direction for optimization. When absent, the server treats the value as `none`.")
+    optimization_direction: Optional[OptimizationDirection] = Field(default=None, description="Direction for optimization. When absent, the server treats the value as `NONE`.")
     __properties: ClassVar[List[str]] = ["id", "name", "created_at", "space_id", "type", "values", "optimization_direction"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['categorical']):
-            raise ValueError("must be one of enum values ('categorical')")
+        if value not in set(['CATEGORICAL']):
+            raise ValueError("must be one of enum values ('CATEGORICAL')")
         return value
 
     model_config = ConfigDict(

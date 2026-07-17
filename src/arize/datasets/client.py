@@ -38,8 +38,8 @@ if TYPE_CHECKING:
     from arize.config import SDKConfiguration
     from arize.datasets.types import (
         Dataset,
-        DatasetExampleListResponse,
-        DatasetListResponse,
+        ListDatasetExamplesResponse,
+        ListDatasetsResponse,
     )
 
 logger = logging.getLogger(__name__)
@@ -82,7 +82,7 @@ class DatasetsClient:
         space: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> DatasetListResponse:
+    ) -> ListDatasetsResponse:
         """List datasets the user has access to.
 
         Datasets are returned in descending creation order (most recently created
@@ -106,7 +106,7 @@ class DatasetsClient:
                 returns an error response (e.g. 401/403/429).
         """
         resolved_space = _resolve_resource(space)
-        return self._api.datasets_list(
+        return self._api.list_datasets(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=name,
@@ -175,13 +175,13 @@ class DatasetsClient:
                 else examples
             )
 
-            body = gen.DatasetsCreateRequest(
+            body = gen.CreateDatasetRequest(
                 name=name,
                 space_id=space_id,
                 # Cast: pandas to_dict returns dict[Hashable, Any] but API requires dict[str, Any]
                 examples=cast("list[dict[str, Any]]", data),
             )
-            return self._api.datasets_create(datasets_create_request=body)
+            return self._api.create_dataset(create_dataset_request=body)
 
         # If we have too many examples, try to convert to a dataframe
         # and log via gRPC + flight
@@ -227,7 +227,7 @@ class DatasetsClient:
             dataset=dataset,
             space=space,
         )
-        return self._api.datasets_get(dataset_id=dataset_id)
+        return self._api.get_dataset(dataset_id=dataset_id)
 
     @prerelease_endpoint(key="datasets.delete", stage=ReleaseStage.BETA)
     def delete(
@@ -256,7 +256,7 @@ class DatasetsClient:
             dataset=dataset,
             space=space,
         )
-        return self._api.datasets_delete(dataset_id=dataset_id)
+        return self._api.delete_dataset(dataset_id=dataset_id)
 
     @prerelease_endpoint(key="datasets.update", stage=ReleaseStage.BETA)
     def update(
@@ -285,9 +285,9 @@ class DatasetsClient:
         dataset_id = _find_dataset_id(
             api=self._api, dataset=dataset, space=space
         )
-        body = gen.DatasetsUpdateRequest(name=name)
-        return self._api.datasets_update(
-            dataset_id=dataset_id, datasets_update_request=body
+        body = gen.UpdateDatasetRequest(name=name)
+        return self._api.update_dataset(
+            dataset_id=dataset_id, update_dataset_request=body
         )
 
     @prerelease_endpoint(key="datasets.list_examples", stage=ReleaseStage.BETA)
@@ -300,7 +300,7 @@ class DatasetsClient:
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
         all: bool = False,
-    ) -> DatasetExampleListResponse:
+    ) -> ListDatasetExamplesResponse:
         """List examples for a dataset (optionally for a specific version).
 
         If `dataset_version_id` is not provided (empty string), the server selects
@@ -341,7 +341,7 @@ class DatasetsClient:
             space=space,
         )
         if not all:
-            return self._api.datasets_examples_list(
+            return self._api.list_dataset_examples(
                 dataset_id=dataset_id,
                 dataset_version_id=dataset_version_id,
                 limit=limit,
@@ -374,7 +374,7 @@ class DatasetsClient:
                 )
                 is not None
             ]
-            return models.DatasetExampleListResponse(
+            return models.ListDatasetExamplesResponse(
                 examples=examples,
                 pagination=models.PaginationMetadata(
                     has_more=False,  # Note that all=True
@@ -419,7 +419,7 @@ class DatasetsClient:
             )
             is not None
         ]
-        return models.DatasetExampleListResponse(
+        return models.ListDatasetExamplesResponse(
             examples=examples,
             pagination=models.PaginationMetadata(
                 has_more=False,  # Note that all=True
@@ -487,14 +487,14 @@ class DatasetsClient:
             else examples
         )
         # Cast: pandas to_dict returns dict[Hashable, Any] but API requires dict[str, Any]
-        body = gen.DatasetsExamplesInsertRequest(
+        body = gen.InsertDatasetExamplesRequest(
             examples=cast("list[dict[str, Any]]", data)
         )
 
-        return self._api.datasets_examples_insert(
+        return self._api.insert_dataset_examples(
             dataset_id=dataset_id,
             dataset_version_id=dataset_version_id,
-            datasets_examples_insert_request=body,
+            insert_dataset_examples_request=body,
         )
 
     @prerelease_endpoint(
@@ -550,18 +550,18 @@ class DatasetsClient:
         )
         from arize._generated import api_client as gen
 
-        body = gen.DatasetsExamplesUpdateRequest(
+        body = gen.UpdateDatasetExamplesRequest(
             examples=[
                 obj
                 for example in examples
-                if (obj := gen.DatasetExampleUpdate.from_dict(example))
+                if (obj := gen.UpdateDatasetExampleInput.from_dict(example))
                 is not None
             ],
             new_version=new_version or None,
         )
-        return self._api.datasets_examples_update(
+        return self._api.update_dataset_examples(
             dataset_id=dataset_id,
-            datasets_examples_update_request=body,
+            update_dataset_examples_request=body,
             dataset_version_id=dataset_version_id,
         )
 
@@ -606,14 +606,14 @@ class DatasetsClient:
         )
         from arize._generated import api_client as gen
 
-        body = gen.AnnotateDatasetExamplesRequestBody(annotations=annotations)
-        return self._api.datasets_examples_annotate(
+        body = gen.AnnotateDatasetExamplesRequest(annotations=annotations)
+        return self._api.annotate_dataset_examples(
             dataset_id=dataset_id,
-            annotate_dataset_examples_request_body=body,
+            annotate_dataset_examples_request=body,
         )
 
     @prerelease_endpoint(
-        key="datasets.delete_examples", stage=ReleaseStage.ALPHA
+        key="datasets.delete_examples", stage=ReleaseStage.BETA
     )
     def delete_examples(
         self,
@@ -622,7 +622,7 @@ class DatasetsClient:
         space: str | None = None,
         dataset_version_id: str,
         examples: builtins.list[str],
-    ) -> models.DatasetExampleDeleteResponse:
+    ) -> models.DeleteDatasetExamplesResponse:
         """Delete a batch of examples from a dataset version.
 
         Examples are removed in place from the given ``dataset_version_id``; no
@@ -640,7 +640,7 @@ class DatasetsClient:
                 empty values).
 
         Returns:
-            A :class:`DatasetExampleDeleteResponse` with ``completed`` (whether
+            A :class:`DeleteDatasetExamplesResponse` with ``completed`` (whether
             the operation finished and no retry is needed), ``deleted_example_ids``
             (IDs confirmed deleted), and ``not_deleted_example_ids`` (requested
             IDs that were not deleted).
@@ -656,13 +656,13 @@ class DatasetsClient:
         )
         from arize._generated import api_client as gen
 
-        body = gen.DatasetExampleDeleteRequest(
+        body = gen.DeleteDatasetExamplesRequest(
             dataset_version_id=dataset_version_id,
             example_ids=examples,
         )
-        return self._api.datasets_examples_delete(
+        return self._api.delete_dataset_examples(
             dataset_id=dataset_id,
-            dataset_example_delete_request=body,
+            delete_dataset_examples_request=body,
         )
 
     def _create_dataset_via_flight(

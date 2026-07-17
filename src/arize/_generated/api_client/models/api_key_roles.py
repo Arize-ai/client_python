@@ -29,9 +29,9 @@ class ApiKeyRoles(BaseModel):
     """
     Role assignments for the bot user created with a service key.
     """ # noqa: E501
-    space_role: Optional[ApiKeySpaceRole] = Field(default=None, description="Role to assign the bot user within the space. Defaults to `member` when omitted. Must be at or below the caller's own effective space role. ")
-    org_role: Optional[ApiKeyOrganizationRole] = Field(default=None, description="Role to assign the bot user within the organization. Defaults to `read-only` when omitted. Must be at or below the caller's own organization role. ")
-    account_role: Optional[ApiKeyAccountRole] = Field(default=None, description="Account-level role to assign the bot user. Defaults to `member` when omitted. Must be at or below the caller's own account role. ")
+    space_role: Optional[ApiKeySpaceRole] = Field(default=None, description="Role to assign the bot user within the space. Defaults to `MEMBER` when omitted. Must be at or below the caller's own effective space role. ")
+    org_role: Optional[ApiKeyOrganizationRole] = Field(default=None, description="Role to assign the bot user within the organization. Defaults to `READ_ONLY` when omitted. Must be at or below the caller's own organization role. ")
+    account_role: Optional[ApiKeyAccountRole] = Field(default=None, description="Account-level role to assign the bot user. Defaults to `MEMBER` when omitted. Must be at or below the caller's own account role. ")
     __properties: ClassVar[List[str]] = ["space_role", "org_role", "account_role"]
 
     model_config = ConfigDict(

@@ -14,8 +14,8 @@ if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
     from arize.organizations.types import (
+        ListOrganizationsResponse,
         Organization,
-        OrganizationListResponse,
         PredefinedOrgRole,
     )
 
@@ -57,7 +57,7 @@ class OrganizationsClient:
         name: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> OrganizationListResponse:
+    ) -> ListOrganizationsResponse:
         """List organizations the user has access to.
 
         This endpoint supports cursor-based pagination. When provided,
@@ -76,7 +76,7 @@ class OrganizationsClient:
         Raises:
             ApiException: If the API request fails.
         """
-        return self._api.organizations_list(
+        return self._api.list_organizations(
             name=name,
             limit=limit,
             cursor=cursor,
@@ -97,7 +97,7 @@ class OrganizationsClient:
                 (for example, organization not found).
         """
         org_id = _find_organization_id(self._api, organization)
-        return self._api.organizations_get(org_id=org_id)
+        return self._api.get_organization(org_id=org_id)
 
     @prerelease_endpoint(key="organizations.create", stage=ReleaseStage.BETA)
     def create(
@@ -122,11 +122,11 @@ class OrganizationsClient:
         """
         from arize._generated import api_client as gen
 
-        body = gen.OrganizationCreate(
+        body = gen.CreateOrganizationRequest(
             name=name,
             description=description,
         )
-        return self._api.organizations_create(organization_create=body)
+        return self._api.create_organization(create_organization_request=body)
 
     @prerelease_endpoint(key="organizations.delete", stage=ReleaseStage.BETA)
     def delete(self, *, organization: str) -> None:
@@ -152,7 +152,7 @@ class OrganizationsClient:
                 permissions).
         """
         org_id = _find_organization_id(self._api, organization)
-        return self._api.organizations_delete(org_id=org_id)
+        return self._api.delete_organization(org_id=org_id)
 
     @prerelease_endpoint(key="organizations.update", stage=ReleaseStage.BETA)
     def update(
@@ -187,15 +187,15 @@ class OrganizationsClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.OrganizationUpdate(
+        body = gen.UpdateOrganizationRequest(
             name=name,
             description=description,
         )
-        return self._api.organizations_update(
-            org_id=org_id, organization_update=body
+        return self._api.update_organization(
+            org_id=org_id, update_organization_request=body
         )
 
-    @prerelease_endpoint(key="organizations.add_user", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="organizations.add_user", stage=ReleaseStage.BETA)
     def add_user(
         self,
         *,
@@ -222,7 +222,7 @@ class OrganizationsClient:
             user_id: Global ID of the user to add.
             role: Role assignment for the user. Use
                 ``PredefinedOrgRole(name="<role>")`` for predefined roles
-                (``admin``, ``member``, ``read-only``, ``annotator``).
+                (``ADMIN``, ``MEMBER``, ``READ_ONLY``, ``ANNOTATOR``).
                 Custom role assignments are not yet supported for organizations.
 
         Returns:
@@ -237,14 +237,17 @@ class OrganizationsClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.OrganizationMembershipInput(
+        body = gen.AddOrganizationUserRequest(
             user_id=user_id,
             role=gen.OrganizationRoleAssignment(
                 gen.OrganizationPredefinedRoleAssignment(
                     type=gen.OrganizationRoleAssignmentType.PREDEFINED,
                     name=role.name,
                 )
-                if role.type == "predefined"
+                # String literal (not the enum) so mypy narrows the
+                # discriminated union; drift is guarded by the test asserting
+                # the Literal matches OrganizationRoleAssignmentType.
+                if role.type == "PREDEFINED"
                 else gen.OrganizationCustomRoleAssignment(
                     type=gen.OrganizationRoleAssignmentType.CUSTOM,
                     id=role.id,
@@ -252,14 +255,14 @@ class OrganizationsClient:
             ),
         )
         return OrganizationMembership.model_validate(
-            self._api.organizations_add_user(
-                org_id=org_id, organization_membership_input=body
+            self._api.add_organization_user(
+                org_id=org_id, add_organization_user_request=body
             ),
             from_attributes=True,
         )
 
     @prerelease_endpoint(
-        key="organizations.remove_user", stage=ReleaseStage.ALPHA
+        key="organizations.remove_user", stage=ReleaseStage.BETA
     )
     def remove_user(self, *, organization: str, user_id: str) -> None:
         """Remove a user from an organization.
@@ -282,6 +285,6 @@ class OrganizationsClient:
                 permissions).
         """
         org_id = _find_organization_id(self._api, organization)
-        return self._api.organizations_remove_user(
+        return self._api.remove_organization_user(
             org_id=org_id, user_id=user_id
         )

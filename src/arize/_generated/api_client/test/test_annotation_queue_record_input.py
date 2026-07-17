@@ -35,7 +35,7 @@ class TestAnnotationQueueRecordInput(unittest.TestCase):
         model = AnnotationQueueRecordInput()
         if include_optional:
             return AnnotationQueueRecordInput(
-                record_type = 'trace',
+                record_type = 'TRACE',
                 dataset_id = '',
                 dataset_version_id = '',
                 example_ids = [
@@ -53,7 +53,7 @@ class TestAnnotationQueueRecordInput(unittest.TestCase):
             )
         else:
             return AnnotationQueueRecordInput(
-                record_type = 'trace',
+                record_type = 'TRACE',
                 dataset_id = '',
                 project_id = '',
                 start_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),

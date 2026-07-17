@@ -36,14 +36,14 @@ class TestToolCall(unittest.TestCase):
         if include_optional:
             return ToolCall(
                 id = '',
-                type = 'function',
+                type = 'FUNCTION',
                 function = arize._generated.api_client.models.tool_call_function.ToolCallFunction(
                     name = '', 
                     arguments = '', )
             )
         else:
             return ToolCall(
-                type = 'function',
+                type = 'FUNCTION',
                 function = arize._generated.api_client.models.tool_call_function.ToolCallFunction(
                     name = '', 
                     arguments = '', ),

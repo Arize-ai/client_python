@@ -15,12 +15,12 @@ if TYPE_CHECKING:
 
     from arize._generated.api_client.api_client import ApiClient
     from arize.api_keys.types import (
+        ApiKey,
         ApiKeyAccountRole,
-        ApiKeyCreated,
-        ApiKeyListResponse,
         ApiKeyOrganizationRole,
         ApiKeySpaceRole,
         ApiKeyStatus,
+        ListApiKeysResponse,
     )
     from arize.config import SDKConfiguration
 
@@ -54,7 +54,7 @@ class ApiKeysClient:
         self._api = gen.APIKeysApi(generated_client)
         self._spaces_api = gen.SpacesApi(generated_client)
 
-    @prerelease_endpoint(key="api_keys.list", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="api_keys.list", stage=ReleaseStage.BETA)
     def list(
         self,
         *,
@@ -64,27 +64,27 @@ class ApiKeysClient:
         user_id: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> ApiKeyListResponse:
+    ) -> ListApiKeysResponse:
         """List API keys.
 
         This endpoint supports cursor-based pagination. Optionally filter by
         ``key_type``, ``status``, ``space``, and ``user_id``.
 
-        **Service keys** (``key_type="service"``): provide ``space`` to return
+        **Service keys** (``key_type="SERVICE"``): provide ``space`` to return
         all service keys for that space. When ``key_type`` is omitted alongside
         ``space``, service keys are returned implicitly. Optionally combine with
         ``user_id`` to filter by creator — available to any caller with space
         access.
 
-        **User keys** (``key_type="user"``): returned by default (no ``space``).
+        **User keys** (``key_type="USER"``): returned by default (no ``space``).
         Provide ``user_id`` to view keys for a specific user — account admins
         only; non-admins receive a ``403``.
 
         Args:
             key_type: Optional key type filter (``ApiKeyType.USER`` or
                 ``ApiKeyType.SERVICE``).
-            status: Optional status filter (``"active"`` or ``"deleted"``).
-                Defaults to ``"active"`` on the server side when omitted.
+            status: Optional status filter (``"ACTIVE"`` or ``"REVOKED"``).
+                Defaults to ``"ACTIVE"`` on the server side when omitted.
             space: Space name or ID. When provided, filters to service keys for
                 that space. Accepts a human-readable name or a base64 identifier.
             user_id: Base64 identifier of the user whose keys to return.
@@ -105,7 +105,7 @@ class ApiKeysClient:
             if space is not None
             else None
         )
-        return self._api.api_keys_list(
+        return self._api.list_api_keys(
             key_type=key_type,
             status=status,
             space_id=space_id,
@@ -114,21 +114,21 @@ class ApiKeysClient:
             cursor=cursor,
         )
 
-    @prerelease_endpoint(key="api_keys.create", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="api_keys.create", stage=ReleaseStage.BETA)
     def create(
         self,
         *,
         name: str,
         description: str | None = None,
         expires_at: datetime | None = None,
-    ) -> ApiKeyCreated:
+    ) -> ApiKey:
         """Create a new user API key.
 
         Creates a user-type key that authenticates as the creating user with
         their full permissions. To create a space-scoped service key, use
         :meth:`create_service_key` instead.
 
-        The returned ``ApiKeyCreated`` object contains the full raw key value
+        The returned ``ApiKey`` object contains the full raw key value
         in its ``key`` field. **This is the only time the raw key is
         returned.** Store it securely.
 
@@ -147,16 +147,16 @@ class ApiKeysClient:
         """
         from arize._generated import api_client as gen
 
-        body = gen.ApiKeyCreate(
+        body = gen.CreateApiKeyRequest(
             name=name,
             description=description,
             key_type=ApiKeyType.USER,
             expires_at=expires_at,
         )
-        return self._api.api_keys_create(api_key_create=body)
+        return self._api.create_api_key(create_api_key_request=body)
 
     @prerelease_endpoint(
-        key="api_keys.create_service_key", stage=ReleaseStage.ALPHA
+        key="api_keys.create_service_key", stage=ReleaseStage.BETA
     )
     def create_service_key(
         self,
@@ -168,16 +168,16 @@ class ApiKeysClient:
         space_role: ApiKeySpaceRole | None = None,
         org_role: ApiKeyOrganizationRole | None = None,
         account_role: ApiKeyAccountRole | None = None,
-    ) -> ApiKeyCreated:
+    ) -> ApiKey:
         """Create a service-type API key for a space.
 
         Service keys are scoped to a specific space and backed by a dedicated
         bot user with configurable roles. When no roles are specified, the
-        server applies its defaults (``space_role="member"``,
-        ``org_role="read-only"``, ``account_role="member"``). All role
+        server applies its defaults (``space_role="MEMBER"``,
+        ``org_role="READ_ONLY"``, ``account_role="MEMBER"``). All role
         assignments must be at or below the caller's own privilege level.
 
-        The returned ``ApiKeyCreated`` object contains the full raw key value
+        The returned ``ApiKey`` object contains the full raw key value
         in its ``key`` field. **This is the only time the raw key is
         returned.** Store it securely.
 
@@ -188,15 +188,15 @@ class ApiKeysClient:
             expires_at: Optional expiration timestamp. If omitted the key
                 never expires. Must be a future timestamp.
             space_role: Role for the bot user within the space
-                (``ApiKeySpaceRole``). One of ``"admin"``, ``"member"``
-                (default), or ``"read-only"``. Must be at or below the
+                (``ApiKeySpaceRole``). One of ``"ADMIN"``, ``"MEMBER"``
+                (default), or ``"READ_ONLY"``. Must be at or below the
                 caller's own space role.
             org_role: Role for the bot user within the organization
-                (``ApiKeyOrganizationRole``). One of ``"admin"``,
-                ``"member"``, or ``"read-only"`` (default). Must be at or
+                (``ApiKeyOrganizationRole``). One of ``"ADMIN"``,
+                ``"MEMBER"``, or ``"READ_ONLY"`` (default). Must be at or
                 below the caller's own org role.
             account_role: Account-level role for the bot user
-                (``ApiKeyAccountRole``). One of ``"admin"`` or ``"member"``
+                (``ApiKeyAccountRole``). One of ``"ADMIN"`` or ``"MEMBER"``
                 (default). Must be at or below the caller's own account role.
 
         Returns:
@@ -218,7 +218,7 @@ class ApiKeysClient:
                 account_role=account_role,
             )
 
-        body = gen.ApiKeyCreate(
+        body = gen.CreateApiKeyRequest(
             name=name,
             description=description,
             key_type=ApiKeyType.SERVICE,
@@ -226,13 +226,13 @@ class ApiKeysClient:
             space_id=space_id,
             roles=roles,
         )
-        return self._api.api_keys_create(api_key_create=body)
+        return self._api.create_api_key(create_api_key_request=body)
 
     @prerelease_endpoint(key="api_keys.revoke", stage=ReleaseStage.BETA)
     def revoke(self, *, api_key_id: str) -> None:
         """Revoke an API key.
 
-        The key's status is set to ``revoked`` and it is deactivated
+        The key's status is set to ``REVOKED`` and it is deactivated
         immediately and permanently. This operation is irreversible — the key
         will stop working right away. Revoking an already-revoked key is a
         no-op and still succeeds.
@@ -247,16 +247,16 @@ class ApiKeysClient:
             ApiException: If the API
                 request fails (e.g. key not found or insufficient permissions).
         """
-        return self._api.api_keys_revoke(api_key_id=api_key_id)
+        return self._api.revoke_api_key(api_key_id=api_key_id)
 
-    @prerelease_endpoint(key="api_keys.refresh", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="api_keys.refresh", stage=ReleaseStage.BETA)
     def refresh(
         self,
         *,
         api_key_id: str,
         expires_at: datetime | None = None,
         grace_period_seconds: int | None = None,
-    ) -> ApiKeyCreated:
+    ) -> ApiKey:
         """Refresh an existing API key.
 
         Atomically revokes the old key and issues a replacement with the
@@ -283,11 +283,11 @@ class ApiKeysClient:
         """
         from arize._generated import api_client as gen
 
-        body = gen.ApiKeyRefresh(
+        body = gen.RefreshApiKeyRequest(
             expires_at=expires_at,
             grace_period_seconds=grace_period_seconds,
         )
-        return self._api.api_keys_refresh(
+        return self._api.refresh_api_key(
             api_key_id=api_key_id,
-            api_key_refresh=body,
+            refresh_api_key_request=body,
         )

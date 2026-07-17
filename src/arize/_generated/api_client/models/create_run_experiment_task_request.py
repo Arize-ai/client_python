@@ -26,19 +26,19 @@ from typing_extensions import Self
 
 class CreateRunExperimentTaskRequest(BaseModel):
     """
-    Request body for creating a `run_experiment` task. Requires `dataset_id` and `run_configuration`. Does not support continuous execution — runs are triggered explicitly via `POST /v2/tasks/{task_id}/trigger`. 
+    Request body for creating a `RUN_EXPERIMENT` task. Requires `dataset_id` and `run_configuration`. Does not support continuous execution — runs are triggered explicitly via `POST /v2/tasks/{task_id}/trigger`. 
     """ # noqa: E501
     name: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Task name")
-    type: StrictStr = Field(description="Task type discriminator. Must be `\"run_experiment\"`.")
-    dataset_id: StrictStr = Field(description="Dataset identifier (base64). Required for `run_experiment` tasks.")
+    type: StrictStr = Field(description="Task type discriminator. Must be `\"RUN_EXPERIMENT\"`.")
+    dataset_id: StrictStr = Field(description="Dataset identifier (base64). Required for `RUN_EXPERIMENT` tasks.")
     run_configuration: RunConfiguration
     __properties: ClassVar[List[str]] = ["name", "type", "dataset_id", "run_configuration"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['run_experiment']):
-            raise ValueError("must be one of enum values ('run_experiment')")
+        if value not in set(['RUN_EXPERIMENT']):
+            raise ValueError("must be one of enum values ('RUN_EXPERIMENT')")
         return value
 
     model_config = ConfigDict(

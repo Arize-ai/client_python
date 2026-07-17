@@ -6,8 +6,8 @@ Response format configuration
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | [**ResponseFormatType**](ResponseFormatType.md) | The response format type. Defaults to &#x60;text&#x60; if not specified. | [optional] 
-**json_schema** | [**ResponseFormatJsonSchema**](ResponseFormatJsonSchema.md) |  | [optional] 
+**type** | [**ResponseFormatType**](ResponseFormatType.md) | The response format type. Defaults to &#x60;TEXT&#x60; if not specified. | [optional] 
+**json_schema** | [**JsonSchemaConfig**](JsonSchemaConfig.md) | JSON schema configuration (when type is JSON_SCHEMA) | [optional] 
 
 ## Example
 

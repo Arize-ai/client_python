@@ -26,7 +26,7 @@ from typing_extensions import Self
 
 class UpdateLlmIntegrationRequest(BaseModel):
     """
-    PATCH body for an `llm` integration. `type` is required (it selects the union member) and immutable. Provide at least one updatable field (`name`, `scopings`, or `config`) in addition to `type`. `scopings` replaces on provide.
+    PATCH body for an `LLM` integration. `type` is required (it selects the union member) and immutable. Provide at least one updatable field (`name`, `scopings`, or `config`) in addition to `type`. `scopings` replaces on provide.
     """ # noqa: E501
     type: StrictStr = Field(description="Discriminator. Immutable; must match the integration's type.")
     name: Optional[StrictStr] = Field(default=None, description="New integration name.")
@@ -37,8 +37,8 @@ class UpdateLlmIntegrationRequest(BaseModel):
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['llm']):
-            raise ValueError("must be one of enum values ('llm')")
+        if value not in set(['LLM']):
+            raise ValueError("must be one of enum values ('LLM')")
         return value
 
     model_config = ConfigDict(

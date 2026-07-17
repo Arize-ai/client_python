@@ -4,21 +4,22 @@ from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+from arize._generated.api_client import UsersApi
 from arize.users.client import UsersClient
 from arize.users.types import (
     BulkUserDeletionResult,
     CustomUserRole,
     DeletionStatus,
+    ListUsersResponse,
     PredefinedUserRole,
     User,
-    UserListResponse,
     UserRole,
 )
 
@@ -30,7 +31,7 @@ def _stub_from_generated() -> Generator[None, None, None]:
     """
     with (
         patch.object(User, "model_validate", return_value=Mock()),
-        patch.object(UserListResponse, "model_validate", return_value=Mock()),
+        patch.object(ListUsersResponse, "model_validate", return_value=Mock()),
     ):
         yield
 
@@ -38,7 +39,7 @@ def _stub_from_generated() -> Generator[None, None, None]:
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock UsersApi instance."""
-    return Mock()
+    return create_autospec(UsersApi, instance=True)
 
 
 @pytest.fixture
@@ -94,16 +95,16 @@ class TestUsersClientList:
         """list() should pass email, status, limit, and cursor to users_list."""
         users_client.list(
             email="jane@example.com",
-            status=["active", "invited"],
+            status=["ACTIVE", "INVITED"],
             limit=25,
             cursor="cursor-abc",
         )
 
-        mock_api.users_list.assert_called_once_with(
+        mock_api.list_users.assert_called_once_with(
             limit=25,
             cursor="cursor-abc",
             email="jane@example.com",
-            status=["active", "invited"],
+            status=["ACTIVE", "INVITED"],
         )
 
     def test_list_defaults(
@@ -112,7 +113,7 @@ class TestUsersClientList:
         """list() should default email/status/cursor to None and limit to 50."""
         users_client.list()
 
-        mock_api.users_list.assert_called_once_with(
+        mock_api.list_users.assert_called_once_with(
             limit=50,
             cursor=None,
             email=None,
@@ -122,12 +123,12 @@ class TestUsersClientList:
     def test_list_returns_domain_response(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
-        """list() should convert the raw API response to a domain UserListResponse."""
+        """list() should convert the raw API response to a domain ListUsersResponse."""
         raw = Mock()
-        mock_api.users_list.return_value = raw
+        mock_api.list_users.return_value = raw
         domain = Mock()
         with patch.object(
-            UserListResponse, "model_validate", return_value=domain
+            ListUsersResponse, "model_validate", return_value=domain
         ) as mock_conv:
             result = users_client.list()
         mock_conv.assert_called_once_with(raw, from_attributes=True)
@@ -162,14 +163,14 @@ class TestUsersClientGet:
         """get() with an ID should pass it directly to users_get."""
         users_client.get(user="user-12345")
 
-        mock_api.users_get.assert_called_once_with(user_id="user-12345")
+        mock_api.get_user.assert_called_once_with(user_id="user-12345")
 
     def test_get_by_id_returns_domain_user(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
         """get() by ID should convert the raw API response to a domain User."""
         raw = Mock()
-        mock_api.users_get.return_value = raw
+        mock_api.get_user.return_value = raw
         domain = Mock()
         with patch.object(
             User, "model_validate", return_value=domain
@@ -248,7 +249,7 @@ class TestUsersClientGet:
             return_value=Mock(users=[target]),
         ):
             users_client.get(user="alice@example.com")
-        mock_api.users_get.assert_not_called()
+        mock_api.get_user.assert_not_called()
 
     def test_get_emits_beta_prerelease_warning(
         self,
@@ -300,7 +301,7 @@ class TestUsersClientCreate:
                 name="Jane Smith",
                 email="jane@example.com",
                 role=role,
-                invite_mode="email_link",
+                invite_mode="EMAIL_LINK",
             )
 
         mock_pred_cls.assert_called_once()
@@ -309,9 +310,9 @@ class TestUsersClientCreate:
             name="Jane Smith",
             email="jane@example.com",
             role=mock_role,
-            invite_mode="email_link",
+            invite_mode="EMAIL_LINK",
         )
-        mock_api.users_create.assert_called_once_with(
+        mock_api.create_user.assert_called_once_with(
             create_user_request=mock_body
         )
 
@@ -342,7 +343,7 @@ class TestUsersClientCreate:
                 name="Jane Smith",
                 email="jane@example.com",
                 role=role,
-                invite_mode="email_link",
+                invite_mode="EMAIL_LINK",
             )
 
         mock_custom_cls.assert_called_once()
@@ -351,9 +352,9 @@ class TestUsersClientCreate:
             name="Jane Smith",
             email="jane@example.com",
             role=mock_role,
-            invite_mode="email_link",
+            invite_mode="EMAIL_LINK",
         )
-        mock_api.users_create.assert_called_once_with(
+        mock_api.create_user.assert_called_once_with(
             create_user_request=mock_body
         )
 
@@ -377,7 +378,7 @@ class TestUsersClientCreate:
                 name="Jane Smith",
                 email="jane@example.com",
                 role=role,
-                invite_mode="email_link",
+                invite_mode="EMAIL_LINK",
                 is_developer=True,
             )
 
@@ -385,7 +386,7 @@ class TestUsersClientCreate:
             name="Jane Smith",
             email="jane@example.com",
             role=mock_role,
-            invite_mode="email_link",
+            invite_mode="EMAIL_LINK",
             is_developer=True,
         )
 
@@ -409,14 +410,14 @@ class TestUsersClientCreate:
                 name="Jane Smith",
                 email="jane@example.com",
                 role=role,
-                invite_mode="email_link",
+                invite_mode="EMAIL_LINK",
             )
 
         mock_request_cls.assert_called_once_with(
             name="Jane Smith",
             email="jane@example.com",
             role=mock_role,
-            invite_mode="email_link",
+            invite_mode="EMAIL_LINK",
         )
 
     def test_create_returns_domain_user(
@@ -424,7 +425,7 @@ class TestUsersClientCreate:
     ) -> None:
         """create() should convert the raw API response to a domain User."""
         raw = Mock()
-        mock_api.users_create.return_value = raw
+        mock_api.create_user.return_value = raw
         domain = Mock()
 
         with (
@@ -463,7 +464,7 @@ class TestUsersClientCreate:
                 name="Jane Smith",
                 email="jane@example.com",
                 role=PredefinedUserRole(name=UserRole.MEMBER),
-                invite_mode="email_link",
+                invite_mode="EMAIL_LINK",
             )
 
         assert any(
@@ -489,9 +490,9 @@ class TestUsersClientUpdate:
     def test_update_builds_request_and_calls_api(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
-        """update() should build UserUpdate and pass it to users_update."""
+        """update() should build UpdateUserRequest and pass it to users_update."""
         with patch(
-            "arize._generated.api_client.UserUpdate"
+            "arize._generated.api_client.UpdateUserRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -506,9 +507,9 @@ class TestUsersClientUpdate:
             name="Updated Name",
             is_developer=True,
         )
-        mock_api.users_update.assert_called_once_with(
+        mock_api.update_user.assert_called_once_with(
             user_id="user-12345",
-            user_update=mock_body,
+            update_user_request=mock_body,
         )
 
     def test_update_returns_domain_user(
@@ -516,11 +517,11 @@ class TestUsersClientUpdate:
     ) -> None:
         """update() should convert the raw API response to a domain User."""
         raw = Mock()
-        mock_api.users_update.return_value = raw
+        mock_api.update_user.return_value = raw
         domain = Mock()
 
         with (
-            patch("arize._generated.api_client.UserUpdate"),
+            patch("arize._generated.api_client.UpdateUserRequest"),
             patch.object(
                 User, "model_validate", return_value=domain
             ) as mock_conv,
@@ -544,7 +545,7 @@ class TestUsersClientUpdate:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        with patch("arize._generated.api_client.UserUpdate"):
+        with patch("arize._generated.api_client.UpdateUserRequest"):
             users_client.update(user_id="user-12345", name="Updated Name")
 
         assert any(
@@ -563,13 +564,13 @@ class TestUsersClientDelete:
         """delete() should pass user_id to users_delete."""
         users_client.delete(user_id="user-12345")
 
-        mock_api.users_delete.assert_called_once_with(user_id="user-12345")
+        mock_api.delete_user.assert_called_once_with(user_id="user-12345")
 
     def test_delete_returns_none(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
         """delete() should return None on success (204 response)."""
-        mock_api.users_delete.return_value = None
+        mock_api.delete_user.return_value = None
 
         result = users_client.delete(user_id="user-12345")
 
@@ -604,7 +605,7 @@ class TestUsersClientResendInvitation:
         """resend_invitation() should pass user_id to users_resend_invitation."""
         users_client.resend_invitation(user_id="user-12345")
 
-        mock_api.users_resend_invitation.assert_called_once_with(
+        mock_api.resend_user_invitation.assert_called_once_with(
             user_id="user-12345",
         )
 
@@ -612,7 +613,7 @@ class TestUsersClientResendInvitation:
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
         """resend_invitation() should return None on success (202 response)."""
-        mock_api.users_resend_invitation.return_value = None
+        mock_api.resend_user_invitation.return_value = None
 
         result = users_client.resend_invitation(user_id="user-12345")
 
@@ -648,7 +649,7 @@ class TestUsersClientResetPassword:
         """reset_password() should pass user_id to users_password_reset."""
         users_client.reset_password(user_id="user-12345")
 
-        mock_api.users_password_reset.assert_called_once_with(
+        mock_api.reset_user_password.assert_called_once_with(
             user_id="user-12345",
         )
 
@@ -656,7 +657,7 @@ class TestUsersClientResetPassword:
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
         """reset_password() should return None on success (204 response)."""
-        mock_api.users_password_reset.return_value = None
+        mock_api.reset_user_password.return_value = None
 
         result = users_client.reset_password(user_id="user-12345")
 
@@ -716,7 +717,7 @@ class TestUsersClientBulkDelete:
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
         """Providing user_ids should delete each and return 'deleted'."""
-        mock_api.users_delete.return_value = None
+        mock_api.delete_user.return_value = None
 
         results = users_client.bulk_delete(user_ids=["u1", "u2"])
 
@@ -724,16 +725,16 @@ class TestUsersClientBulkDelete:
         assert all(r.status == DeletionStatus.DELETED for r in results)
         assert [r.user_id for r in results] == ["u1", "u2"]
         assert all(r.email is None for r in results)
-        assert mock_api.users_delete.call_count == 2
+        assert mock_api.delete_user.call_count == 2
 
     def test_bulk_delete_by_emails(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
         """Emails should be resolved then deleted."""
-        mock_api.users_list.return_value = _make_users_list_response(
+        mock_api.list_users.return_value = _make_users_list_response(
             [("resolved-1", "alice@example.com")]
         )
-        mock_api.users_delete.return_value = None
+        mock_api.delete_user.return_value = None
 
         results = users_client.bulk_delete(emails=["alice@example.com"])
 
@@ -748,7 +749,7 @@ class TestUsersClientBulkDelete:
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
         """Unresolvable emails should produce a 'not_found' entry."""
-        mock_api.users_list.return_value = _make_users_list_response([])
+        mock_api.list_users.return_value = _make_users_list_response([])
 
         results = users_client.bulk_delete(emails=["ghost@example.com"])
 
@@ -767,7 +768,7 @@ class TestUsersClientBulkDelete:
             if user_id == "bad":
                 raise RuntimeError("API exploded")
 
-        mock_api.users_delete.side_effect = _side_effect
+        mock_api.delete_user.side_effect = _side_effect
 
         results = users_client.bulk_delete(user_ids=["good", "bad"])
 
@@ -790,10 +791,10 @@ class TestUsersClientBulkDelete:
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
         """Email resolution should be case-insensitive."""
-        mock_api.users_list.return_value = _make_users_list_response(
+        mock_api.list_users.return_value = _make_users_list_response(
             [("uid-1", "Alice@Example.COM")]
         )
-        mock_api.users_delete.return_value = None
+        mock_api.delete_user.return_value = None
 
         results = users_client.bulk_delete(emails=["alice@example.com"])
 
@@ -809,7 +810,7 @@ class TestUsersClientBulkDelete:
         caplog: pytest.LogCaptureFixture,
     ) -> None:
         """Unresolvable emails should log a warning."""
-        mock_api.users_list.return_value = _make_users_list_response([])
+        mock_api.list_users.return_value = _make_users_list_response([])
         caplog.set_level(logging.WARNING)
 
         users_client.bulk_delete(emails=["ghost@example.com"])
@@ -830,7 +831,7 @@ class TestUsersClientBulkDelete:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        mock_api.users_delete.return_value = None
+        mock_api.delete_user.return_value = None
         users_client.bulk_delete(user_ids=["u1"])
 
         assert any(

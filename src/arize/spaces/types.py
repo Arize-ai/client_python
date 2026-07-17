@@ -4,19 +4,19 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
+from arize._generated.api_client.models.add_space_user_request import (
+    AddSpaceUserRequest,
+)
 from arize._generated.api_client.models.custom_role_assignment import (
     CustomRoleAssignment,
+)
+from arize._generated.api_client.models.list_spaces_response import (
+    ListSpacesResponse,
 )
 from arize._generated.api_client.models.predefined_role_assignment import (
     PredefinedRoleAssignment,
 )
 from arize._generated.api_client.models.space import Space
-from arize._generated.api_client.models.space_list_response import (
-    SpaceListResponse,
-)
-from arize._generated.api_client.models.space_membership_input import (
-    SpaceMembershipInput,
-)
 from arize._generated.api_client.models.space_role_assignment import (
     SpaceRoleAssignment,
 )
@@ -26,14 +26,14 @@ from arize._generated.api_client.models.user_space_role import UserSpaceRole
 class PredefinedSpaceRole(PredefinedRoleAssignment):
     """A predefined space role assignment.
 
-    The ``type`` discriminator is set to ``"predefined"`` automatically.
+    The ``type`` discriminator is set to ``"PREDEFINED"`` automatically.
 
     Args:
-        name: The predefined role name (``"admin"``, ``"member"``,
-            ``"read-only"``, or ``"annotator"``).
+        name: The predefined role name (``"ADMIN"``, ``"MEMBER"``,
+            ``"READ_ONLY"``, or ``"ANNOTATOR"``).
     """
 
-    type: Literal["predefined"] = "predefined"  # type: ignore[assignment]
+    type: Literal["PREDEFINED"] = "PREDEFINED"  # type: ignore[assignment]
 
     def __str__(self) -> str:
         """Return the role name as a string."""
@@ -43,7 +43,7 @@ class PredefinedSpaceRole(PredefinedRoleAssignment):
 class CustomSpaceRole(CustomRoleAssignment):
     """A custom RBAC role assignment for a space.
 
-    The ``type`` discriminator is set to ``"custom"`` automatically.
+    The ``type`` discriminator is set to ``"CUSTOM"`` automatically.
 
     Args:
         id: The unique identifier of the custom RBAC role.
@@ -51,7 +51,7 @@ class CustomSpaceRole(CustomRoleAssignment):
             only; ignored on input).
     """
 
-    type: Literal["custom"] = "custom"  # type: ignore[assignment]
+    type: Literal["CUSTOM"] = "CUSTOM"  # type: ignore[assignment]
 
     def __str__(self) -> str:
         """Return the role name if available, otherwise the role id."""
@@ -86,12 +86,12 @@ class SpaceMembership(BaseModel):
 
 
 __all__ = [
+    "AddSpaceUserRequest",
     "CustomSpaceRole",
+    "ListSpacesResponse",
     "PredefinedSpaceRole",
     "Space",
-    "SpaceListResponse",
     "SpaceMembership",
-    "SpaceMembershipInput",
     "SpaceRoleAssignment",
     "UserSpaceRole",
 ]

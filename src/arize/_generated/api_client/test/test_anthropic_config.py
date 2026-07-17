@@ -36,13 +36,13 @@ class TestAnthropicConfig(unittest.TestCase):
         if include_optional:
             return AnthropicConfig(
                 is_function_calling_enabled = True,
-                provider = 'anthropic',
+                provider = 'ANTHROPIC',
                 has_api_key = True
             )
         else:
             return AnthropicConfig(
                 is_function_calling_enabled = True,
-                provider = 'anthropic',
+                provider = 'ANTHROPIC',
                 has_api_key = True,
         )
         """

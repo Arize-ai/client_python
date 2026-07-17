@@ -3,21 +3,22 @@
 from __future__ import annotations
 
 import logging
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
+from arize._generated.api_client import AnnotationConfigsApi
 from arize.annotation_configs.client import AnnotationConfigsClient
 from arize.annotation_configs.types import (
-    AnnotationConfigListResponse,
     AnnotationConfigType,
+    ListAnnotationConfigsResponse,
 )
 
 
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock AnnotationConfigsApi instance."""
-    return Mock()
+    return create_autospec(AnnotationConfigsApi, instance=True)
 
 
 @pytest.fixture
@@ -75,7 +76,7 @@ class TestAnnotationConfigsClientList:
     @pytest.fixture(autouse=True)
     def _bypass_model_validate(self) -> None:
         with patch.object(
-            AnnotationConfigListResponse,
+            ListAnnotationConfigsResponse,
             "model_validate",
             side_effect=lambda v, **kw: v,
         ):
@@ -94,7 +95,7 @@ class TestAnnotationConfigsClientList:
             cursor="cursor-xyz",
         )
 
-        mock_api.annotation_configs_list.assert_called_once_with(
+        mock_api.list_annotation_configs.assert_called_once_with(
             space_id="U3BhY2U6OTA1MDoxSmtS",
             space_name=None,
             name="my-config",
@@ -115,7 +116,7 @@ class TestAnnotationConfigsClientList:
             cursor="cursor-xyz",
         )
 
-        mock_api.annotation_configs_list.assert_called_once_with(
+        mock_api.list_annotation_configs.assert_called_once_with(
             space_id=None,
             space_name="my-space",
             name="my-config",
@@ -131,7 +132,7 @@ class TestAnnotationConfigsClientList:
         """list() should default space/name/cursor to None and limit to 50."""
         annotation_configs_client.list()
 
-        mock_api.annotation_configs_list.assert_called_once_with(
+        mock_api.list_annotation_configs.assert_called_once_with(
             space_id=None,
             space_name=None,
             name=None,
@@ -146,7 +147,7 @@ class TestAnnotationConfigsClientList:
     ) -> None:
         """list() should propagate the return value from annotation_configs_list."""
         expected = Mock()
-        mock_api.annotation_configs_list.return_value = expected
+        mock_api.list_annotation_configs.return_value = expected
 
         result = annotation_configs_client.list()
 
@@ -182,11 +183,9 @@ class TestAnnotationConfigsClientCreateContinuous:
         """create_continuous() must forward minimum_score and maximum_score."""
         with (
             patch(
-                "arize._generated.api_client.ContinuousAnnotationConfigCreate"
+                "arize._generated.api_client.CreateContinuousAnnotationConfigRequest"
             ) as mock_continuous_cls,
-            patch(
-                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
-            ),
+            patch("arize._generated.api_client.CreateAnnotationConfigRequest"),
         ):
             annotation_configs_client.create_continuous(
                 name="score-config",
@@ -210,11 +209,9 @@ class TestAnnotationConfigsClientCreateContinuous:
         """create_continuous() must forward optimization_direction when given."""
         with (
             patch(
-                "arize._generated.api_client.ContinuousAnnotationConfigCreate"
+                "arize._generated.api_client.CreateContinuousAnnotationConfigRequest"
             ) as mock_continuous_cls,
-            patch(
-                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
-            ),
+            patch("arize._generated.api_client.CreateAnnotationConfigRequest"),
         ):
             annotation_configs_client.create_continuous(
                 name="score-config",
@@ -238,16 +235,16 @@ class TestAnnotationConfigsClientCreateContinuous:
     ) -> None:
         """create_continuous() must call the API and unwrap the response."""
         expected = Mock()
-        mock_api.annotation_configs_create.return_value.actual_instance = (
+        mock_api.create_annotation_config.return_value.actual_instance = (
             expected
         )
 
         with (
             patch(
-                "arize._generated.api_client.ContinuousAnnotationConfigCreate"
+                "arize._generated.api_client.CreateContinuousAnnotationConfigRequest"
             ),
             patch(
-                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
+                "arize._generated.api_client.CreateAnnotationConfigRequest"
             ) as mock_body_cls,
         ):
             mock_body = Mock()
@@ -260,8 +257,8 @@ class TestAnnotationConfigsClientCreateContinuous:
                 maximum_score=1.0,
             )
 
-        mock_api.annotation_configs_create.assert_called_once_with(
-            create_annotation_config_request_body=mock_body
+        mock_api.create_annotation_config.assert_called_once_with(
+            create_annotation_config_request=mock_body
         )
         assert result is expected
 
@@ -278,11 +275,9 @@ class TestAnnotationConfigsClientCreateContinuous:
 
         with (
             patch(
-                "arize._generated.api_client.ContinuousAnnotationConfigCreate"
+                "arize._generated.api_client.CreateContinuousAnnotationConfigRequest"
             ),
-            patch(
-                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
-            ),
+            patch("arize._generated.api_client.CreateAnnotationConfigRequest"),
         ):
             annotation_configs_client.create_continuous(
                 name="score-config",
@@ -309,11 +304,9 @@ class TestAnnotationConfigsClientCreateCategorical:
         mock_values = [Mock(), Mock()]
         with (
             patch(
-                "arize._generated.api_client.CategoricalAnnotationConfigCreate"
+                "arize._generated.api_client.CreateCategoricalAnnotationConfigRequest"
             ) as mock_categorical_cls,
-            patch(
-                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
-            ),
+            patch("arize._generated.api_client.CreateAnnotationConfigRequest"),
         ):
             annotation_configs_client.create_categorical(
                 name="cat-config",
@@ -336,11 +329,9 @@ class TestAnnotationConfigsClientCreateCategorical:
         mock_values = [Mock()]
         with (
             patch(
-                "arize._generated.api_client.CategoricalAnnotationConfigCreate"
+                "arize._generated.api_client.CreateCategoricalAnnotationConfigRequest"
             ) as mock_categorical_cls,
-            patch(
-                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
-            ),
+            patch("arize._generated.api_client.CreateAnnotationConfigRequest"),
         ):
             annotation_configs_client.create_categorical(
                 name="cat-config",
@@ -362,16 +353,16 @@ class TestAnnotationConfigsClientCreateCategorical:
     ) -> None:
         """create_categorical() must call the API and unwrap the response."""
         expected = Mock()
-        mock_api.annotation_configs_create.return_value.actual_instance = (
+        mock_api.create_annotation_config.return_value.actual_instance = (
             expected
         )
 
         with (
             patch(
-                "arize._generated.api_client.CategoricalAnnotationConfigCreate"
+                "arize._generated.api_client.CreateCategoricalAnnotationConfigRequest"
             ),
             patch(
-                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
+                "arize._generated.api_client.CreateAnnotationConfigRequest"
             ) as mock_body_cls,
         ):
             mock_body = Mock()
@@ -383,8 +374,8 @@ class TestAnnotationConfigsClientCreateCategorical:
                 values=[Mock()],
             )
 
-        mock_api.annotation_configs_create.assert_called_once_with(
-            create_annotation_config_request_body=mock_body
+        mock_api.create_annotation_config.assert_called_once_with(
+            create_annotation_config_request=mock_body
         )
         assert result is expected
 
@@ -401,11 +392,9 @@ class TestAnnotationConfigsClientCreateCategorical:
 
         with (
             patch(
-                "arize._generated.api_client.CategoricalAnnotationConfigCreate"
+                "arize._generated.api_client.CreateCategoricalAnnotationConfigRequest"
             ),
-            patch(
-                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
-            ),
+            patch("arize._generated.api_client.CreateAnnotationConfigRequest"),
         ):
             annotation_configs_client.create_categorical(
                 name="cat-config",
@@ -430,11 +419,9 @@ class TestAnnotationConfigsClientCreateFreeform:
         """create_freeform() must forward name and the resolved space_id."""
         with (
             patch(
-                "arize._generated.api_client.FreeformAnnotationConfigCreate"
+                "arize._generated.api_client.CreateFreeformAnnotationConfigRequest"
             ) as mock_freeform_cls,
-            patch(
-                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
-            ),
+            patch("arize._generated.api_client.CreateAnnotationConfigRequest"),
         ):
             annotation_configs_client.create_freeform(
                 name="feedback",
@@ -452,14 +439,16 @@ class TestAnnotationConfigsClientCreateFreeform:
     ) -> None:
         """create_freeform() must call the API and unwrap the response."""
         expected = Mock()
-        mock_api.annotation_configs_create.return_value.actual_instance = (
+        mock_api.create_annotation_config.return_value.actual_instance = (
             expected
         )
 
         with (
-            patch("arize._generated.api_client.FreeformAnnotationConfigCreate"),
             patch(
-                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
+                "arize._generated.api_client.CreateFreeformAnnotationConfigRequest"
+            ),
+            patch(
+                "arize._generated.api_client.CreateAnnotationConfigRequest"
             ) as mock_body_cls,
         ):
             mock_body = Mock()
@@ -470,8 +459,8 @@ class TestAnnotationConfigsClientCreateFreeform:
                 space="U3BhY2U6OTA1MDoxSmtS",
             )
 
-        mock_api.annotation_configs_create.assert_called_once_with(
-            create_annotation_config_request_body=mock_body
+        mock_api.create_annotation_config.assert_called_once_with(
+            create_annotation_config_request=mock_body
         )
         assert result is expected
 
@@ -487,10 +476,10 @@ class TestAnnotationConfigsClientCreateFreeform:
         caplog.set_level(logging.WARNING)
 
         with (
-            patch("arize._generated.api_client.FreeformAnnotationConfigCreate"),
             patch(
-                "arize._generated.api_client.CreateAnnotationConfigRequestBody"
+                "arize._generated.api_client.CreateFreeformAnnotationConfigRequest"
             ),
+            patch("arize._generated.api_client.CreateAnnotationConfigRequest"),
         ):
             annotation_configs_client.create_freeform(
                 name="feedback",

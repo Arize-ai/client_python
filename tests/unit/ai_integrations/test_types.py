@@ -8,9 +8,9 @@ import arize.ai_integrations.types as types_module
 from arize.ai_integrations.types import (
     AiIntegration,
     AiIntegrationAuthType,
-    AiIntegrationListResponse,
     AiIntegrationProvider,
     AiIntegrationScoping,
+    ListAiIntegrationsResponse,
 )
 
 
@@ -31,7 +31,7 @@ class TestAiIntegrationsTypes:
             "AiIntegrationAuthType",
             "AiIntegrationProvider",
             "AiIntegrationScoping",
-            "AiIntegrationListResponse",
+            "ListAiIntegrationsResponse",
         }
         assert expected.issubset(set(types_module.__all__))
 
@@ -52,4 +52,4 @@ class TestAiIntegrationsTypes:
         assert isinstance(AiIntegration, type)
 
     def test_ai_integrations_list_response_is_class(self) -> None:
-        assert isinstance(AiIntegrationListResponse, type)
+        assert isinstance(ListAiIntegrationsResponse, type)

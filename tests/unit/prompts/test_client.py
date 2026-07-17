@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import logging
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
+from arize._generated.api_client import PromptsApi
 from arize.prompts.client import PromptsClient
 
 # Base64 ID that decodes to "Prompt:123" — passes _is_resource_id()
@@ -16,7 +17,7 @@ _PROMPT_ID = "UHJvbXB0OjEyMw=="
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock PromptsApi instance."""
-    return Mock()
+    return create_autospec(PromptsApi, instance=True)
 
 
 @pytest.fixture
@@ -76,7 +77,7 @@ class TestPromptsClientList:
             cursor="cursor-abc",
         )
 
-        mock_api.prompts_list.assert_called_once_with(
+        mock_api.list_prompts.assert_called_once_with(
             space_id="U3BhY2U6OTA1MDoxSmtS",
             space_name=None,
             name="my-prompt",
@@ -95,7 +96,7 @@ class TestPromptsClientList:
             cursor="cursor-abc",
         )
 
-        mock_api.prompts_list.assert_called_once_with(
+        mock_api.list_prompts.assert_called_once_with(
             space_id=None,
             space_name="my-space",
             name="my-prompt",
@@ -109,7 +110,7 @@ class TestPromptsClientList:
         """list() should default space/name/cursor to None and limit to 50."""
         prompts_client.list()
 
-        mock_api.prompts_list.assert_called_once_with(
+        mock_api.list_prompts.assert_called_once_with(
             space_id=None,
             space_name=None,
             name=None,
@@ -122,7 +123,7 @@ class TestPromptsClientList:
     ) -> None:
         """list() should propagate the return value from prompts_list."""
         expected = Mock()
-        mock_api.prompts_list.return_value = expected
+        mock_api.list_prompts.return_value = expected
 
         result = prompts_client.list()
 
@@ -154,7 +155,7 @@ class TestPromptsClientCreate:
     def test_create_builds_request_and_calls_api(
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
-        """create() should build PromptsCreateRequest and pass it to prompts_create."""
+        """create() should build CreatePromptRequest and pass it to prompts_create."""
         mock_messages = [Mock()]
         mock_input_format = Mock()
         mock_provider = Mock()
@@ -164,7 +165,7 @@ class TestPromptsClientCreate:
                 "arize._generated.api_client.PromptVersionCreateRequest"
             ) as mock_version_cls,
             patch(
-                "arize._generated.api_client.PromptsCreateRequest"
+                "arize._generated.api_client.CreatePromptRequest"
             ) as mock_request_cls,
             patch("arize.prompts.types.PromptWithVersion.model_validate"),
         ):
@@ -199,8 +200,8 @@ class TestPromptsClientCreate:
             description="a prompt",
             version=mock_version,
         )
-        mock_api.prompts_create.assert_called_once_with(
-            prompts_create_request=mock_body
+        mock_api.create_prompt.assert_called_once_with(
+            create_prompt_request=mock_body
         )
 
     def test_create_returns_api_response(
@@ -208,11 +209,11 @@ class TestPromptsClientCreate:
     ) -> None:
         """create() should propagate the return value from prompts_create."""
         expected = Mock()
-        mock_api.prompts_create.return_value = expected
+        mock_api.create_prompt.return_value = expected
 
         with (
             patch("arize._generated.api_client.PromptVersionCreateRequest"),
-            patch("arize._generated.api_client.PromptsCreateRequest"),
+            patch("arize._generated.api_client.CreatePromptRequest"),
             patch(
                 "arize.prompts.types.PromptWithVersion.model_validate",
                 return_value=expected,
@@ -241,7 +242,7 @@ class TestPromptsClientGet:
         with patch("arize.prompts.types.PromptWithVersion.model_validate"):
             prompts_client.get(prompt=_PROMPT_ID)
 
-        mock_api.prompts_get.assert_called_once_with(
+        mock_api.get_prompt.assert_called_once_with(
             prompt_id=_PROMPT_ID,
             version_id=None,
             label=None,
@@ -254,7 +255,7 @@ class TestPromptsClientGet:
         with patch("arize.prompts.types.PromptWithVersion.model_validate"):
             prompts_client.get(prompt=_PROMPT_ID, version_id="ver-456")
 
-        mock_api.prompts_get.assert_called_once_with(
+        mock_api.get_prompt.assert_called_once_with(
             prompt_id=_PROMPT_ID,
             version_id="ver-456",
             label=None,
@@ -267,7 +268,7 @@ class TestPromptsClientGet:
         with patch("arize.prompts.types.PromptWithVersion.model_validate"):
             prompts_client.get(prompt=_PROMPT_ID, label="production")
 
-        mock_api.prompts_get.assert_called_once_with(
+        mock_api.get_prompt.assert_called_once_with(
             prompt_id=_PROMPT_ID,
             version_id=None,
             label="production",
@@ -278,7 +279,7 @@ class TestPromptsClientGet:
     ) -> None:
         """get() should propagate the return value from prompts_get."""
         expected = Mock()
-        mock_api.prompts_get.return_value = expected
+        mock_api.get_prompt.return_value = expected
 
         with patch(
             "arize.prompts.types.PromptWithVersion.model_validate",
@@ -300,7 +301,7 @@ class TestPromptsClientGetVersion:
         with patch("arize.prompts.types.PromptVersion.model_validate"):
             prompts_client.get_version(version_id="ver-456")
 
-        mock_api.prompt_versions_get.assert_called_once_with(
+        mock_api.get_prompt_version.assert_called_once_with(
             version_id="ver-456",
         )
 
@@ -309,7 +310,7 @@ class TestPromptsClientGetVersion:
     ) -> None:
         """get_version() should propagate the return value from prompt_versions_get."""
         expected = Mock()
-        mock_api.prompt_versions_get.return_value = expected
+        mock_api.get_prompt_version.return_value = expected
 
         with patch(
             "arize.prompts.types.PromptVersion.model_validate",
@@ -327,9 +328,9 @@ class TestPromptsClientUpdate:
     def test_update_builds_request_and_calls_api(
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
-        """update() should build PromptsUpdateRequest and pass it to prompts_update."""
+        """update() should build UpdatePromptRequest and pass it to prompts_update."""
         with patch(
-            "arize._generated.api_client.PromptsUpdateRequest"
+            "arize._generated.api_client.UpdatePromptRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -342,9 +343,9 @@ class TestPromptsClientUpdate:
         mock_request_cls.assert_called_once_with(
             description="updated description"
         )
-        mock_api.prompts_update.assert_called_once_with(
+        mock_api.update_prompt.assert_called_once_with(
             prompt_id=_PROMPT_ID,
-            prompts_update_request=mock_body,
+            update_prompt_request=mock_body,
         )
 
     def test_update_returns_api_response(
@@ -352,9 +353,9 @@ class TestPromptsClientUpdate:
     ) -> None:
         """update() should propagate the return value from prompts_update."""
         expected = Mock()
-        mock_api.prompts_update.return_value = expected
+        mock_api.update_prompt.return_value = expected
 
-        with patch("arize._generated.api_client.PromptsUpdateRequest"):
+        with patch("arize._generated.api_client.UpdatePromptRequest"):
             result = prompts_client.update(
                 prompt=_PROMPT_ID,
                 description="updated",
@@ -373,13 +374,13 @@ class TestPromptsClientDelete:
         """delete() should resolve prompt and pass prompt_id to prompts_delete."""
         prompts_client.delete(prompt=_PROMPT_ID)
 
-        mock_api.prompts_delete.assert_called_once_with(prompt_id=_PROMPT_ID)
+        mock_api.delete_prompt.assert_called_once_with(prompt_id=_PROMPT_ID)
 
     def test_delete_returns_none(
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
         """delete() should return None on success."""
-        mock_api.prompts_delete.return_value = None
+        mock_api.delete_prompt.return_value = None
 
         result = prompts_client.delete(prompt=_PROMPT_ID)
 
@@ -400,7 +401,7 @@ class TestPromptsClientListVersions:
             cursor="cursor-xyz",
         )
 
-        mock_api.prompt_versions_list.assert_called_once_with(
+        mock_api.list_prompt_versions.assert_called_once_with(
             prompt_id=_PROMPT_ID,
             limit=25,
             cursor="cursor-xyz",
@@ -412,7 +413,7 @@ class TestPromptsClientListVersions:
         """list_versions() should default limit to 50 and cursor to None."""
         prompts_client.list_versions(prompt=_PROMPT_ID)
 
-        mock_api.prompt_versions_list.assert_called_once_with(
+        mock_api.list_prompt_versions.assert_called_once_with(
             prompt_id=_PROMPT_ID,
             limit=50,
             cursor=None,
@@ -423,7 +424,7 @@ class TestPromptsClientListVersions:
     ) -> None:
         """list_versions() should propagate the return value from prompt_versions_list."""
         expected = Mock()
-        mock_api.prompt_versions_list.return_value = expected
+        mock_api.list_prompt_versions.return_value = expected
 
         result = prompts_client.list_versions(prompt=_PROMPT_ID)
 
@@ -437,14 +438,14 @@ class TestPromptsClientCreateVersion:
     def test_create_version_builds_request_and_calls_api(
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
-        """create_version() should build PromptVersionsCreateRequest and call the API."""
+        """create_version() should build CreatePromptVersionRequest and call the API."""
         mock_messages = [Mock()]
         mock_input_format = Mock()
         mock_provider = Mock()
 
         with (
             patch(
-                "arize._generated.api_client.PromptVersionsCreateRequest"
+                "arize._generated.api_client.CreatePromptVersionRequest"
             ) as mock_request_cls,
             patch("arize.prompts.types.PromptVersion.model_validate"),
         ):
@@ -469,9 +470,9 @@ class TestPromptsClientCreateVersion:
             invocation_params=None,
             provider_params=None,
         )
-        mock_api.prompt_versions_create.assert_called_once_with(
+        mock_api.create_prompt_version.assert_called_once_with(
             prompt_id=_PROMPT_ID,
-            prompt_versions_create_request=mock_body,
+            create_prompt_version_request=mock_body,
         )
 
     def test_create_version_returns_api_response(
@@ -479,10 +480,10 @@ class TestPromptsClientCreateVersion:
     ) -> None:
         """create_version() should propagate the return value from prompt_versions_create."""
         expected = Mock()
-        mock_api.prompt_versions_create.return_value = expected
+        mock_api.create_prompt_version.return_value = expected
 
         with (
-            patch("arize._generated.api_client.PromptVersionsCreateRequest"),
+            patch("arize._generated.api_client.CreatePromptVersionRequest"),
             patch(
                 "arize.prompts.types.PromptVersion.model_validate",
                 return_value=expected,
@@ -512,7 +513,7 @@ class TestPromptsClientGetVersionByLabel:
                 prompt=_PROMPT_ID, label_name="production"
             )
 
-        mock_api.prompt_labels_get.assert_called_once_with(
+        mock_api.get_prompt_label.assert_called_once_with(
             prompt_id=_PROMPT_ID,
             label_name="production",
         )
@@ -522,7 +523,7 @@ class TestPromptsClientGetVersionByLabel:
     ) -> None:
         """get_version_by_label() should propagate the return value from prompt_labels_get."""
         expected = Mock()
-        mock_api.prompt_labels_get.return_value = expected
+        mock_api.get_prompt_label.return_value = expected
 
         with patch(
             "arize.prompts.types.PromptVersion.model_validate",
@@ -542,10 +543,13 @@ class TestPromptsClientSetLabels:
     def test_set_labels_builds_request_and_calls_api(
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
-        """set_labels() should build PromptVersionLabelsSetRequest and call the API."""
-        with patch(
-            "arize._generated.api_client.PromptVersionLabelsSetRequest"
-        ) as mock_request_cls:
+        """set_labels() should build SetPromptVersionLabelsRequest and call the API."""
+        with (
+            patch(
+                "arize._generated.api_client.SetPromptVersionLabelsRequest"
+            ) as mock_request_cls,
+            patch("arize.prompts.types.PromptVersion.model_validate"),
+        ):
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
 
@@ -557,25 +561,33 @@ class TestPromptsClientSetLabels:
         mock_request_cls.assert_called_once_with(
             labels=["production", "stable"]
         )
-        mock_api.prompt_version_labels_set.assert_called_once_with(
+        mock_api.set_prompt_version_label.assert_called_once_with(
             version_id="ver-456",
-            prompt_version_labels_set_request=mock_body,
+            set_prompt_version_labels_request=mock_body,
         )
 
-    def test_set_labels_returns_api_response(
+    def test_set_labels_returns_prompt_version(
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
-        """set_labels() should propagate the return value from prompt_version_labels_set."""
-        expected = Mock()
-        mock_api.prompt_version_labels_set.return_value = expected
+        """set_labels() should return the validated PromptVersion entity."""
+        api_result = Mock()
+        mock_api.set_prompt_version_label.return_value = api_result
 
-        with patch("arize._generated.api_client.PromptVersionLabelsSetRequest"):
+        with (
+            patch("arize._generated.api_client.SetPromptVersionLabelsRequest"),
+            patch(
+                "arize.prompts.types.PromptVersion.model_validate"
+            ) as mock_validate,
+        ):
+            sentinel = Mock()
+            mock_validate.return_value = sentinel
             result = prompts_client.set_labels(
                 version_id="ver-456",
                 labels=["production"],
             )
 
-        assert result is expected
+        mock_validate.assert_called_once_with(api_result, from_attributes=True)
+        assert result is sentinel
 
 
 @pytest.mark.unit
@@ -588,7 +600,7 @@ class TestPromptsClientDeleteLabel:
         """delete_label() should pass version_id and label_name to prompt_version_labels_delete."""
         prompts_client.delete_label(version_id="ver-456", label_name="staging")
 
-        mock_api.prompt_version_labels_delete.assert_called_once_with(
+        mock_api.delete_prompt_version_label.assert_called_once_with(
             version_id="ver-456",
             label_name="staging",
         )
@@ -597,7 +609,7 @@ class TestPromptsClientDeleteLabel:
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
         """delete_label() should return None on success."""
-        mock_api.prompt_version_labels_delete.return_value = None
+        mock_api.delete_prompt_version_label.return_value = None
 
         result = prompts_client.delete_label(
             version_id="ver-456", label_name="staging"

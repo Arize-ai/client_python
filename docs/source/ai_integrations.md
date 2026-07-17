@@ -19,10 +19,6 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: AiIntegrationListResponse
-   :members:
-   :member-order: bysource
-
 .. autoclass:: AiIntegrationProvider
    :members:
    :member-order: bysource
@@ -44,6 +40,10 @@
    :member-order: bysource
 
 .. autoclass:: GcpProviderMetadataKind
+   :members:
+   :member-order: bysource
+
+.. autoclass:: ListAiIntegrationsResponse
    :members:
    :member-order: bysource
 ```

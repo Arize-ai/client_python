@@ -35,13 +35,13 @@ class TestPredefinedRoleAssignment(unittest.TestCase):
         model = PredefinedRoleAssignment()
         if include_optional:
             return PredefinedRoleAssignment(
-                type = 'predefined',
-                name = 'admin'
+                type = 'PREDEFINED',
+                name = 'ADMIN'
             )
         else:
             return PredefinedRoleAssignment(
-                type = 'predefined',
-                name = 'admin',
+                type = 'PREDEFINED',
+                name = 'ADMIN',
         )
         """
 

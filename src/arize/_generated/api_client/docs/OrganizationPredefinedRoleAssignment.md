@@ -6,7 +6,7 @@ A predefined organization role assignment.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | [**OrganizationRoleAssignmentType**](OrganizationRoleAssignmentType.md) |  | 
+**type** | [**OrganizationRoleAssignmentType**](OrganizationRoleAssignmentType.md) | Discriminator identifying this as a predefined role assignment. Always &#x60;PREDEFINED&#x60; for this variant. | 
 **name** | [**OrganizationRole**](OrganizationRole.md) |  | 
 
 ## Example

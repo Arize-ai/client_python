@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
 from arize._generated.api_client.models.space_role_assignment_type import SpaceRoleAssignmentType
 from arize._generated.api_client.models.user_space_role import UserSpaceRole
@@ -28,7 +28,7 @@ class PredefinedRoleAssignment(BaseModel):
     """
     A predefined space role assignment.
     """ # noqa: E501
-    type: SpaceRoleAssignmentType
+    type: SpaceRoleAssignmentType = Field(description="Discriminator identifying this as a predefined role assignment. Always `PREDEFINED` for this variant.")
     name: UserSpaceRole
     __properties: ClassVar[List[str]] = ["type", "name"]
 

@@ -7,11 +7,14 @@ from unittest.mock import MagicMock
 import pytest
 
 import arize.spaces.types as types_module
+from arize._generated.api_client.models.space_role_assignment_type import (
+    SpaceRoleAssignmentType,
+)
 from arize.spaces.types import (
     CustomSpaceRole,
+    ListSpacesResponse,
     PredefinedSpaceRole,
     Space,
-    SpaceListResponse,
     SpaceMembership,
     UserSpaceRole,
 )
@@ -33,13 +36,13 @@ class TestSpacesTypes:
         assert "CustomSpaceRole" in types_module.__all__
         assert "SpaceMembership" in types_module.__all__
         assert "Space" in types_module.__all__
-        assert "SpaceListResponse" in types_module.__all__
+        assert "ListSpacesResponse" in types_module.__all__
 
     def test_space_is_class(self) -> None:
         assert isinstance(Space, type)
 
-    def test_spaces_list_response_is_class(self) -> None:
-        assert isinstance(SpaceListResponse, type)
+    def test_list_spaces_response_is_class(self) -> None:
+        assert isinstance(ListSpacesResponse, type)
 
 
 @pytest.mark.unit
@@ -52,8 +55,11 @@ class TestPredefinedSpaceRole:
         assert issubclass(PredefinedSpaceRole, BaseModel)
 
     def test_type_field_defaults_to_predefined(self) -> None:
+        # Regression: the hand-written Literal discriminator must stay in
+        # lockstep with the generated enum value (guards against a recase
+        # that isn't mirrored here).
         role = PredefinedSpaceRole(name=UserSpaceRole.MEMBER)
-        assert role.type == "predefined"
+        assert role.type == SpaceRoleAssignmentType.PREDEFINED
 
     def test_accepts_all_space_roles(self) -> None:
         """PredefinedSpaceRole should accept every UserSpaceRole enum value."""
@@ -73,7 +79,7 @@ class TestCustomSpaceRole:
 
     def test_type_field_defaults_to_custom(self) -> None:
         role = CustomSpaceRole(id="role-xyz-42")
-        assert role.type == "custom"
+        assert role.type == SpaceRoleAssignmentType.CUSTOM
 
     def test_name_defaults_to_none(self) -> None:
         role = CustomSpaceRole(id="role-xyz-42")

@@ -134,9 +134,9 @@ class TestRoleBindingsClientList:
     def test_list_returns_role_binding_list_response(
         self, arize_client, role_binding
     ) -> None:
-        """list() should return a RoleBindingListResponse with role_bindings and pagination."""
-        from arize._generated.api_client.models.role_binding_list_response import (
-            RoleBindingListResponse,
+        """list() should return a ListRoleBindingsResponse with role_bindings and pagination."""
+        from arize._generated.api_client.models.list_role_bindings_response import (
+            ListRoleBindingsResponse,
         )
         from arize._generated.api_client.models.role_binding_resource_type import (
             RoleBindingResourceType,
@@ -146,7 +146,7 @@ class TestRoleBindingsClientList:
             resource_type=RoleBindingResourceType.PROJECT,
         )
 
-        assert isinstance(result, RoleBindingListResponse)
+        assert isinstance(result, ListRoleBindingsResponse)
         assert isinstance(result.role_bindings, list)
         assert hasattr(result.pagination, "has_more")
 

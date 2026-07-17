@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **description** | **str** | Optional user-defined description for the API key. | [optional] 
 **key_type** | [**ApiKeyType**](ApiKeyType.md) |  | 
 **status** | [**ApiKeyStatus**](ApiKeyStatus.md) |  | 
-**redacted_key** | **str** | Redacted version of the key suitable for display (e.g., \&quot;ak-abc...xyz\&quot;). | 
+**key** | **str** | The full API key value. **Only returned once** at creation or refresh time. Store it securely — it cannot be retrieved again.  | 
 **created_at** | **datetime** | Timestamp when the key was created. | 
 **expires_at** | **datetime** | Optional timestamp when the key will expire. | [optional] 
 **created_by_user_id** | **str** | ID of the user who created the key. | 

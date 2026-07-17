@@ -26,10 +26,10 @@ class MessageRole(str, Enum):
     """
     allowed enum values
     """
-    USER = 'user'
-    ASSISTANT = 'assistant'
-    SYSTEM = 'system'
-    TOOL = 'tool'
+    USER = 'USER'
+    ASSISTANT = 'ASSISTANT'
+    SYSTEM = 'SYSTEM'
+    TOOL = 'TOOL'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

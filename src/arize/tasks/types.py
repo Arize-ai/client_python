@@ -4,8 +4,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from arize._generated.api_client.models.base_evaluation_task_request_evaluators_inner import (
-    BaseEvaluationTaskRequestEvaluatorsInner,
+from arize._generated.api_client.models.list_task_runs_response import (
+    ListTaskRunsResponse,
 )
 from arize._generated.api_client.models.llm_generation_run_config import (
     LlmGenerationRunConfig,
@@ -17,10 +17,10 @@ from arize._generated.api_client.models.run_configuration import (
     RunConfiguration,
 )
 from arize._generated.api_client.models.task_evaluator import TaskEvaluator
-from arize._generated.api_client.models.task_run import TaskRun
-from arize._generated.api_client.models.task_run_list_response import (
-    TaskRunListResponse,
+from arize._generated.api_client.models.task_evaluator_input import (
+    TaskEvaluatorInput,
 )
+from arize._generated.api_client.models.task_run import TaskRun
 from arize._generated.api_client.models.task_run_status import (
     TaskRunStatus as RunStatus,
 )
@@ -72,7 +72,7 @@ class Task(BaseModel):
         return v  # type: ignore[return-value]
 
 
-class TaskListResponse(BaseModel):
+class ListTasksResponse(BaseModel):
     """SDK view of the generated list response with each ``Task``'s ``run_configuration`` unwrapped."""
 
     tasks: list[Task]
@@ -82,15 +82,15 @@ class TaskListResponse(BaseModel):
 
 
 __all__ = [
-    "BaseEvaluationTaskRequestEvaluatorsInner",
+    "ListTaskRunsResponse",
+    "ListTasksResponse",
     "LlmGenerationRunConfig",
     "RunConfiguration",
     "RunStatus",
     "Task",
     "TaskEvaluator",
-    "TaskListResponse",
+    "TaskEvaluatorInput",
     "TaskRun",
-    "TaskRunListResponse",
     "TaskType",
     "TemplateEvaluationRunConfig",
 ]

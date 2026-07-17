@@ -1,6 +1,6 @@
 # LlmIntegration
 
-An LLM integration (type=llm).
+An LLM integration (type=LLM).
 
 ## Properties
 

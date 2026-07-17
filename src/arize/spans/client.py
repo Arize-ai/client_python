@@ -52,8 +52,8 @@ if TYPE_CHECKING:
     from arize.config import SDKConfiguration
     from arize.spans.types import (
         AnnotateRecordInput,
-        SpanDeleteResponse,
-        SpanListResponse,
+        DeleteSpansResponse,
+        ListSpansResponse,
     )
 
 logger = logging.getLogger(__name__)
@@ -91,7 +91,7 @@ class SpansClient:
         project: str,
         span_ids: builtins.list[str],
         space: str | None = None,
-    ) -> SpanDeleteResponse:
+    ) -> DeleteSpansResponse:
         """Permanently delete spans by their IDs.
 
         This operation is irreversible. Only spans within the supported
@@ -105,7 +105,7 @@ class SpansClient:
                 lookup. Required when ``project`` is a name.
 
         Returns:
-            A ``SpanDeleteResponse`` with ``completed`` (``True`` if no retry
+            A ``DeleteSpansResponse`` with ``completed`` (``True`` if no retry
             is needed), ``deleted_span_ids`` (IDs confirmed deleted), and
             ``not_deleted_span_ids`` (IDs not deleted — either not found within
             the supported lookback window, or not reached when ``completed`` is
@@ -132,7 +132,7 @@ class SpansClient:
             project_id=project_id,
             span_ids=span_ids,
         )
-        return self._api.spans_delete(delete_spans_request=body)
+        return self._api.delete_spans(delete_spans_request=body)
 
     @prerelease_endpoint(key="spans.list", stage=ReleaseStage.BETA)
     def list(
@@ -145,7 +145,7 @@ class SpansClient:
         filter: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> SpanListResponse:
+    ) -> ListSpansResponse:
         """List spans for a project within a time range.
 
         Spans are returned in descending start-time order (most recent first).
@@ -199,7 +199,7 @@ class SpansClient:
             end_time=end_time,
             filter=filter,
         )
-        return self._api.spans_list(
+        return self._api.list_spans(
             list_spans_request=body,
             limit=limit,
             cursor=cursor,
@@ -253,13 +253,13 @@ class SpansClient:
         )
         from arize._generated import api_client as gen
 
-        body = gen.AnnotateSpansRequestBody(
+        body = gen.AnnotateSpansRequest(
             project_id=project_id,
             annotations=annotations,
             start_time=start_time,
             end_time=end_time,
         )
-        return self._api.spans_annotate(annotate_spans_request_body=body)
+        return self._api.annotate_spans(annotate_spans_request=body)
 
     def log(
         self,

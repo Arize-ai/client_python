@@ -4,21 +4,21 @@ The AI provider for this integration
 
 ## Enum
 
-* `OPENAI` (value: `'openAI'`)
+* `OPEN_AI` (value: `'OPEN_AI'`)
 
-* `AZUREOPENAI` (value: `'azureOpenAI'`)
+* `AZURE_OPEN_AI` (value: `'AZURE_OPEN_AI'`)
 
-* `AWSBEDROCK` (value: `'awsBedrock'`)
+* `AWS_BEDROCK` (value: `'AWS_BEDROCK'`)
 
-* `VERTEXAI` (value: `'vertexAI'`)
+* `VERTEX_AI` (value: `'VERTEX_AI'`)
 
-* `ANTHROPIC` (value: `'anthropic'`)
+* `ANTHROPIC` (value: `'ANTHROPIC'`)
 
-* `CUSTOM` (value: `'custom'`)
+* `CUSTOM` (value: `'CUSTOM'`)
 
-* `NVIDIANIM` (value: `'nvidiaNim'`)
+* `NVIDIA_NIM` (value: `'NVIDIA_NIM'`)
 
-* `GEMINI` (value: `'gemini'`)
+* `GEMINI` (value: `'GEMINI'`)
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

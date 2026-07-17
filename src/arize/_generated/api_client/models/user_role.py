@@ -26,9 +26,9 @@ class UserRole(str, Enum):
     """
     allowed enum values
     """
-    ADMIN = 'admin'
-    MEMBER = 'member'
-    ANNOTATOR = 'annotator'
+    ADMIN = 'ADMIN'
+    MEMBER = 'MEMBER'
+    ANNOTATOR = 'ANNOTATOR'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

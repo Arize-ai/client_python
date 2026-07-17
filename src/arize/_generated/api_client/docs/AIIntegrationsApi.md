@@ -4,15 +4,15 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**ai_integrations_create**](AIIntegrationsApi.md#ai_integrations_create) | **POST** /v2/ai-integrations | Create an AI integration
-[**ai_integrations_delete**](AIIntegrationsApi.md#ai_integrations_delete) | **DELETE** /v2/ai-integrations/{integration_id} | Delete an AI integration
-[**ai_integrations_get**](AIIntegrationsApi.md#ai_integrations_get) | **GET** /v2/ai-integrations/{integration_id} | Get an AI integration
-[**ai_integrations_list**](AIIntegrationsApi.md#ai_integrations_list) | **GET** /v2/ai-integrations | List AI integrations
-[**ai_integrations_update**](AIIntegrationsApi.md#ai_integrations_update) | **PATCH** /v2/ai-integrations/{integration_id} | Update an AI integration
+[**create_ai_integration**](AIIntegrationsApi.md#create_ai_integration) | **POST** /v2/ai-integrations | Create an AI integration
+[**delete_ai_integration**](AIIntegrationsApi.md#delete_ai_integration) | **DELETE** /v2/ai-integrations/{integration_id} | Delete an AI integration
+[**get_ai_integration**](AIIntegrationsApi.md#get_ai_integration) | **GET** /v2/ai-integrations/{integration_id} | Get an AI integration
+[**list_ai_integrations**](AIIntegrationsApi.md#list_ai_integrations) | **GET** /v2/ai-integrations | List AI integrations
+[**update_ai_integration**](AIIntegrationsApi.md#update_ai_integration) | **PATCH** /v2/ai-integrations/{integration_id} | Update an AI integration
 
 
-# **ai_integrations_create**
-> AiIntegration ai_integrations_create(ai_integrations_create_request)
+# **create_ai_integration**
+> AiIntegration create_ai_integration(create_ai_integration_request)
 
 Create an AI integration
 
@@ -21,19 +21,19 @@ Create a new AI integration for an external LLM provider.
 **Payload Requirements**
 - `name` and `provider` are required.
 - The integration name must be unique within the account.
-- `provider` must be one of: `openAI`, `azureOpenAI`, `awsBedrock`, `vertexAI`, `anthropic`, `nvidiaNim`, `gemini`, `custom`.
+- `provider` must be one of: `OPEN_AI`, `AZURE_OPEN_AI`, `AWS_BEDROCK`, `VERTEX_AI`, `ANTHROPIC`, `NVIDIA_NIM`, `GEMINI`, `CUSTOM`.
 - If `scopings` is omitted, the integration defaults to account-wide visibility.
 - `enable_default_models` defaults to `false` if not provided.
 - `function_calling_enabled` defaults to `true` if not provided.
-- `auth_type` defaults to `default` if not provided.
-- For `awsBedrock` provider, `provider_metadata` must include `role_arn`.
-- For `vertexAI` provider, `provider_metadata` must include `project_id`, `location`, and `project_access_label`.
+- `auth_type` defaults to `DEFAULT` if not provided.
+- For `AWS_BEDROCK` provider, `provider_metadata` must include `role_arn`.
+- For `VERTEX_AI` provider, `provider_metadata` must include `project_id`, `location`, and `project_access_label`.
 
 **Valid example**
 ```json
 {
   "name": "Production OpenAI",
-  "provider": "openAI",
+  "provider": "OPEN_AI",
   "api_key": "sk-abc123...",
   "model_names": ["gpt-4", "gpt-4o"],
   "enable_default_models": true
@@ -57,7 +57,7 @@ Create a new AI integration for an external LLM provider.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.ai_integration import AiIntegration
-from arize._generated.api_client.models.ai_integrations_create_request import AiIntegrationsCreateRequest
+from arize._generated.api_client.models.create_ai_integration_request import CreateAiIntegrationRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -81,15 +81,15 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AIIntegrationsApi(api_client)
-    ai_integrations_create_request = {"name":"Production OpenAI","provider":"openAI","api_key":"sk-abc123...","model_names":["gpt-4","gpt-4o"],"enable_default_models":true,"scopings":[{"organization_id":"QWNjb3VudE9yZzoxMjM6YWJj","space_id":null}]} # AiIntegrationsCreateRequest | Body containing AI integration creation parameters
+    create_ai_integration_request = {"name":"Production OpenAI","provider":"OPEN_AI","api_key":"sk-abc123...","model_names":["gpt-4","gpt-4o"],"enable_default_models":true,"scopings":[{"organization_id":"QWNjb3VudE9yZzoxMjM6YWJj","space_id":null}]} # CreateAiIntegrationRequest | Body containing AI integration creation parameters
 
     try:
         # Create an AI integration
-        api_response = api_instance.ai_integrations_create(ai_integrations_create_request)
-        print("The response of AIIntegrationsApi->ai_integrations_create:\n")
+        api_response = api_instance.create_ai_integration(create_ai_integration_request)
+        print("The response of AIIntegrationsApi->create_ai_integration:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling AIIntegrationsApi->ai_integrations_create: %s\n" % e)
+        print("Exception when calling AIIntegrationsApi->create_ai_integration: %s\n" % e)
 ```
 
 
@@ -99,7 +99,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **ai_integrations_create_request** | [**AiIntegrationsCreateRequest**](AiIntegrationsCreateRequest.md)| Body containing AI integration creation parameters | 
+ **create_ai_integration_request** | [**CreateAiIntegrationRequest**](CreateAiIntegrationRequest.md)| Body containing AI integration creation parameters | 
 
 ### Return type
 
@@ -129,8 +129,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **ai_integrations_delete**
-> ai_integrations_delete(integration_id)
+# **delete_ai_integration**
+> delete_ai_integration(integration_id)
 
 Delete an AI integration
 
@@ -172,9 +172,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Delete an AI integration
-        api_instance.ai_integrations_delete(integration_id)
+        api_instance.delete_ai_integration(integration_id)
     except Exception as e:
-        print("Exception when calling AIIntegrationsApi->ai_integrations_delete: %s\n" % e)
+        print("Exception when calling AIIntegrationsApi->delete_ai_integration: %s\n" % e)
 ```
 
 
@@ -212,8 +212,8 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **ai_integrations_get**
-> AiIntegration ai_integrations_get(integration_id)
+# **get_ai_integration**
+> AiIntegration get_ai_integration(integration_id)
 
 Get an AI integration
 
@@ -256,11 +256,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Get an AI integration
-        api_response = api_instance.ai_integrations_get(integration_id)
-        print("The response of AIIntegrationsApi->ai_integrations_get:\n")
+        api_response = api_instance.get_ai_integration(integration_id)
+        print("The response of AIIntegrationsApi->get_ai_integration:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling AIIntegrationsApi->ai_integrations_get: %s\n" % e)
+        print("Exception when calling AIIntegrationsApi->get_ai_integration: %s\n" % e)
 ```
 
 
@@ -297,8 +297,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **ai_integrations_list**
-> AiIntegrationListResponse ai_integrations_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+# **list_ai_integrations**
+> ListAiIntegrationsResponse list_ai_integrations(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
 
 List AI integrations
 
@@ -313,7 +313,7 @@ List AI integrations the user has access to.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.ai_integration_list_response import AiIntegrationListResponse
+from arize._generated.api_client.models.list_ai_integrations_response import ListAiIntegrationsResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -345,11 +345,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # List AI integrations
-        api_response = api_instance.ai_integrations_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
-        print("The response of AIIntegrationsApi->ai_integrations_list:\n")
+        api_response = api_instance.list_ai_integrations(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+        print("The response of AIIntegrationsApi->list_ai_integrations:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling AIIntegrationsApi->ai_integrations_list: %s\n" % e)
+        print("Exception when calling AIIntegrationsApi->list_ai_integrations: %s\n" % e)
 ```
 
 
@@ -367,7 +367,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AiIntegrationListResponse**](AiIntegrationListResponse.md)
+[**ListAiIntegrationsResponse**](ListAiIntegrationsResponse.md)
 
 ### Authorization
 
@@ -386,12 +386,13 @@ Name | Type | Description  | Notes
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **ai_integrations_update**
-> AiIntegration ai_integrations_update(integration_id, ai_integrations_update_request)
+# **update_ai_integration**
+> AiIntegration update_ai_integration(integration_id, update_ai_integration_request)
 
 Update an AI integration
 
@@ -428,7 +429,7 @@ Omitted fields are left unchanged.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.ai_integration import AiIntegration
-from arize._generated.api_client.models.ai_integrations_update_request import AiIntegrationsUpdateRequest
+from arize._generated.api_client.models.update_ai_integration_request import UpdateAiIntegrationRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -453,15 +454,15 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AIIntegrationsApi(api_client)
     integration_id = 'TGxtSW50ZWdyYXRpb246MTI6YUJjRA==' # str | The unique AI integration identifier (base64)
-    ai_integrations_update_request = {"name":"Updated OpenAI Integration","api_key":null,"model_names":["gpt-4o","gpt-4o-mini"]} # AiIntegrationsUpdateRequest | Body containing AI integration update parameters. At least one field must be provided.
+    update_ai_integration_request = {"name":"Updated OpenAI Integration","api_key":null,"model_names":["gpt-4o","gpt-4o-mini"]} # UpdateAiIntegrationRequest | Body containing AI integration update parameters. At least one field must be provided.
 
     try:
         # Update an AI integration
-        api_response = api_instance.ai_integrations_update(integration_id, ai_integrations_update_request)
-        print("The response of AIIntegrationsApi->ai_integrations_update:\n")
+        api_response = api_instance.update_ai_integration(integration_id, update_ai_integration_request)
+        print("The response of AIIntegrationsApi->update_ai_integration:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling AIIntegrationsApi->ai_integrations_update: %s\n" % e)
+        print("Exception when calling AIIntegrationsApi->update_ai_integration: %s\n" % e)
 ```
 
 
@@ -472,7 +473,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **integration_id** | **str**| The unique AI integration identifier (base64) | 
- **ai_integrations_update_request** | [**AiIntegrationsUpdateRequest**](AiIntegrationsUpdateRequest.md)| Body containing AI integration update parameters. At least one field must be provided. | 
+ **update_ai_integration_request** | [**UpdateAiIntegrationRequest**](UpdateAiIntegrationRequest.md)| Body containing AI integration update parameters. At least one field must be provided. | 
 
 ### Return type
 

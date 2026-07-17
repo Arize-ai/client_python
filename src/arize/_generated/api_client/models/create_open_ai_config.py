@@ -34,8 +34,8 @@ class CreateOpenAiConfig(BaseModel):
     @field_validator('provider')
     def provider_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['openAI']):
-            raise ValueError("must be one of enum values ('openAI')")
+        if value not in set(['OPEN_AI']):
+            raise ValueError("must be one of enum values ('OPEN_AI')")
         return value
 
     model_config = ConfigDict(

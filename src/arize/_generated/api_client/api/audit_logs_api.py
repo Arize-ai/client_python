@@ -21,7 +21,7 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.audit_log_operation_type import AuditLogOperationType
-from arize._generated.api_client.models.audit_logs_list200_response import AuditLogsList200Response
+from arize._generated.api_client.models.list_audit_logs_response import ListAuditLogsResponse
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -42,7 +42,7 @@ class AuditLogsApi:
 
 
     @validate_call
-    def audit_logs_list(
+    def list_audit_logs(
         self,
         start_time: Annotated[Optional[datetime], Field(description="Inclusive lower bound on `created_at` (ISO 8601 datetime). Defaults to 30 days before `end_time` when omitted. ")] = None,
         end_time: Annotated[Optional[datetime], Field(description="Inclusive upper bound on `created_at` (ISO 8601 datetime). Defaults to the current time when omitted. ")] = None,
@@ -62,10 +62,10 @@ class AuditLogsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AuditLogsList200Response:
+    ) -> ListAuditLogsResponse:
         """List audit logs
 
-        Retrieve a paginated list of authenticated user audit log entries for the account. Results are ordered newest first.  **Access requirements:** - The caller must be an account admin. - The account must have audit logging enabled.  Returns `403` if either condition is not met.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Retrieve a paginated list of authenticated user audit log entries for the account. Results are ordered newest first.  **Access requirements:** - The caller must be an account admin. - The account must have audit logging enabled.  Returns `403` if either condition is not met.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param start_time: Inclusive lower bound on `created_at` (ISO 8601 datetime). Defaults to 30 days before `end_time` when omitted. 
         :type start_time: datetime
@@ -101,7 +101,7 @@ class AuditLogsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._audit_logs_list_serialize(
+        _param = self._list_audit_logs_serialize(
             start_time=start_time,
             end_time=end_time,
             user_id=user_id,
@@ -115,7 +115,7 @@ class AuditLogsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AuditLogsList200Response",
+            '200': "ListAuditLogsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -133,7 +133,7 @@ class AuditLogsApi:
 
 
     @validate_call
-    def audit_logs_list_with_http_info(
+    def list_audit_logs_with_http_info(
         self,
         start_time: Annotated[Optional[datetime], Field(description="Inclusive lower bound on `created_at` (ISO 8601 datetime). Defaults to 30 days before `end_time` when omitted. ")] = None,
         end_time: Annotated[Optional[datetime], Field(description="Inclusive upper bound on `created_at` (ISO 8601 datetime). Defaults to the current time when omitted. ")] = None,
@@ -153,10 +153,10 @@ class AuditLogsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AuditLogsList200Response]:
+    ) -> ApiResponse[ListAuditLogsResponse]:
         """List audit logs
 
-        Retrieve a paginated list of authenticated user audit log entries for the account. Results are ordered newest first.  **Access requirements:** - The caller must be an account admin. - The account must have audit logging enabled.  Returns `403` if either condition is not met.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Retrieve a paginated list of authenticated user audit log entries for the account. Results are ordered newest first.  **Access requirements:** - The caller must be an account admin. - The account must have audit logging enabled.  Returns `403` if either condition is not met.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param start_time: Inclusive lower bound on `created_at` (ISO 8601 datetime). Defaults to 30 days before `end_time` when omitted. 
         :type start_time: datetime
@@ -192,7 +192,7 @@ class AuditLogsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._audit_logs_list_serialize(
+        _param = self._list_audit_logs_serialize(
             start_time=start_time,
             end_time=end_time,
             user_id=user_id,
@@ -206,7 +206,7 @@ class AuditLogsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AuditLogsList200Response",
+            '200': "ListAuditLogsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -224,7 +224,7 @@ class AuditLogsApi:
 
 
     @validate_call
-    def audit_logs_list_without_preload_content(
+    def list_audit_logs_without_preload_content(
         self,
         start_time: Annotated[Optional[datetime], Field(description="Inclusive lower bound on `created_at` (ISO 8601 datetime). Defaults to 30 days before `end_time` when omitted. ")] = None,
         end_time: Annotated[Optional[datetime], Field(description="Inclusive upper bound on `created_at` (ISO 8601 datetime). Defaults to the current time when omitted. ")] = None,
@@ -247,7 +247,7 @@ class AuditLogsApi:
     ) -> RESTResponseType:
         """List audit logs
 
-        Retrieve a paginated list of authenticated user audit log entries for the account. Results are ordered newest first.  **Access requirements:** - The caller must be an account admin. - The account must have audit logging enabled.  Returns `403` if either condition is not met.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Retrieve a paginated list of authenticated user audit log entries for the account. Results are ordered newest first.  **Access requirements:** - The caller must be an account admin. - The account must have audit logging enabled.  Returns `403` if either condition is not met.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param start_time: Inclusive lower bound on `created_at` (ISO 8601 datetime). Defaults to 30 days before `end_time` when omitted. 
         :type start_time: datetime
@@ -283,7 +283,7 @@ class AuditLogsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._audit_logs_list_serialize(
+        _param = self._list_audit_logs_serialize(
             start_time=start_time,
             end_time=end_time,
             user_id=user_id,
@@ -297,7 +297,7 @@ class AuditLogsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AuditLogsList200Response",
+            '200': "ListAuditLogsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -310,7 +310,7 @@ class AuditLogsApi:
         return response_data.response
 
 
-    def _audit_logs_list_serialize(
+    def _list_audit_logs_serialize(
         self,
         start_time,
         end_time,

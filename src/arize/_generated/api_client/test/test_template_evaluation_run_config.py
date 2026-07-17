@@ -35,7 +35,7 @@ class TestTemplateEvaluationRunConfig(unittest.TestCase):
         model = TemplateEvaluationRunConfig()
         if include_optional:
             return TemplateEvaluationRunConfig(
-                experiment_type = 'template_evaluation',
+                experiment_type = 'TEMPLATE_EVALUATION',
                 ai_integration_id = '',
                 model_name = '',
                 template = '0',
@@ -47,33 +47,12 @@ class TestTemplateEvaluationRunConfig(unittest.TestCase):
                     'key' : ''
                     },
                 evaluator_version_id = '',
-                invocation_parameters = arize._generated.api_client.models.invocation_params.InvocationParams(
-                    temperature = 1.337, 
-                    max_tokens = 56, 
-                    max_completion_tokens = 56, 
-                    top_p = 1.337, 
-                    frequency_penalty = 1.337, 
-                    presence_penalty = 1.337, 
-                    stop = [
-                        ''
-                        ], 
-                    response_format = arize._generated.api_client.models.response_format.ResponseFormat(
-                        type = 'text', 
-                        json_schema = arize._generated.api_client.models.response_format_json_schema.ResponseFormat_json_schema(
-                            name = '', 
-                            description = '', 
-                            schema = arize._generated.api_client.models.schema.schema(), 
-                            strict = True, ), ), 
-                    tool_config = arize._generated.api_client.models.tool_config.ToolConfig(
-                        tools = [
-                            None
-                            ], 
-                        tool_choice = null, ), ),
+                invocation_parameters = { },
                 provider_parameters = arize._generated.api_client.models.provider_parameters.provider_parameters()
             )
         else:
             return TemplateEvaluationRunConfig(
-                experiment_type = 'template_evaluation',
+                experiment_type = 'TEMPLATE_EVALUATION',
                 ai_integration_id = '',
                 template = '0',
                 provide_explanation = True,

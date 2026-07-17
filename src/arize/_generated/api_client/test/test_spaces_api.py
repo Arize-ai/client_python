@@ -26,10 +26,52 @@ class TestSpacesApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_spaces_list(self) -> None:
-        """Test case for spaces_list
+    def test_add_space_user(self) -> None:
+        """Test case for add_space_user
 
-        List spaces (Alpha)
+        Add a user to a space
+        """
+        pass
+
+    def test_create_space(self) -> None:
+        """Test case for create_space
+
+        Create a space
+        """
+        pass
+
+    def test_delete_space(self) -> None:
+        """Test case for delete_space
+
+        Delete a space
+        """
+        pass
+
+    def test_get_space(self) -> None:
+        """Test case for get_space
+
+        Get a space
+        """
+        pass
+
+    def test_list_spaces(self) -> None:
+        """Test case for list_spaces
+
+        List spaces
+        """
+        pass
+
+    def test_remove_space_user(self) -> None:
+        """Test case for remove_space_user
+
+        Remove a user from a space
+        """
+        pass
+
+    def test_update_space(self) -> None:
+        """Test case for update_space
+
+        Update a space
         """
         pass
 

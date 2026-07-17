@@ -27,7 +27,7 @@ class CustomUserRoleAssignment(BaseModel):
     """
     A custom RBAC role assignment.
     """ # noqa: E501
-    type: UserRoleAssignmentType = Field(description="Discriminator identifying this as a custom role assignment. Must be `custom`.")
+    type: UserRoleAssignmentType = Field(description="Discriminator identifying this as a custom role assignment. Must be `CUSTOM`.")
     id: StrictStr = Field(description="The unique identifier of the custom RBAC role.")
     name: Optional[StrictStr] = Field(default=None, description="Human-readable name of the custom role. Returned in responses only; ignored on input. ")
     __properties: ClassVar[List[str]] = ["type", "id", "name"]

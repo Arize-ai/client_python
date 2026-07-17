@@ -26,17 +26,24 @@ class TestResourceRestrictionsApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_resource_restrictions_create(self) -> None:
-        """Test case for resource_restrictions_create
+    def test_create_resource_restriction(self) -> None:
+        """Test case for create_resource_restriction
 
         Restrict a resource
         """
         pass
 
-    def test_resource_restrictions_delete(self) -> None:
-        """Test case for resource_restrictions_delete
+    def test_delete_resource_restriction(self) -> None:
+        """Test case for delete_resource_restriction
 
         Unrestrict a resource
+        """
+        pass
+
+    def test_list_resource_restrictions(self) -> None:
+        """Test case for list_resource_restrictions
+
+        List resource restrictions the caller is permitted to manage.
         """
         pass
 

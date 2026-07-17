@@ -19,11 +19,11 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
-from arize._generated.api_client.models.annotate_spans_request_body import AnnotateSpansRequestBody
+from arize._generated.api_client.models.annotate_spans_request import AnnotateSpansRequest
 from arize._generated.api_client.models.delete_spans_request import DeleteSpansRequest
+from arize._generated.api_client.models.delete_spans_response import DeleteSpansResponse
 from arize._generated.api_client.models.list_spans_request import ListSpansRequest
-from arize._generated.api_client.models.span_delete_response import SpanDeleteResponse
-from arize._generated.api_client.models.span_list_response import SpanListResponse
+from arize._generated.api_client.models.list_spans_response import ListSpansResponse
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -44,9 +44,9 @@ class SpansApi:
 
 
     @validate_call
-    def spans_annotate(
+    def annotate_spans(
         self,
-        annotate_spans_request_body: Annotated[AnnotateSpansRequestBody, Field(description="Body containing span annotation batch")],
+        annotate_spans_request: Annotated[AnnotateSpansRequest, Field(description="Body containing span annotation batch")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -62,10 +62,10 @@ class SpansApi:
     ) -> None:
         """Annotate a batch of project spans
 
-        Write human annotations to a batch of spans in a project.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same span overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval.  **Partial failure**: Writes are grouped by calendar day and processed sequentially. A non-2xx response means the request failed during the write phase — annotations for earlier calendar-day buckets may already be saved while later ones are not. It is safe to retry the full request; re-submitting a record that was already saved will overwrite it with the same value (no duplicates).  **Payload Requirements** - `project_id` is required and must identify a project the caller has span annotation access to. - `annotations` is a list of per-span annotation inputs. Each entry identifies   one span by its `record_id` and provides one or more annotation values. - Each `record_id` must be unique within the request (duplicates return 400). - Each record's `values` list must not contain duplicate annotation config names (returns 400). - `start_time` / `end_time` constrain the Druid time range for span lookup.   If omitted, `start_time` defaults to 31 days ago and `end_time` to now.   Both `start_time` and `end_time` may not be in the future. The window may   not exceed 31 days. If ANY span ID cannot be located within the given   range, the entire request is rejected with 404 and no annotations are   written (all-or-nothing pre-validation). Only after all spans are   confirmed does the write phase begin. - Annotation names must match existing annotation configs in the project's space. - Up to 1000 span records may be annotated per request.  **Valid example** ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\", \"score\": 1.0}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  **Invalid example** (time window exceeds 31 days) ```json {   \"project_id\": \"proj_abc123\",   \"start_time\": \"2025-01-01T00:00:00Z\",   \"end_time\": \"2025-03-01T00:00:00Z\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Write human annotations to a batch of spans in a project.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same span overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval.  **Partial failure**: Writes are grouped by calendar day and processed sequentially. A non-2xx response means the request failed during the write phase — annotations for earlier calendar-day buckets may already be saved while later ones are not. It is safe to retry the full request; re-submitting a record that was already saved will overwrite it with the same value (no duplicates).  **Payload Requirements** - `project_id` is required and must identify a project the caller has span annotation access to. - `annotations` is a list of per-span annotation inputs. Each entry identifies   one span by its `record_id` and provides one or more annotation values. - Each `record_id` must be unique within the request (duplicates return 400). - Each record's `values` list must not contain duplicate annotation config names (returns 400). - `start_time` / `end_time` constrain the time range for span lookup.   If omitted, `start_time` defaults to 31 days ago and `end_time` to now.   Both `start_time` and `end_time` may not be in the future. The window may   not exceed 31 days. If ANY span ID cannot be located within the given   range, the entire request is rejected with 404 and no annotations are   written (all-or-nothing pre-validation). Only after all spans are   confirmed does the write phase begin. - Annotation names must match existing annotation configs in the project's space. - Up to 1000 span records may be annotated per request.  **Valid example** ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\", \"score\": 1.0}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  **Invalid example** (time window exceeds 31 days) ```json {   \"project_id\": \"proj_abc123\",   \"start_time\": \"2025-01-01T00:00:00Z\",   \"end_time\": \"2025-03-01T00:00:00Z\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param annotate_spans_request_body: Body containing span annotation batch (required)
-        :type annotate_spans_request_body: AnnotateSpansRequestBody
+        :param annotate_spans_request: Body containing span annotation batch (required)
+        :type annotate_spans_request: AnnotateSpansRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -88,8 +88,8 @@ class SpansApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._spans_annotate_serialize(
-            annotate_spans_request_body=annotate_spans_request_body,
+        _param = self._annotate_spans_serialize(
+            annotate_spans_request=annotate_spans_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -117,9 +117,9 @@ class SpansApi:
 
 
     @validate_call
-    def spans_annotate_with_http_info(
+    def annotate_spans_with_http_info(
         self,
-        annotate_spans_request_body: Annotated[AnnotateSpansRequestBody, Field(description="Body containing span annotation batch")],
+        annotate_spans_request: Annotated[AnnotateSpansRequest, Field(description="Body containing span annotation batch")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -135,10 +135,10 @@ class SpansApi:
     ) -> ApiResponse[None]:
         """Annotate a batch of project spans
 
-        Write human annotations to a batch of spans in a project.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same span overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval.  **Partial failure**: Writes are grouped by calendar day and processed sequentially. A non-2xx response means the request failed during the write phase — annotations for earlier calendar-day buckets may already be saved while later ones are not. It is safe to retry the full request; re-submitting a record that was already saved will overwrite it with the same value (no duplicates).  **Payload Requirements** - `project_id` is required and must identify a project the caller has span annotation access to. - `annotations` is a list of per-span annotation inputs. Each entry identifies   one span by its `record_id` and provides one or more annotation values. - Each `record_id` must be unique within the request (duplicates return 400). - Each record's `values` list must not contain duplicate annotation config names (returns 400). - `start_time` / `end_time` constrain the Druid time range for span lookup.   If omitted, `start_time` defaults to 31 days ago and `end_time` to now.   Both `start_time` and `end_time` may not be in the future. The window may   not exceed 31 days. If ANY span ID cannot be located within the given   range, the entire request is rejected with 404 and no annotations are   written (all-or-nothing pre-validation). Only after all spans are   confirmed does the write phase begin. - Annotation names must match existing annotation configs in the project's space. - Up to 1000 span records may be annotated per request.  **Valid example** ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\", \"score\": 1.0}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  **Invalid example** (time window exceeds 31 days) ```json {   \"project_id\": \"proj_abc123\",   \"start_time\": \"2025-01-01T00:00:00Z\",   \"end_time\": \"2025-03-01T00:00:00Z\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Write human annotations to a batch of spans in a project.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same span overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval.  **Partial failure**: Writes are grouped by calendar day and processed sequentially. A non-2xx response means the request failed during the write phase — annotations for earlier calendar-day buckets may already be saved while later ones are not. It is safe to retry the full request; re-submitting a record that was already saved will overwrite it with the same value (no duplicates).  **Payload Requirements** - `project_id` is required and must identify a project the caller has span annotation access to. - `annotations` is a list of per-span annotation inputs. Each entry identifies   one span by its `record_id` and provides one or more annotation values. - Each `record_id` must be unique within the request (duplicates return 400). - Each record's `values` list must not contain duplicate annotation config names (returns 400). - `start_time` / `end_time` constrain the time range for span lookup.   If omitted, `start_time` defaults to 31 days ago and `end_time` to now.   Both `start_time` and `end_time` may not be in the future. The window may   not exceed 31 days. If ANY span ID cannot be located within the given   range, the entire request is rejected with 404 and no annotations are   written (all-or-nothing pre-validation). Only after all spans are   confirmed does the write phase begin. - Annotation names must match existing annotation configs in the project's space. - Up to 1000 span records may be annotated per request.  **Valid example** ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\", \"score\": 1.0}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  **Invalid example** (time window exceeds 31 days) ```json {   \"project_id\": \"proj_abc123\",   \"start_time\": \"2025-01-01T00:00:00Z\",   \"end_time\": \"2025-03-01T00:00:00Z\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param annotate_spans_request_body: Body containing span annotation batch (required)
-        :type annotate_spans_request_body: AnnotateSpansRequestBody
+        :param annotate_spans_request: Body containing span annotation batch (required)
+        :type annotate_spans_request: AnnotateSpansRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -161,8 +161,8 @@ class SpansApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._spans_annotate_serialize(
-            annotate_spans_request_body=annotate_spans_request_body,
+        _param = self._annotate_spans_serialize(
+            annotate_spans_request=annotate_spans_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -190,9 +190,9 @@ class SpansApi:
 
 
     @validate_call
-    def spans_annotate_without_preload_content(
+    def annotate_spans_without_preload_content(
         self,
-        annotate_spans_request_body: Annotated[AnnotateSpansRequestBody, Field(description="Body containing span annotation batch")],
+        annotate_spans_request: Annotated[AnnotateSpansRequest, Field(description="Body containing span annotation batch")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -208,10 +208,10 @@ class SpansApi:
     ) -> RESTResponseType:
         """Annotate a batch of project spans
 
-        Write human annotations to a batch of spans in a project.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same span overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval.  **Partial failure**: Writes are grouped by calendar day and processed sequentially. A non-2xx response means the request failed during the write phase — annotations for earlier calendar-day buckets may already be saved while later ones are not. It is safe to retry the full request; re-submitting a record that was already saved will overwrite it with the same value (no duplicates).  **Payload Requirements** - `project_id` is required and must identify a project the caller has span annotation access to. - `annotations` is a list of per-span annotation inputs. Each entry identifies   one span by its `record_id` and provides one or more annotation values. - Each `record_id` must be unique within the request (duplicates return 400). - Each record's `values` list must not contain duplicate annotation config names (returns 400). - `start_time` / `end_time` constrain the Druid time range for span lookup.   If omitted, `start_time` defaults to 31 days ago and `end_time` to now.   Both `start_time` and `end_time` may not be in the future. The window may   not exceed 31 days. If ANY span ID cannot be located within the given   range, the entire request is rejected with 404 and no annotations are   written (all-or-nothing pre-validation). Only after all spans are   confirmed does the write phase begin. - Annotation names must match existing annotation configs in the project's space. - Up to 1000 span records may be annotated per request.  **Valid example** ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\", \"score\": 1.0}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  **Invalid example** (time window exceeds 31 days) ```json {   \"project_id\": \"proj_abc123\",   \"start_time\": \"2025-01-01T00:00:00Z\",   \"end_time\": \"2025-03-01T00:00:00Z\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Write human annotations to a batch of spans in a project.  **Idempotency**: Writes use upsert semantics — submitting the same annotation config name for the same span overwrites the previous value. Retrying on network failure will not create duplicates.  **202 Accepted**: The annotations have been accepted and will be written. Visibility in read queries may lag by a short interval.  **Partial failure**: Writes are grouped by calendar day and processed sequentially. A non-2xx response means the request failed during the write phase — annotations for earlier calendar-day buckets may already be saved while later ones are not. It is safe to retry the full request; re-submitting a record that was already saved will overwrite it with the same value (no duplicates).  **Payload Requirements** - `project_id` is required and must identify a project the caller has span annotation access to. - `annotations` is a list of per-span annotation inputs. Each entry identifies   one span by its `record_id` and provides one or more annotation values. - Each `record_id` must be unique within the request (duplicates return 400). - Each record's `values` list must not contain duplicate annotation config names (returns 400). - `start_time` / `end_time` constrain the time range for span lookup.   If omitted, `start_time` defaults to 31 days ago and `end_time` to now.   Both `start_time` and `end_time` may not be in the future. The window may   not exceed 31 days. If ANY span ID cannot be located within the given   range, the entire request is rejected with 404 and no annotations are   written (all-or-nothing pre-validation). Only after all spans are   confirmed does the write phase begin. - Annotation names must match existing annotation configs in the project's space. - Up to 1000 span records may be annotated per request.  **Valid example** ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\", \"score\": 1.0}]}   ] } ```  **Invalid example** (annotation name not found in space) ```json {   \"project_id\": \"proj_abc123\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"nonexistent_config\"}]}   ] } ```  **Invalid example** (time window exceeds 31 days) ```json {   \"project_id\": \"proj_abc123\",   \"start_time\": \"2025-01-01T00:00:00Z\",   \"end_time\": \"2025-03-01T00:00:00Z\",   \"annotations\": [     {\"record_id\": \"span_abc\", \"values\": [{\"name\": \"relevance\", \"label\": \"good\"}]}   ] } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param annotate_spans_request_body: Body containing span annotation batch (required)
-        :type annotate_spans_request_body: AnnotateSpansRequestBody
+        :param annotate_spans_request: Body containing span annotation batch (required)
+        :type annotate_spans_request: AnnotateSpansRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -234,8 +234,8 @@ class SpansApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._spans_annotate_serialize(
-            annotate_spans_request_body=annotate_spans_request_body,
+        _param = self._annotate_spans_serialize(
+            annotate_spans_request=annotate_spans_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -258,9 +258,9 @@ class SpansApi:
         return response_data.response
 
 
-    def _spans_annotate_serialize(
+    def _annotate_spans_serialize(
         self,
-        annotate_spans_request_body,
+        annotate_spans_request,
         _request_auth,
         _content_type,
         _headers,
@@ -286,8 +286,8 @@ class SpansApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if annotate_spans_request_body is not None:
-            _body_params = annotate_spans_request_body
+        if annotate_spans_request is not None:
+            _body_params = annotate_spans_request
 
 
         # set the HTTP header `Accept`
@@ -336,7 +336,7 @@ class SpansApi:
 
 
     @validate_call
-    def spans_delete(
+    def delete_spans(
         self,
         delete_spans_request: Annotated[DeleteSpansRequest, Field(description="Body containing span IDs to delete")],
         _request_timeout: Union[
@@ -351,10 +351,10 @@ class SpansApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> SpanDeleteResponse:
+    ) -> DeleteSpansResponse:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if the operation could not fully complete (retry the full request). - `deleted_span_ids` — span IDs confirmed deleted in this request. - `not_deleted_span_ids` — requested IDs not deleted: either not found within   the supported lookback window, or not reached when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported time range (2 years) are considered; older spans are not affected.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if the operation could not fully complete (retry the full request). - `deleted_span_ids` — span IDs confirmed deleted in this request. - `not_deleted_span_ids` — requested IDs not deleted: either not found within   the supported time range, or not reached when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param delete_spans_request: Body containing span IDs to delete (required)
         :type delete_spans_request: DeleteSpansRequest
@@ -380,7 +380,7 @@ class SpansApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._spans_delete_serialize(
+        _param = self._delete_spans_serialize(
             delete_spans_request=delete_spans_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -389,14 +389,14 @@ class SpansApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SpanDeleteResponse",
+            '200': "DeleteSpansResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
             '422': "Problem",
             '429': "Problem",
-            '503': "SpanDeleteProblem",
+            '503': "DeleteSpansProblem",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -410,7 +410,7 @@ class SpansApi:
 
 
     @validate_call
-    def spans_delete_with_http_info(
+    def delete_spans_with_http_info(
         self,
         delete_spans_request: Annotated[DeleteSpansRequest, Field(description="Body containing span IDs to delete")],
         _request_timeout: Union[
@@ -425,10 +425,10 @@ class SpansApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[SpanDeleteResponse]:
+    ) -> ApiResponse[DeleteSpansResponse]:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if the operation could not fully complete (retry the full request). - `deleted_span_ids` — span IDs confirmed deleted in this request. - `not_deleted_span_ids` — requested IDs not deleted: either not found within   the supported lookback window, or not reached when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported time range (2 years) are considered; older spans are not affected.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if the operation could not fully complete (retry the full request). - `deleted_span_ids` — span IDs confirmed deleted in this request. - `not_deleted_span_ids` — requested IDs not deleted: either not found within   the supported time range, or not reached when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param delete_spans_request: Body containing span IDs to delete (required)
         :type delete_spans_request: DeleteSpansRequest
@@ -454,7 +454,7 @@ class SpansApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._spans_delete_serialize(
+        _param = self._delete_spans_serialize(
             delete_spans_request=delete_spans_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -463,14 +463,14 @@ class SpansApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SpanDeleteResponse",
+            '200': "DeleteSpansResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
             '422': "Problem",
             '429': "Problem",
-            '503': "SpanDeleteProblem",
+            '503': "DeleteSpansProblem",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -484,7 +484,7 @@ class SpansApi:
 
 
     @validate_call
-    def spans_delete_without_preload_content(
+    def delete_spans_without_preload_content(
         self,
         delete_spans_request: Annotated[DeleteSpansRequest, Field(description="Body containing span IDs to delete")],
         _request_timeout: Union[
@@ -502,7 +502,7 @@ class SpansApi:
     ) -> RESTResponseType:
         """Delete spans
 
-        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported lookback window (2 years) are considered; older spans are not affected.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if the operation could not fully complete (retry the full request). - `deleted_span_ids` — span IDs confirmed deleted in this request. - `not_deleted_span_ids` — requested IDs not deleted: either not found within   the supported lookback window, or not reached when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Permanently deletes spans by their span IDs. This operation is irreversible.  Accepts between 1 and 5000 span IDs per request. Only spans within the supported time range (2 years) are considered; older spans are not affected.  A `200 OK` response always includes: - `completed` — `true` if the operation finished and no retry is needed;   `false` if the operation could not fully complete (retry the full request). - `deleted_span_ids` — span IDs confirmed deleted in this request. - `not_deleted_span_ids` — requested IDs not deleted: either not found within   the supported time range, or not reached when `completed` is `false`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param delete_spans_request: Body containing span IDs to delete (required)
         :type delete_spans_request: DeleteSpansRequest
@@ -528,7 +528,7 @@ class SpansApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._spans_delete_serialize(
+        _param = self._delete_spans_serialize(
             delete_spans_request=delete_spans_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -537,14 +537,14 @@ class SpansApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SpanDeleteResponse",
+            '200': "DeleteSpansResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
             '422': "Problem",
             '429': "Problem",
-            '503': "SpanDeleteProblem",
+            '503': "DeleteSpansProblem",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -553,7 +553,7 @@ class SpansApi:
         return response_data.response
 
 
-    def _spans_delete_serialize(
+    def _delete_spans_serialize(
         self,
         delete_spans_request,
         _request_auth,
@@ -632,7 +632,7 @@ class SpansApi:
 
 
     @validate_call
-    def spans_list(
+    def list_spans(
         self,
         list_spans_request: Annotated[ListSpansRequest, Field(description="Body containing span query parameters")],
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -649,7 +649,7 @@ class SpansApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> SpanListResponse:
+    ) -> ListSpansResponse:
         """List spans
 
         Returns a paginated list of spans.  The spans are sorted by their timestamp, with the most recent coming first.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -682,7 +682,7 @@ class SpansApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._spans_list_serialize(
+        _param = self._list_spans_serialize(
             list_spans_request=list_spans_request,
             limit=limit,
             cursor=cursor,
@@ -693,7 +693,7 @@ class SpansApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SpanListResponse",
+            '200': "ListSpansResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -713,7 +713,7 @@ class SpansApi:
 
 
     @validate_call
-    def spans_list_with_http_info(
+    def list_spans_with_http_info(
         self,
         list_spans_request: Annotated[ListSpansRequest, Field(description="Body containing span query parameters")],
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -730,7 +730,7 @@ class SpansApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[SpanListResponse]:
+    ) -> ApiResponse[ListSpansResponse]:
         """List spans
 
         Returns a paginated list of spans.  The spans are sorted by their timestamp, with the most recent coming first.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -763,7 +763,7 @@ class SpansApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._spans_list_serialize(
+        _param = self._list_spans_serialize(
             list_spans_request=list_spans_request,
             limit=limit,
             cursor=cursor,
@@ -774,7 +774,7 @@ class SpansApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SpanListResponse",
+            '200': "ListSpansResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -794,7 +794,7 @@ class SpansApi:
 
 
     @validate_call
-    def spans_list_without_preload_content(
+    def list_spans_without_preload_content(
         self,
         list_spans_request: Annotated[ListSpansRequest, Field(description="Body containing span query parameters")],
         limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -844,7 +844,7 @@ class SpansApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._spans_list_serialize(
+        _param = self._list_spans_serialize(
             list_spans_request=list_spans_request,
             limit=limit,
             cursor=cursor,
@@ -855,7 +855,7 @@ class SpansApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SpanListResponse",
+            '200': "ListSpansResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -870,7 +870,7 @@ class SpansApi:
         return response_data.response
 
 
-    def _spans_list_serialize(
+    def _list_spans_serialize(
         self,
         list_spans_request,
         limit,

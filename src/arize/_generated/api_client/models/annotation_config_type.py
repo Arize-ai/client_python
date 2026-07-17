@@ -20,15 +20,15 @@ from typing_extensions import Self
 
 class AnnotationConfigType(str, Enum):
     """
-    The type of annotation config: - continuous: a numeric score within a defined range - categorical: a set of labeled values each with an optional score - freeform: free-text annotation with no structured scoring 
+    The type of annotation config: - CONTINUOUS: a numeric score within a defined range - CATEGORICAL: a set of labeled values each with an optional score - FREEFORM: free-text annotation with no structured scoring 
     """
 
     """
     allowed enum values
     """
-    CONTINUOUS = 'continuous'
-    CATEGORICAL = 'categorical'
-    FREEFORM = 'freeform'
+    CONTINUOUS = 'CONTINUOUS'
+    CATEGORICAL = 'CATEGORICAL'
+    FREEFORM = 'FREEFORM'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

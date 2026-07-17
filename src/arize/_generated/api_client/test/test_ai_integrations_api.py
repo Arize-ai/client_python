@@ -26,36 +26,36 @@ class TestAIIntegrationsApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_ai_integrations_create(self) -> None:
-        """Test case for ai_integrations_create
+    def test_create_ai_integration(self) -> None:
+        """Test case for create_ai_integration
 
         Create an AI integration
         """
         pass
 
-    def test_ai_integrations_delete(self) -> None:
-        """Test case for ai_integrations_delete
+    def test_delete_ai_integration(self) -> None:
+        """Test case for delete_ai_integration
 
         Delete an AI integration
         """
         pass
 
-    def test_ai_integrations_get(self) -> None:
-        """Test case for ai_integrations_get
+    def test_get_ai_integration(self) -> None:
+        """Test case for get_ai_integration
 
         Get an AI integration
         """
         pass
 
-    def test_ai_integrations_list(self) -> None:
-        """Test case for ai_integrations_list
+    def test_list_ai_integrations(self) -> None:
+        """Test case for list_ai_integrations
 
         List AI integrations
         """
         pass
 
-    def test_ai_integrations_update(self) -> None:
-        """Test case for ai_integrations_update
+    def test_update_ai_integration(self) -> None:
+        """Test case for update_ai_integration
 
         Update an AI integration
         """

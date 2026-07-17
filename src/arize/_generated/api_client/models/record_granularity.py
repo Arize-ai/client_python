@@ -20,14 +20,14 @@ from typing_extensions import Self
 
 class RecordGranularity(str, Enum):
     """
-    Granularity of an annotation queue record. - span: The record represents a span. - trace: The record represents a trace. 
+    Granularity of an annotation queue record. - SPAN: The record represents a span. - TRACE: The record represents a trace. 
     """
 
     """
     allowed enum values
     """
-    SPAN = 'span'
-    TRACE = 'trace'
+    SPAN = 'SPAN'
+    TRACE = 'TRACE'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

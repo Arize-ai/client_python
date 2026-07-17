@@ -4,15 +4,15 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**roles_create**](RolesApi.md#roles_create) | **POST** /v2/roles | Create a role
-[**roles_delete**](RolesApi.md#roles_delete) | **DELETE** /v2/roles/{role_id} | Delete a role
-[**roles_get**](RolesApi.md#roles_get) | **GET** /v2/roles/{role_id} | Get a role
-[**roles_list**](RolesApi.md#roles_list) | **GET** /v2/roles | List roles
-[**roles_update**](RolesApi.md#roles_update) | **PATCH** /v2/roles/{role_id} | Update a role
+[**create_role**](RolesApi.md#create_role) | **POST** /v2/roles | Create a role
+[**delete_role**](RolesApi.md#delete_role) | **DELETE** /v2/roles/{role_id} | Delete a role
+[**get_role**](RolesApi.md#get_role) | **GET** /v2/roles/{role_id} | Get a role
+[**list_roles**](RolesApi.md#list_roles) | **GET** /v2/roles | List roles
+[**update_role**](RolesApi.md#update_role) | **PATCH** /v2/roles/{role_id} | Update a role
 
 
-# **roles_create**
-> Role roles_create(role_create)
+# **create_role**
+> Role create_role(create_role_request)
 
 Create a role
 
@@ -50,8 +50,8 @@ Create a new custom role for the authenticated user's account.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.create_role_request import CreateRoleRequest
 from arize._generated.api_client.models.role import Role
-from arize._generated.api_client.models.role_create import RoleCreate
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -75,15 +75,15 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.RolesApi(api_client)
-    role_create = {"name":"AI Engineer","permissions":["PROJECT_READ","DATASET_READ","DATASET_CREATE"]} # RoleCreate | Body containing role creation parameters.
+    create_role_request = {"name":"AI Engineer","permissions":["PROJECT_READ","DATASET_READ","DATASET_CREATE"]} # CreateRoleRequest | Body containing role creation parameters.
 
     try:
         # Create a role
-        api_response = api_instance.roles_create(role_create)
-        print("The response of RolesApi->roles_create:\n")
+        api_response = api_instance.create_role(create_role_request)
+        print("The response of RolesApi->create_role:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling RolesApi->roles_create: %s\n" % e)
+        print("Exception when calling RolesApi->create_role: %s\n" % e)
 ```
 
 
@@ -93,7 +93,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **role_create** | [**RoleCreate**](RoleCreate.md)| Body containing role creation parameters. | 
+ **create_role_request** | [**CreateRoleRequest**](CreateRoleRequest.md)| Body containing role creation parameters. | 
 
 ### Return type
 
@@ -112,7 +112,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Role successfully created. |  -  |
+**201** | A role object. |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
@@ -122,8 +122,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **roles_delete**
-> roles_delete(role_id)
+# **delete_role**
+> delete_role(role_id)
 
 Delete a role
 
@@ -166,9 +166,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Delete a role
-        api_instance.roles_delete(role_id)
+        api_instance.delete_role(role_id)
     except Exception as e:
-        print("Exception when calling RolesApi->roles_delete: %s\n" % e)
+        print("Exception when calling RolesApi->delete_role: %s\n" % e)
 ```
 
 
@@ -206,8 +206,8 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **roles_get**
-> Role roles_get(role_id)
+# **get_role**
+> Role get_role(role_id)
 
 Get a role
 
@@ -250,11 +250,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Get a role
-        api_response = api_instance.roles_get(role_id)
-        print("The response of RolesApi->roles_get:\n")
+        api_response = api_instance.get_role(role_id)
+        print("The response of RolesApi->get_role:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling RolesApi->roles_get: %s\n" % e)
+        print("Exception when calling RolesApi->get_role: %s\n" % e)
 ```
 
 
@@ -291,8 +291,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **roles_list**
-> RoleListResponse roles_list(limit=limit, cursor=cursor, is_predefined=is_predefined)
+# **list_roles**
+> ListRolesResponse list_roles(limit=limit, cursor=cursor, is_predefined=is_predefined)
 
 List roles
 
@@ -308,7 +308,7 @@ Results are paginated; use `limit` and `cursor` for subsequent pages.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.role_list_response import RoleListResponse
+from arize._generated.api_client.models.list_roles_response import ListRolesResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -338,11 +338,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # List roles
-        api_response = api_instance.roles_list(limit=limit, cursor=cursor, is_predefined=is_predefined)
-        print("The response of RolesApi->roles_list:\n")
+        api_response = api_instance.list_roles(limit=limit, cursor=cursor, is_predefined=is_predefined)
+        print("The response of RolesApi->list_roles:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling RolesApi->roles_list: %s\n" % e)
+        print("Exception when calling RolesApi->list_roles: %s\n" % e)
 ```
 
 
@@ -358,7 +358,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**RoleListResponse**](RoleListResponse.md)
+[**ListRolesResponse**](ListRolesResponse.md)
 
 ### Authorization
 
@@ -381,8 +381,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **roles_update**
-> Role roles_update(role_id, role_update)
+# **update_role**
+> Role update_role(role_id, update_role_request)
 
 Update a role
 
@@ -418,7 +418,7 @@ Predefined roles cannot be updated.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.role import Role
-from arize._generated.api_client.models.role_update import RoleUpdate
+from arize._generated.api_client.models.update_role_request import UpdateRoleRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -443,15 +443,15 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.RolesApi(api_client)
     role_id = 'Um9sZToxOmFCY0Q=' # str | The unique role identifier (base64)
-    role_update = {"name":"Senior AI Engineer"} # RoleUpdate | Body containing role update parameters. At least one field must be provided.
+    update_role_request = {"name":"Senior AI Engineer"} # UpdateRoleRequest | Body containing role update parameters. At least one field must be provided.
 
     try:
         # Update a role
-        api_response = api_instance.roles_update(role_id, role_update)
-        print("The response of RolesApi->roles_update:\n")
+        api_response = api_instance.update_role(role_id, update_role_request)
+        print("The response of RolesApi->update_role:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling RolesApi->roles_update: %s\n" % e)
+        print("Exception when calling RolesApi->update_role: %s\n" % e)
 ```
 
 
@@ -462,7 +462,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **role_id** | **str**| The unique role identifier (base64) | 
- **role_update** | [**RoleUpdate**](RoleUpdate.md)| Body containing role update parameters. At least one field must be provided. | 
+ **update_role_request** | [**UpdateRoleRequest**](UpdateRoleRequest.md)| Body containing role update parameters. At least one field must be provided. | 
 
 ### Return type
 

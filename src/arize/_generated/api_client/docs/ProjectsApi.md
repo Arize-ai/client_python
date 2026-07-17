@@ -4,15 +4,15 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**projects_create**](ProjectsApi.md#projects_create) | **POST** /v2/projects | Create a project
-[**projects_delete**](ProjectsApi.md#projects_delete) | **DELETE** /v2/projects/{project_id} | Delete a project
-[**projects_get**](ProjectsApi.md#projects_get) | **GET** /v2/projects/{project_id} | Get a project
-[**projects_list**](ProjectsApi.md#projects_list) | **GET** /v2/projects | List projects
-[**projects_update**](ProjectsApi.md#projects_update) | **PATCH** /v2/projects/{project_id} | Update a project
+[**create_project**](ProjectsApi.md#create_project) | **POST** /v2/projects | Create a project
+[**delete_project**](ProjectsApi.md#delete_project) | **DELETE** /v2/projects/{project_id} | Delete a project
+[**get_project**](ProjectsApi.md#get_project) | **GET** /v2/projects/{project_id} | Get a project
+[**list_projects**](ProjectsApi.md#list_projects) | **GET** /v2/projects | List projects
+[**update_project**](ProjectsApi.md#update_project) | **PATCH** /v2/projects/{project_id} | Update a project
 
 
-# **projects_create**
-> Project projects_create(project_create)
+# **create_project**
+> Project create_project(create_project_request)
 
 Create a project
 
@@ -30,8 +30,8 @@ Create a new project given a name and space ID.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.create_project_request import CreateProjectRequest
 from arize._generated.api_client.models.project import Project
-from arize._generated.api_client.models.project_create import ProjectCreate
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -55,15 +55,15 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ProjectsApi(api_client)
-    project_create = {"name":"My Project","space_id":"space_12345"} # ProjectCreate | Body containing project creation parameters
+    create_project_request = {"name":"My Project","space_id":"space_12345"} # CreateProjectRequest | Body containing project creation parameters
 
     try:
         # Create a project
-        api_response = api_instance.projects_create(project_create)
-        print("The response of ProjectsApi->projects_create:\n")
+        api_response = api_instance.create_project(create_project_request)
+        print("The response of ProjectsApi->create_project:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling ProjectsApi->projects_create: %s\n" % e)
+        print("Exception when calling ProjectsApi->create_project: %s\n" % e)
 ```
 
 
@@ -73,7 +73,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **project_create** | [**ProjectCreate**](ProjectCreate.md)| Body containing project creation parameters | 
+ **create_project_request** | [**CreateProjectRequest**](CreateProjectRequest.md)| Body containing project creation parameters | 
 
 ### Return type
 
@@ -102,8 +102,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **projects_delete**
-> projects_delete(project_id)
+# **delete_project**
+> delete_project(project_id)
 
 Delete a project
 
@@ -145,9 +145,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Delete a project
-        api_instance.projects_delete(project_id)
+        api_instance.delete_project(project_id)
     except Exception as e:
-        print("Exception when calling ProjectsApi->projects_delete: %s\n" % e)
+        print("Exception when calling ProjectsApi->delete_project: %s\n" % e)
 ```
 
 
@@ -185,8 +185,8 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **projects_get**
-> Project projects_get(project_id)
+# **get_project**
+> Project get_project(project_id)
 
 Get a project
 
@@ -229,11 +229,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Get a project
-        api_response = api_instance.projects_get(project_id)
-        print("The response of ProjectsApi->projects_get:\n")
+        api_response = api_instance.get_project(project_id)
+        print("The response of ProjectsApi->get_project:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling ProjectsApi->projects_get: %s\n" % e)
+        print("Exception when calling ProjectsApi->get_project: %s\n" % e)
 ```
 
 
@@ -271,8 +271,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **projects_list**
-> ProjectListResponse projects_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+# **list_projects**
+> ListProjectsResponse list_projects(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
 
 List projects
 
@@ -287,7 +287,7 @@ List projects the user has access to.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.project_list_response import ProjectListResponse
+from arize._generated.api_client.models.list_projects_response import ListProjectsResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -319,11 +319,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # List projects
-        api_response = api_instance.projects_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
-        print("The response of ProjectsApi->projects_list:\n")
+        api_response = api_instance.list_projects(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+        print("The response of ProjectsApi->list_projects:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling ProjectsApi->projects_list: %s\n" % e)
+        print("Exception when calling ProjectsApi->list_projects: %s\n" % e)
 ```
 
 
@@ -341,7 +341,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ProjectListResponse**](ProjectListResponse.md)
+[**ListProjectsResponse**](ListProjectsResponse.md)
 
 ### Authorization
 
@@ -360,12 +360,13 @@ Name | Type | Description  | Notes
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **projects_update**
-> Project projects_update(project_id, project_update)
+# **update_project**
+> Project update_project(project_id, update_project_request)
 
 Update a project
 
@@ -397,7 +398,7 @@ Update a project by its ID (rename).
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.project import Project
-from arize._generated.api_client.models.project_update import ProjectUpdate
+from arize._generated.api_client.models.update_project_request import UpdateProjectRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -422,15 +423,15 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ProjectsApi(api_client)
     project_id = 'UHJvamVjdDoxMjM0NQ==' # str | The unique project identifier (base64)
-    project_update = {"name":"Renamed Project"} # ProjectUpdate | Body containing project update parameters. The `name` field must be provided.
+    update_project_request = {"name":"Renamed Project"} # UpdateProjectRequest | Body containing project update parameters. The `name` field must be provided.
 
     try:
         # Update a project
-        api_response = api_instance.projects_update(project_id, project_update)
-        print("The response of ProjectsApi->projects_update:\n")
+        api_response = api_instance.update_project(project_id, update_project_request)
+        print("The response of ProjectsApi->update_project:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling ProjectsApi->projects_update: %s\n" % e)
+        print("Exception when calling ProjectsApi->update_project: %s\n" % e)
 ```
 
 
@@ -441,7 +442,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **project_id** | **str**| The unique project identifier (base64) | 
- **project_update** | [**ProjectUpdate**](ProjectUpdate.md)| Body containing project update parameters. The &#x60;name&#x60; field must be provided. | 
+ **update_project_request** | [**UpdateProjectRequest**](UpdateProjectRequest.md)| Body containing project update parameters. The &#x60;name&#x60; field must be provided. | 
 
 ### Return type
 
@@ -460,7 +461,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**200** | Project successfully updated |  -  |
+**200** | A project object |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |

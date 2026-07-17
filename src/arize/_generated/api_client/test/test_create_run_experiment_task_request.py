@@ -36,14 +36,14 @@ class TestCreateRunExperimentTaskRequest(unittest.TestCase):
         if include_optional:
             return CreateRunExperimentTaskRequest(
                 name = '0',
-                type = 'run_experiment',
+                type = 'RUN_EXPERIMENT',
                 dataset_id = '',
                 run_configuration = None
             )
         else:
             return CreateRunExperimentTaskRequest(
                 name = '0',
-                type = 'run_experiment',
+                type = 'RUN_EXPERIMENT',
                 dataset_id = '',
                 run_configuration = None,
         )

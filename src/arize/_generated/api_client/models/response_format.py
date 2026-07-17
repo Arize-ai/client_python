@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
-from arize._generated.api_client.models.response_format_json_schema import ResponseFormatJsonSchema
+from arize._generated.api_client.models.json_schema_config import JsonSchemaConfig
 from arize._generated.api_client.models.response_format_type import ResponseFormatType
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,8 +28,8 @@ class ResponseFormat(BaseModel):
     """
     Response format configuration
     """ # noqa: E501
-    type: Optional[ResponseFormatType] = Field(default=None, description="The response format type. Defaults to `text` if not specified.")
-    json_schema: Optional[ResponseFormatJsonSchema] = None
+    type: Optional[ResponseFormatType] = Field(default=None, description="The response format type. Defaults to `TEXT` if not specified.")
+    json_schema: Optional[JsonSchemaConfig] = Field(default=None, description="JSON schema configuration (when type is JSON_SCHEMA)")
     __properties: ClassVar[List[str]] = ["type", "json_schema"]
 
     model_config = ConfigDict(
@@ -92,7 +92,7 @@ class ResponseFormat(BaseModel):
 
         _obj = cls.model_validate({
             "type": obj.get("type"),
-            "json_schema": ResponseFormatJsonSchema.from_dict(obj["json_schema"]) if obj.get("json_schema") is not None else None
+            "json_schema": JsonSchemaConfig.from_dict(obj["json_schema"]) if obj.get("json_schema") is not None else None
         })
         return _obj
 

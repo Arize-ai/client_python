@@ -4,15 +4,15 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**annotation_configs_create**](AnnotationConfigsApi.md#annotation_configs_create) | **POST** /v2/annotation-configs | Create an annotation config
-[**annotation_configs_delete**](AnnotationConfigsApi.md#annotation_configs_delete) | **DELETE** /v2/annotation-configs/{annotation_config_id} | Delete an annotation config
-[**annotation_configs_get**](AnnotationConfigsApi.md#annotation_configs_get) | **GET** /v2/annotation-configs/{annotation_config_id} | Get an annotation config
-[**annotation_configs_list**](AnnotationConfigsApi.md#annotation_configs_list) | **GET** /v2/annotation-configs | List annotation configs
-[**annotation_configs_update**](AnnotationConfigsApi.md#annotation_configs_update) | **PATCH** /v2/annotation-configs/{annotation_config_id} | Update an annotation config
+[**create_annotation_config**](AnnotationConfigsApi.md#create_annotation_config) | **POST** /v2/annotation-configs | Create an annotation config
+[**delete_annotation_config**](AnnotationConfigsApi.md#delete_annotation_config) | **DELETE** /v2/annotation-configs/{annotation_config_id} | Delete an annotation config
+[**get_annotation_config**](AnnotationConfigsApi.md#get_annotation_config) | **GET** /v2/annotation-configs/{annotation_config_id} | Get an annotation config
+[**list_annotation_configs**](AnnotationConfigsApi.md#list_annotation_configs) | **GET** /v2/annotation-configs | List annotation configs
+[**update_annotation_config**](AnnotationConfigsApi.md#update_annotation_config) | **PATCH** /v2/annotation-configs/{annotation_config_id} | Update an annotation config
 
 
-# **annotation_configs_create**
-> AnnotationConfig annotation_configs_create(create_annotation_config_request_body)
+# **create_annotation_config**
+> AnnotationConfig create_annotation_config(create_annotation_config_request)
 
 Create an annotation config
 
@@ -26,7 +26,7 @@ Create a new annotation config.
 {
   "name": "my-annotation-config",
   "space_id": "spc_123",
-  "annotation_config_type": "categorical",
+  "annotation_config_type": "CATEGORICAL",
   "values": [
     {
       "label": "value1",
@@ -37,7 +37,7 @@ Create a new annotation config.
       "score": 1
     }
   ],
-  "optimization_direction": "maximize"
+  "optimization_direction": "MAXIMIZE"
 }
 ```
 
@@ -51,7 +51,7 @@ Create a new annotation config.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.annotation_config import AnnotationConfig
-from arize._generated.api_client.models.create_annotation_config_request_body import CreateAnnotationConfigRequestBody
+from arize._generated.api_client.models.create_annotation_config_request import CreateAnnotationConfigRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -75,15 +75,15 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationConfigsApi(api_client)
-    create_annotation_config_request_body = {"name":"Accuracy","space_id":"space_12345","annotation_config_type":"categorical","values":[{"label":"accurate","score":1},{"label":"inaccurate","score":0}],"optimization_direction":"maximize"} # CreateAnnotationConfigRequestBody | Body containing annotation config creation parameters
+    create_annotation_config_request = {"name":"Accuracy","space_id":"space_12345","annotation_config_type":"CATEGORICAL","values":[{"label":"accurate","score":1},{"label":"inaccurate","score":0}],"optimization_direction":"MAXIMIZE"} # CreateAnnotationConfigRequest | Body containing annotation config creation parameters
 
     try:
         # Create an annotation config
-        api_response = api_instance.annotation_configs_create(create_annotation_config_request_body)
-        print("The response of AnnotationConfigsApi->annotation_configs_create:\n")
+        api_response = api_instance.create_annotation_config(create_annotation_config_request)
+        print("The response of AnnotationConfigsApi->create_annotation_config:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling AnnotationConfigsApi->annotation_configs_create: %s\n" % e)
+        print("Exception when calling AnnotationConfigsApi->create_annotation_config: %s\n" % e)
 ```
 
 
@@ -93,7 +93,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **create_annotation_config_request_body** | [**CreateAnnotationConfigRequestBody**](CreateAnnotationConfigRequestBody.md)| Body containing annotation config creation parameters | 
+ **create_annotation_config_request** | [**CreateAnnotationConfigRequest**](CreateAnnotationConfigRequest.md)| Body containing annotation config creation parameters | 
 
 ### Return type
 
@@ -123,8 +123,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **annotation_configs_delete**
-> annotation_configs_delete(annotation_config_id)
+# **delete_annotation_config**
+> delete_annotation_config(annotation_config_id)
 
 Delete an annotation config
 
@@ -166,9 +166,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Delete an annotation config
-        api_instance.annotation_configs_delete(annotation_config_id)
+        api_instance.delete_annotation_config(annotation_config_id)
     except Exception as e:
-        print("Exception when calling AnnotationConfigsApi->annotation_configs_delete: %s\n" % e)
+        print("Exception when calling AnnotationConfigsApi->delete_annotation_config: %s\n" % e)
 ```
 
 
@@ -206,8 +206,8 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **annotation_configs_get**
-> AnnotationConfig annotation_configs_get(annotation_config_id)
+# **get_annotation_config**
+> AnnotationConfig get_annotation_config(annotation_config_id)
 
 Get an annotation config
 
@@ -250,11 +250,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Get an annotation config
-        api_response = api_instance.annotation_configs_get(annotation_config_id)
-        print("The response of AnnotationConfigsApi->annotation_configs_get:\n")
+        api_response = api_instance.get_annotation_config(annotation_config_id)
+        print("The response of AnnotationConfigsApi->get_annotation_config:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling AnnotationConfigsApi->annotation_configs_get: %s\n" % e)
+        print("Exception when calling AnnotationConfigsApi->get_annotation_config: %s\n" % e)
 ```
 
 
@@ -291,8 +291,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **annotation_configs_list**
-> AnnotationConfigListResponse annotation_configs_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+# **list_annotation_configs**
+> ListAnnotationConfigsResponse list_annotation_configs(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
 
 List annotation configs
 
@@ -307,7 +307,7 @@ List annotation configs the user has access to.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.annotation_config_list_response import AnnotationConfigListResponse
+from arize._generated.api_client.models.list_annotation_configs_response import ListAnnotationConfigsResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -339,11 +339,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # List annotation configs
-        api_response = api_instance.annotation_configs_list(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
-        print("The response of AnnotationConfigsApi->annotation_configs_list:\n")
+        api_response = api_instance.list_annotation_configs(space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+        print("The response of AnnotationConfigsApi->list_annotation_configs:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling AnnotationConfigsApi->annotation_configs_list: %s\n" % e)
+        print("Exception when calling AnnotationConfigsApi->list_annotation_configs: %s\n" % e)
 ```
 
 
@@ -361,7 +361,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AnnotationConfigListResponse**](AnnotationConfigListResponse.md)
+[**ListAnnotationConfigsResponse**](ListAnnotationConfigsResponse.md)
 
 ### Authorization
 
@@ -380,12 +380,13 @@ Name | Type | Description  | Notes
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **annotation_configs_update**
-> AnnotationConfig annotation_configs_update(annotation_config_id, update_annotation_config_request_body)
+# **update_annotation_config**
+> AnnotationConfig update_annotation_config(annotation_config_id, update_annotation_config_request)
 
 Update an annotation config
 
@@ -395,9 +396,9 @@ Update an annotation config by its ID.
 - `annotation_config_type` is required and must match the stored config's type. The
   type is immutable and cannot be changed.
 - The updatable fields depend on the type:
-  - `categorical`: `name`, `values`, `optimization_direction`.
-  - `continuous`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.
-  - `freeform`: `name`.
+  - `CATEGORICAL`: `name`, `values`, `optimization_direction`.
+  - `CONTINUOUS`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.
+  - `FREEFORM`: `name`.
 - All fields other than `annotation_config_type` are optional; omitted fields are left
   unchanged.
 - `name`, if provided, must be unique within the space (409 Conflict if duplicate).
@@ -407,13 +408,13 @@ Update an annotation config by its ID.
 **Valid example** (categorical config)
 ```json
 {
-  "annotation_config_type": "categorical",
+  "annotation_config_type": "CATEGORICAL",
   "name": "quality-v2",
   "values": [
     { "label": "good", "score": 1 },
     { "label": "bad", "score": 0 }
   ],
-  "optimization_direction": "maximize"
+  "optimization_direction": "MAXIMIZE"
 }
 ```
 
@@ -434,7 +435,7 @@ Update an annotation config by its ID.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.annotation_config import AnnotationConfig
-from arize._generated.api_client.models.update_annotation_config_request_body import UpdateAnnotationConfigRequestBody
+from arize._generated.api_client.models.update_annotation_config_request import UpdateAnnotationConfigRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -459,15 +460,15 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.AnnotationConfigsApi(api_client)
     annotation_config_id = 'QW5ub3RhdGlvbkNvbmZpZzoxMjM0NQ==' # str | The unique annotation config identifier (base64)
-    update_annotation_config_request_body = {"annotation_config_type":"categorical","name":"quality-v2","values":[{"label":"good","score":1},{"label":"bad","score":0}],"optimization_direction":"maximize"} # UpdateAnnotationConfigRequestBody | Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type.
+    update_annotation_config_request = {"annotation_config_type":"CATEGORICAL","name":"quality-v2","values":[{"label":"good","score":1},{"label":"bad","score":0}],"optimization_direction":"MAXIMIZE"} # UpdateAnnotationConfigRequest | Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config's type.
 
     try:
         # Update an annotation config
-        api_response = api_instance.annotation_configs_update(annotation_config_id, update_annotation_config_request_body)
-        print("The response of AnnotationConfigsApi->annotation_configs_update:\n")
+        api_response = api_instance.update_annotation_config(annotation_config_id, update_annotation_config_request)
+        print("The response of AnnotationConfigsApi->update_annotation_config:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling AnnotationConfigsApi->annotation_configs_update: %s\n" % e)
+        print("Exception when calling AnnotationConfigsApi->update_annotation_config: %s\n" % e)
 ```
 
 
@@ -478,7 +479,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **annotation_config_id** | **str**| The unique annotation config identifier (base64) | 
- **update_annotation_config_request_body** | [**UpdateAnnotationConfigRequestBody**](UpdateAnnotationConfigRequestBody.md)| Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config&#39;s type. | 
+ **update_annotation_config_request** | [**UpdateAnnotationConfigRequest**](UpdateAnnotationConfigRequest.md)| Body containing annotation config update parameters. The annotation_config_type is required and must match the stored config&#39;s type. | 
 
 ### Return type
 

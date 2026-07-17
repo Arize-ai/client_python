@@ -2,18 +2,19 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, Mock, create_autospec, patch
 
 import pandas as pd
 import pytest
 
+from arize._generated.api_client import ExperimentsApi
 from arize.experiments.client import ExperimentsClient
 
 
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock ExperimentsApi instance."""
-    return Mock()
+    return create_autospec(ExperimentsApi, instance=True)
 
 
 @pytest.fixture
@@ -61,13 +62,13 @@ class TestAppendRuns:
         mock_api: Mock,
     ) -> None:
         """append_runs must forward runs to experiments_runs_insert."""
-        mock_api.experiments_runs_insert.return_value = Mock()
+        mock_api.insert_experiment_runs.return_value = Mock()
 
         from arize._generated import api_client as gen
 
         runs = [
-            gen.ExperimentRunCreate(example_id="ex-1", output="result-1"),
-            gen.ExperimentRunCreate(example_id="ex-2", output="result-2"),
+            gen.ExperimentRunInput(example_id="ex-1", output="result-1"),
+            gen.ExperimentRunInput(example_id="ex-2", output="result-2"),
         ]
         with patch(
             "arize.experiments.client._find_experiment_id",
@@ -78,10 +79,10 @@ class TestAppendRuns:
                 experiment_runs=runs,
             )
 
-        mock_api.experiments_runs_insert.assert_called_once()
-        call_kwargs = mock_api.experiments_runs_insert.call_args.kwargs
+        mock_api.insert_experiment_runs.assert_called_once()
+        call_kwargs = mock_api.insert_experiment_runs.call_args.kwargs
         assert call_kwargs["experiment_id"] == "exp-id-123"
-        body = call_kwargs["insert_experiment_runs_body"]
+        body = call_kwargs["insert_experiment_runs_request"]
         assert len(body.experiment_runs) == 2
         assert body.experiment_runs[0].example_id == "ex-1"
         assert body.experiment_runs[1].example_id == "ex-2"
@@ -91,10 +92,10 @@ class TestAppendRuns:
         experiments_client: ExperimentsClient,
         mock_api: Mock,
     ) -> None:
-        """append_runs must convert a DataFrame to ExperimentRunCreate records."""
+        """append_runs must convert a DataFrame to ExperimentRunInput records."""
         import pandas as pd
 
-        mock_api.experiments_runs_insert.return_value = Mock()
+        mock_api.insert_experiment_runs.return_value = Mock()
 
         df = pd.DataFrame(
             {"example_id": ["ex-a", "ex-b"], "output": ["out-a", "out-b"]}
@@ -108,9 +109,9 @@ class TestAppendRuns:
                 experiment_runs=df,
             )
 
-        mock_api.experiments_runs_insert.assert_called_once()
-        body = mock_api.experiments_runs_insert.call_args.kwargs[
-            "insert_experiment_runs_body"
+        mock_api.insert_experiment_runs.assert_called_once()
+        body = mock_api.insert_experiment_runs.call_args.kwargs[
+            "insert_experiment_runs_request"
         ]
         assert len(body.experiment_runs) == 2
         assert body.experiment_runs[0].output == "out-a"
@@ -127,8 +128,8 @@ class TestPostExperimentRunsViaHttp:
         mock_api: Mock,
         run_experiment_df: pd.DataFrame,
     ) -> None:
-        """HTTP path must forward the `output` column so ExperimentRunCreate validates."""
-        mock_api.experiments_create.return_value = Mock()
+        """HTTP path must forward the `output` column so ExperimentRunInput validates."""
+        mock_api.create_experiment.return_value = Mock()
 
         experiments_client._post_experiment_runs_via_http(
             name="repro-exp",
@@ -136,9 +137,9 @@ class TestPostExperimentRunsViaHttp:
             experiment_df=run_experiment_df,
         )
 
-        mock_api.experiments_create.assert_called_once()
-        call_kwargs = mock_api.experiments_create.call_args.kwargs
-        body = call_kwargs["experiments_create_request"]
+        mock_api.create_experiment.assert_called_once()
+        call_kwargs = mock_api.create_experiment.call_args.kwargs
+        body = call_kwargs["create_experiment_request"]
         assert len(body.experiment_runs) == 1
         assert body.experiment_runs[0].output == "pong"
         assert body.experiment_runs[0].example_id == "ex-abc"

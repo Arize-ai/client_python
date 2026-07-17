@@ -4,11 +4,11 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**traces_list**](TracesApi.md#traces_list) | **POST** /v2/traces | List traces
+[**list_traces**](TracesApi.md#list_traces) | **POST** /v2/traces | List traces
 
 
-# **traces_list**
-> TraceListResponse traces_list(list_traces_request, limit=limit, cursor=cursor)
+# **list_traces**
+> ListTracesResponse list_traces(list_traces_request, limit=limit, cursor=cursor)
 
 List traces
 
@@ -46,7 +46,7 @@ Traces are returned newest-first.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.list_traces_request import ListTracesRequest
-from arize._generated.api_client.models.trace_list_response import TraceListResponse
+from arize._generated.api_client.models.list_traces_response import ListTracesResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -76,11 +76,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # List traces
-        api_response = api_instance.traces_list(list_traces_request, limit=limit, cursor=cursor)
-        print("The response of TracesApi->traces_list:\n")
+        api_response = api_instance.list_traces(list_traces_request, limit=limit, cursor=cursor)
+        print("The response of TracesApi->list_traces:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling TracesApi->traces_list: %s\n" % e)
+        print("Exception when calling TracesApi->list_traces: %s\n" % e)
 ```
 
 
@@ -96,7 +96,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**TraceListResponse**](TraceListResponse.md)
+[**ListTracesResponse**](ListTracesResponse.md)
 
 ### Authorization
 

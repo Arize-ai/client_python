@@ -4,15 +4,15 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**integrations_create**](IntegrationsApi.md#integrations_create) | **POST** /v2/integrations | Create an integration
-[**integrations_delete**](IntegrationsApi.md#integrations_delete) | **DELETE** /v2/integrations/{integration_id} | Delete an integration
-[**integrations_get**](IntegrationsApi.md#integrations_get) | **GET** /v2/integrations/{integration_id} | Get an integration
-[**integrations_list**](IntegrationsApi.md#integrations_list) | **GET** /v2/integrations | List integrations
-[**integrations_update**](IntegrationsApi.md#integrations_update) | **PATCH** /v2/integrations/{integration_id} | Update an integration
+[**create_integration**](IntegrationsApi.md#create_integration) | **POST** /v2/integrations | Create an integration
+[**delete_integration**](IntegrationsApi.md#delete_integration) | **DELETE** /v2/integrations/{integration_id} | Delete an integration
+[**get_integration**](IntegrationsApi.md#get_integration) | **GET** /v2/integrations/{integration_id} | Get an integration
+[**list_integrations**](IntegrationsApi.md#list_integrations) | **GET** /v2/integrations | List integrations
+[**update_integration**](IntegrationsApi.md#update_integration) | **PATCH** /v2/integrations/{integration_id} | Update an integration
 
 
-# **integrations_create**
-> LlmIntegration integrations_create(body)
+# **create_integration**
+> LlmIntegration create_integration(body)
 
 Create an integration
 
@@ -52,15 +52,15 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.IntegrationsApi(api_client)
-    body = arize._generated.api_client.CreateLlmIntegrationRequest() # CreateLlmIntegrationRequest | Create a new integration. The `type` field selects the config shape; for `llm`, `config.provider` selects the per-provider config.  **Payload Requirements** - `type`, `name`, and `config` are required. - `name` must be unique within the account for the given `type`. - For `type: llm`, `config.provider` is required. Each provider's config   defines its own required fields — see the per-provider `config` schema. - `config.is_function_calling_enabled` defaults to `true` when omitted. - `scopings` defaults to account-wide visibility when omitted.  **Valid example** ```json {   \"type\": \"llm\",   \"name\": \"Production OpenAI\",   \"config\": {     \"provider\": \"openAI\",     \"api_key\": \"sk-abc123...\"   } } ```  **Invalid example** (missing required `config`) ```json {   \"type\": \"llm\",   \"name\": \"Bad Integration\" } ```  **Invalid example** (missing required `config.provider` for `type: llm`) ```json {   \"type\": \"llm\",   \"name\": \"Bad Integration\",   \"config\": {} } ```  **Invalid example** (missing required `config.api_key` for `openAI`) ```json {   \"type\": \"llm\",   \"name\": \"Bad OpenAI\",   \"config\": { \"provider\": \"openAI\" } } ``` 
+    body = arize._generated.api_client.CreateLlmIntegrationRequest() # CreateLlmIntegrationRequest | Create a new integration. The `type` field selects the config shape; for `LLM`, `config.provider` selects the per-provider config.  **Payload Requirements** - `type`, `name`, and `config` are required. - `name` must be unique within the account for the given `type`. - For `type: LLM`, `config.provider` is required. Each provider's config   defines its own required fields — see the per-provider `config` schema. - `config.is_function_calling_enabled` defaults to `true` when omitted. - `scopings` defaults to account-wide visibility when omitted.  **Valid example** ```json {   \"type\": \"LLM\",   \"name\": \"Production OpenAI\",   \"config\": {     \"provider\": \"OPEN_AI\",     \"api_key\": \"sk-abc123...\"   } } ```  **Invalid example** (missing required `config`) ```json {   \"type\": \"LLM\",   \"name\": \"Bad Integration\" } ```  **Invalid example** (missing required `config.provider` for `type: LLM`) ```json {   \"type\": \"LLM\",   \"name\": \"Bad Integration\",   \"config\": {} } ```  **Invalid example** (missing required `config.api_key` for `OPEN_AI`) ```json {   \"type\": \"LLM\",   \"name\": \"Bad OpenAI\",   \"config\": { \"provider\": \"OPEN_AI\" } } ``` 
 
     try:
         # Create an integration
-        api_response = api_instance.integrations_create(body)
-        print("The response of IntegrationsApi->integrations_create:\n")
+        api_response = api_instance.create_integration(body)
+        print("The response of IntegrationsApi->create_integration:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling IntegrationsApi->integrations_create: %s\n" % e)
+        print("Exception when calling IntegrationsApi->create_integration: %s\n" % e)
 ```
 
 
@@ -70,7 +70,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | **CreateLlmIntegrationRequest**| Create a new integration. The &#x60;type&#x60; field selects the config shape; for &#x60;llm&#x60;, &#x60;config.provider&#x60; selects the per-provider config.  **Payload Requirements** - &#x60;type&#x60;, &#x60;name&#x60;, and &#x60;config&#x60; are required. - &#x60;name&#x60; must be unique within the account for the given &#x60;type&#x60;. - For &#x60;type: llm&#x60;, &#x60;config.provider&#x60; is required. Each provider&#39;s config   defines its own required fields — see the per-provider &#x60;config&#x60; schema. - &#x60;config.is_function_calling_enabled&#x60; defaults to &#x60;true&#x60; when omitted. - &#x60;scopings&#x60; defaults to account-wide visibility when omitted.  **Valid example** &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;llm\&quot;,   \&quot;name\&quot;: \&quot;Production OpenAI\&quot;,   \&quot;config\&quot;: {     \&quot;provider\&quot;: \&quot;openAI\&quot;,     \&quot;api_key\&quot;: \&quot;sk-abc123...\&quot;   } } &#x60;&#x60;&#x60;  **Invalid example** (missing required &#x60;config&#x60;) &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;llm\&quot;,   \&quot;name\&quot;: \&quot;Bad Integration\&quot; } &#x60;&#x60;&#x60;  **Invalid example** (missing required &#x60;config.provider&#x60; for &#x60;type: llm&#x60;) &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;llm\&quot;,   \&quot;name\&quot;: \&quot;Bad Integration\&quot;,   \&quot;config\&quot;: {} } &#x60;&#x60;&#x60;  **Invalid example** (missing required &#x60;config.api_key&#x60; for &#x60;openAI&#x60;) &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;llm\&quot;,   \&quot;name\&quot;: \&quot;Bad OpenAI\&quot;,   \&quot;config\&quot;: { \&quot;provider\&quot;: \&quot;openAI\&quot; } } &#x60;&#x60;&#x60;  | 
+ **body** | **CreateLlmIntegrationRequest**| Create a new integration. The &#x60;type&#x60; field selects the config shape; for &#x60;LLM&#x60;, &#x60;config.provider&#x60; selects the per-provider config.  **Payload Requirements** - &#x60;type&#x60;, &#x60;name&#x60;, and &#x60;config&#x60; are required. - &#x60;name&#x60; must be unique within the account for the given &#x60;type&#x60;. - For &#x60;type: LLM&#x60;, &#x60;config.provider&#x60; is required. Each provider&#39;s config   defines its own required fields — see the per-provider &#x60;config&#x60; schema. - &#x60;config.is_function_calling_enabled&#x60; defaults to &#x60;true&#x60; when omitted. - &#x60;scopings&#x60; defaults to account-wide visibility when omitted.  **Valid example** &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;LLM\&quot;,   \&quot;name\&quot;: \&quot;Production OpenAI\&quot;,   \&quot;config\&quot;: {     \&quot;provider\&quot;: \&quot;OPEN_AI\&quot;,     \&quot;api_key\&quot;: \&quot;sk-abc123...\&quot;   } } &#x60;&#x60;&#x60;  **Invalid example** (missing required &#x60;config&#x60;) &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;LLM\&quot;,   \&quot;name\&quot;: \&quot;Bad Integration\&quot; } &#x60;&#x60;&#x60;  **Invalid example** (missing required &#x60;config.provider&#x60; for &#x60;type: LLM&#x60;) &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;LLM\&quot;,   \&quot;name\&quot;: \&quot;Bad Integration\&quot;,   \&quot;config\&quot;: {} } &#x60;&#x60;&#x60;  **Invalid example** (missing required &#x60;config.api_key&#x60; for &#x60;OPEN_AI&#x60;) &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;LLM\&quot;,   \&quot;name\&quot;: \&quot;Bad OpenAI\&quot;,   \&quot;config\&quot;: { \&quot;provider\&quot;: \&quot;OPEN_AI\&quot; } } &#x60;&#x60;&#x60;  | 
 
 ### Return type
 
@@ -100,8 +100,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **integrations_delete**
-> integrations_delete(integration_id)
+# **delete_integration**
+> delete_integration(integration_id)
 
 Delete an integration
 
@@ -143,9 +143,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Delete an integration
-        api_instance.integrations_delete(integration_id)
+        api_instance.delete_integration(integration_id)
     except Exception as e:
-        print("Exception when calling IntegrationsApi->integrations_delete: %s\n" % e)
+        print("Exception when calling IntegrationsApi->delete_integration: %s\n" % e)
 ```
 
 
@@ -183,8 +183,8 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **integrations_get**
-> LlmIntegration integrations_get(integration_id)
+# **get_integration**
+> LlmIntegration get_integration(integration_id)
 
 Get an integration
 
@@ -227,11 +227,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Get an integration
-        api_response = api_instance.integrations_get(integration_id)
-        print("The response of IntegrationsApi->integrations_get:\n")
+        api_response = api_instance.get_integration(integration_id)
+        print("The response of IntegrationsApi->get_integration:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling IntegrationsApi->integrations_get: %s\n" % e)
+        print("Exception when calling IntegrationsApi->get_integration: %s\n" % e)
 ```
 
 
@@ -268,13 +268,13 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **integrations_list**
-> IntegrationListResponse integrations_list(type=type, space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+# **list_integrations**
+> ListIntegrationsResponse list_integrations(type=type, space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
 
 List integrations
 
 List integrations the user has access to. The response is polymorphic:
-each item carries a `type` (and, for `llm`, `config.provider`) for
+each item carries a `type` (and, for `LLM`, `config.provider`) for
 client-side discrimination. Use `?type=` to filter to a single type.
 
 Integrations are owned at the account level but carry visibility scopings
@@ -290,8 +290,8 @@ the list to integrations visible in a given space.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.integration_list_response import IntegrationListResponse
 from arize._generated.api_client.models.integration_type import IntegrationType
+from arize._generated.api_client.models.list_integrations_response import ListIntegrationsResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -324,11 +324,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # List integrations
-        api_response = api_instance.integrations_list(type=type, space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
-        print("The response of IntegrationsApi->integrations_list:\n")
+        api_response = api_instance.list_integrations(type=type, space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+        print("The response of IntegrationsApi->list_integrations:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling IntegrationsApi->integrations_list: %s\n" % e)
+        print("Exception when calling IntegrationsApi->list_integrations: %s\n" % e)
 ```
 
 
@@ -347,7 +347,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**IntegrationListResponse**](IntegrationListResponse.md)
+[**ListIntegrationsResponse**](ListIntegrationsResponse.md)
 
 ### Authorization
 
@@ -366,12 +366,13 @@ Name | Type | Description  | Notes
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **integrations_update**
-> LlmIntegration integrations_update(integration_id, body)
+# **update_integration**
+> LlmIntegration update_integration(integration_id, body)
 
 Update an integration
 
@@ -413,15 +414,15 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.IntegrationsApi(api_client)
     integration_id = 'TGxtSW50ZWdyYXRpb246MTI6YUJjRA==' # str | The unique integration identifier (base64 global ID).
-    body = arize._generated.api_client.UpdateLlmIntegrationRequest() # UpdateLlmIntegrationRequest | Partially update an integration. The body is discriminated by `type`. Omitted fields are left unchanged.  **Payload Requirements** - `type` is **required** (it selects the per-type PATCH shape) and is   immutable: it must match the stored integration's type, otherwise the   request is rejected with 422 (change category by delete + recreate). - At least one updatable field (`name`, `scopings`, or `config`) must be   provided in addition to `type`. - `provider` is immutable. Supplying a value that differs from the stored   integration is rejected with 422. - Envelope and `config` scalar fields deep-merge: omit = keep, explicit   `null` = clear (for nullable fields). - `scopings`, if provided, replaces the existing values. - `config.api_key` may be sent to rotate the key; it is never returned.  **Valid example** ```json {   \"type\": \"llm\",   \"name\": \"Updated OpenAI\",   \"config\": { \"is_function_calling_enabled\": true } } ```  **Invalid example** (empty body) ```json {} ``` 
+    body = arize._generated.api_client.UpdateLlmIntegrationRequest() # UpdateLlmIntegrationRequest | Partially update an integration. The body is discriminated by `type`. Omitted fields are left unchanged.  **Payload Requirements** - `type` is **required** (it selects the per-type PATCH shape) and is   immutable: it must match the stored integration's type, otherwise the   request is rejected with 422 (change category by delete + recreate). - At least one updatable field (`name`, `scopings`, or `config`) must be   provided in addition to `type`. - `provider` is immutable. Supplying a value that differs from the stored   integration is rejected with 422. - Envelope and `config` scalar fields deep-merge: omit = keep, explicit   `null` = clear (for nullable fields). - `scopings`, if provided, replaces the existing values. - `config.api_key` may be sent to rotate the key; it is never returned.  **Valid example** ```json {   \"type\": \"LLM\",   \"name\": \"Updated OpenAI\",   \"config\": { \"is_function_calling_enabled\": true } } ```  **Invalid example** (empty body) ```json {} ``` 
 
     try:
         # Update an integration
-        api_response = api_instance.integrations_update(integration_id, body)
-        print("The response of IntegrationsApi->integrations_update:\n")
+        api_response = api_instance.update_integration(integration_id, body)
+        print("The response of IntegrationsApi->update_integration:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling IntegrationsApi->integrations_update: %s\n" % e)
+        print("Exception when calling IntegrationsApi->update_integration: %s\n" % e)
 ```
 
 
@@ -432,7 +433,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **integration_id** | **str**| The unique integration identifier (base64 global ID). | 
- **body** | **UpdateLlmIntegrationRequest**| Partially update an integration. The body is discriminated by &#x60;type&#x60;. Omitted fields are left unchanged.  **Payload Requirements** - &#x60;type&#x60; is **required** (it selects the per-type PATCH shape) and is   immutable: it must match the stored integration&#39;s type, otherwise the   request is rejected with 422 (change category by delete + recreate). - At least one updatable field (&#x60;name&#x60;, &#x60;scopings&#x60;, or &#x60;config&#x60;) must be   provided in addition to &#x60;type&#x60;. - &#x60;provider&#x60; is immutable. Supplying a value that differs from the stored   integration is rejected with 422. - Envelope and &#x60;config&#x60; scalar fields deep-merge: omit &#x3D; keep, explicit   &#x60;null&#x60; &#x3D; clear (for nullable fields). - &#x60;scopings&#x60;, if provided, replaces the existing values. - &#x60;config.api_key&#x60; may be sent to rotate the key; it is never returned.  **Valid example** &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;llm\&quot;,   \&quot;name\&quot;: \&quot;Updated OpenAI\&quot;,   \&quot;config\&quot;: { \&quot;is_function_calling_enabled\&quot;: true } } &#x60;&#x60;&#x60;  **Invalid example** (empty body) &#x60;&#x60;&#x60;json {} &#x60;&#x60;&#x60;  | 
+ **body** | **UpdateLlmIntegrationRequest**| Partially update an integration. The body is discriminated by &#x60;type&#x60;. Omitted fields are left unchanged.  **Payload Requirements** - &#x60;type&#x60; is **required** (it selects the per-type PATCH shape) and is   immutable: it must match the stored integration&#39;s type, otherwise the   request is rejected with 422 (change category by delete + recreate). - At least one updatable field (&#x60;name&#x60;, &#x60;scopings&#x60;, or &#x60;config&#x60;) must be   provided in addition to &#x60;type&#x60;. - &#x60;provider&#x60; is immutable. Supplying a value that differs from the stored   integration is rejected with 422. - Envelope and &#x60;config&#x60; scalar fields deep-merge: omit &#x3D; keep, explicit   &#x60;null&#x60; &#x3D; clear (for nullable fields). - &#x60;scopings&#x60;, if provided, replaces the existing values. - &#x60;config.api_key&#x60; may be sent to rotate the key; it is never returned.  **Valid example** &#x60;&#x60;&#x60;json {   \&quot;type\&quot;: \&quot;LLM\&quot;,   \&quot;name\&quot;: \&quot;Updated OpenAI\&quot;,   \&quot;config\&quot;: { \&quot;is_function_calling_enabled\&quot;: true } } &#x60;&#x60;&#x60;  **Invalid example** (empty body) &#x60;&#x60;&#x60;json {} &#x60;&#x60;&#x60;  | 
 
 ### Return type
 

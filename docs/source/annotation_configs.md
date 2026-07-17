@@ -11,7 +11,7 @@
 
 ```{eval-rst}
 .. currentmodule:: arize.annotation_configs.types
-.. autoclass:: AnnotationConfigListResponse
+.. autoclass:: ListAnnotationConfigsResponse
    :members:
    :member-order: bysource
 

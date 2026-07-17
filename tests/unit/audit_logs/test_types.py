@@ -7,9 +7,8 @@ import pytest
 import arize.audit_logs.types as types_module
 from arize.audit_logs.types import (
     AuditLog,
-    AuditLogListResponse,
     AuditLogOperationType,
-    AuditLogsList200Response,
+    ListAuditLogsResponse,
 )
 
 
@@ -26,9 +25,8 @@ class TestAuditLogsTypes:
     def test_expected_names_in_all(self) -> None:
         """__all__ should contain the expected public type names."""
         assert "AuditLog" in types_module.__all__
-        assert "AuditLogListResponse" in types_module.__all__
         assert "AuditLogOperationType" in types_module.__all__
-        assert "AuditLogsList200Response" in types_module.__all__
+        assert "ListAuditLogsResponse" in types_module.__all__
 
     def test_audit_log_operation_type_is_enum(self) -> None:
         from enum import Enum
@@ -38,9 +36,5 @@ class TestAuditLogsTypes:
     def test_audit_log_is_class(self) -> None:
         assert isinstance(AuditLog, type)
 
-    def test_audit_log_list_response_is_class(self) -> None:
-        assert isinstance(AuditLogListResponse, type)
-
-    def test_audit_log_list_response_is_alias_of_200_response(self) -> None:
-        """AuditLogListResponse must be the same type as AuditLogsList200Response."""
-        assert AuditLogListResponse is AuditLogsList200Response
+    def test_list_audit_logs_response_is_class(self) -> None:
+        assert isinstance(ListAuditLogsResponse, type)

@@ -46,7 +46,7 @@ class TestTrace(unittest.TestCase):
                         context = arize._generated.api_client.models.span_context.SpanContext(
                             trace_id = '', 
                             span_id = '', ), 
-                        kind = '', 
+                        kind = 'LLM', 
                         parent_id = '', 
                         start_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         end_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
@@ -87,7 +87,7 @@ class TestTrace(unittest.TestCase):
                         context = arize._generated.api_client.models.span_context.SpanContext(
                             trace_id = '', 
                             span_id = '', ), 
-                        kind = '', 
+                        kind = 'LLM', 
                         parent_id = '', 
                         start_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         end_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 

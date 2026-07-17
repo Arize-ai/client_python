@@ -15,11 +15,11 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: DatasetListResponse
+.. autoclass:: ListDatasetsResponse
    :members:
    :member-order: bysource
 
-.. autoclass:: DatasetExampleListResponse
+.. autoclass:: ListDatasetExamplesResponse
    :members:
    :member-order: bysource
 
@@ -27,7 +27,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: DatasetExampleDeleteResponse
+.. autoclass:: DeleteDatasetExamplesResponse
    :members:
    :member-order: bysource
 

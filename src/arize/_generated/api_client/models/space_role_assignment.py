@@ -27,7 +27,7 @@ SPACEROLEASSIGNMENT_ONE_OF_SCHEMAS = ["CustomRoleAssignment", "PredefinedRoleAss
 
 class SpaceRoleAssignment(BaseModel):
     """
-    A role assignment for a space membership. Discriminated by `type`: - `predefined`: one of the predefined roles (`admin`, `member`, `read-only`, `annotator`) - `custom`: a custom RBAC role identified by its ID 
+    A role assignment for a space membership. Discriminated by `type`: - `PREDEFINED`: one of the predefined roles (`ADMIN`, `MEMBER`, `READ_ONLY`, `ANNOTATOR`) - `CUSTOM`: a custom RBAC role identified by its ID 
     """
     # data type: PredefinedRoleAssignment
     oneof_schema_1_validator: Optional[PredefinedRoleAssignment] = None

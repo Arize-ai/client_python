@@ -3,17 +3,18 @@
 from __future__ import annotations
 
 import logging
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
+from arize._generated.api_client import ResourceRestrictionsApi
 from arize.resource_restrictions.client import ResourceRestrictionsClient
 
 
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock ResourceRestrictionsApi instance."""
-    return Mock()
+    return create_autospec(ResourceRestrictionsApi, instance=True)
 
 
 @pytest.fixture
@@ -78,7 +79,7 @@ class TestResourceRestrictionsClientList:
 
         resource_restrictions_client.list()
 
-        mock_api.resource_restrictions_list.assert_called_once_with(
+        mock_api.list_resource_restrictions.assert_called_once_with(
             resource_type=None,
             limit=DEFAULT_LIST_LIMIT,
             cursor=None,
@@ -98,7 +99,7 @@ class TestResourceRestrictionsClientList:
             cursor="next-page-token",
         )
 
-        mock_api.resource_restrictions_list.assert_called_once_with(
+        mock_api.list_resource_restrictions.assert_called_once_with(
             resource_type=ResourceRestrictionType.PROJECT,
             limit=25,
             cursor="next-page-token",
@@ -111,18 +112,18 @@ class TestResourceRestrictionsClientList:
     ) -> None:
         """list() should return the response object from the API."""
         mock_response = Mock()
-        mock_api.resource_restrictions_list.return_value = mock_response
+        mock_api.list_resource_restrictions.return_value = mock_response
 
         result = resource_restrictions_client.list()
 
         assert result is mock_response
 
-    def test_list_emits_alpha_prerelease_warning(
+    def test_list_emits_beta_prerelease_warning(
         self,
         resource_restrictions_client: ResourceRestrictionsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -131,7 +132,7 @@ class TestResourceRestrictionsClientList:
         resource_restrictions_client.list()
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "resource_restrictions.list" in record.message
             for record in caplog.records
         )
@@ -148,10 +149,10 @@ class TestResourceRestrictionsClientRestrict:
     ) -> None:
         """restrict() should build ResourceRestrictionsCreate and call the API."""
         mock_response = Mock()
-        mock_api.resource_restrictions_create.return_value = mock_response
+        mock_api.create_resource_restriction.return_value = mock_response
 
         with patch(
-            "arize._generated.api_client.ResourceRestrictionCreate"
+            "arize._generated.api_client.CreateResourceRestrictionRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -159,45 +160,47 @@ class TestResourceRestrictionsClientRestrict:
             resource_restrictions_client.restrict(resource_id="project-abc")
 
         mock_request_cls.assert_called_once_with(resource_id="project-abc")
-        mock_api.resource_restrictions_create.assert_called_once_with(mock_body)
+        mock_api.create_resource_restriction.assert_called_once_with(mock_body)
 
     def test_restrict_returns_resource_restriction(
         self,
         resource_restrictions_client: ResourceRestrictionsClient,
         mock_api: Mock,
     ) -> None:
-        """restrict() should return the resource_restriction field from the API response."""
-        mock_restriction = Mock()
+        """restrict() should return the ResourceRestriction from the API response."""
         mock_response = Mock()
-        mock_response.resource_restriction = mock_restriction
-        mock_api.resource_restrictions_create.return_value = mock_response
+        mock_api.create_resource_restriction.return_value = mock_response
 
-        with patch("arize._generated.api_client.ResourceRestrictionCreate"):
+        with patch(
+            "arize._generated.api_client.CreateResourceRestrictionRequest"
+        ):
             result = resource_restrictions_client.restrict(
                 resource_id="project-abc"
             )
 
-        assert result is mock_restriction
+        assert result is mock_response
 
-    def test_restrict_emits_alpha_prerelease_warning(
+    def test_restrict_emits_beta_prerelease_warning(
         self,
         resource_restrictions_client: ResourceRestrictionsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
         mock_response = Mock()
-        resource_restrictions_client._api.resource_restrictions_create.return_value = mock_response
+        resource_restrictions_client._api.create_resource_restriction.return_value = mock_response
 
-        with patch("arize._generated.api_client.ResourceRestrictionCreate"):
+        with patch(
+            "arize._generated.api_client.CreateResourceRestrictionRequest"
+        ):
             resource_restrictions_client.restrict(resource_id="project-abc")
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "resource_restrictions.restrict" in record.message
             for record in caplog.records
         )
@@ -215,7 +218,7 @@ class TestResourceRestrictionsClientUnrestrict:
         """unrestrict() should pass resource_id to resource_restrictions_delete."""
         resource_restrictions_client.unrestrict(resource_id="project-abc")
 
-        mock_api.resource_restrictions_delete.assert_called_once_with(
+        mock_api.delete_resource_restriction.assert_called_once_with(
             resource_id="project-abc"
         )
 
@@ -225,7 +228,7 @@ class TestResourceRestrictionsClientUnrestrict:
         mock_api: Mock,
     ) -> None:
         """unrestrict() should return None (204 No Content)."""
-        mock_api.resource_restrictions_delete.return_value = None
+        mock_api.delete_resource_restriction.return_value = None
 
         result = resource_restrictions_client.unrestrict(
             resource_id="project-abc"

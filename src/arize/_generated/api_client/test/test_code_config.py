@@ -35,11 +35,11 @@ class TestCodeConfig(unittest.TestCase):
         model = CodeConfig()
         if include_optional:
             return CodeConfig(
-                data_granularity = 'span',
+                data_granularity = 'SPAN',
                 query_filter = '',
-                type = 'managed',
+                type = 'MANAGED',
                 name = '2',
-                managed_evaluator = 'MatchesRegex',
+                managed_evaluator = 'MATCHES_REGEX',
                 variables = [
                     ''
                     ],
@@ -54,9 +54,9 @@ class TestCodeConfig(unittest.TestCase):
             )
         else:
             return CodeConfig(
-                type = 'managed',
+                type = 'MANAGED',
                 name = '2',
-                managed_evaluator = 'MatchesRegex',
+                managed_evaluator = 'MATCHES_REGEX',
                 variables = [
                     ''
                     ],

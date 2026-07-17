@@ -37,7 +37,7 @@ class TestTask(unittest.TestCase):
             return Task(
                 id = '',
                 name = '',
-                type = 'template_evaluation',
+                type = 'TEMPLATE_EVALUATION',
                 project_id = '',
                 dataset_id = '',
                 sampling_rate = 0,
@@ -65,7 +65,7 @@ class TestTask(unittest.TestCase):
             return Task(
                 id = '',
                 name = '',
-                type = 'template_evaluation',
+                type = 'TEMPLATE_EVALUATION',
                 is_continuous = True,
                 query_filter = '',
                 evaluators = [

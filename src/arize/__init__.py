@@ -8,22 +8,22 @@ from arize._generated.api_client import models
 from arize._generated.api_client.exceptions import ApiException
 from arize._generated.api_client.models.problem import Problem
 from arize.annotation_configs.types import (
-    AnnotationConfigListResponse as _DomainAnnotationConfigListResponse,
+    ListAnnotationConfigsResponse as _DomainListAnnotationConfigsResponse,
 )
 from arize.client import ArizeClient
 from arize.config import SDKConfiguration
 from arize.evaluators.types import (
-    EvaluatorVersionListResponse as _DomainEvaluatorVersionListResponse,
+    ListEvaluatorVersionsResponse as _DomainListEvaluatorVersionsResponse,
 )
 from arize.exceptions.spaces import AmbiguousNameError
 from arize.regions import Region
 from arize.tasks.types import (
-    TaskListResponse as _DomainTaskListResponse,
+    ListTasksResponse as _DomainListTasksResponse,
 )
 from arize.users.types import BulkDeleteResponse, BulkUserDeletionResult
 from arize.users.types import BulkDeleteResponse as _DomainBulkDeleteResponse
 from arize.users.types import (
-    UserListResponse as _DomainUserListResponse,
+    ListUsersResponse as _DomainUserListResponse,
 )
 from arize.utils.resolve import NotFoundError
 
@@ -227,35 +227,35 @@ def annotation_configs_to_df(
 
 # Monkey-patch convenience methods onto generated response models
 # Type ignore comments needed: mypy can't verify runtime attribute additions
-models.DatasetExampleListResponse.to_df = make_to_df(  # type: ignore[attr-defined]
+models.ListDatasetExamplesResponse.to_df = make_to_df(  # type: ignore[attr-defined]
     "examples", flatten_annotations=True
 )
-models.DatasetListResponse.to_df = make_to_df("datasets")  # type: ignore[attr-defined]
-models.ExperimentListResponse.to_df = make_to_df("experiments")  # type: ignore[attr-defined]
-models.ExperimentRunsListResponse.to_df = make_to_df(  # type: ignore[attr-defined]
+models.ListDatasetsResponse.to_df = make_to_df("datasets")  # type: ignore[attr-defined]
+models.ListExperimentsResponse.to_df = make_to_df("experiments")  # type: ignore[attr-defined]
+models.ListExperimentRunsResponse.to_df = make_to_df(  # type: ignore[attr-defined]
     "experiment_runs", flatten_annotations=True
 )
-models.ProjectListResponse.to_df = make_to_df("projects")  # type: ignore[attr-defined]
-models.AnnotationConfigListResponse.to_df = annotation_configs_to_df  # type: ignore[attr-defined]
-models.SpanListResponse.to_df = make_to_df(  # type: ignore[attr-defined]
+models.ListProjectsResponse.to_df = make_to_df("projects")  # type: ignore[attr-defined]
+models.ListAnnotationConfigsResponse.to_df = annotation_configs_to_df  # type: ignore[attr-defined]
+models.ListSpansResponse.to_df = make_to_df(  # type: ignore[attr-defined]
     "spans", flatten_annotations=True
 )
-models.SpaceListResponse.to_df = make_to_df("spaces")  # type: ignore[attr-defined]
-models.ApiKeyListResponse.to_df = make_to_df("api_keys")  # type: ignore[attr-defined]
-models.AnnotationQueueRecordListResponse.to_df = make_to_df("records")  # type: ignore[attr-defined]
-models.AnnotationQueueListResponse.to_df = make_to_df("annotation_queues")  # type: ignore[attr-defined]
-models.EvaluatorListResponse.to_df = make_to_df("evaluators")  # type: ignore[attr-defined]
-models.EvaluatorVersionListResponse.to_df = make_to_df("evaluator_versions")  # type: ignore[attr-defined]
-models.PromptListResponse.to_df = make_to_df("prompts")  # type: ignore[attr-defined]
-models.PromptVersionListResponse.to_df = make_to_df("prompt_versions")  # type: ignore[attr-defined]
-models.RoleListResponse.to_df = make_to_df("roles")  # type: ignore[attr-defined]
-models.RoleBindingListResponse.to_df = make_to_df("role_bindings")  # type: ignore[attr-defined]
-models.TaskListResponse.to_df = make_to_df("tasks")  # type: ignore[attr-defined]
-models.TaskRunListResponse.to_df = make_to_df("task_runs")  # type: ignore[attr-defined]
-models.AiIntegrationListResponse.to_df = make_to_df("ai_integrations")  # type: ignore[attr-defined]
-models.OrganizationListResponse.to_df = make_to_df("organizations")  # type: ignore[attr-defined]
-models.UserListResponse.to_df = make_to_df("users")  # type: ignore[attr-defined]
-models.ResourceRestrictionListResponse.to_df = make_to_df(  # type: ignore[attr-defined]
+models.ListSpacesResponse.to_df = make_to_df("spaces")  # type: ignore[attr-defined]
+models.ListApiKeysResponse.to_df = make_to_df("api_keys")  # type: ignore[attr-defined]
+models.ListAnnotationQueueRecordsResponse.to_df = make_to_df("records")  # type: ignore[attr-defined]
+models.ListAnnotationQueuesResponse.to_df = make_to_df("annotation_queues")  # type: ignore[attr-defined]
+models.ListEvaluatorsResponse.to_df = make_to_df("evaluators")  # type: ignore[attr-defined]
+models.ListEvaluatorVersionsResponse.to_df = make_to_df("evaluator_versions")  # type: ignore[attr-defined]
+models.ListPromptsResponse.to_df = make_to_df("prompts")  # type: ignore[attr-defined]
+models.ListPromptVersionsResponse.to_df = make_to_df("prompt_versions")  # type: ignore[attr-defined]
+models.ListRolesResponse.to_df = make_to_df("roles")  # type: ignore[attr-defined]
+models.ListRoleBindingsResponse.to_df = make_to_df("role_bindings")  # type: ignore[attr-defined]
+models.ListTasksResponse.to_df = make_to_df("tasks")  # type: ignore[attr-defined]
+models.ListTaskRunsResponse.to_df = make_to_df("task_runs")  # type: ignore[attr-defined]
+models.ListAiIntegrationsResponse.to_df = make_to_df("ai_integrations")  # type: ignore[attr-defined]
+models.ListOrganizationsResponse.to_df = make_to_df("organizations")  # type: ignore[attr-defined]
+models.ListUsersResponse.to_df = make_to_df("users")  # type: ignore[attr-defined]
+models.ListResourceRestrictionsResponse.to_df = make_to_df(  # type: ignore[attr-defined]
     "resource_restrictions"
 )
 
@@ -263,6 +263,6 @@ models.ResourceRestrictionListResponse.to_df = make_to_df(  # type: ignore[attr-
 # SDK-typed objects returned by sub-clients (e.g. client.users.list()).
 _DomainUserListResponse.to_df = make_to_df("users")  # type: ignore[attr-defined]
 _DomainBulkDeleteResponse.to_df = make_to_df("results")  # type: ignore[attr-defined]
-_DomainTaskListResponse.to_df = make_to_df("tasks")  # type: ignore[attr-defined]
-_DomainEvaluatorVersionListResponse.to_df = make_to_df("evaluator_versions")  # type: ignore[attr-defined]
-_DomainAnnotationConfigListResponse.to_df = make_to_df("annotation_configs")  # type: ignore[attr-defined]
+_DomainListTasksResponse.to_df = make_to_df("tasks")  # type: ignore[attr-defined]
+_DomainListEvaluatorVersionsResponse.to_df = make_to_df("evaluator_versions")  # type: ignore[attr-defined]
+_DomainListAnnotationConfigsResponse.to_df = make_to_df("annotation_configs")  # type: ignore[attr-defined]

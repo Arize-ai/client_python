@@ -4,15 +4,15 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
+from arize._generated.api_client.models.add_organization_user_request import (
+    AddOrganizationUserRequest,
+)
+from arize._generated.api_client.models.list_organizations_response import (
+    ListOrganizationsResponse,
+)
 from arize._generated.api_client.models.organization import Organization
 from arize._generated.api_client.models.organization_custom_role_assignment import (
     OrganizationCustomRoleAssignment,
-)
-from arize._generated.api_client.models.organization_list_response import (
-    OrganizationListResponse,
-)
-from arize._generated.api_client.models.organization_membership_input import (
-    OrganizationMembershipInput,
 )
 from arize._generated.api_client.models.organization_predefined_role_assignment import (
     OrganizationPredefinedRoleAssignment,
@@ -28,14 +28,14 @@ from arize._generated.api_client.models.organization_role_assignment import (
 class PredefinedOrgRole(OrganizationPredefinedRoleAssignment):
     """A predefined organization role assignment.
 
-    The ``type`` discriminator is set to ``"predefined"`` automatically.
+    The ``type`` discriminator is set to ``"PREDEFINED"`` automatically.
 
     Args:
-        name: The predefined role name (``"admin"``, ``"member"``,
-            ``"read-only"``, or ``"annotator"``).
+        name: The predefined role name (``"ADMIN"``, ``"MEMBER"``,
+            ``"READ_ONLY"``, or ``"ANNOTATOR"``).
     """
 
-    type: Literal["predefined"] = "predefined"  # type: ignore[assignment]
+    type: Literal["PREDEFINED"] = "PREDEFINED"  # type: ignore[assignment]
 
     def __str__(self) -> str:
         """Return the role name as a string."""
@@ -45,7 +45,7 @@ class PredefinedOrgRole(OrganizationPredefinedRoleAssignment):
 class CustomOrgRole(OrganizationCustomRoleAssignment):
     """A custom RBAC role assignment for an organization.
 
-    The ``type`` discriminator is set to ``"custom"`` automatically.
+    The ``type`` discriminator is set to ``"CUSTOM"`` automatically.
 
     Args:
         id: The unique identifier of the custom RBAC role.
@@ -53,7 +53,7 @@ class CustomOrgRole(OrganizationCustomRoleAssignment):
             only; ignored on input).
     """
 
-    type: Literal["custom"] = "custom"  # type: ignore[assignment]
+    type: Literal["CUSTOM"] = "CUSTOM"  # type: ignore[assignment]
 
     def __str__(self) -> str:
         """Return the role name if available, otherwise the role id."""
@@ -88,11 +88,11 @@ class OrganizationMembership(BaseModel):
 
 
 __all__ = [
+    "AddOrganizationUserRequest",
     "CustomOrgRole",
+    "ListOrganizationsResponse",
     "Organization",
-    "OrganizationListResponse",
     "OrganizationMembership",
-    "OrganizationMembershipInput",
     "OrganizationRole",
     "PredefinedOrgRole",
 ]

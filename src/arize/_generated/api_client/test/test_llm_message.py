@@ -35,13 +35,13 @@ class TestLLMMessage(unittest.TestCase):
         model = LLMMessage()
         if include_optional:
             return LLMMessage(
-                role = 'user',
+                role = 'USER',
                 content = '',
                 tool_call_id = '',
                 tool_calls = [
                     arize._generated.api_client.models.tool_call.ToolCall(
                         id = '', 
-                        type = 'function', 
+                        type = 'FUNCTION', 
                         function = arize._generated.api_client.models.tool_call_function.ToolCallFunction(
                             name = '', 
                             arguments = '', ), )
@@ -49,7 +49,7 @@ class TestLLMMessage(unittest.TestCase):
             )
         else:
             return LLMMessage(
-                role = 'user',
+                role = 'USER',
         )
         """
 

@@ -19,9 +19,9 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
-from arize._generated.api_client.models.resource_restriction_create import ResourceRestrictionCreate
-from arize._generated.api_client.models.resource_restriction_list_response import ResourceRestrictionListResponse
-from arize._generated.api_client.models.resource_restriction_response_body import ResourceRestrictionResponseBody
+from arize._generated.api_client.models.create_resource_restriction_request import CreateResourceRestrictionRequest
+from arize._generated.api_client.models.list_resource_restrictions_response import ListResourceRestrictionsResponse
+from arize._generated.api_client.models.resource_restriction import ResourceRestriction
 from arize._generated.api_client.models.resource_restriction_type import ResourceRestrictionType
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
@@ -43,9 +43,9 @@ class ResourceRestrictionsApi:
 
 
     @validate_call
-    def resource_restrictions_create(
+    def create_resource_restriction(
         self,
-        resource_restriction_create: Annotated[ResourceRestrictionCreate, Field(description="Body containing resource restriction creation parameters.")],
+        create_resource_restriction_request: Annotated[CreateResourceRestrictionRequest, Field(description="Body containing resource restriction creation parameters.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -58,13 +58,13 @@ class ResourceRestrictionsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ResourceRestrictionResponseBody:
+    ) -> ResourceRestriction:
         """Restrict a resource
 
-        Mark a resource as restricted. Only space admins or users with the RESOURCE_RESTRICT permission can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The ID for the resource.    Only `project` resources are currently supported. Other resource types are not currently supported and will return 400.  **Valid example** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a project ID\" } ``` Returns 400 — only Project / Model IDs are accepted   <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Mark a resource as restricted. Only space admins or users with the RESOURCE_RESTRICT permission can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The ID for the resource.    Only `project` resources are currently supported. Other resource types are not currently supported and will return 400.  **Valid example** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a project ID\" } ``` Returns 400 — only Project / Model IDs are accepted   <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param resource_restriction_create: Body containing resource restriction creation parameters. (required)
-        :type resource_restriction_create: ResourceRestrictionCreate
+        :param create_resource_restriction_request: Body containing resource restriction creation parameters. (required)
+        :type create_resource_restriction_request: CreateResourceRestrictionRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -87,8 +87,8 @@ class ResourceRestrictionsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._resource_restrictions_create_serialize(
-            resource_restriction_create=resource_restriction_create,
+        _param = self._create_resource_restriction_serialize(
+            create_resource_restriction_request=create_resource_restriction_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -96,7 +96,7 @@ class ResourceRestrictionsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ResourceRestrictionResponseBody",
+            '200': "ResourceRestriction",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -116,9 +116,9 @@ class ResourceRestrictionsApi:
 
 
     @validate_call
-    def resource_restrictions_create_with_http_info(
+    def create_resource_restriction_with_http_info(
         self,
-        resource_restriction_create: Annotated[ResourceRestrictionCreate, Field(description="Body containing resource restriction creation parameters.")],
+        create_resource_restriction_request: Annotated[CreateResourceRestrictionRequest, Field(description="Body containing resource restriction creation parameters.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -131,13 +131,13 @@ class ResourceRestrictionsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ResourceRestrictionResponseBody]:
+    ) -> ApiResponse[ResourceRestriction]:
         """Restrict a resource
 
-        Mark a resource as restricted. Only space admins or users with the RESOURCE_RESTRICT permission can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The ID for the resource.    Only `project` resources are currently supported. Other resource types are not currently supported and will return 400.  **Valid example** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a project ID\" } ``` Returns 400 — only Project / Model IDs are accepted   <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Mark a resource as restricted. Only space admins or users with the RESOURCE_RESTRICT permission can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The ID for the resource.    Only `project` resources are currently supported. Other resource types are not currently supported and will return 400.  **Valid example** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a project ID\" } ``` Returns 400 — only Project / Model IDs are accepted   <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param resource_restriction_create: Body containing resource restriction creation parameters. (required)
-        :type resource_restriction_create: ResourceRestrictionCreate
+        :param create_resource_restriction_request: Body containing resource restriction creation parameters. (required)
+        :type create_resource_restriction_request: CreateResourceRestrictionRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -160,8 +160,8 @@ class ResourceRestrictionsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._resource_restrictions_create_serialize(
-            resource_restriction_create=resource_restriction_create,
+        _param = self._create_resource_restriction_serialize(
+            create_resource_restriction_request=create_resource_restriction_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -169,7 +169,7 @@ class ResourceRestrictionsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ResourceRestrictionResponseBody",
+            '200': "ResourceRestriction",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -189,9 +189,9 @@ class ResourceRestrictionsApi:
 
 
     @validate_call
-    def resource_restrictions_create_without_preload_content(
+    def create_resource_restriction_without_preload_content(
         self,
-        resource_restriction_create: Annotated[ResourceRestrictionCreate, Field(description="Body containing resource restriction creation parameters.")],
+        create_resource_restriction_request: Annotated[CreateResourceRestrictionRequest, Field(description="Body containing resource restriction creation parameters.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -207,10 +207,10 @@ class ResourceRestrictionsApi:
     ) -> RESTResponseType:
         """Restrict a resource
 
-        Mark a resource as restricted. Only space admins or users with the RESOURCE_RESTRICT permission can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The ID for the resource.    Only `project` resources are currently supported. Other resource types are not currently supported and will return 400.  **Valid example** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a project ID\" } ``` Returns 400 — only Project / Model IDs are accepted   <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Mark a resource as restricted. Only space admins or users with the RESOURCE_RESTRICT permission can perform this action. Idempotent.  **Payload Requirements** - `resource_id`: The ID for the resource.    Only `project` resources are currently supported. Other resource types are not currently supported and will return 400.  **Valid example** ```json { \"resource_id\": \"TW9kZWw6MTIxOmFCY0Q=\" } ```  **Invalid example** ```json { \"resource_id\": \"Not a project ID\" } ``` Returns 400 — only Project / Model IDs are accepted   <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param resource_restriction_create: Body containing resource restriction creation parameters. (required)
-        :type resource_restriction_create: ResourceRestrictionCreate
+        :param create_resource_restriction_request: Body containing resource restriction creation parameters. (required)
+        :type create_resource_restriction_request: CreateResourceRestrictionRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -233,8 +233,8 @@ class ResourceRestrictionsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._resource_restrictions_create_serialize(
-            resource_restriction_create=resource_restriction_create,
+        _param = self._create_resource_restriction_serialize(
+            create_resource_restriction_request=create_resource_restriction_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -242,7 +242,7 @@ class ResourceRestrictionsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ResourceRestrictionResponseBody",
+            '200': "ResourceRestriction",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -257,9 +257,9 @@ class ResourceRestrictionsApi:
         return response_data.response
 
 
-    def _resource_restrictions_create_serialize(
+    def _create_resource_restriction_serialize(
         self,
-        resource_restriction_create,
+        create_resource_restriction_request,
         _request_auth,
         _content_type,
         _headers,
@@ -285,8 +285,8 @@ class ResourceRestrictionsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if resource_restriction_create is not None:
-            _body_params = resource_restriction_create
+        if create_resource_restriction_request is not None:
+            _body_params = create_resource_restriction_request
 
 
         # set the HTTP header `Accept`
@@ -336,7 +336,7 @@ class ResourceRestrictionsApi:
 
 
     @validate_call
-    def resource_restrictions_delete(
+    def delete_resource_restriction(
         self,
         resource_id: Annotated[StrictStr, Field(description="The unique resource identifier (base64)")],
         _request_timeout: Union[
@@ -354,7 +354,7 @@ class ResourceRestrictionsApi:
     ) -> None:
         """Unrestrict a resource
 
-        Remove restriction from a resource. Removing a restriction from a resource means that roles bound at other levels of the hierarchy (space, org, account) can grant access to the resource. Returns 404 if the resource is not restricted.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Remove restriction from a resource. Removing a restriction from a resource means that roles bound at other levels of the hierarchy (space, org, account) can grant access to the resource. Returns 404 if the resource is not restricted.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param resource_id: The unique resource identifier (base64) (required)
         :type resource_id: str
@@ -380,7 +380,7 @@ class ResourceRestrictionsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._resource_restrictions_delete_serialize(
+        _param = self._delete_resource_restriction_serialize(
             resource_id=resource_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -408,7 +408,7 @@ class ResourceRestrictionsApi:
 
 
     @validate_call
-    def resource_restrictions_delete_with_http_info(
+    def delete_resource_restriction_with_http_info(
         self,
         resource_id: Annotated[StrictStr, Field(description="The unique resource identifier (base64)")],
         _request_timeout: Union[
@@ -426,7 +426,7 @@ class ResourceRestrictionsApi:
     ) -> ApiResponse[None]:
         """Unrestrict a resource
 
-        Remove restriction from a resource. Removing a restriction from a resource means that roles bound at other levels of the hierarchy (space, org, account) can grant access to the resource. Returns 404 if the resource is not restricted.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Remove restriction from a resource. Removing a restriction from a resource means that roles bound at other levels of the hierarchy (space, org, account) can grant access to the resource. Returns 404 if the resource is not restricted.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param resource_id: The unique resource identifier (base64) (required)
         :type resource_id: str
@@ -452,7 +452,7 @@ class ResourceRestrictionsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._resource_restrictions_delete_serialize(
+        _param = self._delete_resource_restriction_serialize(
             resource_id=resource_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -480,7 +480,7 @@ class ResourceRestrictionsApi:
 
 
     @validate_call
-    def resource_restrictions_delete_without_preload_content(
+    def delete_resource_restriction_without_preload_content(
         self,
         resource_id: Annotated[StrictStr, Field(description="The unique resource identifier (base64)")],
         _request_timeout: Union[
@@ -498,7 +498,7 @@ class ResourceRestrictionsApi:
     ) -> RESTResponseType:
         """Unrestrict a resource
 
-        Remove restriction from a resource. Removing a restriction from a resource means that roles bound at other levels of the hierarchy (space, org, account) can grant access to the resource. Returns 404 if the resource is not restricted.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Remove restriction from a resource. Removing a restriction from a resource means that roles bound at other levels of the hierarchy (space, org, account) can grant access to the resource. Returns 404 if the resource is not restricted.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param resource_id: The unique resource identifier (base64) (required)
         :type resource_id: str
@@ -524,7 +524,7 @@ class ResourceRestrictionsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._resource_restrictions_delete_serialize(
+        _param = self._delete_resource_restriction_serialize(
             resource_id=resource_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -547,7 +547,7 @@ class ResourceRestrictionsApi:
         return response_data.response
 
 
-    def _resource_restrictions_delete_serialize(
+    def _delete_resource_restriction_serialize(
         self,
         resource_id,
         _request_auth,
@@ -612,7 +612,7 @@ class ResourceRestrictionsApi:
 
 
     @validate_call
-    def resource_restrictions_list(
+    def list_resource_restrictions(
         self,
         resource_type: Annotated[Optional[ResourceRestrictionType], Field(description="Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -629,10 +629,10 @@ class ResourceRestrictionsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ResourceRestrictionListResponse:
+    ) -> ListResourceRestrictionsResponse:
         """List resource restrictions the caller is permitted to manage.
 
-        List active resource restrictions the authenticated user is permitted to manage. A restriction is returned only if the caller can manage it — i.e. an account/org admin (via admin escalation), a holder of the `PROJECT_RESTRICT` permission in the project's space, or a holder of `PROJECT_RESTRICT` granted directly on the project.  Results are paginated; use `limit` and `cursor` for subsequent pages. Because entries are authorization-filtered after a page is read, a page may contain fewer items than `limit` (or be empty) while `has_more` is still `true`. Clients MUST keep paging until `has_more` is `false` — do not stop on an empty page.  Use the optional `resource_type` query param to filter to a single resource type. When omitted, `PROJECT` restrictions are returned (currently the only supported type).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List active resource restrictions the authenticated user is permitted to manage. A restriction is returned only if the caller can manage it — i.e. an account/org admin (via admin escalation), a holder of the `PROJECT_RESTRICT` permission in the project's space, or a holder of `PROJECT_RESTRICT` granted directly on the project.  Results are paginated; use `limit` and `cursor` for subsequent pages. Because entries are authorization-filtered after a page is read, a page may contain fewer items than `limit` (or be empty) while `has_more` is still `true`. Clients MUST keep paging until `has_more` is `false` — do not stop on an empty page.  Use the optional `resource_type` query param to filter to a single resource type. When omitted, `PROJECT` restrictions are returned (currently the only supported type).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param resource_type: Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). 
         :type resource_type: ResourceRestrictionType
@@ -662,7 +662,7 @@ class ResourceRestrictionsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._resource_restrictions_list_serialize(
+        _param = self._list_resource_restrictions_serialize(
             resource_type=resource_type,
             limit=limit,
             cursor=cursor,
@@ -673,7 +673,7 @@ class ResourceRestrictionsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ResourceRestrictionListResponse",
+            '200': "ListResourceRestrictionsResponse",
             '400': "Problem",
             '401': "Problem",
             '429': "Problem",
@@ -690,7 +690,7 @@ class ResourceRestrictionsApi:
 
 
     @validate_call
-    def resource_restrictions_list_with_http_info(
+    def list_resource_restrictions_with_http_info(
         self,
         resource_type: Annotated[Optional[ResourceRestrictionType], Field(description="Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -707,10 +707,10 @@ class ResourceRestrictionsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ResourceRestrictionListResponse]:
+    ) -> ApiResponse[ListResourceRestrictionsResponse]:
         """List resource restrictions the caller is permitted to manage.
 
-        List active resource restrictions the authenticated user is permitted to manage. A restriction is returned only if the caller can manage it — i.e. an account/org admin (via admin escalation), a holder of the `PROJECT_RESTRICT` permission in the project's space, or a holder of `PROJECT_RESTRICT` granted directly on the project.  Results are paginated; use `limit` and `cursor` for subsequent pages. Because entries are authorization-filtered after a page is read, a page may contain fewer items than `limit` (or be empty) while `has_more` is still `true`. Clients MUST keep paging until `has_more` is `false` — do not stop on an empty page.  Use the optional `resource_type` query param to filter to a single resource type. When omitted, `PROJECT` restrictions are returned (currently the only supported type).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List active resource restrictions the authenticated user is permitted to manage. A restriction is returned only if the caller can manage it — i.e. an account/org admin (via admin escalation), a holder of the `PROJECT_RESTRICT` permission in the project's space, or a holder of `PROJECT_RESTRICT` granted directly on the project.  Results are paginated; use `limit` and `cursor` for subsequent pages. Because entries are authorization-filtered after a page is read, a page may contain fewer items than `limit` (or be empty) while `has_more` is still `true`. Clients MUST keep paging until `has_more` is `false` — do not stop on an empty page.  Use the optional `resource_type` query param to filter to a single resource type. When omitted, `PROJECT` restrictions are returned (currently the only supported type).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param resource_type: Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). 
         :type resource_type: ResourceRestrictionType
@@ -740,7 +740,7 @@ class ResourceRestrictionsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._resource_restrictions_list_serialize(
+        _param = self._list_resource_restrictions_serialize(
             resource_type=resource_type,
             limit=limit,
             cursor=cursor,
@@ -751,7 +751,7 @@ class ResourceRestrictionsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ResourceRestrictionListResponse",
+            '200': "ListResourceRestrictionsResponse",
             '400': "Problem",
             '401': "Problem",
             '429': "Problem",
@@ -768,7 +768,7 @@ class ResourceRestrictionsApi:
 
 
     @validate_call
-    def resource_restrictions_list_without_preload_content(
+    def list_resource_restrictions_without_preload_content(
         self,
         resource_type: Annotated[Optional[ResourceRestrictionType], Field(description="Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -788,7 +788,7 @@ class ResourceRestrictionsApi:
     ) -> RESTResponseType:
         """List resource restrictions the caller is permitted to manage.
 
-        List active resource restrictions the authenticated user is permitted to manage. A restriction is returned only if the caller can manage it — i.e. an account/org admin (via admin escalation), a holder of the `PROJECT_RESTRICT` permission in the project's space, or a holder of `PROJECT_RESTRICT` granted directly on the project.  Results are paginated; use `limit` and `cursor` for subsequent pages. Because entries are authorization-filtered after a page is read, a page may contain fewer items than `limit` (or be empty) while `has_more` is still `true`. Clients MUST keep paging until `has_more` is `false` — do not stop on an empty page.  Use the optional `resource_type` query param to filter to a single resource type. When omitted, `PROJECT` restrictions are returned (currently the only supported type).  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List active resource restrictions the authenticated user is permitted to manage. A restriction is returned only if the caller can manage it — i.e. an account/org admin (via admin escalation), a holder of the `PROJECT_RESTRICT` permission in the project's space, or a holder of `PROJECT_RESTRICT` granted directly on the project.  Results are paginated; use `limit` and `cursor` for subsequent pages. Because entries are authorization-filtered after a page is read, a page may contain fewer items than `limit` (or be empty) while `has_more` is still `true`. Clients MUST keep paging until `has_more` is `false` — do not stop on an empty page.  Use the optional `resource_type` query param to filter to a single resource type. When omitted, `PROJECT` restrictions are returned (currently the only supported type).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param resource_type: Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). 
         :type resource_type: ResourceRestrictionType
@@ -818,7 +818,7 @@ class ResourceRestrictionsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._resource_restrictions_list_serialize(
+        _param = self._list_resource_restrictions_serialize(
             resource_type=resource_type,
             limit=limit,
             cursor=cursor,
@@ -829,7 +829,7 @@ class ResourceRestrictionsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ResourceRestrictionListResponse",
+            '200': "ListResourceRestrictionsResponse",
             '400': "Problem",
             '401': "Problem",
             '429': "Problem",
@@ -841,7 +841,7 @@ class ResourceRestrictionsApi:
         return response_data.response
 
 
-    def _resource_restrictions_list_serialize(
+    def _list_resource_restrictions_serialize(
         self,
         resource_type,
         limit,

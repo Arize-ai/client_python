@@ -28,7 +28,7 @@ class PredefinedUserRoleAssignment(BaseModel):
     """
     A predefined account-level role assignment.
     """ # noqa: E501
-    type: UserRoleAssignmentType = Field(description="Discriminator identifying this as a predefined role assignment. Must be `predefined`.")
+    type: UserRoleAssignmentType = Field(description="Discriminator identifying this as a predefined role assignment. Must be `PREDEFINED`.")
     name: UserRole
     __properties: ClassVar[List[str]] = ["type", "name"]
 

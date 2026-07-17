@@ -38,14 +38,14 @@ class TestAnnotationQueueAssignedUser(unittest.TestCase):
                 user = arize._generated.api_client.models.annotator_user.AnnotatorUser(
                     id = '', 
                     email = 'user@example.com', ),
-                completion_status = 'pending'
+                completion_status = 'PENDING'
             )
         else:
             return AnnotationQueueAssignedUser(
                 user = arize._generated.api_client.models.annotator_user.AnnotatorUser(
                     id = '', 
                     email = 'user@example.com', ),
-                completion_status = 'pending',
+                completion_status = 'PENDING',
         )
         """
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 import arize.projects.types as types_module
-from arize.projects.types import Project, ProjectListResponse
+from arize.projects.types import ListProjectsResponse, Project
 
 
 @pytest.mark.unit
@@ -21,10 +21,10 @@ class TestProjectsTypes:
     def test_expected_names_in_all(self) -> None:
         """__all__ should contain the expected public type names."""
         assert "Project" in types_module.__all__
-        assert "ProjectListResponse" in types_module.__all__
+        assert "ListProjectsResponse" in types_module.__all__
 
     def test_project_is_class(self) -> None:
         assert isinstance(Project, type)
 
     def test_projects_list_response_is_class(self) -> None:
-        assert isinstance(ProjectListResponse, type)
+        assert isinstance(ListProjectsResponse, type)

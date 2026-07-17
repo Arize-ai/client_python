@@ -42,8 +42,8 @@ class TestTemplateConfig(unittest.TestCase):
                 classification_choices = {
                     'key' : 1.337
                     },
-                direction = 'none',
-                data_granularity = 'span',
+                direction = 'NONE',
+                data_granularity = 'SPAN',
                 llm_config = arize._generated.api_client.models.evaluator_llm_config.EvaluatorLlmConfig(
                     ai_integration_id = '', 
                     model_name = '', 

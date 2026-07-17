@@ -6,10 +6,10 @@ Provider-specific parameters
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**azure_params** | [**ProviderParamsAzureParams**](ProviderParamsAzureParams.md) |  | [optional] 
-**anthropic_headers** | [**ProviderParamsAnthropicHeaders**](ProviderParamsAnthropicHeaders.md) |  | [optional] 
+**azure_params** | [**AzureParams**](AzureParams.md) | Azure OpenAI specific parameters | [optional] 
+**anthropic_headers** | [**AnthropicHeaders**](AnthropicHeaders.md) | Anthropic-specific headers | [optional] 
 **anthropic_version** | **str** | Anthropic API version | [optional] 
-**bedrock_options** | [**ProviderParamsBedrockOptions**](ProviderParamsBedrockOptions.md) |  | [optional] 
+**bedrock_options** | [**BedrockOptions**](BedrockOptions.md) | AWS Bedrock options | [optional] 
 **region** | **str** | Region for the model deployment | [optional] 
 
 ## Example

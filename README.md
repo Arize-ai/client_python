@@ -596,7 +596,7 @@ resp = client.datasets.delete_examples(
 )
 ```
 
-The response is an object of type `DatasetExampleDeleteResponse`. Use `completed` to check whether the operation finished (retry the full request if `False`), `deleted_example_ids` for the IDs confirmed deleted, and `not_deleted_example_ids` for requested IDs that were not deleted (not found in the selected version, or not completed).
+The response is an object of type `DeleteDatasetExamplesResponse`. Use `completed` to check whether the operation finished (retry the full request if `False`), `deleted_example_ids` for the IDs confirmed deleted, and `not_deleted_example_ids` for requested IDs that were not deleted (not found in the selected version, or not completed).
 
 ```python
 # Whether the operation finished and no retry is needed
@@ -794,11 +794,11 @@ prompt = client.prompts.create(
     space="<space-id-or-name>",
     name="<your-prompt-name>",
     commit_message="Initial version",
-    input_variable_format=InputVariableFormat.FSTRING, # or MUSTACHE
-    provider=LlmProvider.OPENAI,
+    input_variable_format=InputVariableFormat.F_STRING, # or MUSTACHE
+    provider=LlmProvider.OPEN_AI,
     messages=[
-        LLMMessage(role="system", content="You are a helpful assistant."),
-        LLMMessage(role="user", content="Answer this question: {question}"),
+        LLMMessage(role="SYSTEM", content="You are a helpful assistant."),
+        LLMMessage(role="USER", content="Answer this question: {question}"),
     ],
     description=..., # Optional
     model=..., # Optional model name
@@ -858,8 +858,8 @@ new_version = client.prompts.create_version(
     prompt="<prompt-id-or-name>",
     space=..., # Optional
     commit_message="Update system prompt",
-    input_variable_format=InputVariableFormat.FSTRING,
-    provider=LlmProvider.OPENAI,
+    input_variable_format=InputVariableFormat.F_STRING,
+    provider=LlmProvider.OPEN_AI,
     messages=[...],
     model=..., # Optional
     invocation_params=..., # Optional
@@ -985,7 +985,7 @@ resp = client.tasks.list(
     space=..., # Optional, space ID or name
     project=..., # Optional, filter by project (name or ID)
     dataset=..., # Optional, filter by dataset (name or ID)
-    task_type=..., # Optional, "template_evaluation" or "code_evaluation"
+    task_type=..., # Optional, "TEMPLATE_EVALUATION" or "CODE_EVALUATION"
     limit=..., # Optional, defaults to 100
 )
 task_list = resp.tasks
@@ -998,13 +998,13 @@ There are two task types for running evaluators, and one for server-side LLM exp
 **Template or code evaluation task** — runs evaluators against spans from a project or experiments from a dataset.
 
 ```python
-from arize.tasks.types import BaseEvaluationTaskRequestEvaluatorsInner
+from arize.tasks.types import TaskEvaluatorInput
 
 # Project-based, continuous template evaluation task
 task = client.tasks.create_evaluation_task(
     name="Production Hallucination Check",
-    task_type="template_evaluation",
-    evaluators=[BaseEvaluationTaskRequestEvaluatorsInner(
+    task_type="TEMPLATE_EVALUATION",
+    evaluators=[TaskEvaluatorInput(
         evaluator_id="<evaluator-id>",   # Required
         column_mappings={"input": "attributes.input.value"},  # Optional
     )],
@@ -1018,8 +1018,8 @@ task = client.tasks.create_evaluation_task(
 # Dataset-based code evaluation task
 task = client.tasks.create_evaluation_task(
     name="My Code Evaluator Task",
-    task_type="code_evaluation",
-    evaluators=[BaseEvaluationTaskRequestEvaluatorsInner(evaluator_id="<evaluator-id>")],
+    task_type="CODE_EVALUATION",
+    evaluators=[TaskEvaluatorInput(evaluator_id="<evaluator-id>")],
     dataset="<dataset-id-or-name>",   # Required if not using project
     experiment_ids=["<experiment-id>"],  # Required when using dataset
 )
@@ -1035,13 +1035,13 @@ task = client.tasks.create_run_experiment_task(
     dataset="<dataset-id-or-name>",
     run_configuration=RunConfiguration(
         actual_instance=LlmGenerationRunConfig(
-            experiment_type="llm_generation",
+            experiment_type="LLM_GENERATION",
             ai_integration_id="<ai-integration-id>",
             model_name="gpt-4o",
-            input_variable_format="f_string",
+            input_variable_format="F_STRING",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": "Answer: {question}"},
+                {"role": "SYSTEM", "content": "You are a helpful assistant."},
+                {"role": "USER", "content": "Answer: {question}"},
             ],
         )
     ),
@@ -1221,11 +1221,11 @@ Add a user to an organization (or update their role if already a member). The us
 ```python
 from arize.organizations.types import CustomOrgRole, PredefinedOrgRole
 
-# Predefined role (admin, member, read-only, or annotator)
+# Predefined role (ADMIN, MEMBER, READ_ONLY, or ANNOTATOR)
 membership = client.organizations.add_user(
     organization="<organization-id-or-name>",
     user_id="<user-id>",
-    role=PredefinedOrgRole(name="member"),
+    role=PredefinedOrgRole(name="MEMBER"),
 )
 
 # Custom RBAC role
@@ -1258,11 +1258,11 @@ Add a user to a space (or update their role if already a member). The user must 
 ```python
 from arize.spaces.types import CustomSpaceRole, PredefinedSpaceRole
 
-# Predefined role (admin, member, read-only, or annotator)
+# Predefined role (ADMIN, MEMBER, READ_ONLY, or ANNOTATOR)
 membership = client.spaces.add_user(
     space="<space-id-or-name>",
     user_id="<user-id>",
-    role=PredefinedSpaceRole(name="member"),
+    role=PredefinedSpaceRole(name="MEMBER"),
 )
 
 # Custom RBAC role
@@ -1295,7 +1295,7 @@ Use `client.users` to manage users in the Arize platform.
 ```python
 resp = client.users.list(
     email=...,   # Optional, case-insensitive partial match on email
-    status=...,  # Optional, list of statuses: "active", "invited", "expired"
+    status=...,  # Optional, list of statuses: "ACTIVE", "INVITED", "EXPIRED"
     limit=...,   # Optional, defaults to 50 (max 100)
     cursor=...,  # Optional, pagination cursor from a previous response
 )
@@ -1318,13 +1318,13 @@ user = client.users.get(user="jane.smith@example.com")
 ### Create a User
 
 ```python
-from arize.users.types import BuiltinUserRoleAssignment
+from arize.users.types import PredefinedUserRole
 
 user = client.users.create(
     name="Jane Smith",
     email="jane.smith@example.com",
-    role=BuiltinUserRoleAssignment(type="builtin", name="member"),  # "admin", "member", or "annotator"
-    invite_mode="email_link",  # "none", "email_link", or "temporary_password"
+    role=PredefinedUserRole(name="MEMBER"),  # ADMIN, MEMBER, ANNOTATOR
+    invite_mode="EMAIL_LINK",  # NONE, EMAIL_LINK, TEMPORARY_PASSWORD
 )
 ```
 
@@ -1351,7 +1351,7 @@ client.users.delete(
 
 ### Bulk Delete Users
 
-> **Note:** This is an alpha endpoint. Enable it via the pre-release opt-in.
+> **Note:** This is a beta endpoint. Enable it via the pre-release opt-in.
 
 Delete multiple users in a single call by ID, by email, or both. Returns a list of
 `BulkUserDeletionResult` objects recording the outcome of each attempt.
@@ -1382,7 +1382,7 @@ Each `BulkUserDeletionResult` has:
 
 ```python
 client.users.resend_invitation(
-    user_id="<user-id>",  # Must be in "invited" status
+    user_id="<user-id>",  # Must be in "INVITED" status
 )
 ```
 
@@ -1406,8 +1406,8 @@ Use `client.api_keys` to manage API keys in the Arize platform. Two key types ar
 
 ```python
 resp = client.api_keys.list(
-    key_type=...,  # Optional, "user" or "service"
-    status=...,    # Optional, "active" or "deleted"
+    key_type=...,  # Optional, "USER" or "SERVICE"
+    status=...,    # Optional, "ACTIVE" or "REVOKED"
     space=...,     # Optional, space ID or name (filters to service keys for that space)
     user_id=...,   # Optional, filter by user (admin only for user keys)
     limit=...,     # Optional, defaults to 50 (max 100)
@@ -1431,7 +1431,7 @@ raw_key = created.key  # Store this securely — only returned once
 
 ### Create a Service Key
 
-Creates a service-type key scoped to a specific space, backed by a dedicated bot user. Role assignments default to `space_role="member"`, `org_role="read-only"`, `account_role="member"` when omitted. All roles must be at or below the caller's own privilege level.
+Creates a service-type key scoped to a specific space, backed by a dedicated bot user. Role assignments default to `space_role="MEMBER"`, `org_role="READ_ONLY"`, `account_role="MEMBER"` when omitted. All roles must be at or below the caller's own privilege level.
 
 ```python
 created = client.api_keys.create_service_key(
@@ -1439,9 +1439,9 @@ created = client.api_keys.create_service_key(
     space="<space-id-or-name>",
     description=...,  # Optional
     expires_at=...,   # Optional
-    space_role=...,   # Optional, "admin" | "member" | "read-only"
-    org_role=...,     # Optional, "admin" | "member" | "read-only"
-    account_role=..., # Optional, "admin" | "member"
+    space_role=...,   # Optional, "ADMIN" | "MEMBER" | "READ_ONLY"
+    org_role=...,     # Optional, "ADMIN" | "MEMBER" | "READ_ONLY"
+    account_role=..., # Optional, "ADMIN" | "MEMBER"
 )
 raw_key = created.key  # Store this securely — only returned once
 ```
@@ -1601,7 +1601,7 @@ client.annotation_configs.delete(
 
 Use `client.resource_restrictions` to manage resource restrictions. Restricting a resource prevents roles bound at higher hierarchy levels (space, org, account) from granting access to it — access must be granted directly on the resource. Only space admins or users with the `PROJECT_RESTRICT` permission can manage restrictions. Currently only `PROJECT` resources are supported.
 
-> **Note:** Resource restrictions are an **alpha** API and may change without notice.
+> **Note:** Resource restrictions are a **beta** API and may change without notice.
 
 ### List Resource Restrictions
 
@@ -1657,7 +1657,7 @@ from arize.ai_integrations.types import AiIntegrationProvider, AiIntegrationAuth
 
 integration = client.ai_integrations.create(
     name="my-openai-integration",
-    provider=AiIntegrationProvider.OPENAI,
+    provider=AiIntegrationProvider.OPEN_AI,
     api_key="<your-provider-api-key>",
     base_url=..., # Optional, custom base URL
     model_names=..., # Optional, list of enabled model names

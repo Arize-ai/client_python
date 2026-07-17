@@ -20,19 +20,19 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
-from arize._generated.api_client.models.base_evaluation_task_request_evaluators_inner import BaseEvaluationTaskRequestEvaluatorsInner
+from arize._generated.api_client.models.task_evaluator_input import TaskEvaluatorInput
 from typing import Optional, Set
 from typing_extensions import Self
 
 class UpdateEvaluationTaskRequest(BaseModel):
     """
-    PATCH body for `template_evaluation` and `code_evaluation` tasks. The two types share the same updatable shape; the server derives the task type from the URL's task record. At least one field must be provided. 
+    PATCH body for `TEMPLATE_EVALUATION` and `CODE_EVALUATION` tasks. The two types share the same updatable shape; the server derives the task type from the URL's task record. At least one field must be provided. 
     """ # noqa: E501
     name: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, description="New task name.")
     sampling_rate: Optional[Union[Annotated[float, Field(le=1, strict=True, ge=0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = Field(default=None, description="Sampling rate between 0 and 1. Only applicable for project-based tasks.")
     is_continuous: Optional[StrictBool] = Field(default=None, description="Whether the task runs continuously. Only applicable for project-based tasks.")
     query_filter: Optional[StrictStr] = Field(default=None, description="Task-level query filter. Pass `null` to clear.")
-    evaluators: Optional[Annotated[List[BaseEvaluationTaskRequestEvaluatorsInner], Field(min_length=1)]] = Field(default=None, description="Replaces the entire evaluator list. At least one evaluator is required when provided.")
+    evaluators: Optional[Annotated[List[TaskEvaluatorInput], Field(min_length=1)]] = Field(default=None, description="Replaces the entire evaluator list. At least one evaluator is required when provided.")
     __properties: ClassVar[List[str]] = ["name", "sampling_rate", "is_continuous", "query_filter", "evaluators"]
 
     model_config = ConfigDict(
@@ -107,7 +107,7 @@ class UpdateEvaluationTaskRequest(BaseModel):
             "sampling_rate": obj.get("sampling_rate"),
             "is_continuous": obj.get("is_continuous"),
             "query_filter": obj.get("query_filter"),
-            "evaluators": [BaseEvaluationTaskRequestEvaluatorsInner.from_dict(_item) for _item in obj["evaluators"]] if obj.get("evaluators") is not None else None
+            "evaluators": [TaskEvaluatorInput.from_dict(_item) for _item in obj["evaluators"]] if obj.get("evaluators") is not None else None
         })
         return _obj
 

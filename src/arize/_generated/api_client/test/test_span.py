@@ -39,13 +39,29 @@ class TestSpan(unittest.TestCase):
                 context = arize._generated.api_client.models.span_context.SpanContext(
                     trace_id = '', 
                     span_id = '', ),
-                kind = '',
+                kind = 'LLM',
                 parent_id = '',
                 start_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 end_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 status_code = 'OK',
                 status_message = '',
                 attributes = { },
+                annotations = [
+                    arize._generated.api_client.models.annotation.Annotation(
+                        name = '', 
+                        score = 1.337, 
+                        label = '', 
+                        text = '', 
+                        updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                        annotator = null, )
+                    ],
+                evaluations = [
+                    arize._generated.api_client.models.evaluation.Evaluation(
+                        name = '', 
+                        score = 1.337, 
+                        label = '', 
+                        explanation = '', )
+                    ],
                 events = [
                     arize._generated.api_client.models.span_event.SpanEvent(
                         name = '', 
@@ -59,7 +75,7 @@ class TestSpan(unittest.TestCase):
                 context = arize._generated.api_client.models.span_context.SpanContext(
                     trace_id = '', 
                     span_id = '', ),
-                kind = '',
+                kind = 'LLM',
                 start_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 end_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
         )

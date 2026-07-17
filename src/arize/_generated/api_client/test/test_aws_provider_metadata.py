@@ -35,11 +35,13 @@ class TestAwsProviderMetadata(unittest.TestCase):
         model = AwsProviderMetadata()
         if include_optional:
             return AwsProviderMetadata(
+                kind = 'AWS',
                 role_arn = '',
                 external_id = ''
             )
         else:
             return AwsProviderMetadata(
+                kind = 'AWS',
                 role_arn = '',
         )
         """

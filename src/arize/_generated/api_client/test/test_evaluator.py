@@ -38,12 +38,8 @@ class TestEvaluator(unittest.TestCase):
                 id = '',
                 name = '',
                 description = '',
+                type = 'TEMPLATE',
                 space_id = '',
-                online_task_type_id = '',
-                tags = [
-                    ''
-                    ],
-                current_version_id = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 created_by_user_id = ''
@@ -52,13 +48,11 @@ class TestEvaluator(unittest.TestCase):
             return Evaluator(
                 id = '',
                 name = '',
+                type = 'TEMPLATE',
                 space_id = '',
-                online_task_type_id = '',
-                tags = [
-                    ''
-                    ],
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
+                created_by_user_id = '',
         )
         """
 

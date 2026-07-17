@@ -4,17 +4,17 @@ The LLM provider to use
 
 ## Enum
 
-* `OPEN_AI` (value: `'open_ai'`)
+* `OPEN_AI` (value: `'OPEN_AI'`)
 
-* `AZURE_OPEN_AI` (value: `'azure_open_ai'`)
+* `AZURE_OPEN_AI` (value: `'AZURE_OPEN_AI'`)
 
-* `AWS_BEDROCK` (value: `'aws_bedrock'`)
+* `AWS_BEDROCK` (value: `'AWS_BEDROCK'`)
 
-* `VERTEX_AI` (value: `'vertex_ai'`)
+* `VERTEX_AI` (value: `'VERTEX_AI'`)
 
-* `ANTHROPIC` (value: `'anthropic'`)
+* `ANTHROPIC` (value: `'ANTHROPIC'`)
 
-* `CUSTOM` (value: `'custom'`)
+* `CUSTOM` (value: `'CUSTOM'`)
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

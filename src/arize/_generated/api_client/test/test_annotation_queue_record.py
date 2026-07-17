@@ -37,8 +37,8 @@ class TestAnnotationQueueRecord(unittest.TestCase):
             return AnnotationQueueRecord(
                 id = '',
                 annotation_queue_id = '',
-                source_type = 'spans',
-                granularity = 'span',
+                source_type = 'SPANS',
+                granularity = 'SPAN',
                 data = { },
                 annotations = [
                     arize._generated.api_client.models.annotation.Annotation(
@@ -61,14 +61,14 @@ class TestAnnotationQueueRecord(unittest.TestCase):
                         user = arize._generated.api_client.models.annotator_user.AnnotatorUser(
                             id = '', 
                             email = 'user@example.com', ), 
-                        completion_status = 'pending', )
+                        completion_status = 'PENDING', )
                     ]
             )
         else:
             return AnnotationQueueRecord(
                 id = '',
                 annotation_queue_id = '',
-                source_type = 'spans',
+                source_type = 'SPANS',
                 data = { },
                 annotations = [
                     arize._generated.api_client.models.annotation.Annotation(
@@ -91,7 +91,7 @@ class TestAnnotationQueueRecord(unittest.TestCase):
                         user = arize._generated.api_client.models.annotator_user.AnnotatorUser(
                             id = '', 
                             email = 'user@example.com', ), 
-                        completion_status = 'pending', )
+                        completion_status = 'PENDING', )
                     ],
         )
         """

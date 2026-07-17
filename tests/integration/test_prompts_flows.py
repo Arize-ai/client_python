@@ -47,7 +47,7 @@ def _make_prompt_args(name: str) -> dict:
         "model": "gpt-4o-mini",
         "messages": [
             gen.LLMMessage(
-                role="user",
+                role="USER",
                 content="Hello {name}, please answer: {question}",
             )
         ],
@@ -121,7 +121,7 @@ class TestPromptsCRUD:
                 model="gpt-4o-mini",
                 messages=[
                     gen.LLMMessage(
-                        role="user",
+                        role="USER",
                         content="Updated content for {name}",
                     )
                 ],

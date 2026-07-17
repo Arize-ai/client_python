@@ -15,11 +15,11 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: SpanDeleteResponse
+.. autoclass:: DeleteSpansResponse
    :members:
    :member-order: bysource
 
-.. autoclass:: SpanListResponse
+.. autoclass:: ListSpansResponse
    :members:
    :member-order: bysource
 ```

@@ -26,52 +26,73 @@ class TestDatasetsApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_datasets_create(self) -> None:
-        """Test case for datasets_create
+    def test_annotate_dataset_examples(self) -> None:
+        """Test case for annotate_dataset_examples
+
+        Annotate a batch of dataset examples
+        """
+        pass
+
+    def test_create_dataset(self) -> None:
+        """Test case for create_dataset
 
         Create a dataset
         """
         pass
 
-    def test_datasets_delete(self) -> None:
-        """Test case for datasets_delete
+    def test_delete_dataset(self) -> None:
+        """Test case for delete_dataset
 
         Delete a dataset
         """
         pass
 
-    def test_datasets_examples_insert(self) -> None:
-        """Test case for datasets_examples_insert
+    def test_delete_dataset_examples(self) -> None:
+        """Test case for delete_dataset_examples
 
-        Add new examples to a dataset
+        Delete dataset examples
         """
         pass
 
-    def test_datasets_examples_list(self) -> None:
-        """Test case for datasets_examples_list
-
-        List dataset examples
-        """
-        pass
-
-    def test_datasets_examples_update(self) -> None:
-        """Test case for datasets_examples_update
-
-        Update existing examples in a dataset
-        """
-        pass
-
-    def test_datasets_get(self) -> None:
-        """Test case for datasets_get
+    def test_get_dataset(self) -> None:
+        """Test case for get_dataset
 
         Get a dataset
         """
         pass
 
-    def test_datasets_list(self) -> None:
-        """Test case for datasets_list
+    def test_insert_dataset_examples(self) -> None:
+        """Test case for insert_dataset_examples
+
+        Add new examples to a dataset
+        """
+        pass
+
+    def test_list_dataset_examples(self) -> None:
+        """Test case for list_dataset_examples
+
+        List dataset examples
+        """
+        pass
+
+    def test_list_datasets(self) -> None:
+        """Test case for list_datasets
 
         List datasets
+        """
+        pass
+
+    def test_update_dataset(self) -> None:
+        """Test case for update_dataset
+
+        Update a dataset
+        """
+        pass
+
+    def test_update_dataset_examples(self) -> None:
+        """Test case for update_dataset_examples
+
+        Update existing examples in a dataset
         """
         pass
 

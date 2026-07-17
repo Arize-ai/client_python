@@ -19,7 +19,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: OrganizationListResponse
+.. autoclass:: ListOrganizationsResponse
    :members:
    :member-order: bysource
 
@@ -27,7 +27,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: OrganizationMembershipInput
+.. autoclass:: AddOrganizationUserRequest
    :members:
    :member-order: bysource
 

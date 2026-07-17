@@ -20,14 +20,14 @@ from typing_extensions import Self
 
 class AnnotationQueueCompletionStatus(str, Enum):
     """
-    Completion status for a user's annotation assignment on a record. - pending - The user has not yet submitted annotations. - completed - The user has submitted annotations. 
+    Completion status for a user's annotation assignment on a record. - PENDING - The user has not yet submitted annotations. - COMPLETED - The user has submitted annotations. 
     """
 
     """
     allowed enum values
     """
-    PENDING = 'pending'
-    COMPLETED = 'completed'
+    PENDING = 'PENDING'
+    COMPLETED = 'COMPLETED'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

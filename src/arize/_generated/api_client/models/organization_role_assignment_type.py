@@ -26,8 +26,8 @@ class OrganizationRoleAssignmentType(str, Enum):
     """
     allowed enum values
     """
-    PREDEFINED = 'predefined'
-    CUSTOM = 'custom'
+    PREDEFINED = 'PREDEFINED'
+    CUSTOM = 'CUSTOM'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

@@ -34,8 +34,8 @@ class CreateAnthropicConfig(BaseModel):
     @field_validator('provider')
     def provider_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['anthropic']):
-            raise ValueError("must be one of enum values ('anthropic')")
+        if value not in set(['ANTHROPIC']):
+            raise ValueError("must be one of enum values ('ANTHROPIC')")
         return value
 
     model_config = ConfigDict(

@@ -17,11 +17,11 @@ from arize._generated.api_client.models.run_configuration import (
     RunConfiguration as _GenRunConfiguration,
 )
 from arize.tasks.types import (
-    BaseEvaluationTaskRequestEvaluatorsInner,
+    ListTaskRunsResponse,
+    ListTasksResponse,
     Task,
-    TaskListResponse,
+    TaskEvaluatorInput,
     TaskRun,
-    TaskRunListResponse,
     TemplateEvaluationRunConfig,
 )
 
@@ -32,7 +32,7 @@ from arize.tasks.types import (
 
 def _make_llm_run_config() -> LlmGenerationRunConfig:
     return LlmGenerationRunConfig.model_construct(
-        experiment_type="llm_generation",
+        experiment_type="LLM_GENERATION",
         ai_integration_id="ai_integration_1",
         messages=[],
         input_variable_format=None,
@@ -41,7 +41,7 @@ def _make_llm_run_config() -> LlmGenerationRunConfig:
 
 def _make_template_run_config() -> TemplateEvaluationRunConfig:
     return TemplateEvaluationRunConfig.model_construct(
-        experiment_type="template_evaluation",
+        experiment_type="TEMPLATE_EVALUATION",
         ai_integration_id="ai_integration_1",
         template="evaluate {{input}}",
         provide_explanation=False,
@@ -52,7 +52,7 @@ def _make_task(run_configuration: object = None) -> Task:
     return Task(
         id="t1",
         name="my-task",
-        type="code_evaluation",
+        type="CODE_EVALUATION",
         project_id=None,
         dataset_id=None,
         sampling_rate=None,
@@ -81,12 +81,12 @@ class TestTasksTypes:
     def test_expected_names_in_all(self) -> None:
         """__all__ should contain the expected public type names."""
         expected = {
-            "BaseEvaluationTaskRequestEvaluatorsInner",
+            "TaskEvaluatorInput",
             "LlmGenerationRunConfig",
             "Task",
             "TaskRun",
-            "TaskListResponse",
-            "TaskRunListResponse",
+            "ListTasksResponse",
+            "ListTaskRunsResponse",
             "TemplateEvaluationRunConfig",
         }
         assert expected.issubset(set(types_module.__all__))
@@ -94,12 +94,12 @@ class TestTasksTypes:
     @pytest.mark.parametrize(
         "cls",
         [
-            BaseEvaluationTaskRequestEvaluatorsInner,
+            TaskEvaluatorInput,
             LlmGenerationRunConfig,
             Task,
             TaskRun,
-            TaskListResponse,
-            TaskRunListResponse,
+            ListTasksResponse,
+            ListTaskRunsResponse,
             TemplateEvaluationRunConfig,
         ],
     )
@@ -167,7 +167,7 @@ class TestTaskRunConfigurationCoercion:
 
 @pytest.mark.unit
 class TestTasksListCoercion:
-    """Tests for TaskListResponse wrapping Task objects."""
+    """Tests for ListTasksResponse wrapping Task objects."""
 
     def _make_pagination(self) -> PaginationMetadata:
         return PaginationMetadata.model_construct(
@@ -175,14 +175,14 @@ class TestTasksListCoercion:
         )
 
     def test_tasks_list_preserves_run_configuration_unwrapping(self) -> None:
-        """Tasks inside TaskListResponse should have their run_configuration unwrapped."""
+        """Tasks inside ListTasksResponse should have their run_configuration unwrapped."""
         llm_config = _make_llm_run_config()
         wrapper = _GenRunConfiguration.model_construct(
             actual_instance=llm_config
         )
         task = _make_task(run_configuration=wrapper)
 
-        response = TaskListResponse(
+        response = ListTasksResponse(
             tasks=[task],
             pagination=self._make_pagination(),
         )
@@ -194,7 +194,7 @@ class TestTasksListCoercion:
         """Tasks with no run_configuration should be stored as-is."""
         task = _make_task(run_configuration=None)
 
-        response = TaskListResponse(
+        response = ListTasksResponse(
             tasks=[task],
             pagination=self._make_pagination(),
         )
@@ -203,7 +203,7 @@ class TestTasksListCoercion:
 
     def test_tasks_list_empty(self) -> None:
         """An empty task list should be preserved."""
-        response = TaskListResponse(
+        response = ListTasksResponse(
             tasks=[],
             pagination=self._make_pagination(),
         )

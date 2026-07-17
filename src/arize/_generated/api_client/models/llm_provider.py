@@ -26,12 +26,12 @@ class LlmProvider(str, Enum):
     """
     allowed enum values
     """
-    OPEN_AI = 'open_ai'
-    AZURE_OPEN_AI = 'azure_open_ai'
-    AWS_BEDROCK = 'aws_bedrock'
-    VERTEX_AI = 'vertex_ai'
-    ANTHROPIC = 'anthropic'
-    CUSTOM = 'custom'
+    OPEN_AI = 'OPEN_AI'
+    AZURE_OPEN_AI = 'AZURE_OPEN_AI'
+    AWS_BEDROCK = 'AWS_BEDROCK'
+    VERTEX_AI = 'VERTEX_AI'
+    ANTHROPIC = 'ANTHROPIC'
+    CUSTOM = 'CUSTOM'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

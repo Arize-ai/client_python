@@ -20,7 +20,7 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.list_traces_request import ListTracesRequest
-from arize._generated.api_client.models.trace_list_response import TraceListResponse
+from arize._generated.api_client.models.list_traces_response import ListTracesResponse
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -41,7 +41,7 @@ class TracesApi:
 
 
     @validate_call
-    def traces_list(
+    def list_traces(
         self,
         list_traces_request: Annotated[ListTracesRequest, Field(description="Body containing trace query parameters")],
         limit: Annotated[Optional[Annotated[int, Field(le=50, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -58,7 +58,7 @@ class TracesApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> TraceListResponse:
+    ) -> ListTracesResponse:
         """List traces
 
         Returns a paginated list of traces for a project, each carrying its full (flat) list of spans plus lightweight roll-up metadata. It accepts the same `project_id`, `filter`, and time-range parameters as `POST /v2/spans`; the `filter` uses the identical expression syntax, so there's no separate filter language to learn.  **Filtering is trace-contains-match**: the syntax matches `/v2/spans`, but the semantics differ — a `filter` selects traces that contain at least one matching span (e.g. `status_code = 'ERROR'` or `span_kind = 'LLM'`), not only traces whose root span matches. The matching span is usually a child, not the root.  Traces are returned newest-first.  **Behaviors and limitations** - Traces are anchored on their root span (the span with no parent). A   trace with no root span in the requested time window is omitted. - Trace assembly is scoped to the requested time window: spans of a   boundary-straddling trace that fall outside the range are not included. - A trace with more than one root span is returned as multiple entries   sharing the same `trace_id`, distinguished by `root_span_id`. - Each trace returns at most 1,000 spans. When a trace has more, its   `spans_truncated` flag is `true`.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -91,7 +91,7 @@ class TracesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._traces_list_serialize(
+        _param = self._list_traces_serialize(
             list_traces_request=list_traces_request,
             limit=limit,
             cursor=cursor,
@@ -102,7 +102,7 @@ class TracesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TraceListResponse",
+            '200': "ListTracesResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -122,7 +122,7 @@ class TracesApi:
 
 
     @validate_call
-    def traces_list_with_http_info(
+    def list_traces_with_http_info(
         self,
         list_traces_request: Annotated[ListTracesRequest, Field(description="Body containing trace query parameters")],
         limit: Annotated[Optional[Annotated[int, Field(le=50, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -139,7 +139,7 @@ class TracesApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[TraceListResponse]:
+    ) -> ApiResponse[ListTracesResponse]:
         """List traces
 
         Returns a paginated list of traces for a project, each carrying its full (flat) list of spans plus lightweight roll-up metadata. It accepts the same `project_id`, `filter`, and time-range parameters as `POST /v2/spans`; the `filter` uses the identical expression syntax, so there's no separate filter language to learn.  **Filtering is trace-contains-match**: the syntax matches `/v2/spans`, but the semantics differ — a `filter` selects traces that contain at least one matching span (e.g. `status_code = 'ERROR'` or `span_kind = 'LLM'`), not only traces whose root span matches. The matching span is usually a child, not the root.  Traces are returned newest-first.  **Behaviors and limitations** - Traces are anchored on their root span (the span with no parent). A   trace with no root span in the requested time window is omitted. - Trace assembly is scoped to the requested time window: spans of a   boundary-straddling trace that fall outside the range are not included. - A trace with more than one root span is returned as multiple entries   sharing the same `trace_id`, distinguished by `root_span_id`. - Each trace returns at most 1,000 spans. When a trace has more, its   `spans_truncated` flag is `true`.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -172,7 +172,7 @@ class TracesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._traces_list_serialize(
+        _param = self._list_traces_serialize(
             list_traces_request=list_traces_request,
             limit=limit,
             cursor=cursor,
@@ -183,7 +183,7 @@ class TracesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TraceListResponse",
+            '200': "ListTracesResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -203,7 +203,7 @@ class TracesApi:
 
 
     @validate_call
-    def traces_list_without_preload_content(
+    def list_traces_without_preload_content(
         self,
         list_traces_request: Annotated[ListTracesRequest, Field(description="Body containing trace query parameters")],
         limit: Annotated[Optional[Annotated[int, Field(le=50, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
@@ -253,7 +253,7 @@ class TracesApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._traces_list_serialize(
+        _param = self._list_traces_serialize(
             list_traces_request=list_traces_request,
             limit=limit,
             cursor=cursor,
@@ -264,7 +264,7 @@ class TracesApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TraceListResponse",
+            '200': "ListTracesResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -279,7 +279,7 @@ class TracesApi:
         return response_data.response
 
 
-    def _traces_list_serialize(
+    def _list_traces_serialize(
         self,
         list_traces_request,
         limit,

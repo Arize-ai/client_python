@@ -36,12 +36,12 @@ class TestCreateOpenAiConfig(unittest.TestCase):
         if include_optional:
             return CreateOpenAiConfig(
                 is_function_calling_enabled = True,
-                provider = 'openAI',
+                provider = 'OPEN_AI',
                 api_key = ''
             )
         else:
             return CreateOpenAiConfig(
-                provider = 'openAI',
+                provider = 'OPEN_AI',
                 api_key = '',
         )
         """

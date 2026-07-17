@@ -43,11 +43,11 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: UserCreatedResponse
+.. autoclass:: CreateUserResponse
    :members:
    :member-order: bysource
 
-.. autoclass:: UserListResponse
+.. autoclass:: ListUsersResponse
    :members:
    :member-order: bysource
 
@@ -59,7 +59,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: UserUpdate
+.. autoclass:: UpdateUserRequest
    :members:
    :member-order: bysource
 ```

@@ -26,36 +26,36 @@ class TestIntegrationsApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_integrations_create(self) -> None:
-        """Test case for integrations_create
+    def test_create_integration(self) -> None:
+        """Test case for create_integration
 
         Create an integration
         """
         pass
 
-    def test_integrations_delete(self) -> None:
-        """Test case for integrations_delete
+    def test_delete_integration(self) -> None:
+        """Test case for delete_integration
 
         Delete an integration
         """
         pass
 
-    def test_integrations_get(self) -> None:
-        """Test case for integrations_get
+    def test_get_integration(self) -> None:
+        """Test case for get_integration
 
         Get an integration
         """
         pass
 
-    def test_integrations_list(self) -> None:
-        """Test case for integrations_list
+    def test_list_integrations(self) -> None:
+        """Test case for list_integrations
 
         List integrations
         """
         pass
 
-    def test_integrations_update(self) -> None:
-        """Test case for integrations_update
+    def test_update_integration(self) -> None:
+        """Test case for update_integration
 
         Update an integration
         """

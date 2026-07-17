@@ -20,10 +20,10 @@ from pydantic import Field, StrictStr
 from typing import List, Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.create_user_request import CreateUserRequest
+from arize._generated.api_client.models.list_users_response import ListUsersResponse
+from arize._generated.api_client.models.update_user_request import UpdateUserRequest
 from arize._generated.api_client.models.user import User
-from arize._generated.api_client.models.user_list_response import UserListResponse
 from arize._generated.api_client.models.user_status import UserStatus
-from arize._generated.api_client.models.user_update import UserUpdate
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -44,7 +44,7 @@ class UsersApi:
 
 
     @validate_call
-    def users_create(
+    def create_user(
         self,
         create_user_request: Annotated[CreateUserRequest, Field(description="Body containing user creation parameters and invite control.")],
         _request_timeout: Union[
@@ -62,7 +62,7 @@ class UsersApi:
     ) -> User:
         """Create a user
 
-        Create a new account user with explicit invite control.  **Invite modes** - `none` — add the user directly with no invitation (for SSO-only accounts). The user   is immediately active and can log in via the configured identity provider. - `email_link` — create an `invited` invitation and send the user an email with a   verification link to complete registration. - `temporary_password` — create an `invited` invitation with a temporary password   (returned once in the response). The user must reset it on first login.  **Idempotency on `email`** (applies when `invite_mode != \"none\"`)  | Existing state | Behavior | Response | | --- | --- | --- | | No prior invitation | Create a new `invited` invitation | `201 Created` | | `invited` (not yet accepted) | Return the existing invitation as-is; do not resend | `200 OK` | | `active` | Email belongs to an existing member | `409 Conflict` | | `expired` | Create a new `invited` invitation | `201 Created` | | `inactive` | User has been deactivated and cannot be re-invited | `409 Conflict` |  When `invite_mode` is `none` and the email already belongs to an active account member, the request returns `409 Conflict`.  **Payload requirements** - `name` — required, 1–255 characters - `email` — required, must be a valid email address; used as the idempotency key - `role` — required, one of `admin`, `member`, `annotator`; sets the account-level role - `invite_mode` — required, one of `none`, `email_link`, `temporary_password`  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new account user with explicit invite control.  **Invite modes** - `NONE` — add the user directly with no invitation (for SSO-only accounts). The user   is immediately active and can log in via the configured identity provider. - `EMAIL_LINK` — create an `INVITED` invitation and send the user an email with a   verification link to complete registration. - `TEMPORARY_PASSWORD` — create an `INVITED` invitation with a temporary password   (returned once in the response). The user must reset it on first login.  **Idempotency on `email`** (applies when `invite_mode != \"NONE\"`)  | Existing state | Behavior | Response | | --- | --- | --- | | No prior invitation | Create a new `INVITED` invitation | `201 Created` | | `INVITED` (not yet accepted) | Return the existing invitation as-is; do not resend | `200 OK` | | `ACTIVE` | Email belongs to an existing member | `409 Conflict` | | `EXPIRED` | Create a new `INVITED` invitation | `201 Created` | | `inactive` | User has been deactivated and cannot be re-invited | `409 Conflict` |  When `invite_mode` is `NONE` and the email already belongs to an active account member, the request returns `409 Conflict`.  **Payload requirements** - `name` — required, 1–255 characters - `email` — required, must be a valid email address; used as the idempotency key - `role` — required, one of `ADMIN`, `MEMBER`, `ANNOTATOR`; sets the account-level role - `invite_mode` — required, one of `NONE`, `EMAIL_LINK`, `TEMPORARY_PASSWORD`  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_user_request: Body containing user creation parameters and invite control. (required)
         :type create_user_request: CreateUserRequest
@@ -88,7 +88,7 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_create_serialize(
+        _param = self._create_user_serialize(
             create_user_request=create_user_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -98,7 +98,7 @@ class UsersApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "User",
-            '201': "UserCreatedResponse",
+            '201': "CreateUserResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -119,7 +119,7 @@ class UsersApi:
 
 
     @validate_call
-    def users_create_with_http_info(
+    def create_user_with_http_info(
         self,
         create_user_request: Annotated[CreateUserRequest, Field(description="Body containing user creation parameters and invite control.")],
         _request_timeout: Union[
@@ -137,7 +137,7 @@ class UsersApi:
     ) -> ApiResponse[User]:
         """Create a user
 
-        Create a new account user with explicit invite control.  **Invite modes** - `none` — add the user directly with no invitation (for SSO-only accounts). The user   is immediately active and can log in via the configured identity provider. - `email_link` — create an `invited` invitation and send the user an email with a   verification link to complete registration. - `temporary_password` — create an `invited` invitation with a temporary password   (returned once in the response). The user must reset it on first login.  **Idempotency on `email`** (applies when `invite_mode != \"none\"`)  | Existing state | Behavior | Response | | --- | --- | --- | | No prior invitation | Create a new `invited` invitation | `201 Created` | | `invited` (not yet accepted) | Return the existing invitation as-is; do not resend | `200 OK` | | `active` | Email belongs to an existing member | `409 Conflict` | | `expired` | Create a new `invited` invitation | `201 Created` | | `inactive` | User has been deactivated and cannot be re-invited | `409 Conflict` |  When `invite_mode` is `none` and the email already belongs to an active account member, the request returns `409 Conflict`.  **Payload requirements** - `name` — required, 1–255 characters - `email` — required, must be a valid email address; used as the idempotency key - `role` — required, one of `admin`, `member`, `annotator`; sets the account-level role - `invite_mode` — required, one of `none`, `email_link`, `temporary_password`  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new account user with explicit invite control.  **Invite modes** - `NONE` — add the user directly with no invitation (for SSO-only accounts). The user   is immediately active and can log in via the configured identity provider. - `EMAIL_LINK` — create an `INVITED` invitation and send the user an email with a   verification link to complete registration. - `TEMPORARY_PASSWORD` — create an `INVITED` invitation with a temporary password   (returned once in the response). The user must reset it on first login.  **Idempotency on `email`** (applies when `invite_mode != \"NONE\"`)  | Existing state | Behavior | Response | | --- | --- | --- | | No prior invitation | Create a new `INVITED` invitation | `201 Created` | | `INVITED` (not yet accepted) | Return the existing invitation as-is; do not resend | `200 OK` | | `ACTIVE` | Email belongs to an existing member | `409 Conflict` | | `EXPIRED` | Create a new `INVITED` invitation | `201 Created` | | `inactive` | User has been deactivated and cannot be re-invited | `409 Conflict` |  When `invite_mode` is `NONE` and the email already belongs to an active account member, the request returns `409 Conflict`.  **Payload requirements** - `name` — required, 1–255 characters - `email` — required, must be a valid email address; used as the idempotency key - `role` — required, one of `ADMIN`, `MEMBER`, `ANNOTATOR`; sets the account-level role - `invite_mode` — required, one of `NONE`, `EMAIL_LINK`, `TEMPORARY_PASSWORD`  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_user_request: Body containing user creation parameters and invite control. (required)
         :type create_user_request: CreateUserRequest
@@ -163,7 +163,7 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_create_serialize(
+        _param = self._create_user_serialize(
             create_user_request=create_user_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -173,7 +173,7 @@ class UsersApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "User",
-            '201': "UserCreatedResponse",
+            '201': "CreateUserResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -194,7 +194,7 @@ class UsersApi:
 
 
     @validate_call
-    def users_create_without_preload_content(
+    def create_user_without_preload_content(
         self,
         create_user_request: Annotated[CreateUserRequest, Field(description="Body containing user creation parameters and invite control.")],
         _request_timeout: Union[
@@ -212,7 +212,7 @@ class UsersApi:
     ) -> RESTResponseType:
         """Create a user
 
-        Create a new account user with explicit invite control.  **Invite modes** - `none` — add the user directly with no invitation (for SSO-only accounts). The user   is immediately active and can log in via the configured identity provider. - `email_link` — create an `invited` invitation and send the user an email with a   verification link to complete registration. - `temporary_password` — create an `invited` invitation with a temporary password   (returned once in the response). The user must reset it on first login.  **Idempotency on `email`** (applies when `invite_mode != \"none\"`)  | Existing state | Behavior | Response | | --- | --- | --- | | No prior invitation | Create a new `invited` invitation | `201 Created` | | `invited` (not yet accepted) | Return the existing invitation as-is; do not resend | `200 OK` | | `active` | Email belongs to an existing member | `409 Conflict` | | `expired` | Create a new `invited` invitation | `201 Created` | | `inactive` | User has been deactivated and cannot be re-invited | `409 Conflict` |  When `invite_mode` is `none` and the email already belongs to an active account member, the request returns `409 Conflict`.  **Payload requirements** - `name` — required, 1–255 characters - `email` — required, must be a valid email address; used as the idempotency key - `role` — required, one of `admin`, `member`, `annotator`; sets the account-level role - `invite_mode` — required, one of `none`, `email_link`, `temporary_password`  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new account user with explicit invite control.  **Invite modes** - `NONE` — add the user directly with no invitation (for SSO-only accounts). The user   is immediately active and can log in via the configured identity provider. - `EMAIL_LINK` — create an `INVITED` invitation and send the user an email with a   verification link to complete registration. - `TEMPORARY_PASSWORD` — create an `INVITED` invitation with a temporary password   (returned once in the response). The user must reset it on first login.  **Idempotency on `email`** (applies when `invite_mode != \"NONE\"`)  | Existing state | Behavior | Response | | --- | --- | --- | | No prior invitation | Create a new `INVITED` invitation | `201 Created` | | `INVITED` (not yet accepted) | Return the existing invitation as-is; do not resend | `200 OK` | | `ACTIVE` | Email belongs to an existing member | `409 Conflict` | | `EXPIRED` | Create a new `INVITED` invitation | `201 Created` | | `inactive` | User has been deactivated and cannot be re-invited | `409 Conflict` |  When `invite_mode` is `NONE` and the email already belongs to an active account member, the request returns `409 Conflict`.  **Payload requirements** - `name` — required, 1–255 characters - `email` — required, must be a valid email address; used as the idempotency key - `role` — required, one of `ADMIN`, `MEMBER`, `ANNOTATOR`; sets the account-level role - `invite_mode` — required, one of `NONE`, `EMAIL_LINK`, `TEMPORARY_PASSWORD`  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_user_request: Body containing user creation parameters and invite control. (required)
         :type create_user_request: CreateUserRequest
@@ -238,7 +238,7 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_create_serialize(
+        _param = self._create_user_serialize(
             create_user_request=create_user_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -248,7 +248,7 @@ class UsersApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "User",
-            '201': "UserCreatedResponse",
+            '201': "CreateUserResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -264,7 +264,7 @@ class UsersApi:
         return response_data.response
 
 
-    def _users_create_serialize(
+    def _create_user_serialize(
         self,
         create_user_request,
         _request_auth,
@@ -343,7 +343,7 @@ class UsersApi:
 
 
     @validate_call
-    def users_delete(
+    def delete_user(
         self,
         user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
@@ -387,7 +387,7 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_delete_serialize(
+        _param = self._delete_user_serialize(
             user_id=user_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -415,7 +415,7 @@ class UsersApi:
 
 
     @validate_call
-    def users_delete_with_http_info(
+    def delete_user_with_http_info(
         self,
         user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
@@ -459,7 +459,7 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_delete_serialize(
+        _param = self._delete_user_serialize(
             user_id=user_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -487,7 +487,7 @@ class UsersApi:
 
 
     @validate_call
-    def users_delete_without_preload_content(
+    def delete_user_without_preload_content(
         self,
         user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
@@ -531,7 +531,7 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_delete_serialize(
+        _param = self._delete_user_serialize(
             user_id=user_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -554,7 +554,7 @@ class UsersApi:
         return response_data.response
 
 
-    def _users_delete_serialize(
+    def _delete_user_serialize(
         self,
         user_id,
         _request_auth,
@@ -619,7 +619,7 @@ class UsersApi:
 
 
     @validate_call
-    def users_get(
+    def get_user(
         self,
         user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
@@ -663,7 +663,7 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_get_serialize(
+        _param = self._get_user_serialize(
             user_id=user_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -690,7 +690,7 @@ class UsersApi:
 
 
     @validate_call
-    def users_get_with_http_info(
+    def get_user_with_http_info(
         self,
         user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
@@ -734,7 +734,7 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_get_serialize(
+        _param = self._get_user_serialize(
             user_id=user_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -761,7 +761,7 @@ class UsersApi:
 
 
     @validate_call
-    def users_get_without_preload_content(
+    def get_user_without_preload_content(
         self,
         user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
@@ -805,7 +805,7 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_get_serialize(
+        _param = self._get_user_serialize(
             user_id=user_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -827,7 +827,7 @@ class UsersApi:
         return response_data.response
 
 
-    def _users_get_serialize(
+    def _get_user_serialize(
         self,
         user_id,
         _request_auth,
@@ -893,12 +893,12 @@ class UsersApi:
 
 
     @validate_call
-    def users_list(
+    def list_users(
         self,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         email: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Filter users by email address (case-insensitive partial match, up to 255 characters). Results are scoped to users visible to the caller. ")] = None,
-        status: Annotated[Optional[List[UserStatus]], Field(description="Filter users by account status. When omitted, `active`, `invited`, and `expired` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=active&status=invited`). ")] = None,
+        status: Annotated[Optional[List[UserStatus]], Field(description="Filter users by account status. When omitted, `ACTIVE`, `INVITED`, and `EXPIRED` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=ACTIVE&status=INVITED`). ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -911,7 +911,7 @@ class UsersApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> UserListResponse:
+    ) -> ListUsersResponse:
         """List users
 
         List users in the account with cursor-based pagination. Results are sorted by creation date ascending (oldest first).  Requires account admin role, account member role, or USER_READ permission at the account level.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -922,7 +922,7 @@ class UsersApi:
         :type cursor: str
         :param email: Filter users by email address (case-insensitive partial match, up to 255 characters). Results are scoped to users visible to the caller. 
         :type email: str
-        :param status: Filter users by account status. When omitted, `active`, `invited`, and `expired` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=active&status=invited`). 
+        :param status: Filter users by account status. When omitted, `ACTIVE`, `INVITED`, and `EXPIRED` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=ACTIVE&status=INVITED`). 
         :type status: List[UserStatus]
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -946,7 +946,7 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_list_serialize(
+        _param = self._list_users_serialize(
             limit=limit,
             cursor=cursor,
             email=email,
@@ -958,7 +958,7 @@ class UsersApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "UserListResponse",
+            '200': "ListUsersResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -976,12 +976,12 @@ class UsersApi:
 
 
     @validate_call
-    def users_list_with_http_info(
+    def list_users_with_http_info(
         self,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         email: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Filter users by email address (case-insensitive partial match, up to 255 characters). Results are scoped to users visible to the caller. ")] = None,
-        status: Annotated[Optional[List[UserStatus]], Field(description="Filter users by account status. When omitted, `active`, `invited`, and `expired` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=active&status=invited`). ")] = None,
+        status: Annotated[Optional[List[UserStatus]], Field(description="Filter users by account status. When omitted, `ACTIVE`, `INVITED`, and `EXPIRED` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=ACTIVE&status=INVITED`). ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -994,7 +994,7 @@ class UsersApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[UserListResponse]:
+    ) -> ApiResponse[ListUsersResponse]:
         """List users
 
         List users in the account with cursor-based pagination. Results are sorted by creation date ascending (oldest first).  Requires account admin role, account member role, or USER_READ permission at the account level.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1005,7 +1005,7 @@ class UsersApi:
         :type cursor: str
         :param email: Filter users by email address (case-insensitive partial match, up to 255 characters). Results are scoped to users visible to the caller. 
         :type email: str
-        :param status: Filter users by account status. When omitted, `active`, `invited`, and `expired` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=active&status=invited`). 
+        :param status: Filter users by account status. When omitted, `ACTIVE`, `INVITED`, and `EXPIRED` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=ACTIVE&status=INVITED`). 
         :type status: List[UserStatus]
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1029,7 +1029,7 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_list_serialize(
+        _param = self._list_users_serialize(
             limit=limit,
             cursor=cursor,
             email=email,
@@ -1041,7 +1041,7 @@ class UsersApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "UserListResponse",
+            '200': "ListUsersResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1059,12 +1059,12 @@ class UsersApi:
 
 
     @validate_call
-    def users_list_without_preload_content(
+    def list_users_without_preload_content(
         self,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         email: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Filter users by email address (case-insensitive partial match, up to 255 characters). Results are scoped to users visible to the caller. ")] = None,
-        status: Annotated[Optional[List[UserStatus]], Field(description="Filter users by account status. When omitted, `active`, `invited`, and `expired` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=active&status=invited`). ")] = None,
+        status: Annotated[Optional[List[UserStatus]], Field(description="Filter users by account status. When omitted, `ACTIVE`, `INVITED`, and `EXPIRED` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=ACTIVE&status=INVITED`). ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1088,7 +1088,7 @@ class UsersApi:
         :type cursor: str
         :param email: Filter users by email address (case-insensitive partial match, up to 255 characters). Results are scoped to users visible to the caller. 
         :type email: str
-        :param status: Filter users by account status. When omitted, `active`, `invited`, and `expired` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=active&status=invited`). 
+        :param status: Filter users by account status. When omitted, `ACTIVE`, `INVITED`, and `EXPIRED` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=ACTIVE&status=INVITED`). 
         :type status: List[UserStatus]
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1112,7 +1112,7 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_list_serialize(
+        _param = self._list_users_serialize(
             limit=limit,
             cursor=cursor,
             email=email,
@@ -1124,7 +1124,7 @@ class UsersApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "UserListResponse",
+            '200': "ListUsersResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1137,7 +1137,7 @@ class UsersApi:
         return response_data.response
 
 
-    def _users_list_serialize(
+    def _list_users_serialize(
         self,
         limit,
         cursor,
@@ -1221,7 +1221,7 @@ class UsersApi:
 
 
     @validate_call
-    def users_password_reset(
+    def resend_user_invitation(
         self,
         user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
@@ -1237,9 +1237,9 @@ class UsersApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> None:
-        """Trigger a password-reset email for a user
+        """Resend a user invitation
 
-        Generates a reset token and sends the user a password-reset email with a 30-minute link.  - Requires account admin role or USER_UPDATE permission. - Returns 400 if the target user authenticates via SSO/SAML or has not   yet verified their account (no password hash to key the token against).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `INVITED` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -1265,7 +1265,7 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_password_reset_serialize(
+        _param = self._resend_user_invitation_serialize(
             user_id=user_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1293,7 +1293,7 @@ class UsersApi:
 
 
     @validate_call
-    def users_password_reset_with_http_info(
+    def resend_user_invitation_with_http_info(
         self,
         user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
@@ -1309,9 +1309,9 @@ class UsersApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[None]:
-        """Trigger a password-reset email for a user
+        """Resend a user invitation
 
-        Generates a reset token and sends the user a password-reset email with a 30-minute link.  - Requires account admin role or USER_UPDATE permission. - Returns 400 if the target user authenticates via SSO/SAML or has not   yet verified their account (no password hash to key the token against).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `INVITED` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -1337,7 +1337,7 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_password_reset_serialize(
+        _param = self._resend_user_invitation_serialize(
             user_id=user_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1365,7 +1365,7 @@ class UsersApi:
 
 
     @validate_call
-    def users_password_reset_without_preload_content(
+    def resend_user_invitation_without_preload_content(
         self,
         user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
         _request_timeout: Union[
@@ -1381,9 +1381,9 @@ class UsersApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Trigger a password-reset email for a user
+        """Resend a user invitation
 
-        Generates a reset token and sends the user a password-reset email with a 30-minute link.  - Requires account admin role or USER_UPDATE permission. - Returns 400 if the target user authenticates via SSO/SAML or has not   yet verified their account (no password hash to key the token against).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `INVITED` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
@@ -1409,7 +1409,7 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_password_reset_serialize(
+        _param = self._resend_user_invitation_serialize(
             user_id=user_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1432,283 +1432,7 @@ class UsersApi:
         return response_data.response
 
 
-    def _users_password_reset_serialize(
-        self,
-        user_id,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        if user_id is not None:
-            _path_params['user_id'] = user_id
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/problem+json'
-                ]
-            )
-
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'bearerAuth'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v2/users/{user_id}/reset-password',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    def users_resend_invitation(
-        self,
-        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
-        """Resend a user invitation
-
-        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param user_id: The unique user identifier (base64) (required)
-        :type user_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._users_resend_invitation_serialize(
-            user_id=user_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '204': None,
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    def users_resend_invitation_with_http_info(
-        self,
-        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
-        """Resend a user invitation
-
-        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param user_id: The unique user identifier (base64) (required)
-        :type user_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._users_resend_invitation_serialize(
-            user_id=user_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '204': None,
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    def users_resend_invitation_without_preload_content(
-        self,
-        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Resend a user invitation
-
-        Resend the invitation email for a pending (unverified) user. Generates a new verification token and sends a fresh email to the user's address.  The target user must be in the `invited` state (unverified and active). Returns 400 if the user has already verified their account, or if SAML/IdP login is enforced for the account.  This is a fire-and-forget operation: a 204 response means the token was regenerated and the email dispatch was accepted. If the email fails to send, the endpoint still returns 204 and logs the error internally.  Requires account admin role or USER_CREATE permission.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
-
-        :param user_id: The unique user identifier (base64) (required)
-        :type user_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._users_resend_invitation_serialize(
-            user_id=user_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '204': None,
-            '400': "Problem",
-            '401': "Problem",
-            '403': "Problem",
-            '404': "Problem",
-            '429': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _users_resend_invitation_serialize(
+    def _resend_user_invitation_serialize(
         self,
         user_id,
         _request_auth,
@@ -1773,10 +1497,9 @@ class UsersApi:
 
 
     @validate_call
-    def users_update(
+    def reset_user_password(
         self,
         user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
-        user_update: Annotated[UserUpdate, Field(description="Body containing user update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1789,15 +1512,13 @@ class UsersApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> User:
-        """Update a user
+    ) -> None:
+        """Trigger a password-reset email for a user
 
-        Update a user's display name and/or developer permission.  **Payload Requirements** - At least one of `name` or `is_developer` must be provided. - `name` must be 1–255 characters. Leading and trailing whitespace is stripped before   validation; whitespace-only values (e.g. `\"   \"`) are rejected with 400. - Setting `is_developer` to its current value is a no-op (idempotent).  **Example valid requests:** ```json { \"name\": \"Jane Smith\" } { \"is_developer\": true } { \"name\": \"Jane Smith\", \"is_developer\": false } ```  **Example invalid requests:** - `{}` — at least one field must be provided - `{ \"name\": \"   \" }` — name cannot be whitespace only  Updating `name` requires account admin role or USER_UPDATE permission.  Updating `is_developer` requires account admin role. Callers without account admin that include `is_developer` in the body receive `403`.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Generates a reset token and sends the user a password-reset email with a 30-minute link.  - Requires account admin role or USER_UPDATE permission. - Returns 400 if the target user authenticates via SSO/SAML or has not   yet verified their account (no password hash to key the token against).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
-        :param user_update: Body containing user update parameters. At least one field must be provided. (required)
-        :type user_update: UserUpdate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1820,9 +1541,8 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_update_serialize(
+        _param = self._reset_user_password_serialize(
             user_id=user_id,
-            user_update=user_update,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1830,12 +1550,11 @@ class UsersApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "User",
+            '204': None,
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1850,10 +1569,9 @@ class UsersApi:
 
 
     @validate_call
-    def users_update_with_http_info(
+    def reset_user_password_with_http_info(
         self,
         user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
-        user_update: Annotated[UserUpdate, Field(description="Body containing user update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1866,15 +1584,13 @@ class UsersApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[User]:
-        """Update a user
+    ) -> ApiResponse[None]:
+        """Trigger a password-reset email for a user
 
-        Update a user's display name and/or developer permission.  **Payload Requirements** - At least one of `name` or `is_developer` must be provided. - `name` must be 1–255 characters. Leading and trailing whitespace is stripped before   validation; whitespace-only values (e.g. `\"   \"`) are rejected with 400. - Setting `is_developer` to its current value is a no-op (idempotent).  **Example valid requests:** ```json { \"name\": \"Jane Smith\" } { \"is_developer\": true } { \"name\": \"Jane Smith\", \"is_developer\": false } ```  **Example invalid requests:** - `{}` — at least one field must be provided - `{ \"name\": \"   \" }` — name cannot be whitespace only  Updating `name` requires account admin role or USER_UPDATE permission.  Updating `is_developer` requires account admin role. Callers without account admin that include `is_developer` in the body receive `403`.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Generates a reset token and sends the user a password-reset email with a 30-minute link.  - Requires account admin role or USER_UPDATE permission. - Returns 400 if the target user authenticates via SSO/SAML or has not   yet verified their account (no password hash to key the token against).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
-        :param user_update: Body containing user update parameters. At least one field must be provided. (required)
-        :type user_update: UserUpdate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1897,9 +1613,8 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_update_serialize(
+        _param = self._reset_user_password_serialize(
             user_id=user_id,
-            user_update=user_update,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1907,12 +1622,11 @@ class UsersApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "User",
+            '204': None,
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1927,10 +1641,9 @@ class UsersApi:
 
 
     @validate_call
-    def users_update_without_preload_content(
+    def reset_user_password_without_preload_content(
         self,
         user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
-        user_update: Annotated[UserUpdate, Field(description="Body containing user update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1944,14 +1657,12 @@ class UsersApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Update a user
+        """Trigger a password-reset email for a user
 
-        Update a user's display name and/or developer permission.  **Payload Requirements** - At least one of `name` or `is_developer` must be provided. - `name` must be 1–255 characters. Leading and trailing whitespace is stripped before   validation; whitespace-only values (e.g. `\"   \"`) are rejected with 400. - Setting `is_developer` to its current value is a no-op (idempotent).  **Example valid requests:** ```json { \"name\": \"Jane Smith\" } { \"is_developer\": true } { \"name\": \"Jane Smith\", \"is_developer\": false } ```  **Example invalid requests:** - `{}` — at least one field must be provided - `{ \"name\": \"   \" }` — name cannot be whitespace only  Updating `name` requires account admin role or USER_UPDATE permission.  Updating `is_developer` requires account admin role. Callers without account admin that include `is_developer` in the body receive `403`.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Generates a reset token and sends the user a password-reset email with a 30-minute link.  - Requires account admin role or USER_UPDATE permission. - Returns 400 if the target user authenticates via SSO/SAML or has not   yet verified their account (no password hash to key the token against).  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param user_id: The unique user identifier (base64) (required)
         :type user_id: str
-        :param user_update: Body containing user update parameters. At least one field must be provided. (required)
-        :type user_update: UserUpdate
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1974,9 +1685,8 @@ class UsersApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._users_update_serialize(
+        _param = self._reset_user_password_serialize(
             user_id=user_id,
-            user_update=user_update,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1984,12 +1694,11 @@ class UsersApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "User",
+            '204': None,
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
-            '422': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1999,10 +1708,9 @@ class UsersApi:
         return response_data.response
 
 
-    def _users_update_serialize(
+    def _reset_user_password_serialize(
         self,
         user_id,
-        user_update,
         _request_auth,
         _content_type,
         _headers,
@@ -2030,8 +1738,300 @@ class UsersApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if user_update is not None:
-            _body_params = user_update
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/users/{user_id}/reset-password',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def update_user(
+        self,
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
+        update_user_request: Annotated[UpdateUserRequest, Field(description="Body containing user update parameters. At least one field must be provided.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> User:
+        """Update a user
+
+        Update a user's display name and/or developer permission.  **Payload Requirements** - At least one of `name` or `is_developer` must be provided. - `name` must be 1–255 characters. Leading and trailing whitespace is stripped before   validation; whitespace-only values (e.g. `\"   \"`) are rejected with 400. - Setting `is_developer` to its current value is a no-op (idempotent).  **Example valid requests:** ```json { \"name\": \"Jane Smith\" } { \"is_developer\": true } { \"name\": \"Jane Smith\", \"is_developer\": false } ```  **Example invalid requests:** - `{}` — at least one field must be provided - `{ \"name\": \"   \" }` — name cannot be whitespace only  Updating `name` requires account admin role or USER_UPDATE permission.  Updating `is_developer` requires account admin role. Callers without account admin that include `is_developer` in the body receive `403`.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param user_id: The unique user identifier (base64) (required)
+        :type user_id: str
+        :param update_user_request: Body containing user update parameters. At least one field must be provided. (required)
+        :type update_user_request: UpdateUserRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_user_serialize(
+            user_id=user_id,
+            update_user_request=update_user_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "User",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def update_user_with_http_info(
+        self,
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
+        update_user_request: Annotated[UpdateUserRequest, Field(description="Body containing user update parameters. At least one field must be provided.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[User]:
+        """Update a user
+
+        Update a user's display name and/or developer permission.  **Payload Requirements** - At least one of `name` or `is_developer` must be provided. - `name` must be 1–255 characters. Leading and trailing whitespace is stripped before   validation; whitespace-only values (e.g. `\"   \"`) are rejected with 400. - Setting `is_developer` to its current value is a no-op (idempotent).  **Example valid requests:** ```json { \"name\": \"Jane Smith\" } { \"is_developer\": true } { \"name\": \"Jane Smith\", \"is_developer\": false } ```  **Example invalid requests:** - `{}` — at least one field must be provided - `{ \"name\": \"   \" }` — name cannot be whitespace only  Updating `name` requires account admin role or USER_UPDATE permission.  Updating `is_developer` requires account admin role. Callers without account admin that include `is_developer` in the body receive `403`.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param user_id: The unique user identifier (base64) (required)
+        :type user_id: str
+        :param update_user_request: Body containing user update parameters. At least one field must be provided. (required)
+        :type update_user_request: UpdateUserRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_user_serialize(
+            user_id=user_id,
+            update_user_request=update_user_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "User",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def update_user_without_preload_content(
+        self,
+        user_id: Annotated[StrictStr, Field(description="The unique user identifier (base64)")],
+        update_user_request: Annotated[UpdateUserRequest, Field(description="Body containing user update parameters. At least one field must be provided.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Update a user
+
+        Update a user's display name and/or developer permission.  **Payload Requirements** - At least one of `name` or `is_developer` must be provided. - `name` must be 1–255 characters. Leading and trailing whitespace is stripped before   validation; whitespace-only values (e.g. `\"   \"`) are rejected with 400. - Setting `is_developer` to its current value is a no-op (idempotent).  **Example valid requests:** ```json { \"name\": \"Jane Smith\" } { \"is_developer\": true } { \"name\": \"Jane Smith\", \"is_developer\": false } ```  **Example invalid requests:** - `{}` — at least one field must be provided - `{ \"name\": \"   \" }` — name cannot be whitespace only  Updating `name` requires account admin role or USER_UPDATE permission.  Updating `is_developer` requires account admin role. Callers without account admin that include `is_developer` in the body receive `403`.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+
+        :param user_id: The unique user identifier (base64) (required)
+        :type user_id: str
+        :param update_user_request: Body containing user update parameters. At least one field must be provided. (required)
+        :type update_user_request: UpdateUserRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_user_serialize(
+            user_id=user_id,
+            update_user_request=update_user_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "User",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _update_user_serialize(
+        self,
+        user_id,
+        update_user_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['user_id'] = user_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if update_user_request is not None:
+            _body_params = update_user_request
 
 
         # set the HTTP header `Accept`

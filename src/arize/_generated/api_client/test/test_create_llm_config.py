@@ -36,12 +36,12 @@ class TestCreateLlmConfig(unittest.TestCase):
         if include_optional:
             return CreateLlmConfig(
                 is_function_calling_enabled = True,
-                provider = 'anthropic',
+                provider = 'ANTHROPIC',
                 api_key = ''
             )
         else:
             return CreateLlmConfig(
-                provider = 'anthropic',
+                provider = 'ANTHROPIC',
                 api_key = '',
         )
         """

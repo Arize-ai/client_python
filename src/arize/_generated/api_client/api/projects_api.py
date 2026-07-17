@@ -19,10 +19,10 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.create_project_request import CreateProjectRequest
+from arize._generated.api_client.models.list_projects_response import ListProjectsResponse
 from arize._generated.api_client.models.project import Project
-from arize._generated.api_client.models.project_create import ProjectCreate
-from arize._generated.api_client.models.project_list_response import ProjectListResponse
-from arize._generated.api_client.models.project_update import ProjectUpdate
+from arize._generated.api_client.models.update_project_request import UpdateProjectRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -43,9 +43,9 @@ class ProjectsApi:
 
 
     @validate_call
-    def projects_create(
+    def create_project(
         self,
-        project_create: Annotated[ProjectCreate, Field(description="Body containing project creation parameters")],
+        create_project_request: Annotated[CreateProjectRequest, Field(description="Body containing project creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -63,8 +63,8 @@ class ProjectsApi:
 
         Create a new project given a name and space ID.  **Payload Requirements** - The project name must be unique within the given space.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param project_create: Body containing project creation parameters (required)
-        :type project_create: ProjectCreate
+        :param create_project_request: Body containing project creation parameters (required)
+        :type create_project_request: CreateProjectRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -87,8 +87,8 @@ class ProjectsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._projects_create_serialize(
-            project_create=project_create,
+        _param = self._create_project_serialize(
+            create_project_request=create_project_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -116,9 +116,9 @@ class ProjectsApi:
 
 
     @validate_call
-    def projects_create_with_http_info(
+    def create_project_with_http_info(
         self,
-        project_create: Annotated[ProjectCreate, Field(description="Body containing project creation parameters")],
+        create_project_request: Annotated[CreateProjectRequest, Field(description="Body containing project creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -136,8 +136,8 @@ class ProjectsApi:
 
         Create a new project given a name and space ID.  **Payload Requirements** - The project name must be unique within the given space.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param project_create: Body containing project creation parameters (required)
-        :type project_create: ProjectCreate
+        :param create_project_request: Body containing project creation parameters (required)
+        :type create_project_request: CreateProjectRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -160,8 +160,8 @@ class ProjectsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._projects_create_serialize(
-            project_create=project_create,
+        _param = self._create_project_serialize(
+            create_project_request=create_project_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -189,9 +189,9 @@ class ProjectsApi:
 
 
     @validate_call
-    def projects_create_without_preload_content(
+    def create_project_without_preload_content(
         self,
-        project_create: Annotated[ProjectCreate, Field(description="Body containing project creation parameters")],
+        create_project_request: Annotated[CreateProjectRequest, Field(description="Body containing project creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -209,8 +209,8 @@ class ProjectsApi:
 
         Create a new project given a name and space ID.  **Payload Requirements** - The project name must be unique within the given space.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param project_create: Body containing project creation parameters (required)
-        :type project_create: ProjectCreate
+        :param create_project_request: Body containing project creation parameters (required)
+        :type create_project_request: CreateProjectRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -233,8 +233,8 @@ class ProjectsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._projects_create_serialize(
-            project_create=project_create,
+        _param = self._create_project_serialize(
+            create_project_request=create_project_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -257,9 +257,9 @@ class ProjectsApi:
         return response_data.response
 
 
-    def _projects_create_serialize(
+    def _create_project_serialize(
         self,
-        project_create,
+        create_project_request,
         _request_auth,
         _content_type,
         _headers,
@@ -285,8 +285,8 @@ class ProjectsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if project_create is not None:
-            _body_params = project_create
+        if create_project_request is not None:
+            _body_params = create_project_request
 
 
         # set the HTTP header `Accept`
@@ -336,7 +336,7 @@ class ProjectsApi:
 
 
     @validate_call
-    def projects_delete(
+    def delete_project(
         self,
         project_id: Annotated[StrictStr, Field(description="The unique project identifier (base64)")],
         _request_timeout: Union[
@@ -380,7 +380,7 @@ class ProjectsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._projects_delete_serialize(
+        _param = self._delete_project_serialize(
             project_id=project_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -408,7 +408,7 @@ class ProjectsApi:
 
 
     @validate_call
-    def projects_delete_with_http_info(
+    def delete_project_with_http_info(
         self,
         project_id: Annotated[StrictStr, Field(description="The unique project identifier (base64)")],
         _request_timeout: Union[
@@ -452,7 +452,7 @@ class ProjectsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._projects_delete_serialize(
+        _param = self._delete_project_serialize(
             project_id=project_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -480,7 +480,7 @@ class ProjectsApi:
 
 
     @validate_call
-    def projects_delete_without_preload_content(
+    def delete_project_without_preload_content(
         self,
         project_id: Annotated[StrictStr, Field(description="The unique project identifier (base64)")],
         _request_timeout: Union[
@@ -524,7 +524,7 @@ class ProjectsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._projects_delete_serialize(
+        _param = self._delete_project_serialize(
             project_id=project_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -547,7 +547,7 @@ class ProjectsApi:
         return response_data.response
 
 
-    def _projects_delete_serialize(
+    def _delete_project_serialize(
         self,
         project_id,
         _request_auth,
@@ -612,7 +612,7 @@ class ProjectsApi:
 
 
     @validate_call
-    def projects_get(
+    def get_project(
         self,
         project_id: Annotated[StrictStr, Field(description="The unique project identifier (base64)")],
         _request_timeout: Union[
@@ -656,7 +656,7 @@ class ProjectsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._projects_get_serialize(
+        _param = self._get_project_serialize(
             project_id=project_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -684,7 +684,7 @@ class ProjectsApi:
 
 
     @validate_call
-    def projects_get_with_http_info(
+    def get_project_with_http_info(
         self,
         project_id: Annotated[StrictStr, Field(description="The unique project identifier (base64)")],
         _request_timeout: Union[
@@ -728,7 +728,7 @@ class ProjectsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._projects_get_serialize(
+        _param = self._get_project_serialize(
             project_id=project_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -756,7 +756,7 @@ class ProjectsApi:
 
 
     @validate_call
-    def projects_get_without_preload_content(
+    def get_project_without_preload_content(
         self,
         project_id: Annotated[StrictStr, Field(description="The unique project identifier (base64)")],
         _request_timeout: Union[
@@ -800,7 +800,7 @@ class ProjectsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._projects_get_serialize(
+        _param = self._get_project_serialize(
             project_id=project_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -823,7 +823,7 @@ class ProjectsApi:
         return response_data.response
 
 
-    def _projects_get_serialize(
+    def _get_project_serialize(
         self,
         project_id,
         _request_auth,
@@ -889,7 +889,7 @@ class ProjectsApi:
 
 
     @validate_call
-    def projects_list(
+    def list_projects(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
@@ -908,7 +908,7 @@ class ProjectsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ProjectListResponse:
+    ) -> ListProjectsResponse:
         """List projects
 
         List projects the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -945,7 +945,7 @@ class ProjectsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._projects_list_serialize(
+        _param = self._list_projects_serialize(
             space_id=space_id,
             space_name=space_name,
             name=name,
@@ -958,10 +958,11 @@ class ProjectsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ProjectListResponse",
+            '200': "ListProjectsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -976,7 +977,7 @@ class ProjectsApi:
 
 
     @validate_call
-    def projects_list_with_http_info(
+    def list_projects_with_http_info(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
@@ -995,7 +996,7 @@ class ProjectsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ProjectListResponse]:
+    ) -> ApiResponse[ListProjectsResponse]:
         """List projects
 
         List projects the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -1032,7 +1033,7 @@ class ProjectsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._projects_list_serialize(
+        _param = self._list_projects_serialize(
             space_id=space_id,
             space_name=space_name,
             name=name,
@@ -1045,10 +1046,11 @@ class ProjectsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ProjectListResponse",
+            '200': "ListProjectsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1063,7 +1065,7 @@ class ProjectsApi:
 
 
     @validate_call
-    def projects_list_without_preload_content(
+    def list_projects_without_preload_content(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
@@ -1119,7 +1121,7 @@ class ProjectsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._projects_list_serialize(
+        _param = self._list_projects_serialize(
             space_id=space_id,
             space_name=space_name,
             name=name,
@@ -1132,10 +1134,11 @@ class ProjectsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ProjectListResponse",
+            '200': "ListProjectsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1145,7 +1148,7 @@ class ProjectsApi:
         return response_data.response
 
 
-    def _projects_list_serialize(
+    def _list_projects_serialize(
         self,
         space_id,
         space_name,
@@ -1233,10 +1236,10 @@ class ProjectsApi:
 
 
     @validate_call
-    def projects_update(
+    def update_project(
         self,
         project_id: Annotated[StrictStr, Field(description="The unique project identifier (base64)")],
-        project_update: Annotated[ProjectUpdate, Field(description="Body containing project update parameters. The `name` field must be provided.")],
+        update_project_request: Annotated[UpdateProjectRequest, Field(description="Body containing project update parameters. The `name` field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1256,8 +1259,8 @@ class ProjectsApi:
 
         :param project_id: The unique project identifier (base64) (required)
         :type project_id: str
-        :param project_update: Body containing project update parameters. The `name` field must be provided. (required)
-        :type project_update: ProjectUpdate
+        :param update_project_request: Body containing project update parameters. The `name` field must be provided. (required)
+        :type update_project_request: UpdateProjectRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1280,9 +1283,9 @@ class ProjectsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._projects_update_serialize(
+        _param = self._update_project_serialize(
             project_id=project_id,
-            project_update=project_update,
+            update_project_request=update_project_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1310,10 +1313,10 @@ class ProjectsApi:
 
 
     @validate_call
-    def projects_update_with_http_info(
+    def update_project_with_http_info(
         self,
         project_id: Annotated[StrictStr, Field(description="The unique project identifier (base64)")],
-        project_update: Annotated[ProjectUpdate, Field(description="Body containing project update parameters. The `name` field must be provided.")],
+        update_project_request: Annotated[UpdateProjectRequest, Field(description="Body containing project update parameters. The `name` field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1333,8 +1336,8 @@ class ProjectsApi:
 
         :param project_id: The unique project identifier (base64) (required)
         :type project_id: str
-        :param project_update: Body containing project update parameters. The `name` field must be provided. (required)
-        :type project_update: ProjectUpdate
+        :param update_project_request: Body containing project update parameters. The `name` field must be provided. (required)
+        :type update_project_request: UpdateProjectRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1357,9 +1360,9 @@ class ProjectsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._projects_update_serialize(
+        _param = self._update_project_serialize(
             project_id=project_id,
-            project_update=project_update,
+            update_project_request=update_project_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1387,10 +1390,10 @@ class ProjectsApi:
 
 
     @validate_call
-    def projects_update_without_preload_content(
+    def update_project_without_preload_content(
         self,
         project_id: Annotated[StrictStr, Field(description="The unique project identifier (base64)")],
-        project_update: Annotated[ProjectUpdate, Field(description="Body containing project update parameters. The `name` field must be provided.")],
+        update_project_request: Annotated[UpdateProjectRequest, Field(description="Body containing project update parameters. The `name` field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1410,8 +1413,8 @@ class ProjectsApi:
 
         :param project_id: The unique project identifier (base64) (required)
         :type project_id: str
-        :param project_update: Body containing project update parameters. The `name` field must be provided. (required)
-        :type project_update: ProjectUpdate
+        :param update_project_request: Body containing project update parameters. The `name` field must be provided. (required)
+        :type update_project_request: UpdateProjectRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1434,9 +1437,9 @@ class ProjectsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._projects_update_serialize(
+        _param = self._update_project_serialize(
             project_id=project_id,
-            project_update=project_update,
+            update_project_request=update_project_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1459,10 +1462,10 @@ class ProjectsApi:
         return response_data.response
 
 
-    def _projects_update_serialize(
+    def _update_project_serialize(
         self,
         project_id,
-        project_update,
+        update_project_request,
         _request_auth,
         _content_type,
         _headers,
@@ -1490,8 +1493,8 @@ class ProjectsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if project_update is not None:
-            _body_params = project_update
+        if update_project_request is not None:
+            _body_params = update_project_request
 
 
         # set the HTTP header `Accept`

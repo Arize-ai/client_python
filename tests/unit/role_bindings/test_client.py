@@ -3,17 +3,18 @@
 from __future__ import annotations
 
 import logging
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
+from arize._generated.api_client import RoleBindingsApi
 from arize.role_bindings.client import RoleBindingsClient
 
 
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock RoleBindingsApi instance."""
-    return Mock()
+    return create_autospec(RoleBindingsApi, instance=True)
 
 
 @pytest.fixture
@@ -72,7 +73,7 @@ class TestRoleBindingsClientList:
         """list() should pass resource_type to role_bindings_list."""
         role_bindings_client.list(resource_type="SPACE")
 
-        mock_api.role_bindings_list.assert_called_once_with(
+        mock_api.list_role_bindings.assert_called_once_with(
             limit=50,
             cursor=None,
             user_id=None,
@@ -90,7 +91,7 @@ class TestRoleBindingsClientList:
             cursor="abc",
         )
 
-        mock_api.role_bindings_list.assert_called_once_with(
+        mock_api.list_role_bindings.assert_called_once_with(
             limit=50,
             cursor="abc",
             user_id="user-123",
@@ -102,7 +103,7 @@ class TestRoleBindingsClientList:
     ) -> None:
         """list() should propagate the return value."""
         expected = Mock()
-        mock_api.role_bindings_list.return_value = expected
+        mock_api.list_role_bindings.return_value = expected
 
         result = role_bindings_client.list(resource_type="SPACE")
 
@@ -116,9 +117,9 @@ class TestRoleBindingsClientCreate:
     def test_create_builds_request_and_calls_api(
         self, role_bindings_client: RoleBindingsClient, mock_api: Mock
     ) -> None:
-        """create() should build RoleBindingCreate and pass it to role_bindings_create."""
+        """create() should build CreateRoleBindingRequest and pass it to role_bindings_create."""
         with patch(
-            "arize._generated.api_client.RoleBindingCreate"
+            "arize._generated.api_client.CreateRoleBindingRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -136,16 +137,16 @@ class TestRoleBindingsClientCreate:
             resource_type="PROJECT",
             resource_id="project-789",
         )
-        mock_api.role_bindings_create.assert_called_once_with(mock_body)
+        mock_api.create_role_binding.assert_called_once_with(mock_body)
 
     def test_create_returns_api_response(
         self, role_bindings_client: RoleBindingsClient, mock_api: Mock
     ) -> None:
         """create() should propagate the return value from role_bindings_create."""
         expected = Mock()
-        mock_api.role_bindings_create.return_value = expected
+        mock_api.create_role_binding.return_value = expected
 
-        with patch("arize._generated.api_client.RoleBindingCreate"):
+        with patch("arize._generated.api_client.CreateRoleBindingRequest"):
             result = role_bindings_client.create(
                 user_id="user-123",
                 role_id="role-456",
@@ -166,7 +167,7 @@ class TestRoleBindingsClientCreate:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        with patch("arize._generated.api_client.RoleBindingCreate"):
+        with patch("arize._generated.api_client.CreateRoleBindingRequest"):
             role_bindings_client.create(
                 user_id="user-123",
                 role_id="role-456",
@@ -191,14 +192,14 @@ class TestRoleBindingsClientGet:
         """get() should pass binding_id to role_bindings_get."""
         role_bindings_client.get(binding_id="binding-123")
 
-        mock_api.role_bindings_get.assert_called_once_with("binding-123")
+        mock_api.get_role_binding.assert_called_once_with("binding-123")
 
     def test_get_returns_api_response(
         self, role_bindings_client: RoleBindingsClient, mock_api: Mock
     ) -> None:
         """get() should propagate the return value from role_bindings_get."""
         expected = Mock()
-        mock_api.role_bindings_get.return_value = expected
+        mock_api.get_role_binding.return_value = expected
 
         result = role_bindings_client.get(binding_id="binding-123")
 
@@ -212,9 +213,9 @@ class TestRoleBindingsClientUpdate:
     def test_update_builds_request_and_calls_api(
         self, role_bindings_client: RoleBindingsClient, mock_api: Mock
     ) -> None:
-        """update() should build RoleBindingUpdate and pass it to role_bindings_update."""
+        """update() should build UpdateRoleBindingRequest and pass it to role_bindings_update."""
         with patch(
-            "arize._generated.api_client.RoleBindingUpdate"
+            "arize._generated.api_client.UpdateRoleBindingRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -225,7 +226,7 @@ class TestRoleBindingsClientUpdate:
             )
 
         mock_request_cls.assert_called_once_with(role_id="role-new")
-        mock_api.role_bindings_update.assert_called_once_with(
+        mock_api.update_role_binding.assert_called_once_with(
             "binding-123", mock_body
         )
 
@@ -234,9 +235,9 @@ class TestRoleBindingsClientUpdate:
     ) -> None:
         """update() should propagate the return value from role_bindings_update."""
         expected = Mock()
-        mock_api.role_bindings_update.return_value = expected
+        mock_api.update_role_binding.return_value = expected
 
-        with patch("arize._generated.api_client.RoleBindingUpdate"):
+        with patch("arize._generated.api_client.UpdateRoleBindingRequest"):
             result = role_bindings_client.update(
                 binding_id="binding-123",
                 role_id="role-new",
@@ -255,13 +256,13 @@ class TestRoleBindingsClientDelete:
         """delete() should pass binding_id to role_bindings_delete."""
         role_bindings_client.delete(binding_id="binding-123")
 
-        mock_api.role_bindings_delete.assert_called_once_with("binding-123")
+        mock_api.delete_role_binding.assert_called_once_with("binding-123")
 
     def test_delete_returns_none(
         self, role_bindings_client: RoleBindingsClient, mock_api: Mock
     ) -> None:
         """delete() should return None (204 No Content)."""
-        mock_api.role_bindings_delete.return_value = None
+        mock_api.delete_role_binding.return_value = None
 
         result = role_bindings_client.delete(binding_id="binding-123")
 

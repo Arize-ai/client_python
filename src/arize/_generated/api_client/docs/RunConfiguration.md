@@ -1,12 +1,12 @@
 # RunConfiguration
 
-Experiment execution configuration for a `run_experiment` task. Exactly one variant must be supplied, identified by `experiment_type`. All fields sit at the top level alongside `experiment_type` (flat — no wrapper sub-object). 
+Experiment execution configuration for a `RUN_EXPERIMENT` task. Exactly one variant must be supplied, identified by `experiment_type`. All fields sit at the top level alongside `experiment_type` (flat — no wrapper sub-object). 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**experiment_type** | **str** | Discriminator. Must be &#x60;\&quot;template_evaluation\&quot;&#x60;. | 
+**experiment_type** | **str** | Discriminator. Must be &#x60;\&quot;TEMPLATE_EVALUATION\&quot;&#x60;. | 
 **ai_integration_id** | **str** | AI integration identifier (base64). The LLM that judges each example. | 
 **model_name** | **str** | Model name (e.g. &#x60;gpt-4o&#x60;). Falls back to the integration&#39;s default if omitted. | [optional] 
 **messages** | [**List[LLMMessage]**](LLMMessage.md) | Array of message objects (at least one). | 

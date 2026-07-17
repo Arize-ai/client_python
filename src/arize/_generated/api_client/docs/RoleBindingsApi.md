@@ -4,15 +4,15 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**role_bindings_create**](RoleBindingsApi.md#role_bindings_create) | **POST** /v2/role-bindings | Create a role binding
-[**role_bindings_delete**](RoleBindingsApi.md#role_bindings_delete) | **DELETE** /v2/role-bindings/{binding_id} | Delete a role binding
-[**role_bindings_get**](RoleBindingsApi.md#role_bindings_get) | **GET** /v2/role-bindings/{binding_id} | Get a role binding
-[**role_bindings_list**](RoleBindingsApi.md#role_bindings_list) | **GET** /v2/role-bindings | List role bindings
-[**role_bindings_update**](RoleBindingsApi.md#role_bindings_update) | **PATCH** /v2/role-bindings/{binding_id} | Update a role binding
+[**create_role_binding**](RoleBindingsApi.md#create_role_binding) | **POST** /v2/role-bindings | Create a role binding
+[**delete_role_binding**](RoleBindingsApi.md#delete_role_binding) | **DELETE** /v2/role-bindings/{binding_id} | Delete a role binding
+[**get_role_binding**](RoleBindingsApi.md#get_role_binding) | **GET** /v2/role-bindings/{binding_id} | Get a role binding
+[**list_role_bindings**](RoleBindingsApi.md#list_role_bindings) | **GET** /v2/role-bindings | List role bindings
+[**update_role_binding**](RoleBindingsApi.md#update_role_binding) | **PATCH** /v2/role-bindings/{binding_id} | Update a role binding
 
 
-# **role_bindings_create**
-> RoleBinding role_bindings_create(role_binding_create)
+# **create_role_binding**
+> RoleBinding create_role_binding(create_role_binding_request)
 
 Create a role binding
 
@@ -62,8 +62,8 @@ for an existing binding.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.create_role_binding_request import CreateRoleBindingRequest
 from arize._generated.api_client.models.role_binding import RoleBinding
-from arize._generated.api_client.models.role_binding_create import RoleBindingCreate
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -87,15 +87,15 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.RoleBindingsApi(api_client)
-    role_binding_create = {"role_id":"Um9sZToxOmFCY0Q=","user_id":"VXNlcjo0MjphQmNE","resource_type":"SPACE","resource_id":"U3BhY2U6MTpWNEth"} # RoleBindingCreate | Body containing role binding creation parameters.
+    create_role_binding_request = {"role_id":"Um9sZToxOmFCY0Q=","user_id":"VXNlcjo0MjphQmNE","resource_type":"SPACE","resource_id":"U3BhY2U6MTpWNEth"} # CreateRoleBindingRequest | Body containing role binding creation parameters.
 
     try:
         # Create a role binding
-        api_response = api_instance.role_bindings_create(role_binding_create)
-        print("The response of RoleBindingsApi->role_bindings_create:\n")
+        api_response = api_instance.create_role_binding(create_role_binding_request)
+        print("The response of RoleBindingsApi->create_role_binding:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling RoleBindingsApi->role_bindings_create: %s\n" % e)
+        print("Exception when calling RoleBindingsApi->create_role_binding: %s\n" % e)
 ```
 
 
@@ -105,7 +105,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **role_binding_create** | [**RoleBindingCreate**](RoleBindingCreate.md)| Body containing role binding creation parameters. | 
+ **create_role_binding_request** | [**CreateRoleBindingRequest**](CreateRoleBindingRequest.md)| Body containing role binding creation parameters. | 
 
 ### Return type
 
@@ -124,7 +124,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Role binding successfully created. |  -  |
+**201** | A role binding object. |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
@@ -135,8 +135,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **role_bindings_delete**
-> role_bindings_delete(binding_id)
+# **delete_role_binding**
+> delete_role_binding(binding_id)
 
 Delete a role binding
 
@@ -178,9 +178,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Delete a role binding
-        api_instance.role_bindings_delete(binding_id)
+        api_instance.delete_role_binding(binding_id)
     except Exception as e:
-        print("Exception when calling RoleBindingsApi->role_bindings_delete: %s\n" % e)
+        print("Exception when calling RoleBindingsApi->delete_role_binding: %s\n" % e)
 ```
 
 
@@ -217,8 +217,8 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **role_bindings_get**
-> RoleBinding role_bindings_get(binding_id)
+# **get_role_binding**
+> RoleBinding get_role_binding(binding_id)
 
 Get a role binding
 
@@ -261,11 +261,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Get a role binding
-        api_response = api_instance.role_bindings_get(binding_id)
-        print("The response of RoleBindingsApi->role_bindings_get:\n")
+        api_response = api_instance.get_role_binding(binding_id)
+        print("The response of RoleBindingsApi->get_role_binding:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling RoleBindingsApi->role_bindings_get: %s\n" % e)
+        print("Exception when calling RoleBindingsApi->get_role_binding: %s\n" % e)
 ```
 
 
@@ -302,8 +302,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **role_bindings_list**
-> RoleBindingListResponse role_bindings_list(resource_type, limit=limit, cursor=cursor, user_id=user_id)
+# **list_role_bindings**
+> ListRoleBindingsResponse list_role_bindings(resource_type, limit=limit, cursor=cursor, user_id=user_id)
 
 List role bindings
 
@@ -325,7 +325,7 @@ user.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.role_binding_list_response import RoleBindingListResponse
+from arize._generated.api_client.models.list_role_bindings_response import ListRoleBindingsResponse
 from arize._generated.api_client.models.role_binding_resource_type import RoleBindingResourceType
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
@@ -357,11 +357,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # List role bindings
-        api_response = api_instance.role_bindings_list(resource_type, limit=limit, cursor=cursor, user_id=user_id)
-        print("The response of RoleBindingsApi->role_bindings_list:\n")
+        api_response = api_instance.list_role_bindings(resource_type, limit=limit, cursor=cursor, user_id=user_id)
+        print("The response of RoleBindingsApi->list_role_bindings:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling RoleBindingsApi->role_bindings_list: %s\n" % e)
+        print("Exception when calling RoleBindingsApi->list_role_bindings: %s\n" % e)
 ```
 
 
@@ -378,7 +378,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**RoleBindingListResponse**](RoleBindingListResponse.md)
+[**ListRoleBindingsResponse**](ListRoleBindingsResponse.md)
 
 ### Authorization
 
@@ -396,12 +396,13 @@ Name | Type | Description  | Notes
 **200** | Returns a list of role binding objects. |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
+**404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **role_bindings_update**
-> RoleBinding role_bindings_update(binding_id, role_binding_update)
+# **update_role_binding**
+> RoleBinding update_role_binding(binding_id, update_role_binding_request)
 
 Update a role binding
 
@@ -441,7 +442,7 @@ This fails because only `role_id` can be updated on an existing binding.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.role_binding import RoleBinding
-from arize._generated.api_client.models.role_binding_update import RoleBindingUpdate
+from arize._generated.api_client.models.update_role_binding_request import UpdateRoleBindingRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -466,15 +467,15 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.RoleBindingsApi(api_client)
     binding_id = 'Um9sZUJpbmRpbmc6MTphQmNE' # str | The unique role binding identifier (base64)
-    role_binding_update = {"role_id":"Um9sZToyOmFCY0Q="} # RoleBindingUpdate | Body containing role binding update parameters.
+    update_role_binding_request = {"role_id":"Um9sZToyOmFCY0Q="} # UpdateRoleBindingRequest | Body containing role binding update parameters.
 
     try:
         # Update a role binding
-        api_response = api_instance.role_bindings_update(binding_id, role_binding_update)
-        print("The response of RoleBindingsApi->role_bindings_update:\n")
+        api_response = api_instance.update_role_binding(binding_id, update_role_binding_request)
+        print("The response of RoleBindingsApi->update_role_binding:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling RoleBindingsApi->role_bindings_update: %s\n" % e)
+        print("Exception when calling RoleBindingsApi->update_role_binding: %s\n" % e)
 ```
 
 
@@ -485,7 +486,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **binding_id** | **str**| The unique role binding identifier (base64) | 
- **role_binding_update** | [**RoleBindingUpdate**](RoleBindingUpdate.md)| Body containing role binding update parameters. | 
+ **update_role_binding_request** | [**UpdateRoleBindingRequest**](UpdateRoleBindingRequest.md)| Body containing role binding update parameters. | 
 
 ### Return type
 

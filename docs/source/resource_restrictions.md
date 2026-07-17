@@ -15,7 +15,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: ResourceRestrictionListResponse
+.. autoclass:: ListResourceRestrictionsResponse
    :members:
    :member-order: bysource
 

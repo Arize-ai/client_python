@@ -5,14 +5,20 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from arize._generated.api_client.models.code_config import CodeConfig
+from arize._generated.api_client.models.create_code_evaluator_version_request import (
+    CreateCodeEvaluatorVersionRequest,
+)
+from arize._generated.api_client.models.create_evaluator_version_request import (
+    CreateEvaluatorVersionRequest,
+)
+from arize._generated.api_client.models.create_template_evaluator_version_request import (
+    CreateTemplateEvaluatorVersionRequest,
+)
 from arize._generated.api_client.models.custom_code_config import (
     CustomCodeConfig,
 )
 from arize._generated.api_client.models.data_granularity import DataGranularity
 from arize._generated.api_client.models.evaluator import Evaluator
-from arize._generated.api_client.models.evaluator_list_response import (
-    EvaluatorListResponse,
-)
 from arize._generated.api_client.models.evaluator_llm_config import (
     EvaluatorLlmConfig,
 )
@@ -24,12 +30,6 @@ from arize._generated.api_client.models.evaluator_version import (
 )
 from arize._generated.api_client.models.evaluator_version_code import (
     EvaluatorVersionCode as _GenEvaluatorVersionCode,
-)
-from arize._generated.api_client.models.evaluator_version_code_create import (
-    EvaluatorVersionCodeCreate,
-)
-from arize._generated.api_client.models.evaluator_version_create import (
-    EvaluatorVersionCreate,
 )
 
 # Harness and remote versions expose only common version metadata; their
@@ -44,8 +44,8 @@ from arize._generated.api_client.models.evaluator_version_remote import (
 from arize._generated.api_client.models.evaluator_version_template import (
     EvaluatorVersionTemplate,
 )
-from arize._generated.api_client.models.evaluator_version_template_create import (
-    EvaluatorVersionTemplateCreate,
+from arize._generated.api_client.models.list_evaluators_response import (
+    ListEvaluatorsResponse,
 )
 from arize._generated.api_client.models.managed_code_config import (
     ManagedCodeConfig,
@@ -144,8 +144,8 @@ class EvaluatorWithVersion(BaseModel):
         return v  # type: ignore[return-value]
 
 
-class EvaluatorVersionListResponse(BaseModel):
-    """SDK view of the generated ``EvaluatorVersionListResponse`` with each version unwrapped."""
+class ListEvaluatorVersionsResponse(BaseModel):
+    """SDK view of the generated ``ListEvaluatorVersionsResponse`` with each version unwrapped."""
 
     evaluator_versions: list[
         EvaluatorVersionCode
@@ -181,21 +181,21 @@ class EvaluatorVersionListResponse(BaseModel):
 
 __all__ = [
     "CodeConfig",
+    "CreateCodeEvaluatorVersionRequest",
+    "CreateEvaluatorVersionRequest",
+    "CreateTemplateEvaluatorVersionRequest",
     "CustomCodeConfig",
     "DataGranularity",
     "Evaluator",
-    "EvaluatorListResponse",
     "EvaluatorLlmConfig",
     "EvaluatorType",
     "EvaluatorVersionCode",
-    "EvaluatorVersionCodeCreate",
-    "EvaluatorVersionCreate",
     "EvaluatorVersionHarness",
-    "EvaluatorVersionListResponse",
     "EvaluatorVersionRemote",
     "EvaluatorVersionTemplate",
-    "EvaluatorVersionTemplateCreate",
     "EvaluatorWithVersion",
+    "ListEvaluatorVersionsResponse",
+    "ListEvaluatorsResponse",
     "ManagedCodeConfig",
     "ManagedCodeEvaluator",
     "OptimizationDirection",

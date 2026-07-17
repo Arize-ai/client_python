@@ -26,8 +26,8 @@ class TestTracesApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_traces_list(self) -> None:
-        """Test case for traces_list
+    def test_list_traces(self) -> None:
+        """Test case for list_traces
 
         List traces
         """

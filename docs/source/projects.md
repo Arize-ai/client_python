@@ -15,7 +15,7 @@
    :members:
    :member-order: bysource
 
-.. autoclass:: ProjectListResponse
+.. autoclass:: ListProjectsResponse
    :members:
    :member-order: bysource
 ```

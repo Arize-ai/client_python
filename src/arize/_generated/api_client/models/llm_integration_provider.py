@@ -20,14 +20,14 @@ from typing_extensions import Self
 
 class LlmIntegrationProvider(str, Enum):
     """
-    The LLM vendor for an `llm` integration. Selects the per-provider `config` member. `openAI` and `anthropic` are implemented; additional providers are added non-breakingly.
+    The LLM vendor for an `LLM` integration. Selects the per-provider `config` member. `OPEN_AI` and `ANTHROPIC` are implemented; additional providers are added non-breakingly.
     """
 
     """
     allowed enum values
     """
-    OPENAI = 'openAI'
-    ANTHROPIC = 'anthropic'
+    OPEN_AI = 'OPEN_AI'
+    ANTHROPIC = 'ANTHROPIC'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

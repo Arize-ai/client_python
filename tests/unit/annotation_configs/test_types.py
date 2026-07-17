@@ -6,9 +6,9 @@ import pytest
 
 import arize.annotation_configs.types as types_module
 from arize.annotation_configs.types import (
-    AnnotationConfigListResponse,
     AnnotationConfigType,
     CategoricalAnnotationValue,
+    ListAnnotationConfigsResponse,
     OptimizationDirection,
 )
 
@@ -26,7 +26,7 @@ class TestAnnotationConfigsTypes:
     def test_expected_names_in_all(self) -> None:
         """__all__ should contain the expected public type names."""
         assert "AnnotationConfigType" in types_module.__all__
-        assert "AnnotationConfigListResponse" in types_module.__all__
+        assert "ListAnnotationConfigsResponse" in types_module.__all__
         assert "CategoricalAnnotationValue" in types_module.__all__
         assert "OptimizationDirection" in types_module.__all__
 
@@ -41,7 +41,7 @@ class TestAnnotationConfigsTypes:
         assert issubclass(OptimizationDirection, Enum)
 
     def test_annotation_configs_list_response_is_class(self) -> None:
-        assert isinstance(AnnotationConfigListResponse, type)
+        assert isinstance(ListAnnotationConfigsResponse, type)
 
     def test_categorical_annotation_value_is_class(self) -> None:
         assert isinstance(CategoricalAnnotationValue, type)

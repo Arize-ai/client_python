@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+from arize._generated.api_client import OrganizationsApi
 from arize.organizations.client import OrganizationsClient
 from arize.organizations.types import (
     OrganizationMembership,
@@ -33,7 +34,7 @@ def _stub_from_generated() -> Generator[None, None, None]:
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock OrganizationsApi instance."""
-    return Mock()
+    return create_autospec(OrganizationsApi, instance=True)
 
 
 @pytest.fixture
@@ -97,7 +98,7 @@ class TestOrganizationsClientList:
             cursor="cursor-abc",
         )
 
-        mock_api.organizations_list.assert_called_once_with(
+        mock_api.list_organizations.assert_called_once_with(
             name="my-org",
             limit=25,
             cursor="cursor-abc",
@@ -109,7 +110,7 @@ class TestOrganizationsClientList:
         """list() should default name/cursor to None and limit to 50."""
         organizations_client.list()
 
-        mock_api.organizations_list.assert_called_once_with(
+        mock_api.list_organizations.assert_called_once_with(
             name=None,
             limit=50,
             cursor=None,
@@ -120,7 +121,7 @@ class TestOrganizationsClientList:
     ) -> None:
         """list() should propagate the return value from organizations_list."""
         expected = Mock()
-        mock_api.organizations_list.return_value = expected
+        mock_api.list_organizations.return_value = expected
 
         result = organizations_client.list()
 
@@ -155,7 +156,7 @@ class TestOrganizationsClientGet:
         """get() should resolve organization and pass org_id to organizations_get."""
         organizations_client.get(organization="T3JnYW5pemF0aW9uOjEyMzQ1")
 
-        mock_api.organizations_get.assert_called_once_with(
+        mock_api.get_organization.assert_called_once_with(
             org_id="T3JnYW5pemF0aW9uOjEyMzQ1"
         )
 
@@ -164,7 +165,7 @@ class TestOrganizationsClientGet:
     ) -> None:
         """get() should propagate the return value from organizations_get."""
         expected = Mock()
-        mock_api.organizations_get.return_value = expected
+        mock_api.get_organization.return_value = expected
 
         result = organizations_client.get(
             organization="T3JnYW5pemF0aW9uOjEyMzQ1"
@@ -180,9 +181,9 @@ class TestOrganizationsClientCreate:
     def test_create_builds_request_and_calls_api(
         self, organizations_client: OrganizationsClient, mock_api: Mock
     ) -> None:
-        """create() should build OrganizationCreate and pass it to organizations_create."""
+        """create() should build CreateOrganizationRequest and pass it to organizations_create."""
         with patch(
-            "arize._generated.api_client.OrganizationCreate"
+            "arize._generated.api_client.CreateOrganizationRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -196,8 +197,8 @@ class TestOrganizationsClientCreate:
             name="my-org",
             description="my description",
         )
-        mock_api.organizations_create.assert_called_once_with(
-            organization_create=mock_body
+        mock_api.create_organization.assert_called_once_with(
+            create_organization_request=mock_body
         )
 
     def test_create_returns_api_response(
@@ -205,9 +206,9 @@ class TestOrganizationsClientCreate:
     ) -> None:
         """create() should propagate the return value from organizations_create."""
         expected = Mock()
-        mock_api.organizations_create.return_value = expected
+        mock_api.create_organization.return_value = expected
 
-        with patch("arize._generated.api_client.OrganizationCreate"):
+        with patch("arize._generated.api_client.CreateOrganizationRequest"):
             result = organizations_client.create(name="my-org")
 
         assert result is expected
@@ -230,9 +231,9 @@ class TestOrganizationsClientUpdate:
     def test_update_builds_request_and_calls_api(
         self, organizations_client: OrganizationsClient, mock_api: Mock
     ) -> None:
-        """update() should build OrganizationUpdate and pass it to organizations_update."""
+        """update() should build UpdateOrganizationRequest and pass it to organizations_update."""
         with patch(
-            "arize._generated.api_client.OrganizationUpdate"
+            "arize._generated.api_client.UpdateOrganizationRequest"
         ) as mock_request_cls:
             mock_body = Mock()
             mock_request_cls.return_value = mock_body
@@ -247,9 +248,9 @@ class TestOrganizationsClientUpdate:
             name="updated-org",
             description="updated description",
         )
-        mock_api.organizations_update.assert_called_once_with(
+        mock_api.update_organization.assert_called_once_with(
             org_id="T3JnYW5pemF0aW9uOjEyMzQ1",
-            organization_update=mock_body,
+            update_organization_request=mock_body,
         )
 
     def test_update_returns_api_response(
@@ -257,9 +258,9 @@ class TestOrganizationsClientUpdate:
     ) -> None:
         """update() should propagate the return value from organizations_update."""
         expected = Mock()
-        mock_api.organizations_update.return_value = expected
+        mock_api.update_organization.return_value = expected
 
-        with patch("arize._generated.api_client.OrganizationUpdate"):
+        with patch("arize._generated.api_client.UpdateOrganizationRequest"):
             result = organizations_client.update(
                 organization="T3JnYW5pemF0aW9uOjEyMzQ1",
                 name="updated-org",
@@ -278,7 +279,7 @@ class TestOrganizationsClientDelete:
         """delete() should resolve organization and pass org_id to organizations_delete."""
         organizations_client.delete(organization="T3JnYW5pemF0aW9uOjEyMzQ1")
 
-        mock_api.organizations_delete.assert_called_once_with(
+        mock_api.delete_organization.assert_called_once_with(
             org_id="T3JnYW5pemF0aW9uOjEyMzQ1"
         )
 
@@ -286,7 +287,7 @@ class TestOrganizationsClientDelete:
         self, organizations_client: OrganizationsClient, mock_api: Mock
     ) -> None:
         """delete() should return None on success (204 response)."""
-        mock_api.organizations_delete.return_value = None
+        mock_api.delete_organization.return_value = None
 
         result = organizations_client.delete(
             organization="T3JnYW5pemF0aW9uOjEyMzQ1"
@@ -325,7 +326,7 @@ class TestOrganizationsClientAddUser:
         role = PredefinedOrgRole(name=OrganizationRole.MEMBER)
         with (
             patch(
-                "arize._generated.api_client.OrganizationMembershipInput"
+                "arize._generated.api_client.AddOrganizationUserRequest"
             ) as mock_input_cls,
             patch(
                 "arize._generated.api_client.OrganizationRoleAssignment"
@@ -353,9 +354,9 @@ class TestOrganizationsClientAddUser:
             user_id="VXNlcjoxMjM0NQ==",
             role=mock_role,
         )
-        mock_api.organizations_add_user.assert_called_once_with(
+        mock_api.add_organization_user.assert_called_once_with(
             org_id="T3JnYW5pemF0aW9uOjEyMzQ1",
-            organization_membership_input=mock_body,
+            add_organization_user_request=mock_body,
         )
 
     def test_add_user_returns_domain_membership(
@@ -363,11 +364,11 @@ class TestOrganizationsClientAddUser:
     ) -> None:
         """add_user() should convert the raw API response to a domain OrganizationMembership."""
         raw = Mock()
-        mock_api.organizations_add_user.return_value = raw
+        mock_api.add_organization_user.return_value = raw
         domain = Mock()
 
         with (
-            patch("arize._generated.api_client.OrganizationMembershipInput"),
+            patch("arize._generated.api_client.AddOrganizationUserRequest"),
             patch("arize._generated.api_client.OrganizationRoleAssignment"),
             patch.object(
                 OrganizationMembership, "model_validate", return_value=domain
@@ -382,19 +383,19 @@ class TestOrganizationsClientAddUser:
         mock_conv.assert_called_once_with(raw, from_attributes=True)
         assert result is domain
 
-    def test_add_user_emits_alpha_prerelease_warning(
+    def test_add_user_emits_beta_prerelease_warning(
         self,
         organizations_client: OrganizationsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
         with (
-            patch("arize._generated.api_client.OrganizationMembershipInput"),
+            patch("arize._generated.api_client.AddOrganizationUserRequest"),
             patch("arize._generated.api_client.OrganizationRoleAssignment"),
         ):
             organizations_client.add_user(
@@ -404,7 +405,7 @@ class TestOrganizationsClientAddUser:
             )
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "organizations.add_user" in record.message
             for record in caplog.records
         )
@@ -423,7 +424,7 @@ class TestOrganizationsClientRemoveUser:
             user_id="VXNlcjoxMjM0NQ==",
         )
 
-        mock_api.organizations_remove_user.assert_called_once_with(
+        mock_api.remove_organization_user.assert_called_once_with(
             org_id="T3JnYW5pemF0aW9uOjEyMzQ1",
             user_id="VXNlcjoxMjM0NQ==",
         )
@@ -432,7 +433,7 @@ class TestOrganizationsClientRemoveUser:
         self, organizations_client: OrganizationsClient, mock_api: Mock
     ) -> None:
         """remove_user() should return None on success (204 response)."""
-        mock_api.organizations_remove_user.return_value = None
+        mock_api.remove_organization_user.return_value = None
 
         result = organizations_client.remove_user(
             organization="T3JnYW5pemF0aW9uOjEyMzQ1",
@@ -441,12 +442,12 @@ class TestOrganizationsClientRemoveUser:
 
         assert result is None
 
-    def test_remove_user_emits_alpha_prerelease_warning(
+    def test_remove_user_emits_beta_prerelease_warning(
         self,
         organizations_client: OrganizationsClient,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        """First call should emit the ALPHA prerelease warning."""
+        """First call should emit the BETA prerelease warning."""
         from arize import pre_releases
 
         pre_releases._WARNED.clear()
@@ -458,7 +459,7 @@ class TestOrganizationsClientRemoveUser:
         )
 
         assert any(
-            "ALPHA" in record.message
+            "BETA" in record.message
             and "organizations.remove_user" in record.message
             for record in caplog.records
         )

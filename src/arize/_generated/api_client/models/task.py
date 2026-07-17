@@ -29,7 +29,7 @@ from typing_extensions import Self
 
 class Task(BaseModel):
     """
-    A task is a typed, configurable unit of work that ties one or more evaluators to a data source (project or dataset). `run_experiment` tasks additionally carry a `run_configuration` that defines the LLM or evaluator settings for each triggered run. 
+    A task is a typed, configurable unit of work that ties one or more evaluators to a data source (project or dataset). `RUN_EXPERIMENT` tasks additionally carry a `run_configuration` that defines the LLM or evaluator settings for each triggered run. 
     """ # noqa: E501
     id: StrictStr = Field(description="The unique identifier for the task")
     name: StrictStr = Field(description="The name of the task")
@@ -41,7 +41,7 @@ class Task(BaseModel):
     query_filter: Optional[StrictStr] = Field(description="Task-level query filter applied to all data.")
     evaluators: List[TaskEvaluator] = Field(description="The evaluators attached to this task. Empty for run_experiment tasks.")
     experiment_ids: List[StrictStr] = Field(description="Experiment identifiers (base64) for dataset-based tasks.")
-    run_configuration: Optional[RunConfiguration] = Field(default=None, description="The run configuration for a `run_experiment` task. Present only when `type` is `run_experiment`. Null for all other task types. ")
+    run_configuration: Optional[RunConfiguration] = Field(default=None, description="The run configuration for a `RUN_EXPERIMENT` task. Present only when `type` is `RUN_EXPERIMENT`. Null for all other task types. ")
     last_run_at: Optional[datetime] = Field(description="When the task was last run.")
     created_at: datetime = Field(description="When the task was created.")
     updated_at: datetime = Field(description="When the task was last updated.")

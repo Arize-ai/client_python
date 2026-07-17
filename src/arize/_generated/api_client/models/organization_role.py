@@ -20,16 +20,16 @@ from typing_extensions import Self
 
 class OrganizationRole(str, Enum):
     """
-    Organization-level role for the user. - `admin`: Full access to the organization and its resources. - `member`: Standard access to the organization. - `read-only`: Read-only access to the organization. - `annotator`: Limited access for annotation tasks only. 
+    Organization-level role for the user. - `ADMIN`: Full access to the organization and its resources. - `MEMBER`: Standard access to the organization. - `READ_ONLY`: Read-only access to the organization. - `ANNOTATOR`: Limited access for annotation tasks only. 
     """
 
     """
     allowed enum values
     """
-    ADMIN = 'admin'
-    MEMBER = 'member'
-    READ_MINUS_ONLY = 'read-only'
-    ANNOTATOR = 'annotator'
+    ADMIN = 'ADMIN'
+    MEMBER = 'MEMBER'
+    READ_ONLY = 'READ_ONLY'
+    ANNOTATOR = 'ANNOTATOR'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

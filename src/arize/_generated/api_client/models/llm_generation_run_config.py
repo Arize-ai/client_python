@@ -31,7 +31,7 @@ class LlmGenerationRunConfig(BaseModel):
     """
     Configuration for running an LLM prompt against each dataset example.
     """ # noqa: E501
-    experiment_type: StrictStr = Field(description="Discriminator. Must be `\"llm_generation\"`.")
+    experiment_type: StrictStr = Field(description="Discriminator. Must be `\"LLM_GENERATION\"`.")
     ai_integration_id: StrictStr = Field(description="AI integration identifier (base64).")
     model_name: Optional[StrictStr] = Field(default=None, description="Model name (e.g. `gpt-4o`). Falls back to the integration's default if omitted.")
     messages: Annotated[List[LLMMessage], Field(min_length=1)] = Field(description="Array of message objects (at least one).")
@@ -45,8 +45,8 @@ class LlmGenerationRunConfig(BaseModel):
     @field_validator('experiment_type')
     def experiment_type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['llm_generation']):
-            raise ValueError("must be one of enum values ('llm_generation')")
+        if value not in set(['LLM_GENERATION']):
+            raise ValueError("must be one of enum values ('LLM_GENERATION')")
         return value
 
     model_config = ConfigDict(

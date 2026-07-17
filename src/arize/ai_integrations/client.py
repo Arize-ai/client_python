@@ -21,11 +21,11 @@ if TYPE_CHECKING:
     from arize.ai_integrations.types import (
         AiIntegration,
         AiIntegrationAuthType,
-        AiIntegrationListResponse,
         AiIntegrationProvider,
         AiIntegrationScoping,
         AwsProviderMetadata,
         GcpProviderMetadata,
+        ListAiIntegrationsResponse,
     )
     from arize.config import SDKConfiguration
 
@@ -77,7 +77,7 @@ class AiIntegrationsClient:
         space: str | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> AiIntegrationListResponse:
+    ) -> ListAiIntegrationsResponse:
         """List AI integrations the user has access to.
 
         This endpoint supports cursor-based pagination. When provided,
@@ -99,7 +99,7 @@ class AiIntegrationsClient:
             ApiException: If the API request fails.
         """
         resolved_space = _resolve_resource(space)
-        return self._api.ai_integrations_list(
+        return self._api.list_ai_integrations(
             space_id=resolved_space.id,
             space_name=resolved_space.name,
             name=name,
@@ -130,7 +130,7 @@ class AiIntegrationsClient:
             integration=integration,
             space=space,
         )
-        return self._api.ai_integrations_get(integration_id=integration_id)
+        return self._api.get_ai_integration(integration_id=integration_id)
 
     @prerelease_endpoint(key="ai_integrations.create", stage=ReleaseStage.ALPHA)
     def create(
@@ -154,14 +154,14 @@ class AiIntegrationsClient:
 
         Integration names must be unique within the account.
 
-        For ``awsBedrock`` provider, ``provider_metadata`` must include ``role_arn``.
-        For ``vertexAI`` provider, ``provider_metadata`` must include ``project_id``,
+        For ``AWS_BEDROCK`` provider, ``provider_metadata`` must include ``role_arn``.
+        For ``VERTEX_AI`` provider, ``provider_metadata`` must include ``project_id``,
         ``location``, and ``project_access_label``.
 
         Args:
             name: Integration name (must be unique within the account).
-            provider: LLM provider (e.g. ``openAI``, ``azureOpenAI``, ``awsBedrock``,
-                ``vertexAI``, ``anthropic``, ``custom``).
+            provider: LLM provider (e.g. ``OPEN_AI``, ``AZURE_OPEN_AI``, ``AWS_BEDROCK``,
+                ``VERTEX_AI``, ``ANTHROPIC``, ``CUSTOM``).
             api_key: API key for the provider (write-only, never returned).
             base_url: Custom base URL for the provider.
             model_names: Supported model names.
@@ -170,7 +170,7 @@ class AiIntegrationsClient:
                 Defaults to ``False`` if not provided.
             function_calling_enabled: Enable function/tool calling.
                 Defaults to ``True`` if not provided.
-            auth_type: Authentication type. Defaults to ``default`` if not provided.
+            auth_type: Authentication type. Defaults to ``DEFAULT`` if not provided.
             provider_metadata: Typed provider metadata (``AwsProviderMetadata`` or
                 ``GcpProviderMetadata``), including the required ``kind`` discriminator.
             scopings: Visibility scoping rules. Defaults to account-wide if omitted.
@@ -184,13 +184,11 @@ class AiIntegrationsClient:
         from arize._generated import api_client as gen
 
         wrapped_metadata = (
-            gen.AiIntegrationsCreateRequestProviderMetadata(
-                actual_instance=provider_metadata
-            )
+            gen.ProviderMetadata(actual_instance=provider_metadata)
             if provider_metadata is not None
             else None
         )
-        body = gen.AiIntegrationsCreateRequest(
+        body = gen.CreateAiIntegrationRequest(
             name=name,
             provider=provider,
             api_key=api_key,
@@ -203,8 +201,8 @@ class AiIntegrationsClient:
             provider_metadata=wrapped_metadata,
             scopings=scopings,
         )
-        return self._api.ai_integrations_create(
-            ai_integrations_create_request=body
+        return self._api.create_ai_integration(
+            create_ai_integration_request=body
         )
 
     @prerelease_endpoint(key="ai_integrations.update", stage=ReleaseStage.ALPHA)
@@ -263,9 +261,7 @@ class AiIntegrationsClient:
         wrapped_metadata: Any = _UNSET
         if provider_metadata is not _UNSET:
             wrapped_metadata = (
-                gen.AiIntegrationsUpdateRequestProviderMetadata(
-                    actual_instance=provider_metadata
-                )
+                gen.ProviderMetadata(actual_instance=provider_metadata)
                 if provider_metadata is not None
                 else None
             )
@@ -299,10 +295,10 @@ class AiIntegrationsClient:
             space=space,
         )
 
-        body = gen.AiIntegrationsUpdateRequest(**kwargs)
-        return self._api.ai_integrations_update(
+        body = gen.UpdateAiIntegrationRequest(**kwargs)
+        return self._api.update_ai_integration(
             integration_id=integration_id,
-            ai_integrations_update_request=body,
+            update_ai_integration_request=body,
         )
 
     @prerelease_endpoint(key="ai_integrations.delete", stage=ReleaseStage.ALPHA)
@@ -325,4 +321,4 @@ class AiIntegrationsClient:
             integration=integration,
             space=space,
         )
-        self._api.ai_integrations_delete(integration_id=integration_id)
+        self._api.delete_ai_integration(integration_id=integration_id)

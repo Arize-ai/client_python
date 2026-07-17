@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 
     from arize._generated.api_client.api_client import ApiClient
     from arize.audit_logs.types import (
-        AuditLogListResponse,
         AuditLogOperationType,
+        ListAuditLogsResponse,
     )
     from arize.config import SDKConfiguration
 
@@ -44,7 +44,7 @@ class AuditLogsClient:
 
         self._api = gen.AuditLogsApi(generated_client)
 
-    @prerelease_endpoint(key="audit_logs.list", stage=ReleaseStage.ALPHA)
+    @prerelease_endpoint(key="audit_logs.list", stage=ReleaseStage.BETA)
     def list(
         self,
         *,
@@ -54,7 +54,7 @@ class AuditLogsClient:
         operation_type: AuditLogOperationType | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> AuditLogListResponse:
+    ) -> ListAuditLogsResponse:
         """List audit log entries for the account, ordered newest first.
 
         The caller must be an account admin and the account must have audit
@@ -82,7 +82,7 @@ class AuditLogsClient:
             ApiException: If the API request fails (for example, the caller
                 is not an account admin, or audit logging is not enabled).
         """
-        return self._api.audit_logs_list(
+        return self._api.list_audit_logs(
             start_time=start_time,
             end_time=end_time,
             user_id=user_id,

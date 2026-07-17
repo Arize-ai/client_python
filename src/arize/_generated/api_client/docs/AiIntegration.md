@@ -16,7 +16,7 @@ Name | Type | Description | Notes
 **enable_default_models** | **bool** | Whether the provider&#39;s default model list is enabled | 
 **function_calling_enabled** | **bool** | Whether function/tool calling is enabled | 
 **auth_type** | [**AiIntegrationAuthType**](AiIntegrationAuthType.md) |  | 
-**provider_metadata** | [**AiIntegrationProviderMetadata**](AiIntegrationProviderMetadata.md) |  | [optional] 
+**provider_metadata** | [**ProviderMetadata**](ProviderMetadata.md) | Provider-specific configuration. For AWS_BEDROCK, must include role_arn. For VERTEX_AI, must include project_id, location, and project_access_label. | [optional] 
 **scopings** | [**List[AiIntegrationScoping]**](AiIntegrationScoping.md) | Visibility scoping rules | 
 **created_at** | **datetime** | When the integration was created | 
 **updated_at** | **datetime** | When the integration was last updated | 

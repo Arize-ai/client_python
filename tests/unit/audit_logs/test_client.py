@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
+from arize._generated.api_client import AuditLogsApi
 from arize.audit_logs.client import AuditLogsClient
 from arize.audit_logs.types import AuditLogOperationType
 
@@ -14,7 +15,7 @@ from arize.audit_logs.types import AuditLogOperationType
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock AuditLogsApi instance."""
-    return Mock()
+    return create_autospec(AuditLogsApi, instance=True)
 
 
 @pytest.fixture
@@ -71,7 +72,7 @@ class TestAuditLogsClientList:
         """list() should default all filter params to None and limit to 50."""
         audit_logs_client.list()
 
-        mock_api.audit_logs_list.assert_called_once_with(
+        mock_api.list_audit_logs.assert_called_once_with(
             start_time=None,
             end_time=None,
             user_id=None,
@@ -96,7 +97,7 @@ class TestAuditLogsClientList:
             cursor="cursor-xyz",
         )
 
-        mock_api.audit_logs_list.assert_called_once_with(
+        mock_api.list_audit_logs.assert_called_once_with(
             start_time=start,
             end_time=end,
             user_id="VXNlcjoxMjM0NQ==",
@@ -110,7 +111,7 @@ class TestAuditLogsClientList:
     ) -> None:
         """list() should propagate the return value from audit_logs_list."""
         expected = Mock()
-        mock_api.audit_logs_list.return_value = expected
+        mock_api.list_audit_logs.return_value = expected
 
         result = audit_logs_client.list()
 
@@ -122,7 +123,7 @@ class TestAuditLogsClientList:
         """list() with QUERY operation_type should forward it correctly."""
         audit_logs_client.list(operation_type=AuditLogOperationType.QUERY)
 
-        mock_api.audit_logs_list.assert_called_once_with(
+        mock_api.list_audit_logs.assert_called_once_with(
             start_time=None,
             end_time=None,
             user_id=None,

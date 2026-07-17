@@ -40,7 +40,7 @@ class TestUpdateEvaluationTaskRequest(unittest.TestCase):
                 is_continuous = True,
                 query_filter = '',
                 evaluators = [
-                    arize._generated.api_client.models.base_evaluation_task_request_evaluators_inner.BaseEvaluationTaskRequest_evaluators_inner(
+                    arize._generated.api_client.models.task_evaluator_input.TaskEvaluatorInput(
                         evaluator_id = '', 
                         query_filter = '', 
                         column_mappings = {

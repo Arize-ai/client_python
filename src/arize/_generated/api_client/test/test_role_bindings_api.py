@@ -26,36 +26,36 @@ class TestRoleBindingsApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_role_bindings_create(self) -> None:
-        """Test case for role_bindings_create
+    def test_create_role_binding(self) -> None:
+        """Test case for create_role_binding
 
         Create a role binding
         """
         pass
 
-    def test_role_bindings_delete(self) -> None:
-        """Test case for role_bindings_delete
+    def test_delete_role_binding(self) -> None:
+        """Test case for delete_role_binding
 
         Delete a role binding
         """
         pass
 
-    def test_role_bindings_get(self) -> None:
-        """Test case for role_bindings_get
+    def test_get_role_binding(self) -> None:
+        """Test case for get_role_binding
 
         Get a role binding
         """
         pass
 
-    def test_role_bindings_list(self) -> None:
-        """Test case for role_bindings_list
+    def test_list_role_bindings(self) -> None:
+        """Test case for list_role_bindings
 
         List role bindings
         """
         pass
 
-    def test_role_bindings_update(self) -> None:
-        """Test case for role_bindings_update
+    def test_update_role_binding(self) -> None:
+        """Test case for update_role_binding
 
         Update a role binding
         """

@@ -1,6 +1,6 @@
 # CodeConfig
 
-Discriminated union representing either a managed (built-in) or custom (user-supplied Python) code evaluator configuration, resolved by the nested `type` field (`managed` -> `ManagedCodeConfig`, `custom` -> `CustomCodeConfig`). This inner `type` is independent of the parent evaluator version's `type` (which is always `code` here). 
+Discriminated union representing either a managed (built-in) or custom (user-supplied Python) code evaluator configuration, resolved by the nested `type` field (`MANAGED` -> `ManagedCodeConfig`, `CUSTOM` -> `CustomCodeConfig`). This inner `type` is independent of the parent evaluator version's `type` (which is always `CODE` here). 
 
 ## Properties
 

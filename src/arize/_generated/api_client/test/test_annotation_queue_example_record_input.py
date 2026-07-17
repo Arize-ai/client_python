@@ -35,7 +35,7 @@ class TestAnnotationQueueExampleRecordInput(unittest.TestCase):
         model = AnnotationQueueExampleRecordInput()
         if include_optional:
             return AnnotationQueueExampleRecordInput(
-                record_type = 'example',
+                record_type = 'EXAMPLE',
                 dataset_id = '',
                 dataset_version_id = '',
                 example_ids = [
@@ -44,7 +44,7 @@ class TestAnnotationQueueExampleRecordInput(unittest.TestCase):
             )
         else:
             return AnnotationQueueExampleRecordInput(
-                record_type = 'example',
+                record_type = 'EXAMPLE',
                 dataset_id = '',
         )
         """

@@ -1,6 +1,6 @@
 # UpdateRunExperimentTaskRequest
 
-PATCH body for `run_experiment` tasks. The server derives the task type from the URL's task record. At least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is fully replaced (existing configs are marked inactive and the new config is inserted atomically in a transaction). 
+PATCH body for `RUN_EXPERIMENT` tasks. The server derives the task type from the URL's task record. At least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is fully replaced (existing configs are marked inactive and the new config is inserted atomically in a transaction). 
 
 ## Properties
 

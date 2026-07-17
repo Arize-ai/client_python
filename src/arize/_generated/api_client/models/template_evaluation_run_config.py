@@ -28,7 +28,7 @@ class TemplateEvaluationRunConfig(BaseModel):
     """
     Configuration for running a template-based LLM evaluator against each dataset example.
     """ # noqa: E501
-    experiment_type: StrictStr = Field(description="Discriminator. Must be `\"template_evaluation\"`.")
+    experiment_type: StrictStr = Field(description="Discriminator. Must be `\"TEMPLATE_EVALUATION\"`.")
     ai_integration_id: StrictStr = Field(description="AI integration identifier (base64). The LLM that judges each example.")
     model_name: Optional[StrictStr] = Field(default=None, description="Model name (e.g. `gpt-4o`). Falls back to the integration's default if omitted.")
     template: Annotated[str, Field(min_length=1, strict=True)] = Field(description="The evaluation prompt template. Use `{{variable}}` placeholders that map to dataset column paths via `column_mapping`. ")
@@ -43,8 +43,8 @@ class TemplateEvaluationRunConfig(BaseModel):
     @field_validator('experiment_type')
     def experiment_type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['template_evaluation']):
-            raise ValueError("must be one of enum values ('template_evaluation')")
+        if value not in set(['TEMPLATE_EVALUATION']):
+            raise ValueError("must be one of enum values ('TEMPLATE_EVALUATION')")
         return value
 
     model_config = ConfigDict(

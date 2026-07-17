@@ -38,7 +38,7 @@ class TestTaskRun(unittest.TestCase):
                 id = '',
                 task_id = '',
                 experiment_id = '',
-                status = 'pending',
+                status = 'PENDING',
                 run_started_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 run_finished_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 data_start_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
@@ -53,7 +53,7 @@ class TestTaskRun(unittest.TestCase):
             return TaskRun(
                 id = '',
                 task_id = '',
-                status = 'pending',
+                status = 'PENDING',
                 run_started_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 run_finished_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 data_start_time = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),

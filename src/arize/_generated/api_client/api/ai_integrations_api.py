@@ -20,9 +20,9 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.ai_integration import AiIntegration
-from arize._generated.api_client.models.ai_integration_list_response import AiIntegrationListResponse
-from arize._generated.api_client.models.ai_integrations_create_request import AiIntegrationsCreateRequest
-from arize._generated.api_client.models.ai_integrations_update_request import AiIntegrationsUpdateRequest
+from arize._generated.api_client.models.create_ai_integration_request import CreateAiIntegrationRequest
+from arize._generated.api_client.models.list_ai_integrations_response import ListAiIntegrationsResponse
+from arize._generated.api_client.models.update_ai_integration_request import UpdateAiIntegrationRequest
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -43,9 +43,9 @@ class AIIntegrationsApi:
 
 
     @validate_call
-    def ai_integrations_create(
+    def create_ai_integration(
         self,
-        ai_integrations_create_request: Annotated[AiIntegrationsCreateRequest, Field(description="Body containing AI integration creation parameters")],
+        create_ai_integration_request: Annotated[CreateAiIntegrationRequest, Field(description="Body containing AI integration creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -61,10 +61,10 @@ class AIIntegrationsApi:
     ) -> AiIntegration:
         """Create an AI integration
 
-        Create a new AI integration for an external LLM provider.  **Payload Requirements** - `name` and `provider` are required. - The integration name must be unique within the account. - `provider` must be one of: `openAI`, `azureOpenAI`, `awsBedrock`, `vertexAI`, `anthropic`, `nvidiaNim`, `gemini`, `custom`. - If `scopings` is omitted, the integration defaults to account-wide visibility. - `enable_default_models` defaults to `false` if not provided. - `function_calling_enabled` defaults to `true` if not provided. - `auth_type` defaults to `default` if not provided. - For `awsBedrock` provider, `provider_metadata` must include `role_arn`. - For `vertexAI` provider, `provider_metadata` must include `project_id`, `location`, and `project_access_label`.  **Valid example** ```json {   \"name\": \"Production OpenAI\",   \"provider\": \"openAI\",   \"api_key\": \"sk-abc123...\",   \"model_names\": [\"gpt-4\", \"gpt-4o\"],   \"enable_default_models\": true } ```  **Invalid example** (missing required `provider`) ```json {   \"name\": \"My Integration\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new AI integration for an external LLM provider.  **Payload Requirements** - `name` and `provider` are required. - The integration name must be unique within the account. - `provider` must be one of: `OPEN_AI`, `AZURE_OPEN_AI`, `AWS_BEDROCK`, `VERTEX_AI`, `ANTHROPIC`, `NVIDIA_NIM`, `GEMINI`, `CUSTOM`. - If `scopings` is omitted, the integration defaults to account-wide visibility. - `enable_default_models` defaults to `false` if not provided. - `function_calling_enabled` defaults to `true` if not provided. - `auth_type` defaults to `DEFAULT` if not provided. - For `AWS_BEDROCK` provider, `provider_metadata` must include `role_arn`. - For `VERTEX_AI` provider, `provider_metadata` must include `project_id`, `location`, and `project_access_label`.  **Valid example** ```json {   \"name\": \"Production OpenAI\",   \"provider\": \"OPEN_AI\",   \"api_key\": \"sk-abc123...\",   \"model_names\": [\"gpt-4\", \"gpt-4o\"],   \"enable_default_models\": true } ```  **Invalid example** (missing required `provider`) ```json {   \"name\": \"My Integration\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param ai_integrations_create_request: Body containing AI integration creation parameters (required)
-        :type ai_integrations_create_request: AiIntegrationsCreateRequest
+        :param create_ai_integration_request: Body containing AI integration creation parameters (required)
+        :type create_ai_integration_request: CreateAiIntegrationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -87,8 +87,8 @@ class AIIntegrationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._ai_integrations_create_serialize(
-            ai_integrations_create_request=ai_integrations_create_request,
+        _param = self._create_ai_integration_serialize(
+            create_ai_integration_request=create_ai_integration_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -117,9 +117,9 @@ class AIIntegrationsApi:
 
 
     @validate_call
-    def ai_integrations_create_with_http_info(
+    def create_ai_integration_with_http_info(
         self,
-        ai_integrations_create_request: Annotated[AiIntegrationsCreateRequest, Field(description="Body containing AI integration creation parameters")],
+        create_ai_integration_request: Annotated[CreateAiIntegrationRequest, Field(description="Body containing AI integration creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -135,10 +135,10 @@ class AIIntegrationsApi:
     ) -> ApiResponse[AiIntegration]:
         """Create an AI integration
 
-        Create a new AI integration for an external LLM provider.  **Payload Requirements** - `name` and `provider` are required. - The integration name must be unique within the account. - `provider` must be one of: `openAI`, `azureOpenAI`, `awsBedrock`, `vertexAI`, `anthropic`, `nvidiaNim`, `gemini`, `custom`. - If `scopings` is omitted, the integration defaults to account-wide visibility. - `enable_default_models` defaults to `false` if not provided. - `function_calling_enabled` defaults to `true` if not provided. - `auth_type` defaults to `default` if not provided. - For `awsBedrock` provider, `provider_metadata` must include `role_arn`. - For `vertexAI` provider, `provider_metadata` must include `project_id`, `location`, and `project_access_label`.  **Valid example** ```json {   \"name\": \"Production OpenAI\",   \"provider\": \"openAI\",   \"api_key\": \"sk-abc123...\",   \"model_names\": [\"gpt-4\", \"gpt-4o\"],   \"enable_default_models\": true } ```  **Invalid example** (missing required `provider`) ```json {   \"name\": \"My Integration\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new AI integration for an external LLM provider.  **Payload Requirements** - `name` and `provider` are required. - The integration name must be unique within the account. - `provider` must be one of: `OPEN_AI`, `AZURE_OPEN_AI`, `AWS_BEDROCK`, `VERTEX_AI`, `ANTHROPIC`, `NVIDIA_NIM`, `GEMINI`, `CUSTOM`. - If `scopings` is omitted, the integration defaults to account-wide visibility. - `enable_default_models` defaults to `false` if not provided. - `function_calling_enabled` defaults to `true` if not provided. - `auth_type` defaults to `DEFAULT` if not provided. - For `AWS_BEDROCK` provider, `provider_metadata` must include `role_arn`. - For `VERTEX_AI` provider, `provider_metadata` must include `project_id`, `location`, and `project_access_label`.  **Valid example** ```json {   \"name\": \"Production OpenAI\",   \"provider\": \"OPEN_AI\",   \"api_key\": \"sk-abc123...\",   \"model_names\": [\"gpt-4\", \"gpt-4o\"],   \"enable_default_models\": true } ```  **Invalid example** (missing required `provider`) ```json {   \"name\": \"My Integration\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param ai_integrations_create_request: Body containing AI integration creation parameters (required)
-        :type ai_integrations_create_request: AiIntegrationsCreateRequest
+        :param create_ai_integration_request: Body containing AI integration creation parameters (required)
+        :type create_ai_integration_request: CreateAiIntegrationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -161,8 +161,8 @@ class AIIntegrationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._ai_integrations_create_serialize(
-            ai_integrations_create_request=ai_integrations_create_request,
+        _param = self._create_ai_integration_serialize(
+            create_ai_integration_request=create_ai_integration_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -191,9 +191,9 @@ class AIIntegrationsApi:
 
 
     @validate_call
-    def ai_integrations_create_without_preload_content(
+    def create_ai_integration_without_preload_content(
         self,
-        ai_integrations_create_request: Annotated[AiIntegrationsCreateRequest, Field(description="Body containing AI integration creation parameters")],
+        create_ai_integration_request: Annotated[CreateAiIntegrationRequest, Field(description="Body containing AI integration creation parameters")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -209,10 +209,10 @@ class AIIntegrationsApi:
     ) -> RESTResponseType:
         """Create an AI integration
 
-        Create a new AI integration for an external LLM provider.  **Payload Requirements** - `name` and `provider` are required. - The integration name must be unique within the account. - `provider` must be one of: `openAI`, `azureOpenAI`, `awsBedrock`, `vertexAI`, `anthropic`, `nvidiaNim`, `gemini`, `custom`. - If `scopings` is omitted, the integration defaults to account-wide visibility. - `enable_default_models` defaults to `false` if not provided. - `function_calling_enabled` defaults to `true` if not provided. - `auth_type` defaults to `default` if not provided. - For `awsBedrock` provider, `provider_metadata` must include `role_arn`. - For `vertexAI` provider, `provider_metadata` must include `project_id`, `location`, and `project_access_label`.  **Valid example** ```json {   \"name\": \"Production OpenAI\",   \"provider\": \"openAI\",   \"api_key\": \"sk-abc123...\",   \"model_names\": [\"gpt-4\", \"gpt-4o\"],   \"enable_default_models\": true } ```  **Invalid example** (missing required `provider`) ```json {   \"name\": \"My Integration\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        Create a new AI integration for an external LLM provider.  **Payload Requirements** - `name` and `provider` are required. - The integration name must be unique within the account. - `provider` must be one of: `OPEN_AI`, `AZURE_OPEN_AI`, `AWS_BEDROCK`, `VERTEX_AI`, `ANTHROPIC`, `NVIDIA_NIM`, `GEMINI`, `CUSTOM`. - If `scopings` is omitted, the integration defaults to account-wide visibility. - `enable_default_models` defaults to `false` if not provided. - `function_calling_enabled` defaults to `true` if not provided. - `auth_type` defaults to `DEFAULT` if not provided. - For `AWS_BEDROCK` provider, `provider_metadata` must include `role_arn`. - For `VERTEX_AI` provider, `provider_metadata` must include `project_id`, `location`, and `project_access_label`.  **Valid example** ```json {   \"name\": \"Production OpenAI\",   \"provider\": \"OPEN_AI\",   \"api_key\": \"sk-abc123...\",   \"model_names\": [\"gpt-4\", \"gpt-4o\"],   \"enable_default_models\": true } ```  **Invalid example** (missing required `provider`) ```json {   \"name\": \"My Integration\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param ai_integrations_create_request: Body containing AI integration creation parameters (required)
-        :type ai_integrations_create_request: AiIntegrationsCreateRequest
+        :param create_ai_integration_request: Body containing AI integration creation parameters (required)
+        :type create_ai_integration_request: CreateAiIntegrationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -235,8 +235,8 @@ class AIIntegrationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._ai_integrations_create_serialize(
-            ai_integrations_create_request=ai_integrations_create_request,
+        _param = self._create_ai_integration_serialize(
+            create_ai_integration_request=create_ai_integration_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -260,9 +260,9 @@ class AIIntegrationsApi:
         return response_data.response
 
 
-    def _ai_integrations_create_serialize(
+    def _create_ai_integration_serialize(
         self,
-        ai_integrations_create_request,
+        create_ai_integration_request,
         _request_auth,
         _content_type,
         _headers,
@@ -288,8 +288,8 @@ class AIIntegrationsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if ai_integrations_create_request is not None:
-            _body_params = ai_integrations_create_request
+        if create_ai_integration_request is not None:
+            _body_params = create_ai_integration_request
 
 
         # set the HTTP header `Accept`
@@ -339,7 +339,7 @@ class AIIntegrationsApi:
 
 
     @validate_call
-    def ai_integrations_delete(
+    def delete_ai_integration(
         self,
         integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
         _request_timeout: Union[
@@ -383,7 +383,7 @@ class AIIntegrationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._ai_integrations_delete_serialize(
+        _param = self._delete_ai_integration_serialize(
             integration_id=integration_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -411,7 +411,7 @@ class AIIntegrationsApi:
 
 
     @validate_call
-    def ai_integrations_delete_with_http_info(
+    def delete_ai_integration_with_http_info(
         self,
         integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
         _request_timeout: Union[
@@ -455,7 +455,7 @@ class AIIntegrationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._ai_integrations_delete_serialize(
+        _param = self._delete_ai_integration_serialize(
             integration_id=integration_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -483,7 +483,7 @@ class AIIntegrationsApi:
 
 
     @validate_call
-    def ai_integrations_delete_without_preload_content(
+    def delete_ai_integration_without_preload_content(
         self,
         integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
         _request_timeout: Union[
@@ -527,7 +527,7 @@ class AIIntegrationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._ai_integrations_delete_serialize(
+        _param = self._delete_ai_integration_serialize(
             integration_id=integration_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -550,7 +550,7 @@ class AIIntegrationsApi:
         return response_data.response
 
 
-    def _ai_integrations_delete_serialize(
+    def _delete_ai_integration_serialize(
         self,
         integration_id,
         _request_auth,
@@ -615,7 +615,7 @@ class AIIntegrationsApi:
 
 
     @validate_call
-    def ai_integrations_get(
+    def get_ai_integration(
         self,
         integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
         _request_timeout: Union[
@@ -659,7 +659,7 @@ class AIIntegrationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._ai_integrations_get_serialize(
+        _param = self._get_ai_integration_serialize(
             integration_id=integration_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -686,7 +686,7 @@ class AIIntegrationsApi:
 
 
     @validate_call
-    def ai_integrations_get_with_http_info(
+    def get_ai_integration_with_http_info(
         self,
         integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
         _request_timeout: Union[
@@ -730,7 +730,7 @@ class AIIntegrationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._ai_integrations_get_serialize(
+        _param = self._get_ai_integration_serialize(
             integration_id=integration_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -757,7 +757,7 @@ class AIIntegrationsApi:
 
 
     @validate_call
-    def ai_integrations_get_without_preload_content(
+    def get_ai_integration_without_preload_content(
         self,
         integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
         _request_timeout: Union[
@@ -801,7 +801,7 @@ class AIIntegrationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._ai_integrations_get_serialize(
+        _param = self._get_ai_integration_serialize(
             integration_id=integration_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -823,7 +823,7 @@ class AIIntegrationsApi:
         return response_data.response
 
 
-    def _ai_integrations_get_serialize(
+    def _get_ai_integration_serialize(
         self,
         integration_id,
         _request_auth,
@@ -889,7 +889,7 @@ class AIIntegrationsApi:
 
 
     @validate_call
-    def ai_integrations_list(
+    def list_ai_integrations(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
@@ -908,7 +908,7 @@ class AIIntegrationsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AiIntegrationListResponse:
+    ) -> ListAiIntegrationsResponse:
         """List AI integrations
 
         List AI integrations the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -945,7 +945,7 @@ class AIIntegrationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._ai_integrations_list_serialize(
+        _param = self._list_ai_integrations_serialize(
             space_id=space_id,
             space_name=space_name,
             name=name,
@@ -958,10 +958,11 @@ class AIIntegrationsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AiIntegrationListResponse",
+            '200': "ListAiIntegrationsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -976,7 +977,7 @@ class AIIntegrationsApi:
 
 
     @validate_call
-    def ai_integrations_list_with_http_info(
+    def list_ai_integrations_with_http_info(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
@@ -995,7 +996,7 @@ class AIIntegrationsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AiIntegrationListResponse]:
+    ) -> ApiResponse[ListAiIntegrationsResponse]:
         """List AI integrations
 
         List AI integrations the user has access to.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
@@ -1032,7 +1033,7 @@ class AIIntegrationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._ai_integrations_list_serialize(
+        _param = self._list_ai_integrations_serialize(
             space_id=space_id,
             space_name=space_name,
             name=name,
@@ -1045,10 +1046,11 @@ class AIIntegrationsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AiIntegrationListResponse",
+            '200': "ListAiIntegrationsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1063,7 +1065,7 @@ class AIIntegrationsApi:
 
 
     @validate_call
-    def ai_integrations_list_without_preload_content(
+    def list_ai_integrations_without_preload_content(
         self,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
@@ -1119,7 +1121,7 @@ class AIIntegrationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._ai_integrations_list_serialize(
+        _param = self._list_ai_integrations_serialize(
             space_id=space_id,
             space_name=space_name,
             name=name,
@@ -1132,10 +1134,11 @@ class AIIntegrationsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AiIntegrationListResponse",
+            '200': "ListAiIntegrationsResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
+            '404': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1145,7 +1148,7 @@ class AIIntegrationsApi:
         return response_data.response
 
 
-    def _ai_integrations_list_serialize(
+    def _list_ai_integrations_serialize(
         self,
         space_id,
         space_name,
@@ -1233,10 +1236,10 @@ class AIIntegrationsApi:
 
 
     @validate_call
-    def ai_integrations_update(
+    def update_ai_integration(
         self,
         integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
-        ai_integrations_update_request: Annotated[AiIntegrationsUpdateRequest, Field(description="Body containing AI integration update parameters. At least one field must be provided.")],
+        update_ai_integration_request: Annotated[UpdateAiIntegrationRequest, Field(description="Body containing AI integration update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1256,8 +1259,8 @@ class AIIntegrationsApi:
 
         :param integration_id: The unique AI integration identifier (base64) (required)
         :type integration_id: str
-        :param ai_integrations_update_request: Body containing AI integration update parameters. At least one field must be provided. (required)
-        :type ai_integrations_update_request: AiIntegrationsUpdateRequest
+        :param update_ai_integration_request: Body containing AI integration update parameters. At least one field must be provided. (required)
+        :type update_ai_integration_request: UpdateAiIntegrationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1280,9 +1283,9 @@ class AIIntegrationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._ai_integrations_update_serialize(
+        _param = self._update_ai_integration_serialize(
             integration_id=integration_id,
-            ai_integrations_update_request=ai_integrations_update_request,
+            update_ai_integration_request=update_ai_integration_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1311,10 +1314,10 @@ class AIIntegrationsApi:
 
 
     @validate_call
-    def ai_integrations_update_with_http_info(
+    def update_ai_integration_with_http_info(
         self,
         integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
-        ai_integrations_update_request: Annotated[AiIntegrationsUpdateRequest, Field(description="Body containing AI integration update parameters. At least one field must be provided.")],
+        update_ai_integration_request: Annotated[UpdateAiIntegrationRequest, Field(description="Body containing AI integration update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1334,8 +1337,8 @@ class AIIntegrationsApi:
 
         :param integration_id: The unique AI integration identifier (base64) (required)
         :type integration_id: str
-        :param ai_integrations_update_request: Body containing AI integration update parameters. At least one field must be provided. (required)
-        :type ai_integrations_update_request: AiIntegrationsUpdateRequest
+        :param update_ai_integration_request: Body containing AI integration update parameters. At least one field must be provided. (required)
+        :type update_ai_integration_request: UpdateAiIntegrationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1358,9 +1361,9 @@ class AIIntegrationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._ai_integrations_update_serialize(
+        _param = self._update_ai_integration_serialize(
             integration_id=integration_id,
-            ai_integrations_update_request=ai_integrations_update_request,
+            update_ai_integration_request=update_ai_integration_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1389,10 +1392,10 @@ class AIIntegrationsApi:
 
 
     @validate_call
-    def ai_integrations_update_without_preload_content(
+    def update_ai_integration_without_preload_content(
         self,
         integration_id: Annotated[StrictStr, Field(description="The unique AI integration identifier (base64)")],
-        ai_integrations_update_request: Annotated[AiIntegrationsUpdateRequest, Field(description="Body containing AI integration update parameters. At least one field must be provided.")],
+        update_ai_integration_request: Annotated[UpdateAiIntegrationRequest, Field(description="Body containing AI integration update parameters. At least one field must be provided.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1412,8 +1415,8 @@ class AIIntegrationsApi:
 
         :param integration_id: The unique AI integration identifier (base64) (required)
         :type integration_id: str
-        :param ai_integrations_update_request: Body containing AI integration update parameters. At least one field must be provided. (required)
-        :type ai_integrations_update_request: AiIntegrationsUpdateRequest
+        :param update_ai_integration_request: Body containing AI integration update parameters. At least one field must be provided. (required)
+        :type update_ai_integration_request: UpdateAiIntegrationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1436,9 +1439,9 @@ class AIIntegrationsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._ai_integrations_update_serialize(
+        _param = self._update_ai_integration_serialize(
             integration_id=integration_id,
-            ai_integrations_update_request=ai_integrations_update_request,
+            update_ai_integration_request=update_ai_integration_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1462,10 +1465,10 @@ class AIIntegrationsApi:
         return response_data.response
 
 
-    def _ai_integrations_update_serialize(
+    def _update_ai_integration_serialize(
         self,
         integration_id,
-        ai_integrations_update_request,
+        update_ai_integration_request,
         _request_auth,
         _content_type,
         _headers,
@@ -1493,8 +1496,8 @@ class AIIntegrationsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if ai_integrations_update_request is not None:
-            _body_params = ai_integrations_update_request
+        if update_ai_integration_request is not None:
+            _body_params = update_ai_integration_request
 
 
         # set the HTTP header `Accept`

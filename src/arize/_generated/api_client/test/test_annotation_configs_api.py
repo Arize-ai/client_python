@@ -26,36 +26,36 @@ class TestAnnotationConfigsApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_annotation_configs_create(self) -> None:
-        """Test case for annotation_configs_create
+    def test_create_annotation_config(self) -> None:
+        """Test case for create_annotation_config
 
         Create an annotation config
         """
         pass
 
-    def test_annotation_configs_delete(self) -> None:
-        """Test case for annotation_configs_delete
+    def test_delete_annotation_config(self) -> None:
+        """Test case for delete_annotation_config
 
         Delete an annotation config
         """
         pass
 
-    def test_annotation_configs_get(self) -> None:
-        """Test case for annotation_configs_get
+    def test_get_annotation_config(self) -> None:
+        """Test case for get_annotation_config
 
         Get an annotation config
         """
         pass
 
-    def test_annotation_configs_list(self) -> None:
-        """Test case for annotation_configs_list
+    def test_list_annotation_configs(self) -> None:
+        """Test case for list_annotation_configs
 
         List annotation configs
         """
         pass
 
-    def test_annotation_configs_update(self) -> None:
-        """Test case for annotation_configs_update
+    def test_update_annotation_config(self) -> None:
+        """Test case for update_annotation_config
 
         Update an annotation config
         """

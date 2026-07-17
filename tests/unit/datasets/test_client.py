@@ -3,18 +3,19 @@
 from __future__ import annotations
 
 import logging
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, Mock, create_autospec, patch
 
 import pandas as pd
 import pytest
 
+from arize._generated.api_client import DatasetsApi
 from arize.datasets.client import DatasetsClient
 
 
 @pytest.fixture
 def mock_api() -> Mock:
     """Provide a mock DatasetsApi instance."""
-    return Mock()
+    return create_autospec(DatasetsApi, instance=True)
 
 
 @pytest.fixture
@@ -76,7 +77,7 @@ class TestDatasetsClientList:
             cursor="cursor-xyz",
         )
 
-        mock_api.datasets_list.assert_called_once_with(
+        mock_api.list_datasets.assert_called_once_with(
             space_id="U3BhY2U6OTA1MDoxSmtS",
             space_name=None,
             name="my-dataset",
@@ -95,7 +96,7 @@ class TestDatasetsClientList:
             cursor="cursor-xyz",
         )
 
-        mock_api.datasets_list.assert_called_once_with(
+        mock_api.list_datasets.assert_called_once_with(
             space_id=None,
             space_name="my-space",
             name="my-dataset",
@@ -109,7 +110,7 @@ class TestDatasetsClientList:
         """list() should default space/name/cursor to None and limit to 50."""
         datasets_client.list()
 
-        mock_api.datasets_list.assert_called_once_with(
+        mock_api.list_datasets.assert_called_once_with(
             space_id=None,
             space_name=None,
             name=None,
@@ -122,7 +123,7 @@ class TestDatasetsClientList:
     ) -> None:
         """list() should propagate the return value from datasets_list."""
         expected = Mock()
-        mock_api.datasets_list.return_value = expected
+        mock_api.list_datasets.return_value = expected
 
         result = datasets_client.list()
 
@@ -163,7 +164,7 @@ class TestDatasetsClientListExamples:
             cursor="tok-abc",
         )
 
-        mock_api.datasets_examples_list.assert_called_once_with(
+        mock_api.list_dataset_examples.assert_called_once_with(
             dataset_id=self.DATASET_ID,
             dataset_version_id=None,
             limit=50,
@@ -176,7 +177,7 @@ class TestDatasetsClientListExamples:
         """list_examples() should default cursor to None (first page)."""
         datasets_client.list_examples(dataset=self.DATASET_ID)
 
-        mock_api.datasets_examples_list.assert_called_once_with(
+        mock_api.list_dataset_examples.assert_called_once_with(
             dataset_id=self.DATASET_ID,
             dataset_version_id=None,
             limit=50,
@@ -193,7 +194,7 @@ class TestDatasetsClientUpdateExamples:
     def test_update_examples_builds_request_with_ids(
         self, datasets_client: DatasetsClient, mock_api: Mock
     ) -> None:
-        """update_examples() should build a DatasetExampleUpdate per example, keyed by id."""
+        """update_examples() should build a UpdateDatasetExampleInput per example, keyed by id."""
         datasets_client.update_examples(
             dataset=self.DATASET_ID,
             examples=[
@@ -202,9 +203,9 @@ class TestDatasetsClientUpdateExamples:
             ],
         )
 
-        _, kwargs = mock_api.datasets_examples_update.call_args
+        _, kwargs = mock_api.update_dataset_examples.call_args
         assert kwargs["dataset_id"] == self.DATASET_ID
-        body = kwargs["datasets_examples_update_request"]
+        body = kwargs["update_dataset_examples_request"]
         assert [e.id for e in body.examples] == ["ex_1", "ex_2"]
         assert body.examples[0].additional_properties == {
             "question": "2+2?",
@@ -220,8 +221,8 @@ class TestDatasetsClientUpdateExamples:
             examples=[{"id": "ex_1", "answer": "4"}],
         )
 
-        _, kwargs = mock_api.datasets_examples_update.call_args
-        assert kwargs["datasets_examples_update_request"].new_version is None
+        _, kwargs = mock_api.update_dataset_examples.call_args
+        assert kwargs["update_dataset_examples_request"].new_version is None
         assert kwargs["dataset_version_id"] == ""
 
     def test_update_examples_passes_new_version(
@@ -234,8 +235,8 @@ class TestDatasetsClientUpdateExamples:
             new_version="v2",
         )
 
-        _, kwargs = mock_api.datasets_examples_update.call_args
-        assert kwargs["datasets_examples_update_request"].new_version == "v2"
+        _, kwargs = mock_api.update_dataset_examples.call_args
+        assert kwargs["update_dataset_examples_request"].new_version == "v2"
 
     def test_update_examples_passes_dataset_version_id(
         self, datasets_client: DatasetsClient, mock_api: Mock
@@ -247,7 +248,7 @@ class TestDatasetsClientUpdateExamples:
             examples=[{"id": "ex_1", "answer": "4"}],
         )
 
-        _, kwargs = mock_api.datasets_examples_update.call_args
+        _, kwargs = mock_api.update_dataset_examples.call_args
         assert kwargs["dataset_version_id"] == "ver_1"
 
     def test_update_examples_returns_api_response(
@@ -255,7 +256,7 @@ class TestDatasetsClientUpdateExamples:
     ) -> None:
         """update_examples() should propagate the return value from datasets_examples_update."""
         expected = Mock()
-        mock_api.datasets_examples_update.return_value = expected
+        mock_api.update_dataset_examples.return_value = expected
 
         result = datasets_client.update_examples(
             dataset=self.DATASET_ID,
@@ -304,13 +305,13 @@ class TestDatasetsClientDeleteExamples:
             examples=["ex-1", "ex-2"],
         )
 
-        mock_api.datasets_examples_delete.assert_called_once()
-        call = mock_api.datasets_examples_delete.call_args
+        mock_api.delete_dataset_examples.assert_called_once()
+        call = mock_api.delete_dataset_examples.call_args
         assert call.kwargs["dataset_id"] == self.DATASET_ID
-        body = call.kwargs["dataset_example_delete_request"]
+        body = call.kwargs["delete_dataset_examples_request"]
         assert body.dataset_version_id == "ver-1"
         assert body.example_ids == ["ex-1", "ex-2"]
-        assert result is mock_api.datasets_examples_delete.return_value
+        assert result is mock_api.delete_dataset_examples.return_value
 
     def test_delete_examples_rejects_empty_list(
         self, datasets_client: DatasetsClient

@@ -4,17 +4,17 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**spaces_add_user**](SpacesApi.md#spaces_add_user) | **POST** /v2/spaces/{space_id}/users | Add a user to a space
-[**spaces_create**](SpacesApi.md#spaces_create) | **POST** /v2/spaces | Create a space
-[**spaces_delete**](SpacesApi.md#spaces_delete) | **DELETE** /v2/spaces/{space_id} | Delete a space
-[**spaces_get**](SpacesApi.md#spaces_get) | **GET** /v2/spaces/{space_id} | Get a space
-[**spaces_list**](SpacesApi.md#spaces_list) | **GET** /v2/spaces | List spaces
-[**spaces_remove_user**](SpacesApi.md#spaces_remove_user) | **DELETE** /v2/spaces/{space_id}/users/{user_id} | Remove a user from a space
-[**spaces_update**](SpacesApi.md#spaces_update) | **PATCH** /v2/spaces/{space_id} | Update a space
+[**add_space_user**](SpacesApi.md#add_space_user) | **POST** /v2/spaces/{space_id}/users | Add a user to a space
+[**create_space**](SpacesApi.md#create_space) | **POST** /v2/spaces | Create a space
+[**delete_space**](SpacesApi.md#delete_space) | **DELETE** /v2/spaces/{space_id} | Delete a space
+[**get_space**](SpacesApi.md#get_space) | **GET** /v2/spaces/{space_id} | Get a space
+[**list_spaces**](SpacesApi.md#list_spaces) | **GET** /v2/spaces | List spaces
+[**remove_space_user**](SpacesApi.md#remove_space_user) | **DELETE** /v2/spaces/{space_id}/users/{user_id} | Remove a user from a space
+[**update_space**](SpacesApi.md#update_space) | **PATCH** /v2/spaces/{space_id} | Update a space
 
 
-# **spaces_add_user**
-> SpaceMembership spaces_add_user(space_id, space_membership_input)
+# **add_space_user**
+> SpaceMembership add_space_user(space_id, add_space_user_request)
 
 Add a user to a space
 
@@ -23,8 +23,8 @@ Add a single existing account user to a space with a specified role.
 **Payload Requirements**
 - `user_id` is required and must be a valid user identifier (base64).
 - `role` is required and must be a role assignment object with a `type` discriminator:
-  - `{ "type": "predefined", "name": "admin" }` — one of the predefined roles: `admin`, `member`, `read-only`, `annotator`.
-  - `{ "type": "custom", "id": "<role_id>" }` — a custom RBAC role, using its unique identifier.
+  - `{ "type": "PREDEFINED", "name": "ADMIN" }` — one of the predefined roles: `ADMIN`, `MEMBER`, `READ_ONLY`, `ANNOTATOR`.
+  - `{ "type": "CUSTOM", "id": "<role_id>" }` — a custom RBAC role, using its unique identifier.
 - If the user is already a member, their role is updated to the specified value (upsert).
 - The user must already be a member of the space's parent organization; auto-enrollment is not performed (400 if not a member).
 
@@ -33,10 +33,10 @@ Add a single existing account user to a space with a specified role.
 - Users with a non-annotator account role cannot be assigned the `annotator` predefined space role.
 
 **Authorization**
-Requires space admin role when using a `predefined` role, or `ROLE_BINDING_CREATE`
-permission (RBAC) when using a `custom` role.
+Requires space admin role when using a `PREDEFINED` role, or `ROLE_BINDING_CREATE`
+permission (RBAC) when using a `CUSTOM` role.
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -45,8 +45,8 @@ permission (RBAC) when using a `custom` role.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.add_space_user_request import AddSpaceUserRequest
 from arize._generated.api_client.models.space_membership import SpaceMembership
-from arize._generated.api_client.models.space_membership_input import SpaceMembershipInput
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -71,15 +71,15 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpacesApi(api_client)
     space_id = 'U3BhY2U6MTIzNDU=' # str | The unique space identifier (base64)
-    space_membership_input = {"user_id":"VXNlcjoxMjM0NQ==","role":{"type":"predefined","name":"member"}} # SpaceMembershipInput | Body containing the user to add to the space
+    add_space_user_request = {"user_id":"VXNlcjoxMjM0NQ==","role":{"type":"PREDEFINED","name":"MEMBER"}} # AddSpaceUserRequest | Body containing the user to add to the space
 
     try:
         # Add a user to a space
-        api_response = api_instance.spaces_add_user(space_id, space_membership_input)
-        print("The response of SpacesApi->spaces_add_user:\n")
+        api_response = api_instance.add_space_user(space_id, add_space_user_request)
+        print("The response of SpacesApi->add_space_user:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling SpacesApi->spaces_add_user: %s\n" % e)
+        print("Exception when calling SpacesApi->add_space_user: %s\n" % e)
 ```
 
 
@@ -90,7 +90,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **space_id** | **str**| The unique space identifier (base64) | 
- **space_membership_input** | [**SpaceMembershipInput**](SpaceMembershipInput.md)| Body containing the user to add to the space | 
+ **add_space_user_request** | [**AddSpaceUserRequest**](AddSpaceUserRequest.md)| Body containing the user to add to the space | 
 
 ### Return type
 
@@ -119,8 +119,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **spaces_create**
-> Space spaces_create(spaces_create_request)
+# **create_space**
+> Space create_space(create_space_request)
 
 Create a space
 
@@ -142,8 +142,8 @@ Create a new space within an organization.
 
 ```python
 import arize._generated.api_client
+from arize._generated.api_client.models.create_space_request import CreateSpaceRequest
 from arize._generated.api_client.models.space import Space
-from arize._generated.api_client.models.spaces_create_request import SpacesCreateRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -167,15 +167,15 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpacesApi(api_client)
-    spaces_create_request = {"name":"LLM Evaluation","organization_id":"org_12345","description":"Space for evaluating LLM performance"} # SpacesCreateRequest | Body containing space creation parameters
+    create_space_request = {"name":"LLM Evaluation","organization_id":"org_12345","description":"Space for evaluating LLM performance"} # CreateSpaceRequest | Body containing space creation parameters
 
     try:
         # Create a space
-        api_response = api_instance.spaces_create(spaces_create_request)
-        print("The response of SpacesApi->spaces_create:\n")
+        api_response = api_instance.create_space(create_space_request)
+        print("The response of SpacesApi->create_space:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling SpacesApi->spaces_create: %s\n" % e)
+        print("Exception when calling SpacesApi->create_space: %s\n" % e)
 ```
 
 
@@ -185,7 +185,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **spaces_create_request** | [**SpacesCreateRequest**](SpacesCreateRequest.md)| Body containing space creation parameters | 
+ **create_space_request** | [**CreateSpaceRequest**](CreateSpaceRequest.md)| Body containing space creation parameters | 
 
 ### Return type
 
@@ -215,8 +215,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **spaces_delete**
-> spaces_delete(space_id)
+# **delete_space**
+> delete_space(space_id)
 
 Delete a space
 
@@ -260,9 +260,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Delete a space
-        api_instance.spaces_delete(space_id)
+        api_instance.delete_space(space_id)
     except Exception as e:
-        print("Exception when calling SpacesApi->spaces_delete: %s\n" % e)
+        print("Exception when calling SpacesApi->delete_space: %s\n" % e)
 ```
 
 
@@ -300,8 +300,8 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **spaces_get**
-> Space spaces_get(space_id)
+# **get_space**
+> Space get_space(space_id)
 
 Get a space
 
@@ -344,11 +344,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Get a space
-        api_response = api_instance.spaces_get(space_id)
-        print("The response of SpacesApi->spaces_get:\n")
+        api_response = api_instance.get_space(space_id)
+        print("The response of SpacesApi->get_space:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling SpacesApi->spaces_get: %s\n" % e)
+        print("Exception when calling SpacesApi->get_space: %s\n" % e)
 ```
 
 
@@ -386,8 +386,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **spaces_list**
-> SpaceListResponse spaces_list(org_id=org_id, name=name, limit=limit, cursor=cursor)
+# **list_spaces**
+> ListSpacesResponse list_spaces(org_id=org_id, name=name, limit=limit, cursor=cursor)
 
 List spaces
 
@@ -402,7 +402,7 @@ List spaces the user has access to.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.space_list_response import SpaceListResponse
+from arize._generated.api_client.models.list_spaces_response import ListSpacesResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -433,11 +433,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # List spaces
-        api_response = api_instance.spaces_list(org_id=org_id, name=name, limit=limit, cursor=cursor)
-        print("The response of SpacesApi->spaces_list:\n")
+        api_response = api_instance.list_spaces(org_id=org_id, name=name, limit=limit, cursor=cursor)
+        print("The response of SpacesApi->list_spaces:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling SpacesApi->spaces_list: %s\n" % e)
+        print("Exception when calling SpacesApi->list_spaces: %s\n" % e)
 ```
 
 
@@ -454,7 +454,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**SpaceListResponse**](SpaceListResponse.md)
+[**ListSpacesResponse**](ListSpacesResponse.md)
 
 ### Authorization
 
@@ -477,8 +477,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **spaces_remove_user**
-> spaces_remove_user(space_id, user_id)
+# **remove_space_user**
+> remove_space_user(space_id, user_id)
 
 Remove a user from a space
 
@@ -490,7 +490,7 @@ Returns 404 if the user is not a member of the space.
 **Authorization**
 Requires space admin role (legacy auth) or `ROLE_BINDING_DELETE` permission (RBAC).
 
-<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -527,9 +527,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Remove a user from a space
-        api_instance.spaces_remove_user(space_id, user_id)
+        api_instance.remove_space_user(space_id, user_id)
     except Exception as e:
-        print("Exception when calling SpacesApi->spaces_remove_user: %s\n" % e)
+        print("Exception when calling SpacesApi->remove_space_user: %s\n" % e)
 ```
 
 
@@ -568,8 +568,8 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **spaces_update**
-> Space spaces_update(space_id, spaces_update_request)
+# **update_space**
+> Space update_space(space_id, update_space_request)
 
 Update a space
 
@@ -591,7 +591,7 @@ name and description. At least one field must be provided.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.space import Space
-from arize._generated.api_client.models.spaces_update_request import SpacesUpdateRequest
+from arize._generated.api_client.models.update_space_request import UpdateSpaceRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -616,15 +616,15 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpacesApi(api_client)
     space_id = 'U3BhY2U6MTIzNDU=' # str | The unique space identifier (base64)
-    spaces_update_request = {"name":"Updated Space Name","description":"Updated space description"} # SpacesUpdateRequest | Body containing space update parameters. At least one field must be provided.
+    update_space_request = {"name":"Updated Space Name","description":"Updated space description"} # UpdateSpaceRequest | Body containing space update parameters. At least one field must be provided.
 
     try:
         # Update a space
-        api_response = api_instance.spaces_update(space_id, spaces_update_request)
-        print("The response of SpacesApi->spaces_update:\n")
+        api_response = api_instance.update_space(space_id, update_space_request)
+        print("The response of SpacesApi->update_space:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling SpacesApi->spaces_update: %s\n" % e)
+        print("Exception when calling SpacesApi->update_space: %s\n" % e)
 ```
 
 
@@ -635,7 +635,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **space_id** | **str**| The unique space identifier (base64) | 
- **spaces_update_request** | [**SpacesUpdateRequest**](SpacesUpdateRequest.md)| Body containing space update parameters. At least one field must be provided. | 
+ **update_space_request** | [**UpdateSpaceRequest**](UpdateSpaceRequest.md)| Body containing space update parameters. At least one field must be provided. | 
 
 ### Return type
 

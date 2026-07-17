@@ -36,7 +36,7 @@ class TestToolConfig(unittest.TestCase):
         if include_optional:
             return ToolConfig(
                 tools = [
-                    None
+                    arize._generated.api_client.models.tool_definition.ToolDefinition()
                     ],
                 tool_choice = None
             )

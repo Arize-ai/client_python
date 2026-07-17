@@ -4,9 +4,6 @@ from arize._generated.api_client.models.ai_integration import AiIntegration
 from arize._generated.api_client.models.ai_integration_auth_type import (
     AiIntegrationAuthType,
 )
-from arize._generated.api_client.models.ai_integration_list_response import (
-    AiIntegrationListResponse,
-)
 from arize._generated.api_client.models.ai_integration_provider import (
     AiIntegrationProvider,
 )
@@ -25,15 +22,18 @@ from arize._generated.api_client.models.gcp_provider_metadata import (
 from arize._generated.api_client.models.gcp_provider_metadata_kind import (
     GcpProviderMetadataKind,
 )
+from arize._generated.api_client.models.list_ai_integrations_response import (
+    ListAiIntegrationsResponse,
+)
 
 __all__ = [
     "AiIntegration",
     "AiIntegrationAuthType",
-    "AiIntegrationListResponse",
     "AiIntegrationProvider",
     "AiIntegrationScoping",
     "AwsProviderMetadata",
     "AwsProviderMetadataKind",
     "GcpProviderMetadata",
     "GcpProviderMetadataKind",
+    "ListAiIntegrationsResponse",
 ]

@@ -26,10 +26,59 @@ class TestEvaluatorsApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_evaluators_list(self) -> None:
-        """Test case for evaluators_list
+    def test_create_evaluator(self) -> None:
+        """Test case for create_evaluator
+
+        Create evaluator
+        """
+        pass
+
+    def test_create_evaluator_version(self) -> None:
+        """Test case for create_evaluator_version
+
+        Create evaluator version
+        """
+        pass
+
+    def test_delete_evaluator(self) -> None:
+        """Test case for delete_evaluator
+
+        Delete evaluator
+        """
+        pass
+
+    def test_get_evaluator(self) -> None:
+        """Test case for get_evaluator
+
+        Get evaluator
+        """
+        pass
+
+    def test_get_evaluator_version(self) -> None:
+        """Test case for get_evaluator_version
+
+        Get evaluator version
+        """
+        pass
+
+    def test_list_evaluator_versions(self) -> None:
+        """Test case for list_evaluator_versions
+
+        List evaluator versions
+        """
+        pass
+
+    def test_list_evaluators(self) -> None:
+        """Test case for list_evaluators
 
         List evaluators
+        """
+        pass
+
+    def test_update_evaluator(self) -> None:
+        """Test case for update_evaluator
+
+        Update evaluator
         """
         pass
 

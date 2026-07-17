@@ -12,8 +12,8 @@ if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
     from arize.config import SDKConfiguration
     from arize.resource_restrictions.types import (
+        ListResourceRestrictionsResponse,
         ResourceRestriction,
-        ResourceRestrictionListResponse,
         ResourceRestrictionType,
     )
 
@@ -56,7 +56,7 @@ class ResourceRestrictionsClient:
         self._api = gen.ResourceRestrictionsApi(generated_client)
 
     @prerelease_endpoint(
-        key="resource_restrictions.list", stage=ReleaseStage.ALPHA
+        key="resource_restrictions.list", stage=ReleaseStage.BETA
     )
     def list(
         self,
@@ -64,7 +64,7 @@ class ResourceRestrictionsClient:
         resource_type: ResourceRestrictionType | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
-    ) -> ResourceRestrictionListResponse:
+    ) -> ListResourceRestrictionsResponse:
         """List resource restrictions the caller is permitted to manage.
 
         Only restrictions the caller can manage are returned — i.e. an
@@ -97,14 +97,14 @@ class ResourceRestrictionsClient:
             ApiException: If the API request fails (for example, invalid input
                 or insufficient permissions).
         """
-        return self._api.resource_restrictions_list(
+        return self._api.list_resource_restrictions(
             resource_type=resource_type,
             limit=limit,
             cursor=cursor,
         )
 
     @prerelease_endpoint(
-        key="resource_restrictions.restrict", stage=ReleaseStage.ALPHA
+        key="resource_restrictions.restrict", stage=ReleaseStage.BETA
     )
     def restrict(self, *, resource_id: str) -> ResourceRestriction:
         """Mark a resource as restricted.
@@ -131,11 +131,11 @@ class ResourceRestrictionsClient:
         """
         from arize._generated import api_client as gen
 
-        body = gen.ResourceRestrictionCreate(resource_id=resource_id)
-        return self._api.resource_restrictions_create(body).resource_restriction
+        body = gen.CreateResourceRestrictionRequest(resource_id=resource_id)
+        return self._api.create_resource_restriction(body)
 
     @prerelease_endpoint(
-        key="resource_restrictions.unrestrict", stage=ReleaseStage.ALPHA
+        key="resource_restrictions.unrestrict", stage=ReleaseStage.BETA
     )
     def unrestrict(self, *, resource_id: str) -> None:
         """Remove restriction from a resource.
@@ -151,4 +151,4 @@ class ResourceRestrictionsClient:
             ApiException: If the API request fails (for example, resource is
                 not restricted, or insufficient permissions).
         """
-        return self._api.resource_restrictions_delete(resource_id=resource_id)
+        return self._api.delete_resource_restriction(resource_id=resource_id)

@@ -6,7 +6,7 @@ Configuration for running a template-based LLM evaluator against each dataset ex
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**experiment_type** | **str** | Discriminator. Must be &#x60;\&quot;template_evaluation\&quot;&#x60;. | 
+**experiment_type** | **str** | Discriminator. Must be &#x60;\&quot;TEMPLATE_EVALUATION\&quot;&#x60;. | 
 **ai_integration_id** | **str** | AI integration identifier (base64). The LLM that judges each example. | 
 **model_name** | **str** | Model name (e.g. &#x60;gpt-4o&#x60;). Falls back to the integration&#39;s default if omitted. | [optional] 
 **template** | **str** | The evaluation prompt template. Use &#x60;{{variable}}&#x60; placeholders that map to dataset column paths via &#x60;column_mapping&#x60;.  | 

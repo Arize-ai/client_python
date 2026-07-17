@@ -22,8 +22,8 @@ from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.ai_integration_auth_type import AiIntegrationAuthType
 from arize._generated.api_client.models.ai_integration_provider import AiIntegrationProvider
-from arize._generated.api_client.models.ai_integration_provider_metadata import AiIntegrationProviderMetadata
 from arize._generated.api_client.models.ai_integration_scoping import AiIntegrationScoping
+from arize._generated.api_client.models.provider_metadata import ProviderMetadata
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -41,7 +41,7 @@ class AiIntegration(BaseModel):
     enable_default_models: StrictBool = Field(description="Whether the provider's default model list is enabled")
     function_calling_enabled: StrictBool = Field(description="Whether function/tool calling is enabled")
     auth_type: AiIntegrationAuthType
-    provider_metadata: Optional[AiIntegrationProviderMetadata] = None
+    provider_metadata: Optional[ProviderMetadata] = Field(default=None, description="Provider-specific configuration. For AWS_BEDROCK, must include role_arn. For VERTEX_AI, must include project_id, location, and project_access_label.")
     scopings: List[AiIntegrationScoping] = Field(description="Visibility scoping rules")
     created_at: datetime = Field(description="When the integration was created")
     updated_at: datetime = Field(description="When the integration was last updated")
@@ -144,7 +144,7 @@ class AiIntegration(BaseModel):
             "enable_default_models": obj.get("enable_default_models"),
             "function_calling_enabled": obj.get("function_calling_enabled"),
             "auth_type": obj.get("auth_type"),
-            "provider_metadata": AiIntegrationProviderMetadata.from_dict(obj["provider_metadata"]) if obj.get("provider_metadata") is not None else None,
+            "provider_metadata": ProviderMetadata.from_dict(obj["provider_metadata"]) if obj.get("provider_metadata") is not None else None,
             "scopings": [AiIntegrationScoping.from_dict(_item) for _item in obj["scopings"]] if obj.get("scopings") is not None else None,
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at"),

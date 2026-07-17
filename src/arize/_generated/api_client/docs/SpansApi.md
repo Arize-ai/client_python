@@ -4,13 +4,13 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**spans_annotate**](SpansApi.md#spans_annotate) | **POST** /v2/spans/annotate | Annotate a batch of project spans
-[**spans_delete**](SpansApi.md#spans_delete) | **DELETE** /v2/spans | Delete spans
-[**spans_list**](SpansApi.md#spans_list) | **POST** /v2/spans | List spans
+[**annotate_spans**](SpansApi.md#annotate_spans) | **POST** /v2/spans/annotate | Annotate a batch of project spans
+[**delete_spans**](SpansApi.md#delete_spans) | **DELETE** /v2/spans | Delete spans
+[**list_spans**](SpansApi.md#list_spans) | **POST** /v2/spans | List spans
 
 
-# **spans_annotate**
-> spans_annotate(annotate_spans_request_body)
+# **annotate_spans**
+> annotate_spans(annotate_spans_request)
 
 Annotate a batch of project spans
 
@@ -36,7 +36,7 @@ same value (no duplicates).
   one span by its `record_id` and provides one or more annotation values.
 - Each `record_id` must be unique within the request (duplicates return 400).
 - Each record's `values` list must not contain duplicate annotation config names (returns 400).
-- `start_time` / `end_time` constrain the Druid time range for span lookup.
+- `start_time` / `end_time` constrain the time range for span lookup.
   If omitted, `start_time` defaults to 31 days ago and `end_time` to now.
   Both `start_time` and `end_time` may not be in the future. The window may
   not exceed 31 days. If ANY span ID cannot be located within the given
@@ -87,7 +87,7 @@ same value (no duplicates).
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.annotate_spans_request_body import AnnotateSpansRequestBody
+from arize._generated.api_client.models.annotate_spans_request import AnnotateSpansRequest
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -111,13 +111,13 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpansApi(api_client)
-    annotate_spans_request_body = {"project_id":"proj_abc123","start_time":"2024-01-01T00:00:00Z","end_time":"2024-01-08T00:00:00Z","annotations":[{"record_id":"span_abc","values":[{"name":"relevance","label":"good","score":0.9}]}]} # AnnotateSpansRequestBody | Body containing span annotation batch
+    annotate_spans_request = {"project_id":"proj_abc123","start_time":"2024-01-01T00:00:00Z","end_time":"2024-01-08T00:00:00Z","annotations":[{"record_id":"span_abc","values":[{"name":"relevance","label":"good","score":0.9}]}]} # AnnotateSpansRequest | Body containing span annotation batch
 
     try:
         # Annotate a batch of project spans
-        api_instance.spans_annotate(annotate_spans_request_body)
+        api_instance.annotate_spans(annotate_spans_request)
     except Exception as e:
-        print("Exception when calling SpansApi->spans_annotate: %s\n" % e)
+        print("Exception when calling SpansApi->annotate_spans: %s\n" % e)
 ```
 
 
@@ -127,7 +127,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **annotate_spans_request_body** | [**AnnotateSpansRequestBody**](AnnotateSpansRequestBody.md)| Body containing span annotation batch | 
+ **annotate_spans_request** | [**AnnotateSpansRequest**](AnnotateSpansRequest.md)| Body containing span annotation batch | 
 
 ### Return type
 
@@ -156,22 +156,22 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **spans_delete**
-> SpanDeleteResponse spans_delete(delete_spans_request)
+# **delete_spans**
+> DeleteSpansResponse delete_spans(delete_spans_request)
 
 Delete spans
 
 Permanently deletes spans by their span IDs. This operation is irreversible.
 
 Accepts between 1 and 5000 span IDs per request. Only spans within the
-supported lookback window (2 years) are considered; older spans are not affected.
+supported time range (2 years) are considered; older spans are not affected.
 
 A `200 OK` response always includes:
 - `completed` — `true` if the operation finished and no retry is needed;
   `false` if the operation could not fully complete (retry the full request).
 - `deleted_span_ids` — span IDs confirmed deleted in this request.
 - `not_deleted_span_ids` — requested IDs not deleted: either not found within
-  the supported lookback window, or not reached when `completed` is `false`.
+  the supported time range, or not reached when `completed` is `false`.
 
 The delete operation is idempotent — re-submitting already-deleted IDs is safe.
 
@@ -185,7 +185,7 @@ The delete operation is idempotent — re-submitting already-deleted IDs is safe
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.delete_spans_request import DeleteSpansRequest
-from arize._generated.api_client.models.span_delete_response import SpanDeleteResponse
+from arize._generated.api_client.models.delete_spans_response import DeleteSpansResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -213,11 +213,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # Delete spans
-        api_response = api_instance.spans_delete(delete_spans_request)
-        print("The response of SpansApi->spans_delete:\n")
+        api_response = api_instance.delete_spans(delete_spans_request)
+        print("The response of SpansApi->delete_spans:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling SpansApi->spans_delete: %s\n" % e)
+        print("Exception when calling SpansApi->delete_spans: %s\n" % e)
 ```
 
 
@@ -231,7 +231,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**SpanDeleteResponse**](SpanDeleteResponse.md)
+[**DeleteSpansResponse**](DeleteSpansResponse.md)
 
 ### Authorization
 
@@ -257,8 +257,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **spans_list**
-> SpanListResponse spans_list(list_spans_request, limit=limit, cursor=cursor)
+# **list_spans**
+> ListSpansResponse list_spans(list_spans_request, limit=limit, cursor=cursor)
 
 List spans
 
@@ -276,7 +276,7 @@ The spans are sorted by their timestamp, with the most recent coming first.
 ```python
 import arize._generated.api_client
 from arize._generated.api_client.models.list_spans_request import ListSpansRequest
-from arize._generated.api_client.models.span_list_response import SpanListResponse
+from arize._generated.api_client.models.list_spans_response import ListSpansResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -306,11 +306,11 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # List spans
-        api_response = api_instance.spans_list(list_spans_request, limit=limit, cursor=cursor)
-        print("The response of SpansApi->spans_list:\n")
+        api_response = api_instance.list_spans(list_spans_request, limit=limit, cursor=cursor)
+        print("The response of SpansApi->list_spans:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling SpansApi->spans_list: %s\n" % e)
+        print("Exception when calling SpansApi->list_spans: %s\n" % e)
 ```
 
 
@@ -326,7 +326,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**SpanListResponse**](SpanListResponse.md)
+[**ListSpansResponse**](ListSpansResponse.md)
 
 ### Authorization
 
