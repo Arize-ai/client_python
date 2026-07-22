@@ -10,16 +10,7 @@
 ## Response Types
 
 ```{eval-rst}
-.. currentmodule:: arize.resource_restrictions.types
-.. autoclass:: ResourceRestriction
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ListResourceRestrictionsResponse
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ResourceRestrictionType
+.. automodule:: arize.resource_restrictions.types
    :members:
    :member-order: bysource
 ```

@@ -1,12 +1,12 @@
 # SpaceRoleAssignment
 
-A role assignment for a space membership. Discriminated by `type`: - `PREDEFINED`: one of the predefined roles (`ADMIN`, `MEMBER`, `READ_ONLY`, `ANNOTATOR`) - `CUSTOM`: a custom RBAC role identified by its ID 
+Specifies which role to assign within a space. Discriminated by `type`: - `PREDEFINED`: a built-in platform role — `{ \"type\": \"PREDEFINED\", \"name\": \"ADMIN\" | \"MEMBER\" | \"READ_ONLY\" | \"ANNOTATOR\" }` - `CUSTOM`: a custom RBAC role identified by its ID — `{ \"type\": \"CUSTOM\", \"id\": \"<encoded-role-id>\" }`  Used wherever a space-level role assignment is required (memberships, service key bindings, etc.). 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | [**SpaceRoleAssignmentType**](SpaceRoleAssignmentType.md) | Discriminator identifying this as a custom RBAC role assignment. Always &#x60;CUSTOM&#x60; for this variant. | 
+**type** | [**SpaceRoleAssignmentType**](SpaceRoleAssignmentType.md) | Discriminator identifying this as a custom RBAC role assignment. Must be &#x60;CUSTOM&#x60;. | 
 **name** | **str** | Human-readable name of the custom role. Returned in responses only; ignored on input.  | [readonly] 
 **id** | **str** | The unique identifier of the custom RBAC role. | 
 

@@ -5,9 +5,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **str** | Name of the space (must be unique within the organization) | 
-**organization_id** | **str** | ID of the organization to create the space in | 
-**description** | **str** | A brief description of the space&#39;s purpose. Defaults to an empty string if omitted. | [optional] 
+**name** | **str** | Name of the space | 
+**organization_id** | **str** | The unique identifier of the organization to create the space in | 
+**description** | **str** | A brief description of the space&#39;s purpose | [optional] 
 
 ## Example
 

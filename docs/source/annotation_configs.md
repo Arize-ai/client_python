@@ -10,36 +10,7 @@
 ## Response Types
 
 ```{eval-rst}
-.. currentmodule:: arize.annotation_configs.types
-.. autoclass:: ListAnnotationConfigsResponse
-   :members:
-   :member-order: bysource
-
-.. autoclass:: AnnotationConfigType
-   :members:
-   :member-order: bysource
-
-.. autoclass:: CategoricalAnnotationConfig
-   :members:
-   :member-order: bysource
-
-.. autoclass:: CategoricalAnnotationValue
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ContinuousAnnotationConfig
-   :members:
-   :member-order: bysource
-
-.. autoclass:: FreeformAnnotationConfig
-   :members:
-   :member-order: bysource
-
-.. autoclass:: OptimizationDirection
-   :members:
-   :member-order: bysource
-
-.. autoclass:: PaginationMetadata
+.. automodule:: arize.annotation_configs.types
    :members:
    :member-order: bysource
 ```

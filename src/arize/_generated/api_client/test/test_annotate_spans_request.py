@@ -38,6 +38,7 @@ class TestAnnotateSpansRequest(unittest.TestCase):
                 project_id = 'proj_abc123',
                 start_time = '2024-01-01T00:00Z',
                 end_time = '2024-01-08T00:00Z',
+                granularity = 'SPAN',
                 annotations = [
                     arize._generated.api_client.models.annotate_record_input.AnnotateRecordInput(
                         record_id = '', 

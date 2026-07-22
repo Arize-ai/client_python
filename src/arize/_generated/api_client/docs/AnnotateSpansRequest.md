@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **project_id** | **str** | The project (model) ID whose spans are being annotated. | 
 **start_time** | **datetime** | Start of the time range for span lookup. Optional; defaults to 31 days ago. | [optional] 
 **end_time** | **datetime** | End of the time range for span lookup. Optional; defaults to now. | [optional] 
+**granularity** | [**RecordGranularity**](RecordGranularity.md) | Whether the record is a span or a trace, which affects whether annotations are written as span annotations or trace annotations. Attempts to write trace annotations on spans will be rejected. Optional; defaults to &#39;SPAN&#39;. | [optional] 
 **annotations** | [**List[AnnotateRecordInput]**](AnnotateRecordInput.md) | Batch of span annotations to write. Up to 1000 spans per request. | 
 
 ## Example

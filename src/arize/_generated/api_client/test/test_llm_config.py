@@ -36,14 +36,38 @@ class TestLlmConfig(unittest.TestCase):
         if include_optional:
             return LlmConfig(
                 is_function_calling_enabled = True,
-                provider = 'ANTHROPIC',
-                has_api_key = True
+                provider = 'NVIDIA_NIM',
+                has_api_key = True,
+                is_default_models_enabled = True,
+                model_names = [
+                    ''
+                    ],
+                auth = arize._generated.api_client.models.aws_bedrock_auth.AwsBedrockAuth(),
+                base_url = '',
+                header_names = [
+                    ''
+                    ],
+                project_id = '',
+                location = '',
+                project_access_label = ''
             )
         else:
             return LlmConfig(
                 is_function_calling_enabled = True,
-                provider = 'ANTHROPIC',
+                provider = 'NVIDIA_NIM',
                 has_api_key = True,
+                is_default_models_enabled = True,
+                model_names = [
+                    ''
+                    ],
+                auth = arize._generated.api_client.models.aws_bedrock_auth.AwsBedrockAuth(),
+                base_url = '',
+                header_names = [
+                    ''
+                    ],
+                project_id = '',
+                location = '',
+                project_access_label = '',
         )
         """
 

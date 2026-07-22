@@ -10,16 +10,7 @@
 ## Response Types
 
 ```{eval-rst}
-.. currentmodule:: arize.spans.types
-.. autoclass:: AnnotateRecordInput
-   :members:
-   :member-order: bysource
-
-.. autoclass:: DeleteSpansResponse
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ListSpansResponse
+.. automodule:: arize.spans.types
    :members:
    :member-order: bysource
 ```

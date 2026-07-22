@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**integrations** | [**List[LlmIntegration]**](LlmIntegration.md) | A polymorphic, type-tagged list of integrations. | 
+**integrations** | [**List[Integration]**](Integration.md) | A polymorphic, type-tagged list of integrations. | 
 **pagination** | [**PaginationMetadata**](PaginationMetadata.md) |  | 
 
 ## Example

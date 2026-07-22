@@ -10,9 +10,7 @@ from arize.types import (
 )
 
 SPACE_ID = "U3BhY2U6NTA3MDpsTlIr"
-API_KEY = (
-    "ak-ed52c99c-19ac-4f89-b43b-8c650d6771c9-KdAJlHVKJxS-ZTbc8xlAPsEo-7ZFCPIC"
-)
+API_KEY = os.environ["ARIZE_API_KEY"]
 MODEL_NAME = "test-sdkv8-stream-09-30-25-c"
 
 

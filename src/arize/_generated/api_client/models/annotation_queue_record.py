@@ -36,10 +36,11 @@ class AnnotationQueueRecord(BaseModel):
     source_type: AnnotationQueueSourceType
     granularity: Optional[RecordGranularity] = Field(default=None, description="The granularity of the record, if applicable.")
     data: Dict[str, Any] = Field(description="Record data as flat key-value pairs containing span or dataset fields. Does not include annotation or evaluation columns.")
-    annotations: List[Annotation] = Field(description="Human annotations on this record")
+    annotations: List[Annotation] = Field(description="Annotations on this record.")
+    trace_annotations: List[Annotation] = Field(description="Trace annotations on this record.")
     evaluations: List[Evaluation] = Field(description="Evaluation results on this record")
     assigned_users: List[AnnotationQueueAssignedUser] = Field(description="Users assigned to this record")
-    __properties: ClassVar[List[str]] = ["id", "annotation_queue_id", "source_type", "granularity", "data", "annotations", "evaluations", "assigned_users"]
+    __properties: ClassVar[List[str]] = ["id", "annotation_queue_id", "source_type", "granularity", "data", "annotations", "trace_annotations", "evaluations", "assigned_users"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -87,6 +88,13 @@ class AnnotationQueueRecord(BaseModel):
                 if _item_annotations:
                     _items.append(_item_annotations.to_dict())
             _dict['annotations'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in trace_annotations (list)
+        _items = []
+        if self.trace_annotations:
+            for _item_trace_annotations in self.trace_annotations:
+                if _item_trace_annotations:
+                    _items.append(_item_trace_annotations.to_dict())
+            _dict['trace_annotations'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in evaluations (list)
         _items = []
         if self.evaluations:
@@ -129,6 +137,7 @@ class AnnotationQueueRecord(BaseModel):
             "granularity": obj.get("granularity"),
             "data": obj.get("data"),
             "annotations": [Annotation.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None,
+            "trace_annotations": [Annotation.from_dict(_item) for _item in obj["trace_annotations"]] if obj.get("trace_annotations") is not None else None,
             "evaluations": [Evaluation.from_dict(_item) for _item in obj["evaluations"]] if obj.get("evaluations") is not None else None,
             "assigned_users": [AnnotationQueueAssignedUser.from_dict(_item) for _item in obj["assigned_users"]] if obj.get("assigned_users") is not None else None
         })

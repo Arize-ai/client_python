@@ -15,7 +15,8 @@ Name | Type | Description | Notes
 **status_code** | [**SpanStatusCode**](SpanStatusCode.md) | Status code of the span. When absent, the server treats the value as &#x60;UNSET&#x60; (equivalent to OK). | [optional] 
 **status_message** | **str** | Status message associated with the span | [optional] 
 **attributes** | **Dict[str, object]** | Key-value pairs of span attributes | [optional] 
-**annotations** | [**List[Annotation]**](Annotation.md) | List of human annotations on this span | [optional] 
+**annotations** | [**List[Annotation]**](Annotation.md) | List of span-level human annotations on this span | [optional] 
+**trace_annotations** | [**List[Annotation]**](Annotation.md) | List of trace-level human annotations on this span | [optional] 
 **evaluations** | [**List[Evaluation]**](Evaluation.md) | List of evaluation results on this span | [optional] 
 **events** | [**List[SpanEvent]**](SpanEvent.md) | List of events that occurred during the span | [optional] 
 

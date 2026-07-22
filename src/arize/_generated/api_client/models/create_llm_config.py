@@ -18,12 +18,17 @@ import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
 from arize._generated.api_client.models.create_anthropic_config import CreateAnthropicConfig
+from arize._generated.api_client.models.create_aws_bedrock_config import CreateAwsBedrockConfig
+from arize._generated.api_client.models.create_custom_config import CreateCustomConfig
+from arize._generated.api_client.models.create_gemini_config import CreateGeminiConfig
+from arize._generated.api_client.models.create_nvidia_nim_config import CreateNvidiaNimConfig
 from arize._generated.api_client.models.create_open_ai_config import CreateOpenAiConfig
+from arize._generated.api_client.models.create_vertex_ai_config import CreateVertexAiConfig
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-CREATELLMCONFIG_ONE_OF_SCHEMAS = ["CreateAnthropicConfig", "CreateOpenAiConfig"]
+CREATELLMCONFIG_ONE_OF_SCHEMAS = ["CreateAnthropicConfig", "CreateAwsBedrockConfig", "CreateCustomConfig", "CreateGeminiConfig", "CreateNvidiaNimConfig", "CreateOpenAiConfig", "CreateVertexAiConfig"]
 
 class CreateLlmConfig(BaseModel):
     """
@@ -33,8 +38,18 @@ class CreateLlmConfig(BaseModel):
     oneof_schema_1_validator: Optional[CreateOpenAiConfig] = None
     # data type: CreateAnthropicConfig
     oneof_schema_2_validator: Optional[CreateAnthropicConfig] = None
-    actual_instance: Optional[Union[CreateAnthropicConfig, CreateOpenAiConfig]] = None
-    one_of_schemas: Set[str] = { "CreateAnthropicConfig", "CreateOpenAiConfig" }
+    # data type: CreateGeminiConfig
+    oneof_schema_3_validator: Optional[CreateGeminiConfig] = None
+    # data type: CreateAwsBedrockConfig
+    oneof_schema_4_validator: Optional[CreateAwsBedrockConfig] = None
+    # data type: CreateCustomConfig
+    oneof_schema_5_validator: Optional[CreateCustomConfig] = None
+    # data type: CreateVertexAiConfig
+    oneof_schema_6_validator: Optional[CreateVertexAiConfig] = None
+    # data type: CreateNvidiaNimConfig
+    oneof_schema_7_validator: Optional[CreateNvidiaNimConfig] = None
+    actual_instance: Optional[Union[CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCustomConfig, CreateGeminiConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreateVertexAiConfig]] = None
+    one_of_schemas: Set[str] = { "CreateAnthropicConfig", "CreateAwsBedrockConfig", "CreateCustomConfig", "CreateGeminiConfig", "CreateNvidiaNimConfig", "CreateOpenAiConfig", "CreateVertexAiConfig" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -70,12 +85,37 @@ class CreateLlmConfig(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `CreateAnthropicConfig`")
         else:
             match += 1
+        # validate data type: CreateGeminiConfig
+        if not isinstance(v, CreateGeminiConfig):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateGeminiConfig`")
+        else:
+            match += 1
+        # validate data type: CreateAwsBedrockConfig
+        if not isinstance(v, CreateAwsBedrockConfig):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateAwsBedrockConfig`")
+        else:
+            match += 1
+        # validate data type: CreateCustomConfig
+        if not isinstance(v, CreateCustomConfig):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateCustomConfig`")
+        else:
+            match += 1
+        # validate data type: CreateVertexAiConfig
+        if not isinstance(v, CreateVertexAiConfig):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateVertexAiConfig`")
+        else:
+            match += 1
+        # validate data type: CreateNvidiaNimConfig
+        if not isinstance(v, CreateNvidiaNimConfig):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateNvidiaNimConfig`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in CreateLlmConfig with oneOf schemas: CreateAnthropicConfig, CreateOpenAiConfig. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in CreateLlmConfig with oneOf schemas: CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCustomConfig, CreateGeminiConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreateVertexAiConfig. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in CreateLlmConfig with oneOf schemas: CreateAnthropicConfig, CreateOpenAiConfig. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in CreateLlmConfig with oneOf schemas: CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCustomConfig, CreateGeminiConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreateVertexAiConfig. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -102,13 +142,43 @@ class CreateLlmConfig(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into CreateGeminiConfig
+        try:
+            instance.actual_instance = CreateGeminiConfig.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # deserialize data into CreateAwsBedrockConfig
+        try:
+            instance.actual_instance = CreateAwsBedrockConfig.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # deserialize data into CreateCustomConfig
+        try:
+            instance.actual_instance = CreateCustomConfig.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # deserialize data into CreateVertexAiConfig
+        try:
+            instance.actual_instance = CreateVertexAiConfig.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # deserialize data into CreateNvidiaNimConfig
+        try:
+            instance.actual_instance = CreateNvidiaNimConfig.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into CreateLlmConfig with oneOf schemas: CreateAnthropicConfig, CreateOpenAiConfig. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into CreateLlmConfig with oneOf schemas: CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCustomConfig, CreateGeminiConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreateVertexAiConfig. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into CreateLlmConfig with oneOf schemas: CreateAnthropicConfig, CreateOpenAiConfig. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into CreateLlmConfig with oneOf schemas: CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCustomConfig, CreateGeminiConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreateVertexAiConfig. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -122,7 +192,7 @@ class CreateLlmConfig(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], CreateAnthropicConfig, CreateOpenAiConfig]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], CreateAnthropicConfig, CreateAwsBedrockConfig, CreateCustomConfig, CreateGeminiConfig, CreateNvidiaNimConfig, CreateOpenAiConfig, CreateVertexAiConfig]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

@@ -29,13 +29,13 @@ class LlmIntegration(BaseModel):
     """
     An LLM integration (type=LLM).
     """ # noqa: E501
-    id: StrictStr = Field(description="The integration ID (base64 global ID).")
+    id: StrictStr = Field(description="The unique identifier for the integration.")
     type: StrictStr = Field(description="Discriminator identifying an LLM integration.")
     name: StrictStr = Field(description="The integration name. Unique per (account, type).")
     scopings: List[IntegrationScoping] = Field(description="Visibility scoping rules. Account-wide when empty.")
     created_at: datetime = Field(description="When the integration was created.")
     updated_at: datetime = Field(description="When the integration was last updated.")
-    created_by_user_id: StrictStr = Field(description="Global ID of the user who created the integration.")
+    created_by_user_id: StrictStr = Field(description="Unique identifier of the user who created the integration.")
     config: LlmConfig
     __properties: ClassVar[List[str]] = ["id", "type", "name", "scopings", "created_at", "updated_at", "created_by_user_id", "config"]
 

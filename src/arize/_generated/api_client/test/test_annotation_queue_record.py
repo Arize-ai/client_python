@@ -49,6 +49,15 @@ class TestAnnotationQueueRecord(unittest.TestCase):
                         updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         annotator = null, )
                     ],
+                trace_annotations = [
+                    arize._generated.api_client.models.annotation.Annotation(
+                        name = '', 
+                        score = 1.337, 
+                        label = '', 
+                        text = '', 
+                        updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                        annotator = null, )
+                    ],
                 evaluations = [
                     arize._generated.api_client.models.evaluation.Evaluation(
                         name = '', 
@@ -71,6 +80,15 @@ class TestAnnotationQueueRecord(unittest.TestCase):
                 source_type = 'SPANS',
                 data = { },
                 annotations = [
+                    arize._generated.api_client.models.annotation.Annotation(
+                        name = '', 
+                        score = 1.337, 
+                        label = '', 
+                        text = '', 
+                        updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                        annotator = null, )
+                    ],
+                trace_annotations = [
                     arize._generated.api_client.models.annotation.Annotation(
                         name = '', 
                         score = 1.337, 

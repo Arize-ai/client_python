@@ -10,12 +10,7 @@
 ## Response Types
 
 ```{eval-rst}
-.. currentmodule:: arize.projects.types
-.. autoclass:: Project
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ListProjectsResponse
+.. automodule:: arize.projects.types
    :members:
    :member-order: bysource
 ```

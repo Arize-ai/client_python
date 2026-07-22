@@ -42,10 +42,11 @@ class Span(BaseModel):
     status_code: Optional[SpanStatusCode] = Field(default=None, description="Status code of the span. When absent, the server treats the value as `UNSET` (equivalent to OK).")
     status_message: Optional[StrictStr] = Field(default=None, description="Status message associated with the span")
     attributes: Optional[Dict[str, Any]] = Field(default=None, description="Key-value pairs of span attributes")
-    annotations: Optional[List[Annotation]] = Field(default=None, description="List of human annotations on this span")
+    annotations: Optional[List[Annotation]] = Field(default=None, description="List of span-level human annotations on this span")
+    trace_annotations: Optional[List[Annotation]] = Field(default=None, description="List of trace-level human annotations on this span")
     evaluations: Optional[List[Evaluation]] = Field(default=None, description="List of evaluation results on this span")
     events: Optional[List[SpanEvent]] = Field(default=None, description="List of events that occurred during the span")
-    __properties: ClassVar[List[str]] = ["name", "context", "kind", "parent_id", "start_time", "end_time", "status_code", "status_message", "attributes", "annotations", "evaluations", "events"]
+    __properties: ClassVar[List[str]] = ["name", "context", "kind", "parent_id", "start_time", "end_time", "status_code", "status_message", "attributes", "annotations", "trace_annotations", "evaluations", "events"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -96,6 +97,13 @@ class Span(BaseModel):
                 if _item_annotations:
                     _items.append(_item_annotations.to_dict())
             _dict['annotations'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in trace_annotations (list)
+        _items = []
+        if self.trace_annotations:
+            for _item_trace_annotations in self.trace_annotations:
+                if _item_trace_annotations:
+                    _items.append(_item_trace_annotations.to_dict())
+            _dict['trace_annotations'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in evaluations (list)
         _items = []
         if self.evaluations:
@@ -137,6 +145,7 @@ class Span(BaseModel):
             "status_message": obj.get("status_message"),
             "attributes": obj.get("attributes"),
             "annotations": [Annotation.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None,
+            "trace_annotations": [Annotation.from_dict(_item) for _item in obj["trace_annotations"]] if obj.get("trace_annotations") is not None else None,
             "evaluations": [Evaluation.from_dict(_item) for _item in obj["evaluations"]] if obj.get("evaluations") is not None else None,
             "events": [SpanEvent.from_dict(_item) for _item in obj["events"]] if obj.get("events") is not None else None
         })

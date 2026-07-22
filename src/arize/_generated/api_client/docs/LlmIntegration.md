@@ -6,13 +6,13 @@ An LLM integration (type=LLM).
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **str** | The integration ID (base64 global ID). | 
+**id** | **str** | The unique identifier for the integration. | 
 **type** | **str** | Discriminator identifying an LLM integration. | 
 **name** | **str** | The integration name. Unique per (account, type). | 
 **scopings** | [**List[IntegrationScoping]**](IntegrationScoping.md) | Visibility scoping rules. Account-wide when empty. | 
 **created_at** | **datetime** | When the integration was created. | 
 **updated_at** | **datetime** | When the integration was last updated. | 
-**created_by_user_id** | **str** | Global ID of the user who created the integration. | 
+**created_by_user_id** | **str** | Unique identifier of the user who created the integration. | 
 **config** | [**LlmConfig**](LlmConfig.md) |  | 
 
 ## Example

@@ -11,21 +11,22 @@ Method | HTTP request | Description
 
 
 # **create_api_key**
-> ApiKey create_api_key(create_api_key_request)
+> CreateApiKeyResponse create_api_key(create_api_key_request)
 
 Create an API key
 
 Create a new API key for the authenticated user.
 
-- `key_type` defaults to `USER` when omitted.
-- For `SERVICE` keys, `space_id` is required. The service key is
-  scoped to the given space, and a bot user will be created with the specified roles.
-- For `USER` keys, `space_id` and `roles` must not be set — passing either returns `400`.
-  The key inherits the authenticated user's own permissions.
+- Choose `key_type: "USER"` for a personal key that authenticates as you, or
+  `key_type: "SERVICE"` for an automated service account key. The field is required.
+- For service keys, supply at least one space via the `organizations` array. The service
+  account is granted membership in each specified space. Multiple organizations and multiple
+  spaces per organization are supported.
+- For `USER` keys, the key inherits the authenticated user's own permissions.
 - You may only assign roles at or below your own privilege level. Attempting to
-  assign a role higher than your own returns `400 Bad Request`.
-- All roles default to the minimum privilege when omitted: `space_role` → `MEMBER`,
-  `org_role` → `READ_ONLY`, `account_role` → `MEMBER`.
+  assign a role higher than your own returns `422 Unprocessable Entity`.
+- All roles default to minimum privilege when omitted: space roles default to `MEMBER`,
+  organization roles default to `READ_ONLY`, and `account_role` defaults to `MEMBER`.
 
 **Authorization:**
 - **User keys:** Requires the `developer` user permission flag. Returns `403` when this flag is absent.
@@ -45,8 +46,8 @@ subsequent reads.
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.api_key import ApiKey
 from arize._generated.api_client.models.create_api_key_request import CreateApiKeyRequest
+from arize._generated.api_client.models.create_api_key_response import CreateApiKeyResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -70,7 +71,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.APIKeysApi(api_client)
-    create_api_key_request = {"name":"CI pipeline key"} # CreateApiKeyRequest | Body containing API key creation parameters
+    create_api_key_request = {"key_type":"USER","name":"My dev key"} # CreateApiKeyRequest | Body containing API key creation parameters
 
     try:
         # Create an API key
@@ -92,7 +93,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ApiKey**](ApiKey.md)
+[**CreateApiKeyResponse**](CreateApiKeyResponse.md)
 
 ### Authorization
 
@@ -107,7 +108,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | API key successfully created. The raw key value is only returned once — store it securely. |  -  |
+**201** | API key successfully created or refreshed. The raw key is only returned once. |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
@@ -234,7 +235,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **refresh_api_key**
-> ApiKey refresh_api_key(api_key_id, refresh_api_key_request=refresh_api_key_request)
+> RefreshApiKeyResponse refresh_api_key(api_key_id, refresh_api_key_request=refresh_api_key_request)
 
 Refresh an API key
 
@@ -269,8 +270,8 @@ valid for that many seconds after the refresh. If not supplied, the old key is r
 
 ```python
 import arize._generated.api_client
-from arize._generated.api_client.models.api_key import ApiKey
 from arize._generated.api_client.models.refresh_api_key_request import RefreshApiKeyRequest
+from arize._generated.api_client.models.refresh_api_key_response import RefreshApiKeyResponse
 from arize._generated.api_client.rest import ApiException
 from pprint import pprint
 
@@ -318,7 +319,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ApiKey**](ApiKey.md)
+[**RefreshApiKeyResponse**](RefreshApiKeyResponse.md)
 
 ### Authorization
 
@@ -333,7 +334,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**200** | API key successfully refreshed. The raw value of the new key is only returned once — store it securely. |  -  |
+**200** | Refreshed API key. The raw replacement key is only returned once. |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
@@ -351,8 +352,12 @@ Revoke an API key
 Revoke an API key by its ID. The key will immediately stop working for authentication. Revoking an
 already-revoked key is a no-op and still returns `204`.
 
-**Authorization:** 
-Requires the `developer` user permission flag and account admin role. Returns `403` when conditions are not met.
+**Authorization:**
+Requires the `developer` user permission flag **or** account admin role (either condition is sufficient).
+Returns `403` when neither condition is met.
+
+For service keys, only the key's creator or an account admin may revoke the key.
+A developer who did not create the key receives `404` (prevents key-ID enumeration).
 
   <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 

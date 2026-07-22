@@ -28,7 +28,7 @@ class PredefinedRoleAssignment(BaseModel):
     """
     A predefined space role assignment.
     """ # noqa: E501
-    type: SpaceRoleAssignmentType = Field(description="Discriminator identifying this as a predefined role assignment. Always `PREDEFINED` for this variant.")
+    type: SpaceRoleAssignmentType = Field(description="Discriminator identifying this as a predefined role assignment. Must be `PREDEFINED`.")
     name: UserSpaceRole
     __properties: ClassVar[List[str]] = ["type", "name"]
 

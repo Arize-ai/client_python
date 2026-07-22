@@ -27,9 +27,9 @@ class CreateSpaceRequest(BaseModel):
     """
     CreateSpaceRequest
     """ # noqa: E501
-    name: Annotated[str, Field(strict=True, max_length=255)] = Field(description="Name of the space (must be unique within the organization)")
-    organization_id: StrictStr = Field(description="ID of the organization to create the space in")
-    description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="A brief description of the space's purpose. Defaults to an empty string if omitted.")
+    name: Annotated[str, Field(strict=True, max_length=255)] = Field(description="Name of the space")
+    organization_id: StrictStr = Field(description="The unique identifier of the organization to create the space in")
+    description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="A brief description of the space's purpose")
     __properties: ClassVar[List[str]] = ["name", "organization_id", "description"]
 
     model_config = ConfigDict(

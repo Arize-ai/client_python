@@ -36,19 +36,7 @@ class TestListIntegrationsResponse(unittest.TestCase):
         if include_optional:
             return ListIntegrationsResponse(
                 integrations = [
-                    arize._generated.api_client.models.llm_integration.LlmIntegration(
-                        id = '', 
-                        type = 'LLM', 
-                        name = '', 
-                        scopings = [
-                            arize._generated.api_client.models.integration_scoping.IntegrationScoping(
-                                organization_id = '', 
-                                space_id = '', )
-                            ], 
-                        created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
-                        updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
-                        created_by_user_id = '', 
-                        config = arize._generated.api_client.models.llm_config.LlmConfig(), )
+                    arize._generated.api_client.models.integration.Integration()
                     ],
                 pagination = arize._generated.api_client.models.pagination_metadata.PaginationMetadata(
                     next_cursor = '', 
@@ -57,19 +45,7 @@ class TestListIntegrationsResponse(unittest.TestCase):
         else:
             return ListIntegrationsResponse(
                 integrations = [
-                    arize._generated.api_client.models.llm_integration.LlmIntegration(
-                        id = '', 
-                        type = 'LLM', 
-                        name = '', 
-                        scopings = [
-                            arize._generated.api_client.models.integration_scoping.IntegrationScoping(
-                                organization_id = '', 
-                                space_id = '', )
-                            ], 
-                        created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
-                        updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
-                        created_by_user_id = '', 
-                        config = arize._generated.api_client.models.llm_config.LlmConfig(), )
+                    arize._generated.api_client.models.integration.Integration()
                     ],
                 pagination = arize._generated.api_client.models.pagination_metadata.PaginationMetadata(
                     next_cursor = '', 

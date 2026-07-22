@@ -19,18 +19,27 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from arize._generated.api_client.models.create_aws_bedrock_auth import CreateAwsBedrockAuth
 from arize._generated.api_client.models.llm_integration_provider import LlmIntegrationProvider
 from typing import Optional, Set
 from typing_extensions import Self
 
 class UpdateLlmConfig(BaseModel):
     """
-    Partial LLM config for PATCH. `provider` is immutable; if present it must match the stored value.
+    Partial LLM config for PATCH. `provider` is immutable; if present it must match the stored value. Field applicability is provider-specific and enforced by the handler with 422: `api_key` and `is_function_calling_enabled` do not apply to `AWS_BEDROCK` or `VERTEX_AI`; `auth` applies to `AWS_BEDROCK` only; `base_url` and `headers` apply to `CUSTOM` and `NVIDIA_NIM` only; `is_default_models_enabled` and `model_names` apply to `AWS_BEDROCK`, `CUSTOM`, and `NVIDIA_NIM` only; `project_id`, `location`, and `project_access_label` apply to `VERTEX_AI` only.
     """ # noqa: E501
     provider: Optional[LlmIntegrationProvider] = None
-    api_key: Optional[StrictStr] = Field(default=None, description="Rotate the API key. Pass null to clear it. Omit to keep unchanged.")
-    is_function_calling_enabled: Optional[StrictBool] = None
-    __properties: ClassVar[List[str]] = ["provider", "api_key", "is_function_calling_enabled"]
+    api_key: Optional[StrictStr] = Field(default=None, description="Rotate the API key. Pass null to clear it. Omit to keep unchanged. Not valid for `AWS_BEDROCK` (bearer tokens are rotated via `auth`).")
+    is_function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Enable or disable function/tool calling. Omit to keep unchanged. Not valid for `AWS_BEDROCK`.")
+    auth: Optional[CreateAwsBedrockAuth] = None
+    base_url: Optional[StrictStr] = Field(default=None, description="(`CUSTOM` and `NVIDIA_NIM` only) New endpoint URL. For `NVIDIA_NIM` the field is optional on the resource, so null clears it (falling back to the provider default endpoint). For `CUSTOM` it is required on the resource — null is rejected with 422. Omit to keep unchanged.")
+    headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="(`CUSTOM` and `NVIDIA_NIM` only) Replaces the configured custom request headers: the provided map becomes the full header set. Pass null to clear all headers. Omit to keep unchanged. Write-only; names are exposed as `header_names` on read.")
+    is_default_models_enabled: Optional[StrictBool] = Field(default=None, description="(`AWS_BEDROCK`, `CUSTOM`, and `NVIDIA_NIM` only) Enable or disable Arize's default model catalog. The effective config must keep at least one model source or the request is rejected with 422. Omit to keep unchanged.")
+    model_names: Optional[List[StrictStr]] = Field(default=None, description="(`AWS_BEDROCK`, `CUSTOM`, and `NVIDIA_NIM` only) Replaces the custom model list. The effective config must keep at least one model source or the request is rejected with 422. Omit to keep unchanged.")
+    project_id: Optional[StrictStr] = Field(default=None, description="(`VERTEX_AI` only) New GCP project ID. Required on the resource, so it may be changed but never cleared; omitted fields keep their stored values (per-scalar deep-merge).")
+    location: Optional[StrictStr] = Field(default=None, description="(`VERTEX_AI` only) New GCP region. Required on the resource, so it may be changed but never cleared; omitted fields keep their stored values (per-scalar deep-merge).")
+    project_access_label: Optional[StrictStr] = Field(default=None, description="(`VERTEX_AI` only) New project-access label. Required on the resource, so it may be changed but never cleared; omitted fields keep their stored values (per-scalar deep-merge).")
+    __properties: ClassVar[List[str]] = ["provider", "api_key", "is_function_calling_enabled", "auth", "base_url", "headers", "is_default_models_enabled", "model_names", "project_id", "location", "project_access_label"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -71,10 +80,23 @@ class UpdateLlmConfig(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of auth
+        if self.auth:
+            _dict['auth'] = self.auth.to_dict()
         # set to None if api_key (nullable) is None
         # and model_fields_set contains the field
         if self.api_key is None and "api_key" in self.model_fields_set:
             _dict['api_key'] = None
+
+        # set to None if base_url (nullable) is None
+        # and model_fields_set contains the field
+        if self.base_url is None and "base_url" in self.model_fields_set:
+            _dict['base_url'] = None
+
+        # set to None if headers (nullable) is None
+        # and model_fields_set contains the field
+        if self.headers is None and "headers" in self.model_fields_set:
+            _dict['headers'] = None
 
         return _dict
 
@@ -95,7 +117,15 @@ class UpdateLlmConfig(BaseModel):
         _obj = cls.model_validate({
             "provider": obj.get("provider"),
             "api_key": obj.get("api_key"),
-            "is_function_calling_enabled": obj.get("is_function_calling_enabled")
+            "is_function_calling_enabled": obj.get("is_function_calling_enabled"),
+            "auth": CreateAwsBedrockAuth.from_dict(obj["auth"]) if obj.get("auth") is not None else None,
+            "base_url": obj.get("base_url"),
+            "headers": obj.get("headers"),
+            "is_default_models_enabled": obj.get("is_default_models_enabled"),
+            "model_names": obj.get("model_names"),
+            "project_id": obj.get("project_id"),
+            "location": obj.get("location"),
+            "project_access_label": obj.get("project_access_label")
         })
         return _obj
 

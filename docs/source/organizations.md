@@ -10,32 +10,7 @@
 ## Response Types
 
 ```{eval-rst}
-.. currentmodule:: arize.organizations.types
-.. autoclass:: CustomOrgRole
-   :members:
-   :member-order: bysource
-
-.. autoclass:: Organization
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ListOrganizationsResponse
-   :members:
-   :member-order: bysource
-
-.. autoclass:: OrganizationMembership
-   :members:
-   :member-order: bysource
-
-.. autoclass:: AddOrganizationUserRequest
-   :members:
-   :member-order: bysource
-
-.. autoclass:: OrganizationRole
-   :members:
-   :member-order: bysource
-
-.. autoclass:: PredefinedOrgRole
+.. automodule:: arize.organizations.types
    :members:
    :member-order: bysource
 ```

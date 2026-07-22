@@ -10,36 +10,7 @@
 ## Response Types
 
 ```{eval-rst}
-.. currentmodule:: arize.api_keys.types
-.. autoclass:: ApiKeyAccountRole
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ApiKey
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ListApiKeysResponse
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ApiKeyOrganizationRole
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ApiKeyRoles
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ApiKeySpaceRole
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ApiKeyStatus
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ApiKeyType
+.. automodule:: arize.api_keys.types
    :members:
    :member-order: bysource
 ```

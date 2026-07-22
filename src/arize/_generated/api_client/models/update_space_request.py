@@ -27,8 +27,8 @@ class UpdateSpaceRequest(BaseModel):
     """
     UpdateSpaceRequest
     """ # noqa: E501
-    name: Optional[Annotated[str, Field(strict=True, max_length=255)]] = Field(default=None, description="Updated name for the space (must be unique within the organization)")
-    description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="Updated description for the space. Set to an empty string to clear it.")
+    name: Optional[Annotated[str, Field(strict=True, max_length=255)]] = Field(default=None, description="Updated name of the space")
+    description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="Updated description of the space")
     __properties: ClassVar[List[str]] = ["name", "description"]
 
     model_config = ConfigDict(

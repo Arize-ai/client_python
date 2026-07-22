@@ -13,101 +13,128 @@
 
 
 from __future__ import annotations
-import pprint
-import re  # noqa: F401
 import json
+import pprint
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
+from typing import Any, List, Optional
+from arize._generated.api_client.models.service_api_key_created import ServiceApiKeyCreated
+from arize._generated.api_client.models.user_api_key_created import UserApiKeyCreated
+from pydantic import StrictStr, Field
+from typing import Union, List, Set, Optional, Dict
+from typing_extensions import Literal, Self
 
-from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from arize._generated.api_client.models.api_key_status import ApiKeyStatus
-from arize._generated.api_client.models.api_key_type import ApiKeyType
-from typing import Optional, Set
-from typing_extensions import Self
+APIKEYCREATED_ONE_OF_SCHEMAS = ["ServiceApiKeyCreated", "UserApiKeyCreated"]
 
-class ApiKeyRedacted(BaseModel):
+class ApiKeyCreated(BaseModel):
     """
-    ApiKeyRedacted
-    """ # noqa: E501
-    id: StrictStr = Field(description="Unique identifier for the API key.")
-    name: StrictStr = Field(description="User-defined name for the API key.")
-    description: Optional[StrictStr] = Field(default=None, description="Optional user-defined description for the API key.")
-    key_type: ApiKeyType
-    status: ApiKeyStatus
-    redacted_key: StrictStr = Field(description="Redacted version of the key suitable for display (e.g., \"ak-abc...xyz\").")
-    created_at: datetime = Field(description="Timestamp when the key was created.")
-    expires_at: Optional[datetime] = Field(default=None, description="Optional timestamp when the key will expire.")
-    created_by_user_id: StrictStr = Field(description="ID of the user who created the key.")
-    last_used_at: Optional[datetime] = Field(default=None, description="Approximate timestamp when the key was last used for authentication. This value is periodically updated and may not reflect the most recent usage.")
-    __properties: ClassVar[List[str]] = ["id", "name", "description", "key_type", "status", "redacted_key", "created_at", "expires_at", "created_by_user_id", "last_used_at"]
+    Response for a newly created or refreshed API key. The `key_type` field discriminates the variant: - `user` — standard user key; no bot user. - `service` — service key backed by a bot user; includes a `bot_user` with the bot user's resolved role assignments. 
+    """
+    # data type: UserApiKeyCreated
+    oneof_schema_1_validator: Optional[UserApiKeyCreated] = None
+    # data type: ServiceApiKeyCreated
+    oneof_schema_2_validator: Optional[ServiceApiKeyCreated] = None
+    actual_instance: Optional[Union[ServiceApiKeyCreated, UserApiKeyCreated]] = None
+    one_of_schemas: Set[str] = { "ServiceApiKeyCreated", "UserApiKeyCreated" }
 
     model_config = ConfigDict(
-        populate_by_name=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
 
 
-    def to_str(self) -> str:
-        """Returns the string representation of the model using alias"""
-        return pprint.pformat(self.model_dump(by_alias=True))
+    discriminator_value_class_map: Dict[str, str] = {
+    }
+
+    def __init__(self, *args, **kwargs) -> None:
+        if args:
+            if len(args) > 1:
+                raise ValueError("If a position argument is used, only 1 is allowed to set `actual_instance`")
+            if kwargs:
+                raise ValueError("If a position argument is used, keyword arguments cannot be used.")
+            super().__init__(actual_instance=args[0])
+        else:
+            super().__init__(**kwargs)
+
+    @field_validator('actual_instance')
+    def actual_instance_must_validate_oneof(cls, v):
+        instance = ApiKeyCreated.model_construct()
+        error_messages = []
+        match = 0
+        # validate data type: UserApiKeyCreated
+        if not isinstance(v, UserApiKeyCreated):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `UserApiKeyCreated`")
+        else:
+            match += 1
+        # validate data type: ServiceApiKeyCreated
+        if not isinstance(v, ServiceApiKeyCreated):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `ServiceApiKeyCreated`")
+        else:
+            match += 1
+        if match > 1:
+            # more than 1 match
+            raise ValueError("Multiple matches found when setting `actual_instance` in ApiKeyCreated with oneOf schemas: ServiceApiKeyCreated, UserApiKeyCreated. Details: " + ", ".join(error_messages))
+        elif match == 0:
+            # no match
+            raise ValueError("No match found when setting `actual_instance` in ApiKeyCreated with oneOf schemas: ServiceApiKeyCreated, UserApiKeyCreated. Details: " + ", ".join(error_messages))
+        else:
+            return v
+
+    @classmethod
+    def from_dict(cls, obj: Union[str, Dict[str, Any]]) -> Self:
+        return cls.from_json(json.dumps(obj))
+
+    @classmethod
+    def from_json(cls, json_str: str) -> Self:
+        """Returns the object represented by the json string"""
+        instance = cls.model_construct()
+        error_messages = []
+        match = 0
+
+        # deserialize data into UserApiKeyCreated
+        try:
+            instance.actual_instance = UserApiKeyCreated.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # deserialize data into ServiceApiKeyCreated
+        try:
+            instance.actual_instance = ServiceApiKeyCreated.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+
+        if match > 1:
+            # more than 1 match
+            raise ValueError("Multiple matches found when deserializing the JSON string into ApiKeyCreated with oneOf schemas: ServiceApiKeyCreated, UserApiKeyCreated. Details: " + ", ".join(error_messages))
+        elif match == 0:
+            # no match
+            raise ValueError("No match found when deserializing the JSON string into ApiKeyCreated with oneOf schemas: ServiceApiKeyCreated, UserApiKeyCreated. Details: " + ", ".join(error_messages))
+        else:
+            return instance
 
     def to_json(self) -> str:
-        """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        """Returns the JSON representation of the actual instance"""
+        if self.actual_instance is None:
+            return "null"
 
-    @classmethod
-    def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ApiKeyRedacted from a JSON string"""
-        return cls.from_dict(json.loads(json_str))
+        if hasattr(self.actual_instance, "to_json") and callable(self.actual_instance.to_json):
+            return self.actual_instance.to_json()
+        else:
+            return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Return the dictionary representation of the model using alias.
-
-        This has the following differences from calling pydantic's
-        `self.model_dump(by_alias=True)`:
-
-        * `None` is only added to the output dict for nullable fields that
-          were set at model initialization. Other fields with value `None`
-          are ignored.
-        """
-        excluded_fields: Set[str] = set([
-        ])
-
-        _dict = self.model_dump(
-            by_alias=True,
-            exclude=excluded_fields,
-            exclude_none=True,
-        )
-        return _dict
-
-    @classmethod
-    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ApiKeyRedacted from a dict"""
-        if obj is None:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], ServiceApiKeyCreated, UserApiKeyCreated]]:
+        """Returns the dict representation of the actual instance"""
+        if self.actual_instance is None:
             return None
 
-        if not isinstance(obj, dict):
-            return cls.model_validate(obj)
+        if hasattr(self.actual_instance, "to_dict") and callable(self.actual_instance.to_dict):
+            return self.actual_instance.to_dict()
+        else:
+            # primitive type
+            return self.actual_instance
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in ApiKeyRedacted) in the input: " + _key)
-
-        _obj = cls.model_validate({
-            "id": obj.get("id"),
-            "name": obj.get("name"),
-            "description": obj.get("description"),
-            "key_type": obj.get("key_type"),
-            "status": obj.get("status"),
-            "redacted_key": obj.get("redacted_key"),
-            "created_at": obj.get("created_at"),
-            "expires_at": obj.get("expires_at"),
-            "created_by_user_id": obj.get("created_by_user_id"),
-            "last_used_at": obj.get("last_used_at")
-        })
-        return _obj
+    def to_str(self) -> str:
+        """Returns the string representation of the actual instance"""
+        return pprint.pformat(self.model_dump())
 
 

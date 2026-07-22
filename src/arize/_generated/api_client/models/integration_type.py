@@ -20,13 +20,14 @@ from typing_extensions import Self
 
 class IntegrationType(str, Enum):
     """
-    The integration category. Selects the shape of `config`. Currently only `LLM` is implemented; additional types (agent, alerting, webhook) are added non-breakingly.
+    The integration category. Selects the shape of `config`. Additive — new types (alerting, webhook, ...) are added non-breakingly.  - `LLM`   — a model-provider integration (e.g. OpenAI). - `AGENT` — connects your own agent, exposed at an HTTP endpoint. 
     """
 
     """
     allowed enum values
     """
     LLM = 'LLM'
+    AGENT = 'AGENT'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

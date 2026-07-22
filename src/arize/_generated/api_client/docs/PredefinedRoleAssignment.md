@@ -6,7 +6,7 @@ A predefined space role assignment.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | [**SpaceRoleAssignmentType**](SpaceRoleAssignmentType.md) | Discriminator identifying this as a predefined role assignment. Always &#x60;PREDEFINED&#x60; for this variant. | 
+**type** | [**SpaceRoleAssignmentType**](SpaceRoleAssignmentType.md) | Discriminator identifying this as a predefined role assignment. Must be &#x60;PREDEFINED&#x60;. | 
 **name** | [**UserSpaceRole**](UserSpaceRole.md) |  | 
 
 ## Example

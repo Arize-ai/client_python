@@ -20,7 +20,7 @@ from typing_extensions import Self
 
 class LlmIntegrationProvider(str, Enum):
     """
-    The LLM vendor for an `LLM` integration. Selects the per-provider `config` member. `OPEN_AI` and `ANTHROPIC` are implemented; additional providers are added non-breakingly.
+    The LLM vendor for an `LLM` integration. Selects the per-provider `config` member. `OPEN_AI`, `ANTHROPIC`, `GEMINI`, `AWS_BEDROCK`, `CUSTOM`, `VERTEX_AI`, and `NVIDIA_NIM` are implemented; additional providers are added non-breakingly.
     """
 
     """
@@ -28,6 +28,11 @@ class LlmIntegrationProvider(str, Enum):
     """
     OPEN_AI = 'OPEN_AI'
     ANTHROPIC = 'ANTHROPIC'
+    GEMINI = 'GEMINI'
+    AWS_BEDROCK = 'AWS_BEDROCK'
+    CUSTOM = 'CUSTOM'
+    VERTEX_AI = 'VERTEX_AI'
+    NVIDIA_NIM = 'NVIDIA_NIM'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

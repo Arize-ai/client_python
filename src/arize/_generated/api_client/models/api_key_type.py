@@ -20,7 +20,7 @@ from typing_extensions import Self
 
 class ApiKeyType(str, Enum):
     """
-    Type of the API key. - USER - Key associated with a specific user. - SERVICE - Key associated with a bot user for service authentication. 
+    Type of the API key. - USER - Personal key that authenticates as the creating user. - SERVICE - Key that authenticates as a service account with explicitly granted access. 
     """
 
     """

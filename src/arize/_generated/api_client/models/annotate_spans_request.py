@@ -22,6 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.annotate_record_input import AnnotateRecordInput
+from arize._generated.api_client.models.record_granularity import RecordGranularity
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -32,8 +33,9 @@ class AnnotateSpansRequest(BaseModel):
     project_id: StrictStr = Field(description="The project (model) ID whose spans are being annotated.")
     start_time: Optional[datetime] = Field(default=None, description="Start of the time range for span lookup. Optional; defaults to 31 days ago.")
     end_time: Optional[datetime] = Field(default=None, description="End of the time range for span lookup. Optional; defaults to now.")
+    granularity: Optional[RecordGranularity] = Field(default=None, description="Whether the record is a span or a trace, which affects whether annotations are written as span annotations or trace annotations. Attempts to write trace annotations on spans will be rejected. Optional; defaults to 'SPAN'.")
     annotations: Annotated[List[AnnotateRecordInput], Field(min_length=1, max_length=1000)] = Field(description="Batch of span annotations to write. Up to 1000 spans per request.")
-    __properties: ClassVar[List[str]] = ["project_id", "start_time", "end_time", "annotations"]
+    __properties: ClassVar[List[str]] = ["project_id", "start_time", "end_time", "granularity", "annotations"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -101,6 +103,7 @@ class AnnotateSpansRequest(BaseModel):
             "project_id": obj.get("project_id"),
             "start_time": obj.get("start_time"),
             "end_time": obj.get("end_time"),
+            "granularity": obj.get("granularity"),
             "annotations": [AnnotateRecordInput.from_dict(_item) for _item in obj["annotations"]] if obj.get("annotations") is not None else None
         })
         return _obj

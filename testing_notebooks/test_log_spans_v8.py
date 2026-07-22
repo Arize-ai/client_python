@@ -8,9 +8,7 @@ from arize import ArizeClient
 
 DATAFILE = "./spans_data.parquet"
 SPACE_ID = "U3BhY2U6NTA3MDpsTlIr"
-API_KEY = (
-    "ak-ed52c99c-19ac-4f89-b43b-8c650d6771c9-KdAJlHVKJxS-ZTbc8xlAPsEo-7ZFCPIC"
-)
+API_KEY = os.environ["ARIZE_API_KEY"]
 PROJECT_NAME = "test-sdkv8-09-30-25-b"
 FORCE_HTTP = False
 SPAN_ID = "5b21f6d17c86fa13"  # playground

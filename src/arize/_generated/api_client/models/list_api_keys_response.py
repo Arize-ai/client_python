@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
-from arize._generated.api_client.models.api_key_redacted import ApiKeyRedacted
+from arize._generated.api_client.models.api_key import ApiKey
 from arize._generated.api_client.models.pagination_metadata import PaginationMetadata
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,7 +28,7 @@ class ListApiKeysResponse(BaseModel):
     """
     ListApiKeysResponse
     """ # noqa: E501
-    api_keys: List[ApiKeyRedacted] = Field(description="API keys matching the request filters.")
+    api_keys: List[ApiKey] = Field(description="API keys matching the request filters.")
     pagination: PaginationMetadata
     __properties: ClassVar[List[str]] = ["api_keys", "pagination"]
 
@@ -98,7 +98,7 @@ class ListApiKeysResponse(BaseModel):
                 raise ValueError("Error due to additional fields (not defined in ListApiKeysResponse) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "api_keys": [ApiKeyRedacted.from_dict(_item) for _item in obj["api_keys"]] if obj.get("api_keys") is not None else None,
+            "api_keys": [ApiKey.from_dict(_item) for _item in obj["api_keys"]] if obj.get("api_keys") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
         })
         return _obj

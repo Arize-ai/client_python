@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**api_keys** | [**List[ApiKeyRedacted]**](ApiKeyRedacted.md) | API keys matching the request filters. | 
+**api_keys** | [**List[ApiKey]**](ApiKey.md) | API keys matching the request filters. | 
 **pagination** | [**PaginationMetadata**](PaginationMetadata.md) |  | 
 
 ## Example

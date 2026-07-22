@@ -107,6 +107,7 @@
     - [List Annotation Configs](#list-annotation-configs)
     - [Create an Annotation Config](#create-an-annotation-config)
     - [Get an Annotation Config](#get-an-annotation-config)
+    - [Update an Annotation Config](#update-an-annotation-config)
     - [Delete an Annotation Config](#delete-an-annotation-config)
   - [Operations on Resource Restrictions](#operations-on-resource-restrictions)
     - [List Resource Restrictions](#list-resource-restrictions)
@@ -150,12 +151,12 @@ We log over 1 trillion inferences and spans, 10 million evaluation runs, and 2 m
 
 # Key Features
 
-- [**_Tracing_**](https://docs.arize.com/arize/observe/tracing) - Trace your LLM application's runtime using OpenTelemetry-based instrumentation.
-- [**_Evaluation_**](https://docs.arize.com/arize/evaluate/online-evals) - Leverage LLMs to benchmark your application's performance using response and retrieval evals.
-- [**_Datasets_**](https://docs.arize.com/arize/develop/datasets) - Create versioned datasets of examples for experimentation, evaluation, and fine-tuning.
-- [**_Experiments_**](https://docs.arize.com/arize/develop/datasets-and-experiments) - Track and evaluate changes to prompts, LLMs, and retrieval.
-- [**_Playground_**](https://docs.arize.com/arize/develop/prompt-playground)- Optimize prompts, compare models, adjust parameters, and replay traced LLM calls.
-- [**_Prompt Management_**](https://docs.arize.com/arize/develop/prompt-hub)- Manage and test prompt changes systematically using version control, tagging, and experimentation.
+- [**_Tracing_**](https://arize.com/docs/ax/instrument/what-are-traces) - Trace your LLM application's runtime using OpenTelemetry-based instrumentation.
+- [**_Evaluation_**](https://arize.com/docs/ax/get-started/get-started-evaluations) - Leverage LLMs to benchmark your application's performance using response and retrieval evals.
+- [**_Datasets_**](https://arize.com/docs/ax/improve/build-a-dataset) - Create versioned datasets of examples for experimentation, evaluation, and fine-tuning.
+- [**_Experiments_**](https://arize.com/docs/ax/improve/set-up-an-experiment) - Track and evaluate changes to prompts, LLMs, and retrieval.
+- [**_Playground_**](https://arize.com/docs/ax/concepts/prompts/prompt-playground)- Optimize prompts, compare models, adjust parameters, and replay traced LLM calls.
+- [**_Prompt Management_**](https://arize.com/docs/ax/concepts/prompts/prompt-hub)- Manage and test prompt changes systematically using version control, tagging, and experimentation.
 
 # Installation
 
@@ -185,7 +186,7 @@ pip install arize[otel,embeddings,mimic]
 
 ## Migrating from Version 7
 
-If you're upgrading from version 7, please refer to the [Migration Guide](https://arize.com/docs/api-clients/python/version-8/migration) for detailed migration steps and breaking changes.
+If you're upgrading from version 7, please refer to the [Migration Guide](https://arize.com/docs/api-clients/python/version-8/migration/index) for detailed migration steps and breaking changes.
 
 # Usage
 
@@ -656,7 +657,7 @@ experiment, experiment_df = client.experiments.run(
 )
 ```
 
-`metadata` accepts an [`ExperimentMetadata`](https://arize.com/docs/api-clients/python/version-8/experiments) typed dict (for IDE autocomplete on known fields like `user_id`, `user_name`, `user_email`) or any plain `dict[str, str]` for custom fields. Dataset fields (`dataset_id`, `dataset_name`, `dataset_version_id`) are always populated automatically. Both can be combined via dict unpacking:
+`metadata` accepts an [`ExperimentMetadata`](https://arize.com/docs/api-clients/python/version-8/client-resources/experiments) typed dict (for IDE autocomplete on known fields like `user_id`, `user_name`, `user_email`) or any plain `dict[str, str]` for custom fields. Dataset fields (`dataset_id`, `dataset_name`, `dataset_version_id`) are always populated automatically. Both can be combined via dict unpacking:
 
 ```python
 metadata={
@@ -1908,7 +1909,7 @@ os.environ["ARIZE_REQUEST_VERIFY"] = "false"
 Join our community to connect with thousands of AI builders.
 
 - 🌍 Join our [Slack community](https://arize-ai.slack.com/join/shared_invite/zt-11t1vbu4x-xkBIHmOREQnYnYDH1GDfCg?__hstc=259489365.a667dfafcfa0169c8aee4178d115dc81.1733501603539.1733501603539.1733501603539.1&__hssc=259489365.1.1733501603539&__hsfp=3822854628&submissionGuid=381a0676-8f38-437b-96f2-fc10875658df#/shared-invite/email).
-- 📚 Read our [documentation](https://docs.arize.com/arize).
+- 📚 Read our [documentation](https://arize.com/docs/ax).
 - 💡 Ask questions and provide feedback in the _#arize-support_ channel.
 - 𝕏 Follow us on [𝕏](https://twitter.com/ArizeAI).
 - 🧑‍🏫 Deep dive into everything [Agents](http://arize.com/ai-agents/) and [LLM Evaluations](https://arize.com/llm-evaluation) on Arize's Learning Hubs.

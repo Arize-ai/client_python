@@ -310,6 +310,7 @@ lint = { cmd = "ruff format . && ruff check --fix .", cwd = ".", help = "Run ruf
 type-check = {cmd = "mypy --no-incremental --show-traceback --config-file pyproject.toml .", cwd = ".", help = "Run mypy for type checking."}
 test = {cmd = "pytest --cov --cov-report=term-missing -v tests/unit/", cwd = ".", help = "Run the test suite with coverage."}
 test-integration = {cmd = "pytest -m integration -v tests/integration/", cwd = ".", help = "Run integration tests (requires ARIZE_API_KEY and ARIZE_TEST_SPACE_NAME)."}
+docs = {cmd = "uv run --extra docs sphinx-build -b html docs/source docs/build/html", cwd = ".", help = "Build Sphinx HTML docs into docs/build/html."}
 # Exclusive for CI
 ci-format = { cmd = "ruff format --check .", cwd = ".", help = "Run ruff to check formatting of the package during CI." }
 ci-lint = { cmd = "ruff check .", cwd = ".", help = "Run ruff to check linting rules of the package during CI." }

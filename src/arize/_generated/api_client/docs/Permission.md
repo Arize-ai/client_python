@@ -102,6 +102,20 @@ A permission identifier following the pattern {RESOURCE}_{ACTION}. Auto-generate
 
 * `FILE_IMPORT_UPDATE` (value: `'FILE_IMPORT_UPDATE'`)
 
+* `LLM_INTEGRATION_CREATE` (value: `'LLM_INTEGRATION_CREATE'`)
+
+* `LLM_INTEGRATION_DELETE` (value: `'LLM_INTEGRATION_DELETE'`)
+
+* `LLM_INTEGRATION_UPDATE` (value: `'LLM_INTEGRATION_UPDATE'`)
+
+* `MANAGED_AGENT_CREATE` (value: `'MANAGED_AGENT_CREATE'`)
+
+* `MANAGED_AGENT_DELETE` (value: `'MANAGED_AGENT_DELETE'`)
+
+* `MANAGED_AGENT_READ` (value: `'MANAGED_AGENT_READ'`)
+
+* `MANAGED_AGENT_UPDATE` (value: `'MANAGED_AGENT_UPDATE'`)
+
 * `ML_MODEL_CREATE` (value: `'ML_MODEL_CREATE'`)
 
 * `ML_MODEL_DELETE` (value: `'ML_MODEL_DELETE'`)
@@ -216,9 +230,9 @@ A permission identifier following the pattern {RESOURCE}_{ACTION}. Auto-generate
 
 * `SERVICE_KEY_CREATE` (value: `'SERVICE_KEY_CREATE'`)
 
-* `SERVICE_KEY_DELETE` (value: `'SERVICE_KEY_DELETE'`)
-
 * `SERVICE_KEY_READ` (value: `'SERVICE_KEY_READ'`)
+
+* `SERVICE_KEY_REVOKE` (value: `'SERVICE_KEY_REVOKE'`)
 
 * `SPACE_CREATE` (value: `'SPACE_CREATE'`)
 

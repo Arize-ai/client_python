@@ -33,11 +33,12 @@ class TemplateConfig(BaseModel):
     template: StrictStr = Field(description="The prompt template with variable placeholders")
     include_explanations: StrictBool = Field(description="Whether to include explanations in the evaluation output")
     use_function_calling_if_available: StrictBool = Field(description="Whether to use function calling if the model supports it")
+    use_structured_output: Optional[StrictBool] = Field(default=True, description="Whether to use structured output if the model supports it")
     classification_choices: Optional[Dict[str, Union[StrictFloat, StrictInt]]] = Field(default=None, description="Map of choice label to numeric score (e.g. {\"relevant\": 1, \"irrelevant\": 0}). When omitted, the evaluator produces freeform (non-classification) output.")
     direction: Optional[OptimizationDirection] = Field(default=None, description="Direction for optimization applied to this template's evaluation scores. Defaults to `MAXIMIZE` when omitted.")
     data_granularity: Optional[DataGranularity] = Field(default=None, description="Data granularity level. Defaults to null when omitted.")
     llm_config: EvaluatorLlmConfig
-    __properties: ClassVar[List[str]] = ["name", "template", "include_explanations", "use_function_calling_if_available", "classification_choices", "direction", "data_granularity", "llm_config"]
+    __properties: ClassVar[List[str]] = ["name", "template", "include_explanations", "use_function_calling_if_available", "use_structured_output", "classification_choices", "direction", "data_granularity", "llm_config"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -112,6 +113,7 @@ class TemplateConfig(BaseModel):
             "template": obj.get("template"),
             "include_explanations": obj.get("include_explanations"),
             "use_function_calling_if_available": obj.get("use_function_calling_if_available"),
+            "use_structured_output": obj.get("use_structured_output") if obj.get("use_structured_output") is not None else True,
             "classification_choices": obj.get("classification_choices"),
             "direction": obj.get("direction"),
             "data_granularity": obj.get("data_granularity"),

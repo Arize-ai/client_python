@@ -19,12 +19,13 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
-from arize._generated.api_client.models.api_key import ApiKey
 from arize._generated.api_client.models.api_key_status import ApiKeyStatus
 from arize._generated.api_client.models.api_key_type import ApiKeyType
 from arize._generated.api_client.models.create_api_key_request import CreateApiKeyRequest
+from arize._generated.api_client.models.create_api_key_response import CreateApiKeyResponse
 from arize._generated.api_client.models.list_api_keys_response import ListApiKeysResponse
 from arize._generated.api_client.models.refresh_api_key_request import RefreshApiKeyRequest
+from arize._generated.api_client.models.refresh_api_key_response import RefreshApiKeyResponse
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -60,10 +61,10 @@ class APIKeysApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiKey:
+    ) -> CreateApiKeyResponse:
         """Create an API key
 
-        Create a new API key for the authenticated user.  - `key_type` defaults to `USER` when omitted. - For `SERVICE` keys, `space_id` is required. The service key is   scoped to the given space, and a bot user will be created with the specified roles. - For `USER` keys, `space_id` and `roles` must not be set — passing either returns `400`.   The key inherits the authenticated user's own permissions. - You may only assign roles at or below your own privilege level. Attempting to   assign a role higher than your own returns `400 Bad Request`. - All roles default to the minimum privilege when omitted: `space_role` → `MEMBER`,   `org_role` → `READ_ONLY`, `account_role` → `MEMBER`.  **Authorization:** - **User keys:** Requires the `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** Requires the `SERVICE_KEY_CREATE` permission in the target space (space   member or above).  The full API key value (`key`) is **only returned once** in the creation response. Store it securely — it cannot be retrieved again. Use the `redacted_key` field on subsequent reads.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new API key for the authenticated user.  - Choose `key_type: \"USER\"` for a personal key that authenticates as you, or   `key_type: \"SERVICE\"` for an automated service account key. The field is required. - For service keys, supply at least one space via the `organizations` array. The service   account is granted membership in each specified space. Multiple organizations and multiple   spaces per organization are supported. - For `USER` keys, the key inherits the authenticated user's own permissions. - You may only assign roles at or below your own privilege level. Attempting to   assign a role higher than your own returns `422 Unprocessable Entity`. - All roles default to minimum privilege when omitted: space roles default to `MEMBER`,   organization roles default to `READ_ONLY`, and `account_role` defaults to `MEMBER`.  **Authorization:** - **User keys:** Requires the `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** Requires the `SERVICE_KEY_CREATE` permission in the target space (space   member or above).  The full API key value (`key`) is **only returned once** in the creation response. Store it securely — it cannot be retrieved again. Use the `redacted_key` field on subsequent reads.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_api_key_request: Body containing API key creation parameters (required)
         :type create_api_key_request: CreateApiKeyRequest
@@ -98,7 +99,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "ApiKey",
+            '201': "CreateApiKeyResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -133,10 +134,10 @@ class APIKeysApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ApiKey]:
+    ) -> ApiResponse[CreateApiKeyResponse]:
         """Create an API key
 
-        Create a new API key for the authenticated user.  - `key_type` defaults to `USER` when omitted. - For `SERVICE` keys, `space_id` is required. The service key is   scoped to the given space, and a bot user will be created with the specified roles. - For `USER` keys, `space_id` and `roles` must not be set — passing either returns `400`.   The key inherits the authenticated user's own permissions. - You may only assign roles at or below your own privilege level. Attempting to   assign a role higher than your own returns `400 Bad Request`. - All roles default to the minimum privilege when omitted: `space_role` → `MEMBER`,   `org_role` → `READ_ONLY`, `account_role` → `MEMBER`.  **Authorization:** - **User keys:** Requires the `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** Requires the `SERVICE_KEY_CREATE` permission in the target space (space   member or above).  The full API key value (`key`) is **only returned once** in the creation response. Store it securely — it cannot be retrieved again. Use the `redacted_key` field on subsequent reads.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new API key for the authenticated user.  - Choose `key_type: \"USER\"` for a personal key that authenticates as you, or   `key_type: \"SERVICE\"` for an automated service account key. The field is required. - For service keys, supply at least one space via the `organizations` array. The service   account is granted membership in each specified space. Multiple organizations and multiple   spaces per organization are supported. - For `USER` keys, the key inherits the authenticated user's own permissions. - You may only assign roles at or below your own privilege level. Attempting to   assign a role higher than your own returns `422 Unprocessable Entity`. - All roles default to minimum privilege when omitted: space roles default to `MEMBER`,   organization roles default to `READ_ONLY`, and `account_role` defaults to `MEMBER`.  **Authorization:** - **User keys:** Requires the `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** Requires the `SERVICE_KEY_CREATE` permission in the target space (space   member or above).  The full API key value (`key`) is **only returned once** in the creation response. Store it securely — it cannot be retrieved again. Use the `redacted_key` field on subsequent reads.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_api_key_request: Body containing API key creation parameters (required)
         :type create_api_key_request: CreateApiKeyRequest
@@ -171,7 +172,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "ApiKey",
+            '201': "CreateApiKeyResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -209,7 +210,7 @@ class APIKeysApi:
     ) -> RESTResponseType:
         """Create an API key
 
-        Create a new API key for the authenticated user.  - `key_type` defaults to `USER` when omitted. - For `SERVICE` keys, `space_id` is required. The service key is   scoped to the given space, and a bot user will be created with the specified roles. - For `USER` keys, `space_id` and `roles` must not be set — passing either returns `400`.   The key inherits the authenticated user's own permissions. - You may only assign roles at or below your own privilege level. Attempting to   assign a role higher than your own returns `400 Bad Request`. - All roles default to the minimum privilege when omitted: `space_role` → `MEMBER`,   `org_role` → `READ_ONLY`, `account_role` → `MEMBER`.  **Authorization:** - **User keys:** Requires the `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** Requires the `SERVICE_KEY_CREATE` permission in the target space (space   member or above).  The full API key value (`key`) is **only returned once** in the creation response. Store it securely — it cannot be retrieved again. Use the `redacted_key` field on subsequent reads.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new API key for the authenticated user.  - Choose `key_type: \"USER\"` for a personal key that authenticates as you, or   `key_type: \"SERVICE\"` for an automated service account key. The field is required. - For service keys, supply at least one space via the `organizations` array. The service   account is granted membership in each specified space. Multiple organizations and multiple   spaces per organization are supported. - For `USER` keys, the key inherits the authenticated user's own permissions. - You may only assign roles at or below your own privilege level. Attempting to   assign a role higher than your own returns `422 Unprocessable Entity`. - All roles default to minimum privilege when omitted: space roles default to `MEMBER`,   organization roles default to `READ_ONLY`, and `account_role` defaults to `MEMBER`.  **Authorization:** - **User keys:** Requires the `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** Requires the `SERVICE_KEY_CREATE` permission in the target space (space   member or above).  The full API key value (`key`) is **only returned once** in the creation response. Store it securely — it cannot be retrieved again. Use the `redacted_key` field on subsequent reads.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_api_key_request: Body containing API key creation parameters (required)
         :type create_api_key_request: CreateApiKeyRequest
@@ -244,7 +245,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "ApiKey",
+            '201': "CreateApiKeyResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -718,7 +719,7 @@ class APIKeysApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiKey:
+    ) -> RefreshApiKeyResponse:
         """Refresh an API key
 
         Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** `expires_at` is **required** when the existing key has an expiry — omitting it would extend the key's lifetime to unbounded and is rejected with `422`. For unbounded existing keys, `expires_at` may be omitted (the replacement is also unbounded) or supplied to add a specific expiry. The value must not be later than the existing key's expiry; to issue a key with a longer lifetime, use `POST /v2/api-keys`.  **Grace period:** Supply `grace_period_seconds` in the request body to keep the old key valid for that many seconds after the refresh. If not supplied, the old key is revoked immediately.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -759,7 +760,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ApiKey",
+            '200': "RefreshApiKeyResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -795,7 +796,7 @@ class APIKeysApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ApiKey]:
+    ) -> ApiResponse[RefreshApiKeyResponse]:
         """Refresh an API key
 
         Atomically revoke an existing API key and issue a replacement with the same metadata (name, description, and key type).  The old key is invalidated and the new key is activated in a single transaction — there is no window where neither key is valid. The full new key value (`key`) is **only returned once** in the response. Store it securely.  **Authorization:** - **User keys:** the creator or an account admin may refresh the key. Requires the   `developer` user permission flag. Returns `403` when this flag is absent. - **Service keys:** space admins (and higher) may refresh any service key in their space.   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.  **Expiry behaviour:** `expires_at` is **required** when the existing key has an expiry — omitting it would extend the key's lifetime to unbounded and is rejected with `422`. For unbounded existing keys, `expires_at` may be omitted (the replacement is also unbounded) or supplied to add a specific expiry. The value must not be later than the existing key's expiry; to issue a key with a longer lifetime, use `POST /v2/api-keys`.  **Grace period:** Supply `grace_period_seconds` in the request body to keep the old key valid for that many seconds after the refresh. If not supplied, the old key is revoked immediately.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
@@ -836,7 +837,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ApiKey",
+            '200': "RefreshApiKeyResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -913,7 +914,7 @@ class APIKeysApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ApiKey",
+            '200': "RefreshApiKeyResponse",
             '400': "Problem",
             '401': "Problem",
             '403': "Problem",
@@ -1028,7 +1029,7 @@ class APIKeysApi:
     ) -> None:
         """Revoke an API key
 
-        Revoke an API key by its ID. The key will immediately stop working for authentication. Revoking an already-revoked key is a no-op and still returns `204`.  **Authorization:**  Requires the `developer` user permission flag and account admin role. Returns `403` when conditions are not met.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Revoke an API key by its ID. The key will immediately stop working for authentication. Revoking an already-revoked key is a no-op and still returns `204`.  **Authorization:** Requires the `developer` user permission flag **or** account admin role (either condition is sufficient). Returns `403` when neither condition is met.  For service keys, only the key's creator or an account admin may revoke the key. A developer who did not create the key receives `404` (prevents key-ID enumeration).    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param api_key_id: The unique API key identifier (base64) (required)
         :type api_key_id: str
@@ -1100,7 +1101,7 @@ class APIKeysApi:
     ) -> ApiResponse[None]:
         """Revoke an API key
 
-        Revoke an API key by its ID. The key will immediately stop working for authentication. Revoking an already-revoked key is a no-op and still returns `204`.  **Authorization:**  Requires the `developer` user permission flag and account admin role. Returns `403` when conditions are not met.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Revoke an API key by its ID. The key will immediately stop working for authentication. Revoking an already-revoked key is a no-op and still returns `204`.  **Authorization:** Requires the `developer` user permission flag **or** account admin role (either condition is sufficient). Returns `403` when neither condition is met.  For service keys, only the key's creator or an account admin may revoke the key. A developer who did not create the key receives `404` (prevents key-ID enumeration).    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param api_key_id: The unique API key identifier (base64) (required)
         :type api_key_id: str
@@ -1172,7 +1173,7 @@ class APIKeysApi:
     ) -> RESTResponseType:
         """Revoke an API key
 
-        Revoke an API key by its ID. The key will immediately stop working for authentication. Revoking an already-revoked key is a no-op and still returns `204`.  **Authorization:**  Requires the `developer` user permission flag and account admin role. Returns `403` when conditions are not met.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Revoke an API key by its ID. The key will immediately stop working for authentication. Revoking an already-revoked key is a no-op and still returns `204`.  **Authorization:** Requires the `developer` user permission flag **or** account admin role (either condition is sufficient). Returns `403` when neither condition is met.  For service keys, only the key's creator or an account admin may revoke the key. A developer who did not create the key receives `404` (prevents key-ID enumeration).    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param api_key_id: The unique API key identifier (base64) (required)
         :type api_key_id: str

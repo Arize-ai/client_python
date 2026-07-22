@@ -528,8 +528,8 @@ class DatasetsClient:
             dataset_version_id: Dataset version ID this update applies to. If
                 empty, the latest dataset version is selected.
             examples: Examples to update, as a list of JSON-like dicts. Each dict
-                must include `id`; all other keys are treated as the example's
-                user-defined fields and replace its stored content.
+                must include `id`; all other keys are treated as user-defined
+                fields to update or add. Omitted fields are not removed.
             new_version: Optional name for a new dataset version to create with
                 this update, leaving `dataset_version_id` unchanged. If omitted
                 or empty, the update is applied in place to `dataset_version_id`.

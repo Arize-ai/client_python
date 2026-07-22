@@ -10,16 +10,7 @@
 ## Response Types
 
 ```{eval-rst}
-.. currentmodule:: arize.roles.types
-.. autoclass:: Permission
-   :members:
-   :member-order: bysource
-
-.. autoclass:: Role
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ListRolesResponse
+.. automodule:: arize.roles.types
    :members:
    :member-order: bysource
 ```

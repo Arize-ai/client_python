@@ -42,6 +42,7 @@ class TestExperimentWithRunIds(unittest.TestCase):
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 experiment_traces_project_id = '',
+                integration_id = '',
                 run_ids = [
                     ''
                     ]

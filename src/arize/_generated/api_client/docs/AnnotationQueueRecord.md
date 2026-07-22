@@ -11,7 +11,8 @@ Name | Type | Description | Notes
 **source_type** | [**AnnotationQueueSourceType**](AnnotationQueueSourceType.md) |  | 
 **granularity** | [**RecordGranularity**](RecordGranularity.md) | The granularity of the record, if applicable. | [optional] 
 **data** | **Dict[str, object]** | Record data as flat key-value pairs containing span or dataset fields. Does not include annotation or evaluation columns. | 
-**annotations** | [**List[Annotation]**](Annotation.md) | Human annotations on this record | 
+**annotations** | [**List[Annotation]**](Annotation.md) | Annotations on this record. | 
+**trace_annotations** | [**List[Annotation]**](Annotation.md) | Trace annotations on this record. | 
 **evaluations** | [**List[Evaluation]**](Evaluation.md) | Evaluation results on this record | 
 **assigned_users** | [**List[AnnotationQueueAssignedUser]**](AnnotationQueueAssignedUser.md) | Users assigned to this record | 
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.41.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.40.0...arize-python-sdk/v8.41.0) (2026-07-22)
+
+
+### 🎁 New Features
+
+* **service-keys:** multi-space/multi-org support and custom role support — OpenAPI + Go backend ([#76038](https://github.com/Arize-ai/arize/issues/76038)) ([d6dbeb5](https://github.com/Arize-ai/arize/commit/d6dbeb5db7f0d9f1316f8b7bca5989d0570de332))
+
+
+### 📚 Documentation
+
+* **sphinx:** automate SDK v8 docs response-type listings via automodule ([#78833](https://github.com/Arize-ai/arize/issues/78833)) ([0c2ca30](https://github.com/Arize-ai/arize/commit/0c2ca30472efb862191c0cc79fa6fe558489a7ec))
+
 ## [8.40.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.39.0...arize-python-sdk/v8.40.0) (2026-07-16)
 
 > **Minor release.** The v2 REST API standardization ([#78907](https://github.com/Arize-ai/arize/pull/78907)) is technically breaking, but **only affects endpoints/methods in `alpha` or `beta`** — all gated behind the pre-release opt-in and documented with a warning. **No stable surface changes.**

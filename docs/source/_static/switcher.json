@@ -5,6 +5,10 @@
     "preferred": true
   },
   {
+    "version": "v8.41.0",
+    "url": "https://arize-client-python.readthedocs.io/en/v8.41.0/"
+  },
+  {
     "version": "v8.40.0",
     "url": "https://arize-client-python.readthedocs.io/en/v8.40.0/"
   },
@@ -39,10 +43,6 @@
   {
     "version": "v8.32.0",
     "url": "https://arize-client-python.readthedocs.io/en/v8.32.0/"
-  },
-  {
-    "version": "v8.31.0",
-    "url": "https://arize-client-python.readthedocs.io/en/v8.31.0/"
   },
   {
     "version": "v7.52.0",

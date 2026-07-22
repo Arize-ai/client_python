@@ -1,0 +1,29 @@
+# TracingDataQualityMetric
+
+The data quality metrics computed by a tracing monitor. Numeric span attributes support aggregations such as `SUM` and `AVG`; categorical attributes support `COUNT`, `PERCENT_EMPTY`, and `CARDINALITY`. Comparison metrics (`NEW_VALUES`, `MISSING_VALUES`) are not supported. 
+
+## Enum
+
+* `COUNT` (value: `'COUNT'`)
+
+* `PERCENT_EMPTY` (value: `'PERCENT_EMPTY'`)
+
+* `CARDINALITY` (value: `'CARDINALITY'`)
+
+* `AVG` (value: `'AVG'`)
+
+* `SUM` (value: `'SUM'`)
+
+* `STANDARD_DEVIATION` (value: `'STANDARD_DEVIATION'`)
+
+* `P50` (value: `'P50'`)
+
+* `P95` (value: `'P95'`)
+
+* `P99` (value: `'P99'`)
+
+* `P99_9` (value: `'P99_9'`)
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

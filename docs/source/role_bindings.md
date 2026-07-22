@@ -10,16 +10,7 @@
 ## Response Types
 
 ```{eval-rst}
-.. currentmodule:: arize.role_bindings.types
-.. autoclass:: RoleBinding
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ListRoleBindingsResponse
-   :members:
-   :member-order: bysource
-
-.. autoclass:: RoleBindingResourceType
+.. automodule:: arize.role_bindings.types
    :members:
    :member-order: bysource
 ```

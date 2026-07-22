@@ -13,97 +13,128 @@
 
 
 from __future__ import annotations
-import pprint
-import re  # noqa: F401
 import json
+import pprint
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
+from typing import Any, List, Optional
+from arize._generated.api_client.models.create_service_api_key_request import CreateServiceApiKeyRequest
+from arize._generated.api_client.models.create_user_api_key_request import CreateUserApiKeyRequest
+from pydantic import StrictStr, Field
+from typing import Union, List, Set, Optional, Dict
+from typing_extensions import Literal, Self
 
-from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
-from arize._generated.api_client.models.api_key_roles import ApiKeyRoles
-from arize._generated.api_client.models.api_key_type import ApiKeyType
-from typing import Optional, Set
-from typing_extensions import Self
+CREATEAPIKEYREQUEST_ONE_OF_SCHEMAS = ["CreateServiceApiKeyRequest", "CreateUserApiKeyRequest"]
 
 class CreateApiKeyRequest(BaseModel):
     """
-    CreateApiKeyRequest
-    """ # noqa: E501
-    name: Annotated[str, Field(strict=True, max_length=256)] = Field(description="User-defined name for the API key.")
-    description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="Optional user-defined description for the API key.")
-    key_type: Optional[ApiKeyType] = Field(default=None, description="Type of the API key to create. Defaults to `USER`. - USER - Key that authenticates as the creating user with their full permissions.   `space_id` and `roles` must not be set (returns `400`). - SERVICE - Key scoped to a specific space backed by a dedicated bot user.   Requires `space_id`. All roles default to minimum privilege when omitted. ")
-    expires_at: Optional[datetime] = Field(default=None, description="Optional expiration timestamp. If omitted the key never expires.")
-    space_id: Optional[StrictStr] = Field(default=None, description="ID of the space this service key is scoped to. Required when `key_type` is `SERVICE`; invalid for `USER` keys (returns `400`). ")
-    roles: Optional[ApiKeyRoles] = Field(default=None, description="Role assignments for the service key's bot user. Only valid when `key_type` is `SERVICE`; invalid for `USER` keys (returns `400`). When omitted, each role field defaults to minimum privilege: `space_role` → `MEMBER`, `org_role` → `READ_ONLY`, `account_role` → `MEMBER`. ")
-    __properties: ClassVar[List[str]] = ["name", "description", "key_type", "expires_at", "space_id", "roles"]
+    Request body for creating an API key. Set `key_type` to select the kind of key: - `USER` — authenticates as the creating user, inheriting their current permissions. - `SERVICE` — authenticates as a service account: a dedicated, automatically provisioned   identity with roles explicitly configured in the spaces you specify. Use this for   automation, CI/CD pipelines, or any workload that should run independently of a   specific user. 
+    """
+    # data type: CreateUserApiKeyRequest
+    oneof_schema_1_validator: Optional[CreateUserApiKeyRequest] = None
+    # data type: CreateServiceApiKeyRequest
+    oneof_schema_2_validator: Optional[CreateServiceApiKeyRequest] = None
+    actual_instance: Optional[Union[CreateServiceApiKeyRequest, CreateUserApiKeyRequest]] = None
+    one_of_schemas: Set[str] = { "CreateServiceApiKeyRequest", "CreateUserApiKeyRequest" }
 
     model_config = ConfigDict(
-        populate_by_name=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
 
 
-    def to_str(self) -> str:
-        """Returns the string representation of the model using alias"""
-        return pprint.pformat(self.model_dump(by_alias=True))
+    discriminator_value_class_map: Dict[str, str] = {
+    }
+
+    def __init__(self, *args, **kwargs) -> None:
+        if args:
+            if len(args) > 1:
+                raise ValueError("If a position argument is used, only 1 is allowed to set `actual_instance`")
+            if kwargs:
+                raise ValueError("If a position argument is used, keyword arguments cannot be used.")
+            super().__init__(actual_instance=args[0])
+        else:
+            super().__init__(**kwargs)
+
+    @field_validator('actual_instance')
+    def actual_instance_must_validate_oneof(cls, v):
+        instance = CreateApiKeyRequest.model_construct()
+        error_messages = []
+        match = 0
+        # validate data type: CreateUserApiKeyRequest
+        if not isinstance(v, CreateUserApiKeyRequest):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateUserApiKeyRequest`")
+        else:
+            match += 1
+        # validate data type: CreateServiceApiKeyRequest
+        if not isinstance(v, CreateServiceApiKeyRequest):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreateServiceApiKeyRequest`")
+        else:
+            match += 1
+        if match > 1:
+            # more than 1 match
+            raise ValueError("Multiple matches found when setting `actual_instance` in CreateApiKeyRequest with oneOf schemas: CreateServiceApiKeyRequest, CreateUserApiKeyRequest. Details: " + ", ".join(error_messages))
+        elif match == 0:
+            # no match
+            raise ValueError("No match found when setting `actual_instance` in CreateApiKeyRequest with oneOf schemas: CreateServiceApiKeyRequest, CreateUserApiKeyRequest. Details: " + ", ".join(error_messages))
+        else:
+            return v
+
+    @classmethod
+    def from_dict(cls, obj: Union[str, Dict[str, Any]]) -> Self:
+        return cls.from_json(json.dumps(obj))
+
+    @classmethod
+    def from_json(cls, json_str: str) -> Self:
+        """Returns the object represented by the json string"""
+        instance = cls.model_construct()
+        error_messages = []
+        match = 0
+
+        # deserialize data into CreateUserApiKeyRequest
+        try:
+            instance.actual_instance = CreateUserApiKeyRequest.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # deserialize data into CreateServiceApiKeyRequest
+        try:
+            instance.actual_instance = CreateServiceApiKeyRequest.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+
+        if match > 1:
+            # more than 1 match
+            raise ValueError("Multiple matches found when deserializing the JSON string into CreateApiKeyRequest with oneOf schemas: CreateServiceApiKeyRequest, CreateUserApiKeyRequest. Details: " + ", ".join(error_messages))
+        elif match == 0:
+            # no match
+            raise ValueError("No match found when deserializing the JSON string into CreateApiKeyRequest with oneOf schemas: CreateServiceApiKeyRequest, CreateUserApiKeyRequest. Details: " + ", ".join(error_messages))
+        else:
+            return instance
 
     def to_json(self) -> str:
-        """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        """Returns the JSON representation of the actual instance"""
+        if self.actual_instance is None:
+            return "null"
 
-    @classmethod
-    def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of CreateApiKeyRequest from a JSON string"""
-        return cls.from_dict(json.loads(json_str))
+        if hasattr(self.actual_instance, "to_json") and callable(self.actual_instance.to_json):
+            return self.actual_instance.to_json()
+        else:
+            return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Return the dictionary representation of the model using alias.
-
-        This has the following differences from calling pydantic's
-        `self.model_dump(by_alias=True)`:
-
-        * `None` is only added to the output dict for nullable fields that
-          were set at model initialization. Other fields with value `None`
-          are ignored.
-        """
-        excluded_fields: Set[str] = set([
-        ])
-
-        _dict = self.model_dump(
-            by_alias=True,
-            exclude=excluded_fields,
-            exclude_none=True,
-        )
-        # override the default output from pydantic by calling `to_dict()` of roles
-        if self.roles:
-            _dict['roles'] = self.roles.to_dict()
-        return _dict
-
-    @classmethod
-    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of CreateApiKeyRequest from a dict"""
-        if obj is None:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], CreateServiceApiKeyRequest, CreateUserApiKeyRequest]]:
+        """Returns the dict representation of the actual instance"""
+        if self.actual_instance is None:
             return None
 
-        if not isinstance(obj, dict):
-            return cls.model_validate(obj)
+        if hasattr(self.actual_instance, "to_dict") and callable(self.actual_instance.to_dict):
+            return self.actual_instance.to_dict()
+        else:
+            # primitive type
+            return self.actual_instance
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in CreateApiKeyRequest) in the input: " + _key)
-
-        _obj = cls.model_validate({
-            "name": obj.get("name"),
-            "description": obj.get("description"),
-            "key_type": obj.get("key_type"),
-            "expires_at": obj.get("expires_at"),
-            "space_id": obj.get("space_id"),
-            "roles": ApiKeyRoles.from_dict(obj["roles"]) if obj.get("roles") is not None else None
-        })
-        return _obj
+    def to_str(self) -> str:
+        """Returns the string representation of the actual instance"""
+        return pprint.pformat(self.model_dump())
 
 

@@ -6,7 +6,7 @@ A custom RBAC role assignment.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | [**SpaceRoleAssignmentType**](SpaceRoleAssignmentType.md) | Discriminator identifying this as a custom RBAC role assignment. Always &#x60;CUSTOM&#x60; for this variant. | 
+**type** | [**SpaceRoleAssignmentType**](SpaceRoleAssignmentType.md) | Discriminator identifying this as a custom RBAC role assignment. Must be &#x60;CUSTOM&#x60;. | 
 **id** | **str** | The unique identifier of the custom RBAC role. | 
 **name** | **str** | Human-readable name of the custom role. Returned in responses only; ignored on input.  | [optional] [readonly] 
 

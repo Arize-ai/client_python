@@ -5,8 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **str** | Updated name for the space (must be unique within the organization) | [optional] 
-**description** | **str** | Updated description for the space. Set to an empty string to clear it. | [optional] 
+**name** | **str** | Updated name of the space | [optional] 
+**description** | **str** | Updated description of the space | [optional] 
 
 ## Example
 

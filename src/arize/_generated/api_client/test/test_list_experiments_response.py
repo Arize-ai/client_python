@@ -43,7 +43,8 @@ class TestListExperimentsResponse(unittest.TestCase):
                         dataset_version_id = '', 
                         created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
-                        experiment_traces_project_id = '', )
+                        experiment_traces_project_id = '', 
+                        integration_id = '', )
                     ],
                 pagination = arize._generated.api_client.models.pagination_metadata.PaginationMetadata(
                     next_cursor = '', 
@@ -59,7 +60,8 @@ class TestListExperimentsResponse(unittest.TestCase):
                         dataset_version_id = '', 
                         created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
-                        experiment_traces_project_id = '', )
+                        experiment_traces_project_id = '', 
+                        integration_id = '', )
                     ],
                 pagination = arize._generated.api_client.models.pagination_metadata.PaginationMetadata(
                     next_cursor = '', 

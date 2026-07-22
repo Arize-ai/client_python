@@ -45,7 +45,19 @@ class TestUpdateLlmIntegrationRequest(unittest.TestCase):
                 config = arize._generated.api_client.models.update_llm_config.UpdateLlmConfig(
                     provider = 'OPEN_AI', 
                     api_key = '', 
-                    is_function_calling_enabled = True, )
+                    is_function_calling_enabled = True, 
+                    auth = arize._generated.api_client.models.create_aws_bedrock_auth.CreateAwsBedrockAuth(), 
+                    base_url = '', 
+                    headers = {
+                        'key' : ''
+                        }, 
+                    is_default_models_enabled = True, 
+                    model_names = [
+                        ''
+                        ], 
+                    project_id = '', 
+                    location = '', 
+                    project_access_label = '', )
             )
         else:
             return UpdateLlmIntegrationRequest(

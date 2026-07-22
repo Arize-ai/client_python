@@ -10,56 +10,7 @@
 ## Response Types
 
 ```{eval-rst}
-.. currentmodule:: arize.users.types
-.. autoclass:: BulkDeleteResponse
-   :members:
-   :member-order: bysource
-
-.. autoclass:: BulkUserDeletionResult
-   :members:
-   :member-order: bysource
-
-.. autoclass:: CreateUserRequest
-   :members:
-   :member-order: bysource
-
-.. autoclass:: CustomUserRole
-   :members:
-   :member-order: bysource
-
-.. autoclass:: DeletionStatus
-   :members:
-   :member-order: bysource
-
-.. autoclass:: InviteMode
-   :members:
-   :member-order: bysource
-
-.. autoclass:: PredefinedUserRole
-   :members:
-   :member-order: bysource
-
-.. autoclass:: User
-   :members:
-   :member-order: bysource
-
-.. autoclass:: CreateUserResponse
-   :members:
-   :member-order: bysource
-
-.. autoclass:: ListUsersResponse
-   :members:
-   :member-order: bysource
-
-.. autoclass:: UserRole
-   :members:
-   :member-order: bysource
-
-.. autoclass:: UserStatus
-   :members:
-   :member-order: bysource
-
-.. autoclass:: UpdateUserRequest
+.. automodule:: arize.users.types
    :members:
    :member-order: bysource
 ```

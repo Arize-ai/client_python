@@ -1,16 +1,17 @@
 # CreateApiKeyRequest
 
+Request body for creating an API key. Set `key_type` to select the kind of key: - `USER` — authenticates as the creating user, inheriting their current permissions. - `SERVICE` — authenticates as a service account: a dedicated, automatically provisioned   identity with roles explicitly configured in the spaces you specify. Use this for   automation, CI/CD pipelines, or any workload that should run independently of a   specific user. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**key_type** | [**ApiKeyType**](ApiKeyType.md) | The type of key to create. Use &#x60;\&quot;USER\&quot;&#x60; for a personal key that authenticates as you with your current permissions. Use &#x60;\&quot;SERVICE\&quot;&#x60; for a key tied to a dedicated service account with its own explicitly configured access across one or more spaces.  | 
 **name** | **str** | User-defined name for the API key. | 
 **description** | **str** | Optional user-defined description for the API key. | [optional] 
-**key_type** | [**ApiKeyType**](ApiKeyType.md) | Type of the API key to create. Defaults to &#x60;USER&#x60;. - USER - Key that authenticates as the creating user with their full permissions.   &#x60;space_id&#x60; and &#x60;roles&#x60; must not be set (returns &#x60;400&#x60;). - SERVICE - Key scoped to a specific space backed by a dedicated bot user.   Requires &#x60;space_id&#x60;. All roles default to minimum privilege when omitted.  | [optional] 
 **expires_at** | **datetime** | Optional expiration timestamp. If omitted the key never expires. | [optional] 
-**space_id** | **str** | ID of the space this service key is scoped to. Required when &#x60;key_type&#x60; is &#x60;SERVICE&#x60;; invalid for &#x60;USER&#x60; keys (returns &#x60;400&#x60;).  | [optional] 
-**roles** | [**ApiKeyRoles**](ApiKeyRoles.md) | Role assignments for the service key&#39;s bot user. Only valid when &#x60;key_type&#x60; is &#x60;SERVICE&#x60;; invalid for &#x60;USER&#x60; keys (returns &#x60;400&#x60;). When omitted, each role field defaults to minimum privilege: &#x60;space_role&#x60; → &#x60;MEMBER&#x60;, &#x60;org_role&#x60; → &#x60;READ_ONLY&#x60;, &#x60;account_role&#x60; → &#x60;MEMBER&#x60;.  | [optional] 
+**account_role** | [**UserRoleAssignment**](UserRoleAssignment.md) | Account-level role for the bot user. Only predefined roles are supported at this level. Custom account roles (&#x60;{ \&quot;type\&quot;: \&quot;CUSTOM\&quot;, \&quot;id\&quot;: \&quot;...\&quot; }&#x60;) are not yet supported and return &#x60;422&#x60;. Support will be added in a future release. Defaults to &#x60;{ type: PREDEFINED, name: MEMBER }&#x60; when omitted. Must be at or below the caller&#39;s own account role. The &#x60;ANNOTATOR&#x60; role is not valid for service keys and returns &#x60;422&#x60;.  | [optional] 
+**organizations** | [**List[ServiceKeyOrgAssignment]**](ServiceKeyOrgAssignment.md) | Organizations the service account should have access to. Each entry specifies an organization and the spaces within it. Must include at least one organization with at least one space. All spaces must belong to the organization they are listed under.  | 
 
 ## Example
 

@@ -12,6 +12,7 @@ Name | Type | Description | Notes
 **created_at** | **datetime** | Timestamp for when the experiment was created | 
 **updated_at** | **datetime** | Timestamp for the last update of the experiment | 
 **experiment_traces_project_id** | **str** | Unique identifier for the experiment traces project this experiment belongs to (if it exists) | [optional] 
+**integration_id** | **str** | Identifier (base64) of the agent integration that backs this experiment, as returned by the integrations API. Null for non-agent experiments (for example, SDK or Playground experiments).  | [optional] 
 **run_ids** | **List[str]** | IDs of the newly inserted experiment runs, in input order. | 
 
 ## Example

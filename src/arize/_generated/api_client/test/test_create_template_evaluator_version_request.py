@@ -41,6 +41,7 @@ class TestCreateTemplateEvaluatorVersionRequest(unittest.TestCase):
                     template = '', 
                     include_explanations = True, 
                     use_function_calling_if_available = True, 
+                    use_structured_output = True, 
                     classification_choices = {
                         'key' : 1.337
                         }, 
@@ -60,6 +61,7 @@ class TestCreateTemplateEvaluatorVersionRequest(unittest.TestCase):
                     template = '', 
                     include_explanations = True, 
                     use_function_calling_if_available = True, 
+                    use_structured_output = True, 
                     classification_choices = {
                         'key' : 1.337
                         }, 

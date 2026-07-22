@@ -34,8 +34,9 @@ class ExperimentWithRunIds(BaseModel):
     created_at: datetime = Field(description="Timestamp for when the experiment was created")
     updated_at: datetime = Field(description="Timestamp for the last update of the experiment")
     experiment_traces_project_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the experiment traces project this experiment belongs to (if it exists)")
+    integration_id: Optional[StrictStr] = Field(default=None, description="Identifier (base64) of the agent integration that backs this experiment, as returned by the integrations API. Null for non-agent experiments (for example, SDK or Playground experiments). ")
     run_ids: List[StrictStr] = Field(description="IDs of the newly inserted experiment runs, in input order.")
-    __properties: ClassVar[List[str]] = ["id", "name", "dataset_id", "dataset_version_id", "created_at", "updated_at", "experiment_traces_project_id", "run_ids"]
+    __properties: ClassVar[List[str]] = ["id", "name", "dataset_id", "dataset_version_id", "created_at", "updated_at", "experiment_traces_project_id", "integration_id", "run_ids"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -76,6 +77,11 @@ class ExperimentWithRunIds(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if integration_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.integration_id is None and "integration_id" in self.model_fields_set:
+            _dict['integration_id'] = None
+
         return _dict
 
     @classmethod
@@ -100,6 +106,7 @@ class ExperimentWithRunIds(BaseModel):
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at"),
             "experiment_traces_project_id": obj.get("experiment_traces_project_id"),
+            "integration_id": obj.get("integration_id"),
             "run_ids": obj.get("run_ids")
         })
         return _obj

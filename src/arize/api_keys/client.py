@@ -5,22 +5,25 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+from arize._utils import unwrap_oneof
 from arize.api_keys.types import ApiKeyType
 from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import _find_space_id
 
 if TYPE_CHECKING:
+    import builtins
     from datetime import datetime
 
     from arize._generated.api_client.api_client import ApiClient
     from arize.api_keys.types import (
-        ApiKey,
-        ApiKeyAccountRole,
-        ApiKeyOrganizationRole,
-        ApiKeySpaceRole,
         ApiKeyStatus,
         ListApiKeysResponse,
+        OrgBinding,
+        RefreshApiKeyResponse,
+        ServiceApiKeyCreated,
+        UserApiKeyCreated,
+        UserRoleAssignment,
     )
     from arize.config import SDKConfiguration
 
@@ -70,21 +73,22 @@ class ApiKeysClient:
         This endpoint supports cursor-based pagination. Optionally filter by
         ``key_type``, ``status``, ``space``, and ``user_id``.
 
-        **Service keys** (``key_type="SERVICE"``): provide ``space`` to return
-        all service keys for that space. When ``key_type`` is omitted alongside
-        ``space``, service keys are returned implicitly. Optionally combine with
-        ``user_id`` to filter by creator — available to any caller with space
-        access.
+        **Service keys** (``key_type=ApiKeyType.SERVICE``): provide ``space`` to
+        return all service keys for that space. When ``key_type`` is omitted
+        alongside ``space``, service keys are returned implicitly. Optionally
+        combine with ``user_id`` to filter by creator — available to any caller
+        with space access.
 
-        **User keys** (``key_type="USER"``): returned by default (no ``space``).
-        Provide ``user_id`` to view keys for a specific user — account admins
-        only; non-admins receive a ``403``.
+        **User keys** (``key_type=ApiKeyType.USER``): returned by default (no
+        ``space``). Provide ``user_id`` to view keys for a specific user —
+        account admins only; non-admins receive a ``403``.
 
         Args:
             key_type: Optional key type filter (``ApiKeyType.USER`` or
                 ``ApiKeyType.SERVICE``).
-            status: Optional status filter (``"ACTIVE"`` or ``"REVOKED"``).
-                Defaults to ``"ACTIVE"`` on the server side when omitted.
+            status: Optional status filter (``ApiKeyStatus.ACTIVE`` or
+                ``ApiKeyStatus.REVOKED``).
+                Defaults to ``ApiKeyStatus.ACTIVE`` on the server side when omitted.
             space: Space name or ID. When provided, filters to service keys for
                 that space. Accepts a human-readable name or a base64 identifier.
             user_id: Base64 identifier of the user whose keys to return.
@@ -121,16 +125,16 @@ class ApiKeysClient:
         name: str,
         description: str | None = None,
         expires_at: datetime | None = None,
-    ) -> ApiKey:
+    ) -> UserApiKeyCreated:
         """Create a new user API key.
 
         Creates a user-type key that authenticates as the creating user with
         their full permissions. To create a space-scoped service key, use
         :meth:`create_service_key` instead.
 
-        The returned ``ApiKey`` object contains the full raw key value
-        in its ``key`` field. **This is the only time the raw key is
-        returned.** Store it securely.
+        The returned :class:`UserApiKeyCreated` object contains the full raw
+        key value in its ``key`` field. **This is the only time the raw key
+        is returned.** Store it securely.
 
         Args:
             name: User-defined name for the API key (max 256 characters).
@@ -147,13 +151,16 @@ class ApiKeysClient:
         """
         from arize._generated import api_client as gen
 
-        body = gen.CreateApiKeyRequest(
+        user_body = gen.CreateUserApiKeyRequest(
+            key_type=ApiKeyType.USER,
             name=name,
             description=description,
-            key_type=ApiKeyType.USER,
             expires_at=expires_at,
         )
-        return self._api.create_api_key(create_api_key_request=body)
+        body = gen.CreateApiKeyRequest(user_body)
+        return unwrap_oneof(
+            self._api.create_api_key(create_api_key_request=body)
+        )  # type: ignore[return-value]
 
     @prerelease_endpoint(
         key="api_keys.create_service_key", stage=ReleaseStage.BETA
@@ -162,77 +169,96 @@ class ApiKeysClient:
         self,
         *,
         name: str,
-        space: str,
+        orgs: builtins.list[OrgBinding],
+        account_role: UserRoleAssignment | None = None,
         description: str | None = None,
         expires_at: datetime | None = None,
-        space_role: ApiKeySpaceRole | None = None,
-        org_role: ApiKeyOrganizationRole | None = None,
-        account_role: ApiKeyAccountRole | None = None,
-    ) -> ApiKey:
-        """Create a service-type API key for a space.
+    ) -> ServiceApiKeyCreated:
+        """Create a service-type API key with org and space bindings.
 
-        Service keys are scoped to a specific space and backed by a dedicated
-        bot user with configurable roles. When no roles are specified, the
-        server applies its defaults (``space_role="MEMBER"``,
-        ``org_role="READ_ONLY"``, ``account_role="MEMBER"``). All role
-        assignments must be at or below the caller's own privilege level.
+        Service keys are tied to a dedicated service account scoped to one or
+        more organizations, each containing one or more spaces. All spaces must
+        belong to the same account. When no role is specified for a space or
+        org, the server applies the default predefined role (``MEMBER`` for
+        spaces, ``READ_ONLY`` for orgs, ``MEMBER`` for accounts).
 
-        The returned ``ApiKey`` object contains the full raw key value
-        in its ``key`` field. **This is the only time the raw key is
-        returned.** Store it securely.
+        The returned :class:`ServiceApiKeyCreated` object contains the full
+        raw key value in its ``key`` field. **This is the only time the raw
+        key is returned.** Store it securely.
 
         Args:
             name: User-defined name for the API key (max 256 characters).
-            space: Space name or ID the service key is scoped to.
+            orgs: List of :class:`OrgBinding` objects, each specifying an
+                optional org-level role and a list of :class:`SpaceBinding`
+                objects within that org. At least one org with at least one
+                space is required.
+            account_role: Optional account-level role for the bot user. When
+                ``None``, the server applies the default predefined ``MEMBER``
+                role.
             description: Optional description (max 1000 characters).
             expires_at: Optional expiration timestamp. If omitted the key
                 never expires. Must be a future timestamp.
-            space_role: Role for the bot user within the space
-                (``ApiKeySpaceRole``). One of ``"ADMIN"``, ``"MEMBER"``
-                (default), or ``"READ_ONLY"``. Must be at or below the
-                caller's own space role.
-            org_role: Role for the bot user within the organization
-                (``ApiKeyOrganizationRole``). One of ``"ADMIN"``,
-                ``"MEMBER"``, or ``"READ_ONLY"`` (default). Must be at or
-                below the caller's own org role.
-            account_role: Account-level role for the bot user
-                (``ApiKeyAccountRole``). One of ``"ADMIN"`` or ``"MEMBER"``
-                (default). Must be at or below the caller's own account role.
 
         Returns:
             The created API key, including the one-time raw key value.
 
         Raises:
+            ValueError: If ``orgs`` is empty or any org has no space bindings.
             ApiException: If the API request fails (e.g. invalid role
                 assignment or insufficient permissions).
         """
-        from arize._generated import api_client as gen
-
-        space_id = _find_space_id(self._spaces_api, space)
-
-        roles = None
-        if any(r is not None for r in (space_role, org_role, account_role)):
-            roles = gen.ApiKeyRoles(
-                space_role=space_role,
-                org_role=org_role,
-                account_role=account_role,
+        if not orgs:
+            raise ValueError(
+                "orgs must contain at least one entry for service keys"
             )
 
-        body = gen.CreateApiKeyRequest(
+        from arize._generated import api_client as gen
+
+        # Pre-validate and resolve all space IDs before writing any bindings.
+        resolved_space_ids: dict[str, str] = {}
+        for org_binding in orgs:
+            for space_binding in org_binding.spaces:
+                resolved_space_ids[space_binding.space] = _find_space_id(
+                    self._spaces_api, space_binding.space
+                )
+
+        org_bindings_gen = []
+        for org_binding in orgs:
+            space_bindings_gen = []
+            for binding in org_binding.spaces:
+                space_id = resolved_space_ids[binding.space]
+                space_bindings_gen.append(
+                    gen.ServiceKeySpaceAssignment(
+                        space_id=space_id,
+                        role=binding.role,
+                    )
+                )
+            org_bindings_gen.append(
+                gen.ServiceKeyOrgAssignment(
+                    org_id=org_binding.org_id,
+                    role=org_binding.role,
+                    spaces=space_bindings_gen,
+                )
+            )
+
+        service_body = gen.CreateServiceApiKeyRequest(
+            key_type=ApiKeyType.SERVICE,
             name=name,
             description=description,
-            key_type=ApiKeyType.SERVICE,
             expires_at=expires_at,
-            space_id=space_id,
-            roles=roles,
+            account_role=account_role,
+            organizations=org_bindings_gen,
         )
-        return self._api.create_api_key(create_api_key_request=body)
+        body = gen.CreateApiKeyRequest(service_body)
+        return unwrap_oneof(
+            self._api.create_api_key(create_api_key_request=body)
+        )  # type: ignore[return-value]
 
     @prerelease_endpoint(key="api_keys.revoke", stage=ReleaseStage.BETA)
     def revoke(self, *, api_key_id: str) -> None:
         """Revoke an API key.
 
-        The key's status is set to ``REVOKED`` and it is deactivated
+        The key's status is set to ``ApiKeyStatus.REVOKED`` and it is deactivated
         immediately and permanently. This operation is irreversible — the key
         will stop working right away. Revoking an already-revoked key is a
         no-op and still succeeds.
@@ -256,7 +282,7 @@ class ApiKeysClient:
         api_key_id: str,
         expires_at: datetime | None = None,
         grace_period_seconds: int | None = None,
-    ) -> ApiKey:
+    ) -> RefreshApiKeyResponse:
         """Refresh an existing API key.
 
         Atomically revokes the old key and issues a replacement with the

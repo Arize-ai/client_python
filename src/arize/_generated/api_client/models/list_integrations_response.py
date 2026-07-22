@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
-from arize._generated.api_client.models.llm_integration import LlmIntegration
+from arize._generated.api_client.models.integration import Integration
 from arize._generated.api_client.models.pagination_metadata import PaginationMetadata
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,7 +28,7 @@ class ListIntegrationsResponse(BaseModel):
     """
     ListIntegrationsResponse
     """ # noqa: E501
-    integrations: List[LlmIntegration] = Field(description="A polymorphic, type-tagged list of integrations.")
+    integrations: List[Integration] = Field(description="A polymorphic, type-tagged list of integrations.")
     pagination: PaginationMetadata
     __properties: ClassVar[List[str]] = ["integrations", "pagination"]
 
@@ -98,7 +98,7 @@ class ListIntegrationsResponse(BaseModel):
                 raise ValueError("Error due to additional fields (not defined in ListIntegrationsResponse) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "integrations": [LlmIntegration.from_dict(_item) for _item in obj["integrations"]] if obj.get("integrations") is not None else None,
+            "integrations": [Integration.from_dict(_item) for _item in obj["integrations"]] if obj.get("integrations") is not None else None,
             "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
         })
         return _obj
