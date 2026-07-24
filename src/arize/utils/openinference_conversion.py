@@ -64,17 +64,20 @@ def convert_default_columns_to_json_str(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def convert_json_str_to_dict(df: pd.DataFrame) -> pd.DataFrame:
+def convert_json_str_to_dict(
+    df: pd.DataFrame, excluded_columns: tuple[str, ...] = ()
+) -> pd.DataFrame:
     """Convert JSON string values in specific columns to Python dictionaries.
 
     Args:
         df: The :class:`pandas.DataFrame` to convert.
+        excluded_columns: Column names to leave unchanged.
 
     Returns:
         The :class:`pandas.DataFrame` with JSON strings in eligible columns converted to dictionaries.
     """
     for col in df.columns:
-        if _should_convert_json(col):
+        if col not in excluded_columns and _should_convert_json(col):
             try:
                 df[col] = df[col].apply(
                     lambda x: json.loads(x) if isinstance(x, str) else x
@@ -91,8 +94,7 @@ def _should_convert_json(col_name: str) -> bool:
         ".metadata"
     )
     is_json_str = col_name in OPEN_INFERENCE_JSON_STR_TYPES
-    # Both "result" (legacy Druid column name) and "output" (canonical name) are JSON-encoded
-    # strings containing the experiment task output. The flight server emits both column names
-    # for backward compatibility with the v7 SDK, so we must parse either.
+    # Both "result" (legacy Druid column name) and "output" (canonical name) can
+    # contain experiment task outputs that need JSON encoding before upload.
     is_task_result = col_name in ("result", "output")
     return is_eval_metadata or is_json_str or is_task_result

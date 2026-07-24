@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **api_key** | **str** | New API key. Pass null to remove the existing key. Omit to keep unchanged. | [optional] 
 **base_url** | **str** | Custom base URL. Pass null to remove. | [optional] 
 **model_names** | **List[str]** | Supported model names (replaces all) | [optional] 
-**headers** | **Dict[str, str]** | Custom headers. Pass null to remove. | [optional] 
+**headers** | **Dict[str, str]** | Custom headers. Pass null to remove. The serialized header map must not exceed 8,175 bytes. | [optional] 
 **enable_default_models** | **bool** | Enable provider&#39;s default model list | [optional] 
 **function_calling_enabled** | **bool** | Enable function/tool calling | [optional] 
 **auth_type** | [**AiIntegrationAuthType**](AiIntegrationAuthType.md) |  | [optional] 

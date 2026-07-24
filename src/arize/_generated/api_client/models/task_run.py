@@ -41,7 +41,8 @@ class TaskRun(BaseModel):
     num_skipped: StrictInt = Field(description="Number of items that were skipped.")
     created_at: datetime = Field(description="When the run was created.")
     created_by_user_id: Optional[StrictStr] = Field(description="The unique identifier for the user who triggered the run.")
-    __properties: ClassVar[List[str]] = ["id", "task_id", "experiment_id", "status", "run_started_at", "run_finished_at", "data_start_time", "data_end_time", "num_successes", "num_errors", "num_skipped", "created_at", "created_by_user_id"]
+    failure_reason: Optional[StrictStr] = Field(default=None, description="Human-readable explanation of why the run failed or was cancelled; null for successful runs. For example, when all matching data already has evaluation labels from a previous run, the task cancels with zero successes, errors, and skipped items, and this field explains that the task must be re-triggered with `override_evaluations` enabled to re-evaluate it. ")
+    __properties: ClassVar[List[str]] = ["id", "task_id", "experiment_id", "status", "run_started_at", "run_finished_at", "data_start_time", "data_end_time", "num_successes", "num_errors", "num_skipped", "created_at", "created_by_user_id", "failure_reason"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -112,6 +113,11 @@ class TaskRun(BaseModel):
         if self.created_by_user_id is None and "created_by_user_id" in self.model_fields_set:
             _dict['created_by_user_id'] = None
 
+        # set to None if failure_reason (nullable) is None
+        # and model_fields_set contains the field
+        if self.failure_reason is None and "failure_reason" in self.model_fields_set:
+            _dict['failure_reason'] = None
+
         return _dict
 
     @classmethod
@@ -141,7 +147,8 @@ class TaskRun(BaseModel):
             "num_errors": obj.get("num_errors"),
             "num_skipped": obj.get("num_skipped"),
             "created_at": obj.get("created_at"),
-            "created_by_user_id": obj.get("created_by_user_id")
+            "created_by_user_id": obj.get("created_by_user_id"),
+            "failure_reason": obj.get("failure_reason")
         })
         return _obj
 

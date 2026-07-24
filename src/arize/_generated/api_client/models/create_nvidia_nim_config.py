@@ -30,7 +30,7 @@ class CreateNvidiaNimConfig(BaseModel):
     provider: StrictStr
     base_url: Optional[StrictStr] = Field(default=None, description="Self-hosted NIM endpoint URL (HTTPS). Defaults to the provider default endpoint.")
     api_key: Optional[StrictStr] = Field(default=None, description="API key for the endpoint (write-only, never returned).")
-    headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom request headers sent to the endpoint, as a name-to-value map. Write-only: values are never returned; names are exposed as `header_names` on read. Defaults to no headers.")
+    headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom request headers sent to the endpoint, as a name-to-value map. Write-only: values are never returned; names are exposed as `header_names` on read. Defaults to no headers. The serialized header map must not exceed 8,175 bytes.")
     is_default_models_enabled: Optional[StrictBool] = Field(default=None, description="Enable Arize's default model catalog. Defaults to false.")
     model_names: Optional[List[StrictStr]] = Field(default=None, description="Custom model names to make available. Defaults to none.")
     __properties: ClassVar[List[str]] = ["is_function_calling_enabled", "provider", "base_url", "api_key", "headers", "is_default_models_enabled", "model_names"]

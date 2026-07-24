@@ -16,6 +16,7 @@
 from arize._generated.api_client.models.add_annotation_queue_records_request import AddAnnotationQueueRecordsRequest
 from arize._generated.api_client.models.add_organization_user_request import AddOrganizationUserRequest
 from arize._generated.api_client.models.add_space_user_request import AddSpaceUserRequest
+from arize._generated.api_client.models.agent_call_run_config import AgentCallRunConfig
 from arize._generated.api_client.models.agent_config import AgentConfig
 from arize._generated.api_client.models.agent_integration import AgentIntegration
 from arize._generated.api_client.models.agent_request_preset import AgentRequestPreset

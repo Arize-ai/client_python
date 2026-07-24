@@ -402,7 +402,8 @@ class ArizeFlightClient:
 
         Returns:
             :class:`pandas.DataFrame`: A pandas DataFrame containing the experiment runs
-                with JSON string columns converted to dict objects.
+                with metadata JSON strings converted to dictionaries and task outputs
+                preserved as strings.
 
         Raises:
             RuntimeError: If the Flight request fails.
@@ -422,7 +423,9 @@ class ArizeFlightClient:
             reader = self.do_get(descriptor, options=self.call_options)
             # read all data into pandas dataframe
             df = reader.read_all().to_pandas()
-            return convert_json_str_to_dict(df)
+            return convert_json_str_to_dict(
+                df, excluded_columns=("result", "output")
+            )
         except Exception as e:
             logger.exception(f"Failed to get experiment id={experiment_id}")
             raise RuntimeError(

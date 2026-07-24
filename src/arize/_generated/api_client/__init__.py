@@ -51,6 +51,7 @@ __all__ = [
     "AddAnnotationQueueRecordsRequest",
     "AddOrganizationUserRequest",
     "AddSpaceUserRequest",
+    "AgentCallRunConfig",
     "AgentConfig",
     "AgentIntegration",
     "AgentRequestPreset",
@@ -412,6 +413,7 @@ from arize._generated.api_client.exceptions import ApiException as ApiException
 from arize._generated.api_client.models.add_annotation_queue_records_request import AddAnnotationQueueRecordsRequest as AddAnnotationQueueRecordsRequest
 from arize._generated.api_client.models.add_organization_user_request import AddOrganizationUserRequest as AddOrganizationUserRequest
 from arize._generated.api_client.models.add_space_user_request import AddSpaceUserRequest as AddSpaceUserRequest
+from arize._generated.api_client.models.agent_call_run_config import AgentCallRunConfig as AgentCallRunConfig
 from arize._generated.api_client.models.agent_config import AgentConfig as AgentConfig
 from arize._generated.api_client.models.agent_integration import AgentIntegration as AgentIntegration
 from arize._generated.api_client.models.agent_request_preset import AgentRequestPreset as AgentRequestPreset

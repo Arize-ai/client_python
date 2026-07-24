@@ -30,6 +30,7 @@ arize/_generated/api_client/docs/APIKeysApi.md
 arize/_generated/api_client/docs/AddAnnotationQueueRecordsRequest.md
 arize/_generated/api_client/docs/AddOrganizationUserRequest.md
 arize/_generated/api_client/docs/AddSpaceUserRequest.md
+arize/_generated/api_client/docs/AgentCallRunConfig.md
 arize/_generated/api_client/docs/AgentConfig.md
 arize/_generated/api_client/docs/AgentIntegration.md
 arize/_generated/api_client/docs/AgentRequestPreset.md
@@ -375,6 +376,7 @@ arize/_generated/api_client/models/__init__.py
 arize/_generated/api_client/models/add_annotation_queue_records_request.py
 arize/_generated/api_client/models/add_organization_user_request.py
 arize/_generated/api_client/models/add_space_user_request.py
+arize/_generated/api_client/models/agent_call_run_config.py
 arize/_generated/api_client/models/agent_config.py
 arize/_generated/api_client/models/agent_integration.py
 arize/_generated/api_client/models/agent_request_preset.py

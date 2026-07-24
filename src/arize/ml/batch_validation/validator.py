@@ -56,6 +56,7 @@ from arize.exceptions.types import (
     InvalidTypeTags,
     InvalidValueEmbeddingRawDataTooLong,
     InvalidValueEmbeddingVectorDimensionality,
+    InvalidValueEmbeddingVectorHasNoValues,
 )
 from arize.exceptions.values import (
     InvalidBoundingBoxesCategories,
@@ -428,6 +429,9 @@ class Validator:
                     schema.prediction_id_column_name,
                 ),
                 Validator._check_embedding_vectors_dimensionality(  # type: ignore[arg-type]
+                    dataframe, schema
+                ),
+                Validator._check_embedding_vectors_have_valid_values(  # type: ignore[arg-type]
                     dataframe, schema
                 ),
                 Validator._check_embedding_raw_data_characters(  # type: ignore[arg-type]
@@ -2403,6 +2407,34 @@ class Validator:
         )
 
     @staticmethod
+    def _check_embedding_vectors_have_valid_values(
+        dataframe: pd.DataFrame, schema: Schema
+    ) -> list[ValidationError]:
+        if schema.embedding_feature_column_names is None:
+            return []
+
+        cols_to_check = [
+            emb_feat_col_names.vector_column_name
+            for emb_feat_col_names in (
+                schema.embedding_feature_column_names.values()
+            )
+            if emb_feat_col_names.vector_column_name in dataframe.columns
+        ]
+
+        (
+            all_empty_cols,
+            all_nan_cols,
+        ) = _check_value_vector_no_valid_values_helper(dataframe, cols_to_check)
+
+        if all_empty_cols or all_nan_cols:
+            return [
+                InvalidValueEmbeddingVectorHasNoValues(
+                    all_empty_cols, all_nan_cols
+                )
+            ]
+        return []
+
+    @staticmethod
     def _check_embedding_raw_data_characters(
         dataframe: pd.DataFrame, schema: Schema
     ) -> list[ValidationError]:
@@ -3539,8 +3571,13 @@ def _check_value_vector_dimensionality_helper(
     invalid_low_dimensionality_vector_cols = []
     invalid_high_dimensionality_vector_cols = []
     for col in cols_to_check:
+        # Treat scalar null placeholders (None / NaN / pd.NA / pd.NaT) as
+        # dimension 0 rather than calling len() on them, which would raise a
+        # TypeError. Shares the same null classification as the value check so
+        # a column like [float("nan"), np.arange(3.0)] does not crash here
+        # before _check_embedding_vectors_have_valid_values can inspect it.
         vector_dims = dataframe[col].apply(
-            lambda vec: 0 if vec is None or vec is np.nan else len(vec)
+            lambda vec: 0 if _vector_is_null(vec) else len(vec)
         )
         if (vector_dims == 1).any():
             invalid_low_dimensionality_vector_cols.append(col)
@@ -3551,6 +3588,89 @@ def _check_value_vector_dimensionality_helper(
         invalid_low_dimensionality_vector_cols,
         invalid_high_dimensionality_vector_cols,
     )
+
+
+def _vector_is_null(vec: object) -> bool:
+    """Return True if the value is a null placeholder (None / scalar NaN).
+
+    A null vector is an allowed way to say "this record has no embedding"; the
+    server lets it flow through. It is distinct from a non-null vector that
+    contains non-finite values, which the server rejects.
+
+    Recognizes every scalar missing sentinel pandas/PyArrow may produce for a
+    list<double> column — ``None``, Python/NumPy ``float`` NaN, ``pd.NA`` and
+    ``pd.NaT`` — so callers can safely skip them before treating the value as a
+    vector.
+    """
+    # An array-like value is a real vector, never a null placeholder. Guarding
+    # here avoids passing it to pd.isna, which would return an element-wise
+    # array instead of a single bool.
+    if isinstance(vec, (list, tuple, np.ndarray)):
+        return False
+    try:
+        # cast to Any: pd.isna has no overload for a bare object, but every
+        # scalar reaching here is a valid argument at runtime.
+        return bool(pd.isna(cast("Any", vec)))
+    except (TypeError, ValueError):
+        # Safety net for any other array-like not enumerated above (e.g. a
+        # pd.Series cell): pd.isna returns an element-wise result and bool()
+        # raises, so treat it as a non-null vector rather than a placeholder.
+        return False
+
+
+def _vector_is_valid(vec: object) -> bool:
+    """Return True if the (non-null) vector is a usable embedding.
+
+    Mirrors the server-side check (``validateEmbedding`` -> ``IsNumericVector``
+    in ``go/pkg/lib/validation/common.go`` / ``go/pkg/lib/math/math.go``): the
+    vector must be non-empty and every element must be finite. A single NaN,
+    Inf, or -Inf makes the whole vector invalid — matching the server, which
+    otherwise drops the entire file during async ingestion.
+    """
+    try:
+        arr = np.asarray(vec, dtype=float)
+    except (TypeError, ValueError):
+        # Non-numeric contents cannot form a valid embedding vector.
+        return False
+    if arr.size == 0:
+        return False
+    return bool(np.isfinite(arr).all())
+
+
+def _check_value_vector_no_valid_values_helper(
+    dataframe: pd.DataFrame, cols_to_check: list[str]
+) -> tuple[list[str], list[str]]:
+    """Classify embedding vector columns by whether they hold usable values.
+
+    Returns a tuple of:
+    - all_empty_cols: columns where no row contains a usable vector (every value
+      is null, empty, or contains non-finite values). Declaring such an
+      embedding fails server-side type inference.
+    - invalid_value_cols: columns that contain at least one usable vector but
+      also at least one non-null vector that is empty or has a non-finite value
+      (NaN/Inf). The server drops the whole file when it encounters such a
+      vector.
+
+    A column that mixes null placeholders with usable vectors is valid and is
+    not reported.
+    """
+
+    def classify(vec: object) -> int:
+        if _vector_is_null(vec):
+            return 0  # null placeholder — allowed
+        return 2 if _vector_is_valid(vec) else 1  # 2 valid, 1 invalid non-null
+
+    all_empty_cols = []
+    invalid_value_cols = []
+    for col in cols_to_check:
+        codes = dataframe[col].apply(classify)
+        has_valid = bool((codes == 2).any())
+        has_invalid_nonnull = bool((codes == 1).any())
+        if not has_valid:
+            all_empty_cols.append(col)
+        elif has_invalid_nonnull:
+            invalid_value_cols.append(col)
+    return all_empty_cols, invalid_value_cols
 
 
 def _check_value_raw_data_length_helper(

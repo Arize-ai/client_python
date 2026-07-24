@@ -199,6 +199,7 @@ Class | Method | HTTP request | Description
  - [AddAnnotationQueueRecordsRequest](arize/_generated/api_client/docs/AddAnnotationQueueRecordsRequest.md)
  - [AddOrganizationUserRequest](arize/_generated/api_client/docs/AddOrganizationUserRequest.md)
  - [AddSpaceUserRequest](arize/_generated/api_client/docs/AddSpaceUserRequest.md)
+ - [AgentCallRunConfig](arize/_generated/api_client/docs/AgentCallRunConfig.md)
  - [AgentConfig](arize/_generated/api_client/docs/AgentConfig.md)
  - [AgentIntegration](arize/_generated/api_client/docs/AgentIntegration.md)
  - [AgentRequestPreset](arize/_generated/api_client/docs/AgentRequestPreset.md)

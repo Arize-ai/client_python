@@ -1153,6 +1153,32 @@ class TestGetExperimentRuns:
         assert len(result) == 2
 
     @patch("arize._flight.client.ArizeFlightClient.do_get")
+    def test_get_experiment_runs_preserves_output_strings(
+        self,
+        mock_do_get: Mock,
+        flight_client: ArizeFlightClient,
+    ) -> None:
+        """Keep task output strings raw while parsing other JSON columns."""
+        mock_reader = Mock()
+        mock_table = Mock()
+        mock_table.to_pandas.return_value = pd.DataFrame(
+            {
+                "output": ['{"ok": true}'],
+                "eval.test.metadata": ['{"source": "test"}'],
+            }
+        )
+        mock_reader.read_all.return_value = mock_table
+        mock_do_get.return_value = mock_reader
+
+        result = flight_client.get_experiment_runs(
+            space_id="test_space",
+            experiment_id="exp_123",
+        )
+
+        assert result["output"].iloc[0] == '{"ok": true}'
+        assert result["eval.test.metadata"].iloc[0] == {"source": "test"}
+
+    @patch("arize._flight.client.ArizeFlightClient.do_get")
     def test_get_experiment_runs_ticket_format(
         self,
         mock_do_get: Mock,

@@ -6,7 +6,7 @@ Experiment execution configuration for a `RUN_EXPERIMENT` task. Exactly one vari
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**experiment_type** | **str** | Discriminator. Must be &#x60;\&quot;TEMPLATE_EVALUATION\&quot;&#x60;. | 
+**experiment_type** | **str** | Discriminator. Must be &#x60;\&quot;AGENT_CALL\&quot;&#x60;. | 
 **ai_integration_id** | **str** | AI integration identifier (base64). The LLM that judges each example. | 
 **model_name** | **str** | Model name (e.g. &#x60;gpt-4o&#x60;). Falls back to the integration&#39;s default if omitted. | [optional] 
 **messages** | [**List[LLMMessage]**](LLMMessage.md) | Array of message objects (at least one). | 
@@ -20,6 +20,8 @@ Name | Type | Description | Notes
 **classification_choices** | **Dict[str, float]** | Map of choice label to numeric score (e.g. &#x60;{\&quot;relevant\&quot;: 1, \&quot;irrelevant\&quot;: 0}&#x60;). | [optional] 
 **column_mapping** | **Dict[str, str]** | Maps template variable names to dataset column paths. | [optional] 
 **evaluator_version_id** | **str** | EvaluatorVersion identifier (base64). Links this run to an Eval Hub evaluator version. | [optional] 
+**integration_id** | **str** | Agent integration identifier (base64). The agent invoked for each dataset example. Must reference an integration of &#x60;type&#x60; &#x60;AGENT&#x60;; other integration types are rejected.  | 
+**input_template** | **Dict[str, object]** | JSON request body sent to the agent for each dataset example. Must be a JSON object whose values conform to the agent integration&#39;s input schema. Mustache placeholders (&#x60;{{column}}&#x60;) are substituted with each dataset row&#39;s values before the request is sent. The &#x60;dataset.&#x60; prefix is optional — &#x60;{{column}}&#x60; and &#x60;{{dataset.column}}&#x60; are equivalent, and responses (create, update, and read) always echo the normalized &#x60;{{column}}&#x60; form.  | 
 
 ## Example
 

@@ -47,7 +47,8 @@ class TestTaskRun(unittest.TestCase):
                 num_errors = 56,
                 num_skipped = 56,
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
-                created_by_user_id = ''
+                created_by_user_id = '',
+                failure_reason = ''
             )
         else:
             return TaskRun(

@@ -285,6 +285,24 @@ class TestConvertJsonStrToDict:
         # other_str_col should remain a string
         assert isinstance(result["other_str_col"].iloc[0], str)
 
+    def test_leaves_excluded_columns_unchanged(self) -> None:
+        """Should not parse explicitly excluded JSON string columns."""
+        df = pd.DataFrame(
+            {
+                "eval.test.metadata": ['{"key": "value"}'],
+                "result": ['{"legacy": true}'],
+                "output": ['{"ok": true}'],
+            }
+        )
+
+        result = convert_json_str_to_dict(
+            df, excluded_columns=("result", "output")
+        )
+
+        assert result["eval.test.metadata"].iloc[0] == {"key": "value"}
+        assert result["result"].iloc[0] == '{"legacy": true}'
+        assert result["output"].iloc[0] == '{"ok": true}'
+
     def test_handles_empty_json_string(self) -> None:
         """Should convert empty JSON string to empty dict."""
         df = pd.DataFrame({"eval.test.metadata": ["{}"]})

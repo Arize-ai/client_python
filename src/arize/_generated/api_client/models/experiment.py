@@ -29,8 +29,8 @@ class Experiment(BaseModel):
     """ # noqa: E501
     id: StrictStr = Field(description="Unique identifier for the experiment")
     name: StrictStr = Field(description="Name of the experiment")
-    dataset_id: StrictStr = Field(description="Unique identifier for the dataset this experiment belongs to")
-    dataset_version_id: StrictStr = Field(description="Unique identifier for the dataset version this experiment belongs to")
+    dataset_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the dataset associated with this experiment. Null if the experiment isn't associated with a dataset.")
+    dataset_version_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the dataset version associated with this experiment. Null if the experiment isn't associated with a dataset.")
     created_at: datetime = Field(description="Timestamp for when the experiment was created")
     updated_at: datetime = Field(description="Timestamp for the last update of the experiment")
     experiment_traces_project_id: Optional[StrictStr] = Field(default=None, description="Unique identifier for the experiment traces project this experiment belongs to (if it exists)")
@@ -76,6 +76,16 @@ class Experiment(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if dataset_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.dataset_id is None and "dataset_id" in self.model_fields_set:
+            _dict['dataset_id'] = None
+
+        # set to None if dataset_version_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.dataset_version_id is None and "dataset_version_id" in self.model_fields_set:
+            _dict['dataset_version_id'] = None
+
         # set to None if integration_id (nullable) is None
         # and model_fields_set contains the field
         if self.integration_id is None and "integration_id" in self.model_fields_set:

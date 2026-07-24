@@ -35,7 +35,7 @@ class CreateAiIntegrationRequest(BaseModel):
     api_key: Optional[StrictStr] = Field(default=None, description="API key for the provider (write-only, never returned)")
     base_url: Optional[StrictStr] = Field(default=None, description="Custom base URL for the provider")
     model_names: Optional[List[StrictStr]] = Field(default=None, description="Supported model names")
-    headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom headers to include in requests")
+    headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom headers to include in requests. The serialized header map must not exceed 8,175 bytes.")
     enable_default_models: Optional[StrictBool] = Field(default=None, description="Enable provider's default model list (default false)")
     function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Enable function/tool calling (default true)")
     auth_type: Optional[AiIntegrationAuthType] = None

@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **api_key** | **str** | API key for the provider (write-only, never returned) | [optional] 
 **base_url** | **str** | Custom base URL for the provider | [optional] 
 **model_names** | **List[str]** | Supported model names | [optional] 
-**headers** | **Dict[str, str]** | Custom headers to include in requests | [optional] 
+**headers** | **Dict[str, str]** | Custom headers to include in requests. The serialized header map must not exceed 8,175 bytes. | [optional] 
 **enable_default_models** | **bool** | Enable provider&#39;s default model list (default false) | [optional] 
 **function_calling_enabled** | **bool** | Enable function/tool calling (default true) | [optional] 
 **auth_type** | [**AiIntegrationAuthType**](AiIntegrationAuthType.md) |  | [optional] 

@@ -35,7 +35,7 @@ class UpdateAiIntegrationRequest(BaseModel):
     api_key: Optional[StrictStr] = Field(default=None, description="New API key. Pass null to remove the existing key. Omit to keep unchanged.")
     base_url: Optional[StrictStr] = Field(default=None, description="Custom base URL. Pass null to remove.")
     model_names: Optional[List[StrictStr]] = Field(default=None, description="Supported model names (replaces all)")
-    headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom headers. Pass null to remove.")
+    headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom headers. Pass null to remove. The serialized header map must not exceed 8,175 bytes.")
     enable_default_models: Optional[StrictBool] = Field(default=None, description="Enable provider's default model list")
     function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Enable function/tool calling")
     auth_type: Optional[AiIntegrationAuthType] = None

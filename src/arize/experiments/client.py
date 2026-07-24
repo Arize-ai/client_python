@@ -361,6 +361,8 @@ class ExperimentsClient:
             A response object containing ``experiment_runs`` and ``pagination`` metadata.
 
         Raises:
+            ValueError: If ``all=True`` and the experiment has no associated
+                dataset.
             RuntimeError: If the Flight request fails or returns no response when
                 ``all=True``.
             ApiException: If the REST API
@@ -373,14 +375,33 @@ class ExperimentsClient:
             dataset=dataset,
             space=space,
         )
-        if not all:
-            return self._api.list_experiment_runs(
-                experiment_id=experiment_id,
-                limit=limit,
-                cursor=cursor,
-            )
+        if all:
+            return self._list_all_experiment_runs(experiment_id=experiment_id)
+        return self._api.list_experiment_runs(
+            experiment_id=experiment_id,
+            limit=limit,
+            cursor=cursor,
+        )
 
+    def _list_all_experiment_runs(
+        self, *, experiment_id: str
+    ) -> ListExperimentRunsResponse:
+        """Fetch every run for an experiment via the Flight path.
+
+        Backs ``list_runs(all=True)``: resolves the experiment's space, streams
+        all runs in a single response (``has_more=False``), and caches the result
+        when caching is enabled.
+        """
         experiment_obj = self.get(experiment=experiment_id)
+        # The Flight path needs the experiment's space_id, currently derived via
+        # its dataset, so a dataset-less experiment can't use it. The paginated
+        # REST path (all=False) has no such dependency and is unaffected.
+        if experiment_obj.dataset_id is None:
+            raise ValueError(
+                f"Experiment {experiment_id!r} has no associated dataset; "
+                "list_runs(all=True) is not supported for experiments "
+                "without a dataset."
+            )
         experiment_updated_at = getattr(experiment_obj, "updated_at", None)
         # TODO(Kiko): Space ID should not be needed,
         # should work on server tech debt to remove this
@@ -394,7 +415,7 @@ class ExperimentsClient:
         if self._sdk_config.enable_caching:
             experiment_df = load_cached_resource(
                 cache_dir=self._sdk_config.cache_dir,
-                resource="experiment",
+                resource="experiment_runs",
                 resource_id=experiment_id,
                 resource_updated_at=experiment_updated_at,
             )
@@ -437,7 +458,7 @@ class ExperimentsClient:
         if self._sdk_config.enable_caching:
             cache_resource(
                 cache_dir=self._sdk_config.cache_dir,
-                resource="experiment",
+                resource="experiment_runs",
                 resource_id=experiment_id,
                 resource_updated_at=experiment_updated_at,
                 resource_data=experiment_df,

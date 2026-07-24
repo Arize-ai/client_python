@@ -1,5 +1,21 @@
 # Changelog
 
+## [8.42.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.41.0...arize-python-sdk/v8.42.0) (2026-07-24)
+
+
+### 🎁 New Features
+
+* **api/v2:** support agent_call run_experiment tasks via REST ([#77166](https://github.com/Arize-ai/arize/issues/77166)) ([02bda29](https://github.com/Arize-ai/arize/commit/02bda298ef96012739a8249be0ee46db848e4b83))
+* Make dataset id and dataset version id nullable in the REST API experiment response schema ([#80200](https://github.com/Arize-ai/arize/issues/80200)) ([2cd9eaf](https://github.com/Arize-ai/arize/commit/2cd9eaf5c9a15fa9db3ef2c6cd2d462b077efa32))
+
+
+### 🐛 Bug Fixes
+
+* **cli:** reject CODE_EVALUATION tasks with multiple custom code evaluators ([#79880](https://github.com/Arize-ai/arize/issues/79880)) ([b10d1dd](https://github.com/Arize-ai/arize/commit/b10d1dda6549449d04b8f48681f374bd9fb9a747)), closes [#79853](https://github.com/Arize-ai/arize/issues/79853)
+* **ml:** reject empty/non-finite embedding vectors before upload ([#77637](https://github.com/Arize-ai/arize/issues/77637)) ([e4a7470](https://github.com/Arize-ai/arize/commit/e4a74709db3efd98b3d0814af00b1f94bc2196c8))
+* **onlinetasks:** reject CODE_EVALUATION tasks with multiple custom code ([b10d1dd](https://github.com/Arize-ai/arize/commit/b10d1dda6549449d04b8f48681f374bd9fb9a747))
+* **sdk:** preserve experiment output strings from Flight ([#78959](https://github.com/Arize-ai/arize/issues/78959)) ([593c381](https://github.com/Arize-ai/arize/commit/593c381bae7c697c26f93f9048e2ff7faab33161)), closes [#78894](https://github.com/Arize-ai/arize/issues/78894)
+
 ## [8.41.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.40.0...arize-python-sdk/v8.41.0) (2026-07-22)
 
 

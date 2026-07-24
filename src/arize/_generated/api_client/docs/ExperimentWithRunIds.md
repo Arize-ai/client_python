@@ -7,8 +7,8 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | Unique identifier for the experiment | 
 **name** | **str** | Name of the experiment | 
-**dataset_id** | **str** | Unique identifier for the dataset this experiment belongs to | 
-**dataset_version_id** | **str** | Unique identifier for the dataset version this experiment belongs to | 
+**dataset_id** | **str** | Unique identifier for the dataset associated with this experiment. Null if the experiment isn&#39;t associated with a dataset. | [optional] 
+**dataset_version_id** | **str** | Unique identifier for the dataset version associated with this experiment. Null if the experiment isn&#39;t associated with a dataset. | [optional] 
 **created_at** | **datetime** | Timestamp for when the experiment was created | 
 **updated_at** | **datetime** | Timestamp for the last update of the experiment | 
 **experiment_traces_project_id** | **str** | Unique identifier for the experiment traces project this experiment belongs to (if it exists) | [optional] 

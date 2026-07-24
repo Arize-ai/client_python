@@ -1,6 +1,6 @@
 # Task
 
-A task is a typed, configurable unit of work that ties one or more evaluators to a data source (project or dataset). `RUN_EXPERIMENT` tasks additionally carry a `run_configuration` that defines the LLM or evaluator settings for each triggered run. 
+A task is a typed, configurable unit of work that ties one or more evaluators to a data source (project or dataset). `RUN_EXPERIMENT` tasks additionally carry a `run_configuration` that defines the LLM, evaluator, or agent settings for each triggered run. 
 
 ## Properties
 

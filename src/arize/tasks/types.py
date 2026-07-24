@@ -4,6 +4,9 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
+from arize._generated.api_client.models.agent_call_run_config import (
+    AgentCallRunConfig,
+)
 from arize._generated.api_client.models.list_task_runs_response import (
     ListTaskRunsResponse,
 )
@@ -34,8 +37,9 @@ class Task(BaseModel):
     """SDK view of the generated ``Task`` with ``run_configuration`` unwrapped.
 
     The ``run_configuration`` field holds the concrete inner type
-    (:class:`LlmGenerationRunConfig` or :class:`TemplateEvaluationRunConfig`)
-    instead of the oneOf wrapper :class:`RunConfiguration`.
+    (:class:`AgentCallRunConfig`, :class:`LlmGenerationRunConfig`, or
+    :class:`TemplateEvaluationRunConfig`) instead of the oneOf wrapper
+    :class:`RunConfiguration`.
     """
 
     id: str
@@ -49,7 +53,10 @@ class Task(BaseModel):
     evaluators: list[TaskEvaluator]
     experiment_ids: list[str]
     run_configuration: (
-        LlmGenerationRunConfig | TemplateEvaluationRunConfig | None
+        AgentCallRunConfig
+        | LlmGenerationRunConfig
+        | TemplateEvaluationRunConfig
+        | None
     ) = None
     last_run_at: datetime | None = None
     created_at: datetime
@@ -62,7 +69,12 @@ class Task(BaseModel):
     @classmethod
     def _coerce_run_configuration(
         cls, v: object
-    ) -> LlmGenerationRunConfig | TemplateEvaluationRunConfig | None:
+    ) -> (
+        AgentCallRunConfig
+        | LlmGenerationRunConfig
+        | TemplateEvaluationRunConfig
+        | None
+    ):
         if isinstance(v, RunConfiguration):
             if v.actual_instance is None:
                 raise ValueError(

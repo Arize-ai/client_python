@@ -35,7 +35,7 @@ class TestRunConfiguration(unittest.TestCase):
         model = RunConfiguration()
         if include_optional:
             return RunConfiguration(
-                experiment_type = 'TEMPLATE_EVALUATION',
+                experiment_type = 'AGENT_CALL',
                 ai_integration_id = '',
                 model_name = '',
                 messages = [
@@ -69,11 +69,13 @@ class TestRunConfiguration(unittest.TestCase):
                 column_mapping = {
                     'key' : ''
                     },
-                evaluator_version_id = ''
+                evaluator_version_id = '',
+                integration_id = '',
+                input_template = { }
             )
         else:
             return RunConfiguration(
-                experiment_type = 'TEMPLATE_EVALUATION',
+                experiment_type = 'AGENT_CALL',
                 ai_integration_id = '',
                 messages = [
                     arize._generated.api_client.models.llm_message.LLMMessage(
@@ -92,6 +94,8 @@ class TestRunConfiguration(unittest.TestCase):
                 input_variable_format = 'F_STRING',
                 template = '0',
                 provide_explanation = True,
+                integration_id = '',
+                input_template = { },
         )
         """
 

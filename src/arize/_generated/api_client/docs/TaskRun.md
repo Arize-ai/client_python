@@ -19,6 +19,7 @@ Name | Type | Description | Notes
 **num_skipped** | **int** | Number of items that were skipped. | 
 **created_at** | **datetime** | When the run was created. | 
 **created_by_user_id** | **str** | The unique identifier for the user who triggered the run. | 
+**failure_reason** | **str** | Human-readable explanation of why the run failed or was cancelled; null for successful runs. For example, when all matching data already has evaluation labels from a previous run, the task cancels with zero successes, errors, and skipped items, and this field explains that the task must be re-triggered with &#x60;override_evaluations&#x60; enabled to re-evaluate it.  | [optional] 
 
 ## Example
 

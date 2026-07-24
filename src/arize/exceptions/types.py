@@ -222,6 +222,64 @@ class InvalidValueEmbeddingRawDataTooLong(ValidationError):
         )
 
 
+class InvalidValueEmbeddingVectorHasNoValues(ValidationError):
+    """Raised when embedding vector columns hold no usable numeric values.
+
+    Covers two failure modes that are silently dropped during server-side
+    ingestion (the upload returns HTTP 200 but the records never appear):
+
+    - ``all_empty_cols``: a declared embedding vector column where no row holds
+      a usable vector (every value is null, empty, or contains non-finite
+      values). Declaring such a column fails server-side type inference.
+    - ``invalid_value_cols``: a column that has some usable vectors but also at
+      least one non-null vector that is empty or contains a non-finite value
+      (NaN/Inf/-Inf). The server rejects the whole file when it encounters such
+      a vector.
+    """
+
+    def __repr__(self) -> str:
+        """Return a string representation for debugging and logging."""
+        return "Invalid_Value_Embedding_Vector_Has_No_Values"
+
+    def __init__(
+        self, all_empty_cols: list[str], invalid_value_cols: list[str]
+    ) -> None:
+        """Initialize the exception with embedding value validation context.
+
+        Args:
+            all_empty_cols: Columns whose every value is null, empty, or
+                non-finite (no usable vector anywhere in the column).
+            invalid_value_cols: Columns with at least one non-null empty or
+                non-finite vector alongside usable vectors.
+        """
+        self.all_empty_cols = all_empty_cols
+        self.invalid_value_cols = invalid_value_cols
+
+    def error_message(self) -> str:
+        """Return the error message for this exception."""
+        msg = (
+            "Embedding vectors must be non-empty and contain only finite "
+            "numeric values (no NaN, Inf, or -Inf). Empty or non-finite vectors "
+            "are dropped during ingestion, so the upload succeeds but the data "
+            "never appears. Set the embedding vector to None for records that "
+            "have no vector, sanitize stray NaN/Inf values, and remove "
+            "entirely-empty embedding columns from the schema. "
+        )
+        if self.all_empty_cols:
+            msg += (
+                "The following embedding columns contain no usable vectors "
+                "(every value is null, empty, or non-finite): "
+                f"{', '.join(self.all_empty_cols)}. "
+            )
+        if self.invalid_value_cols:
+            msg += (
+                "The following embedding columns contain non-null vectors that "
+                "are empty or have NaN/Inf values: "
+                f"{', '.join(self.invalid_value_cols)}. "
+            )
+        return msg
+
+
 class InvalidTypeShapValues(ValidationError):
     """Raised when SHAP value columns have invalid types."""
 

@@ -18,24 +18,24 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 
-class CreateAwsBedrockProxyWithHeadersAuth(BaseModel):
+class AgentCallRunConfig(BaseModel):
     """
-    Create proxy auth. `base_url` is required. `headers` is write-only; names are returned as `header_names` on read.
+    Configuration for running an agent integration against each dataset example. The `input_template` is sent to the agent after Mustache substitution. 
     """ # noqa: E501
-    auth_type: StrictStr
-    base_url: StrictStr = Field(description="Proxy URL requests are forwarded to (HTTPS).")
-    headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom request headers sent to the proxy, as a name-to-value map. Write-only: values are never returned; names are exposed as `header_names` on read. Defaults to no headers. The serialized header map must not exceed 8,175 bytes.")
-    __properties: ClassVar[List[str]] = ["auth_type", "base_url", "headers"]
+    experiment_type: StrictStr = Field(description="Discriminator. Must be `\"AGENT_CALL\"`.")
+    integration_id: StrictStr = Field(description="Agent integration identifier (base64). The agent invoked for each dataset example. Must reference an integration of `type` `AGENT`; other integration types are rejected. ")
+    input_template: Dict[str, Any] = Field(description="JSON request body sent to the agent for each dataset example. Must be a JSON object whose values conform to the agent integration's input schema. Mustache placeholders (`{{column}}`) are substituted with each dataset row's values before the request is sent. The `dataset.` prefix is optional — `{{column}}` and `{{dataset.column}}` are equivalent, and responses (create, update, and read) always echo the normalized `{{column}}` form. ")
+    __properties: ClassVar[List[str]] = ["experiment_type", "integration_id", "input_template"]
 
-    @field_validator('auth_type')
-    def auth_type_validate_enum(cls, value):
+    @field_validator('experiment_type')
+    def experiment_type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['PROXY_WITH_HEADERS']):
-            raise ValueError("must be one of enum values ('PROXY_WITH_HEADERS')")
+        if value not in set(['AGENT_CALL']):
+            raise ValueError("must be one of enum values ('AGENT_CALL')")
         return value
 
     model_config = ConfigDict(
@@ -56,7 +56,7 @@ class CreateAwsBedrockProxyWithHeadersAuth(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of CreateAwsBedrockProxyWithHeadersAuth from a JSON string"""
+        """Create an instance of AgentCallRunConfig from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -81,7 +81,7 @@ class CreateAwsBedrockProxyWithHeadersAuth(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of CreateAwsBedrockProxyWithHeadersAuth from a dict"""
+        """Create an instance of AgentCallRunConfig from a dict"""
         if obj is None:
             return None
 
@@ -91,12 +91,12 @@ class CreateAwsBedrockProxyWithHeadersAuth(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in CreateAwsBedrockProxyWithHeadersAuth) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in AgentCallRunConfig) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "auth_type": obj.get("auth_type"),
-            "base_url": obj.get("base_url"),
-            "headers": obj.get("headers")
+            "experiment_type": obj.get("experiment_type"),
+            "integration_id": obj.get("integration_id"),
+            "input_template": obj.get("input_template")
         })
         return _obj
 

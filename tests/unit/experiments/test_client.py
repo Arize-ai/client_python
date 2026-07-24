@@ -180,7 +180,13 @@ class TestListRunsCaching:
         dataset_obj = Mock()
         dataset_obj.space_id = "space-123"
 
-        empty_df = pd.DataFrame(columns=["id", "example_id", "output"])
+        experiment_df = pd.DataFrame(
+            {
+                "id": ["run-1"],
+                "example_id": ["example-1"],
+                "output": ['{"ok": true}'],
+            }
+        )
 
         with (
             patch.object(client, "get", return_value=experiment_obj),
@@ -203,13 +209,18 @@ class TestListRunsCaching:
                 return_value=mock_flight_instance
             )
             mock_flight_instance.__exit__ = Mock(return_value=False)
-            mock_flight_instance.get_experiment_runs.return_value = empty_df
+            mock_flight_instance.get_experiment_runs.return_value = (
+                experiment_df
+            )
             mock_flight_cls.return_value = mock_flight_instance
 
             # Use a base64-encoded ID so _find_experiment_id treats it as a
             # direct resource ID and skips the name-lookup API call.
-            client.list_runs(experiment="RXhwZXJpbWVudDoxMjM6YWJj", all=True)
+            response = client.list_runs(
+                experiment="RXhwZXJpbWVudDoxMjM6YWJj", all=True
+            )
 
+        assert response.experiment_runs[0].output == '{"ok": true}'
         mock_cache_write.assert_not_called()
 
     def test_cache_write_called_when_caching_enabled(
@@ -235,7 +246,7 @@ class TestListRunsCaching:
             patch(
                 "arize.experiments.client.load_cached_resource",
                 return_value=None,
-            ),
+            ) as mock_cache_read,
             patch(
                 "arize.experiments.client.cache_resource"
             ) as mock_cache_write,
@@ -255,4 +266,47 @@ class TestListRunsCaching:
             # direct resource ID and skips the name-lookup API call.
             client.list_runs(experiment="RXhwZXJpbWVudDoxMjM6YWJj", all=True)
 
+        mock_cache_read.assert_called_once()
+        assert mock_cache_read.call_args.kwargs["resource"] == "experiment_runs"
         mock_cache_write.assert_called_once()
+        assert (
+            mock_cache_write.call_args.kwargs["resource"] == "experiment_runs"
+        )
+
+
+class TestListRunsNoDataset:
+    """Tests for ExperimentsClient.list_runs(all=True) on dataset-less experiments."""
+
+    def test_raises_value_error_when_experiment_has_no_dataset(
+        self, mock_sdk_config: Mock
+    ) -> None:
+        """list_runs(all=True) must raise rather than call get_dataset(dataset_id=None)."""
+        with (
+            patch(
+                "arize._generated.api_client.ExperimentsApi",
+                return_value=Mock(),
+            ),
+            patch(
+                "arize._generated.api_client.DatasetsApi", return_value=Mock()
+            ),
+        ):
+            client = ExperimentsClient(
+                sdk_config=mock_sdk_config,
+                generated_client=Mock(),
+            )
+
+        experiment_obj = Mock()
+        experiment_obj.dataset_id = None
+
+        with (
+            patch.object(client, "get", return_value=experiment_obj),
+            patch.object(
+                client._datasets_api, "get_dataset"
+            ) as mock_get_dataset,
+            pytest.raises(ValueError, match="no associated dataset"),
+        ):
+            # Use a base64-encoded ID so _find_experiment_id treats it as a
+            # direct resource ID and skips the name-lookup API call.
+            client.list_runs(experiment="RXhwZXJpbWVudDoxMjM6YWJj", all=True)
+
+        mock_get_dataset.assert_not_called()
