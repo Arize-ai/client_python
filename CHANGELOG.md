@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.43.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.42.0...arize-python-sdk/v8.43.0) (2026-07-27)
+
+
+### 🎁 New Features
+
+* **spaces:** add is_private field to space create/update ([#79702](https://github.com/Arize-ai/arize/issues/79702)) ([f2eb74b](https://github.com/Arize-ai/arize/commit/f2eb74b690231e9939a9f4da1446e349c87eed79))
+
 ## [8.42.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.41.0...arize-python-sdk/v8.42.0) (2026-07-24)
 
 

@@ -1839,7 +1839,7 @@ class SpacesApi:
     ) -> Space:
         """Update a space
 
-        Update a space's metadata by its ID. Currently supports updating the name and description. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update a space's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `description`, or `is_private` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
@@ -1917,7 +1917,7 @@ class SpacesApi:
     ) -> ApiResponse[Space]:
         """Update a space
 
-        Update a space's metadata by its ID. Currently supports updating the name and description. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update a space's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `description`, or `is_private` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: The unique space identifier (base64) (required)
         :type space_id: str
@@ -1995,7 +1995,7 @@ class SpacesApi:
     ) -> RESTResponseType:
         """Update a space
 
-        Update a space's metadata by its ID. Currently supports updating the name and description. At least one field must be provided.  **Payload Requirements** - At least one of `name` or `description` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update a space's metadata by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `description`, or `is_private` must be provided. - If `name` is provided, it must be unique within the organization. - System-managed fields (`id`, `created_at`) cannot be modified.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param space_id: The unique space identifier (base64) (required)
         :type space_id: str

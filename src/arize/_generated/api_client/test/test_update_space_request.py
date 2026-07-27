@@ -36,7 +36,8 @@ class TestUpdateSpaceRequest(unittest.TestCase):
         if include_optional:
             return UpdateSpaceRequest(
                 name = '',
-                description = ''
+                description = '',
+                is_private = True
             )
         else:
             return UpdateSpaceRequest(

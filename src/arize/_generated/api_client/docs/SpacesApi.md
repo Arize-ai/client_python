@@ -573,11 +573,10 @@ void (empty response body)
 
 Update a space
 
-Update a space's metadata by its ID. Currently supports updating the
-name and description. At least one field must be provided.
+Update a space's metadata by its ID. At least one field must be provided.
 
 **Payload Requirements**
-- At least one of `name` or `description` must be provided.
+- At least one of `name`, `description`, or `is_private` must be provided.
 - If `name` is provided, it must be unique within the organization.
 - System-managed fields (`id`, `created_at`) cannot be modified.
 

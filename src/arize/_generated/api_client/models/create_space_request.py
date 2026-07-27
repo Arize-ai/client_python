@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -27,10 +27,11 @@ class CreateSpaceRequest(BaseModel):
     """
     CreateSpaceRequest
     """ # noqa: E501
-    name: Annotated[str, Field(strict=True, max_length=255)] = Field(description="Name of the space")
+    name: Annotated[str, Field(strict=True, max_length=255)] = Field(description="Name of the space (must be unique within the organization)")
     organization_id: StrictStr = Field(description="The unique identifier of the organization to create the space in")
-    description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="A brief description of the space's purpose")
-    __properties: ClassVar[List[str]] = ["name", "organization_id", "description"]
+    description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="A brief description of the space's purpose. Defaults to an empty string if omitted.")
+    is_private: Optional[StrictBool] = Field(default=None, description="Whether to create the space as private. Private spaces are only visible to their members and account/org/space admins. Defaults to `false` (public) if omitted. ")
+    __properties: ClassVar[List[str]] = ["name", "organization_id", "description", "is_private"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -90,7 +91,8 @@ class CreateSpaceRequest(BaseModel):
         _obj = cls.model_validate({
             "name": obj.get("name"),
             "organization_id": obj.get("organization_id"),
-            "description": obj.get("description")
+            "description": obj.get("description"),
+            "is_private": obj.get("is_private")
         })
         return _obj
 

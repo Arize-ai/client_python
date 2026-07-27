@@ -192,6 +192,7 @@ class TestSpacesClientCreate:
             name="my-space",
             organization_id="org-123",
             description="my description",
+            is_private=None,
         )
         mock_api.create_space.assert_called_once_with(
             create_space_request=mock_body
@@ -211,6 +212,73 @@ class TestSpacesClientCreate:
             )
 
         assert result is expected
+
+    def test_create_with_is_private_true_passes_flag_to_api(
+        self, spaces_client: SpacesClient, mock_api: Mock
+    ) -> None:
+        """create() should forward is_private=True to CreateSpaceRequest."""
+        with patch(
+            "arize._generated.api_client.CreateSpaceRequest"
+        ) as mock_request_cls:
+            mock_request_cls.return_value = Mock()
+
+            spaces_client.create(
+                name="priv-space",
+                organization_id="org-123",
+                is_private=True,
+            )
+
+        mock_request_cls.assert_called_once_with(
+            name="priv-space",
+            organization_id="org-123",
+            description=None,
+            is_private=True,
+        )
+
+    def test_create_emits_private_space_warning(
+        self,
+        spaces_client: SpacesClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """create() should emit a warning when is_private=True."""
+        caplog.set_level(logging.WARNING)
+
+        with patch("arize._generated.api_client.CreateSpaceRequest"):
+            spaces_client.create(
+                name="priv-space",
+                organization_id="org-123",
+                is_private=True,
+            )
+
+        assert any(
+            "spaces.create" in record.message
+            and "private" in record.message.lower()
+            for record in caplog.records
+        )
+
+    def test_create_no_private_space_warning_when_not_private(
+        self,
+        spaces_client: SpacesClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """create() should not emit a private-space warning when is_private is False."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        with patch("arize._generated.api_client.CreateSpaceRequest"):
+            spaces_client.create(
+                name="pub-space",
+                organization_id="org-123",
+                is_private=False,
+            )
+
+        assert not any(
+            "private" in record.message.lower()
+            and "spaces.create" in record.message
+            for record in caplog.records
+        )
 
 
 @pytest.mark.unit
@@ -266,7 +334,7 @@ class TestSpacesClientUpdate:
         """update() should raise if neither name nor description is provided."""
         with pytest.raises(
             ValueError,
-            match="At least one of 'name' or 'description' must be provided",
+            match="At least one of 'name', 'description', or 'is_private' must be provided",
         ):
             spaces_client.update(space="U3BhY2U6OTA1MDoxSmtS")
 
@@ -289,6 +357,7 @@ class TestSpacesClientUpdate:
         mock_request_cls.assert_called_once_with(
             name="updated-space",
             description="updated description",
+            is_private=None,
         )
         mock_api.update_space.assert_called_once_with(
             space_id="U3BhY2U6OTA1MDoxSmtS",
@@ -309,6 +378,81 @@ class TestSpacesClientUpdate:
             )
 
         assert result is expected
+
+    def test_update_with_only_is_private_does_not_raise(
+        self, spaces_client: SpacesClient, mock_api: Mock
+    ) -> None:
+        """update() with only is_private provided should not raise ValueError."""
+        with patch("arize._generated.api_client.UpdateSpaceRequest"):
+            spaces_client.update(
+                space="U3BhY2U6OTA1MDoxSmtS",
+                is_private=True,
+            )
+
+        mock_api.update_space.assert_called_once()
+
+    def test_update_with_is_private_true_passes_flag_to_api(
+        self, spaces_client: SpacesClient, mock_api: Mock
+    ) -> None:
+        """update() should forward is_private=True to UpdateSpaceRequest."""
+        with patch(
+            "arize._generated.api_client.UpdateSpaceRequest"
+        ) as mock_request_cls:
+            mock_request_cls.return_value = Mock()
+
+            spaces_client.update(
+                space="U3BhY2U6OTA1MDoxSmtS",
+                is_private=True,
+            )
+
+        mock_request_cls.assert_called_once_with(
+            name=None,
+            description=None,
+            is_private=True,
+        )
+
+    def test_update_emits_private_space_warning(
+        self,
+        spaces_client: SpacesClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """update() should emit a warning when is_private=True."""
+        caplog.set_level(logging.WARNING)
+
+        with patch("arize._generated.api_client.UpdateSpaceRequest"):
+            spaces_client.update(
+                space="U3BhY2U6OTA1MDoxSmtS",
+                is_private=True,
+            )
+
+        assert any(
+            "spaces.update" in record.message
+            and "private" in record.message.lower()
+            for record in caplog.records
+        )
+
+    def test_update_no_private_space_warning_when_making_public(
+        self,
+        spaces_client: SpacesClient,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """update() should not emit a private-space warning when is_private=False."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+        caplog.set_level(logging.WARNING)
+
+        with patch("arize._generated.api_client.UpdateSpaceRequest"):
+            spaces_client.update(
+                space="U3BhY2U6OTA1MDoxSmtS",
+                is_private=False,
+            )
+
+        assert not any(
+            "private" in record.message.lower()
+            and "spaces.update" in record.message
+            for record in caplog.records
+        )
 
 
 @pytest.mark.unit

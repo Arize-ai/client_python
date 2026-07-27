@@ -111,6 +111,7 @@ class SpacesClient:
         name: str,
         organization_id: str,
         description: str | None = None,
+        is_private: bool | None = None,
     ) -> Space:
         """Create a new space.
 
@@ -120,6 +121,9 @@ class SpacesClient:
             name: Space name (must be unique within ``organization_id``).
             organization_id: Organization ID to create the space in.
             description: Optional description of the space's purpose.
+            is_private: Whether to create the space as private. Private spaces
+                are only visible to their members and account/org/space admins.
+                Defaults to ``False`` (public) if omitted.
 
         Returns:
             The created space object.
@@ -127,12 +131,20 @@ class SpacesClient:
         Raises:
             ApiException: If the API request fails.
         """
+        if is_private:
+            logger.warning(
+                "spaces.create: private spaces restrict visibility to space "
+                "members and admins. Ensure members are added before the "
+                "space becomes inaccessible to other users."
+            )
+
         from arize._generated import api_client as gen
 
         body = gen.CreateSpaceRequest(
             name=name,
             organization_id=organization_id,
             description=description,
+            is_private=is_private,
         )
         return self._api.create_space(create_space_request=body)
 
@@ -164,6 +176,7 @@ class SpacesClient:
         space: str,
         name: str | None = None,
         description: str | None = None,
+        is_private: bool | None = None,
     ) -> Space:
         """Update a space by ID or name.
 
@@ -171,18 +184,30 @@ class SpacesClient:
             space: Space ID or name to update.
             name: Updated name for the space.
             description: Updated description for the space.
+            is_private: Updated visibility for the space. Set to ``True`` to
+                make the space private (visible only to members and admins), or
+                ``False`` to make it public. When ``None``, the existing
+                visibility is preserved.
 
         Returns:
             The updated space object.
 
         Raises:
-            ValueError: If neither ``name`` nor ``description`` is provided.
+            ValueError: If none of ``name``, ``description``, or ``is_private``
+                is provided.
             ApiException: If the API request fails
                 (for example, space not found or insufficient permissions).
         """
-        if name is None and description is None:
+        if name is None and description is None and is_private is None:
             raise ValueError(
-                "At least one of 'name' or 'description' must be provided"
+                "At least one of 'name', 'description', or 'is_private' must be provided"
+            )
+
+        if is_private:
+            logger.warning(
+                "spaces.update: private spaces restrict visibility to space "
+                "members and admins. Ensure members are added before the "
+                "space becomes inaccessible to other users."
             )
 
         space_id = _find_space_id(self._api, space)
@@ -192,6 +217,7 @@ class SpacesClient:
         body = gen.UpdateSpaceRequest(
             name=name,
             description=description,
+            is_private=is_private,
         )
         return self._api.update_space(
             space_id=space_id, update_space_request=body

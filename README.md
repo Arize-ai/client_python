@@ -86,6 +86,11 @@
     - [Add a User to an Organization](#add-a-user-to-an-organization)
     - [Remove a User from an Organization](#remove-a-user-from-an-organization)
   - [Operations on Spaces](#operations-on-spaces)
+    - [List Spaces](#list-spaces)
+    - [Get a Space](#get-a-space)
+    - [Create a Space](#create-a-space)
+    - [Update a Space](#update-a-space)
+    - [Delete a Space](#delete-a-space)
     - [Add a User to a Space](#add-a-user-to-a-space)
     - [Remove a User from a Space](#remove-a-user-from-a-space)
   - [Operations on Users](#operations-on-users)
@@ -1250,7 +1255,65 @@ client.organizations.remove_user(
 
 ## Operations on Spaces
 
-Use `client.spaces` to manage space memberships.
+Use `client.spaces` to create, retrieve, update, delete, and manage memberships
+for Arize spaces.
+
+### List Spaces
+
+```python
+resp = client.spaces.list(
+    organization_id=...,  # Optional, filter to a specific organization
+    name=...,             # Optional, case-insensitive substring filter
+    limit=...,            # Optional, defaults to 50 (max 100)
+    cursor=...,           # Optional, pagination cursor from a previous response
+)
+space_list = resp.spaces
+```
+
+### Get a Space
+
+Accepts either a space name or ID.
+
+```python
+space = client.spaces.get(space="<space-id-or-name>")
+```
+
+### Create a Space
+
+```python
+space = client.spaces.create(
+    name="my-space",
+    organization_id="<org-id>",
+    description="optional description",
+    is_private=True,  # omit or set False for a public space (default)
+)
+```
+
+Private spaces are visible only to their members and account/org/space admins.
+A warning is logged when `is_private=True` to remind you to add members before
+the space becomes inaccessible to other users.
+
+### Update a Space
+
+Patch semantics: omitted fields preserve their current values.
+
+```python
+space = client.spaces.update(
+    space="<space-id-or-name>",
+    name="new-name",           # Optional
+    description="new desc",    # Optional
+    is_private=False,          # Optional; None preserves the current visibility
+)
+```
+
+### Delete a Space
+
+Irreversible — removes the space and all child resources (projects, datasets,
+monitors, dashboards, custom metrics, etc.).
+
+```python
+client.spaces.delete(space="<space-id-or-name>")
+```
 
 ### Add a User to a Space
 

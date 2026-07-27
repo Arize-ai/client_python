@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictBool
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -29,7 +29,8 @@ class UpdateSpaceRequest(BaseModel):
     """ # noqa: E501
     name: Optional[Annotated[str, Field(strict=True, max_length=255)]] = Field(default=None, description="Updated name of the space")
     description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="Updated description of the space")
-    __properties: ClassVar[List[str]] = ["name", "description"]
+    is_private: Optional[StrictBool] = Field(default=None, description="Updated visibility for the space. Set to `true` to make the space private (visible only to members and admins), or `false` to make it public. When omitted, the existing visibility is preserved. ")
+    __properties: ClassVar[List[str]] = ["name", "description", "is_private"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -88,7 +89,8 @@ class UpdateSpaceRequest(BaseModel):
 
         _obj = cls.model_validate({
             "name": obj.get("name"),
-            "description": obj.get("description")
+            "description": obj.get("description"),
+            "is_private": obj.get("is_private")
         })
         return _obj
 

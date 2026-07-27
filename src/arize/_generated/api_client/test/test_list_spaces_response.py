@@ -40,7 +40,8 @@ class TestListSpacesResponse(unittest.TestCase):
                         id = '', 
                         name = '', 
                         description = '', 
-                        created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )
+                        created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                        is_private = True, )
                     ],
                 pagination = arize._generated.api_client.models.pagination_metadata.PaginationMetadata(
                     next_cursor = '', 
@@ -53,7 +54,8 @@ class TestListSpacesResponse(unittest.TestCase):
                         id = '', 
                         name = '', 
                         description = '', 
-                        created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )
+                        created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                        is_private = True, )
                     ],
                 pagination = arize._generated.api_client.models.pagination_metadata.PaginationMetadata(
                     next_cursor = '', 

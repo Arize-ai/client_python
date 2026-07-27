@@ -7,6 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Updated name of the space | [optional] 
 **description** | **str** | Updated description of the space | [optional] 
+**is_private** | **bool** | Updated visibility for the space. Set to &#x60;true&#x60; to make the space private (visible only to members and admins), or &#x60;false&#x60; to make it public. When omitted, the existing visibility is preserved.  | [optional] 
 
 ## Example
 

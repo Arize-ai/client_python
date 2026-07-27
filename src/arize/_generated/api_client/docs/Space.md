@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **name** | **str** | Name of the space | 
 **description** | **str** | A brief description of the space&#39;s purpose | 
 **created_at** | **datetime** | Timestamp for when the space was created | 
+**is_private** | **bool** | Whether the space is private. Private spaces are only visible to their members and account/org/space admins.  | 
 
 ## Example
 

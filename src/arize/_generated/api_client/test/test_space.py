@@ -38,7 +38,8 @@ class TestSpace(unittest.TestCase):
                 id = '',
                 name = '',
                 description = '',
-                created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f')
+                created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
+                is_private = True
             )
         else:
             return Space(
@@ -46,6 +47,7 @@ class TestSpace(unittest.TestCase):
                 name = '',
                 description = '',
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
+                is_private = True,
         )
         """
 

@@ -5,9 +5,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **str** | Name of the space | 
+**name** | **str** | Name of the space (must be unique within the organization) | 
 **organization_id** | **str** | The unique identifier of the organization to create the space in | 
-**description** | **str** | A brief description of the space&#39;s purpose | [optional] 
+**description** | **str** | A brief description of the space&#39;s purpose. Defaults to an empty string if omitted. | [optional] 
+**is_private** | **bool** | Whether to create the space as private. Private spaces are only visible to their members and account/org/space admins. Defaults to &#x60;false&#x60; (public) if omitted.  | [optional] 
 
 ## Example
 

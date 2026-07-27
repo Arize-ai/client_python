@@ -37,7 +37,8 @@ class TestCreateSpaceRequest(unittest.TestCase):
             return CreateSpaceRequest(
                 name = '',
                 organization_id = '',
-                description = ''
+                description = '',
+                is_private = True
             )
         else:
             return CreateSpaceRequest(

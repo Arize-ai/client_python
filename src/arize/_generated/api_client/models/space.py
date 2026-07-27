@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,7 +31,8 @@ class Space(BaseModel):
     name: StrictStr = Field(description="Name of the space")
     description: StrictStr = Field(description="A brief description of the space's purpose")
     created_at: datetime = Field(description="Timestamp for when the space was created")
-    __properties: ClassVar[List[str]] = ["id", "name", "description", "created_at"]
+    is_private: StrictBool = Field(description="Whether the space is private. Private spaces are only visible to their members and account/org/space admins. ")
+    __properties: ClassVar[List[str]] = ["id", "name", "description", "created_at", "is_private"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -92,7 +93,8 @@ class Space(BaseModel):
             "id": obj.get("id"),
             "name": obj.get("name"),
             "description": obj.get("description"),
-            "created_at": obj.get("created_at")
+            "created_at": obj.get("created_at"),
+            "is_private": obj.get("is_private")
         })
         return _obj
 
