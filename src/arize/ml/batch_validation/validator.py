@@ -100,6 +100,7 @@ from arize.ml.batch_validation.errors import (
     MissingPredictionIdColumnForDelayedRecords,
     MissingPreprodAct,
     MissingPreprodPredActNumericAndCategorical,
+    MissingProductionPredActFeatureImportance,
     MissingReqPredActColumnNamesForMultiClass,
     MissingRequiredColumnsForRankingModel,
     MissingRequiredColumnsMetricsValidation,
@@ -201,6 +202,9 @@ class Validator:
                 general_checks,
                 Validator._check_existence_prediction_id_column_delayed_schema(
                     schema, model_type
+                ),
+                Validator._check_existence_prod_pred_act_or_delayed(
+                    schema, environment
                 ),
                 Validator._check_invalid_batch_id(batch_id, environment),
                 Validator._check_invalid_number_of_embeddings(schema),
@@ -1252,6 +1256,20 @@ class Validator:
         if environment in (env for env in Environments):
             return []
         return [InvalidEnvironment()]
+
+    @staticmethod
+    def _check_existence_prod_pred_act_or_delayed(
+        schema: Schema,
+        environment: Environments,
+    ) -> list[MissingProductionPredActFeatureImportance]:
+        # Features-only production data can't create a model or join as delayed actuals, so reject it.
+        if (
+            environment == Environments.PRODUCTION
+            and not schema.has_prediction_columns()
+            and not schema.is_delayed()
+        ):
+            return [MissingProductionPredActFeatureImportance()]
+        return []
 
     @staticmethod
     def _check_existence_preprod_pred_act_score_or_label(

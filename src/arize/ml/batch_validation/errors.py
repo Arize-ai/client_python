@@ -422,6 +422,29 @@ class MissingPreprodPredActNumericAndCategorical(ValidationError):
         )
 
 
+class MissingProductionPredActFeatureImportance(ValidationError):
+    """Production schema has features but no prediction, actual, or feature-importance columns.
+
+    Features alone can't create a model (that needs a prediction) or join as
+    delayed actuals, so we reject it instead of silently warning.
+    """
+
+    def __repr__(self) -> str:
+        """Return a string representation for debugging and logging."""
+        return "Missing_Production_Pred_Act_or_Feature_Importance"
+
+    def error_message(self) -> str:
+        """Return the error message for this exception."""
+        return (
+            "Production data needs prediction columns, or actual/feature-importance "
+            "columns for delayed actuals. This schema only has features, so it can't "
+            "create a model. Add a prediction column, or for latent actuals include "
+            "the actual columns plus prediction_id to join them to prior predictions. "
+            "See https://docs.arize.com/arize/sending-data/sending-data-faq"
+            "#what-happens-after-i-send-in-actual-data"
+        )
+
+
 class MissingRequiredColumnsForRankingModel(ValidationError):
     """Raised when ranking model is missing required group ID or rank columns."""
 

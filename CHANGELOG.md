@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.43.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.43.0...arize-python-sdk/v8.43.1) (2026-07-27)
+
+
+### 🐛 Bug Fixes
+
+* **ml-batch:** reject features-only production payloads that never create a model ([#80412](https://github.com/Arize-ai/arize/issues/80412)) ([0489006](https://github.com/Arize-ai/arize/commit/0489006686c88b6b8219147b71702e41de94a6f8))
+
 ## [8.43.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.42.0...arize-python-sdk/v8.43.0) (2026-07-27)
 
 

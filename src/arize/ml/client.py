@@ -765,9 +765,9 @@ class MLModelsClient:
 
         if isinstance(schema, Schema) and not schema.has_prediction_columns():
             logger.warning(
-                "Logging actuals without any predictions may result in "
-                "unexpected behavior if corresponding predictions have not been logged prior. "
-                "Please see the docs at https://docs.arize.com/arize/sending-data/sending-data-faq"
+                "Logging actuals without predictions: ensure prediction_id matches "
+                "previously-logged predictions so they can be joined. See "
+                "https://docs.arize.com/arize/sending-data/sending-data-faq"
                 "#what-happens-after-i-send-in-actual-data"
             )
 
