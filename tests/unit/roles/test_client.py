@@ -307,19 +307,42 @@ class TestRolesClientUpdate:
     def test_update_with_only_name(
         self, roles_client: RolesClient, mock_api: Mock
     ) -> None:
-        """update() with only name should pass None for other fields."""
-        with patch(
-            "arize._generated.api_client.UpdateRoleRequest"
-        ) as mock_request_cls:
-            mock_request_cls.return_value = Mock()
+        """update() should omit fields which were not supplied."""
+        roles_client.update(role=_ROLE_ID, name="New Name")
 
-            roles_client.update(role=_ROLE_ID, name="New Name")
+        body = mock_api.update_role.call_args.kwargs["update_role_request"]
+        assert body.model_fields_set == {"name"}
+        assert body.to_dict() == {"name": "New Name"}
 
-        mock_request_cls.assert_called_once_with(
-            name="New Name",
-            description=None,
-            permissions=None,
-        )
+    def test_update_with_none_description_clears_description(
+        self, roles_client: RolesClient, mock_api: Mock
+    ) -> None:
+        """update() should serialize an explicit null description."""
+        roles_client.update(role=_ROLE_ID, description=None)
+
+        body = mock_api.update_role.call_args.kwargs["update_role_request"]
+        assert body.model_fields_set == {"description"}
+        assert body.to_dict() == {"description": None}
+
+    def test_update_with_none_permissions_omits_permissions(
+        self, roles_client: RolesClient, mock_api: Mock
+    ) -> None:
+        """update() should preserve permissions when passed None."""
+        roles_client.update(role=_ROLE_ID, permissions=None, name="New Name")
+
+        body = mock_api.update_role.call_args.kwargs["update_role_request"]
+        assert body.model_fields_set == {"name"}
+        assert body.to_dict() == {"name": "New Name"}
+
+    def test_update_with_permissions_replaces_permissions(
+        self, roles_client: RolesClient, mock_api: Mock
+    ) -> None:
+        """update() should serialize a supplied replacement permission list."""
+        roles_client.update(role=_ROLE_ID, permissions=["PROJECT_READ"])
+
+        body = mock_api.update_role.call_args.kwargs["update_role_request"]
+        assert body.model_fields_set == {"permissions"}
+        assert body.to_dict() == {"permissions": ["PROJECT_READ"]}
 
     def test_update_returns_api_response(
         self, roles_client: RolesClient, mock_api: Mock

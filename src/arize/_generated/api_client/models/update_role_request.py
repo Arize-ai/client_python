@@ -29,7 +29,7 @@ class UpdateRoleRequest(BaseModel):
     UpdateRoleRequest
     """ # noqa: E501
     name: Optional[Annotated[str, Field(strict=True, max_length=255)]] = Field(default=None, description="Updated name for the role. Must be unique within the account.")
-    description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="Updated description of the role.")
+    description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="Updated description of the role. Set to `null` to clear it.")
     permissions: Optional[Annotated[List[Permission], Field(min_length=1)]] = Field(default=None, description="Replacement set of permissions. When provided, the existing permissions are fully replaced. Each value must be a valid permission identifier. ")
     __properties: ClassVar[List[str]] = ["name", "description", "permissions"]
 
@@ -72,6 +72,11 @@ class UpdateRoleRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if description (nullable) is None
+        # and model_fields_set contains the field
+        if self.description is None and "description" in self.model_fields_set:
+            _dict['description'] = None
+
         return _dict
 
     @classmethod

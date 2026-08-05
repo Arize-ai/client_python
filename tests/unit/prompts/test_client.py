@@ -7,7 +7,7 @@ from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
-from arize._generated.api_client import PromptsApi
+from arize._generated.api_client import PromptsApi, UpdatePromptRequest
 from arize.prompts.client import PromptsClient
 
 # Base64 ID that decodes to "Prompt:123" — passes _is_resource_id()
@@ -328,25 +328,40 @@ class TestPromptsClientUpdate:
     def test_update_builds_request_and_calls_api(
         self, prompts_client: PromptsClient, mock_api: Mock
     ) -> None:
-        """update() should build UpdatePromptRequest and pass it to prompts_update."""
-        with patch(
-            "arize._generated.api_client.UpdatePromptRequest"
-        ) as mock_request_cls:
-            mock_body = Mock()
-            mock_request_cls.return_value = mock_body
-
-            prompts_client.update(
-                prompt=_PROMPT_ID,
-                description="updated description",
-            )
-
-        mock_request_cls.assert_called_once_with(
-            description="updated description"
+        """update() should serialize a concrete description in its request body."""
+        prompts_client.update(
+            prompt=_PROMPT_ID,
+            description="updated description",
         )
+        body = mock_api.update_prompt.call_args.kwargs["update_prompt_request"]
+        assert isinstance(body, UpdatePromptRequest)
+        assert body.model_fields_set == {"description"}
+        assert body.to_dict() == {"description": "updated description"}
         mock_api.update_prompt.assert_called_once_with(
             prompt_id=_PROMPT_ID,
-            update_prompt_request=mock_body,
+            update_prompt_request=body,
         )
+
+    def test_update_requires_description(
+        self, prompts_client: PromptsClient, mock_api: Mock
+    ) -> None:
+        """update() should reject requests without a mutable field."""
+        with pytest.raises(
+            TypeError, match="missing 1 required keyword-only argument"
+        ):
+            prompts_client.update(prompt=_PROMPT_ID)
+
+        mock_api.update_prompt.assert_not_called()
+
+    def test_update_includes_explicit_none_to_clear_description(
+        self, prompts_client: PromptsClient, mock_api: Mock
+    ) -> None:
+        """update() should send an explicit ``None`` to clear the description."""
+        prompts_client.update(prompt=_PROMPT_ID, description=None)
+
+        body = mock_api.update_prompt.call_args.kwargs["update_prompt_request"]
+        assert body.model_fields_set == {"description"}
+        assert body.to_dict() == {"description": None}
 
     def test_update_returns_api_response(
         self, prompts_client: PromptsClient, mock_api: Mock
@@ -355,11 +370,10 @@ class TestPromptsClientUpdate:
         expected = Mock()
         mock_api.update_prompt.return_value = expected
 
-        with patch("arize._generated.api_client.UpdatePromptRequest"):
-            result = prompts_client.update(
-                prompt=_PROMPT_ID,
-                description="updated",
-            )
+        result = prompts_client.update(
+            prompt=_PROMPT_ID,
+            description="updated",
+        )
 
         assert result is expected
 

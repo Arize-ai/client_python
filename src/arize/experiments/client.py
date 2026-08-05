@@ -37,6 +37,7 @@ from arize.utils.openinference_conversion import (
 from arize.utils.resolve import (
     _find_dataset_id,
     _find_experiment_id,
+    _find_space_id,
 )
 from arize.utils.size import get_payload_size_mb
 
@@ -90,9 +91,9 @@ class ExperimentsClient:
 
         # Use the provided client directly for both APIs
         self._api = gen.ExperimentsApi(generated_client)
-        # TODO(Kiko): Space ID should not be needed,
-        # should work on server tech debt to remove this
         self._datasets_api = gen.DatasetsApi(generated_client)
+        # Used to resolve `space` for experiments not associated with a dataset.
+        self._spaces_api = gen.SpacesApi(generated_client)
 
     @prerelease_endpoint(key="experiments.list", stage=ReleaseStage.BETA)
     def list(
@@ -105,11 +106,21 @@ class ExperimentsClient:
     ) -> ListExperimentsResponse:
         """List experiments the user has access to.
 
-        To filter experiments by the dataset they were run on, provide `dataset`.
+        Narrows the results by whichever scope is given:
+            - ``dataset``: only experiments run on that dataset.
+            - ``space``: every experiment in that space, both those associated
+              with a dataset and those without one.
+            - neither: every experiment across all spaces the caller can read.
+
+        Passing both applies the narrower ``dataset`` scope, with ``space``
+        used only to resolve a dataset name.
 
         Args:
             dataset: Optional dataset name or ID to filter experiments.
-            space: Optional space name or ID used to resolve ``dataset`` by name.
+            space: Optional space name or ID. Filters to that space when
+                ``dataset`` is omitted — the only way to list experiments that
+                aren't associated with a dataset — and resolves ``dataset``
+                when it is a name.
             limit: Maximum number of experiments to return. The server enforces an
                 upper bound.
             cursor: Opaque pagination cursor returned from a previous response.
@@ -121,17 +132,23 @@ class ExperimentsClient:
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/429).
         """
-        dataset_id = (
-            _find_dataset_id(
+        # Callers may pass both `dataset` and `space`, but the endpoint rejects
+        # `dataset_id` and `space_id` together — so resolve to exactly one.
+        # `dataset` is the narrower scope and wins; `space` then only resolves
+        # its name.
+        dataset_id: str | None = None
+        space_id: str | None = None
+        if dataset is not None:
+            dataset_id = _find_dataset_id(
                 api=self._datasets_api,
                 dataset=dataset,
                 space=space,
             )
-            if dataset
-            else None
-        )
+        elif space is not None:
+            space_id = _find_space_id(api=self._spaces_api, space=space)
         return self._api.list_experiments(
             dataset_id=dataset_id,
+            space_id=space_id,
             limit=limit,
             cursor=cursor,
         )
@@ -141,7 +158,7 @@ class ExperimentsClient:
         self,
         *,
         name: str,
-        dataset: str,
+        dataset: str | None = None,
         space: str | None = None,
         experiment_runs: builtins.list[dict[str, object]] | pd.DataFrame,
         task_fields: ExperimentTaskFieldNames,
@@ -150,8 +167,15 @@ class ExperimentsClient:
     ) -> Experiment:
         """Create an experiment with one or more experiment runs.
 
+        An experiment belongs to a space and may optionally be associated
+        with a dataset. Provide exactly one of:
+            - `dataset`: associates the experiment with a dataset; runs may
+              reference the dataset's examples via `task_fields.example_id`.
+            - `space`: creates a experiment directly in that space.
+
         Experiments are composed of runs. Each run must include:
-            - `example_id`: ID of an existing example in the dataset/version
+            - `example_id`: ID of an existing example in the dataset/version.
+              Required only when `dataset` is provided.
             - `output`: Model/task output for the matching example
 
         You may include any additional user-defined fields per run (e.g. `model`,
@@ -165,11 +189,18 @@ class ExperimentsClient:
             - If the payload is below the configured REST payload threshold (or
               `force_http=True`), this method uploads via REST.
             - Otherwise, it attempts a more efficient upload path via gRPC + Flight.
+              Experiments not associated with a dataset always upload via REST, since
+              the gRPC + Flight path only supports dataset-associated experiments.
 
         Args:
-            name: Experiment name. Must be unique within the target dataset.
-            dataset: Dataset name or ID to attach the experiment to.
-            space: Optional space name or ID used to resolve ``dataset`` by name.
+            name: Experiment name. Must be unique within the target dataset
+                or space for an experiment not associated with a dataset.
+            dataset: Dataset name or ID to attach the experiment to. Provide
+                `space` instead for an experiment not associated with a dataset.
+            space: For a dataset-associated experiment, an optional space
+                name or ID used to resolve `dataset` by name. For an experiment
+                not associated with a dataset, the space name or ID to create it in;
+                required when `dataset` is not provided.
             experiment_runs: Experiment runs either as:
                 - a list of JSON-like dicts, or
                 - a :class:`pandas.DataFrame`.
@@ -183,17 +214,30 @@ class ExperimentsClient:
             The created experiment object.
 
         Raises:
+            ValueError: If neither `dataset` nor `space` is provided.
             TypeError: If `experiment_runs` is not a list of dicts or a DataFrame.
             RuntimeError: If the Flight upload path is selected and the Flight request
                 fails.
             ApiException: If the REST API
                 returns an error response (e.g. 400/401/403/409/429).
         """
-        dataset_id = _find_dataset_id(
-            api=self._datasets_api,
-            dataset=dataset,
-            space=space,
-        )
+        space_id: str | None = None
+        if dataset is not None:
+            dataset_id: str | None = _find_dataset_id(
+                api=self._datasets_api,
+                dataset=dataset,
+                space=space,
+            )
+        elif space is not None:
+            dataset_id = None
+            space_id = _find_space_id(api=self._spaces_api, space=space)
+        else:
+            raise ValueError(
+                "Either 'dataset' or 'space' must be provided: 'dataset' to "
+                "create an experiment associated with a dataset, or 'space' "
+                "to create a standalone experiment."
+            )
+
         if not isinstance(experiment_runs, list | pd.DataFrame):
             raise TypeError(
                 "Experiment runs must be a list of dicts or a pandas DataFrame"
@@ -207,7 +251,8 @@ class ExperimentsClient:
             get_payload_size_mb(experiment_runs)
             <= self._sdk_config.max_http_payload_size_mb
         )
-        if below_threshold or force_http:
+
+        if dataset_id is None or below_threshold or force_http:
             from arize._generated import api_client as gen
 
             data = experiment_df.to_dict(orient="records")
@@ -224,6 +269,7 @@ class ExperimentsClient:
             body = gen.CreateExperimentRequest(
                 name=name,
                 dataset_id=dataset_id,
+                space_id=space_id,
                 experiment_runs=runs_create,
             )
             return self._api.create_experiment(create_experiment_request=body)
@@ -268,7 +314,10 @@ class ExperimentsClient:
         Args:
             experiment: Experiment name or ID to retrieve.
             dataset: Optional dataset name or ID used to resolve ``experiment`` by name.
-            space: Optional space name or ID used to resolve ``dataset`` by name.
+            space: Optional space name or ID. Resolves ``dataset`` when that is a
+                name, and — when ``dataset`` is not provided — resolves
+                ``experiment`` by name directly within the space, which is the
+                only option for an experiment with no dataset.
 
         Returns:
             The experiment object.
@@ -280,6 +329,7 @@ class ExperimentsClient:
         experiment_id = _find_experiment_id(
             api=self._api,
             datasets_api=self._datasets_api,
+            spaces_api=self._spaces_api,
             experiment=experiment,
             dataset=dataset,
             space=space,
@@ -313,6 +363,7 @@ class ExperimentsClient:
         experiment_id = _find_experiment_id(
             api=self._api,
             datasets_api=self._datasets_api,
+            spaces_api=self._spaces_api,
             experiment=experiment,
             dataset=dataset,
             space=space,
@@ -347,8 +398,11 @@ class ExperimentsClient:
 
         Args:
             experiment: Experiment name or ID to list runs for.
-            dataset: Optional dataset name or ID used to resolve ``experiment`` by name.
-            space: Optional space name or ID used to resolve ``dataset`` by name.
+            dataset: Optional dataset name or ID used to resolve ``experiment``
+                by name, for an experiment associated with a dataset.
+            space: Optional space name or ID. Used to resolve ``dataset`` by
+                name, or — when ``dataset`` is not provided — to resolve a
+                experiment not associated with a dataset's ``experiment`` name directly.
             limit: Maximum number of runs to return when ``all=False``. The server
                 enforces an upper bound (500).
             cursor: Opaque pagination cursor from a previous response's
@@ -361,8 +415,6 @@ class ExperimentsClient:
             A response object containing ``experiment_runs`` and ``pagination`` metadata.
 
         Raises:
-            ValueError: If ``all=True`` and the experiment has no associated
-                dataset.
             RuntimeError: If the Flight request fails or returns no response when
                 ``all=True``.
             ApiException: If the REST API
@@ -371,6 +423,7 @@ class ExperimentsClient:
         experiment_id = _find_experiment_id(
             api=self._api,
             datasets_api=self._datasets_api,
+            spaces_api=self._spaces_api,
             experiment=experiment,
             dataset=dataset,
             space=space,
@@ -393,22 +446,8 @@ class ExperimentsClient:
         when caching is enabled.
         """
         experiment_obj = self.get(experiment=experiment_id)
-        # The Flight path needs the experiment's space_id, currently derived via
-        # its dataset, so a dataset-less experiment can't use it. The paginated
-        # REST path (all=False) has no such dependency and is unaffected.
-        if experiment_obj.dataset_id is None:
-            raise ValueError(
-                f"Experiment {experiment_id!r} has no associated dataset; "
-                "list_runs(all=True) is not supported for experiments "
-                "without a dataset."
-            )
         experiment_updated_at = getattr(experiment_obj, "updated_at", None)
-        # TODO(Kiko): Space ID should not be needed,
-        # should work on server tech debt to remove this
-        dataset_obj = self._datasets_api.get_dataset(
-            dataset_id=experiment_obj.dataset_id
-        )
-        space_id = dataset_obj.space_id
+        space_id = experiment_obj.space_id
 
         experiment_df = None
         # try to load dataset from cache
@@ -498,8 +537,9 @@ class ExperimentsClient:
 
         Payload requirements (server-enforced):
             - Provide between 1 and 1000 runs per request.
-            - Each run must include ``example_id`` (ID of an example from
-              the experiment's dataset) and ``output``.
+            - Each run must include ``output``. ``example_id`` (ID of an example
+              from the experiment's dataset) is required only when the target
+              experiment is associated with a dataset.
             - Additional user-defined fields (e.g. ``model``, ``latency_ms``)
               are allowed per run.
 
@@ -507,7 +547,9 @@ class ExperimentsClient:
             experiment: Experiment ID or name to append runs to.
             dataset: Optional dataset name or ID used to resolve ``experiment``
                 by name.
-            space: Optional space name or ID used to resolve ``dataset`` by name.
+            space: Optional space name or ID. Resolves ``dataset`` when that is a
+                name, and — when ``dataset`` is not provided — resolves
+                ``experiment`` by name directly within the space.
             experiment_runs: Runs to append, provided as either:
                 - a list of JSON-like dicts, or
                 - a :class:`pandas.DataFrame` (converted to records before upload).
@@ -525,6 +567,7 @@ class ExperimentsClient:
         experiment_id = _find_experiment_id(
             api=self._api,
             datasets_api=self._datasets_api,
+            spaces_api=self._spaces_api,
             experiment=experiment,
             dataset=dataset,
             space=space,
@@ -591,6 +634,7 @@ class ExperimentsClient:
         experiment_id = _find_experiment_id(
             api=self._api,
             datasets_api=self._datasets_api,
+            spaces_api=self._spaces_api,
             experiment=experiment,
             dataset=dataset,
             space=space,

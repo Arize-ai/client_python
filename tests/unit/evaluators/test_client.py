@@ -7,7 +7,7 @@ from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
-from arize._generated.api_client import EvaluatorsApi
+from arize._generated.api_client import EvaluatorsApi, UpdateEvaluatorRequest
 from arize.evaluators.client import EvaluatorsClient
 from arize.evaluators.types import (
     CodeConfig,
@@ -483,58 +483,90 @@ class TestEvaluatorsClientUpdate:
     def test_update_with_name(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """update() should build UpdateEvaluatorRequest with only name when only name is given."""
-        with patch(
-            "arize._generated.api_client.UpdateEvaluatorRequest"
-        ) as mock_request_cls:
-            mock_body = Mock()
-            mock_request_cls.return_value = mock_body
+        """update() should set only a provided name in its request body."""
+        evaluators_client.update(evaluator=_EVALUATOR_ID, name="new-name")
 
-            evaluators_client.update(evaluator=_EVALUATOR_ID, name="new-name")
-
-        mock_request_cls.assert_called_once_with(
-            name="new-name", description=None
-        )
+        body = mock_api.update_evaluator.call_args.kwargs[
+            "update_evaluator_request"
+        ]
+        assert isinstance(body, UpdateEvaluatorRequest)
+        assert body.model_fields_set == {"name"}
+        assert body.to_dict() == {"name": "new-name"}
         mock_api.update_evaluator.assert_called_once_with(
             evaluator_id=_EVALUATOR_ID,
-            update_evaluator_request=mock_body,
+            update_evaluator_request=body,
         )
 
     def test_update_with_description(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """update() should forward description to UpdateEvaluatorRequest."""
-        with patch(
-            "arize._generated.api_client.UpdateEvaluatorRequest"
-        ) as mock_request_cls:
-            mock_request_cls.return_value = Mock()
-
-            evaluators_client.update(
-                evaluator=_EVALUATOR_ID, description="Updated description"
-            )
-
-        mock_request_cls.assert_called_once_with(
-            name=None, description="Updated description"
+        """update() should set only a provided description in its request body."""
+        evaluators_client.update(
+            evaluator=_EVALUATOR_ID, description="Updated description"
         )
+
+        body = mock_api.update_evaluator.call_args.kwargs[
+            "update_evaluator_request"
+        ]
+        assert body.model_fields_set == {"description"}
+        assert body.to_dict() == {"description": "Updated description"}
 
     def test_update_with_both_fields(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """update() should forward both name and description."""
-        with patch(
-            "arize._generated.api_client.UpdateEvaluatorRequest"
-        ) as mock_request_cls:
-            mock_request_cls.return_value = Mock()
-
-            evaluators_client.update(
-                evaluator=_EVALUATOR_ID,
-                name="new-name",
-                description="new description",
-            )
-
-        mock_request_cls.assert_called_once_with(
-            name="new-name", description="new description"
+        """update() should set both concrete metadata values in its request body."""
+        evaluators_client.update(
+            evaluator=_EVALUATOR_ID,
+            name="new-name",
+            description="new description",
         )
+
+        body = mock_api.update_evaluator.call_args.kwargs[
+            "update_evaluator_request"
+        ]
+        assert body.model_fields_set == {"name", "description"}
+        assert body.to_dict() == {
+            "name": "new-name",
+            "description": "new description",
+        }
+
+    def test_update_omits_unprovided_fields(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """update() should leave unprovided fields absent from the request."""
+        evaluators_client.update(evaluator=_EVALUATOR_ID)
+
+        body = mock_api.update_evaluator.call_args.kwargs[
+            "update_evaluator_request"
+        ]
+        assert body.model_fields_set == set()
+        assert body.to_dict() == {}
+
+    def test_update_omits_none_name(
+        self,
+        evaluators_client: EvaluatorsClient,
+        mock_api: Mock,
+    ) -> None:
+        """update() should leave a ``None`` name absent from its request body."""
+        evaluators_client.update(evaluator=_EVALUATOR_ID, name=None)
+
+        body = mock_api.update_evaluator.call_args.kwargs[
+            "update_evaluator_request"
+        ]
+        assert body.model_fields_set == set()
+        assert body.to_dict() == {}
+
+    def test_update_includes_explicit_none_to_clear_description(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """update() should send an explicit ``None`` to clear the description."""
+        evaluators_client.update(evaluator=_EVALUATOR_ID, description=None)
+
+        body = mock_api.update_evaluator.call_args.kwargs[
+            "update_evaluator_request"
+        ]
+        assert body.model_fields_set == {"description"}
+        assert body.to_dict() == {"description": None}
 
     def test_update_returns_api_response(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
@@ -543,8 +575,7 @@ class TestEvaluatorsClientUpdate:
         expected = Mock()
         mock_api.update_evaluator.return_value = expected
 
-        with patch("arize._generated.api_client.UpdateEvaluatorRequest"):
-            result = evaluators_client.update(evaluator=_EVALUATOR_ID, name="x")
+        result = evaluators_client.update(evaluator=_EVALUATOR_ID, name="x")
 
         assert result is expected
 
@@ -559,8 +590,7 @@ class TestEvaluatorsClientUpdate:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        with patch("arize._generated.api_client.UpdateEvaluatorRequest"):
-            evaluators_client.update(evaluator=_EVALUATOR_ID, name="x")
+        evaluators_client.update(evaluator=_EVALUATOR_ID, name="x")
 
         assert any(
             "BETA" in record.message and "evaluators.update" in record.message

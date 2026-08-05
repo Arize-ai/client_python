@@ -6,7 +6,7 @@ An experiment run with experiment data including outputs, evaluations, and trace
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**example_id** | **str** | ID of the dataset example associated with this experiment run | 
+**example_id** | **str** | ID of the dataset example associated with this experiment run. Provided when the experiment is associated with a dataset; omitted otherwise. | [optional] 
 **output** | **str** | output of the task for the matching example | 
 
 ## Example

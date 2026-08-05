@@ -92,10 +92,6 @@ class ListProjectsResponse(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in ListProjectsResponse) in the input: " + _key)
 
         _obj = cls.model_validate({
             "projects": [Project.from_dict(_item) for _item in obj["projects"]] if obj.get("projects") is not None else None,

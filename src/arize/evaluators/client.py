@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from arize._generated.api_client.models.evaluator_version_code import (
     EvaluatorVersionCode as _GenEvaluatorVersionCode,
@@ -24,6 +24,7 @@ from arize.utils.resolve import (
     _find_space_id,
     _resolve_resource,
 )
+from arize.utils.unset import _UNSET, UNSET, is_provided
 
 if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
@@ -302,8 +303,8 @@ class EvaluatorsClient:
         *,
         evaluator: str,
         space: str | None = None,
-        name: str | None = None,
-        description: str | None = None,
+        name: str | None | UNSET = _UNSET,
+        description: str | None | UNSET = _UNSET,
     ) -> Evaluator:
         """Update an evaluator's metadata.
 
@@ -311,8 +312,10 @@ class EvaluatorsClient:
             evaluator: Evaluator name or identifier (base64) to update.
             space: Optional space name or ID. Required when ``evaluator`` is a
                 name rather than an ID.
-            name: New evaluator name (must be unique within its space).
-            description: New description for the evaluator.
+            name: New evaluator name (must be unique within its space). Omit it
+                or pass ``None`` to leave the existing name unchanged.
+            description: New description for the evaluator. Omit to leave
+                unchanged; pass ``None`` to clear it.
 
         Returns:
             The updated evaluator.
@@ -328,7 +331,12 @@ class EvaluatorsClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.UpdateEvaluatorRequest(name=name, description=description)
+        kwargs: dict[str, Any] = {}
+        if is_provided(name) and name is not None:
+            kwargs["name"] = name
+        if is_provided(description):
+            kwargs["description"] = description
+        body = gen.UpdateEvaluatorRequest(**kwargs)
         return self._api.update_evaluator(
             evaluator_id=evaluator_id,
             update_evaluator_request=body,

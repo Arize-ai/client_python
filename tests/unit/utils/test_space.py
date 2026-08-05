@@ -14,6 +14,7 @@ from arize.utils.resolve import (
     _find_dataset_id,
     _find_evaluator_id,
     _find_experiment_id,
+    _find_integration_id,
     _find_project_id,
     _find_prompt_id,
     _find_space_id,
@@ -38,10 +39,13 @@ def _make_paginated(items: list, next_cursor: str | None = None) -> MagicMock:
     return resp
 
 
-def _item(name: str, id: str = "some-id") -> MagicMock:
+def _item(
+    name: str, id: str = "some-id", dataset_id: str | None = None
+) -> MagicMock:
     item = MagicMock()
     item.name = name
     item.id = id
+    item.dataset_id = dataset_id
     return item
 
 
@@ -310,14 +314,21 @@ class TestFindDatasetId:
 class TestFindExperimentId:
     def test_base64_passthrough(self) -> None:
         assert (
-            _find_experiment_id(MagicMock(), MagicMock(), B64_ID, None, None)
+            _find_experiment_id(
+                MagicMock(), MagicMock(), MagicMock(), B64_ID, None, None
+            )
             == B64_ID
         )
 
-    def test_no_dataset_id_raises(self) -> None:
+    def test_no_dataset_or_space_raises(self) -> None:
         with pytest.raises(NotFoundError, match="experiment"):
             _find_experiment_id(
-                MagicMock(), MagicMock(), "my-experiment", None, None
+                MagicMock(),
+                MagicMock(),
+                MagicMock(),
+                "my-experiment",
+                None,
+                None,
             )
 
     def test_name_resolved(self) -> None:
@@ -327,9 +338,63 @@ class TestFindExperimentId:
         mock_api.list_experiments.return_value = resp
         # Use B64_ID as dataset so _find_dataset_id is skipped (direct ID passthrough)
         result = _find_experiment_id(
-            mock_api, MagicMock(), "my-experiment", B64_ID, None
+            mock_api, MagicMock(), MagicMock(), "my-experiment", B64_ID, None
         )
         assert result == "exp-id"
+
+    def test_name_resolved_standalone_via_space(self) -> None:
+        """No dataset provided: resolves a standalone experiment by name
+        within the space instead.
+        """
+        resp = _make_paginated([])
+        resp.experiments = [_item("my-experiment", "exp-id")]
+        mock_api = MagicMock()
+        mock_api.list_experiments.return_value = resp
+        # Use B64_ID as space so _find_space_id is skipped (direct ID passthrough)
+        result = _find_experiment_id(
+            mock_api, MagicMock(), MagicMock(), "my-experiment", None, B64_ID
+        )
+        assert result == "exp-id"
+        mock_api.list_experiments.assert_called_once()
+        assert mock_api.list_experiments.call_args.kwargs["space_id"] == B64_ID
+
+    def test_name_resolved_via_space_when_match_is_dataset_backed(self) -> None:
+        """No dataset provided, and the only name match in the space is a
+        dataset-associated experiment (not standalone): still resolves it,
+        since there's no collision to disambiguate.
+        """
+        resp = _make_paginated([])
+        resp.experiments = [_item("my-experiment", "exp-id", dataset_id="ds-1")]
+        mock_api = MagicMock()
+        mock_api.list_experiments.return_value = resp
+        result = _find_experiment_id(
+            mock_api, MagicMock(), MagicMock(), "my-experiment", None, B64_ID
+        )
+        assert result == "exp-id"
+
+    def test_name_ambiguous_across_standalone_and_dataset_backed_raises(
+        self,
+    ) -> None:
+        """No dataset provided, and the name matches both a standalone and a
+        dataset-associated experiment in the space: raises rather than
+        silently returning either one.
+        """
+        resp = _make_paginated([])
+        resp.experiments = [
+            _item("my-experiment", "standalone-id", dataset_id=None),
+            _item("my-experiment", "dataset-backed-id", dataset_id="ds-1"),
+        ]
+        mock_api = MagicMock()
+        mock_api.list_experiments.return_value = resp
+        with pytest.raises(AmbiguousNameError, match="my-experiment"):
+            _find_experiment_id(
+                mock_api,
+                MagicMock(),
+                MagicMock(),
+                "my-experiment",
+                None,
+                B64_ID,
+            )
 
     def test_name_not_found_raises(self) -> None:
         resp = _make_paginated([])
@@ -337,7 +402,9 @@ class TestFindExperimentId:
         mock_api = MagicMock()
         mock_api.list_experiments.return_value = resp
         with pytest.raises(NotFoundError, match="experiment"):
-            _find_experiment_id(mock_api, MagicMock(), "missing", B64_ID, None)
+            _find_experiment_id(
+                mock_api, MagicMock(), MagicMock(), "missing", B64_ID, None
+            )
 
     def test_pagination(self) -> None:
         page1 = _make_paginated([], next_cursor="c")
@@ -347,7 +414,9 @@ class TestFindExperimentId:
         mock_api = MagicMock()
         mock_api.list_experiments.side_effect = [page1, page2]
         assert (
-            _find_experiment_id(mock_api, MagicMock(), "my-exp", B64_ID, None)
+            _find_experiment_id(
+                mock_api, MagicMock(), MagicMock(), "my-exp", B64_ID, None
+            )
             == "exp-id"
         )
 
@@ -551,6 +620,104 @@ class TestFindAiIntegrationId:
         assert (
             _find_ai_integration_id(mock_api, "my-integration", B64_ID)
             == "ai-id"
+        )
+
+
+# ---------------------------------------------------------------------------
+# _find_integration_id
+# ---------------------------------------------------------------------------
+
+
+def _wrapped_item(name: str, id: str = "some-id") -> MagicMock:
+    """Build a mock Integration oneOf wrapper with an inner actual_instance."""
+    inner = MagicMock()
+    inner.name = name
+    inner.id = id
+    wrapper = MagicMock()
+    wrapper.actual_instance = inner
+    return wrapper
+
+
+@pytest.mark.unit
+class TestFindIntegrationId:
+    def test_base64_passthrough(self) -> None:
+        assert _find_integration_id(MagicMock(), B64_ID, "LLM", None) == B64_ID
+
+    def test_base64_passthrough_without_type(self) -> None:
+        """An ID needs no type — it identifies the integration on its own."""
+        mock_api = MagicMock()
+        assert _find_integration_id(mock_api, B64_ID, None, None) == B64_ID
+        mock_api.list_integrations.assert_not_called()
+
+    def test_name_without_type_raises(self) -> None:
+        """A name is only unique per (account, type), so type is required."""
+        mock_api = MagicMock()
+        with pytest.raises(NotFoundError, match="integration_type"):
+            _find_integration_id(mock_api, "my-integration", None, None)
+        mock_api.list_integrations.assert_not_called()
+
+    def test_no_space_resolves_by_type(self) -> None:
+        """Without a space, resolution still lists by type and raises only
+        when the name is not found.
+
+        Integration names are unique per ``(account, type)``, so ``space`` is
+        an optional visibility filter, not required to resolve a name. This
+        also guards against the pagination loop never terminating: a real
+        exhausted response has ``next_cursor=None``.
+        """
+        resp = _make_paginated([])
+        resp.integrations = []
+        mock_api = MagicMock()
+        mock_api.list_integrations.return_value = resp
+        with pytest.raises(NotFoundError, match="integration"):
+            _find_integration_id(mock_api, "my-integration", "LLM", None)
+        # space is optional: the lookup proceeds with no space filter.
+        kwargs = mock_api.list_integrations.call_args.kwargs
+        assert kwargs["space_id"] is None
+        assert kwargs["space_name"] is None
+
+    def test_name_resolved(self) -> None:
+        resp = _make_paginated([])
+        resp.integrations = [_wrapped_item("my-integration", "int-id")]
+        mock_api = MagicMock()
+        mock_api.list_integrations.return_value = resp
+        result = _find_integration_id(
+            mock_api, "my-integration", "AGENT", B64_ID
+        )
+        assert result == "int-id"
+        # type should be forwarded to the list endpoint
+        assert mock_api.list_integrations.call_args.kwargs["type"] == "AGENT"
+
+    def test_name_not_found_raises(self) -> None:
+        resp = _make_paginated([])
+        resp.integrations = [_wrapped_item("other-integration")]
+        mock_api = MagicMock()
+        mock_api.list_integrations.return_value = resp
+        with pytest.raises(NotFoundError, match="integration"):
+            _find_integration_id(mock_api, "missing", "LLM", B64_ID)
+
+    def test_none_actual_instance_skipped(self) -> None:
+        empty = MagicMock()
+        empty.actual_instance = None
+        resp = _make_paginated([])
+        resp.integrations = [empty, _wrapped_item("my-integration", "int-id")]
+        mock_api = MagicMock()
+        mock_api.list_integrations.return_value = resp
+        assert (
+            _find_integration_id(mock_api, "my-integration", "LLM", B64_ID)
+            == "int-id"
+        )
+
+    def test_pagination(self) -> None:
+        page1 = _make_paginated([], next_cursor="c")
+        page1.integrations = [_wrapped_item("other")]
+        page2 = _make_paginated([])
+        page2.integrations = [_wrapped_item("my-integration", "int-id")]
+        mock_api = MagicMock()
+        mock_api.list_integrations.side_effect = [page1, page2]
+        assert (
+            _find_integration_id(mock_api, "my-integration", "LLM", B64_ID)
+            == "int-id"
         )
 
 

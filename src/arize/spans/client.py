@@ -91,6 +91,8 @@ class SpansClient:
         project: str,
         span_ids: builtins.list[str],
         space: str | None = None,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
     ) -> DeleteSpansResponse:
         """Permanently delete spans by their IDs.
 
@@ -103,6 +105,12 @@ class SpansClient:
             span_ids: List of span IDs to delete.
             space: Optional space name or ID used to disambiguate the project
                 lookup. Required when ``project`` is a name.
+            start_time: Scope the delete to spans starting at or after this
+                timestamp (inclusive). When omitted, the server searches the
+                full 2-year lookback window.
+            end_time: Scope the delete to spans starting before this timestamp
+                (exclusive). When omitted, the server searches up to the
+                current time.
 
         Returns:
             A ``DeleteSpansResponse`` with ``completed`` (``True`` if no retry
@@ -131,6 +139,8 @@ class SpansClient:
         body = gen.DeleteSpansRequest(
             project_id=project_id,
             span_ids=span_ids,
+            start_time=start_time,
+            end_time=end_time,
         )
         return self._api.delete_spans(delete_spans_request=body)
 

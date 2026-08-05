@@ -271,18 +271,23 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **list_integrations**
-> ListIntegrationsResponse list_integrations(type, space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+> ListIntegrationsResponse list_integrations(type=type, space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
 
 List integrations
 
-List integrations the user has access to. `type` is required and the
-response contains only integrations of that type. Each item still
-carries its `type` (and, for `LLM`, `config.provider`) for client-side
-discrimination. A missing or invalid `type` returns `400`.
+List integrations the user has access to, ordered by creation time
+(newest first). By default the list includes every integration type;
+pass `type` to list a single type. Each item carries its `type` (and,
+for `LLM`, `config.provider`) for client-side discrimination. An
+invalid `type` or pagination `cursor` returns `400`; a cursor is only
+valid for the query parameters it was issued with.
 
 Integrations are owned at the account level but carry visibility scopings
 (account-wide, organization, or space). `space_id` / `space_name` filter
-the list to integrations visible in a given space.
+the list to integrations visible in a given space. The list contains
+only the types the caller has permission to read. When no type is
+readable the request fails with `403` — or `404` when a `space_id`
+filter references a space outside the caller's visibility.
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 
@@ -318,7 +323,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.IntegrationsApi(api_client)
-    type = arize._generated.api_client.IntegrationType() # IntegrationType | The integration type to list. Required - the list returns only integrations of this type.
+    type = arize._generated.api_client.IntegrationType() # IntegrationType | Filter the list to a single integration type. When omitted, integrations of every type are returned; each item carries its `type` for client-side discrimination. (optional)
     space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
     space_name = 'my-space' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
@@ -327,7 +332,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
     try:
         # List integrations
-        api_response = api_instance.list_integrations(type, space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
+        api_response = api_instance.list_integrations(type=type, space_id=space_id, space_name=space_name, name=name, limit=limit, cursor=cursor)
         print("The response of IntegrationsApi->list_integrations:\n")
         pprint(api_response)
     except Exception as e:
@@ -341,7 +346,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **type** | [**IntegrationType**](.md)| The integration type to list. Required - the list returns only integrations of this type. | 
+ **type** | [**IntegrationType**](.md)| Filter the list to a single integration type. When omitted, integrations of every type are returned; each item carries its &#x60;type&#x60; for client-side discrimination. | [optional] 
  **space_id** | **str**| Filter search results to a particular space ID | [optional] 
  **space_name** | **str**| Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  | [optional] 
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 

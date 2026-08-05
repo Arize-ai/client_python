@@ -32,7 +32,7 @@ class AnnotationQueueTraceRecordInput(BaseModel):
     project_id: StrictStr = Field(description="The project ID these traces belong to.")
     start_time: datetime = Field(description="Start of the time range used to resolve each trace's root span. The range (end_time - start_time) must not exceed 7 days. ")
     end_time: datetime = Field(description="End of the time range. Must be after start_time. ")
-    trace_ids: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="List of trace IDs to add to the queue. ")
+    trace_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=500)] = Field(description="List of trace IDs to add to the queue. ")
     __properties: ClassVar[List[str]] = ["record_type", "project_id", "start_time", "end_time", "trace_ids"]
 
     @field_validator('record_type')

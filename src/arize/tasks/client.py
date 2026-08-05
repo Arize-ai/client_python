@@ -12,6 +12,7 @@ from arize._generated.api_client.models.run_configuration import (
 from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.tasks.types import (
+    AgentCallRunConfig,
     ListTasksResponse,
     LlmGenerationRunConfig,
     RunStatus,
@@ -25,6 +26,7 @@ from arize.utils.resolve import (
     _find_task_id,
     _resolve_resource,
 )
+from arize.utils.unset import _UNSET, UNSET, is_provided
 
 if TYPE_CHECKING:
     import builtins
@@ -45,16 +47,6 @@ _TERMINAL_STATUSES: Final = frozenset(
 )
 _DEFAULT_POLL_INTERVAL = 5.0  # seconds
 _DEFAULT_TIMEOUT = 600.0  # seconds
-
-
-# Sentinel for TasksClient.update — omit field from PATCH body vs explicit values.
-# Defined as a class (rather than `object()`) so method signatures can spell
-# out `str | _Missing` instead of the looser `str | object`.
-class _Missing:
-    """Sentinel type used to distinguish "omitted" from explicit ``None``."""
-
-
-_MISSING: Final[_Missing] = _Missing()
 
 
 class TasksClient:
@@ -93,6 +85,7 @@ class TasksClient:
     @staticmethod
     def _coerce_run_configuration(
         item: RunConfiguration
+        | AgentCallRunConfig
         | LlmGenerationRunConfig
         | TemplateEvaluationRunConfig
         | dict,
@@ -101,22 +94,29 @@ class TasksClient:
 
         Accepts:
         - An already-wrapped ``RunConfiguration`` (returned as-is).
-        - An unwrapped inner type (``LlmGenerationRunConfig`` or
-          ``TemplateEvaluationRunConfig``), which is wrapped automatically.
+        - An unwrapped inner type (``AgentCallRunConfig``,
+          ``LlmGenerationRunConfig``, or ``TemplateEvaluationRunConfig``), which
+          is wrapped automatically.
         - A plain ``dict`` whose keys match one of the inner schemas; parsed via
           ``RunConfiguration.from_dict``.
         """
         if isinstance(item, RunConfiguration):
             return item
         if isinstance(
-            item, (LlmGenerationRunConfig, TemplateEvaluationRunConfig)
+            item,
+            (
+                AgentCallRunConfig,
+                LlmGenerationRunConfig,
+                TemplateEvaluationRunConfig,
+            ),
         ):
             return RunConfiguration(item)
         if isinstance(item, dict):
             return RunConfiguration.from_dict(item)
         raise TypeError(
-            f"run_configuration must be RunConfiguration, LlmGenerationRunConfig, "
-            f"TemplateEvaluationRunConfig, or dict; got {type(item)!r}"
+            f"run_configuration must be RunConfiguration, AgentCallRunConfig, "
+            f"LlmGenerationRunConfig, TemplateEvaluationRunConfig, or dict; "
+            f"got {type(item)!r}"
         )
 
     # -------------------------------------------------------------------------
@@ -227,6 +227,7 @@ class TasksClient:
         task_type: TaskType,
         evaluators: builtins.list[TaskEvaluatorInput] | None = None,
         run_configuration: RunConfiguration
+        | AgentCallRunConfig
         | LlmGenerationRunConfig
         | TemplateEvaluationRunConfig
         | dict
@@ -270,7 +271,8 @@ class TasksClient:
             run_configuration: Experiment run configuration. Required for
                 ``"RUN_EXPERIMENT"`` tasks; must be omitted for eval task
                 types. Use
-                :class:`arize.tasks.types.LlmGenerationRunConfig` or
+                :class:`arize.tasks.types.AgentCallRunConfig`,
+                :class:`arize.tasks.types.LlmGenerationRunConfig`, or
                 :class:`arize.tasks.types.TemplateEvaluationRunConfig`
                 wrapped in
                 :class:`arize.tasks.types.RunConfiguration`.
@@ -475,6 +477,7 @@ class TasksClient:
         name: str,
         dataset: str,
         run_configuration: RunConfiguration
+        | AgentCallRunConfig
         | LlmGenerationRunConfig
         | TemplateEvaluationRunConfig
         | dict,
@@ -495,7 +498,8 @@ class TasksClient:
             dataset: Dataset name or identifier (base64) to run the
                 experiment against.
             run_configuration: Discriminated experiment configuration. Use
-                :class:`arize.tasks.types.LlmGenerationRunConfig` or
+                :class:`arize.tasks.types.AgentCallRunConfig`,
+                :class:`arize.tasks.types.LlmGenerationRunConfig`, or
                 :class:`arize.tasks.types.TemplateEvaluationRunConfig`
                 wrapped in :class:`arize.tasks.types.RunConfiguration`.
             space: Optional space name or ID used to resolve ``dataset``
@@ -521,18 +525,19 @@ class TasksClient:
         *,
         task: str,
         space: str | None = None,
-        name: str | _Missing = _MISSING,
+        name: str | UNSET = _UNSET,
         # Evaluation-task fields
-        sampling_rate: float | _Missing = _MISSING,
-        is_continuous: bool | _Missing = _MISSING,
-        query_filter: str | None | _Missing = _MISSING,
-        evaluators: builtins.list[TaskEvaluatorInput] | _Missing = _MISSING,
+        sampling_rate: float | UNSET = _UNSET,
+        is_continuous: bool | UNSET = _UNSET,
+        query_filter: str | None | UNSET = _UNSET,
+        evaluators: builtins.list[TaskEvaluatorInput] | UNSET = _UNSET,
         # run_experiment-task fields
         run_configuration: RunConfiguration
+        | AgentCallRunConfig
         | LlmGenerationRunConfig
         | TemplateEvaluationRunConfig
         | dict
-        | _Missing = _MISSING,
+        | UNSET = _UNSET,
     ) -> Task:
         """Update mutable fields on an existing task.
 
@@ -602,7 +607,7 @@ class TasksClient:
                     "query_filter": query_filter,
                     "evaluators": evaluators,
                 }.items()
-                if not isinstance(v, _Missing)
+                if is_provided(v)
             }
             if eval_only_supplied:
                 raise ValueError(
@@ -610,46 +615,44 @@ class TasksClient:
                     f"{', '.join(eval_only_supplied)}. "
                     "Only 'name' and 'run_configuration' may be updated.",
                 )
-            run_exp_payload: dict[str, Any] = {}
-            if not isinstance(name, _Missing):
-                run_exp_payload["name"] = name
-            if not isinstance(run_configuration, _Missing):
-                run_exp_payload["run_configuration"] = (
+            run_exp_kwargs: dict[str, Any] = {}
+            if is_provided(name):
+                run_exp_kwargs["name"] = name
+            if not isinstance(run_configuration, UNSET):
+                run_exp_kwargs["run_configuration"] = (
                     self._coerce_run_configuration(run_configuration)
                 )
-            if not run_exp_payload:
+            if not run_exp_kwargs:
                 raise ValueError(
                     "At least one update field must be provided for "
                     "run_experiment tasks (name or run_configuration).",
                 )
-            inner_run_exp = gen.UpdateRunExperimentTaskRequest(
-                **run_exp_payload
-            )
+            inner_run_exp = gen.UpdateRunExperimentTaskRequest(**run_exp_kwargs)
             body = gen.UpdateTaskRequest(actual_instance=inner_run_exp)
         else:
             # Evaluation task.
-            if not isinstance(run_configuration, _Missing):
+            if not isinstance(run_configuration, UNSET):
                 raise ValueError(
                     "'run_configuration' is only valid for run_experiment tasks, "
                     f"not '{task_obj.type}'.",
                 )
-            eval_payload: dict[str, Any] = {}
-            if not isinstance(name, _Missing):
-                eval_payload["name"] = name
-            if not isinstance(sampling_rate, _Missing):
-                eval_payload["sampling_rate"] = sampling_rate
-            if not isinstance(is_continuous, _Missing):
-                eval_payload["is_continuous"] = is_continuous
-            if not isinstance(query_filter, _Missing):
-                eval_payload["query_filter"] = query_filter
-            if not isinstance(evaluators, _Missing):
-                eval_payload["evaluators"] = evaluators
-            if not eval_payload:
+            eval_kwargs: dict[str, Any] = {}
+            if is_provided(name):
+                eval_kwargs["name"] = name
+            if is_provided(sampling_rate):
+                eval_kwargs["sampling_rate"] = sampling_rate
+            if is_provided(is_continuous):
+                eval_kwargs["is_continuous"] = is_continuous
+            if is_provided(query_filter):
+                eval_kwargs["query_filter"] = query_filter
+            if is_provided(evaluators):
+                eval_kwargs["evaluators"] = evaluators
+            if not eval_kwargs:
                 raise ValueError(
                     "At least one update field must be provided "
                     "(name, sampling_rate, is_continuous, query_filter, or evaluators).",
                 )
-            inner = gen.UpdateEvaluationTaskRequest(**eval_payload)
+            inner = gen.UpdateEvaluationTaskRequest(**eval_kwargs)
             body = gen.UpdateTaskRequest(actual_instance=inner)
 
         result = self._api.update_task(

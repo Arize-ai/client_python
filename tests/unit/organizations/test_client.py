@@ -253,6 +253,65 @@ class TestOrganizationsClientUpdate:
             update_organization_request=mock_body,
         )
 
+    def test_update_clears_description_when_explicitly_none(
+        self, organizations_client: OrganizationsClient
+    ) -> None:
+        """update() should send null when clearing a description."""
+        with patch(
+            "arize._generated.api_client.UpdateOrganizationRequest"
+        ) as mock_request_cls:
+            organizations_client.update(
+                organization="T3JnYW5pemF0aW9uOjEyMzQ1",
+                description=None,
+            )
+
+        mock_request_cls.assert_called_once_with(description=None)
+
+    def test_update_omits_none_name_and_raises_when_no_fields_remain(
+        self, organizations_client: OrganizationsClient
+    ) -> None:
+        """update() should treat name=None as an omitted field."""
+        with pytest.raises(
+            ValueError,
+            match="At least one of 'name' or 'description' must be provided",
+        ):
+            organizations_client.update(
+                organization="T3JnYW5pemF0aW9uOjEyMzQ1",
+                name=None,
+            )
+
+    def test_update_request_omits_unset_description(
+        self, organizations_client: OrganizationsClient, mock_api: Mock
+    ) -> None:
+        """A name-only update should not serialize the default description."""
+        organizations_client.update(
+            organization="T3JnYW5pemF0aW9uOjEyMzQ1",
+            name="updated-org",
+        )
+
+        body = mock_api.update_organization.call_args.kwargs[
+            "update_organization_request"
+        ]
+
+        assert body.model_fields_set == {"name"}
+        assert body.to_dict() == {"name": "updated-org"}
+
+    def test_update_request_serializes_none_description_as_clear(
+        self, organizations_client: OrganizationsClient, mock_api: Mock
+    ) -> None:
+        """An explicit null description should remain in the wire payload."""
+        organizations_client.update(
+            organization="T3JnYW5pemF0aW9uOjEyMzQ1",
+            description=None,
+        )
+
+        body = mock_api.update_organization.call_args.kwargs[
+            "update_organization_request"
+        ]
+
+        assert body.model_fields_set == {"description"}
+        assert body.to_dict() == {"description": None}
+
     def test_update_returns_api_response(
         self, organizations_client: OrganizationsClient, mock_api: Mock
     ) -> None:

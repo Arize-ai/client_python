@@ -7,6 +7,9 @@ from datetime import datetime
 import pytest
 
 import arize.tasks.types as types_module
+from arize._generated.api_client.models.agent_call_run_config import (
+    AgentCallRunConfig,
+)
 from arize._generated.api_client.models.llm_generation_run_config import (
     LlmGenerationRunConfig,
 )
@@ -28,6 +31,14 @@ from arize.tasks.types import (
 # ---------------------------------------------------------------------------
 # Shared fixtures
 # ---------------------------------------------------------------------------
+
+
+def _make_agent_call_run_config() -> AgentCallRunConfig:
+    return AgentCallRunConfig.model_construct(
+        experiment_type="AGENT_CALL",
+        integration_id="integration_1",
+        input_template={"prompt": "{{input}}"},
+    )
 
 
 def _make_llm_run_config() -> LlmGenerationRunConfig:
@@ -82,6 +93,7 @@ class TestTasksTypes:
         """__all__ should contain the expected public type names."""
         expected = {
             "TaskEvaluatorInput",
+            "AgentCallRunConfig",
             "LlmGenerationRunConfig",
             "Task",
             "TaskRun",
@@ -95,6 +107,7 @@ class TestTasksTypes:
         "cls",
         [
             TaskEvaluatorInput,
+            AgentCallRunConfig,
             LlmGenerationRunConfig,
             Task,
             TaskRun,
@@ -121,6 +134,17 @@ class TestTaskRunConfigurationCoercion:
         task = _make_task(run_configuration=wrapper)
 
         assert task.run_configuration is llm_config
+
+    def test_unwraps_agent_call_run_config_from_wrapper(self) -> None:
+        """RunConfiguration wrapping AgentCallRunConfig should be unwrapped."""
+        agent_config = _make_agent_call_run_config()
+        wrapper = _GenRunConfiguration.model_construct(
+            actual_instance=agent_config
+        )
+
+        task = _make_task(run_configuration=wrapper)
+
+        assert task.run_configuration is agent_config
 
     def test_unwraps_template_evaluation_run_config_from_wrapper(self) -> None:
         """RunConfiguration wrapping TemplateEvaluationRunConfig should be unwrapped."""
@@ -149,6 +173,14 @@ class TestTaskRunConfigurationCoercion:
         task = _make_task(run_configuration=llm_config)
 
         assert task.run_configuration is llm_config
+
+    def test_passes_through_agent_call_run_config_directly(self) -> None:
+        """AgentCallRunConfig passed directly should not be transformed."""
+        agent_config = _make_agent_call_run_config()
+
+        task = _make_task(run_configuration=agent_config)
+
+        assert task.run_configuration is agent_config
 
     def test_passes_through_template_run_config_directly(self) -> None:
         """TemplateEvaluationRunConfig passed directly should not be transformed."""

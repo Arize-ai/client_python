@@ -225,7 +225,7 @@ class PromptsClient:
         *,
         prompt: str,
         space: str | None = None,
-        description: str,
+        description: str | None,
     ) -> Prompt:
         """Update a prompt's metadata.
 
@@ -233,13 +233,13 @@ class PromptsClient:
             prompt: Prompt ID or name. If a name is provided, ``space`` must
                 also be supplied so the name can be resolved.
             space: Optional space ID or name. Required when *prompt* is a name.
-            description: Updated description for the prompt.
+            description: Updated description for the prompt. Pass ``None`` to
+                clear it.
 
         Returns:
             The updated prompt object.
 
         Raises:
-            ValueError: If no fields to update are provided.
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """

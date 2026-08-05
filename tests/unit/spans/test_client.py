@@ -121,6 +121,8 @@ class TestSpansClientDelete:
         mock_request_cls.assert_called_once_with(
             project_id=_PROJECT_ID,
             span_ids=["span-1", "span-2"],
+            start_time=None,
+            end_time=None,
         )
         mock_api.delete_spans.assert_called_once_with(
             delete_spans_request=mock_body,
@@ -191,6 +193,33 @@ class TestSpansClientDelete:
         mock_request_cls.assert_called_once_with(
             project_id=_PROJECT_ID,
             span_ids=["span-1"],
+            start_time=None,
+            end_time=None,
+        )
+
+    def test_delete_passes_time_bounds(
+        self, spans_client: SpansClient, mock_api: Mock
+    ) -> None:
+        """delete() should forward start_time/end_time to DeleteSpansRequest."""
+        start = datetime(2024, 6, 1, tzinfo=timezone.utc)
+        end = datetime(2024, 6, 2, tzinfo=timezone.utc)
+
+        with patch(
+            "arize._generated.api_client.DeleteSpansRequest"
+        ) as mock_request_cls:
+            mock_request_cls.return_value = Mock()
+            spans_client.delete(
+                project=_PROJECT_ID,
+                span_ids=["span-1"],
+                start_time=start,
+                end_time=end,
+            )
+
+        mock_request_cls.assert_called_once_with(
+            project_id=_PROJECT_ID,
+            span_ids=["span-1"],
+            start_time=start,
+            end_time=end,
         )
 
     def test_delete_emits_beta_prerelease_warning(

@@ -128,7 +128,9 @@ Name | Type | Description  | Notes
 
 Delete an annotation config
 
-Delete an annotation config by its ID. This operation is irreversible.
+Delete an annotation config by its ID. The annotation config must not be associated
+with an active annotation queue; remove it from those queues before deleting it.
+This operation is irreversible.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
@@ -202,6 +204,7 @@ void (empty response body)
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
+**409** | Resource conflict |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

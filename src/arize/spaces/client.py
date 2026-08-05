@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.spaces.types import SpaceMembership
 from arize.utils.resolve import _find_space_id
+from arize.utils.unset import _UNSET, UNSET, is_provided
 
 if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
@@ -174,16 +175,20 @@ class SpacesClient:
         self,
         *,
         space: str,
-        name: str | None = None,
-        description: str | None = None,
+        name: str | None | UNSET = _UNSET,
+        description: str | None | UNSET = _UNSET,
         is_private: bool | None = None,
     ) -> Space:
         """Update a space by ID or name.
 
+        Only fields you pass are sent to the server. Omitted fields are left
+        unchanged; pass ``None`` for ``description`` to clear it.
+
         Args:
             space: Space ID or name to update.
             name: Updated name for the space.
-            description: Updated description for the space.
+            description: Updated description for the space. Pass ``None`` to
+                clear the existing description.
             is_private: Updated visibility for the space. Set to ``True`` to
                 make the space private (visible only to members and admins), or
                 ``False`` to make it public. When ``None``, the existing
@@ -198,7 +203,15 @@ class SpacesClient:
             ApiException: If the API request fails
                 (for example, space not found or insufficient permissions).
         """
-        if name is None and description is None and is_private is None:
+        kwargs: dict[str, Any] = {}
+        if is_provided(name) and name is not None:
+            kwargs["name"] = name
+        if is_provided(description):
+            kwargs["description"] = description
+        if is_private is not None:
+            kwargs["is_private"] = is_private
+
+        if not kwargs:
             raise ValueError(
                 "At least one of 'name', 'description', or 'is_private' must be provided"
             )
@@ -214,11 +227,7 @@ class SpacesClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.UpdateSpaceRequest(
-            name=name,
-            description=description,
-            is_private=is_private,
-        )
+        body = gen.UpdateSpaceRequest(**kwargs)
         return self._api.update_space(
             space_id=space_id, update_space_request=body
         )

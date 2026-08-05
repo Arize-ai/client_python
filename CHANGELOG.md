@@ -1,5 +1,13 @@
 # Changelog
 
+## [8.44.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.43.1...arize-python-sdk/v8.44.0) (2026-08-04)
+
+
+### 🎁 New Features
+
+* **experiments:** Enable standalone experiment creation ([#81022](https://github.com/Arize-ai/arize/issues/81022)) ([a1a11b2](https://github.com/Arize-ai/arize/commit/a1a11b212e6cb49d9dad1522afa1e08a549c6c64))
+* **integrations:** add integrations subclient (llm+agent CRUD) + agent_call task support ([#79759](https://github.com/Arize-ai/arize/issues/79759)) ([9ab254a](https://github.com/Arize-ai/arize/commit/9ab254a9c086b57d7f746fb94872d7245831a3c5))
+
 ## [8.43.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.43.0...arize-python-sdk/v8.43.1) (2026-07-27)
 
 

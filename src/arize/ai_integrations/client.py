@@ -11,6 +11,7 @@ from arize.utils.resolve import (
     _find_ai_integration_id,
     _resolve_resource,
 )
+from arize.utils.unset import _UNSET, UNSET, is_provided
 
 if TYPE_CHECKING:
     # builtins is needed to use builtins.list in type annotations because
@@ -30,13 +31,6 @@ if TYPE_CHECKING:
     from arize.config import SDKConfiguration
 
 logger = logging.getLogger(__name__)
-
-# Sentinel object used to distinguish "caller did not pass this argument" from
-# "caller explicitly passed None" in update().  This matters because the
-# generated pydantic model uses ``model_fields_set`` to decide whether to
-# serialize a nullable field as JSON ``null`` (clearing it on the server) vs.
-# omitting it entirely (leaving it unchanged).
-_UNSET: Any = object()
 
 
 class AiIntegrationsClient:
@@ -211,19 +205,20 @@ class AiIntegrationsClient:
         *,
         integration: str,
         space: str | None = None,
-        name: str | None = _UNSET,
-        provider: AiIntegrationProvider | None = _UNSET,
-        api_key: str | None = _UNSET,
-        base_url: str | None = _UNSET,
-        model_names: builtins.list[str] | None = _UNSET,
-        headers: dict[str, str] | None = _UNSET,
-        enable_default_models: bool | None = _UNSET,
-        function_calling_enabled: bool | None = _UNSET,
-        auth_type: AiIntegrationAuthType | None = _UNSET,
+        name: str | None | UNSET = _UNSET,
+        provider: AiIntegrationProvider | None | UNSET = _UNSET,
+        api_key: str | None | UNSET = _UNSET,
+        base_url: str | None | UNSET = _UNSET,
+        model_names: builtins.list[str] | None | UNSET = _UNSET,
+        headers: dict[str, str] | None | UNSET = _UNSET,
+        enable_default_models: bool | None | UNSET = _UNSET,
+        function_calling_enabled: bool | None | UNSET = _UNSET,
+        auth_type: AiIntegrationAuthType | None | UNSET = _UNSET,
         provider_metadata: AwsProviderMetadata
         | GcpProviderMetadata
-        | None = _UNSET,
-        scopings: builtins.list[AiIntegrationScoping] | None = _UNSET,
+        | None
+        | UNSET = _UNSET,
+        scopings: builtins.list[AiIntegrationScoping] | None | UNSET = _UNSET,
     ) -> AiIntegration:
         """Update an AI integration by name or ID.
 
@@ -258,36 +253,33 @@ class AiIntegrationsClient:
         """
         from arize._generated import api_client as gen
 
-        wrapped_metadata: Any = _UNSET
-        if provider_metadata is not _UNSET:
-            wrapped_metadata = (
+        kwargs: dict[str, Any] = {}
+        if is_provided(name) and name is not None:
+            kwargs["name"] = name
+        if is_provided(provider):
+            kwargs["provider"] = provider
+        if is_provided(api_key):
+            kwargs["api_key"] = api_key
+        if is_provided(base_url):
+            kwargs["base_url"] = base_url
+        if is_provided(model_names):
+            kwargs["model_names"] = model_names
+        if is_provided(headers):
+            kwargs["headers"] = headers
+        if is_provided(enable_default_models):
+            kwargs["enable_default_models"] = enable_default_models
+        if is_provided(function_calling_enabled):
+            kwargs["function_calling_enabled"] = function_calling_enabled
+        if is_provided(auth_type):
+            kwargs["auth_type"] = auth_type
+        if is_provided(provider_metadata):
+            kwargs["provider_metadata"] = (
                 gen.ProviderMetadata(actual_instance=provider_metadata)
                 if provider_metadata is not None
                 else None
             )
-
-        # Build kwargs with only the fields the caller actually provided so
-        # that pydantic's model_fields_set accurately reflects intent.  This
-        # prevents nullable fields (api_key, base_url, headers,
-        # provider_metadata) from being serialized as JSON null when the
-        # caller didn't mention them.
-        kwargs: dict[str, Any] = {
-            k: v
-            for k, v in (
-                ("name", name),
-                ("provider", provider),
-                ("api_key", api_key),
-                ("base_url", base_url),
-                ("model_names", model_names),
-                ("headers", headers),
-                ("enable_default_models", enable_default_models),
-                ("function_calling_enabled", function_calling_enabled),
-                ("auth_type", auth_type),
-                ("provider_metadata", wrapped_metadata),
-                ("scopings", scopings),
-            )
-            if v is not _UNSET
-        }
+        if is_provided(scopings):
+            kwargs["scopings"] = scopings
 
         integration_id = _find_ai_integration_id(
             api=self._api,

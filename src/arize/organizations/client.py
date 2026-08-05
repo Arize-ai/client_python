@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.organizations.types import OrganizationMembership
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import _find_organization_id
+from arize.utils.unset import _UNSET, UNSET, is_provided
 
 if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
@@ -160,15 +161,18 @@ class OrganizationsClient:
         *,
         organization: str,
         name: str | None = None,
-        description: str | None = None,
+        description: str | None | UNSET = _UNSET,
     ) -> Organization:
         """Update an organization's metadata by ID or name.
+
+        Only fields you pass are sent to the server. Omitted fields are left
+        unchanged; pass ``None`` for ``description`` to clear it.
 
         Args:
             organization: Organization ID or name to update.
             name: Updated name for the organization.
-            description: Updated description for the organization. Pass an
-                empty string to clear the existing description.
+            description: Updated description for the organization. Pass
+                ``None`` to clear the existing description.
 
         Returns:
             The updated organization object.
@@ -178,7 +182,13 @@ class OrganizationsClient:
             ApiException: If the API request fails
                 (for example, organization not found or insufficient permissions).
         """
-        if name is None and description is None:
+        kwargs: dict[str, Any] = {}
+        if name is not None:
+            kwargs["name"] = name
+        if is_provided(description):
+            kwargs["description"] = description
+
+        if not kwargs:
             raise ValueError(
                 "At least one of 'name' or 'description' must be provided"
             )
@@ -187,10 +197,7 @@ class OrganizationsClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.UpdateOrganizationRequest(
-            name=name,
-            description=description,
-        )
+        body = gen.UpdateOrganizationRequest(**kwargs)
         return self._api.update_organization(
             org_id=org_id, update_organization_request=body
         )

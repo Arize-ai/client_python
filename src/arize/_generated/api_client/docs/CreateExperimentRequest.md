@@ -1,13 +1,14 @@
 # CreateExperimentRequest
 
-Experiment creation parameters with an initial set of runs.
+Experiment creation parameters with an initial set of runs.  An experiment belongs to a space and may optionally be associated with a dataset. Provide exactly one of: - `dataset_id` — associate the experiment with a dataset; it's created in   that dataset's space, and its runs may reference the dataset's examples   via `example_id`. - `space_id` — the space to create the experiment in, when it isn't   associated with a dataset.  Providing both, or neither, is a validation error. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Name of the experiment | 
-**dataset_id** | **str** | ID of the dataset to create the experiment for | 
+**dataset_id** | **str** | ID of the dataset to associate the experiment with. Provide &#x60;space_id&#x60; instead when the experiment isn&#39;t associated with a dataset. | [optional] 
+**space_id** | **str** | ID of the space to create the experiment in. Provide instead of &#x60;dataset_id&#x60;. | [optional] 
 **experiment_runs** | [**List[ExperimentRunInput]**](ExperimentRunInput.md) | Array of experiment run data | 
 
 ## Example

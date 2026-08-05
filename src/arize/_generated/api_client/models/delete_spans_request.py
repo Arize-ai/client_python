@@ -17,8 +17,9 @@ import pprint
 import re  # noqa: F401
 import json
 
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
@@ -29,7 +30,9 @@ class DeleteSpansRequest(BaseModel):
     """ # noqa: E501
     project_id: StrictStr = Field(description="The project ID containing the spans to delete")
     span_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=5000)] = Field(description="List of span IDs to delete (maximum 5000)")
-    __properties: ClassVar[List[str]] = ["project_id", "span_ids"]
+    start_time: Optional[datetime] = Field(default=None, description="Scope the delete to spans starting at or after this timestamp (inclusive). ISO 8601 format (e.g., `2024-01-01T00:00:00Z`). Each bound is independent: omitting `start_time` defaults to two years ago; omitting `end_time` defaults to now. You may provide either or both. ")
+    end_time: Optional[datetime] = Field(default=None, description="Scope the delete to spans starting before this timestamp (exclusive). ISO 8601 format (e.g., `2024-01-02T00:00:00Z`). Each bound is independent: omitting `start_time` defaults to two years ago; omitting `end_time` defaults to now. You may provide either or both. ")
+    __properties: ClassVar[List[str]] = ["project_id", "span_ids", "start_time", "end_time"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -88,7 +91,9 @@ class DeleteSpansRequest(BaseModel):
 
         _obj = cls.model_validate({
             "project_id": obj.get("project_id"),
-            "span_ids": obj.get("span_ids")
+            "span_ids": obj.get("span_ids"),
+            "start_time": obj.get("start_time"),
+            "end_time": obj.get("end_time")
         })
         return _obj
 

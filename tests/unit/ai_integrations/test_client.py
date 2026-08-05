@@ -7,7 +7,10 @@ from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
-from arize._generated.api_client import AIIntegrationsApi
+from arize._generated.api_client import (
+    AIIntegrationsApi,
+    UpdateAiIntegrationRequest,
+)
 from arize.ai_integrations.client import AiIntegrationsClient
 
 # Base64 ID that decodes to "Integration:123" — passes _is_resource_id()
@@ -337,6 +340,23 @@ class TestAiIntegrationsClientUpdate:
             name="Keep Name",
             api_key=None,
         )
+
+    def test_update_omits_none_name(
+        self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
+    ) -> None:
+        """update() should omit None rather than send a null integration name."""
+        ai_integrations_client.update(
+            integration=_INTEGRATION_ID,
+            name=None,
+            api_key="new-api-key",
+        )
+
+        body = mock_api.update_ai_integration.call_args.kwargs[
+            "update_ai_integration_request"
+        ]
+        assert isinstance(body, UpdateAiIntegrationRequest)
+        assert body.model_fields_set == {"api_key"}
+        assert body.to_dict() == {"api_key": "new-api-key"}
 
     def test_update_no_fields_sends_empty_request(
         self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock

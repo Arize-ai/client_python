@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Updated name for the organization (must be unique within the account) | [optional] 
-**description** | **str** | Updated description for the organization. Set to an empty string to clear it. | [optional] 
+**description** | **str** | Updated description for the organization. Set to &#x60;null&#x60; to clear it. | [optional] 
 
 ## Example
 

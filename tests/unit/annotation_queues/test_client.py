@@ -341,21 +341,60 @@ class TestAnnotationQueuesClientUpdate:
         with pytest.raises(ValueError, match="At least one of"):
             annotation_queues_client.update(annotation_queue=_QUEUE_ID)
 
-    def test_empty_string_instructions_sends_through(
+    def test_none_instructions_clears_existing_instructions(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
     ) -> None:
-        """update() should send instructions='' as-is to clear it on the server."""
-        with patch(
-            "arize._generated.api_client.UpdateAnnotationQueueRequest"
-        ) as mock_body_cls:
-            mock_body_cls.return_value = Mock()
+        """update() should serialize an explicit null to clear instructions."""
+        annotation_queues_client.update(
+            annotation_queue=_QUEUE_ID,
+            instructions=None,
+        )
 
-            annotation_queues_client.update(
-                annotation_queue=_QUEUE_ID,
-                instructions="",
-            )
+        body = mock_api.update_annotation_queue.call_args.kwargs[
+            "update_annotation_queue_request"
+        ]
+        assert body.model_fields_set == {"instructions"}
+        assert body.to_dict() == {"instructions": None}
 
-        mock_body_cls.assert_called_once_with(instructions="")
+    def test_empty_lists_clear_existing_values(
+        self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
+    ) -> None:
+        """update() should serialize empty lists to clear existing values."""
+        annotation_queues_client.update(
+            annotation_queue=_QUEUE_ID,
+            annotation_config_ids=[],
+            annotator_emails=[],
+        )
+
+        body = mock_api.update_annotation_queue.call_args.kwargs[
+            "update_annotation_queue_request"
+        ]
+        assert body.model_fields_set == {
+            "annotation_config_ids",
+            "annotator_emails",
+        }
+        assert body.to_dict() == {
+            "annotation_config_ids": [],
+            "annotator_emails": [],
+        }
+
+    def test_none_non_nullable_fields_are_omitted(
+        self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock
+    ) -> None:
+        """update() should only serialize None for nullable instructions."""
+        annotation_queues_client.update(
+            annotation_queue=_QUEUE_ID,
+            name=None,
+            annotation_config_ids=None,
+            annotator_emails=None,
+            instructions="Review carefully.",
+        )
+
+        body = mock_api.update_annotation_queue.call_args.kwargs[
+            "update_annotation_queue_request"
+        ]
+        assert body.model_fields_set == {"instructions"}
+        assert body.to_dict() == {"instructions": "Review carefully."}
 
     def test_returns_api_response(
         self, annotation_queues_client: AnnotationQueuesClient, mock_api: Mock

@@ -21,6 +21,7 @@ api_keys
 datasets
 evaluators
 experiments
+integrations
 ml
 organizations
 projects

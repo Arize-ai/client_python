@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,7 +30,7 @@ class AnnotationQueueExampleRecordInput(BaseModel):
     record_type: StrictStr = Field(description="Discriminator identifying this record source as dataset examples. Must be `EXAMPLE` for dataset example records.")
     dataset_id: StrictStr = Field(description="The dataset ID these examples belong to")
     dataset_version_id: Optional[StrictStr] = Field(default=None, description="Optional. The specific dataset version to use. If omitted, the latest version is used. ")
-    example_ids: Optional[List[StrictStr]] = Field(default=None, description="Optional. List of example IDs within the dataset to add to the queue. If omitted, all examples in the dataset (or dataset version) are added. ")
+    example_ids: Optional[Annotated[List[StrictStr], Field(max_length=500)]] = Field(default=None, description="Optional. List of example IDs within the dataset to add to the queue. If omitted, all examples in the dataset (or dataset version) are added, provided the total records from all sources does not exceed 500. ")
     __properties: ClassVar[List[str]] = ["record_type", "dataset_id", "dataset_version_id", "example_ids"]
 
     @field_validator('record_type')
