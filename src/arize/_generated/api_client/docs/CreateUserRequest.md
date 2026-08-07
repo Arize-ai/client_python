@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | Full name of the new user | 
 **email** | **str** | Email address of the user to invite | 
-**role** | [**UserRoleAssignment**](UserRoleAssignment.md) |  | 
+**role** | [**UserRoleAssignmentRequest**](UserRoleAssignmentRequest.md) |  | 
 **invite_mode** | [**InviteMode**](InviteMode.md) | Controls whether and how an invitation is sent | 
 **is_developer** | **bool** | Whether the user should have developer permissions (can use the Arize API). Defaults to &#x60;true&#x60; for &#x60;ADMIN&#x60; and &#x60;MEMBER&#x60; roles, and &#x60;false&#x60; for &#x60;ANNOTATOR&#x60;.  | [optional] 
 

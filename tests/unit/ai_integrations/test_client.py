@@ -7,7 +7,10 @@ from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
-from arize._generated.api_client import AIIntegrationsApi
+from arize._generated.api_client import (
+    AIIntegrationsApi,
+    UpdateAiIntegrationRequest,
+)
 from arize.ai_integrations.client import AiIntegrationsClient
 
 # Base64 ID that decodes to "Integration:123" — passes _is_resource_id()
@@ -236,11 +239,11 @@ class TestAiIntegrationsClientCreate:
         self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
     ) -> None:
         """create() should wrap typed provider metadata in oneOf wrapper."""
-        from arize._generated.api_client.models.aws_provider_metadata import (
-            AwsProviderMetadata,
+        from arize._generated.api_client.models.aws_provider_metadata_request import (
+            AwsProviderMetadataRequest,
         )
 
-        aws_meta = AwsProviderMetadata(
+        aws_meta = AwsProviderMetadataRequest(
             kind="AWS",
             role_arn="arn:aws:iam::role/x",
             external_id=None,
@@ -251,7 +254,7 @@ class TestAiIntegrationsClientCreate:
                 "arize._generated.api_client.CreateAiIntegrationRequest"
             ) as mock_request_cls,
             patch(
-                "arize._generated.api_client.ProviderMetadata"
+                "arize._generated.api_client.ProviderMetadataRequest"
             ) as mock_meta_cls,
         ):
             mock_meta_cls.return_value = mock_wrapped
@@ -338,6 +341,23 @@ class TestAiIntegrationsClientUpdate:
             api_key=None,
         )
 
+    def test_update_omits_none_name(
+        self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
+    ) -> None:
+        """update() should omit None rather than send a null integration name."""
+        ai_integrations_client.update(
+            integration=_INTEGRATION_ID,
+            name=None,
+            api_key="new-api-key",
+        )
+
+        body = mock_api.update_ai_integration.call_args.kwargs[
+            "update_ai_integration_request"
+        ]
+        assert isinstance(body, UpdateAiIntegrationRequest)
+        assert body.model_fields_set == {"api_key"}
+        assert body.to_dict() == {"api_key": "new-api-key"}
+
     def test_update_no_fields_sends_empty_request(
         self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
     ) -> None:
@@ -373,11 +393,11 @@ class TestAiIntegrationsClientUpdate:
         self, ai_integrations_client: AiIntegrationsClient, mock_api: Mock
     ) -> None:
         """update() should wrap typed provider metadata in oneOf wrapper."""
-        from arize._generated.api_client.models.aws_provider_metadata import (
-            AwsProviderMetadata,
+        from arize._generated.api_client.models.aws_provider_metadata_request import (
+            AwsProviderMetadataRequest,
         )
 
-        aws_meta = AwsProviderMetadata(
+        aws_meta = AwsProviderMetadataRequest(
             kind="AWS",
             role_arn="arn:aws:iam::role/x",
             external_id=None,
@@ -388,7 +408,7 @@ class TestAiIntegrationsClientUpdate:
                 "arize._generated.api_client.UpdateAiIntegrationRequest"
             ) as mock_request_cls,
             patch(
-                "arize._generated.api_client.ProviderMetadata"
+                "arize._generated.api_client.ProviderMetadataRequest"
             ) as mock_meta_cls,
         ):
             mock_meta_cls.return_value = mock_wrapped

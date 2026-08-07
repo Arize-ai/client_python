@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
-from arize._generated.api_client.models.code_config import CodeConfig
+from arize._generated.api_client.models.code_config_request import CodeConfigRequest
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,7 +28,7 @@ class CreateCodeEvaluatorVersionRequest(BaseModel):
     CreateCodeEvaluatorVersionRequest
     """ # noqa: E501
     commit_message: StrictStr = Field(description="Commit message describing the changes")
-    code_config: CodeConfig
+    code_config: CodeConfigRequest
     __properties: ClassVar[List[str]] = ["commit_message", "code_config"]
 
     model_config = ConfigDict(
@@ -91,7 +91,7 @@ class CreateCodeEvaluatorVersionRequest(BaseModel):
 
         _obj = cls.model_validate({
             "commit_message": obj.get("commit_message"),
-            "code_config": CodeConfig.from_dict(obj["code_config"]) if obj.get("code_config") is not None else None
+            "code_config": CodeConfigRequest.from_dict(obj["code_config"]) if obj.get("code_config") is not None else None
         })
         return _obj
 

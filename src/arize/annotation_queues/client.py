@@ -17,6 +17,7 @@ from arize.utils.resolve import (
     _find_space_id,
     _resolve_resource,
 )
+from arize.utils.unset import _UNSET, UNSET, is_provided
 
 if TYPE_CHECKING:
     import builtins
@@ -250,10 +251,10 @@ class AnnotationQueuesClient:
         *,
         annotation_queue: str,
         space: str | None = None,
-        name: str | None = None,
-        instructions: str | None = None,
-        annotation_config_ids: builtins.list[str] | None = None,
-        annotator_emails: builtins.list[str] | None = None,
+        name: str | None | UNSET = _UNSET,
+        instructions: str | None | UNSET = _UNSET,
+        annotation_config_ids: builtins.list[str] | None | UNSET = _UNSET,
+        annotator_emails: builtins.list[str] | None | UNSET = _UNSET,
     ) -> AnnotationQueue:
         """Update an annotation queue.
 
@@ -267,8 +268,8 @@ class AnnotationQueuesClient:
             space: Space ID or name. Required when *annotation_queue* is a
                 name so it can be resolved to an ID.
             name: New name for the queue (must remain unique within the space).
-            instructions: New instructions for annotators. Pass an empty string
-                to clear existing instructions.
+            instructions: New instructions for annotators. Pass ``None`` to clear
+                existing instructions. Empty strings are rejected by the server.
             annotation_config_ids: Full replacement list of annotation config IDs.
                 Pass an empty list to clear.
             annotator_emails: Full replacement list of annotator emails.
@@ -283,16 +284,18 @@ class AnnotationQueuesClient:
             ApiException: If the REST API returns an error response
                 (e.g. 400/401/403/404/409/429).
         """
-        kwargs: dict[str, Any] = {
-            k: v
-            for k, v in {
-                "name": name,
-                "instructions": instructions,
-                "annotation_config_ids": annotation_config_ids,
-                "annotator_emails": annotator_emails,
-            }.items()
-            if v is not None
-        }
+        kwargs: dict[str, Any] = {}
+        if is_provided(name) and name is not None:
+            kwargs["name"] = name
+        if is_provided(instructions):
+            kwargs["instructions"] = instructions
+        if (
+            is_provided(annotation_config_ids)
+            and annotation_config_ids is not None
+        ):
+            kwargs["annotation_config_ids"] = annotation_config_ids
+        if is_provided(annotator_emails) and annotator_emails is not None:
+            kwargs["annotator_emails"] = annotator_emails
         if not kwargs:
             raise ValueError(
                 "At least one of 'name', 'instructions', 'annotation_config_ids',"

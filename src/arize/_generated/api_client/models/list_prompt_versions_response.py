@@ -92,10 +92,6 @@ class ListPromptVersionsResponse(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in ListPromptVersionsResponse) in the input: " + _key)
 
         _obj = cls.model_validate({
             "prompt_versions": [PromptVersion.from_dict(_item) for _item in obj["prompt_versions"]] if obj.get("prompt_versions") is not None else None,

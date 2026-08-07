@@ -34,6 +34,7 @@ class AgentRequestPreset(BaseModel):
     config: Dict[str, Any] = Field(description="Partial request body. Validated against the parent integration's `input_schema` with `required` dropped. ")
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "name", "description", "config", "created_at", "updated_at"]
 
     model_config = ConfigDict(
@@ -69,11 +70,13 @@ class AgentRequestPreset(BaseModel):
         * OpenAPI `readOnly` fields are excluded.
         * OpenAPI `readOnly` fields are excluded.
         * OpenAPI `readOnly` fields are excluded.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
             "id",
             "created_at",
             "updated_at",
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -81,6 +84,11 @@ class AgentRequestPreset(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         # set to None if description (nullable) is None
         # and model_fields_set contains the field
         if self.description is None and "description" in self.model_fields_set:
@@ -97,11 +105,6 @@ class AgentRequestPreset(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in AgentRequestPreset) in the input: " + _key)
-
         _obj = cls.model_validate({
             "id": obj.get("id"),
             "name": obj.get("name"),
@@ -110,6 +113,11 @@ class AgentRequestPreset(BaseModel):
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at")
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

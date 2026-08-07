@@ -1,4 +1,11 @@
-"""Public type re-exports and SDK-facing role types for the spaces subdomain."""
+"""Public type re-exports and SDK-facing role types for the spaces subdomain.
+
+Domain role types (``PredefinedSpaceRole``, ``CustomSpaceRole``) subclass the
+strict ``*Request`` schemas and are used as inputs to write methods. They are
+also produced by ``SpaceMembership._coerce_role`` when deserializing responses,
+so they serve both as request inputs and as the in-memory representation of a
+membership's role field.
+"""
 
 from typing import Annotated, Literal
 
@@ -10,11 +17,17 @@ from arize._generated.api_client.models.add_space_user_request import (
 from arize._generated.api_client.models.custom_role_assignment import (
     CustomRoleAssignment,
 )
+from arize._generated.api_client.models.custom_role_assignment_request import (
+    CustomRoleAssignmentRequest,
+)
 from arize._generated.api_client.models.list_spaces_response import (
     ListSpacesResponse,
 )
 from arize._generated.api_client.models.predefined_role_assignment import (
     PredefinedRoleAssignment,
+)
+from arize._generated.api_client.models.predefined_role_assignment_request import (
+    PredefinedRoleAssignmentRequest,
 )
 from arize._generated.api_client.models.space import Space
 from arize._generated.api_client.models.space_role_assignment import (
@@ -23,7 +36,7 @@ from arize._generated.api_client.models.space_role_assignment import (
 from arize._generated.api_client.models.user_space_role import UserSpaceRole
 
 
-class PredefinedSpaceRole(PredefinedRoleAssignment):
+class PredefinedSpaceRole(PredefinedRoleAssignmentRequest):
     """A predefined space role assignment.
 
     The ``type`` discriminator is set to ``"PREDEFINED"`` automatically.
@@ -40,7 +53,7 @@ class PredefinedSpaceRole(PredefinedRoleAssignment):
         return self.name.value
 
 
-class CustomSpaceRole(CustomRoleAssignment):
+class CustomSpaceRole(CustomRoleAssignmentRequest):
     """A custom RBAC role assignment for a space.
 
     The ``type`` discriminator is set to ``"CUSTOM"`` automatically.
@@ -51,6 +64,9 @@ class CustomSpaceRole(CustomRoleAssignment):
             only; ignored on input).
     """
 
+    # name is a response-only field not present in CustomRoleAssignmentRequest;
+    # carried here so __str__ can display it when available.
+    name: str | None = None
     type: Literal["CUSTOM"] = "CUSTOM"  # type: ignore[assignment]
 
     def __str__(self) -> str:

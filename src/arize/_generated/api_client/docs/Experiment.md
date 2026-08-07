@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | Unique identifier for the experiment | 
 **name** | **str** | Name of the experiment | 
+**space_id** | **str** | Unique identifier for the space this experiment belongs to | 
 **dataset_id** | **str** | Unique identifier for the dataset associated with this experiment. Null if the experiment isn&#39;t associated with a dataset. | [optional] 
 **dataset_version_id** | **str** | Unique identifier for the dataset version associated with this experiment. Null if the experiment isn&#39;t associated with a dataset. | [optional] 
 **created_at** | **datetime** | Timestamp for when the experiment was created | 

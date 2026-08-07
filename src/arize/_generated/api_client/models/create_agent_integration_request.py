@@ -20,7 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.create_agent_config import CreateAgentConfig
-from arize._generated.api_client.models.integration_scoping import IntegrationScoping
+from arize._generated.api_client.models.integration_scoping_request import IntegrationScopingRequest
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -31,7 +31,7 @@ class CreateAgentIntegrationRequest(BaseModel):
     type: StrictStr
     name: StrictStr = Field(description="Integration name (unique within the account).")
     description: Optional[StrictStr] = None
-    scopings: Optional[List[IntegrationScoping]] = Field(default=None, description="Visibility scoping rules. Defaults to account-wide if omitted or empty. A scoping with `space_id` set MUST also set `organization_id`. ")
+    scopings: Optional[List[IntegrationScopingRequest]] = Field(default=None, description="Visibility scoping rules. Defaults to account-wide if omitted or empty. A scoping with `space_id` set MUST also set `organization_id`. ")
     config: CreateAgentConfig
     __properties: ClassVar[List[str]] = ["type", "name", "description", "scopings", "config"]
 
@@ -116,7 +116,7 @@ class CreateAgentIntegrationRequest(BaseModel):
             "type": obj.get("type"),
             "name": obj.get("name"),
             "description": obj.get("description"),
-            "scopings": [IntegrationScoping.from_dict(_item) for _item in obj["scopings"]] if obj.get("scopings") is not None else None,
+            "scopings": [IntegrationScopingRequest.from_dict(_item) for _item in obj["scopings"]] if obj.get("scopings") is not None else None,
             "config": CreateAgentConfig.from_dict(obj["config"]) if obj.get("config") is not None else None
         })
         return _obj

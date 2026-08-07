@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from arize.datasets.client import DatasetsClient
     from arize.evaluators.client import EvaluatorsClient
     from arize.experiments.client import ExperimentsClient
+    from arize.integrations.client import IntegrationsClient
     from arize.ml.client import MLModelsClient
     from arize.organizations.client import OrganizationsClient
     from arize.projects.client import ProjectsClient
@@ -83,6 +84,10 @@ class ArizeClient(LazySubclientsMixin):
         "ai_integrations": (
             "arize.ai_integrations.client",
             "AiIntegrationsClient",
+        ),
+        "integrations": (
+            "arize.integrations.client",
+            "IntegrationsClient",
         ),
         "audit_logs": (
             "arize.audit_logs.client",
@@ -362,6 +367,11 @@ class ArizeClient(LazySubclientsMixin):
     def ai_integrations(self) -> AiIntegrationsClient:
         """Access the AI integrations client for managing LLM provider integrations (lazy-loaded)."""
         return cast("AiIntegrationsClient", self.__getattr__("ai_integrations"))
+
+    @property
+    def integrations(self) -> IntegrationsClient:
+        """Access the integrations client for LLM and agent integrations (lazy-loaded)."""
+        return cast("IntegrationsClient", self.__getattr__("integrations"))
 
     @property
     def datasets(self) -> DatasetsClient:

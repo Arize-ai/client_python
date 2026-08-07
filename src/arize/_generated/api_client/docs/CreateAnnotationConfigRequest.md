@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 **minimum_score** | **float** | The minimum score value | 
 **maximum_score** | **float** | The maximum score value | 
 **optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) | Direction for optimization. Defaults to &#x60;NONE&#x60; when omitted. | [optional] 
-**values** | [**List[CategoricalAnnotationValue]**](CategoricalAnnotationValue.md) | An array of categorical annotation values | 
+**values** | [**List[CategoricalAnnotationValueRequest]**](CategoricalAnnotationValueRequest.md) | An array of categorical annotation values | 
 
 ## Example
 

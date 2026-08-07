@@ -338,6 +338,19 @@ class TestSpacesClientUpdate:
         ):
             spaces_client.update(space="U3BhY2U6OTA1MDoxSmtS")
 
+    def test_update_raises_when_only_none_is_private_is_provided(
+        self, spaces_client: SpacesClient
+    ) -> None:
+        """update() should treat is_private=None as an omitted field."""
+        with pytest.raises(
+            ValueError,
+            match="At least one of 'name', 'description', or 'is_private' must be provided",
+        ):
+            spaces_client.update(
+                space="U3BhY2U6OTA1MDoxSmtS",
+                is_private=None,
+            )
+
     def test_update_builds_request_and_calls_api(
         self, spaces_client: SpacesClient, mock_api: Mock
     ) -> None:
@@ -357,7 +370,6 @@ class TestSpacesClientUpdate:
         mock_request_cls.assert_called_once_with(
             name="updated-space",
             description="updated description",
-            is_private=None,
         )
         mock_api.update_space.assert_called_once_with(
             space_id="U3BhY2U6OTA1MDoxSmtS",
@@ -406,10 +418,93 @@ class TestSpacesClientUpdate:
             )
 
         mock_request_cls.assert_called_once_with(
-            name=None,
-            description=None,
             is_private=True,
         )
+
+    def test_update_clears_description_when_explicitly_none(
+        self, spaces_client: SpacesClient
+    ) -> None:
+        """update() should send null when clearing a description."""
+        with patch(
+            "arize._generated.api_client.UpdateSpaceRequest"
+        ) as mock_request_cls:
+            spaces_client.update(
+                space="U3BhY2U6OTA1MDoxSmtS",
+                description=None,
+            )
+
+        mock_request_cls.assert_called_once_with(description=None)
+
+    def test_update_omits_none_is_private_to_preserve_visibility(
+        self, spaces_client: SpacesClient
+    ) -> None:
+        """update() should omit is_private=None rather than clear visibility."""
+        with patch(
+            "arize._generated.api_client.UpdateSpaceRequest"
+        ) as mock_request_cls:
+            spaces_client.update(
+                space="U3BhY2U6OTA1MDoxSmtS",
+                name="updated-space",
+                is_private=None,
+            )
+
+        mock_request_cls.assert_called_once_with(name="updated-space")
+
+    def test_update_retains_false_is_private(
+        self, spaces_client: SpacesClient
+    ) -> None:
+        """update() should send False when making a space public."""
+        with patch(
+            "arize._generated.api_client.UpdateSpaceRequest"
+        ) as mock_request_cls:
+            spaces_client.update(
+                space="U3BhY2U6OTA1MDoxSmtS",
+                is_private=False,
+            )
+
+        mock_request_cls.assert_called_once_with(is_private=False)
+
+    def test_update_request_omits_unset_description(
+        self, spaces_client: SpacesClient, mock_api: Mock
+    ) -> None:
+        """A name-only update should not serialize the default description."""
+        spaces_client.update(
+            space="U3BhY2U6OTA1MDoxSmtS",
+            name="updated-space",
+        )
+
+        body = mock_api.update_space.call_args.kwargs["update_space_request"]
+
+        assert body.model_fields_set == {"name"}
+        assert body.to_dict() == {"name": "updated-space"}
+
+    def test_update_request_serializes_none_description_as_clear(
+        self, spaces_client: SpacesClient, mock_api: Mock
+    ) -> None:
+        """An explicit null description should remain in the wire payload."""
+        spaces_client.update(
+            space="U3BhY2U6OTA1MDoxSmtS",
+            description=None,
+        )
+
+        body = mock_api.update_space.call_args.kwargs["update_space_request"]
+
+        assert body.model_fields_set == {"description"}
+        assert body.to_dict() == {"description": None}
+
+    def test_update_request_serializes_concrete_visibility_value(
+        self, spaces_client: SpacesClient, mock_api: Mock
+    ) -> None:
+        """A concrete visibility value should remain in the wire payload."""
+        spaces_client.update(
+            space="U3BhY2U6OTA1MDoxSmtS",
+            is_private=False,
+        )
+
+        body = mock_api.update_space.call_args.kwargs["update_space_request"]
+
+        assert body.model_fields_set == {"is_private"}
+        assert body.to_dict() == {"is_private": False}
 
     def test_update_emits_private_space_warning(
         self,
@@ -469,10 +564,10 @@ class TestSpacesClientAddUser:
                 "arize._generated.api_client.AddSpaceUserRequest"
             ) as mock_input_cls,
             patch(
-                "arize._generated.api_client.SpaceRoleAssignment"
+                "arize._generated.api_client.SpaceRoleAssignmentRequest"
             ) as mock_role_cls,
             patch(
-                "arize._generated.api_client.PredefinedRoleAssignment"
+                "arize._generated.api_client.PredefinedRoleAssignmentRequest"
             ) as mock_pred_cls,
         ):
             mock_body = Mock()
@@ -509,7 +604,7 @@ class TestSpacesClientAddUser:
 
         with (
             patch("arize._generated.api_client.AddSpaceUserRequest"),
-            patch("arize._generated.api_client.SpaceRoleAssignment"),
+            patch("arize._generated.api_client.SpaceRoleAssignmentRequest"),
             patch.object(
                 SpaceMembership, "model_validate", return_value=domain
             ) as mock_conv,
@@ -536,7 +631,7 @@ class TestSpacesClientAddUser:
 
         with (
             patch("arize._generated.api_client.AddSpaceUserRequest"),
-            patch("arize._generated.api_client.SpaceRoleAssignment"),
+            patch("arize._generated.api_client.SpaceRoleAssignmentRequest"),
         ):
             spaces_client.add_user(
                 space="U3BhY2U6OTA1MDoxSmtS",

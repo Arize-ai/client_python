@@ -35,7 +35,7 @@ class CreateAnnotationQueueRequest(BaseModel):
     annotation_config_ids: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="IDs of annotation configs to associate with this queue. All configs must belong to the same space.")
     annotator_emails: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="Email addresses of annotators to assign to the queue. Emails are resolved to user IDs server-side.")
     assignment_method: Optional[AssignmentMethod] = Field(default=None, description="How records are assigned to annotators. Defaults to `ALL` when omitted.")
-    record_sources: Optional[Annotated[List[AnnotationQueueRecordInput], Field(max_length=2)]] = Field(default=None, description="Record sources to add to the annotation queue on creation. At most 2 record sources (projects or datasets) may be provided in a single create request. Additional records from other sources can be added after creation.")
+    record_sources: Optional[Annotated[List[AnnotationQueueRecordInput], Field(max_length=2)]] = Field(default=None, description="Record sources to add to the annotation queue on creation. At most 2 record sources (projects or datasets) may be provided in a single create request. The total number of records resolved from all sources must not exceed 500. Additional records from other sources can be added after creation.")
     __properties: ClassVar[List[str]] = ["name", "space_id", "instructions", "annotation_config_ids", "annotator_emails", "assignment_method", "record_sources"]
 
     model_config = ConfigDict(

@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import _find_role_id
+from arize.utils.unset import _UNSET, UNSET, is_provided
 
 if TYPE_CHECKING:
     # builtins is needed for builtins.list in annotations because this class
@@ -141,23 +142,25 @@ class RolesClient:
         self,
         *,
         role: str,
-        name: str | None = None,
-        description: str | None = None,
-        permissions: builtins.list[Permission] | None = None,
+        name: str | None | UNSET = _UNSET,
+        description: str | None | UNSET = _UNSET,
+        permissions: builtins.list[Permission] | None | UNSET = _UNSET,
     ) -> Role:
         """Update a custom role by name or ID.
 
-        At least one field must be provided. Predefined roles cannot be updated.
-        When ``permissions`` is provided, the existing permissions are fully
-        replaced with the new set.
+        At least one field must be provided. Omitted fields are preserved.
+        Passing ``description=None`` clears the description. Predefined roles
+        cannot be updated. When ``permissions`` is provided, the existing
+        permissions are fully replaced with the new set.
 
         Args:
             role: Role name or identifier (base64). If the value looks like an
                 ID it is used directly; otherwise it is resolved by name.
-            name: Updated name for the role (max 255 chars).
-            description: Updated description of the role (max 1000 chars).
+            name: Updated name for the role (max 255 chars). Omit to preserve.
+            description: Updated description of the role (max 1000 chars). Omit to
+                preserve, or pass ``None`` to clear.
             permissions: Replacement set of permissions. When provided, fully
-                replaces existing permissions.
+                replaces existing permissions. Omit or pass ``None`` to preserve.
 
         Returns:
             The updated role object.
@@ -170,7 +173,15 @@ class RolesClient:
                 (for example, role not found, insufficient permissions, or
                 attempting to update a predefined role).
         """
-        if name is None and description is None and permissions is None:
+        request_kwargs: dict[str, Any] = {}
+        if is_provided(name) and name is not None:
+            request_kwargs["name"] = name
+        if is_provided(description):
+            request_kwargs["description"] = description
+        if is_provided(permissions) and permissions is not None:
+            request_kwargs["permissions"] = permissions
+
+        if not request_kwargs:
             raise ValueError(
                 "At least one of 'name', 'description', or 'permissions' must be provided"
             )
@@ -179,11 +190,7 @@ class RolesClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.UpdateRoleRequest(
-            name=name,
-            description=description,
-            permissions=permissions,
-        )
+        body = gen.UpdateRoleRequest(**request_kwargs)
         return self._api.update_role(role_id=role_id, update_role_request=body)
 
     @prerelease_endpoint(key="roles.delete", stage=ReleaseStage.BETA)

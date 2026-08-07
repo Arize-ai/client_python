@@ -47,11 +47,7 @@ class TestInvocationParams(unittest.TestCase):
                 response_format = arize._generated.api_client.models.response_format.ResponseFormat(
                     type = null, 
                     json_schema = null, ),
-                tool_config = arize._generated.api_client.models.tool_config.ToolConfig(
-                    tools = [
-                        arize._generated.api_client.models.tool_definition.ToolDefinition()
-                        ], 
-                    tool_choice = null, ),
+                tool_config = { },
                 top_k = 56,
                 thinking_level = '',
                 thinking_budget = 56,

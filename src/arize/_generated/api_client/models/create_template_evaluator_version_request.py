@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
-from arize._generated.api_client.models.template_config import TemplateConfig
+from arize._generated.api_client.models.template_config_input import TemplateConfigInput
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,7 +28,7 @@ class CreateTemplateEvaluatorVersionRequest(BaseModel):
     CreateTemplateEvaluatorVersionRequest
     """ # noqa: E501
     commit_message: StrictStr = Field(description="Commit message describing the changes")
-    template_config: TemplateConfig
+    template_config: TemplateConfigInput
     __properties: ClassVar[List[str]] = ["commit_message", "template_config"]
 
     model_config = ConfigDict(
@@ -91,7 +91,7 @@ class CreateTemplateEvaluatorVersionRequest(BaseModel):
 
         _obj = cls.model_validate({
             "commit_message": obj.get("commit_message"),
-            "template_config": TemplateConfig.from_dict(obj["template_config"]) if obj.get("template_config") is not None else None
+            "template_config": TemplateConfigInput.from_dict(obj["template_config"]) if obj.get("template_config") is not None else None
         })
         return _obj
 

@@ -31,6 +31,7 @@ class AwsBedrockConfig(BaseModel):
     is_default_models_enabled: StrictBool = Field(description="Whether Arize's default Bedrock model catalog is enabled.")
     model_names: List[StrictStr] = Field(description="Custom model names configured on this integration. Empty when none.")
     auth: AwsBedrockAuth
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["provider", "is_default_models_enabled", "model_names", "auth"]
 
     @field_validator('provider')
@@ -70,8 +71,10 @@ class AwsBedrockConfig(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -82,6 +85,11 @@ class AwsBedrockConfig(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of auth
         if self.auth:
             _dict['auth'] = self.auth.to_dict()
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
@@ -93,17 +101,17 @@ class AwsBedrockConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in AwsBedrockConfig) in the input: " + _key)
-
         _obj = cls.model_validate({
             "provider": obj.get("provider"),
             "is_default_models_enabled": obj.get("is_default_models_enabled"),
             "model_names": obj.get("model_names"),
             "auth": AwsBedrockAuth.from_dict(obj["auth"]) if obj.get("auth") is not None else None
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

@@ -1,0 +1,37 @@
+# TemplateConfigInput
+
+
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**name** | **str** | Eval column name. Must match ^[a-zA-Z0-9_\\s\\-&amp;()]+$ | 
+**template** | **str** | The prompt template with variable placeholders | 
+**include_explanations** | **bool** | Whether to include explanations in the evaluation output | 
+**use_function_calling_if_available** | **bool** | Whether to use function calling if the model supports it | 
+**use_structured_output** | **bool** | Whether to use structured output if the model supports it. When omitted the server defaults to true. | [optional] [default to True]
+**classification_choices** | **Dict[str, float]** | Map of choice label to numeric score (e.g. {\&quot;relevant\&quot;: 1, \&quot;irrelevant\&quot;: 0}). When omitted, the evaluator produces freeform (non-classification) output. | [optional] 
+**direction** | [**OptimizationDirection**](OptimizationDirection.md) | Direction for optimization applied to this template&#39;s evaluation scores. Defaults to &#x60;MAXIMIZE&#x60; when omitted. | [optional] 
+**data_granularity** | [**DataGranularity**](DataGranularity.md) | Data granularity level. Defaults to SPAN when omitted. | [optional] 
+**llm_config** | [**EvaluatorLlmConfigRequest**](EvaluatorLlmConfigRequest.md) |  | 
+
+## Example
+
+```python
+from arize._generated.api_client.models.template_config_input import TemplateConfigInput
+
+# TODO update the JSON string below
+json = "{}"
+# create an instance of TemplateConfigInput from a JSON string
+template_config_input_instance = TemplateConfigInput.from_json(json)
+# print the JSON string representation of the object
+print(TemplateConfigInput.to_json())
+
+# convert the object into a dict
+template_config_input_dict = template_config_input_instance.to_dict()
+# create an instance of TemplateConfigInput from a dict
+template_config_input_from_dict = TemplateConfigInput.from_dict(template_config_input_dict)
+```
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

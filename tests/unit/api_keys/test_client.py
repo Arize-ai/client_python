@@ -8,7 +8,12 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from arize._generated.api_client import ApiKeyStatus, ApiKeyType
+from arize._generated.api_client import (
+    ApiKeyStatus,
+    ApiKeyType,
+    SpaceRoleAssignmentRequest,
+    UserRoleAssignmentRequest,
+)
 from arize.api_keys.client import ApiKeysClient
 from arize.api_keys.types import OrgBinding, SpaceBinding
 
@@ -351,7 +356,7 @@ class TestApiKeysClientCreateServiceKey:
     ) -> None:
         """create_service_key() should resolve and build all space bindings."""
         space_id_2 = "U3BhY2U6NDU2OmRlZg=="
-        mock_role = Mock()
+        mock_role = Mock(spec=SpaceRoleAssignmentRequest)
 
         with (
             patch(
@@ -417,7 +422,7 @@ class TestApiKeysClientCreateServiceKey:
     ) -> None:
         """create_service_key() should pass description, expires_at, and account_role."""
         expires = datetime(2030, 1, 1, tzinfo=timezone.utc)
-        mock_account_role = Mock()
+        mock_account_role = Mock(spec=UserRoleAssignmentRequest)
 
         with (
             patch("arize._generated.api_client.ServiceKeySpaceAssignment"),

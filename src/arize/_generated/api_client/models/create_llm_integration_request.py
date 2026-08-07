@@ -20,7 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.create_llm_config import CreateLlmConfig
-from arize._generated.api_client.models.integration_scoping import IntegrationScoping
+from arize._generated.api_client.models.integration_scoping_request import IntegrationScopingRequest
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -30,7 +30,7 @@ class CreateLlmIntegrationRequest(BaseModel):
     """ # noqa: E501
     type: StrictStr
     name: StrictStr = Field(description="Integration name. Unique per (account, type).")
-    scopings: Optional[List[IntegrationScoping]] = Field(default=None, description="Visibility scoping rules. Defaults to account-wide.")
+    scopings: Optional[List[IntegrationScopingRequest]] = Field(default=None, description="Visibility scoping rules. Defaults to account-wide.")
     config: CreateLlmConfig
     __properties: ClassVar[List[str]] = ["type", "name", "scopings", "config"]
 
@@ -109,7 +109,7 @@ class CreateLlmIntegrationRequest(BaseModel):
         _obj = cls.model_validate({
             "type": obj.get("type"),
             "name": obj.get("name"),
-            "scopings": [IntegrationScoping.from_dict(_item) for _item in obj["scopings"]] if obj.get("scopings") is not None else None,
+            "scopings": [IntegrationScopingRequest.from_dict(_item) for _item in obj["scopings"]] if obj.get("scopings") is not None else None,
             "config": CreateLlmConfig.from_dict(obj["config"]) if obj.get("config") is not None else None
         })
         return _obj

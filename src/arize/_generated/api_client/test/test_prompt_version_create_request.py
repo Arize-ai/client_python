@@ -40,36 +40,57 @@ class TestPromptVersionCreateRequest(unittest.TestCase):
                 provider = 'OPEN_AI',
                 model = '',
                 messages = [
-                    arize._generated.api_client.models.llm_message.LLMMessage(
+                    arize._generated.api_client.models.llm_message_request.LLMMessageRequest(
                         role = 'USER', 
                         content = '', 
                         tool_call_id = '', 
                         tool_calls = [
-                            arize._generated.api_client.models.tool_call.ToolCall(
+                            arize._generated.api_client.models.tool_call_request.ToolCallRequest(
                                 id = '', 
                                 type = 'FUNCTION', 
-                                function = arize._generated.api_client.models.tool_call_function.ToolCallFunction(
+                                function = arize._generated.api_client.models.tool_call_function_request.ToolCallFunctionRequest(
                                     name = '', 
                                     arguments = '', ), )
                             ], )
                     ],
-                invocation_params = { },
-                provider_params = { }
+                invocation_params = arize._generated.api_client.models.invocation_params_request.InvocationParamsRequest(
+                    temperature = 1.337, 
+                    max_tokens = 56, 
+                    max_completion_tokens = 56, 
+                    top_p = 1.337, 
+                    frequency_penalty = 1.337, 
+                    presence_penalty = 1.337, 
+                    stop = [
+                        ''
+                        ], 
+                    response_format = null, 
+                    tool_config = null, 
+                    top_k = 56, 
+                    thinking_level = '', 
+                    thinking_budget = 56, 
+                    reasoning_effort = '', 
+                    verbosity = '', ),
+                provider_params = arize._generated.api_client.models.provider_params_request.ProviderParamsRequest(
+                    azure_params = null, 
+                    anthropic_headers = null, 
+                    anthropic_version = '', 
+                    bedrock_options = null, 
+                    region = '', )
             )
         else:
             return PromptVersionCreateRequest(
                 commit_message = '',
                 provider = 'OPEN_AI',
                 messages = [
-                    arize._generated.api_client.models.llm_message.LLMMessage(
+                    arize._generated.api_client.models.llm_message_request.LLMMessageRequest(
                         role = 'USER', 
                         content = '', 
                         tool_call_id = '', 
                         tool_calls = [
-                            arize._generated.api_client.models.tool_call.ToolCall(
+                            arize._generated.api_client.models.tool_call_request.ToolCallRequest(
                                 id = '', 
                                 type = 'FUNCTION', 
-                                function = arize._generated.api_client.models.tool_call_function.ToolCallFunction(
+                                function = arize._generated.api_client.models.tool_call_function_request.ToolCallFunctionRequest(
                                     name = '', 
                                     arguments = '', ), )
                             ], )

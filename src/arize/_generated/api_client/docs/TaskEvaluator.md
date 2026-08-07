@@ -7,6 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **evaluator_id** | **str** | Evaluator identifier (base64). | 
 **evaluator_name** | **str** | The name of the attached evaluator. | 
+**evaluator_version_id** | **str** | The evaluator version this attachment is pinned to (base64). Null is the default and means the attachment is not pinned, so it runs the evaluator&#39;s latest version.  | 
 **query_filter** | **str** | Per-evaluator query filter, combined with the task-level filter (AND). | 
 **column_mappings** | **Dict[str, str]** | Maps evaluator template variable names to data source column names. | 
 

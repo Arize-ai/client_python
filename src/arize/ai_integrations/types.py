@@ -10,17 +10,26 @@ from arize._generated.api_client.models.ai_integration_provider import (
 from arize._generated.api_client.models.ai_integration_scoping import (
     AiIntegrationScoping,
 )
+from arize._generated.api_client.models.ai_integration_scoping_request import (
+    AiIntegrationScopingRequest,
+)
 from arize._generated.api_client.models.aws_provider_metadata import (
     AwsProviderMetadata,
 )
 from arize._generated.api_client.models.aws_provider_metadata_kind import (
     AwsProviderMetadataKind,
 )
+from arize._generated.api_client.models.aws_provider_metadata_request import (
+    AwsProviderMetadataRequest,
+)
 from arize._generated.api_client.models.gcp_provider_metadata import (
     GcpProviderMetadata,
 )
 from arize._generated.api_client.models.gcp_provider_metadata_kind import (
     GcpProviderMetadataKind,
+)
+from arize._generated.api_client.models.gcp_provider_metadata_request import (
+    GcpProviderMetadataRequest,
 )
 from arize._generated.api_client.models.list_ai_integrations_response import (
     ListAiIntegrationsResponse,
@@ -31,9 +40,12 @@ __all__ = [
     "AiIntegrationAuthType",
     "AiIntegrationProvider",
     "AiIntegrationScoping",
+    "AiIntegrationScopingRequest",
     "AwsProviderMetadata",
     "AwsProviderMetadataKind",
+    "AwsProviderMetadataRequest",
     "GcpProviderMetadata",
     "GcpProviderMetadataKind",
+    "GcpProviderMetadataRequest",
     "ListAiIntegrationsResponse",
 ]

@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
-from arize._generated.api_client.models.integration_scoping import IntegrationScoping
+from arize._generated.api_client.models.integration_scoping_request import IntegrationScopingRequest
 from arize._generated.api_client.models.update_agent_config import UpdateAgentConfig
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,7 +31,7 @@ class UpdateAgentIntegrationRequest(BaseModel):
     type: StrictStr = Field(description="Discriminator. Immutable; must match the integration's type.")
     name: Optional[StrictStr] = None
     description: Optional[StrictStr] = None
-    scopings: Optional[List[IntegrationScoping]] = Field(default=None, description="Replace-on-provide. Empty array reverts to account-wide.")
+    scopings: Optional[List[IntegrationScopingRequest]] = Field(default=None, description="Replace-on-provide. Empty array reverts to account-wide.")
     config: Optional[UpdateAgentConfig] = None
     __properties: ClassVar[List[str]] = ["type", "name", "description", "scopings", "config"]
 
@@ -116,7 +116,7 @@ class UpdateAgentIntegrationRequest(BaseModel):
             "type": obj.get("type"),
             "name": obj.get("name"),
             "description": obj.get("description"),
-            "scopings": [IntegrationScoping.from_dict(_item) for _item in obj["scopings"]] if obj.get("scopings") is not None else None,
+            "scopings": [IntegrationScopingRequest.from_dict(_item) for _item in obj["scopings"]] if obj.get("scopings") is not None else None,
             "config": UpdateAgentConfig.from_dict(obj["config"]) if obj.get("config") is not None else None
         })
         return _obj

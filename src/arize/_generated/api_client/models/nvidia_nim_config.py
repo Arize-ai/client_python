@@ -33,6 +33,7 @@ class NvidiaNimConfig(BaseModel):
     header_names: List[StrictStr] = Field(description="Names of the custom request headers configured on this integration. Empty when none are configured. Header values are write-only and never returned.")
     is_default_models_enabled: StrictBool = Field(description="Whether Arize's default model catalog is enabled.")
     model_names: List[StrictStr] = Field(description="Custom model names configured on this integration. Empty when none.")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["is_function_calling_enabled", "provider", "has_api_key", "base_url", "header_names", "is_default_models_enabled", "model_names"]
 
     @field_validator('provider')
@@ -72,8 +73,10 @@ class NvidiaNimConfig(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -81,6 +84,11 @@ class NvidiaNimConfig(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         # set to None if base_url (nullable) is None
         # and model_fields_set contains the field
         if self.base_url is None and "base_url" in self.model_fields_set:
@@ -97,11 +105,6 @@ class NvidiaNimConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in NvidiaNimConfig) in the input: " + _key)
-
         _obj = cls.model_validate({
             "is_function_calling_enabled": obj.get("is_function_calling_enabled"),
             "provider": obj.get("provider"),
@@ -111,6 +114,11 @@ class NvidiaNimConfig(BaseModel):
             "is_default_models_enabled": obj.get("is_default_models_enabled"),
             "model_names": obj.get("model_names")
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

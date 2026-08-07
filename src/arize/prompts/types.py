@@ -8,6 +8,9 @@ from arize._generated.api_client.models.input_variable_format import (
 from arize._generated.api_client.models.invocation_params import (
     InvocationParams as _GenInvocationParams,
 )
+from arize._generated.api_client.models.invocation_params_request import (
+    InvocationParamsRequest,
+)
 from arize._generated.api_client.models.list_prompt_versions_response import (
     ListPromptVersionsResponse,
 )
@@ -15,6 +18,9 @@ from arize._generated.api_client.models.list_prompts_response import (
     ListPromptsResponse,
 )
 from arize._generated.api_client.models.llm_message import LLMMessage
+from arize._generated.api_client.models.llm_message_request import (
+    LLMMessageRequest,
+)
 from arize._generated.api_client.models.llm_provider import LlmProvider
 from arize._generated.api_client.models.message_role import MessageRole
 from arize._generated.api_client.models.prompt import Prompt
@@ -25,6 +31,9 @@ from arize._generated.api_client.models.prompt_with_version import (
     PromptWithVersion as _GenPromptWithVersion,
 )
 from arize._generated.api_client.models.provider_params import ProviderParams
+from arize._generated.api_client.models.provider_params_request import (
+    ProviderParamsRequest,
+)
 from arize._generated.api_client.models.tool_call_type import ToolCallType
 
 
@@ -116,7 +125,9 @@ class PromptWithVersion(_GenPromptWithVersion):
 __all__ = [
     "InputVariableFormat",
     "InvocationParams",
+    "InvocationParamsRequest",
     "LLMMessage",
+    "LLMMessageRequest",
     "ListPromptVersionsResponse",
     "ListPromptsResponse",
     "LlmProvider",
@@ -125,5 +136,6 @@ __all__ = [
     "PromptVersion",
     "PromptWithVersion",
     "ProviderParams",
+    "ProviderParamsRequest",
     "ToolCallType",
 ]

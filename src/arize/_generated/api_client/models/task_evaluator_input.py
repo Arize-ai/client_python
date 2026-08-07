@@ -27,9 +27,10 @@ class TaskEvaluatorInput(BaseModel):
     An evaluator attachment supplied when creating or updating a task. At least one entry is required on evaluation-task requests. 
     """ # noqa: E501
     evaluator_id: StrictStr = Field(description="Evaluator identifier (base64). Duplicates are not allowed.")
+    evaluator_version_id: Optional[StrictStr] = Field(default=None, description="Pin this evaluator to a specific version (base64). Defaults to null, which always runs the evaluator's latest version; omitting the field and sending null are equivalent. Must be a version of the evaluator named by `evaluator_id`, otherwise the request returns 422. ")
     query_filter: Optional[StrictStr] = Field(default=None, description="Per-evaluator query filter. Combined with the task-level filter (AND).")
     column_mappings: Optional[Dict[str, StrictStr]] = Field(default=None, description="Maps evaluator template variable names to data source column names.")
-    __properties: ClassVar[List[str]] = ["evaluator_id", "query_filter", "column_mappings"]
+    __properties: ClassVar[List[str]] = ["evaluator_id", "evaluator_version_id", "query_filter", "column_mappings"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -70,6 +71,11 @@ class TaskEvaluatorInput(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if evaluator_version_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.evaluator_version_id is None and "evaluator_version_id" in self.model_fields_set:
+            _dict['evaluator_version_id'] = None
+
         return _dict
 
     @classmethod
@@ -88,6 +94,7 @@ class TaskEvaluatorInput(BaseModel):
 
         _obj = cls.model_validate({
             "evaluator_id": obj.get("evaluator_id"),
+            "evaluator_version_id": obj.get("evaluator_version_id"),
             "query_filter": obj.get("query_filter"),
             "column_mappings": obj.get("column_mappings")
         })

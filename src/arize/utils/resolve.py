@@ -17,6 +17,7 @@ if TYPE_CHECKING:
         DatasetsApi,
         EvaluatorsApi,
         ExperimentsApi,
+        IntegrationsApi,
         OrganizationsApi,
         ProjectsApi,
         PromptsApi,
@@ -24,6 +25,9 @@ if TYPE_CHECKING:
         SpacesApi,
         TasksApi,
         UsersApi,
+    )
+    from arize._generated.api_client.models.integration_type import (
+        IntegrationType,
     )
 
 logger = logging.getLogger(__name__)
@@ -265,6 +269,7 @@ def _find_dataset_id(
 def _find_experiment_id(
     api: ExperimentsApi,
     datasets_api: DatasetsApi,
+    spaces_api: SpacesApi,
     experiment: str,
     dataset: str | None,
     space: str | None,
@@ -274,15 +279,26 @@ def _find_experiment_id(
     Args:
         api: ExperimentsApi instance.
         datasets_api: DatasetsApi instance, used to resolve a dataset name to an ID.
+        spaces_api: SpacesApi instance, used to resolve a space name to an ID
+            when resolving a standalone experiment by name.
         experiment: Experiment ID or name.
-        dataset: Dataset ID or name. Required when *experiment* is a name.
-        space: Space ID or name used to resolve *dataset* by name.
+        dataset: Dataset ID or name. Provide this to resolve a
+            dataset-associated experiment by name.
+        space: Space ID or name. When *dataset* is a name, used to resolve
+            it. When *dataset* is not provided, used to resolve a standalone
+            experiment by name directly within that space.
 
     Returns:
         The resolved experiment ID.
 
     Raises:
         NotFoundError: If the experiment name cannot be found.
+        AmbiguousNameError: If *dataset* is not provided and *experiment*
+            matches both a standalone experiment and a dataset-associated
+            experiment in *space* (their names are only guaranteed unique
+            within each of those two scopes separately, not jointly). Pass
+            the experiment ID, or *dataset* to select the dataset-associated
+            one, to disambiguate.
     """
     if is_resource_id(experiment):
         return experiment
@@ -290,50 +306,82 @@ def _find_experiment_id(
     resolved_dataset = _resolve_resource(dataset)
     resolved_space = _resolve_resource(space)
 
-    if not resolved_dataset.is_set():
+    if not resolved_dataset.is_set() and not resolved_space.is_set():
         raise NotFoundError(
             "experiment",
             experiment,
             hint=(
-                "Provide 'dataset' so the experiment name can be resolved, "
-                "or provide the experiment ID instead of the name."
+                "Provide 'dataset' (to resolve a dataset-associated "
+                "experiment) or 'space' (to resolve a standalone experiment) "
+                "so the experiment name can be resolved, or provide the "
+                "experiment ID instead of the name."
             ),
         )
 
-    if resolved_dataset.is_name() and not resolved_space.is_set():
-        raise NotFoundError(
-            "experiment",
-            experiment,
-            hint=(
-                "Provide 'space' so the dataset name can be resolved, "
-                "which is needed to resolve the experiment name. Alternatively, "
-                "you can provide the experiment ID, or the dataset ID instead of the name."
-            ),
+    dataset_id: str | None = None
+    space_id: str | None = None
+    if resolved_dataset.is_set():
+        if resolved_dataset.is_name() and not resolved_space.is_set():
+            raise NotFoundError(
+                "experiment",
+                experiment,
+                hint=(
+                    "Provide 'space' so the dataset name can be resolved, "
+                    "which is needed to resolve the experiment name. Alternatively, "
+                    "you can provide the experiment ID, or the dataset ID instead of the name."
+                ),
+            )
+        dataset_id = (
+            resolved_dataset.id
+            if resolved_dataset.is_id()
+            else _find_dataset_id(datasets_api, resolved_dataset.name, space)  # type:ignore
         )
-
-    dataset_id = (
-        resolved_dataset.id
-        if resolved_dataset.is_id()
-        else _find_dataset_id(datasets_api, resolved_dataset.name, space)  # type:ignore
-    )
+    else:
+        # No dataset: resolve a standalone experiment within the space.
+        space_id = (
+            resolved_space.id
+            if resolved_space.is_id()
+            else _find_space_id(spaces_api, resolved_space.name)  # type:ignore
+        )
 
     available: list[str] = []
+    # Only populated when space_id is used (dataset_id is None): unlike a
+    # dataset-scoped search, a space's experiment list mixes standalone and
+    # dataset-associated experiments, so a name collision across the two is
+    # possible. Collect every match before deciding, rather than returning the
+    # first one, so a collision raises instead of silently returning the
+    # wrong experiment.
+    space_scoped_matches: list[str] = []
     cursor: str | None = None
 
     while True:
         response = api.list_experiments(
             dataset_id=dataset_id,
+            space_id=space_id,
             limit=_LIST_PAGE_SIZE,
             cursor=cursor,
         )
         for e in response.experiments:
-            if e.name == experiment:
+            if e.name != experiment:
+                available.append(e.name)
+                continue
+            if dataset_id is not None:
+                # Dataset-scoped: name is unique per dataset, so
+                # the first match is the only possible match.
                 logger.debug("Resolved experiment '%s' → %s", experiment, e.id)
                 return e.id
-            available.append(e.name)
+            space_scoped_matches.append(e.id)
         cursor = getattr(response.pagination, "next_cursor", None)
         if not cursor:
             break
+
+    if len(space_scoped_matches) > 1:
+        raise AmbiguousNameError("experiment", experiment, space_scoped_matches)
+    if space_scoped_matches:
+        logger.debug(
+            "Resolved experiment '%s' → %s", experiment, space_scoped_matches[0]
+        )
+        return space_scoped_matches[0]
 
     raise NotFoundError("experiment", experiment, available)
 
@@ -565,6 +613,78 @@ def _find_ai_integration_id(
             break
 
     raise NotFoundError("AI integration", integration, available)
+
+
+def _find_integration_id(
+    api: IntegrationsApi,
+    integration: str,
+    integration_type: IntegrationType | None,
+    space: str | None,
+) -> str:
+    """Resolve an integration ID or name to an integration ID.
+
+    Integrations are polymorphic (LLM and agent) and owned at the account level:
+    a name is unique per ``(account, type)``, so ``integration_type`` alone is
+    sufficient to resolve a name to an ID — but it is required, since the same
+    name may exist for each type. IDs resolve without a type. ``space`` is an
+    optional visibility filter, not required for disambiguation.
+
+    Args:
+        api: IntegrationsApi instance.
+        integration: Integration ID or name.
+        integration_type: The integration type used to scope the name lookup.
+            Required when *integration* is a name; ignored for IDs.
+        space: Optional space ID or name used to filter the lookup by visibility.
+
+    Returns:
+        The resolved integration ID.
+
+    Raises:
+        NotFoundError: If the integration name cannot be found, or if
+            *integration* is a name and *integration_type* is not provided.
+    """
+    if is_resource_id(integration):
+        return integration
+
+    if integration_type is None:
+        raise NotFoundError(
+            "integration",
+            integration,
+            hint=(
+                "Provide 'integration_type' so the integration name can be "
+                "resolved, or provide the integration ID instead of the name."
+            ),
+        )
+
+    resolved_space = _resolve_resource(space)
+
+    available: list[str] = []
+    cursor: str | None = None
+
+    while True:
+        response = api.list_integrations(
+            type=integration_type,
+            space_id=resolved_space.id,
+            space_name=resolved_space.name,
+            name=integration,
+            limit=_LIST_PAGE_SIZE,
+            cursor=cursor,
+        )
+        for item in response.integrations:
+            inner = item.actual_instance
+            if inner is None:
+                continue
+            if inner.name == integration:
+                logger.debug(
+                    "Resolved integration '%s' → %s", integration, inner.id
+                )
+                return inner.id
+            available.append(inner.name)
+        cursor = getattr(response.pagination, "next_cursor", None)
+        if not cursor:
+            break
+
+    raise NotFoundError("integration", integration, available)
 
 
 def _find_annotation_queue_id(

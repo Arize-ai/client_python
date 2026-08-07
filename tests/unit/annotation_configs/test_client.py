@@ -7,7 +7,10 @@ from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
-from arize._generated.api_client import AnnotationConfigsApi
+from arize._generated.api_client import (
+    AnnotationConfigsApi,
+    CategoricalAnnotationValueRequest,
+)
 from arize.annotation_configs.client import AnnotationConfigsClient
 from arize.annotation_configs.types import (
     AnnotationConfigType,
@@ -301,7 +304,10 @@ class TestAnnotationConfigsClientCreateCategorical:
         self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
     ) -> None:
         """create_categorical() must forward space_id and values."""
-        mock_values = [Mock(), Mock()]
+        mock_values = [
+            Mock(spec=CategoricalAnnotationValueRequest),
+            Mock(spec=CategoricalAnnotationValueRequest),
+        ]
         with (
             patch(
                 "arize._generated.api_client.CreateCategoricalAnnotationConfigRequest"
@@ -326,7 +332,7 @@ class TestAnnotationConfigsClientCreateCategorical:
         self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
     ) -> None:
         """create_categorical() must forward optimization_direction when given."""
-        mock_values = [Mock()]
+        mock_values = [Mock(spec=CategoricalAnnotationValueRequest)]
         with (
             patch(
                 "arize._generated.api_client.CreateCategoricalAnnotationConfigRequest"
@@ -371,7 +377,7 @@ class TestAnnotationConfigsClientCreateCategorical:
             result = annotation_configs_client.create_categorical(
                 name="cat-config",
                 space="U3BhY2U6OTA1MDoxSmtS",
-                values=[Mock()],
+                values=[Mock(spec=CategoricalAnnotationValueRequest)],
             )
 
         mock_api.create_annotation_config.assert_called_once_with(
@@ -399,13 +405,174 @@ class TestAnnotationConfigsClientCreateCategorical:
             annotation_configs_client.create_categorical(
                 name="cat-config",
                 space="U3BhY2U6OTA1MDoxSmtS",
-                values=[Mock()],
+                values=[Mock(spec=CategoricalAnnotationValueRequest)],
             )
 
         assert any(
             "BETA" in record.message
             and "annotation_configs.create" in record.message
             for record in caplog.records
+        )
+
+
+# base64("AnnotationConfig:1234:xYz") — passes is_resource_id()
+_ANNOTATION_CONFIG_ID = "QW5ub3RhdGlvbkNvbmZpZzoxMjM0OnhZeg=="
+
+
+@pytest.mark.unit
+class TestAnnotationConfigsClientGet:
+    """Tests for AnnotationConfigsClient.get()."""
+
+    def test_get_calls_api_and_returns_response(
+        self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
+    ) -> None:
+        """get() should resolve the config ID and call get_annotation_config."""
+        expected = Mock()
+        mock_api.get_annotation_config.return_value.actual_instance = expected
+
+        result = annotation_configs_client.get(
+            annotation_config=_ANNOTATION_CONFIG_ID,
+        )
+
+        mock_api.get_annotation_config.assert_called_once_with(
+            annotation_config_id=_ANNOTATION_CONFIG_ID
+        )
+        assert result is expected
+
+
+@pytest.mark.unit
+class TestAnnotationConfigsClientUpdateContinuous:
+    """Tests for AnnotationConfigsClient.update_continuous()."""
+
+    def test_update_continuous_builds_request_and_calls_api(
+        self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
+    ) -> None:
+        """update_continuous() should build the correct request and call the API."""
+        expected = Mock()
+        mock_api.update_annotation_config.return_value = Mock(
+            actual_instance=expected
+        )
+
+        with (
+            patch(
+                "arize._generated.api_client.UpdateContinuousAnnotationConfigRequest"
+            ) as mock_update_cls,
+            patch(
+                "arize._generated.api_client.UpdateAnnotationConfigRequest"
+            ) as mock_body_cls,
+        ):
+            mock_inner = Mock()
+            mock_update_cls.return_value = mock_inner
+            mock_body = Mock()
+            mock_body_cls.return_value = mock_body
+
+            result = annotation_configs_client.update_continuous(
+                annotation_config=_ANNOTATION_CONFIG_ID,
+                minimum_score=0.0,
+                maximum_score=1.0,
+            )
+
+        mock_body_cls.assert_called_once_with(actual_instance=mock_inner)
+        mock_api.update_annotation_config.assert_called_once_with(
+            annotation_config_id=_ANNOTATION_CONFIG_ID,
+            update_annotation_config_request=mock_body,
+        )
+        assert result is expected
+
+
+@pytest.mark.unit
+class TestAnnotationConfigsClientUpdateCategorical:
+    """Tests for AnnotationConfigsClient.update_categorical()."""
+
+    def test_update_categorical_builds_request_and_calls_api(
+        self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
+    ) -> None:
+        """update_categorical() should coerce values and call the API."""
+        expected = Mock()
+        mock_api.update_annotation_config.return_value = Mock(
+            actual_instance=expected
+        )
+
+        mock_val = Mock(spec=CategoricalAnnotationValueRequest)
+        with (
+            patch(
+                "arize._generated.api_client.UpdateCategoricalAnnotationConfigRequest"
+            ) as mock_update_cls,
+            patch(
+                "arize._generated.api_client.UpdateAnnotationConfigRequest"
+            ) as mock_body_cls,
+        ):
+            mock_inner = Mock()
+            mock_update_cls.return_value = mock_inner
+            mock_body = Mock()
+            mock_body_cls.return_value = mock_body
+
+            result = annotation_configs_client.update_categorical(
+                annotation_config=_ANNOTATION_CONFIG_ID,
+                values=[mock_val],
+            )
+
+        mock_body_cls.assert_called_once()
+        mock_api.update_annotation_config.assert_called_once_with(
+            annotation_config_id=_ANNOTATION_CONFIG_ID,
+            update_annotation_config_request=mock_body,
+        )
+        assert result is expected
+
+
+@pytest.mark.unit
+class TestAnnotationConfigsClientUpdateFreeform:
+    """Tests for AnnotationConfigsClient.update_freeform()."""
+
+    def test_update_freeform_builds_request_and_calls_api(
+        self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
+    ) -> None:
+        """update_freeform() should build the correct request and call the API."""
+        expected = Mock()
+        mock_api.update_annotation_config.return_value = Mock(
+            actual_instance=expected
+        )
+
+        with (
+            patch(
+                "arize._generated.api_client.UpdateFreeformAnnotationConfigRequest"
+            ) as mock_update_cls,
+            patch(
+                "arize._generated.api_client.UpdateAnnotationConfigRequest"
+            ) as mock_body_cls,
+        ):
+            mock_inner = Mock()
+            mock_update_cls.return_value = mock_inner
+            mock_body = Mock()
+            mock_body_cls.return_value = mock_body
+
+            result = annotation_configs_client.update_freeform(
+                annotation_config=_ANNOTATION_CONFIG_ID,
+                name="new-name",
+            )
+
+        mock_body_cls.assert_called_once_with(actual_instance=mock_inner)
+        mock_api.update_annotation_config.assert_called_once_with(
+            annotation_config_id=_ANNOTATION_CONFIG_ID,
+            update_annotation_config_request=mock_body,
+        )
+        assert result is expected
+
+
+@pytest.mark.unit
+class TestAnnotationConfigsClientDelete:
+    """Tests for AnnotationConfigsClient.delete()."""
+
+    def test_delete_calls_api(
+        self, annotation_configs_client: AnnotationConfigsClient, mock_api: Mock
+    ) -> None:
+        """delete() should resolve config ID and call delete_annotation_config."""
+        annotation_configs_client.delete(
+            annotation_config=_ANNOTATION_CONFIG_ID,
+        )
+
+        mock_api.delete_annotation_config.assert_called_once_with(
+            annotation_config_id=_ANNOTATION_CONFIG_ID
         )
 
 

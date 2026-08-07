@@ -28,9 +28,10 @@ class TaskEvaluator(BaseModel):
     """ # noqa: E501
     evaluator_id: StrictStr = Field(description="Evaluator identifier (base64).")
     evaluator_name: StrictStr = Field(description="The name of the attached evaluator.")
+    evaluator_version_id: Optional[StrictStr] = Field(description="The evaluator version this attachment is pinned to (base64). Null is the default and means the attachment is not pinned, so it runs the evaluator's latest version. ")
     query_filter: Optional[StrictStr] = Field(description="Per-evaluator query filter, combined with the task-level filter (AND).")
     column_mappings: Optional[Dict[str, StrictStr]] = Field(description="Maps evaluator template variable names to data source column names.")
-    __properties: ClassVar[List[str]] = ["evaluator_id", "evaluator_name", "query_filter", "column_mappings"]
+    __properties: ClassVar[List[str]] = ["evaluator_id", "evaluator_name", "evaluator_version_id", "query_filter", "column_mappings"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -71,6 +72,11 @@ class TaskEvaluator(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if evaluator_version_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.evaluator_version_id is None and "evaluator_version_id" in self.model_fields_set:
+            _dict['evaluator_version_id'] = None
+
         # set to None if query_filter (nullable) is None
         # and model_fields_set contains the field
         if self.query_filter is None and "query_filter" in self.model_fields_set:
@@ -100,6 +106,7 @@ class TaskEvaluator(BaseModel):
         _obj = cls.model_validate({
             "evaluator_id": obj.get("evaluator_id"),
             "evaluator_name": obj.get("evaluator_name"),
+            "evaluator_version_id": obj.get("evaluator_version_id"),
             "query_filter": obj.get("query_filter"),
             "column_mappings": obj.get("column_mappings")
         })

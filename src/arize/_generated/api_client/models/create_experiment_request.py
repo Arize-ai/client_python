@@ -18,19 +18,20 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.experiment_run_input import ExperimentRunInput
 from typing import Optional, Set
 from typing_extensions import Self
 
 class CreateExperimentRequest(BaseModel):
     """
-    Experiment creation parameters with an initial set of runs.
+    Experiment creation parameters with an initial set of runs.  An experiment belongs to a space and may optionally be associated with a dataset. Provide exactly one of: - `dataset_id` — associate the experiment with a dataset; it's created in   that dataset's space, and its runs may reference the dataset's examples   via `example_id`. - `space_id` — the space to create the experiment in, when it isn't   associated with a dataset.  Providing both, or neither, is a validation error. 
     """ # noqa: E501
     name: StrictStr = Field(description="Name of the experiment")
-    dataset_id: StrictStr = Field(description="ID of the dataset to create the experiment for")
+    dataset_id: Optional[StrictStr] = Field(default=None, description="ID of the dataset to associate the experiment with. Provide `space_id` instead when the experiment isn't associated with a dataset.")
+    space_id: Optional[StrictStr] = Field(default=None, description="ID of the space to create the experiment in. Provide instead of `dataset_id`.")
     experiment_runs: List[ExperimentRunInput] = Field(description="Array of experiment run data")
-    __properties: ClassVar[List[str]] = ["name", "dataset_id", "experiment_runs"]
+    __properties: ClassVar[List[str]] = ["name", "dataset_id", "space_id", "experiment_runs"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -78,6 +79,16 @@ class CreateExperimentRequest(BaseModel):
                 if _item_experiment_runs:
                     _items.append(_item_experiment_runs.to_dict())
             _dict['experiment_runs'] = _items
+        # set to None if dataset_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.dataset_id is None and "dataset_id" in self.model_fields_set:
+            _dict['dataset_id'] = None
+
+        # set to None if space_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.space_id is None and "space_id" in self.model_fields_set:
+            _dict['space_id'] = None
+
         return _dict
 
     @classmethod
@@ -97,6 +108,7 @@ class CreateExperimentRequest(BaseModel):
         _obj = cls.model_validate({
             "name": obj.get("name"),
             "dataset_id": obj.get("dataset_id"),
+            "space_id": obj.get("space_id"),
             "experiment_runs": [ExperimentRunInput.from_dict(_item) for _item in obj["experiment_runs"]] if obj.get("experiment_runs") is not None else None
         })
         return _obj

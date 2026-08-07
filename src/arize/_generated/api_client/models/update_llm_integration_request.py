@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
-from arize._generated.api_client.models.integration_scoping import IntegrationScoping
+from arize._generated.api_client.models.integration_scoping_request import IntegrationScopingRequest
 from arize._generated.api_client.models.update_llm_config import UpdateLlmConfig
 from typing import Optional, Set
 from typing_extensions import Self
@@ -30,7 +30,7 @@ class UpdateLlmIntegrationRequest(BaseModel):
     """ # noqa: E501
     type: StrictStr = Field(description="Discriminator. Immutable; must match the integration's type.")
     name: Optional[StrictStr] = Field(default=None, description="New integration name.")
-    scopings: Optional[List[IntegrationScoping]] = Field(default=None, description="Replaces the existing scoping rules.")
+    scopings: Optional[List[IntegrationScopingRequest]] = Field(default=None, description="Replaces the existing scoping rules.")
     config: Optional[UpdateLlmConfig] = None
     __properties: ClassVar[List[str]] = ["type", "name", "scopings", "config"]
 
@@ -109,7 +109,7 @@ class UpdateLlmIntegrationRequest(BaseModel):
         _obj = cls.model_validate({
             "type": obj.get("type"),
             "name": obj.get("name"),
-            "scopings": [IntegrationScoping.from_dict(_item) for _item in obj["scopings"]] if obj.get("scopings") is not None else None,
+            "scopings": [IntegrationScopingRequest.from_dict(_item) for _item in obj["scopings"]] if obj.get("scopings") is not None else None,
             "config": UpdateLlmConfig.from_dict(obj["config"]) if obj.get("config") is not None else None
         })
         return _obj

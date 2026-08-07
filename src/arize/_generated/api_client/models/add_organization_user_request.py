@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
-from arize._generated.api_client.models.organization_role_assignment import OrganizationRoleAssignment
+from arize._generated.api_client.models.organization_role_assignment_request import OrganizationRoleAssignmentRequest
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,7 +28,7 @@ class AddOrganizationUserRequest(BaseModel):
     AddOrganizationUserRequest
     """ # noqa: E501
     user_id: StrictStr = Field(description="The unique identifier of the user to add")
-    role: OrganizationRoleAssignment
+    role: OrganizationRoleAssignmentRequest
     __properties: ClassVar[List[str]] = ["user_id", "role"]
 
     model_config = ConfigDict(
@@ -91,7 +91,7 @@ class AddOrganizationUserRequest(BaseModel):
 
         _obj = cls.model_validate({
             "user_id": obj.get("user_id"),
-            "role": OrganizationRoleAssignment.from_dict(obj["role"]) if obj.get("role") is not None else None
+            "role": OrganizationRoleAssignmentRequest.from_dict(obj["role"]) if obj.get("role") is not None else None
         })
         return _obj
 

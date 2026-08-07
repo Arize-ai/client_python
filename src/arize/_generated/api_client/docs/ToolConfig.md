@@ -6,7 +6,7 @@ Tool configuration for the LLM invocation
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**tools** | **List[object]** | List of tool definitions available to the model | [optional] 
+**tools** | **List[Dict[str, object]]** | List of tool definitions available to the model | [optional] 
 **tool_choice** | **object** | Tool choice configuration | [optional] 
 
 ## Example

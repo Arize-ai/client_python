@@ -21,10 +21,10 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.input_variable_format import InputVariableFormat
-from arize._generated.api_client.models.invocation_params import InvocationParams
-from arize._generated.api_client.models.llm_message import LLMMessage
+from arize._generated.api_client.models.invocation_params_request import InvocationParamsRequest
+from arize._generated.api_client.models.llm_message_request import LLMMessageRequest
 from arize._generated.api_client.models.llm_provider import LlmProvider
-from arize._generated.api_client.models.provider_params import ProviderParams
+from arize._generated.api_client.models.provider_params_request import ProviderParamsRequest
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -36,9 +36,9 @@ class CreatePromptVersionRequest(BaseModel):
     input_variable_format: Optional[InputVariableFormat] = None
     provider: LlmProvider
     model: Optional[StrictStr] = Field(default=None, description="The model to use for the call. Optional. If omitted, no default model is set on the version.")
-    messages: Annotated[List[LLMMessage], Field(min_length=1)] = Field(description="The messages that make up the prompt template")
-    invocation_params: Optional[InvocationParams] = None
-    provider_params: Optional[ProviderParams] = None
+    messages: Annotated[List[LLMMessageRequest], Field(min_length=1)] = Field(description="The messages that make up the prompt template")
+    invocation_params: Optional[InvocationParamsRequest] = None
+    provider_params: Optional[ProviderParamsRequest] = None
     __properties: ClassVar[List[str]] = ["commit_message", "input_variable_format", "provider", "model", "messages", "invocation_params", "provider_params"]
 
     model_config = ConfigDict(
@@ -114,9 +114,9 @@ class CreatePromptVersionRequest(BaseModel):
             "input_variable_format": obj.get("input_variable_format"),
             "provider": obj.get("provider"),
             "model": obj.get("model"),
-            "messages": [LLMMessage.from_dict(_item) for _item in obj["messages"]] if obj.get("messages") is not None else None,
-            "invocation_params": InvocationParams.from_dict(obj["invocation_params"]) if obj.get("invocation_params") is not None else None,
-            "provider_params": ProviderParams.from_dict(obj["provider_params"]) if obj.get("provider_params") is not None else None
+            "messages": [LLMMessageRequest.from_dict(_item) for _item in obj["messages"]] if obj.get("messages") is not None else None,
+            "invocation_params": InvocationParamsRequest.from_dict(obj["invocation_params"]) if obj.get("invocation_params") is not None else None,
+            "provider_params": ProviderParamsRequest.from_dict(obj["provider_params"]) if obj.get("provider_params") is not None else None
         })
         return _obj
 

@@ -21,8 +21,8 @@ from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.ai_integration_auth_type import AiIntegrationAuthType
 from arize._generated.api_client.models.ai_integration_provider import AiIntegrationProvider
-from arize._generated.api_client.models.ai_integration_scoping import AiIntegrationScoping
-from arize._generated.api_client.models.provider_metadata import ProviderMetadata
+from arize._generated.api_client.models.ai_integration_scoping_request import AiIntegrationScopingRequest
+from arize._generated.api_client.models.provider_metadata_request import ProviderMetadataRequest
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -39,8 +39,8 @@ class CreateAiIntegrationRequest(BaseModel):
     enable_default_models: Optional[StrictBool] = Field(default=None, description="Enable provider's default model list (default false)")
     function_calling_enabled: Optional[StrictBool] = Field(default=None, description="Enable function/tool calling (default true)")
     auth_type: Optional[AiIntegrationAuthType] = None
-    provider_metadata: Optional[ProviderMetadata] = None
-    scopings: Optional[List[AiIntegrationScoping]] = Field(default=None, description="Visibility scoping rules. Defaults to account-wide.")
+    provider_metadata: Optional[ProviderMetadataRequest] = None
+    scopings: Optional[List[AiIntegrationScopingRequest]] = Field(default=None, description="Visibility scoping rules. Defaults to account-wide.")
     __properties: ClassVar[List[str]] = ["name", "provider", "api_key", "base_url", "model_names", "headers", "enable_default_models", "function_calling_enabled", "auth_type", "provider_metadata", "scopings"]
 
     model_config = ConfigDict(
@@ -118,8 +118,8 @@ class CreateAiIntegrationRequest(BaseModel):
             "enable_default_models": obj.get("enable_default_models"),
             "function_calling_enabled": obj.get("function_calling_enabled"),
             "auth_type": obj.get("auth_type"),
-            "provider_metadata": ProviderMetadata.from_dict(obj["provider_metadata"]) if obj.get("provider_metadata") is not None else None,
-            "scopings": [AiIntegrationScoping.from_dict(_item) for _item in obj["scopings"]] if obj.get("scopings") is not None else None
+            "provider_metadata": ProviderMetadataRequest.from_dict(obj["provider_metadata"]) if obj.get("provider_metadata") is not None else None,
+            "scopings": [AiIntegrationScopingRequest.from_dict(_item) for _item in obj["scopings"]] if obj.get("scopings") is not None else None
         })
         return _obj
 

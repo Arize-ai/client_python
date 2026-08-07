@@ -40,6 +40,7 @@ from arize.evaluators.types import (
     EvaluatorWithVersion,
     ListEvaluatorVersionsResponse,
     TemplateConfig,
+    TemplateConfigInput,
 )
 
 # ---------------------------------------------------------------------------
@@ -151,6 +152,7 @@ class TestEvaluatorsTypes:
             "EvaluatorWithVersion",
             "ListEvaluatorsResponse",
             "TemplateConfig",
+            "TemplateConfigInput",
         }
         assert expected.issubset(set(types_module.__all__))
 
@@ -162,6 +164,7 @@ class TestEvaluatorsTypes:
             ListEvaluatorVersionsResponse,
             EvaluatorWithVersion,
             TemplateConfig,
+            TemplateConfigInput,
         ],
     )
     def test_type_is_class(self, cls: type) -> None:

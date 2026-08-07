@@ -7,8 +7,8 @@ Payload for an evaluator version: exactly one of `template_config` or `code_conf
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **commit_message** | **str** | Commit message describing the changes | 
-**template_config** | [**TemplateConfig**](TemplateConfig.md) |  | 
-**code_config** | [**CodeConfig**](CodeConfig.md) |  | 
+**template_config** | [**TemplateConfigInput**](TemplateConfigInput.md) |  | 
+**code_config** | [**CodeConfigRequest**](CodeConfigRequest.md) |  | 
 
 ## Example
 

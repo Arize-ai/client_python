@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from arize._generated.api_client.models.space_role_assignment import SpaceRoleAssignment
+from arize._generated.api_client.models.space_role_assignment_request import SpaceRoleAssignmentRequest
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,7 +28,7 @@ class ServiceKeySpaceAssignment(BaseModel):
     Declares one space that the service key's service account should have access to.  The **space assignment** (`space_id`) identifies the target space. The **role assignment** (`role`) specifies the level of access within that space — either a named predefined role or a custom RBAC role identified by its ID. 
     """ # noqa: E501
     space_id: StrictStr = Field(description="ID of the space to grant the service account access to.")
-    role: Optional[SpaceRoleAssignment] = Field(default=None, description="Role to assign the bot user within this space. A role assignment is either: - `{ \"type\": \"PREDEFINED\", \"name\": \"ADMIN\" | \"MEMBER\" | \"READ_ONLY\" }` — a built-in space role - `{ \"type\": \"CUSTOM\", \"id\": \"<encoded-role-id>\" }` — a custom RBAC role  Defaults to `{ \"type\": \"PREDEFINED\", \"name\": \"MEMBER\" }` when omitted. Must be at or below the caller's own effective space role. The `ANNOTATOR` role is not valid for service keys and returns `422`. ")
+    role: Optional[SpaceRoleAssignmentRequest] = Field(default=None, description="Role to assign the bot user within this space. A role assignment is either: - `{ \"type\": \"PREDEFINED\", \"name\": \"ADMIN\" | \"MEMBER\" | \"READ_ONLY\" }` — a built-in space role - `{ \"type\": \"CUSTOM\", \"id\": \"<encoded-role-id>\" }` — a custom RBAC role  Defaults to `{ \"type\": \"PREDEFINED\", \"name\": \"MEMBER\" }` when omitted. Must be at or below the caller's own effective space role. The `ANNOTATOR` role is not valid for service keys and returns `422`. ")
     __properties: ClassVar[List[str]] = ["space_id", "role"]
 
     model_config = ConfigDict(
@@ -91,7 +91,7 @@ class ServiceKeySpaceAssignment(BaseModel):
 
         _obj = cls.model_validate({
             "space_id": obj.get("space_id"),
-            "role": SpaceRoleAssignment.from_dict(obj["role"]) if obj.get("role") is not None else None
+            "role": SpaceRoleAssignmentRequest.from_dict(obj["role"]) if obj.get("role") is not None else None
         })
         return _obj
 

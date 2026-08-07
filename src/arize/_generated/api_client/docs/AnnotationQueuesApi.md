@@ -457,7 +457,7 @@ Add new records from spans, traces, or dataset examples to an existing annotatio
 }
 ```
 
-<Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue.</Note>
+<Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue only when the total records from all sources does not exceed 500.</Note>
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 

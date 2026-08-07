@@ -143,19 +143,25 @@ Create an experiment
 
 Create a new experiment. Empty experiments are not allowed.
 
+An experiment belongs to a space and may optionally be associated with a
+dataset.
+
 Experiments are composed of "runs". Each experiment run (JSON object)
-must include an `example_id` field that corresponds to an example in
-the dataset, and a `output` field that contains the task's output for
-the example (the input).
+must include an `output` field containing the task's output. When the
+experiment is associated with a dataset, each run must also include an
+`example_id` referencing an example in that dataset.
 
 Payload Requirements
-- The `name` must be unique within the target dataset
+- Provide exactly one of `dataset_id` or `space_id`.
+- The `name` must be unique within the dataset it's associated with, or
+  within the space when it isn't associated with a dataset.
 - Provide at least one run in `experiment_runs`.
 - Each run must include:
-  - `example_id` -- the ID of an existing example in the dataset/version
-  - `output` -- model/task output for that example
+  - `output` -- model/task output for the run
+  - `example_id` -- the ID of an existing example in the dataset,
+  required only when the experiment is associated with a dataset
   - You may include any additional fields per run that can be used for
-  analysis or filtering. For exampple: `model`, `latency_ms`,
+  analysis or filtering. For example: `model`, `latency_ms`,
   `temperature`, `prompt`, `tool_calls`, etc.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
@@ -421,8 +427,9 @@ Append new runs to an existing experiment.
 **Payload Requirements**
 - Provide between 1 and 1000 runs in `experiment_runs`.
 - Each run must include:
-  - `example_id` -- the ID of an existing example in the dataset version
-  - `output` -- model/task output for that example
+  - `output` -- model/task output for the run
+  - `example_id` -- the ID of an existing example in the dataset,
+  required only when the experiment is associated with a dataset
   - You may include any additional fields per run that can be used for
   analysis or filtering. For example: `model`, `latency_ms`,
   `temperature`, `prompt`, `tool_calls`, etc.
@@ -631,14 +638,20 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **list_experiments**
-> ListExperimentsResponse list_experiments(dataset_id=dataset_id, name=name, limit=limit, cursor=cursor)
+> ListExperimentsResponse list_experiments(dataset_id=dataset_id, space_id=space_id, name=name, limit=limit, cursor=cursor)
 
 List experiments
 
-List all experiments a user has access to.
+List experiments a user has access to.
 
-To filter experiments by the dataset they were run on, provide the
-`dataset_id` query parameter.
+By default, lists every accessible experiment across all spaces the caller
+can read, including experiments that are not associated with a dataset.
+
+To narrow the results, provide at most one of:
+- `dataset_id` — only experiments run on that dataset.
+- `space_id` — only experiments in that space (with or without a dataset).
+
+Providing both `dataset_id` and `space_id` is a validation error.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
@@ -674,13 +687,14 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ExperimentsApi(api_client)
     dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | Filter to a specific dataset (base64 identifier (base64)) (optional)
+    space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
     limit = 50 # int | Maximum items to return (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
         # List experiments
-        api_response = api_instance.list_experiments(dataset_id=dataset_id, name=name, limit=limit, cursor=cursor)
+        api_response = api_instance.list_experiments(dataset_id=dataset_id, space_id=space_id, name=name, limit=limit, cursor=cursor)
         print("The response of ExperimentsApi->list_experiments:\n")
         pprint(api_response)
     except Exception as e:
@@ -695,6 +709,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **dataset_id** | **str**| Filter to a specific dataset (base64 identifier (base64)) | [optional] 
+ **space_id** | **str**| Filter search results to a particular space ID | [optional] 
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
  **limit** | **int**| Maximum items to return | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 

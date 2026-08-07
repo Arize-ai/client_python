@@ -28,7 +28,7 @@ class AddAnnotationQueueRecordsRequest(BaseModel):
     """
     AddAnnotationQueueRecordsRequest
     """ # noqa: E501
-    record_sources: Annotated[List[AnnotationQueueRecordInput], Field(min_length=1, max_length=2)] = Field(description="Record sources to add to the annotation queue. At most 2 record sources (projects or datasets) may be provided in a single request.")
+    record_sources: Annotated[List[AnnotationQueueRecordInput], Field(min_length=1, max_length=2)] = Field(description="Record sources to add to the annotation queue. At most 2 record sources (projects or datasets) may be provided in a single request. The total number of records resolved from all sources must not exceed 500.")
     __properties: ClassVar[List[str]] = ["record_sources"]
 
     model_config = ConfigDict(

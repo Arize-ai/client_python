@@ -14,6 +14,9 @@ from arize._generated.api_client.models.categorical_annotation_config import (
 from arize._generated.api_client.models.categorical_annotation_value import (
     CategoricalAnnotationValue,
 )
+from arize._generated.api_client.models.categorical_annotation_value_request import (
+    CategoricalAnnotationValueRequest,
+)
 from arize._generated.api_client.models.continuous_annotation_config import (
     ContinuousAnnotationConfig,
 )
@@ -70,6 +73,7 @@ __all__ = [
     "AnnotationConfigType",
     "CategoricalAnnotationConfig",
     "CategoricalAnnotationValue",
+    "CategoricalAnnotationValueRequest",
     "ContinuousAnnotationConfig",
     "FreeformAnnotationConfig",
     "ListAnnotationConfigsResponse",

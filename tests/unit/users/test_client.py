@@ -277,17 +277,17 @@ class TestUsersClientCreate:
     def test_create_predefined_role_builds_request_and_calls_api(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
-        """create() should wrap a PredefinedUserRole in PredefinedUserRoleAssignment and UserRoleAssignment."""
+        """create() should wrap a PredefinedUserRole in PredefinedUserRoleAssignmentRequest and UserRoleAssignmentRequest."""
         role = PredefinedUserRole(name=UserRole.MEMBER)
         with (
             patch(
                 "arize._generated.api_client.CreateUserRequest"
             ) as mock_request_cls,
             patch(
-                "arize._generated.api_client.UserRoleAssignment"
+                "arize._generated.api_client.UserRoleAssignmentRequest"
             ) as mock_role_cls,
             patch(
-                "arize._generated.api_client.PredefinedUserRoleAssignment"
+                "arize._generated.api_client.PredefinedUserRoleAssignmentRequest"
             ) as mock_pred_cls,
         ):
             mock_body = Mock()
@@ -319,17 +319,17 @@ class TestUsersClientCreate:
     def test_create_custom_role_builds_request_and_calls_api(
         self, users_client: UsersClient, mock_api: Mock
     ) -> None:
-        """create() should wrap a CustomUserRole in CustomUserRoleAssignment and UserRoleAssignment."""
+        """create() should wrap a CustomUserRole in CustomUserRoleAssignmentRequest and UserRoleAssignmentRequest."""
         role = CustomUserRole(id="role-abc-123")
         with (
             patch(
                 "arize._generated.api_client.CreateUserRequest"
             ) as mock_request_cls,
             patch(
-                "arize._generated.api_client.UserRoleAssignment"
+                "arize._generated.api_client.UserRoleAssignmentRequest"
             ) as mock_role_cls,
             patch(
-                "arize._generated.api_client.CustomUserRoleAssignment"
+                "arize._generated.api_client.CustomUserRoleAssignmentRequest"
             ) as mock_custom_cls,
         ):
             mock_body = Mock()
@@ -368,7 +368,7 @@ class TestUsersClientCreate:
                 "arize._generated.api_client.CreateUserRequest"
             ) as mock_request_cls,
             patch(
-                "arize._generated.api_client.UserRoleAssignment"
+                "arize._generated.api_client.UserRoleAssignmentRequest"
             ) as mock_role_cls,
         ):
             mock_role = Mock()
@@ -400,7 +400,7 @@ class TestUsersClientCreate:
                 "arize._generated.api_client.CreateUserRequest"
             ) as mock_request_cls,
             patch(
-                "arize._generated.api_client.UserRoleAssignment"
+                "arize._generated.api_client.UserRoleAssignmentRequest"
             ) as mock_role_cls,
         ):
             mock_role = Mock()
@@ -430,7 +430,7 @@ class TestUsersClientCreate:
 
         with (
             patch("arize._generated.api_client.CreateUserRequest"),
-            patch("arize._generated.api_client.UserRoleAssignment"),
+            patch("arize._generated.api_client.UserRoleAssignmentRequest"),
             patch.object(
                 User, "model_validate", return_value=domain
             ) as mock_conv,
@@ -458,7 +458,7 @@ class TestUsersClientCreate:
 
         with (
             patch("arize._generated.api_client.CreateUserRequest"),
-            patch("arize._generated.api_client.UserRoleAssignment"),
+            patch("arize._generated.api_client.UserRoleAssignmentRequest"),
         ):
             users_client.create(
                 name="Jane Smith",

@@ -92,10 +92,6 @@ class ListAnnotationConfigsResponse(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in ListAnnotationConfigsResponse) in the input: " + _key)
 
         _obj = cls.model_validate({
             "annotation_configs": [AnnotationConfig.from_dict(_item) for _item in obj["annotation_configs"]] if obj.get("annotation_configs") is not None else None,

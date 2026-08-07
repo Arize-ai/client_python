@@ -7,13 +7,14 @@ from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 
-from arize._generated.api_client import EvaluatorsApi
+from arize._generated.api_client import EvaluatorsApi, UpdateEvaluatorRequest
 from arize.evaluators.client import EvaluatorsClient
 from arize.evaluators.types import (
-    CodeConfig,
+    CodeConfigRequest,
     EvaluatorVersionCode,
     EvaluatorWithVersion,
     ListEvaluatorVersionsResponse,
+    TemplateConfigInput,
 )
 
 # Base64 ID that decodes to "Evaluator:123" — passes _is_resource_id()
@@ -240,7 +241,7 @@ class TestEvaluatorsClientCreateTemplate:
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
         """create_template_evaluator() should build a template-type create request."""
-        mock_template_config = Mock()
+        mock_template_config = Mock(spec=TemplateConfigInput)
 
         with (
             patch(
@@ -302,7 +303,7 @@ class TestEvaluatorsClientCreateTemplate:
                 name="my-evaluator",
                 space="U3BhY2U6OTA1MDoxSmtS",
                 commit_message="initial",
-                template_config=Mock(),
+                template_config=Mock(spec=TemplateConfigInput),
                 description="An evaluator for relevance",
             )
 
@@ -327,7 +328,7 @@ class TestEvaluatorsClientCreateTemplate:
                 name="my-evaluator",
                 space="U3BhY2U6OTA1MDoxSmtS",
                 commit_message="initial",
-                template_config=Mock(),
+                template_config=Mock(spec=TemplateConfigInput),
             )
 
         assert result is expected
@@ -354,7 +355,7 @@ class TestEvaluatorsClientCreateTemplate:
                 name="my-evaluator",
                 space="U3BhY2U6OTA1MDoxSmtS",
                 commit_message="initial",
-                template_config=Mock(),
+                template_config=Mock(spec=TemplateConfigInput),
             )
 
         assert any(
@@ -381,7 +382,7 @@ class TestEvaluatorsClientCreateCode:
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
         """create_code_evaluator() should build a code-type create request."""
-        mock_code_config = Mock(spec=CodeConfig)
+        mock_code_config = Mock(spec=CodeConfigRequest)
 
         with (
             patch(
@@ -439,7 +440,7 @@ class TestEvaluatorsClientCreateCode:
                 name="code-eval",
                 space="U3BhY2U6OTA1MDoxSmtS",
                 commit_message="initial",
-                code_config=Mock(spec=CodeConfig),
+                code_config=Mock(spec=CodeConfigRequest),
             )
 
         assert result is expected
@@ -466,7 +467,7 @@ class TestEvaluatorsClientCreateCode:
                 name="code-eval",
                 space="U3BhY2U6OTA1MDoxSmtS",
                 commit_message="initial",
-                code_config=Mock(spec=CodeConfig),
+                code_config=Mock(spec=CodeConfigRequest),
             )
 
         assert any(
@@ -483,58 +484,90 @@ class TestEvaluatorsClientUpdate:
     def test_update_with_name(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """update() should build UpdateEvaluatorRequest with only name when only name is given."""
-        with patch(
-            "arize._generated.api_client.UpdateEvaluatorRequest"
-        ) as mock_request_cls:
-            mock_body = Mock()
-            mock_request_cls.return_value = mock_body
+        """update() should set only a provided name in its request body."""
+        evaluators_client.update(evaluator=_EVALUATOR_ID, name="new-name")
 
-            evaluators_client.update(evaluator=_EVALUATOR_ID, name="new-name")
-
-        mock_request_cls.assert_called_once_with(
-            name="new-name", description=None
-        )
+        body = mock_api.update_evaluator.call_args.kwargs[
+            "update_evaluator_request"
+        ]
+        assert isinstance(body, UpdateEvaluatorRequest)
+        assert body.model_fields_set == {"name"}
+        assert body.to_dict() == {"name": "new-name"}
         mock_api.update_evaluator.assert_called_once_with(
             evaluator_id=_EVALUATOR_ID,
-            update_evaluator_request=mock_body,
+            update_evaluator_request=body,
         )
 
     def test_update_with_description(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """update() should forward description to UpdateEvaluatorRequest."""
-        with patch(
-            "arize._generated.api_client.UpdateEvaluatorRequest"
-        ) as mock_request_cls:
-            mock_request_cls.return_value = Mock()
-
-            evaluators_client.update(
-                evaluator=_EVALUATOR_ID, description="Updated description"
-            )
-
-        mock_request_cls.assert_called_once_with(
-            name=None, description="Updated description"
+        """update() should set only a provided description in its request body."""
+        evaluators_client.update(
+            evaluator=_EVALUATOR_ID, description="Updated description"
         )
+
+        body = mock_api.update_evaluator.call_args.kwargs[
+            "update_evaluator_request"
+        ]
+        assert body.model_fields_set == {"description"}
+        assert body.to_dict() == {"description": "Updated description"}
 
     def test_update_with_both_fields(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """update() should forward both name and description."""
-        with patch(
-            "arize._generated.api_client.UpdateEvaluatorRequest"
-        ) as mock_request_cls:
-            mock_request_cls.return_value = Mock()
-
-            evaluators_client.update(
-                evaluator=_EVALUATOR_ID,
-                name="new-name",
-                description="new description",
-            )
-
-        mock_request_cls.assert_called_once_with(
-            name="new-name", description="new description"
+        """update() should set both concrete metadata values in its request body."""
+        evaluators_client.update(
+            evaluator=_EVALUATOR_ID,
+            name="new-name",
+            description="new description",
         )
+
+        body = mock_api.update_evaluator.call_args.kwargs[
+            "update_evaluator_request"
+        ]
+        assert body.model_fields_set == {"name", "description"}
+        assert body.to_dict() == {
+            "name": "new-name",
+            "description": "new description",
+        }
+
+    def test_update_omits_unprovided_fields(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """update() should leave unprovided fields absent from the request."""
+        evaluators_client.update(evaluator=_EVALUATOR_ID)
+
+        body = mock_api.update_evaluator.call_args.kwargs[
+            "update_evaluator_request"
+        ]
+        assert body.model_fields_set == set()
+        assert body.to_dict() == {}
+
+    def test_update_omits_none_name(
+        self,
+        evaluators_client: EvaluatorsClient,
+        mock_api: Mock,
+    ) -> None:
+        """update() should leave a ``None`` name absent from its request body."""
+        evaluators_client.update(evaluator=_EVALUATOR_ID, name=None)
+
+        body = mock_api.update_evaluator.call_args.kwargs[
+            "update_evaluator_request"
+        ]
+        assert body.model_fields_set == set()
+        assert body.to_dict() == {}
+
+    def test_update_includes_explicit_none_to_clear_description(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """update() should send an explicit ``None`` to clear the description."""
+        evaluators_client.update(evaluator=_EVALUATOR_ID, description=None)
+
+        body = mock_api.update_evaluator.call_args.kwargs[
+            "update_evaluator_request"
+        ]
+        assert body.model_fields_set == {"description"}
+        assert body.to_dict() == {"description": None}
 
     def test_update_returns_api_response(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
@@ -543,8 +576,7 @@ class TestEvaluatorsClientUpdate:
         expected = Mock()
         mock_api.update_evaluator.return_value = expected
 
-        with patch("arize._generated.api_client.UpdateEvaluatorRequest"):
-            result = evaluators_client.update(evaluator=_EVALUATOR_ID, name="x")
+        result = evaluators_client.update(evaluator=_EVALUATOR_ID, name="x")
 
         assert result is expected
 
@@ -559,8 +591,7 @@ class TestEvaluatorsClientUpdate:
         pre_releases._WARNED.clear()
         caplog.set_level(logging.WARNING)
 
-        with patch("arize._generated.api_client.UpdateEvaluatorRequest"):
-            evaluators_client.update(evaluator=_EVALUATOR_ID, name="x")
+        evaluators_client.update(evaluator=_EVALUATOR_ID, name="x")
 
         assert any(
             "BETA" in record.message and "evaluators.update" in record.message
@@ -736,7 +767,7 @@ class TestEvaluatorsClientCreateTemplateVersion:
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
         """create_template_version() should build a template version."""
-        mock_template_config = Mock()
+        mock_template_config = Mock(spec=TemplateConfigInput)
 
         with (
             patch(
@@ -785,7 +816,7 @@ class TestEvaluatorsClientCreateTemplateVersion:
             result = evaluators_client.create_template_version(
                 evaluator=_EVALUATOR_ID,
                 commit_message="v2",
-                template_config=Mock(),
+                template_config=Mock(spec=TemplateConfigInput),
             )
 
         assert result is expected
@@ -810,7 +841,7 @@ class TestEvaluatorsClientCreateTemplateVersion:
             evaluators_client.create_template_version(
                 evaluator=_EVALUATOR_ID,
                 commit_message="v2",
-                template_config=Mock(),
+                template_config=Mock(spec=TemplateConfigInput),
             )
 
         assert any(
@@ -837,7 +868,7 @@ class TestEvaluatorsClientCreateCodeVersion:
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
         """create_code_version() should build a code version."""
-        mock_code_config = Mock(spec=CodeConfig)
+        mock_code_config = Mock(spec=CodeConfigRequest)
 
         with (
             patch(
@@ -886,7 +917,7 @@ class TestEvaluatorsClientCreateCodeVersion:
             result = evaluators_client.create_code_version(
                 evaluator=_EVALUATOR_ID,
                 commit_message="v2",
-                code_config=Mock(spec=CodeConfig),
+                code_config=Mock(spec=CodeConfigRequest),
             )
 
         assert result is expected
@@ -911,7 +942,7 @@ class TestEvaluatorsClientCreateCodeVersion:
             evaluators_client.create_code_version(
                 evaluator=_EVALUATOR_ID,
                 commit_message="v2",
-                code_config=Mock(spec=CodeConfig),
+                code_config=Mock(spec=CodeConfigRequest),
             )
 
         assert any(
@@ -933,46 +964,47 @@ class TestEvaluatorsClientCreateCodeVersion:
 
 
 def _make_real_llm_config() -> object:
-    """Build a real gen.EvaluatorLlmConfig instance."""
+    """Build a real gen.EvaluatorLlmConfigRequest instance."""
     from arize._generated import api_client as gen
 
-    return gen.EvaluatorLlmConfig(
+    return gen.EvaluatorLlmConfigRequest(
         ai_integration_id="TGxtSW50ZWdyYXRpb246MQ==",
         model_name="gpt-4o",
-        invocation_parameters=gen.InvocationParams(),
-        provider_parameters=gen.ProviderParams(),
+        invocation_parameters=gen.InvocationParamsRequest(),
+        provider_parameters=gen.ProviderParamsRequest(),
     )
 
 
 def _make_real_template_config() -> object:
-    """Build a real gen.TemplateConfig instance."""
+    """Build a real gen.TemplateConfigInput instance."""
     from arize._generated import api_client as gen
 
-    return gen.TemplateConfig(
+    return gen.TemplateConfigInput(
         name="relevance",
         template="Is {{output}} relevant?",
         include_explanations=True,
         use_function_calling_if_available=False,
+        classification_choices={"relevant": 1, "irrelevant": 0},
         llm_config=_make_real_llm_config(),
     )
 
 
 def _make_real_code_config() -> object:
-    """Build a real gen.CodeConfig(ManagedCodeConfig) instance."""
+    """Build a real gen.CodeConfigRequest(ManagedCodeConfigRequest) instance."""
     from arize._generated import api_client as gen
 
-    managed = gen.ManagedCodeConfig(
+    managed = gen.ManagedCodeConfigRequest(
         type="MANAGED",
         name="json_parseable",
         managed_evaluator=gen.ManagedCodeEvaluator("JSON_PARSEABLE"),
         variables=["output"],
     )
-    return gen.CodeConfig(managed)
+    return gen.CodeConfigRequest(managed)
 
 
 @pytest.mark.unit
 class TestEvaluatorsClientCreateTemplateRealInstance:
-    """Round-trip test using a real TemplateConfig for create_template_evaluator()."""
+    """Round-trip test using a real TemplateConfigInput for create_template_evaluator()."""
 
     @pytest.fixture(autouse=True)
     def _bypass_model_validate(self) -> None:
@@ -986,7 +1018,7 @@ class TestEvaluatorsClientCreateTemplateRealInstance:
     def test_create_template_real_instance_builds_valid_payload(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """create_template_evaluator() with a real TemplateConfig produces a valid CreateEvaluatorVersionRequest."""
+        """create_template_evaluator() with a real TemplateConfigInput produces a valid CreateEvaluatorVersionRequest."""
         evaluators_client.create_template_evaluator(
             name="my-evaluator",
             space="U3BhY2U6OTA1MDoxSmtS",
@@ -999,6 +1031,13 @@ class TestEvaluatorsClientCreateTemplateRealInstance:
         body = kwargs["create_evaluator_request"]
         assert body.type == "TEMPLATE"
         assert body.version is not None
+        # The point of this PR: classification_choices is required and must
+        # reach the request payload. Pin it so a dropped/renamed field fails.
+        template_config = body.version.actual_instance.template_config
+        assert template_config.classification_choices == {
+            "relevant": 1,
+            "irrelevant": 0,
+        }
 
 
 @pytest.mark.unit
@@ -1034,12 +1073,12 @@ class TestEvaluatorsClientCreateCodeRealInstance:
 
 @pytest.mark.unit
 class TestEvaluatorsClientCreateTemplateVersionRealInstance:
-    """Round-trip test using a real TemplateConfig for create_template_version()."""
+    """Round-trip test using a real TemplateConfigInput for create_template_version()."""
 
     def test_create_template_version_real_instance_builds_valid_payload(
         self, evaluators_client: EvaluatorsClient, mock_api: Mock
     ) -> None:
-        """create_template_version() with a real TemplateConfig produces a valid payload."""
+        """create_template_version() with a real TemplateConfigInput produces a valid payload."""
         evaluators_client.create_template_version(
             evaluator=_EVALUATOR_ID,
             commit_message="fix wording",
@@ -1048,7 +1087,69 @@ class TestEvaluatorsClientCreateTemplateVersionRealInstance:
 
         mock_api.create_evaluator_version.assert_called_once()
         _, kwargs = mock_api.create_evaluator_version.call_args
-        assert kwargs["create_evaluator_version_request"] is not None
+        body = kwargs["create_evaluator_version_request"]
+        assert body is not None
+        # classification_choices must reach the version request payload.
+        template_config = body.actual_instance.template_config
+        assert template_config.classification_choices == {
+            "relevant": 1,
+            "irrelevant": 0,
+        }
+
+
+@pytest.mark.unit
+class TestEvaluatorsClientGetVersionCode:
+    """Tests for EvaluatorsClient.get_version() code evaluator path."""
+
+    def test_get_version_model_validates_code_evaluator(
+        self, evaluators_client: EvaluatorsClient, mock_api: Mock
+    ) -> None:
+        """get_version() should model_validate when the version is a code evaluator."""
+        from arize._generated.api_client.models.evaluator_version_code import (
+            EvaluatorVersionCode as GenEvaluatorVersionCode,
+        )
+
+        gen_ver = Mock(spec=GenEvaluatorVersionCode)
+        mock_api.get_evaluator_version.return_value = Mock(
+            actual_instance=gen_ver
+        )
+        expected = Mock()
+        with patch.object(
+            EvaluatorVersionCode,
+            "model_validate",
+            return_value=expected,
+        ):
+            result = evaluators_client.get_version(version_id="ver-123")
+
+        assert result is expected
+
+
+@pytest.mark.unit
+class TestCoerceCodeConfig:
+    """Tests for EvaluatorsClient._coerce_code_config() branches."""
+
+    def test_coerce_custom_code_config_request(self) -> None:
+        """_coerce_code_config wraps CustomCodeConfigRequest in CodeConfigRequest."""
+        from arize._generated import api_client as gen
+
+        item = Mock(spec=gen.CustomCodeConfigRequest)
+        result = EvaluatorsClient._coerce_code_config(item)
+        assert isinstance(result, gen.CodeConfigRequest)
+
+    def test_coerce_managed_code_config_request(self) -> None:
+        """_coerce_code_config wraps ManagedCodeConfigRequest in CodeConfigRequest."""
+        from arize._generated import api_client as gen
+
+        item = Mock(spec=gen.ManagedCodeConfigRequest)
+        result = EvaluatorsClient._coerce_code_config(item)
+        assert isinstance(result, gen.CodeConfigRequest)
+
+    def test_coerce_unknown_type_raises(self) -> None:
+        """_coerce_code_config raises ValidationError for unrecognized types."""
+        from pydantic import ValidationError
+
+        with pytest.raises((TypeError, ValidationError)):
+            EvaluatorsClient._coerce_code_config("not-a-config")  # type: ignore[arg-type]
 
 
 @pytest.mark.unit

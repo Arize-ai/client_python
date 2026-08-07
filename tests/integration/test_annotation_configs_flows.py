@@ -16,7 +16,6 @@ from typing import Any
 
 import pytest
 
-from arize.annotation_configs.types import AnnotationConfigType
 from arize.utils.resolve import _find_space_id, is_resource_id
 
 API_KEY = os.environ.get("ARIZE_API_KEY", "")
@@ -69,47 +68,43 @@ class TestAnnotationConfigsCRUD:
     ) -> None:
         """Create a continuous annotation config, retrieve by ID, delete."""
         name = _unique("sdk-test-ac")
-        ac = annotation_configs_client.create(
+        ac = annotation_configs_client.create_continuous(
             name=name,
             space=space_id,
-            config_type=AnnotationConfigType.CONTINUOUS,
             minimum_score=0.0,
             maximum_score=1.0,
         )
-        inner = ac.actual_instance
         try:
-            assert inner is not None
-            assert inner.name == name
-            assert is_resource_id(inner.id)
+            assert ac is not None
+            assert ac.name == name
+            assert is_resource_id(ac.id)
 
-            fetched = annotation_configs_client.get(annotation_config=inner.id)
+            fetched = annotation_configs_client.get(annotation_config=ac.id)
             fetched_inner = fetched.actual_instance
             assert fetched_inner is not None
-            assert fetched_inner.id == inner.id
+            assert fetched_inner.id == ac.id
             assert fetched_inner.name == name
         finally:
-            annotation_configs_client.delete(annotation_config=inner.id)
+            annotation_configs_client.delete(annotation_config=ac.id)
 
     def test_create_get_delete_continuous_by_name(
         self, annotation_configs_client, space_id
     ) -> None:
         """Create a continuous annotation config, retrieve and delete by name."""
         name = _unique("sdk-test-ac")
-        ac = annotation_configs_client.create(
+        ac = annotation_configs_client.create_continuous(
             name=name,
             space=space_id,
-            config_type=AnnotationConfigType.CONTINUOUS,
             minimum_score=0.0,
             maximum_score=5.0,
         )
-        inner = ac.actual_instance
         try:
             fetched = annotation_configs_client.get(
                 annotation_config=name, space=space_id
             )
             fetched_inner = fetched.actual_instance
             assert fetched_inner is not None
-            assert fetched_inner.id == inner.id
+            assert fetched_inner.id == ac.id
         finally:
             annotation_configs_client.delete(
                 annotation_config=name, space=space_id
@@ -126,57 +121,51 @@ class TestAnnotationConfigsCRUD:
             gen.CategoricalAnnotationValue(label="good", score=1.0),
             gen.CategoricalAnnotationValue(label="bad", score=0.0),
         ]
-        ac = annotation_configs_client.create(
+        ac = annotation_configs_client.create_categorical(
             name=name,
             space=space_id,
-            config_type=AnnotationConfigType.CATEGORICAL,
             values=values,
         )
-        inner = ac.actual_instance
         try:
-            assert inner is not None
-            assert inner.name == name
+            assert ac is not None
+            assert ac.name == name
 
-            fetched = annotation_configs_client.get(annotation_config=inner.id)
+            fetched = annotation_configs_client.get(annotation_config=ac.id)
             fetched_inner = fetched.actual_instance
             assert fetched_inner is not None
-            assert fetched_inner.id == inner.id
+            assert fetched_inner.id == ac.id
         finally:
-            annotation_configs_client.delete(annotation_config=inner.id)
+            annotation_configs_client.delete(annotation_config=ac.id)
 
     def test_create_get_delete_freeform(
         self, annotation_configs_client, space_id
     ) -> None:
         """Create a freeform annotation config, retrieve it, then delete."""
         name = _unique("sdk-test-ac")
-        ac = annotation_configs_client.create(
+        ac = annotation_configs_client.create_freeform(
             name=name,
             space=space_id,
-            config_type=AnnotationConfigType.FREEFORM,
         )
-        inner = ac.actual_instance
         try:
-            assert inner is not None
-            assert inner.name == name
+            assert ac is not None
+            assert ac.name == name
 
-            fetched = annotation_configs_client.get(annotation_config=inner.id)
+            fetched = annotation_configs_client.get(annotation_config=ac.id)
             fetched_inner = fetched.actual_instance
             assert fetched_inner is not None
-            assert fetched_inner.id == inner.id
+            assert fetched_inner.id == ac.id
         finally:
-            annotation_configs_client.delete(annotation_config=inner.id)
+            annotation_configs_client.delete(annotation_config=ac.id)
 
     def test_create_appears_in_list(
         self, annotation_configs_client, space_id
     ) -> None:
         """Newly created annotation config appears in list() results."""
         name = _unique("sdk-test-ac")
-        ac = annotation_configs_client.create(
+        ac = annotation_configs_client.create_freeform(
             name=name,
             space=space_id,
-            config_type=AnnotationConfigType.FREEFORM,
         )
-        inner = ac.actual_instance
         try:
             resp = annotation_configs_client.list(space=space_id, limit=100)
             ids = [
@@ -184,21 +173,19 @@ class TestAnnotationConfigsCRUD:
                 for item in resp.annotation_configs
                 if item.actual_instance is not None
             ]
-            assert inner.id in ids
+            assert ac.id in ids
         finally:
-            annotation_configs_client.delete(annotation_config=inner.id)
+            annotation_configs_client.delete(annotation_config=ac.id)
 
     def test_list_filter_by_name(
         self, annotation_configs_client, space_id
     ) -> None:
         """list() name filter returns only matching configs."""
         name = _unique("sdk-test-ac")
-        ac = annotation_configs_client.create(
+        ac = annotation_configs_client.create_freeform(
             name=name,
             space=space_id,
-            config_type=AnnotationConfigType.FREEFORM,
         )
-        inner = ac.actual_instance
         try:
             resp = annotation_configs_client.list(
                 space=space_id, name=name, limit=100
@@ -211,7 +198,7 @@ class TestAnnotationConfigsCRUD:
             ]
             assert name in names
         finally:
-            annotation_configs_client.delete(annotation_config=inner.id)
+            annotation_configs_client.delete(annotation_config=ac.id)
 
 
 class TestAnnotationConfigsTypedCreate:

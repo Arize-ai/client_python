@@ -902,17 +902,22 @@ def transform_to_experiment_format(
         if isinstance(experiment_runs, pd.DataFrame)
         else pd.DataFrame(experiment_runs)
     )
-    # Validate required columns
-    required_cols = {task_fields.example_id, task_fields.output}
+    # Validate required columns. example_id links a run to a dataset example,
+    # so it's only required when task_fields identifies one (i.e. the
+    # experiment is associated with a dataset).
+    required_cols = {task_fields.output}
+    if task_fields.example_id is not None:
+        required_cols.add(task_fields.example_id)
     missing_cols = required_cols - set(data.columns)
     if missing_cols:
         raise ValueError(f"Missing required columns: {missing_cols}")
 
     # Initialize output DataFrame with required columns
     out_df = data.copy()
-    out_df["example_id"] = data[task_fields.example_id]
-    if task_fields.example_id != "example_id":
-        out_df.drop(task_fields.example_id, axis=1, inplace=True)
+    if task_fields.example_id is not None:
+        out_df["example_id"] = data[task_fields.example_id]
+        if task_fields.example_id != "example_id":
+            out_df.drop(task_fields.example_id, axis=1, inplace=True)
     out_df["output"] = data[task_fields.output].apply(
         lambda x: json.dumps(x) if isinstance(x, dict) else x
     )

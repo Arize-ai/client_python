@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | The name of the annotation queue. Must be unique within the space.  | [optional] 
-**instructions** | **str** | The instructions for annotators working on this queue. Send an empty string to clear the instructions.  | [optional] 
+**instructions** | **str** | The instructions for annotators working on this queue. Set to &#x60;null&#x60; to clear the instructions.  | [optional] 
 **annotation_config_ids** | **List[str]** | The full list of annotation config IDs to associate with this queue. This replaces all existing annotation config associations. All annotation configs must belong to the same space as the queue.  | [optional] 
 **annotator_emails** | **List[str]** | The full list of user emails to assign to this queue. This replaces all existing user assignments. All users must have an active account and access to the queue&#39;s space.  | [optional] 
 

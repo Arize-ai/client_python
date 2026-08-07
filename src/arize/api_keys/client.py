@@ -23,7 +23,7 @@ if TYPE_CHECKING:
         RefreshApiKeyResponse,
         ServiceApiKeyCreated,
         UserApiKeyCreated,
-        UserRoleAssignment,
+        UserRoleAssignmentRequest,
     )
     from arize.config import SDKConfiguration
 
@@ -170,7 +170,7 @@ class ApiKeysClient:
         *,
         name: str,
         orgs: builtins.list[OrgBinding],
-        account_role: UserRoleAssignment | None = None,
+        account_role: UserRoleAssignmentRequest | None = None,
         description: str | None = None,
         expires_at: datetime | None = None,
     ) -> ServiceApiKeyCreated:

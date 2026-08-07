@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **type** | **str** |  | 
 **name** | **str** | Integration name. Unique per (account, type). | 
-**scopings** | [**List[IntegrationScoping]**](IntegrationScoping.md) | Visibility scoping rules. Defaults to account-wide. | [optional] 
+**scopings** | [**List[IntegrationScopingRequest]**](IntegrationScopingRequest.md) | Visibility scoping rules. Defaults to account-wide. | [optional] 
 **config** | [**CreateLlmConfig**](CreateLlmConfig.md) |  | 
 
 ## Example

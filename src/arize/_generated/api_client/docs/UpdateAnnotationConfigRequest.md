@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **minimum_score** | **float** | New minimum score value. | [optional] 
 **maximum_score** | **float** | New maximum score value. | [optional] 
 **optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) | New optimization direction. | [optional] 
-**values** | [**List[CategoricalAnnotationValue]**](CategoricalAnnotationValue.md) | The full replacement set of categorical annotation values (2–100 items).  | [optional] 
+**values** | [**List[CategoricalAnnotationValueRequest]**](CategoricalAnnotationValueRequest.md) | The full replacement set of categorical annotation values (2–100 items).  | [optional] 
 
 ## Example
 

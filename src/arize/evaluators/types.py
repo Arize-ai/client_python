@@ -5,6 +5,9 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from arize._generated.api_client.models.code_config import CodeConfig
+from arize._generated.api_client.models.code_config_request import (
+    CodeConfigRequest,
+)
 from arize._generated.api_client.models.create_code_evaluator_version_request import (
     CreateCodeEvaluatorVersionRequest,
 )
@@ -17,10 +20,16 @@ from arize._generated.api_client.models.create_template_evaluator_version_reques
 from arize._generated.api_client.models.custom_code_config import (
     CustomCodeConfig,
 )
+from arize._generated.api_client.models.custom_code_config_request import (
+    CustomCodeConfigRequest,
+)
 from arize._generated.api_client.models.data_granularity import DataGranularity
 from arize._generated.api_client.models.evaluator import Evaluator
 from arize._generated.api_client.models.evaluator_llm_config import (
     EvaluatorLlmConfig,
+)
+from arize._generated.api_client.models.evaluator_llm_config_request import (
+    EvaluatorLlmConfigRequest,
 )
 from arize._generated.api_client.models.evaluator_type import EvaluatorType
 
@@ -50,6 +59,9 @@ from arize._generated.api_client.models.list_evaluators_response import (
 from arize._generated.api_client.models.managed_code_config import (
     ManagedCodeConfig,
 )
+from arize._generated.api_client.models.managed_code_config_request import (
+    ManagedCodeConfigRequest,
+)
 from arize._generated.api_client.models.managed_code_evaluator import (
     ManagedCodeEvaluator,
 )
@@ -63,8 +75,14 @@ from arize._generated.api_client.models.static_param import StaticParam
 from arize._generated.api_client.models.static_param_default_value import (
     StaticParamDefaultValue,
 )
+from arize._generated.api_client.models.static_param_request import (
+    StaticParamRequest,
+)
 from arize._generated.api_client.models.static_param_type import StaticParamType
 from arize._generated.api_client.models.template_config import TemplateConfig
+from arize._generated.api_client.models.template_config_input import (
+    TemplateConfigInput,
+)
 
 
 class EvaluatorVersionCode(BaseModel):
@@ -181,13 +199,16 @@ class ListEvaluatorVersionsResponse(BaseModel):
 
 __all__ = [
     "CodeConfig",
+    "CodeConfigRequest",
     "CreateCodeEvaluatorVersionRequest",
     "CreateEvaluatorVersionRequest",
     "CreateTemplateEvaluatorVersionRequest",
     "CustomCodeConfig",
+    "CustomCodeConfigRequest",
     "DataGranularity",
     "Evaluator",
     "EvaluatorLlmConfig",
+    "EvaluatorLlmConfigRequest",
     "EvaluatorType",
     "EvaluatorVersionCode",
     "EvaluatorVersionHarness",
@@ -197,10 +218,13 @@ __all__ = [
     "ListEvaluatorVersionsResponse",
     "ListEvaluatorsResponse",
     "ManagedCodeConfig",
+    "ManagedCodeConfigRequest",
     "ManagedCodeEvaluator",
     "OptimizationDirection",
     "StaticParam",
     "StaticParamDefaultValue",
+    "StaticParamRequest",
     "StaticParamType",
     "TemplateConfig",
+    "TemplateConfigInput",
 ]

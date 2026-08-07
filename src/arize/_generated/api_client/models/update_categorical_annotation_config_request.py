@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
-from arize._generated.api_client.models.categorical_annotation_value import CategoricalAnnotationValue
+from arize._generated.api_client.models.categorical_annotation_value_request import CategoricalAnnotationValueRequest
 from arize._generated.api_client.models.optimization_direction import OptimizationDirection
 from typing import Optional, Set
 from typing_extensions import Self
@@ -30,7 +30,7 @@ class UpdateCategoricalAnnotationConfigRequest(BaseModel):
     """ # noqa: E501
     name: Optional[StrictStr] = Field(default=None, description="New name for the annotation config. Must be unique within the space.")
     annotation_config_type: StrictStr = Field(description="Discriminator value identifying a categorical annotation config. The config `type` is immutable and must match the stored config's type. ")
-    values: Optional[List[CategoricalAnnotationValue]] = Field(default=None, description="The full replacement set of categorical annotation values (2–100 items). ")
+    values: Optional[List[CategoricalAnnotationValueRequest]] = Field(default=None, description="The full replacement set of categorical annotation values (2–100 items). ")
     optimization_direction: Optional[OptimizationDirection] = Field(default=None, description="New optimization direction.")
     __properties: ClassVar[List[str]] = ["name", "annotation_config_type", "values", "optimization_direction"]
 
@@ -106,7 +106,7 @@ class UpdateCategoricalAnnotationConfigRequest(BaseModel):
         _obj = cls.model_validate({
             "name": obj.get("name"),
             "annotation_config_type": obj.get("annotation_config_type"),
-            "values": [CategoricalAnnotationValue.from_dict(_item) for _item in obj["values"]] if obj.get("values") is not None else None,
+            "values": [CategoricalAnnotationValueRequest.from_dict(_item) for _item in obj["values"]] if obj.get("values") is not None else None,
             "optimization_direction": obj.get("optimization_direction")
         })
         return _obj

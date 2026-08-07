@@ -164,7 +164,14 @@ Delete spans
 Permanently deletes spans by their span IDs. This operation is irreversible.
 
 Accepts between 1 and 5000 span IDs per request. Only spans within the
-supported time range (2 years) are considered; older spans are not affected.
+searched time window are considered; spans outside that window are not affected.
+
+The optional `start_time` and `end_time` fields scope the search to a
+specific time window. Each bound is independent: omitting `start_time`
+defaults to two years ago; omitting `end_time` defaults to now. You may
+provide either or both. Providing them when the approximate timestamp of
+the target spans is known significantly reduces the amount of span data
+the server must search.
 
 A `200 OK` response always includes:
 - `completed` — `true` if the operation finished and no retry is needed;

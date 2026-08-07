@@ -32,6 +32,7 @@ class AgentConfig(BaseModel):
     has_headers: StrictBool = Field(description="Whether any headers are configured. Read-only — derived from `headers` on write. Header values are never returned. ")
     input_schema: Dict[str, Any] = Field(description="JSON Schema (Draft-07) the endpoint's request body conforms to. ")
     request_presets: List[AgentRequestPreset] = Field(description="Named, reusable request payloads. Replace-on-provide on PATCH. Always present; an integration with no presets returns `[]`. ")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["endpoint", "has_headers", "input_schema", "request_presets"]
 
     model_config = ConfigDict(
@@ -65,9 +66,11 @@ class AgentConfig(BaseModel):
           were set at model initialization. Other fields with value `None`
           are ignored.
         * OpenAPI `readOnly` fields are excluded.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
             "has_headers",
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -82,6 +85,11 @@ class AgentConfig(BaseModel):
                 if _item_request_presets:
                     _items.append(_item_request_presets.to_dict())
             _dict['request_presets'] = _items
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
@@ -93,17 +101,17 @@ class AgentConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in AgentConfig) in the input: " + _key)
-
         _obj = cls.model_validate({
             "endpoint": obj.get("endpoint"),
             "has_headers": obj.get("has_headers"),
             "input_schema": obj.get("input_schema"),
             "request_presets": [AgentRequestPreset.from_dict(_item) for _item in obj["request_presets"]] if obj.get("request_presets") is not None else None
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

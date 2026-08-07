@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
-from arize._generated.api_client.models.categorical_annotation_value import CategoricalAnnotationValue
+from arize._generated.api_client.models.categorical_annotation_value_request import CategoricalAnnotationValueRequest
 from arize._generated.api_client.models.optimization_direction import OptimizationDirection
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,7 +31,7 @@ class CreateCategoricalAnnotationConfigRequest(BaseModel):
     name: StrictStr = Field(description="Name of the new annotation config")
     space_id: StrictStr = Field(description="ID of the space the annotation config will belong to")
     annotation_config_type: StrictStr = Field(description="Discriminator value identifying a categorical annotation config.")
-    values: List[CategoricalAnnotationValue] = Field(description="An array of categorical annotation values")
+    values: List[CategoricalAnnotationValueRequest] = Field(description="An array of categorical annotation values")
     optimization_direction: Optional[OptimizationDirection] = Field(default=None, description="Direction for optimization. Defaults to `NONE` when omitted.")
     __properties: ClassVar[List[str]] = ["name", "space_id", "annotation_config_type", "values", "optimization_direction"]
 
@@ -108,7 +108,7 @@ class CreateCategoricalAnnotationConfigRequest(BaseModel):
             "name": obj.get("name"),
             "space_id": obj.get("space_id"),
             "annotation_config_type": obj.get("annotation_config_type"),
-            "values": [CategoricalAnnotationValue.from_dict(_item) for _item in obj["values"]] if obj.get("values") is not None else None,
+            "values": [CategoricalAnnotationValueRequest.from_dict(_item) for _item in obj["values"]] if obj.get("values") is not None else None,
             "optimization_direction": obj.get("optimization_direction")
         })
         return _obj

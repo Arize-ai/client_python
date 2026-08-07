@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | New name for the annotation config. Must be unique within the space. | [optional] 
 **annotation_config_type** | **str** | Discriminator value identifying a categorical annotation config. The config &#x60;type&#x60; is immutable and must match the stored config&#39;s type.  | 
-**values** | [**List[CategoricalAnnotationValue]**](CategoricalAnnotationValue.md) | The full replacement set of categorical annotation values (2–100 items).  | [optional] 
+**values** | [**List[CategoricalAnnotationValueRequest]**](CategoricalAnnotationValueRequest.md) | The full replacement set of categorical annotation values (2–100 items).  | [optional] 
 **optimization_direction** | [**OptimizationDirection**](OptimizationDirection.md) | New optimization direction. | [optional] 
 
 ## Example

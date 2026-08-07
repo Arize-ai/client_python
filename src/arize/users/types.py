@@ -1,4 +1,9 @@
-"""Public type re-exports and SDK-facing role types for the users subdomain."""
+"""Public type re-exports and SDK-facing role types for the users subdomain.
+
+Domain role types (``PredefinedUserRole``, ``CustomUserRole``) subclass the
+strict ``*Request`` schemas and are used as inputs to write methods. They are
+also produced by ``User._coerce_role`` when deserializing responses.
+"""
 
 from datetime import datetime
 from enum import Enum
@@ -15,12 +20,18 @@ from arize._generated.api_client.models.create_user_response import (
 from arize._generated.api_client.models.custom_user_role_assignment import (
     CustomUserRoleAssignment,
 )
+from arize._generated.api_client.models.custom_user_role_assignment_request import (
+    CustomUserRoleAssignmentRequest,
+)
 from arize._generated.api_client.models.invite_mode import InviteMode
 from arize._generated.api_client.models.pagination_metadata import (
     PaginationMetadata,
 )
 from arize._generated.api_client.models.predefined_user_role_assignment import (
     PredefinedUserRoleAssignment,
+)
+from arize._generated.api_client.models.predefined_user_role_assignment_request import (
+    PredefinedUserRoleAssignmentRequest,
 )
 from arize._generated.api_client.models.update_user_request import (
     UpdateUserRequest,
@@ -32,7 +43,7 @@ from arize._generated.api_client.models.user_role_assignment import (
 from arize._generated.api_client.models.user_status import UserStatus
 
 
-class PredefinedUserRole(PredefinedUserRoleAssignment):
+class PredefinedUserRole(PredefinedUserRoleAssignmentRequest):
     """A predefined account-level role assignment.
 
     The ``type`` discriminator is set to ``"PREDEFINED"`` automatically.
@@ -49,7 +60,7 @@ class PredefinedUserRole(PredefinedUserRoleAssignment):
         return self.name.value
 
 
-class CustomUserRole(CustomUserRoleAssignment):
+class CustomUserRole(CustomUserRoleAssignmentRequest):
     """A custom RBAC role assignment.
 
     The ``type`` discriminator is set to ``"CUSTOM"`` automatically.
@@ -60,6 +71,9 @@ class CustomUserRole(CustomUserRoleAssignment):
             only; ignored on input).
     """
 
+    # name is a response-only field not present in CustomUserRoleAssignmentRequest;
+    # carried here so __str__ can display it when available.
+    name: str | None = None
     type: Literal["CUSTOM"] = "CUSTOM"  # type: ignore[assignment]
 
     def __str__(self) -> str:

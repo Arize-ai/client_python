@@ -38,7 +38,7 @@ class TestUpdateLlmIntegrationRequest(unittest.TestCase):
                 type = 'LLM',
                 name = '',
                 scopings = [
-                    arize._generated.api_client.models.integration_scoping.IntegrationScoping(
+                    arize._generated.api_client.models.integration_scoping_request.IntegrationScopingRequest(
                         organization_id = '', 
                         space_id = '', )
                     ],

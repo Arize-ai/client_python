@@ -34,9 +34,9 @@ class TemplateConfig(BaseModel):
     include_explanations: StrictBool = Field(description="Whether to include explanations in the evaluation output")
     use_function_calling_if_available: StrictBool = Field(description="Whether to use function calling if the model supports it")
     use_structured_output: Optional[StrictBool] = Field(default=True, description="Whether to use structured output if the model supports it")
-    classification_choices: Optional[Dict[str, Union[StrictFloat, StrictInt]]] = Field(default=None, description="Map of choice label to numeric score (e.g. {\"relevant\": 1, \"irrelevant\": 0}). When omitted, the evaluator produces freeform (non-classification) output.")
+    classification_choices: Optional[Dict[str, Union[StrictFloat, StrictInt]]] = Field(default=None, description="Map of choice label to numeric score (e.g. {\"relevant\": 1, \"irrelevant\": 0}). Null for legacy freeform evaluators that predate required choices.")
     direction: Optional[OptimizationDirection] = Field(default=None, description="Direction for optimization applied to this template's evaluation scores. Defaults to `MAXIMIZE` when omitted.")
-    data_granularity: Optional[DataGranularity] = Field(default=None, description="Data granularity level. Defaults to null when omitted.")
+    data_granularity: Optional[DataGranularity] = Field(default=None, description="Data granularity level. Null for legacy evaluators with no stored granularity.")
     llm_config: EvaluatorLlmConfig
     __properties: ClassVar[List[str]] = ["name", "template", "include_explanations", "use_function_calling_if_available", "use_structured_output", "classification_choices", "direction", "data_granularity", "llm_config"]
 
@@ -103,10 +103,6 @@ class TemplateConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in TemplateConfig) in the input: " + _key)
 
         _obj = cls.model_validate({
             "name": obj.get("name"),

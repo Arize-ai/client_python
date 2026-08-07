@@ -46,7 +46,7 @@ def _make_prompt_args(name: str) -> dict:
         "provider": gen.LlmProvider.OPEN_AI,
         "model": "gpt-4o-mini",
         "messages": [
-            gen.LLMMessage(
+            gen.LLMMessageRequest(
                 role="USER",
                 content="Hello {name}, please answer: {question}",
             )
@@ -120,7 +120,7 @@ class TestPromptsCRUD:
                 provider=gen.LlmProvider.OPEN_AI,
                 model="gpt-4o-mini",
                 messages=[
-                    gen.LLMMessage(
+                    gen.LLMMessageRequest(
                         role="USER",
                         content="Updated content for {name}",
                     )

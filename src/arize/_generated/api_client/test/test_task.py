@@ -47,6 +47,7 @@ class TestTask(unittest.TestCase):
                     arize._generated.api_client.models.task_evaluator.TaskEvaluator(
                         evaluator_id = '', 
                         evaluator_name = '', 
+                        evaluator_version_id = '', 
                         query_filter = '', 
                         column_mappings = {
                             'key' : ''
@@ -72,6 +73,7 @@ class TestTask(unittest.TestCase):
                     arize._generated.api_client.models.task_evaluator.TaskEvaluator(
                         evaluator_id = '', 
                         evaluator_name = '', 
+                        evaluator_version_id = '', 
                         query_filter = '', 
                         column_mappings = {
                             'key' : ''

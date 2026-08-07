@@ -37,6 +37,7 @@ class TestTaskEvaluator(unittest.TestCase):
             return TaskEvaluator(
                 evaluator_id = '',
                 evaluator_name = '',
+                evaluator_version_id = '',
                 query_filter = '',
                 column_mappings = {
                     'key' : ''
@@ -46,6 +47,7 @@ class TestTaskEvaluator(unittest.TestCase):
             return TaskEvaluator(
                 evaluator_id = '',
                 evaluator_name = '',
+                evaluator_version_id = '',
                 query_filter = '',
                 column_mappings = {
                     'key' : ''

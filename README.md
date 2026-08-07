@@ -124,6 +124,13 @@
     - [Get an AI Integration](#get-an-ai-integration)
     - [Update an AI Integration](#update-an-ai-integration)
     - [Delete an AI Integration](#delete-an-ai-integration)
+  - [Operations on Integrations](#operations-on-integrations)
+    - [List Integrations](#list-integrations)
+    - [Get an Integration](#get-an-integration)
+    - [Create an LLM Integration](#create-an-llm-integration)
+    - [Create an Agent Integration](#create-an-agent-integration)
+    - [Update an Integration](#update-an-integration)
+    - [Delete an Integration](#delete-an-integration)
 - [SDK Configuration](#sdk-configuration)
   - [Logging](#logging)
     - [In Code](#in-code)
@@ -617,7 +624,7 @@ not_deleted = resp.not_deleted_example_ids
 
 ### List Experiments
 
-You can list all experiments that the user has access to using `client.experiments.list()`. You can use the `limit` parameter to specify the maximum number of experiments desired in the response and you can specify the `dataset` to target the list operation to a particular dataset.
+You can list all experiments that the user has access to using `client.experiments.list()`. You can use the `limit` parameter to specify the maximum number of experiments desired in the response, and narrow the results by scope: pass `dataset` for only the experiments run on that dataset, or `space` for every experiment in that space — including those with no dataset. The two are mutually exclusive.
 
 ```python
 resp = client.experiments.list(
@@ -687,21 +694,38 @@ It is possible that you have run the experiment yourself without the above funct
 
 > NOTE: If you don't have experiment data and want to run an experiment, see the `client.experiments.run()` section above.
 
-In addition, you must specify which columns are the `example_id` and the `result` using `ExperimentTaskFieldNames`. If you have evaluation data, indicate the evaluation columns using `EvaluationResultFieldNames`.
+An experiment belongs to a space and may optionally be associated with a dataset. Pass exactly one of:
 
-If the number of runs is too large, the client SDK will try to send the data via Arrow Flight via gRPC for better performance. If you want to force the data transfer to HTTP you can use the `force_http` flag. The response is an `Experiment` object.
+- `dataset` — associates the experiment with a dataset, so its runs can reference that dataset's examples.
+- `space` — creates the experiment directly in a space, with no dataset.
+
+In addition, you must specify which column holds the `output` using `ExperimentTaskFieldNames`. Also set `example_id` there when you pass `dataset`, so each run can be matched to the example it ran against; it isn't used for an experiment with no dataset. If you have evaluation data, indicate the evaluation columns using `EvaluationResultFieldNames`.
+
+If the number of runs is too large, the client SDK will try to send the data via Arrow Flight via gRPC for better performance. If you want to force the data transfer to HTTP you can use the `force_http` flag. Experiments with no dataset always upload via HTTP, since the gRPC + Flight path only supports dataset-associated experiments. The response is an `Experiment` object.
 
 ```python
 from arize.experiments.types import ExperimentTaskFieldNames, EvaluationResultFieldNames
 
+# Associated with a dataset: runs reference the dataset's examples.
 created_experiment = client.experiments.create(
-    name="<your-experiment-name>", # Name must be unique within a dataset
+    name="<your-experiment-name>", # Name must be unique within the dataset
     dataset="<your-dataset-id-or-name>",
-    space=..., # Optional, space ID or name
+    space=..., # Optional, space ID or name, used to resolve `dataset` by name
     experiment_runs=..., # List of dictionaries or pandas dataframe
-    task_fields=ExperimentTaskFieldNames(...),
+    task_fields=ExperimentTaskFieldNames(
+        output="<your-output-column>",
+        example_id="<your-example-id-column>",
+    ),
     evaluator_columns=... # Optional
     # force_http=... # Optionally pass force_http to create experiments via HTTP instead of gRPC, defaults to False
+)
+
+# No dataset: created directly in a space, and runs need no example ID.
+standalone_experiment = client.experiments.create(
+    name="<your-experiment-name>", # Name must be unique within the space
+    space="<your-space-id-or-name>",
+    experiment_runs=...,
+    task_fields=ExperimentTaskFieldNames(output="<your-output-column>"),
 )
 ```
 
@@ -712,8 +736,10 @@ To get an experiment by its ID or name use `client.experiments.get()`. The retur
 ```python
 experiment = client.experiments.get(
     experiment=... # The experiment ID or name
-    dataset=... # Optional, dataset ID or name (required when looking up by experiment name)
-    space=... # Optional, space ID or name
+    dataset=... # Optional, dataset ID or name, to look up by name within a dataset
+    space=... # Optional, space ID or name; looks up by name within the space when
+              # `dataset` is omitted, which is the only option for an experiment
+              # with no dataset
 )
 ```
 
@@ -758,7 +784,7 @@ resp_df = resp.to_df()
 
 ### Append Experiment Runs
 
-Append between 1 and 1000 new runs to an existing experiment using `client.experiments.append_runs()`. Each run must include `example_id` (the ID of an example from the experiment's dataset) and `output`. The response includes the updated experiment and the generated run IDs in input order (`run_ids`).
+Append between 1 and 1000 new runs to an existing experiment using `client.experiments.append_runs()`. Each run must include `output`; `example_id` (the ID of an example from the experiment's dataset) is required only when the target experiment is associated with a dataset. The response includes the updated experiment and the generated run IDs in input order (`run_ids`).
 
 ```python
 result = client.experiments.append_runs(
@@ -915,14 +941,14 @@ evaluator_list = resp.evaluators
 ### Create an Evaluator
 
 ```python
-from arize.evaluators.types import TemplateConfig
+from arize.evaluators.types import TemplateConfigInput
 
 evaluator = client.evaluators.create(
     name="<your-evaluator-name>",
     space="<space-id-or-name>",
     evaluator_type="template",
     commit_message="Initial version",
-    template_config=TemplateConfig(...),
+    template_config=TemplateConfigInput(...),
     description=..., # Optional
 )
 ```
@@ -975,7 +1001,7 @@ new_version = client.evaluators.create_version(
     evaluator="<evaluator-id-or-name>",
     space=..., # Optional
     commit_message="Updated template",
-    template_config=TemplateConfig(...),
+    template_config=TemplateConfigInput(...),
 )
 ```
 
@@ -1754,6 +1780,126 @@ updated = client.ai_integrations.update(
 ```python
 client.ai_integrations.delete(
     integration="<integration-id-or-name>",
+    space=..., # Optional
+)
+```
+
+## Operations on Integrations
+
+Use `client.integrations` to manage **agent** and **LLM** integrations. Integrations are polymorphic: LLM integrations configure a model provider, while agent integrations connect a customer-hosted agent exposed at an HTTPS endpoint. Names are only unique per `(account, type)`, so an `integration_type` is required to resolve a name (an ID needs no type); `space` is only an optional visibility filter.
+
+> **Note:** This is distinct from `client.ai_integrations` (the legacy AI integrations used by the Playground and online evaluations).
+
+> **Note:** Integrations are an **alpha** endpoint. Enable it via the pre-release opt-in; the surface may change without notice.
+
+### List Integrations
+
+When `integration_type` is omitted, integrations of every type are returned in one merged list; each item carries its `type`.
+
+```python
+from arize.integrations.types import IntegrationType
+
+resp = client.integrations.list(
+    integration_type=..., # Optional, IntegrationType.LLM or IntegrationType.AGENT
+    name=..., # Optional, case-insensitive substring filter
+    space=..., # Optional, space ID or name (visibility filter)
+    limit=..., # Optional, defaults to 50
+    cursor=..., # Optional, pagination cursor from a previous response
+)
+integration_list = resp.integrations
+```
+
+### Get an Integration
+
+```python
+from arize.integrations.types import IntegrationType
+
+integration = client.integrations.get(
+    integration="<integration-id-or-name>",
+    integration_type=IntegrationType.LLM, # Required to resolve a name; not needed for an ID
+    space=..., # Optional, visibility filter
+)
+```
+
+### Create an LLM Integration
+
+LLM integrations configure access to a model provider. Construct the generated config that matches the provider you want — all 7 are supported: `CreateOpenAiConfig`, `CreateAnthropicConfig`, `CreateGeminiConfig`, `CreateAwsBedrockConfig`, `CreateCustomConfig`, `CreateVertexAiConfig`, and `CreateNvidiaNimConfig`.
+
+```python
+from arize.integrations.types import CreateOpenAiConfig
+
+integration = client.integrations.create_llm(
+    name="my-openai-integration", # Must be unique within the account per type
+    config=CreateOpenAiConfig(
+        provider="OPEN_AI",
+        api_key="<your-provider-api-key>",
+    ),
+    scopings=..., # Optional, visibility scoping rules (defaults to account-wide)
+)
+```
+
+### Create an Agent Integration
+
+Agent integrations connect a customer-hosted agent exposed at an HTTPS endpoint.
+
+```python
+from arize.integrations.types import CreateAgentRequestPresetInput
+
+integration = client.integrations.create_agent(
+    name="my-agent", # Must be unique within the account per type
+    endpoint="https://my-agent.example.com/replay", # Validated for SSRF server-side
+    input_schema={
+        "type": "object",
+        "properties": {"input": {"type": "string"}},
+        "required": ["input"],
+    },
+    description=..., # Optional
+    headers=..., # Optional, custom headers (encrypted at rest, never returned)
+    request_presets=[ # Optional, list of CreateAgentRequestPresetInput
+        CreateAgentRequestPresetInput(name="default", config={"input": "hello"}),
+    ],
+    scopings=..., # Optional, visibility scoping rules
+)
+```
+
+### Update an Integration
+
+Only the fields you pass are sent; omitted fields are left unchanged. Use the method matching the integration's type (the provider/type is immutable). Nullable fields accept an explicit `None` to clear them.
+
+```python
+# Update an LLM integration (e.g. rotate the API key)
+integration = client.integrations.update_llm(
+    integration="<integration-id-or-name>",
+    space=..., # Optional, visibility filter
+    name=..., # Optional
+    api_key=..., # Optional, pass None to clear
+    function_calling_enabled=..., # Optional
+    # Provider-conditional fields are also accepted: base_url, headers,
+    # model_names, is_default_models_enabled, auth (AWS Bedrock),
+    # project_id, location, project_access_label (Vertex AI).
+)
+
+# Update an agent integration
+integration = client.integrations.update_agent(
+    integration="<integration-id-or-name>",
+    space=..., # Optional
+    name=..., # Optional
+    description=..., # Optional, pass None to clear
+    endpoint=..., # Optional
+    input_schema=..., # Optional
+    headers=..., # Optional, pass None to clear
+    request_presets=..., # Optional, replaces existing presets (matched by name)
+)
+```
+
+### Delete an Integration
+
+```python
+from arize.integrations.types import IntegrationType
+
+client.integrations.delete(
+    integration="<integration-id-or-name>",
+    integration_type=IntegrationType.AGENT, # Required to resolve a name; not needed for an ID
     space=..., # Optional
 )
 ```

@@ -14,8 +14,8 @@ Name | Type | Description | Notes
 **enable_default_models** | **bool** | Enable provider&#39;s default model list (default false) | [optional] 
 **function_calling_enabled** | **bool** | Enable function/tool calling (default true) | [optional] 
 **auth_type** | [**AiIntegrationAuthType**](AiIntegrationAuthType.md) |  | [optional] 
-**provider_metadata** | [**ProviderMetadata**](ProviderMetadata.md) |  | [optional] 
-**scopings** | [**List[AiIntegrationScoping]**](AiIntegrationScoping.md) | Visibility scoping rules. Defaults to account-wide. | [optional] 
+**provider_metadata** | [**ProviderMetadataRequest**](ProviderMetadataRequest.md) |  | [optional] 
+**scopings** | [**List[AiIntegrationScopingRequest]**](AiIntegrationScopingRequest.md) | Visibility scoping rules. Defaults to account-wide. | [optional] 
 
 ## Example
 

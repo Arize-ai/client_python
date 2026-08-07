@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **type** | **str** | Discriminator. Immutable; must match the integration&#39;s type. | 
 **name** | **str** | New integration name. | [optional] 
-**scopings** | [**List[IntegrationScoping]**](IntegrationScoping.md) | Replaces the existing scoping rules. | [optional] 
+**scopings** | [**List[IntegrationScopingRequest]**](IntegrationScopingRequest.md) | Replaces the existing scoping rules. | [optional] 
 **config** | [**UpdateLlmConfig**](UpdateLlmConfig.md) |  | [optional] 
 
 ## Example

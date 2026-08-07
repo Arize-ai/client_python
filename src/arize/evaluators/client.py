@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from arize._generated.api_client.models.evaluator_version_code import (
     EvaluatorVersionCode as _GenEvaluatorVersionCode,
@@ -11,12 +11,13 @@ from arize._generated.api_client.models.evaluator_version_code import (
 from arize._utils import unwrap_oneof
 from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.evaluators.types import (
-    CodeConfig,
-    CustomCodeConfig,
+    CodeConfigRequest,
+    CustomCodeConfigRequest,
     EvaluatorVersionCode,
     EvaluatorWithVersion,
     ListEvaluatorVersionsResponse,
-    ManagedCodeConfig,
+    ManagedCodeConfigRequest,
+    TemplateConfigInput,
 )
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
@@ -24,6 +25,7 @@ from arize.utils.resolve import (
     _find_space_id,
     _resolve_resource,
 )
+from arize.utils.unset import _UNSET, UNSET, is_provided
 
 if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
@@ -34,7 +36,6 @@ if TYPE_CHECKING:
         EvaluatorVersionRemote,
         EvaluatorVersionTemplate,
         ListEvaluatorsResponse,
-        TemplateConfig,
     )
 
 
@@ -75,27 +76,22 @@ class EvaluatorsClient:
 
     @staticmethod
     def _coerce_code_config(
-        item: CodeConfig | CustomCodeConfig | ManagedCodeConfig | dict,
-    ) -> CodeConfig:
-        """Normalize a code config to a properly wrapped ``CodeConfig``.
+        item: (
+            CodeConfigRequest
+            | CustomCodeConfigRequest
+            | ManagedCodeConfigRequest
+        ),
+    ) -> CodeConfigRequest:
+        """Normalize a code config to a properly wrapped ``CodeConfigRequest``.
 
         Accepts:
-        - An already-wrapped ``CodeConfig`` (returned as-is).
-        - An unwrapped inner type (``CustomCodeConfig`` or ``ManagedCodeConfig``),
-          which is wrapped automatically.
-        - A plain ``dict`` whose keys match one of the inner schemas; parsed via
-          ``CodeConfig.from_dict``.
+        - An already-wrapped ``CodeConfigRequest`` (returned as-is).
+        - An unwrapped request inner type (``CustomCodeConfigRequest`` or
+          ``ManagedCodeConfigRequest``), which is wrapped automatically.
         """
-        if isinstance(item, CodeConfig):
+        if isinstance(item, CodeConfigRequest):
             return item
-        if isinstance(item, (CustomCodeConfig, ManagedCodeConfig)):
-            return CodeConfig(item)
-        if isinstance(item, dict):
-            return CodeConfig.from_dict(item)
-        raise TypeError(
-            f"code_config must be CodeConfig, CustomCodeConfig, ManagedCodeConfig, "
-            f"or dict; got {type(item)!r}"
-        )
+        return CodeConfigRequest(item)
 
     # -------------------------------------------------------------------------
     # Evaluators
@@ -187,7 +183,7 @@ class EvaluatorsClient:
         name: str,
         space: str,
         commit_message: str,
-        template_config: TemplateConfig,
+        template_config: TemplateConfigInput,
         description: str | None = None,
     ) -> EvaluatorWithVersion:
         r"""Create a new template evaluator with an initial version.
@@ -199,7 +195,7 @@ class EvaluatorsClient:
             space: Space name or ID to create the evaluator in.
             commit_message: Commit message for the initial version.
             template_config: Template configuration for the evaluator.
-                Build with :class:`arize.evaluators.types.TemplateConfig`.
+                Build with :class:`arize.evaluators.types.TemplateConfigInput`.
                 Required fields:
 
                 - ``name`` — eval column name; must match
@@ -211,10 +207,12 @@ class EvaluatorsClient:
                 - ``use_function_calling_if_available`` — prefer structured
                   function-call output over free-text parsing when the model
                   supports it.
-                - ``llm_config`` — :class:`arize.evaluators.types.EvaluatorLlmConfig`
+                - ``classification_choices`` — required map of choice label to
+                  numeric score, e.g. ``{"relevant": 1, "irrelevant": 0}``.
+                - ``llm_config`` — :class:`arize.evaluators.types.EvaluatorLlmConfigRequest`
                   specifying the model provider, model name, and API key.
 
-                Optional fields: ``classification_choices``, ``direction``,
+                Optional fields: ``use_structured_output``, ``direction``,
                 ``data_granularity``.
 
             description: Optional human-readable description of the evaluator.
@@ -252,7 +250,11 @@ class EvaluatorsClient:
         name: str,
         space: str,
         commit_message: str,
-        code_config: CodeConfig | CustomCodeConfig | ManagedCodeConfig | dict,
+        code_config: (
+            CodeConfigRequest
+            | CustomCodeConfigRequest
+            | ManagedCodeConfigRequest
+        ),
         description: str | None = None,
     ) -> EvaluatorWithVersion:
         """Create a new code evaluator with an initial version.
@@ -263,11 +265,11 @@ class EvaluatorsClient:
             name: Evaluator name (must be unique within the space).
             space: Space name or ID to create the evaluator in.
             commit_message: Commit message for the initial version.
-            code_config: Code configuration for the evaluator. Accepts a
-                :class:`arize.evaluators.types.CodeConfig` wrapper, an unwrapped
-                :class:`arize.evaluators.types.ManagedCodeConfig` or
-                :class:`arize.evaluators.types.CustomCodeConfig`, or a plain
-                ``dict`` matching one of those schemas.
+            code_config: Code configuration for the evaluator. Use
+                :class:`arize.evaluators.types.CodeConfigRequest` (wrapping a
+                :class:`arize.evaluators.types.ManagedCodeConfigRequest` or
+                :class:`arize.evaluators.types.CustomCodeConfigRequest`), or
+                pass an unwrapped inner request type directly.
             description: Optional human-readable description of the evaluator.
 
         Returns:
@@ -302,8 +304,8 @@ class EvaluatorsClient:
         *,
         evaluator: str,
         space: str | None = None,
-        name: str | None = None,
-        description: str | None = None,
+        name: str | None | UNSET = _UNSET,
+        description: str | None | UNSET = _UNSET,
     ) -> Evaluator:
         """Update an evaluator's metadata.
 
@@ -311,8 +313,10 @@ class EvaluatorsClient:
             evaluator: Evaluator name or identifier (base64) to update.
             space: Optional space name or ID. Required when ``evaluator`` is a
                 name rather than an ID.
-            name: New evaluator name (must be unique within its space).
-            description: New description for the evaluator.
+            name: New evaluator name (must be unique within its space). Omit it
+                or pass ``None`` to leave the existing name unchanged.
+            description: New description for the evaluator. Omit to leave
+                unchanged; pass ``None`` to clear it.
 
         Returns:
             The updated evaluator.
@@ -328,7 +332,12 @@ class EvaluatorsClient:
 
         from arize._generated import api_client as gen
 
-        body = gen.UpdateEvaluatorRequest(name=name, description=description)
+        kwargs: dict[str, Any] = {}
+        if is_provided(name) and name is not None:
+            kwargs["name"] = name
+        if is_provided(description):
+            kwargs["description"] = description
+        body = gen.UpdateEvaluatorRequest(**kwargs)
         return self._api.update_evaluator(
             evaluator_id=evaluator_id,
             update_evaluator_request=body,
@@ -446,7 +455,7 @@ class EvaluatorsClient:
         evaluator: str,
         space: str | None = None,
         commit_message: str,
-        template_config: TemplateConfig,
+        template_config: TemplateConfigInput,
     ) -> EvaluatorVersionTemplate:
         r"""Create a new template version of an existing evaluator.
 
@@ -460,7 +469,8 @@ class EvaluatorsClient:
                 name rather than an ID.
             commit_message: Commit message describing the changes in this version.
             template_config: Updated template configuration for this version.
-                Build with :class:`arize.evaluators.types.TemplateConfig`.
+                Build with :class:`arize.evaluators.types.TemplateConfigInput`.
+                ``classification_choices`` is required.
 
         Returns:
             The newly created evaluator version.
@@ -496,7 +506,11 @@ class EvaluatorsClient:
         evaluator: str,
         space: str | None = None,
         commit_message: str,
-        code_config: CodeConfig | CustomCodeConfig | ManagedCodeConfig | dict,
+        code_config: (
+            CodeConfigRequest
+            | CustomCodeConfigRequest
+            | ManagedCodeConfigRequest
+        ),
     ) -> EvaluatorVersionCode:
         """Create a new code version of an existing evaluator.
 
@@ -509,11 +523,11 @@ class EvaluatorsClient:
             space: Optional space name or ID. Required when ``evaluator`` is a
                 name rather than an ID.
             commit_message: Commit message describing the changes in this version.
-            code_config: Updated code configuration for this version. Accepts a
-                :class:`arize.evaluators.types.CodeConfig` wrapper, an unwrapped
-                :class:`arize.evaluators.types.ManagedCodeConfig` or
-                :class:`arize.evaluators.types.CustomCodeConfig`, or a plain
-                ``dict`` matching one of those schemas.
+            code_config: Updated code configuration for this version. Use
+                :class:`arize.evaluators.types.CodeConfigRequest` (wrapping a
+                :class:`arize.evaluators.types.ManagedCodeConfigRequest` or
+                :class:`arize.evaluators.types.CustomCodeConfigRequest`), or
+                pass an unwrapped inner request type directly.
 
         Returns:
             The newly created evaluator version.

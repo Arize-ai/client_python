@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
     from arize.annotation_configs.types import (
         CategoricalAnnotationConfig,
-        CategoricalAnnotationValue,
+        CategoricalAnnotationValueRequest,
         ContinuousAnnotationConfig,
         FreeformAnnotationConfig,
         OptimizationDirection,
@@ -164,7 +164,7 @@ class AnnotationConfigsClient:
         *,
         name: str,
         space: str,
-        values: builtins.list[CategoricalAnnotationValue],
+        values: builtins.list[CategoricalAnnotationValueRequest],
         optimization_direction: OptimizationDirection | None = None,
     ) -> CategoricalAnnotationConfig:
         """Create a categorical annotation config.
@@ -260,7 +260,8 @@ class AnnotationConfigsClient:
                 name so it can be resolved to an ID.
 
         Returns:
-            The annotation config object.
+            The annotation config (``CategoricalAnnotationConfig``,
+            ``ContinuousAnnotationConfig``, or ``FreeformAnnotationConfig``).
 
         Raises:
             ApiException: If the REST API
@@ -343,7 +344,7 @@ class AnnotationConfigsClient:
         annotation_config: str,
         space: str | None = None,
         name: str | None = None,
-        values: builtins.list[CategoricalAnnotationValue] | None = None,
+        values: builtins.list[CategoricalAnnotationValueRequest] | None = None,
         optimization_direction: OptimizationDirection | None = None,
     ) -> CategoricalAnnotationConfig:
         """Update a categorical annotation config by ID or name.

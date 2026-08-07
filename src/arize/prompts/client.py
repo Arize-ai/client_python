@@ -21,13 +21,13 @@ if TYPE_CHECKING:
     from arize.config import SDKConfiguration
     from arize.prompts.types import (
         InputVariableFormat,
-        InvocationParams,
+        InvocationParamsRequest,
         ListPromptsResponse,
         ListPromptVersionsResponse,
-        LLMMessage,
+        LLMMessageRequest,
         LlmProvider,
         Prompt,
-        ProviderParams,
+        ProviderParamsRequest,
     )
 
 logger = logging.getLogger(__name__)
@@ -107,11 +107,11 @@ class PromptsClient:
         commit_message: str,
         input_variable_format: InputVariableFormat,
         provider: LlmProvider,
-        messages: builtins.list[LLMMessage],
+        messages: builtins.list[LLMMessageRequest],
         description: str | None = None,
         model: str | None = None,
-        invocation_params: InvocationParams | None = None,
-        provider_params: ProviderParams | None = None,
+        invocation_params: InvocationParamsRequest | None = None,
+        provider_params: ProviderParamsRequest | None = None,
     ) -> PromptWithVersion:
         """Create a prompt with an initial version.
 
@@ -225,7 +225,7 @@ class PromptsClient:
         *,
         prompt: str,
         space: str | None = None,
-        description: str,
+        description: str | None,
     ) -> Prompt:
         """Update a prompt's metadata.
 
@@ -233,13 +233,13 @@ class PromptsClient:
             prompt: Prompt ID or name. If a name is provided, ``space`` must
                 also be supplied so the name can be resolved.
             space: Optional space ID or name. Required when *prompt* is a name.
-            description: Updated description for the prompt.
+            description: Updated description for the prompt. Pass ``None`` to
+                clear it.
 
         Returns:
             The updated prompt object.
 
         Raises:
-            ValueError: If no fields to update are provided.
             ApiException: If the REST API
                 returns an error response (e.g. 401/403/404/429).
         """
@@ -327,10 +327,10 @@ class PromptsClient:
         commit_message: str,
         input_variable_format: InputVariableFormat,
         provider: LlmProvider,
-        messages: builtins.list[LLMMessage],
+        messages: builtins.list[LLMMessageRequest],
         model: str | None = None,
-        invocation_params: InvocationParams | None = None,
-        provider_params: ProviderParams | None = None,
+        invocation_params: InvocationParamsRequest | None = None,
+        provider_params: ProviderParamsRequest | None = None,
     ) -> PromptVersion:
         """Create a new version for an existing prompt.
 

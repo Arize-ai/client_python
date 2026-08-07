@@ -381,7 +381,9 @@ class TestFindAnnotationConfigId:
 # _find_experiment_id
 # ---------------------------------------------------------------------------
 class TestFindExperimentId:
-    """Tests for _find_experiment_id (requires dataset and datasets_api)."""
+    """Tests for _find_experiment_id (resolves via dataset, or via space for
+    a standalone experiment).
+    """
 
     @pytest.fixture(scope="class")
     def experiments_api(self, generated_client) -> Any:
@@ -425,12 +427,14 @@ class TestFindExperimentId:
         self,
         experiments_api,
         datasets_api,
+        spaces_api,
         experiment_info: dict[str, Any],
     ) -> None:
         """Resolves experiment name using dataset_id (already an ID, no space needed)."""
         result = _find_experiment_id(
             experiments_api,
             datasets_api,
+            spaces_api,
             experiment_info["name"],
             experiment_info["dataset_id"],
             None,
@@ -441,12 +445,14 @@ class TestFindExperimentId:
         self,
         experiments_api,
         datasets_api,
+        spaces_api,
         experiment_info: dict[str, Any],
     ) -> None:
         """A base64 ID is returned as-is."""
         result = _find_experiment_id(
             experiments_api,
             datasets_api,
+            spaces_api,
             experiment_info["id"],
             None,
             None,

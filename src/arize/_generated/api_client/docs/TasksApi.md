@@ -126,6 +126,11 @@ Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.
 - When `dataset_id` is provided, `experiment_ids` must contain at least one entry.
 - `sampling_rate` and `is_continuous` are only supported on project-based tasks.
 - System-managed fields (`id`, `created_at`, `updated_at`) are rejected on input.
+- `evaluator_version_id` pins an evaluator to one version. Omit it (or send null)
+  to run that evaluator's latest version, which is the default. The version must
+  belong to the evaluator named by `evaluator_id`, and every evaluator on the task
+  must resolve to the same data scope — both return 422. List an evaluator's
+  versions with `GET /v2/evaluators/{evaluator_id}/versions`.
 
 **Payload Requirements (run_experiment)**
 - `dataset_id` is required; `project_id` must be omitted.
@@ -149,12 +154,43 @@ Poll `GET /v2/task-runs/{run_id}` until `status` reaches a terminal state.
 }
 ```
 
+**Valid example** (pinned to a specific evaluator version)
+```json
+{
+  "name": "Hallucination Check v3",
+  "type": "TEMPLATE_EVALUATION",
+  "project_id": "TW9kZWw6MTIzOmFCY0Q=",
+  "evaluators": [
+    {
+      "evaluator_id": "RXZhbHVhdG9yOjEyOmFCY0Q=",
+      "evaluator_version_id": "RXZhbHVhdG9yVmVyc2lvbjo5OTphQmNE",
+      "column_mappings": {"input": "attributes.input.value"}
+    }
+  ]
+}
+```
+
 **Invalid example** (run_experiment missing `run_configuration`)
 ```json
 {
   "name": "My Experiment",
   "type": "RUN_EXPERIMENT",
   "dataset_id": "RGF0YXNldDo1NjpxUndY"
+}
+```
+
+**Invalid example** (422 — the version belongs to a different evaluator)
+```json
+{
+  "name": "Mismatched Pin",
+  "type": "TEMPLATE_EVALUATION",
+  "project_id": "TW9kZWw6MTIzOmFCY0Q=",
+  "evaluators": [
+    {
+      "evaluator_id": "RXZhbHVhdG9yOjEyOmFCY0Q=",
+      "evaluator_version_id": "RXZhbHVhdG9yVmVyc2lvbjo3OmFCY0Q="
+    }
+  ]
 }
 ```
 
@@ -834,6 +870,12 @@ Omitted fields are left unchanged.
 - `sampling_rate` and `is_continuous` are only applicable for project-based tasks.
 - Fields not valid for the task's type return 400 (e.g. `run_configuration` on an evaluation task).
 - System-managed fields (`id`, `type`, `created_at`, `updated_at`) cannot be modified.
+- `evaluator_version_id` pins an evaluator to one version. Because `evaluators`
+  replaces the whole list, each entry states its own pin: send a version ID to pin,
+  and omit the field or send null to run the latest version. Omit `evaluators`
+  entirely to leave the existing attachments — and their pins — untouched.
+- A pinned version must belong to the evaluator named by `evaluator_id`, and every
+  evaluator on the task must resolve to the same data scope. Both return 422.
 
 **Valid example** (update evaluation task)
 ```json
@@ -841,6 +883,21 @@ Omitted fields are left unchanged.
   "name": "Updated Hallucination Check",
   "sampling_rate": 0.5,
   "query_filter": "metadata.environment = 'staging'"
+}
+```
+
+**Valid example** (pin one evaluator, leave the other on latest)
+```json
+{
+  "evaluators": [
+    {
+      "evaluator_id": "RXZhbHVhdG9yOjEyOmFCY0Q=",
+      "evaluator_version_id": "RXZhbHVhdG9yVmVyc2lvbjo5OTphQmNE"
+    },
+    {
+      "evaluator_id": "RXZhbHVhdG9yOjEzOmFCY0Q="
+    }
+  ]
 }
 ```
 

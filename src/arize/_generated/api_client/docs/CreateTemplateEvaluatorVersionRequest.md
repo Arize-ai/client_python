@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **commit_message** | **str** | Commit message describing the changes | 
-**template_config** | [**TemplateConfig**](TemplateConfig.md) |  | 
+**template_config** | [**TemplateConfigInput**](TemplateConfigInput.md) |  | 
 
 ## Example
 

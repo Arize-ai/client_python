@@ -1,5 +1,35 @@
 # Changelog
 
+## [8.45.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.44.0...arize-python-sdk/v8.45.0) (2026-08-07)
+
+
+### 🎁 New Features
+
+* **evaluations:** pin eval tasks to a specific evaluator version ([#82056](https://github.com/Arize-ai/arize/issues/82056)) ([e3778c1](https://github.com/Arize-ai/arize/commit/e3778c1bcb3e95a546972470825bd4a672311361))
+* separate identity request and response schemas ([#82012](https://github.com/Arize-ai/arize/issues/82012)) ([5516255](https://github.com/Arize-ai/arize/commit/5516255a0a7e578634a281584fb6618155b96bc9))
+* separate prompt and integration request schemas ([#82013](https://github.com/Arize-ai/arize/issues/82013)) ([494f3d7](https://github.com/Arize-ai/arize/commit/494f3d733bfc634b25347d0e0548e2577518c7d0))
+* separate annotation and evaluator request schemas ([#82014](https://github.com/Arize-ai/arize/issues/82014)) ([cc76196](https://github.com/Arize-ai/arize/commit/cc76196e5391852a5396a75debbef5c5e469f07d))
+* **spans:** add start_time/end_time to DELETE /v2/spans ([#82009](https://github.com/Arize-ai/arize/issues/82009)) ([e8f963b](https://github.com/Arize-ai/arize/commit/e8f963baf1a5cf69417891af493c814e7dbffcc1))
+
+
+### 🐛 Bug Fixes
+
+* require `classification_choices` and default `data_granularity` on the REST eval endpoint; regenerate SDKs to match ([#79714](https://github.com/Arize-ai/arize/issues/79714)) ([9bd254d](https://github.com/Arize-ai/arize/commit/9bd254d978fb5c8dd8e17fdaab23158426a694db))
+* tolerate additive fields in `TaskRun` API responses, so new server fields no longer break existing clients ([#82010](https://github.com/Arize-ai/arize/issues/82010)) ([af6f709](https://github.com/Arize-ai/arize/commit/af6f709740794ad5562def8d247efcb1c8027eeb))
+
+
+### 🔧 Build System
+
+* enforce forward-compatible response generation ([#82011](https://github.com/Arize-ai/arize/issues/82011)) ([9c4efb7](https://github.com/Arize-ai/arize/commit/9c4efb7d79f44dfe3841d3d0de27fbc14378659a))
+
+## [8.44.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.43.1...arize-python-sdk/v8.44.0) (2026-08-04)
+
+
+### 🎁 New Features
+
+* **experiments:** Enable standalone experiment creation ([#81022](https://github.com/Arize-ai/arize/issues/81022)) ([a1a11b2](https://github.com/Arize-ai/arize/commit/a1a11b212e6cb49d9dad1522afa1e08a549c6c64))
+* **integrations:** add integrations subclient (llm+agent CRUD) + agent_call task support ([#79759](https://github.com/Arize-ai/arize/issues/79759)) ([9ab254a](https://github.com/Arize-ai/arize/commit/9ab254a9c086b57d7f746fb94872d7245831a3c5))
+
 ## [8.43.1](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.43.0...arize-python-sdk/v8.43.1) (2026-07-27)
 
 

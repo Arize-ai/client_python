@@ -94,6 +94,7 @@ class ListTasksResponse(BaseModel):
 
 
 __all__ = [
+    "AgentCallRunConfig",
     "ListTaskRunsResponse",
     "ListTasksResponse",
     "LlmGenerationRunConfig",

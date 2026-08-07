@@ -32,7 +32,7 @@ class AnnotationQueueSpanRecordInput(BaseModel):
     project_id: StrictStr = Field(description="The project ID these spans belong to")
     start_time: datetime = Field(description="Start of the time range to search for spans. The range (end_time - start_time) must not exceed 7 days. ")
     end_time: datetime = Field(description="End of the time range. Must be after start_time. ")
-    span_ids: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="List of span IDs to add to the queue")
+    span_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=500)] = Field(description="List of span IDs to add to the queue")
     __properties: ClassVar[List[str]] = ["record_type", "project_id", "start_time", "end_time", "span_ids"]
 
     @field_validator('record_type')

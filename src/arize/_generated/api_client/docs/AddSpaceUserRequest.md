@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **user_id** | **str** | The unique identifier of the user to add | 
-**role** | [**SpaceRoleAssignment**](SpaceRoleAssignment.md) |  | 
+**role** | [**SpaceRoleAssignmentRequest**](SpaceRoleAssignmentRequest.md) |  | 
 
 ## Example
 

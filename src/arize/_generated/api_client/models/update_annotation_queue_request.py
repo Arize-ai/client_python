@@ -28,7 +28,7 @@ class UpdateAnnotationQueueRequest(BaseModel):
     UpdateAnnotationQueueRequest
     """ # noqa: E501
     name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = Field(default=None, description="The name of the annotation queue. Must be unique within the space. ")
-    instructions: Optional[Annotated[str, Field(strict=True, max_length=5000)]] = Field(default=None, description="The instructions for annotators working on this queue. Send an empty string to clear the instructions. ")
+    instructions: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=5000)]] = Field(default=None, description="The instructions for annotators working on this queue. Set to `null` to clear the instructions. ")
     annotation_config_ids: Optional[List[StrictStr]] = Field(default=None, description="The full list of annotation config IDs to associate with this queue. This replaces all existing annotation config associations. All annotation configs must belong to the same space as the queue. ")
     annotator_emails: Optional[List[StrictStr]] = Field(default=None, description="The full list of user emails to assign to this queue. This replaces all existing user assignments. All users must have an active account and access to the queue's space. ")
     __properties: ClassVar[List[str]] = ["name", "instructions", "annotation_config_ids", "annotator_emails"]
@@ -72,6 +72,11 @@ class UpdateAnnotationQueueRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if instructions (nullable) is None
+        # and model_fields_set contains the field
+        if self.instructions is None and "instructions" in self.model_fields_set:
+            _dict['instructions'] = None
+
         return _dict
 
     @classmethod

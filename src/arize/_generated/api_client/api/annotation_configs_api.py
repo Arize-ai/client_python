@@ -357,7 +357,7 @@ class AnnotationConfigsApi:
     ) -> None:
         """Delete an annotation config
 
-        Delete an annotation config by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete an annotation config by its ID. The annotation config must not be associated with an active annotation queue; remove it from those queues before deleting it. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
@@ -397,6 +397,7 @@ class AnnotationConfigsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '409': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -429,7 +430,7 @@ class AnnotationConfigsApi:
     ) -> ApiResponse[None]:
         """Delete an annotation config
 
-        Delete an annotation config by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete an annotation config by its ID. The annotation config must not be associated with an active annotation queue; remove it from those queues before deleting it. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
@@ -469,6 +470,7 @@ class AnnotationConfigsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '409': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -501,7 +503,7 @@ class AnnotationConfigsApi:
     ) -> RESTResponseType:
         """Delete an annotation config
 
-        Delete an annotation config by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete an annotation config by its ID. The annotation config must not be associated with an active annotation queue; remove it from those queues before deleting it. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
@@ -541,6 +543,7 @@ class AnnotationConfigsApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '409': "Problem",
             '429': "Problem",
         }
         response_data = self.api_client.call_api(

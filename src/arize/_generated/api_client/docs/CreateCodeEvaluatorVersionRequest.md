@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **commit_message** | **str** | Commit message describing the changes | 
-**code_config** | [**CodeConfig**](CodeConfig.md) |  | 
+**code_config** | [**CodeConfigRequest**](CodeConfigRequest.md) |  | 
 
 ## Example
 

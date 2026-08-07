@@ -97,7 +97,7 @@ class TestEvaluatorsCRUD:
     ) -> None:
         """Create an evaluator, retrieve it by ID, then delete it."""
         name = _unique("sdk-test-eval")
-        evaluator = evaluators_client.create(
+        evaluator = evaluators_client.create_template_evaluator(
             name=name,
             space=SPACE_NAME,
             commit_message="initial version",
@@ -118,7 +118,7 @@ class TestEvaluatorsCRUD:
     ) -> None:
         """Create an evaluator, retrieve and delete it by name."""
         name = _unique("sdk-test-eval")
-        evaluator = evaluators_client.create(
+        evaluator = evaluators_client.create_template_evaluator(
             name=name,
             space=SPACE_NAME,
             commit_message="initial version",
@@ -135,7 +135,7 @@ class TestEvaluatorsCRUD:
     ) -> None:
         """Create an evaluator, update its description, then delete it."""
         name = _unique("sdk-test-eval")
-        evaluator = evaluators_client.create(
+        evaluator = evaluators_client.create_template_evaluator(
             name=name,
             space=SPACE_NAME,
             commit_message="initial version",
@@ -156,14 +156,14 @@ class TestEvaluatorsCRUD:
     ) -> None:
         """Create an evaluator, add a second version, list versions."""
         name = _unique("sdk-test-eval")
-        evaluator = evaluators_client.create(
+        evaluator = evaluators_client.create_template_evaluator(
             name=name,
             space=SPACE_NAME,
             commit_message="initial version",
             template_config=_make_template_config(name, ai_integration_id),
         )
         try:
-            evaluators_client.create_version(
+            evaluators_client.create_template_version(
                 evaluator=evaluator.id,
                 commit_message="second version",
                 template_config=_make_template_config(name, ai_integration_id),
@@ -180,7 +180,7 @@ class TestEvaluatorsCRUD:
     ) -> None:
         """Newly created evaluator appears in list() results."""
         name = _unique("sdk-test-eval")
-        evaluator = evaluators_client.create(
+        evaluator = evaluators_client.create_template_evaluator(
             name=name,
             space=SPACE_NAME,
             commit_message="initial version",

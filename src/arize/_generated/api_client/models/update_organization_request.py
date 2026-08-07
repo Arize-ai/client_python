@@ -28,7 +28,7 @@ class UpdateOrganizationRequest(BaseModel):
     UpdateOrganizationRequest
     """ # noqa: E501
     name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = Field(default=None, description="Updated name for the organization (must be unique within the account)")
-    description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="Updated description for the organization. Set to an empty string to clear it.")
+    description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="Updated description for the organization. Set to `null` to clear it.")
     __properties: ClassVar[List[str]] = ["name", "description"]
 
     model_config = ConfigDict(
@@ -70,6 +70,11 @@ class UpdateOrganizationRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if description (nullable) is None
+        # and model_fields_set contains the field
+        if self.description is None and "description" in self.model_fields_set:
+            _dict['description'] = None
+
         return _dict
 
     @classmethod

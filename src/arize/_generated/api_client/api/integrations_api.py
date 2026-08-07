@@ -892,7 +892,7 @@ class IntegrationsApi:
     @validate_call
     def list_integrations(
         self,
-        type: Annotated[IntegrationType, Field(description="The integration type to list. Required - the list returns only integrations of this type.")],
+        type: Annotated[Optional[IntegrationType], Field(description="Filter the list to a single integration type. When omitted, integrations of every type are returned; each item carries its `type` for client-side discrimination.")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
@@ -913,9 +913,9 @@ class IntegrationsApi:
     ) -> ListIntegrationsResponse:
         """List integrations
 
-        List integrations the user has access to. `type` is required and the response contains only integrations of that type. Each item still carries its `type` (and, for `LLM`, `config.provider`) for client-side discrimination. A missing or invalid `type` returns `400`.  Integrations are owned at the account level but carry visibility scopings (account-wide, organization, or space). `space_id` / `space_name` filter the list to integrations visible in a given space.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List integrations the user has access to, ordered by creation time (newest first). By default the list includes every integration type; pass `type` to list a single type. Each item carries its `type` (and, for `LLM`, `config.provider`) for client-side discrimination. An invalid `type` or pagination `cursor` returns `400`; a cursor is only valid for the query parameters it was issued with.  Integrations are owned at the account level but carry visibility scopings (account-wide, organization, or space). `space_id` / `space_name` filter the list to integrations visible in a given space. The list contains only the types the caller has permission to read. When no type is readable the request fails with `403` — or `404` when a `space_id` filter references a space outside the caller's visibility.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param type: The integration type to list. Required - the list returns only integrations of this type. (required)
+        :param type: Filter the list to a single integration type. When omitted, integrations of every type are returned; each item carries its `type` for client-side discrimination.
         :type type: IntegrationType
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -984,7 +984,7 @@ class IntegrationsApi:
     @validate_call
     def list_integrations_with_http_info(
         self,
-        type: Annotated[IntegrationType, Field(description="The integration type to list. Required - the list returns only integrations of this type.")],
+        type: Annotated[Optional[IntegrationType], Field(description="Filter the list to a single integration type. When omitted, integrations of every type are returned; each item carries its `type` for client-side discrimination.")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
@@ -1005,9 +1005,9 @@ class IntegrationsApi:
     ) -> ApiResponse[ListIntegrationsResponse]:
         """List integrations
 
-        List integrations the user has access to. `type` is required and the response contains only integrations of that type. Each item still carries its `type` (and, for `LLM`, `config.provider`) for client-side discrimination. A missing or invalid `type` returns `400`.  Integrations are owned at the account level but carry visibility scopings (account-wide, organization, or space). `space_id` / `space_name` filter the list to integrations visible in a given space.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List integrations the user has access to, ordered by creation time (newest first). By default the list includes every integration type; pass `type` to list a single type. Each item carries its `type` (and, for `LLM`, `config.provider`) for client-side discrimination. An invalid `type` or pagination `cursor` returns `400`; a cursor is only valid for the query parameters it was issued with.  Integrations are owned at the account level but carry visibility scopings (account-wide, organization, or space). `space_id` / `space_name` filter the list to integrations visible in a given space. The list contains only the types the caller has permission to read. When no type is readable the request fails with `403` — or `404` when a `space_id` filter references a space outside the caller's visibility.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param type: The integration type to list. Required - the list returns only integrations of this type. (required)
+        :param type: Filter the list to a single integration type. When omitted, integrations of every type are returned; each item carries its `type` for client-side discrimination.
         :type type: IntegrationType
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -1076,7 +1076,7 @@ class IntegrationsApi:
     @validate_call
     def list_integrations_without_preload_content(
         self,
-        type: Annotated[IntegrationType, Field(description="The integration type to list. Required - the list returns only integrations of this type.")],
+        type: Annotated[Optional[IntegrationType], Field(description="Filter the list to a single integration type. When omitted, integrations of every type are returned; each item carries its `type` for client-side discrimination.")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
@@ -1097,9 +1097,9 @@ class IntegrationsApi:
     ) -> RESTResponseType:
         """List integrations
 
-        List integrations the user has access to. `type` is required and the response contains only integrations of that type. Each item still carries its `type` (and, for `LLM`, `config.provider`) for client-side discrimination. A missing or invalid `type` returns `400`.  Integrations are owned at the account level but carry visibility scopings (account-wide, organization, or space). `space_id` / `space_name` filter the list to integrations visible in a given space.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+        List integrations the user has access to, ordered by creation time (newest first). By default the list includes every integration type; pass `type` to list a single type. Each item carries its `type` (and, for `LLM`, `config.provider`) for client-side discrimination. An invalid `type` or pagination `cursor` returns `400`; a cursor is only valid for the query parameters it was issued with.  Integrations are owned at the account level but carry visibility scopings (account-wide, organization, or space). `space_id` / `space_name` filter the list to integrations visible in a given space. The list contains only the types the caller has permission to read. When no type is readable the request fails with `403` — or `404` when a `space_id` filter references a space outside the caller's visibility.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
 
-        :param type: The integration type to list. Required - the list returns only integrations of this type. (required)
+        :param type: Filter the list to a single integration type. When omitted, integrations of every type are returned; each item carries its `type` for client-side discrimination.
         :type type: IntegrationType
         :param space_id: Filter search results to a particular space ID
         :type space_id: str

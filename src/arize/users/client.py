@@ -176,8 +176,8 @@ class UsersClient:
         body = gen.CreateUserRequest(
             name=name,
             email=email,
-            role=gen.UserRoleAssignment(
-                gen.PredefinedUserRoleAssignment(
+            role=gen.UserRoleAssignmentRequest(
+                gen.PredefinedUserRoleAssignmentRequest(
                     type=gen.UserRoleAssignmentType.PREDEFINED,
                     name=role.name,
                 )
@@ -185,7 +185,7 @@ class UsersClient:
                 # discriminated union; drift is guarded by the test asserting
                 # the Literal matches UserRoleAssignmentType.
                 if role.type == "PREDEFINED"
-                else gen.CustomUserRoleAssignment(
+                else gen.CustomUserRoleAssignmentRequest(
                     type=gen.UserRoleAssignmentType.CUSTOM,
                     id=role.id,
                 )

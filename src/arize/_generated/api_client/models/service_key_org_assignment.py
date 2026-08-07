@@ -20,7 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
-from arize._generated.api_client.models.organization_role_assignment import OrganizationRoleAssignment
+from arize._generated.api_client.models.organization_role_assignment_request import OrganizationRoleAssignmentRequest
 from arize._generated.api_client.models.service_key_space_assignment import ServiceKeySpaceAssignment
 from typing import Optional, Set
 from typing_extensions import Self
@@ -30,7 +30,7 @@ class ServiceKeyOrgAssignment(BaseModel):
     ServiceKeyOrgAssignment
     """ # noqa: E501
     org_id: StrictStr = Field(description="ID of the organization to grant the service account access to.")
-    role: Optional[OrganizationRoleAssignment] = Field(default=None, description="Role for the bot user within this organization. Only predefined roles are supported at this level. Custom org roles (`{ \"type\": \"CUSTOM\", \"id\": \"...\" }`) are not yet supported and return `422`. Support will be added in a future release. Defaults to `{ type: PREDEFINED, name: READ_ONLY }` when omitted. Must be at or below the caller's own effective organization role. The `ANNOTATOR` role is not valid for service keys and returns `422`. ")
+    role: Optional[OrganizationRoleAssignmentRequest] = Field(default=None, description="Role for the bot user within this organization. Only predefined roles are supported at this level. Custom org roles (`{ \"type\": \"CUSTOM\", \"id\": \"...\" }`) are not yet supported and return `422`. Support will be added in a future release. Defaults to `{ type: PREDEFINED, name: READ_ONLY }` when omitted. Must be at or below the caller's own effective organization role. The `ANNOTATOR` role is not valid for service keys and returns `422`. ")
     spaces: Annotated[List[ServiceKeySpaceAssignment], Field(min_length=1, max_length=100)] = Field(description="Spaces within this organization the service account should have access to. Each entry specifies a space and optional role. All space IDs must belong to this organization. ")
     __properties: ClassVar[List[str]] = ["org_id", "role", "spaces"]
 
@@ -101,7 +101,7 @@ class ServiceKeyOrgAssignment(BaseModel):
 
         _obj = cls.model_validate({
             "org_id": obj.get("org_id"),
-            "role": OrganizationRoleAssignment.from_dict(obj["role"]) if obj.get("role") is not None else None,
+            "role": OrganizationRoleAssignmentRequest.from_dict(obj["role"]) if obj.get("role") is not None else None,
             "spaces": [ServiceKeySpaceAssignment.from_dict(_item) for _item in obj["spaces"]] if obj.get("spaces") is not None else None
         })
         return _obj

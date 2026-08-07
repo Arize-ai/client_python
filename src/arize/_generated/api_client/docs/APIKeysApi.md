@@ -29,7 +29,7 @@ Create a new API key for the authenticated user.
   organization roles default to `READ_ONLY`, and `account_role` defaults to `MEMBER`.
 
 **Authorization:**
-- **User keys:** Requires the `developer` user permission flag. Returns `403` when this flag is absent.
+- **User keys:** The authenticated user may create personal keys for themselves.
 - **Service keys:** Requires the `SERVICE_KEY_CREATE` permission in the target space (space
   member or above).
 
@@ -140,9 +140,6 @@ caller with space access (not admin-gated).
 **User keys (`key_type=USER`):** Returned by default (no `space_id`). Provide `user_id` to
 view keys belonging to a specific user — account admins only; non-admins receive `403`.
 
-**Authorization:** Requires the `developer` user permission flag or account admin role.
-Returns `403` when neither condition is met.
-
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
@@ -247,8 +244,7 @@ there is no window where neither key is valid. The full new key value (`key`) is
 **only returned once** in the response. Store it securely.
 
 **Authorization:**
-- **User keys:** the creator or an account admin may refresh the key. Requires the
-  `developer` user permission flag. Returns `403` when this flag is absent.
+- **User keys:** The creator or an account admin may refresh the key.
 - **Service keys:** space admins (and higher) may refresh any service key in their space.
   Non-admins require the `SERVICE_KEY_CREATE` permission and must be the creator of the key.
 
@@ -353,11 +349,11 @@ Revoke an API key by its ID. The key will immediately stop working for authentic
 already-revoked key is a no-op and still returns `204`.
 
 **Authorization:**
-Requires the `developer` user permission flag **or** account admin role (either condition is sufficient).
-Returns `403` when neither condition is met.
-
-For service keys, only the key's creator or an account admin may revoke the key.
-A developer who did not create the key receives `404` (prevents key-ID enumeration).
+- **User keys:** The key's creator or an account admin may revoke the key.
+- **Service keys:** Account admins and space admins in all of the key's bound spaces may
+  revoke the key regardless of who created it. All other callers must have the
+  `SERVICE_KEY_REVOKE` permission in every bound space and must be the key's creator.
+  Callers without read access to the key receive `404` to prevent key-ID enumeration.
 
   <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 

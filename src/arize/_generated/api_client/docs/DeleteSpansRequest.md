@@ -7,6 +7,8 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **project_id** | **str** | The project ID containing the spans to delete | 
 **span_ids** | **List[str]** | List of span IDs to delete (maximum 5000) | 
+**start_time** | **datetime** | Scope the delete to spans starting at or after this timestamp (inclusive). ISO 8601 format (e.g., &#x60;2024-01-01T00:00:00Z&#x60;). Each bound is independent: omitting &#x60;start_time&#x60; defaults to two years ago; omitting &#x60;end_time&#x60; defaults to now. You may provide either or both.  | [optional] 
+**end_time** | **datetime** | Scope the delete to spans starting before this timestamp (exclusive). ISO 8601 format (e.g., &#x60;2024-01-02T00:00:00Z&#x60;). Each bound is independent: omitting &#x60;start_time&#x60; defaults to two years ago; omitting &#x60;end_time&#x60; defaults to now. You may provide either or both.  | [optional] 
 
 ## Example
 

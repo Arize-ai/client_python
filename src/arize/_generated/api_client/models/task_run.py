@@ -42,6 +42,7 @@ class TaskRun(BaseModel):
     created_at: datetime = Field(description="When the run was created.")
     created_by_user_id: Optional[StrictStr] = Field(description="The unique identifier for the user who triggered the run.")
     failure_reason: Optional[StrictStr] = Field(default=None, description="Human-readable explanation of why the run failed or was cancelled; null for successful runs. For example, when all matching data already has evaluation labels from a previous run, the task cancels with zero successes, errors, and skipped items, and this field explains that the task must be re-triggered with `override_evaluations` enabled to re-evaluate it. ")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "task_id", "experiment_id", "status", "run_started_at", "run_finished_at", "data_start_time", "data_end_time", "num_successes", "num_errors", "num_skipped", "created_at", "created_by_user_id", "failure_reason"]
 
     model_config = ConfigDict(
@@ -74,8 +75,10 @@ class TaskRun(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -83,6 +86,11 @@ class TaskRun(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         # set to None if experiment_id (nullable) is None
         # and model_fields_set contains the field
         if self.experiment_id is None and "experiment_id" in self.model_fields_set:
@@ -129,11 +137,6 @@ class TaskRun(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in TaskRun) in the input: " + _key)
-
         _obj = cls.model_validate({
             "id": obj.get("id"),
             "task_id": obj.get("task_id"),
@@ -150,6 +153,11 @@ class TaskRun(BaseModel):
             "created_by_user_id": obj.get("created_by_user_id"),
             "failure_reason": obj.get("failure_reason")
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

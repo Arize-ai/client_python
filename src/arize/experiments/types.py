@@ -413,13 +413,14 @@ class ExperimentTaskFieldNames:
     """Column names for mapping experiment task results in a :class:`pandas.DataFrame`.
 
     Args:
-        example_id: Name of column containing example IDs.
-            The ID values must match the id of the dataset rows.
+        example_id: Name of column containing example IDs. The ID values must
+            match the id of the dataset rows. Required when creating an
+            experiment associated with a dataset.
         output: Name of column containing task results
     """
 
-    example_id: str
     output: str
+    example_id: str | None = None
 
 
 TaskOutput = JSONSerializable

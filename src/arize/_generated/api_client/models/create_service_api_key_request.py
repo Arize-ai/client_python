@@ -22,7 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.service_key_org_assignment import ServiceKeyOrgAssignment
-from arize._generated.api_client.models.user_role_assignment import UserRoleAssignment
+from arize._generated.api_client.models.user_role_assignment_request import UserRoleAssignmentRequest
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -34,7 +34,7 @@ class CreateServiceApiKeyRequest(BaseModel):
     name: Annotated[str, Field(strict=True, max_length=256)] = Field(description="User-defined name for the API key.")
     description: Optional[Annotated[str, Field(strict=True, max_length=1000)]] = Field(default=None, description="Optional user-defined description for the API key.")
     expires_at: Optional[datetime] = Field(default=None, description="Optional expiration timestamp. If omitted the key never expires.")
-    account_role: Optional[UserRoleAssignment] = Field(default=None, description="Account-level role for the bot user. Only predefined roles are supported at this level. Custom account roles (`{ \"type\": \"CUSTOM\", \"id\": \"...\" }`) are not yet supported and return `422`. Support will be added in a future release. Defaults to `{ type: PREDEFINED, name: MEMBER }` when omitted. Must be at or below the caller's own account role. The `ANNOTATOR` role is not valid for service keys and returns `422`. ")
+    account_role: Optional[UserRoleAssignmentRequest] = Field(default=None, description="Account-level role for the bot user. Only predefined roles are supported at this level. Custom account roles (`{ \"type\": \"CUSTOM\", \"id\": \"...\" }`) are not yet supported and return `422`. Support will be added in a future release. Defaults to `{ type: PREDEFINED, name: MEMBER }` when omitted. Must be at or below the caller's own account role. The `ANNOTATOR` role is not valid for service keys and returns `422`. ")
     organizations: Annotated[List[ServiceKeyOrgAssignment], Field(min_length=1, max_length=100)] = Field(description="Organizations the service account should have access to. Each entry specifies an organization and the spaces within it. Must include at least one organization with at least one space. All spaces must belong to the organization they are listed under. ")
     __properties: ClassVar[List[str]] = ["key_type", "name", "description", "expires_at", "account_role", "organizations"]
 
@@ -115,7 +115,7 @@ class CreateServiceApiKeyRequest(BaseModel):
             "name": obj.get("name"),
             "description": obj.get("description"),
             "expires_at": obj.get("expires_at"),
-            "account_role": UserRoleAssignment.from_dict(obj["account_role"]) if obj.get("account_role") is not None else None,
+            "account_role": UserRoleAssignmentRequest.from_dict(obj["account_role"]) if obj.get("account_role") is not None else None,
             "organizations": [ServiceKeyOrgAssignment.from_dict(_item) for _item in obj["organizations"]] if obj.get("organizations") is not None else None
         })
         return _obj

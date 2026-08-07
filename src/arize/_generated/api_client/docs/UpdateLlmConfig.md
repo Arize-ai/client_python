@@ -7,8 +7,8 @@ Partial LLM config for PATCH. `provider` is immutable; if present it must match 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **provider** | [**LlmIntegrationProvider**](LlmIntegrationProvider.md) |  | [optional] 
-**api_key** | **str** | Rotate the API key. Pass null to clear it. Omit to keep unchanged. Not valid for &#x60;AWS_BEDROCK&#x60; (bearer tokens are rotated via &#x60;auth&#x60;). | [optional] 
-**is_function_calling_enabled** | **bool** | Enable or disable function/tool calling. Omit to keep unchanged. Not valid for &#x60;AWS_BEDROCK&#x60;. | [optional] 
+**api_key** | **str** | Rotate the API key. Pass null to clear it. Omit to keep unchanged. Not valid for &#x60;AWS_BEDROCK&#x60; (bearer tokens are rotated via &#x60;auth&#x60;) or &#x60;VERTEX_AI&#x60;. | [optional] 
+**is_function_calling_enabled** | **bool** | Enable or disable function/tool calling. Omit to keep unchanged. Not valid for &#x60;AWS_BEDROCK&#x60; or &#x60;VERTEX_AI&#x60;. | [optional] 
 **auth** | [**CreateAwsBedrockAuth**](CreateAwsBedrockAuth.md) |  | [optional] 
 **base_url** | **str** | (&#x60;CUSTOM&#x60; and &#x60;NVIDIA_NIM&#x60; only) New endpoint URL. For &#x60;NVIDIA_NIM&#x60; the field is optional on the resource, so null clears it (falling back to the provider default endpoint). For &#x60;CUSTOM&#x60; it is required on the resource — null is rejected with 422. Omit to keep unchanged. | [optional] 
 **headers** | **Dict[str, str]** | (&#x60;CUSTOM&#x60; and &#x60;NVIDIA_NIM&#x60; only) Replaces the configured custom request headers: the provided map becomes the full header set. Pass null to clear all headers. Omit to keep unchanged. Write-only; names are exposed as &#x60;header_names&#x60; on read. The serialized header map must not exceed 8,175 bytes. | [optional] 
