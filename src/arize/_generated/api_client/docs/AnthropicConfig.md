@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **is_function_calling_enabled** | **bool** | Whether function/tool calling is enabled. | 
 **provider** | **str** | Discriminator identifying the Anthropic provider. | 
 **has_api_key** | **bool** | Whether an API key is configured (the key itself is never returned). | 
+**base_url** | **str** | Endpoint URL serving the Anthropic Messages API, including the version path. Null when not set. | [optional] 
 
 ## Example
 

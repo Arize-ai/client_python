@@ -29,6 +29,7 @@ class AgentCallRunConfig(BaseModel):
     experiment_type: StrictStr = Field(description="Discriminator. Must be `\"AGENT_CALL\"`.")
     integration_id: StrictStr = Field(description="Agent integration identifier (base64). The agent invoked for each dataset example. Must reference an integration of `type` `AGENT`; other integration types are rejected. ")
     input_template: Dict[str, Any] = Field(description="JSON request body sent to the agent for each dataset example. Must be a JSON object whose values conform to the agent integration's input schema. Mustache placeholders (`{{column}}`) are substituted with each dataset row's values before the request is sent. The `dataset.` prefix is optional — `{{column}}` and `{{dataset.column}}` are equivalent, and responses (create, update, and read) always echo the normalized `{{column}}` form. ")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["experiment_type", "integration_id", "input_template"]
 
     @field_validator('experiment_type')
@@ -68,8 +69,10 @@ class AgentCallRunConfig(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -77,6 +80,11 @@ class AgentCallRunConfig(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
@@ -88,16 +96,16 @@ class AgentCallRunConfig(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in AgentCallRunConfig) in the input: " + _key)
-
         _obj = cls.model_validate({
             "experiment_type": obj.get("experiment_type"),
             "integration_id": obj.get("integration_id"),
             "input_template": obj.get("input_template")
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

@@ -38,12 +38,12 @@ class TestCreateLlmConfig(unittest.TestCase):
                 is_function_calling_enabled = True,
                 provider = 'NVIDIA_NIM',
                 api_key = '',
+                base_url = '',
                 auth = arize._generated.api_client.models.create_aws_bedrock_auth.CreateAwsBedrockAuth(),
                 is_default_models_enabled = True,
                 model_names = [
                     ''
                     ],
-                base_url = '',
                 headers = {
                     'key' : ''
                     },
@@ -55,8 +55,8 @@ class TestCreateLlmConfig(unittest.TestCase):
             return CreateLlmConfig(
                 provider = 'NVIDIA_NIM',
                 api_key = '',
-                auth = arize._generated.api_client.models.create_aws_bedrock_auth.CreateAwsBedrockAuth(),
                 base_url = '',
+                auth = arize._generated.api_client.models.create_aws_bedrock_auth.CreateAwsBedrockAuth(),
                 project_id = '',
                 location = '',
                 project_access_label = '',

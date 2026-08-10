@@ -40,18 +40,7 @@ class TestPromptVersion(unittest.TestCase):
                 commit_hash = '',
                 commit_message = '',
                 messages = [
-                    arize._generated.api_client.models.llm_message.LLMMessage(
-                        role = 'USER', 
-                        content = '', 
-                        tool_call_id = '', 
-                        tool_calls = [
-                            arize._generated.api_client.models.tool_call.ToolCall(
-                                id = '', 
-                                type = 'FUNCTION', 
-                                function = arize._generated.api_client.models.tool_call_function.ToolCallFunction(
-                                    name = '', 
-                                    arguments = '', ), )
-                            ], )
+                    { }
                     ],
                 input_variable_format = 'F_STRING',
                 provider = 'OPEN_AI',
@@ -71,18 +60,7 @@ class TestPromptVersion(unittest.TestCase):
                 commit_hash = '',
                 commit_message = '',
                 messages = [
-                    arize._generated.api_client.models.llm_message.LLMMessage(
-                        role = 'USER', 
-                        content = '', 
-                        tool_call_id = '', 
-                        tool_calls = [
-                            arize._generated.api_client.models.tool_call.ToolCall(
-                                id = '', 
-                                type = 'FUNCTION', 
-                                function = arize._generated.api_client.models.tool_call_function.ToolCallFunction(
-                                    name = '', 
-                                    arguments = '', ), )
-                            ], )
+                    { }
                     ],
                 input_variable_format = 'F_STRING',
                 provider = 'OPEN_AI',

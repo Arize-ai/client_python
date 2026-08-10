@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import ClassVar
 
 import pytest
 
@@ -19,6 +20,7 @@ from arize._generated.api_client.models.pagination_metadata import (
 from arize._generated.api_client.models.run_configuration import (
     RunConfiguration as _GenRunConfiguration,
 )
+from arize._generated.api_client.models.task_run import TaskRun as _GenTaskRun
 from arize.tasks.types import (
     ListTaskRunsResponse,
     ListTasksResponse,
@@ -241,3 +243,59 @@ class TestTasksListCoercion:
         )
 
         assert response.tasks == []
+
+
+@pytest.mark.unit
+class TestTaskRunFromDict:
+    """Tests for TaskRun deserialization from API responses."""
+
+    _BASE: ClassVar[dict] = {
+        "id": "run_1",
+        "task_id": "task_1",
+        "experiment_id": None,
+        "status": "COMPLETED",
+        "run_started_at": None,
+        "run_finished_at": None,
+        "data_start_time": None,
+        "data_end_time": None,
+        "num_successes": 10,
+        "num_errors": 0,
+        "num_skipped": 2,
+        "created_at": "2026-07-23T00:00:00Z",
+        "created_by_user_id": None,
+        "failure_reason": None,
+    }
+
+    def test_deserializes_failure_reason_null(self) -> None:
+        """failure_reason: null should produce None."""
+        run = _GenTaskRun.from_dict(self._BASE)
+        assert run is not None
+        assert run.failure_reason is None
+
+    def test_deserializes_failure_reason_string(self) -> None:
+        """failure_reason with a value should be populated."""
+        data = {
+            **self._BASE,
+            "status": "CANCELLED",
+            "failure_reason": "all data already evaluated",
+        }
+        run = _GenTaskRun.from_dict(data)
+        assert run is not None
+        assert run.failure_reason == "all data already evaluated"
+
+    def test_tolerates_unknown_fields(self) -> None:
+        """from_dict must not raise when the API response contains unrecognized fields.
+
+        Regression guard for issue #80452: additive API fields deployed before a
+        matching SDK release caused ValueError in strict from_dict. The generator
+        config now sets disallowAdditionalPropertiesIfNotPresent=false so forward-compat
+        is maintained — this test ensures it stays that way.
+        """
+        data = {
+            **self._BASE,
+            "future_field": "some_value",
+            "another_new_field": 42,
+        }
+        run = _GenTaskRun.from_dict(data)
+        assert run is not None
+        assert run.id == "run_1"

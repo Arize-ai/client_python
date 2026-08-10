@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 **is_continuous** | **bool** | Whether the task runs continuously. Only applicable for project-based tasks. | [optional] 
 **query_filter** | **str** | Task-level query filter. Pass &#x60;null&#x60; to clear. | [optional] 
 **evaluators** | [**List[TaskEvaluatorInput]**](TaskEvaluatorInput.md) | Replaces the entire evaluator list. At least one evaluator is required when provided. | [optional] 
-**run_configuration** | [**RunConfiguration**](RunConfiguration.md) |  | [optional] 
+**run_configuration** | [**RunConfigurationRequest**](RunConfigurationRequest.md) |  | [optional] 
 
 ## Example
 

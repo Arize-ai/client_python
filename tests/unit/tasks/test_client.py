@@ -11,8 +11,14 @@ from arize._generated.api_client import TasksApi
 from arize._generated.api_client.models.agent_call_run_config import (
     AgentCallRunConfig,
 )
+from arize._generated.api_client.models.agent_call_run_config_request import (
+    AgentCallRunConfigRequest,
+)
 from arize._generated.api_client.models.run_configuration import (
     RunConfiguration,
+)
+from arize._generated.api_client.models.run_configuration_request import (
+    RunConfigurationRequest,
 )
 from arize.tasks.client import (
     _DEFAULT_POLL_INTERVAL,
@@ -25,6 +31,12 @@ from arize.tasks.types import ListTasksResponse, Task
 _TASK_ID = "VGFzazoxMjM="  # Task:123
 _PROJECT_ID = "UHJvamVjdDoxMjM="  # Project:123
 _DATASET_ID = "RGF0YXNldDoxMjM="  # Dataset:123
+_RUN_CONFIGURATION = {
+    "experiment_type": "TEMPLATE_EVALUATION",
+    "ai_integration_id": "ai-1",
+    "template": "Is {{output}} correct?",
+    "provide_explanation": True,
+}
 _INTEGRATION_ID = "SW50ZWdyYXRpb246MTIz"  # Integration:123
 
 
@@ -368,8 +380,14 @@ class TestTasksClientCreate:
     ) -> None:
         """create(task_type='RUN_EXPERIMENT') should use CreateRunExperimentTaskRequest."""
         mock_run_config = Mock(spec=RunConfiguration)
+        request_run_config = Mock(spec=RunConfigurationRequest)
 
         with (
+            patch.object(
+                tasks_client,
+                "_coerce_run_configuration",
+                return_value=request_run_config,
+            ),
             patch(
                 "arize._generated.api_client.CreateRunExperimentTaskRequest"
             ) as mock_inner_cls,
@@ -393,7 +411,7 @@ class TestTasksClientCreate:
             name="exp-task",
             type="RUN_EXPERIMENT",
             dataset_id=_DATASET_ID,
-            run_configuration=mock_run_config,
+            run_configuration=request_run_config,
         )
         mock_wrapper_cls.assert_called_once_with(actual_instance=mock_inner)
         mock_api.create_task.assert_called_once_with(
@@ -403,7 +421,7 @@ class TestTasksClientCreate:
     def test_create_run_experiment_accepts_agent_call_run_config(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """create(RUN_EXPERIMENT) should wrap an unwrapped AgentCallRunConfig."""
+        """create(RUN_EXPERIMENT) should coerce an AgentCallRunConfig to RunConfigurationRequest."""
         agent_config = AgentCallRunConfig(
             experiment_type="AGENT_CALL",
             integration_id=_INTEGRATION_ID,
@@ -427,8 +445,8 @@ class TestTasksClientCreate:
 
         _, kwargs = mock_inner_cls.call_args
         wrapped = kwargs["run_configuration"]
-        assert isinstance(wrapped, RunConfiguration)
-        assert wrapped.actual_instance is agent_config
+        assert isinstance(wrapped, RunConfigurationRequest)
+        assert isinstance(wrapped.actual_instance, AgentCallRunConfigRequest)
 
     def test_create_run_experiment_rejects_eval_only_fields(
         self, tasks_client: TasksClient, mock_api: Mock
@@ -594,23 +612,17 @@ class TestTasksClientCreateRunExperimentTask:
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
         """create_run_experiment_task() should call create() with run_experiment type."""
-        mock_run_config = Mock(spec=RunConfiguration)
-
         with (
-            patch(
-                "arize._generated.api_client.RunConfiguration"
-            ) as mock_rc_cls,
             patch(
                 "arize._generated.api_client.CreateRunExperimentTaskRequest"
             ) as mock_inner_cls,
             patch("arize._generated.api_client.CreateTaskRequest"),
         ):
-            mock_rc_cls.return_value = Mock()
             mock_inner_cls.return_value = Mock()
             tasks_client.create_run_experiment_task(
                 name="run-exp-task",
                 dataset=_DATASET_ID,
-                run_configuration=mock_run_config,
+                run_configuration=_RUN_CONFIGURATION,
             )
 
         _, kwargs = mock_inner_cls.call_args
@@ -633,7 +645,6 @@ class TestTasksClientCreateRunExperimentTask:
         tasks_client._datasets_api = mock_datasets_api
 
         with (
-            patch("arize._generated.api_client.RunConfiguration"),
             patch(
                 "arize._generated.api_client.CreateRunExperimentTaskRequest"
             ) as mock_inner_cls,
@@ -643,7 +654,7 @@ class TestTasksClientCreateRunExperimentTask:
             tasks_client.create_run_experiment_task(
                 name="run-exp-task",
                 dataset="my-dataset",
-                run_configuration=Mock(spec=RunConfiguration),
+                run_configuration=_RUN_CONFIGURATION,
                 space="U3BhY2U6OTA1MDoxSmtS",
             )
 
@@ -658,14 +669,13 @@ class TestTasksClientCreateRunExperimentTask:
         mock_api.create_task.return_value = expected
 
         with (
-            patch("arize._generated.api_client.RunConfiguration"),
             patch("arize._generated.api_client.CreateRunExperimentTaskRequest"),
             patch("arize._generated.api_client.CreateTaskRequest"),
         ):
             result = tasks_client.create_run_experiment_task(
                 name="run-exp-task",
                 dataset=_DATASET_ID,
-                run_configuration=Mock(spec=RunConfiguration),
+                run_configuration=_RUN_CONFIGURATION,
             )
 
         assert result is expected
@@ -757,7 +767,7 @@ class TestTasksClientUpdate:
     def test_update_run_experiment_accepts_agent_call_run_config(
         self, tasks_client: TasksClient, mock_api: Mock
     ) -> None:
-        """update() on a run_experiment task should wrap an AgentCallRunConfig."""
+        """update() on a run_experiment task should coerce an AgentCallRunConfig to RunConfigurationRequest."""
         mock_api.get_task.return_value.type = "RUN_EXPERIMENT"
         agent_config = AgentCallRunConfig(
             experiment_type="AGENT_CALL",
@@ -780,8 +790,8 @@ class TestTasksClientUpdate:
 
         _, kwargs = mock_inner_cls.call_args
         wrapped = kwargs["run_configuration"]
-        assert isinstance(wrapped, RunConfiguration)
-        assert wrapped.actual_instance is agent_config
+        assert isinstance(wrapped, RunConfigurationRequest)
+        assert isinstance(wrapped.actual_instance, AgentCallRunConfigRequest)
 
     def test_update_run_experiment_builds_request(
         self, tasks_client: TasksClient, mock_api: Mock
@@ -789,8 +799,14 @@ class TestTasksClientUpdate:
         """update() should use the run-experiment request schema."""
         mock_api.get_task.return_value.type = "RUN_EXPERIMENT"
         run_configuration = Mock(spec=RunConfiguration)
+        coerced = Mock(spec=RunConfigurationRequest)
 
         with (
+            patch.object(
+                tasks_client,
+                "_coerce_run_configuration",
+                return_value=coerced,
+            ),
             patch(
                 "arize._generated.api_client.UpdateRunExperimentTaskRequest"
             ) as mock_inner_cls,
@@ -811,7 +827,7 @@ class TestTasksClientUpdate:
 
         mock_inner_cls.assert_called_once_with(
             name="new-name",
-            run_configuration=run_configuration,
+            run_configuration=coerced,
         )
         mock_wrapper_cls.assert_called_once_with(actual_instance=mock_inner)
         mock_api.update_task.assert_called_once_with(

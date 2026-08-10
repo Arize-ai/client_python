@@ -20,7 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
-from arize._generated.api_client.models.run_configuration import RunConfiguration
+from arize._generated.api_client.models.run_configuration_request import RunConfigurationRequest
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,7 +29,7 @@ class UpdateRunExperimentTaskRequest(BaseModel):
     PATCH body for `RUN_EXPERIMENT` tasks. The server derives the task type from the URL's task record. At least one of `name` or `run_configuration` must be provided. When `run_configuration` is provided the stored config is fully replaced (existing configs are marked inactive and the new config is inserted atomically in a transaction). 
     """ # noqa: E501
     name: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, description="New task name.")
-    run_configuration: Optional[RunConfiguration] = None
+    run_configuration: Optional[RunConfigurationRequest] = None
     __properties: ClassVar[List[str]] = ["name", "run_configuration"]
 
     model_config = ConfigDict(
@@ -92,7 +92,7 @@ class UpdateRunExperimentTaskRequest(BaseModel):
 
         _obj = cls.model_validate({
             "name": obj.get("name"),
-            "run_configuration": RunConfiguration.from_dict(obj["run_configuration"]) if obj.get("run_configuration") is not None else None
+            "run_configuration": RunConfigurationRequest.from_dict(obj["run_configuration"]) if obj.get("run_configuration") is not None else None
         })
         return _obj
 

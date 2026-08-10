@@ -35,6 +35,9 @@ from arize._generated.api_client.models.provider_params_request import (
     ProviderParamsRequest,
 )
 from arize._generated.api_client.models.tool_call_type import ToolCallType
+from arize._generated.api_client.models.tool_config_request import (
+    ToolConfigRequest,
+)
 
 
 class InvocationParams(_GenInvocationParams):
@@ -138,4 +141,5 @@ __all__ = [
     "ProviderParams",
     "ProviderParamsRequest",
     "ToolCallType",
+    "ToolConfigRequest",
 ]

@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **name** | **str** | Task name | 
 **type** | **str** | Task type discriminator. Must be &#x60;\&quot;RUN_EXPERIMENT\&quot;&#x60;. | 
 **dataset_id** | **str** | Dataset identifier (base64). Required for &#x60;RUN_EXPERIMENT&#x60; tasks. | 
-**run_configuration** | [**RunConfiguration**](RunConfiguration.md) |  | 
+**run_configuration** | [**RunConfigurationRequest**](RunConfigurationRequest.md) |  | 
 
 ## Example
 

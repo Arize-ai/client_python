@@ -20,7 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from arize._generated.api_client.models.response_format_request import ResponseFormatRequest
-from arize._generated.api_client.models.tool_config import ToolConfig
+from arize._generated.api_client.models.tool_config_request import ToolConfigRequest
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -36,7 +36,7 @@ class InvocationParamsRequest(BaseModel):
     presence_penalty: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Presence penalty (-2.0 to 2.0)")
     stop: Optional[List[StrictStr]] = Field(default=None, description="Stop sequences")
     response_format: Optional[ResponseFormatRequest] = Field(default=None, description="Response format configuration. Optional. When omitted, no structured output constraint is applied (the provider's default plain-text behavior is used).")
-    tool_config: Optional[ToolConfig] = Field(default=None, description="Tool configuration for the LLM invocation. Optional. When omitted, no tools are made available to the model.")
+    tool_config: Optional[ToolConfigRequest] = Field(default=None, description="Tool configuration for the LLM invocation. Optional. When omitted, no tools are made available to the model.")
     top_k: Optional[StrictInt] = Field(default=None, description="Top-K sampling parameter. A top-K of 1 means the next selected token is the most probable (greedy decoding).")
     thinking_level: Optional[StrictStr] = Field(default=None, description="Controls how much reasoning the model performs before responding. Supported by Gemini 3.x models. Accepted values: 'low', 'high'.")
     thinking_budget: Optional[StrictInt] = Field(default=None, description="Maximum tokens the model may use for internal reasoning. Supported by Gemini 2.5 models. Range: 0-24576 (Flash/Flash-Lite) or 128-32768 (Pro). Set 0 to disable thinking on Flash models.")
@@ -114,7 +114,7 @@ class InvocationParamsRequest(BaseModel):
             "presence_penalty": obj.get("presence_penalty"),
             "stop": obj.get("stop"),
             "response_format": ResponseFormatRequest.from_dict(obj["response_format"]) if obj.get("response_format") is not None else None,
-            "tool_config": ToolConfig.from_dict(obj["tool_config"]) if obj.get("tool_config") is not None else None,
+            "tool_config": ToolConfigRequest.from_dict(obj["tool_config"]) if obj.get("tool_config") is not None else None,
             "top_k": obj.get("top_k"),
             "thinking_level": obj.get("thinking_level"),
             "thinking_budget": obj.get("thinking_budget"),

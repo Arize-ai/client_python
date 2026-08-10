@@ -1,0 +1,38 @@
+# LlmGenerationRunConfigRequest
+
+Strict request configuration for running an LLM prompt against each dataset example.
+
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**experiment_type** | **str** | Discriminator. Must be &#x60;\&quot;LLM_GENERATION\&quot;&#x60;. | 
+**ai_integration_id** | **str** | AI integration identifier (base64). | 
+**model_name** | **str** | Model name (e.g. &#x60;gpt-4o&#x60;). Falls back to the integration&#39;s default if omitted. | [optional] 
+**messages** | [**List[LLMMessageRequest]**](LLMMessageRequest.md) | Array of message objects (at least one). | 
+**input_variable_format** | [**InputVariableFormat**](InputVariableFormat.md) |  | 
+**invocation_parameters** | [**InvocationParamsRequest**](InvocationParamsRequest.md) |  | [optional] 
+**provider_parameters** | **object** | Provider-specific parameters. Defaults to &#x60;{}&#x60; (no overrides) if omitted. | [optional] 
+**tool_config** | [**ToolConfigRequest**](ToolConfigRequest.md) |  | [optional] 
+**prompt_version_id** | **str** | Prompt version identifier (base64). Links to a Prompt Hub version for traceability. | [optional] 
+
+## Example
+
+```python
+from arize._generated.api_client.models.llm_generation_run_config_request import LlmGenerationRunConfigRequest
+
+# TODO update the JSON string below
+json = "{}"
+# create an instance of LlmGenerationRunConfigRequest from a JSON string
+llm_generation_run_config_request_instance = LlmGenerationRunConfigRequest.from_json(json)
+# print the JSON string representation of the object
+print(LlmGenerationRunConfigRequest.to_json())
+
+# convert the object into a dict
+llm_generation_run_config_request_dict = llm_generation_run_config_request_instance.to_dict()
+# create an instance of LlmGenerationRunConfigRequest from a dict
+llm_generation_run_config_request_from_dict = LlmGenerationRunConfigRequest.from_dict(llm_generation_run_config_request_dict)
+```
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

@@ -20,7 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
-from arize._generated.api_client.models.run_configuration import RunConfiguration
+from arize._generated.api_client.models.run_configuration_request import RunConfigurationRequest
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -31,7 +31,7 @@ class CreateRunExperimentTaskRequest(BaseModel):
     name: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Task name")
     type: StrictStr = Field(description="Task type discriminator. Must be `\"RUN_EXPERIMENT\"`.")
     dataset_id: StrictStr = Field(description="Dataset identifier (base64). Required for `RUN_EXPERIMENT` tasks.")
-    run_configuration: RunConfiguration
+    run_configuration: RunConfigurationRequest
     __properties: ClassVar[List[str]] = ["name", "type", "dataset_id", "run_configuration"]
 
     @field_validator('type')
@@ -103,7 +103,7 @@ class CreateRunExperimentTaskRequest(BaseModel):
             "name": obj.get("name"),
             "type": obj.get("type"),
             "dataset_id": obj.get("dataset_id"),
-            "run_configuration": RunConfiguration.from_dict(obj["run_configuration"]) if obj.get("run_configuration") is not None else None
+            "run_configuration": RunConfigurationRequest.from_dict(obj["run_configuration"]) if obj.get("run_configuration") is not None else None
         })
         return _obj
 

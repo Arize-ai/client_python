@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,8 +29,9 @@ class AnthropicConfig(BaseModel):
     is_function_calling_enabled: StrictBool = Field(description="Whether function/tool calling is enabled.")
     provider: StrictStr = Field(description="Discriminator identifying the Anthropic provider.")
     has_api_key: StrictBool = Field(description="Whether an API key is configured (the key itself is never returned).")
+    base_url: Optional[StrictStr] = Field(default=None, description="Endpoint URL serving the Anthropic Messages API, including the version path. Null when not set.")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["is_function_calling_enabled", "provider", "has_api_key"]
+    __properties: ClassVar[List[str]] = ["is_function_calling_enabled", "provider", "has_api_key", "base_url"]
 
     @field_validator('provider')
     def provider_validate_enum(cls, value):
@@ -85,6 +86,11 @@ class AnthropicConfig(BaseModel):
             for _key, _value in self.additional_properties.items():
                 _dict[_key] = _value
 
+        # set to None if base_url (nullable) is None
+        # and model_fields_set contains the field
+        if self.base_url is None and "base_url" in self.model_fields_set:
+            _dict['base_url'] = None
+
         return _dict
 
     @classmethod
@@ -99,7 +105,8 @@ class AnthropicConfig(BaseModel):
         _obj = cls.model_validate({
             "is_function_calling_enabled": obj.get("is_function_calling_enabled"),
             "provider": obj.get("provider"),
-            "has_api_key": obj.get("has_api_key")
+            "has_api_key": obj.get("has_api_key"),
+            "base_url": obj.get("base_url")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

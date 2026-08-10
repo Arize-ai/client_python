@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.create_anthropic_config import CreateAnthropicConfig
+from arize._generated.api_client.models.tool_config_request import ToolConfigRequest
 
-class TestCreateAnthropicConfig(unittest.TestCase):
-    """CreateAnthropicConfig unit test stubs"""
+class TestToolConfigRequest(unittest.TestCase):
+    """ToolConfigRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,30 +25,28 @@ class TestCreateAnthropicConfig(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> CreateAnthropicConfig:
-        """Test CreateAnthropicConfig
+    def make_instance(self, include_optional) -> ToolConfigRequest:
+        """Test ToolConfigRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `CreateAnthropicConfig`
+        # uncomment below to create an instance of `ToolConfigRequest`
         """
-        model = CreateAnthropicConfig()
+        model = ToolConfigRequest()
         if include_optional:
-            return CreateAnthropicConfig(
-                is_function_calling_enabled = True,
-                provider = 'ANTHROPIC',
-                api_key = '',
-                base_url = ''
+            return ToolConfigRequest(
+                tools = [
+                    { }
+                    ],
+                tool_choice = None
             )
         else:
-            return CreateAnthropicConfig(
-                provider = 'ANTHROPIC',
-                api_key = '',
+            return ToolConfigRequest(
         )
         """
 
-    def testCreateAnthropicConfig(self):
-        """Test CreateAnthropicConfig"""
+    def testToolConfigRequest(self):
+        """Test ToolConfigRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

@@ -52,6 +52,7 @@ __all__ = [
     "AddOrganizationUserRequest",
     "AddSpaceUserRequest",
     "AgentCallRunConfig",
+    "AgentCallRunConfigRequest",
     "AgentConfig",
     "AgentIntegration",
     "AgentRequestPreset",
@@ -261,6 +262,7 @@ __all__ = [
     "ListUsersResponse",
     "LlmConfig",
     "LlmGenerationRunConfig",
+    "LlmGenerationRunConfigRequest",
     "LlmIntegration",
     "LlmIntegrationProvider",
     "LlmProvider",
@@ -322,6 +324,7 @@ __all__ = [
     "RoleBinding",
     "RoleBindingResourceType",
     "RunConfiguration",
+    "RunConfigurationRequest",
     "ScheduledRuntimeConfig",
     "ServiceApiKeyCreated",
     "ServiceKeyBotUser",
@@ -353,6 +356,7 @@ __all__ = [
     "TemplateConfig",
     "TemplateConfigInput",
     "TemplateEvaluationRunConfig",
+    "TemplateEvaluationRunConfigRequest",
     "ThresholdCalculation",
     "ThresholdConfig",
     "ThresholdOperator",
@@ -362,6 +366,7 @@ __all__ = [
     "ToolCallRequest",
     "ToolCallType",
     "ToolConfig",
+    "ToolConfigRequest",
     "Trace",
     "TracingDataQualityMetric",
     "TracingMonitor",
@@ -445,6 +450,7 @@ from arize._generated.api_client.models.add_annotation_queue_records_request imp
 from arize._generated.api_client.models.add_organization_user_request import AddOrganizationUserRequest as AddOrganizationUserRequest
 from arize._generated.api_client.models.add_space_user_request import AddSpaceUserRequest as AddSpaceUserRequest
 from arize._generated.api_client.models.agent_call_run_config import AgentCallRunConfig as AgentCallRunConfig
+from arize._generated.api_client.models.agent_call_run_config_request import AgentCallRunConfigRequest as AgentCallRunConfigRequest
 from arize._generated.api_client.models.agent_config import AgentConfig as AgentConfig
 from arize._generated.api_client.models.agent_integration import AgentIntegration as AgentIntegration
 from arize._generated.api_client.models.agent_request_preset import AgentRequestPreset as AgentRequestPreset
@@ -654,6 +660,7 @@ from arize._generated.api_client.models.list_traces_response import ListTracesRe
 from arize._generated.api_client.models.list_users_response import ListUsersResponse as ListUsersResponse
 from arize._generated.api_client.models.llm_config import LlmConfig as LlmConfig
 from arize._generated.api_client.models.llm_generation_run_config import LlmGenerationRunConfig as LlmGenerationRunConfig
+from arize._generated.api_client.models.llm_generation_run_config_request import LlmGenerationRunConfigRequest as LlmGenerationRunConfigRequest
 from arize._generated.api_client.models.llm_integration import LlmIntegration as LlmIntegration
 from arize._generated.api_client.models.llm_integration_provider import LlmIntegrationProvider as LlmIntegrationProvider
 from arize._generated.api_client.models.llm_provider import LlmProvider as LlmProvider
@@ -715,6 +722,7 @@ from arize._generated.api_client.models.role import Role as Role
 from arize._generated.api_client.models.role_binding import RoleBinding as RoleBinding
 from arize._generated.api_client.models.role_binding_resource_type import RoleBindingResourceType as RoleBindingResourceType
 from arize._generated.api_client.models.run_configuration import RunConfiguration as RunConfiguration
+from arize._generated.api_client.models.run_configuration_request import RunConfigurationRequest as RunConfigurationRequest
 from arize._generated.api_client.models.scheduled_runtime_config import ScheduledRuntimeConfig as ScheduledRuntimeConfig
 from arize._generated.api_client.models.service_api_key_created import ServiceApiKeyCreated as ServiceApiKeyCreated
 from arize._generated.api_client.models.service_key_bot_user import ServiceKeyBotUser as ServiceKeyBotUser
@@ -746,6 +754,7 @@ from arize._generated.api_client.models.task_type import TaskType as TaskType
 from arize._generated.api_client.models.template_config import TemplateConfig as TemplateConfig
 from arize._generated.api_client.models.template_config_input import TemplateConfigInput as TemplateConfigInput
 from arize._generated.api_client.models.template_evaluation_run_config import TemplateEvaluationRunConfig as TemplateEvaluationRunConfig
+from arize._generated.api_client.models.template_evaluation_run_config_request import TemplateEvaluationRunConfigRequest as TemplateEvaluationRunConfigRequest
 from arize._generated.api_client.models.threshold_calculation import ThresholdCalculation as ThresholdCalculation
 from arize._generated.api_client.models.threshold_config import ThresholdConfig as ThresholdConfig
 from arize._generated.api_client.models.threshold_operator import ThresholdOperator as ThresholdOperator
@@ -755,6 +764,7 @@ from arize._generated.api_client.models.tool_call_function_request import ToolCa
 from arize._generated.api_client.models.tool_call_request import ToolCallRequest as ToolCallRequest
 from arize._generated.api_client.models.tool_call_type import ToolCallType as ToolCallType
 from arize._generated.api_client.models.tool_config import ToolConfig as ToolConfig
+from arize._generated.api_client.models.tool_config_request import ToolConfigRequest as ToolConfigRequest
 from arize._generated.api_client.models.trace import Trace as Trace
 from arize._generated.api_client.models.tracing_data_quality_metric import TracingDataQualityMetric as TracingDataQualityMetric
 from arize._generated.api_client.models.tracing_monitor import TracingMonitor as TracingMonitor

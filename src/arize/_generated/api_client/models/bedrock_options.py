@@ -79,10 +79,6 @@ class BedrockOptions(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in BedrockOptions) in the input: " + _key)
 
         _obj = cls.model_validate({
             "use_converse_endpoint": obj.get("use_converse_endpoint") if obj.get("use_converse_endpoint") is not None else False

@@ -7,7 +7,7 @@ PATCH body for `RUN_EXPERIMENT` tasks. The server derives the task type from the
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **str** | New task name. | [optional] 
-**run_configuration** | [**RunConfiguration**](RunConfiguration.md) |  | [optional] 
+**run_configuration** | [**RunConfigurationRequest**](RunConfigurationRequest.md) |  | [optional] 
 
 ## Example
 

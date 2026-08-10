@@ -9,16 +9,22 @@ from typing import TYPE_CHECKING, Any, Final
 from arize._generated.api_client.models.run_configuration import (
     RunConfiguration,
 )
+from arize._generated.api_client.models.run_configuration_request import (
+    RunConfigurationRequest,
+)
 from arize.constants.config import DEFAULT_LIST_LIMIT
 from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.tasks.types import (
     AgentCallRunConfig,
+    AgentCallRunConfigRequest,
     ListTasksResponse,
     LlmGenerationRunConfig,
+    LlmGenerationRunConfigRequest,
     RunStatus,
     Task,
     TaskType,
     TemplateEvaluationRunConfig,
+    TemplateEvaluationRunConfigRequest,
 )
 from arize.utils.resolve import (
     _find_dataset_id,
@@ -85,39 +91,66 @@ class TasksClient:
     @staticmethod
     def _coerce_run_configuration(
         item: RunConfiguration
+        | RunConfigurationRequest
         | AgentCallRunConfig
+        | AgentCallRunConfigRequest
         | LlmGenerationRunConfig
+        | LlmGenerationRunConfigRequest
         | TemplateEvaluationRunConfig
+        | TemplateEvaluationRunConfigRequest
         | dict,
-    ) -> RunConfiguration:
-        """Normalize a run configuration to a properly wrapped ``RunConfiguration``.
+    ) -> RunConfigurationRequest:
+        """Normalize a run configuration to the strict request wrapper.
 
         Accepts:
-        - An already-wrapped ``RunConfiguration`` (returned as-is).
+        - An already-wrapped ``RunConfigurationRequest`` (returned as-is).
+        - An already-wrapped response ``RunConfiguration``.
         - An unwrapped inner type (``AgentCallRunConfig``,
-          ``LlmGenerationRunConfig``, or ``TemplateEvaluationRunConfig``), which
-          is wrapped automatically.
-        - A plain ``dict`` whose keys match one of the inner schemas; parsed via
-          ``RunConfiguration.from_dict``.
+          ``AgentCallRunConfigRequest``, ``LlmGenerationRunConfig``,
+          ``LlmGenerationRunConfigRequest``, ``TemplateEvaluationRunConfig``,
+          or ``TemplateEvaluationRunConfigRequest``).
+        - A plain ``dict`` whose keys match one of the request schemas.
+
+        All inputs are reparsed through ``RunConfigurationRequest`` so unknown
+        request fields are rejected even when the caller passes a tolerant
+        response model.
         """
-        if isinstance(item, RunConfiguration):
+        if isinstance(item, RunConfigurationRequest):
             return item
-        if isinstance(
+        if isinstance(item, RunConfiguration):
+            if item.actual_instance is None:
+                raise ValueError(
+                    "RunConfiguration wrapper has actual_instance=None"
+                )
+            payload = item.actual_instance.to_dict()
+        elif isinstance(
             item,
             (
                 AgentCallRunConfig,
+                AgentCallRunConfigRequest,
                 LlmGenerationRunConfig,
+                LlmGenerationRunConfigRequest,
                 TemplateEvaluationRunConfig,
+                TemplateEvaluationRunConfigRequest,
             ),
         ):
-            return RunConfiguration(item)
-        if isinstance(item, dict):
-            return RunConfiguration.from_dict(item)
-        raise TypeError(
-            f"run_configuration must be RunConfiguration, AgentCallRunConfig, "
-            f"LlmGenerationRunConfig, TemplateEvaluationRunConfig, or dict; "
-            f"got {type(item)!r}"
-        )
+            payload = item.to_dict()
+        elif isinstance(item, dict):
+            payload = item
+        else:
+            raise TypeError(
+                f"run_configuration must be RunConfiguration, "
+                f"RunConfigurationRequest, AgentCallRunConfig, "
+                f"AgentCallRunConfigRequest, LlmGenerationRunConfig, "
+                f"LlmGenerationRunConfigRequest, TemplateEvaluationRunConfig, "
+                f"TemplateEvaluationRunConfigRequest, or dict; "
+                f"got {type(item)!r}"
+            )
+
+        request = RunConfigurationRequest.from_dict(payload)
+        if request is None:
+            raise ValueError("run_configuration cannot be null")
+        return request
 
     # -------------------------------------------------------------------------
     # Tasks
@@ -227,9 +260,13 @@ class TasksClient:
         task_type: TaskType,
         evaluators: builtins.list[TaskEvaluatorInput] | None = None,
         run_configuration: RunConfiguration
+        | RunConfigurationRequest
         | AgentCallRunConfig
+        | AgentCallRunConfigRequest
         | LlmGenerationRunConfig
+        | LlmGenerationRunConfigRequest
         | TemplateEvaluationRunConfig
+        | TemplateEvaluationRunConfigRequest
         | dict
         | None = None,
         project: str | None = None,
@@ -482,9 +519,13 @@ class TasksClient:
         name: str,
         dataset: str,
         run_configuration: RunConfiguration
+        | RunConfigurationRequest
         | AgentCallRunConfig
+        | AgentCallRunConfigRequest
         | LlmGenerationRunConfig
+        | LlmGenerationRunConfigRequest
         | TemplateEvaluationRunConfig
+        | TemplateEvaluationRunConfigRequest
         | dict,
         space: str | None = None,
     ) -> Task:
@@ -538,9 +579,13 @@ class TasksClient:
         evaluators: builtins.list[TaskEvaluatorInput] | UNSET = _UNSET,
         # run_experiment-task fields
         run_configuration: RunConfiguration
+        | RunConfigurationRequest
         | AgentCallRunConfig
+        | AgentCallRunConfigRequest
         | LlmGenerationRunConfig
+        | LlmGenerationRunConfigRequest
         | TemplateEvaluationRunConfig
+        | TemplateEvaluationRunConfigRequest
         | dict
         | UNSET = _UNSET,
     ) -> Task:

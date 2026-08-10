@@ -7,17 +7,26 @@ from pydantic import BaseModel, ConfigDict, field_validator
 from arize._generated.api_client.models.agent_call_run_config import (
     AgentCallRunConfig,
 )
+from arize._generated.api_client.models.agent_call_run_config_request import (
+    AgentCallRunConfigRequest,
+)
 from arize._generated.api_client.models.list_task_runs_response import (
     ListTaskRunsResponse,
 )
 from arize._generated.api_client.models.llm_generation_run_config import (
     LlmGenerationRunConfig,
 )
+from arize._generated.api_client.models.llm_generation_run_config_request import (
+    LlmGenerationRunConfigRequest,
+)
 from arize._generated.api_client.models.pagination_metadata import (
     PaginationMetadata,
 )
 from arize._generated.api_client.models.run_configuration import (
     RunConfiguration,
+)
+from arize._generated.api_client.models.run_configuration_request import (
+    RunConfigurationRequest,
 )
 from arize._generated.api_client.models.task_evaluator import TaskEvaluator
 from arize._generated.api_client.models.task_evaluator_input import (
@@ -30,6 +39,9 @@ from arize._generated.api_client.models.task_run_status import (
 from arize._generated.api_client.models.task_type import TaskType
 from arize._generated.api_client.models.template_evaluation_run_config import (
     TemplateEvaluationRunConfig,
+)
+from arize._generated.api_client.models.template_evaluation_run_config_request import (
+    TemplateEvaluationRunConfigRequest,
 )
 
 
@@ -95,10 +107,13 @@ class ListTasksResponse(BaseModel):
 
 __all__ = [
     "AgentCallRunConfig",
+    "AgentCallRunConfigRequest",
     "ListTaskRunsResponse",
     "ListTasksResponse",
     "LlmGenerationRunConfig",
+    "LlmGenerationRunConfigRequest",
     "RunConfiguration",
+    "RunConfigurationRequest",
     "RunStatus",
     "Task",
     "TaskEvaluator",
@@ -106,4 +121,5 @@ __all__ = [
     "TaskRun",
     "TaskType",
     "TemplateEvaluationRunConfig",
+    "TemplateEvaluationRunConfigRequest",
 ]

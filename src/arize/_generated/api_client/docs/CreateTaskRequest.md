@@ -15,7 +15,7 @@ Name | Type | Description | Notes
 **query_filter** | **str** | Task-level query filter applied to all evaluated data. | [optional] 
 **evaluators** | [**List[TaskEvaluatorInput]**](TaskEvaluatorInput.md) | Evaluators to attach (at least one required). | 
 **type** | **str** | Task type discriminator. Must be &#x60;\&quot;TEMPLATE_EVALUATION\&quot;&#x60;. | 
-**run_configuration** | [**RunConfiguration**](RunConfiguration.md) |  | 
+**run_configuration** | [**RunConfigurationRequest**](RunConfigurationRequest.md) |  | 
 
 ## Example
 

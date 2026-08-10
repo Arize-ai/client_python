@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.46.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.45.0...arize-python-sdk/v8.46.0) (2026-08-10)
+
+
+### 🎁 New Features
+
+* separate task run configuration request schemas ([#82015](https://github.com/Arize-ai/arize/issues/82015)) ([1c50944](https://github.com/Arize-ai/arize/commit/1c509446aee218d9eba332d7f1d68392c3af5fb3))
+
 ## [8.45.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.44.0...arize-python-sdk/v8.45.0) (2026-08-07)
 
 

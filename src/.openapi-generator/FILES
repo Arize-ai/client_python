@@ -31,6 +31,7 @@ arize/_generated/api_client/docs/AddAnnotationQueueRecordsRequest.md
 arize/_generated/api_client/docs/AddOrganizationUserRequest.md
 arize/_generated/api_client/docs/AddSpaceUserRequest.md
 arize/_generated/api_client/docs/AgentCallRunConfig.md
+arize/_generated/api_client/docs/AgentCallRunConfigRequest.md
 arize/_generated/api_client/docs/AgentConfig.md
 arize/_generated/api_client/docs/AgentIntegration.md
 arize/_generated/api_client/docs/AgentRequestPreset.md
@@ -247,6 +248,7 @@ arize/_generated/api_client/docs/ListTracesResponse.md
 arize/_generated/api_client/docs/ListUsersResponse.md
 arize/_generated/api_client/docs/LlmConfig.md
 arize/_generated/api_client/docs/LlmGenerationRunConfig.md
+arize/_generated/api_client/docs/LlmGenerationRunConfigRequest.md
 arize/_generated/api_client/docs/LlmIntegration.md
 arize/_generated/api_client/docs/LlmIntegrationProvider.md
 arize/_generated/api_client/docs/LlmProvider.md
@@ -315,6 +317,7 @@ arize/_generated/api_client/docs/RoleBindingResourceType.md
 arize/_generated/api_client/docs/RoleBindingsApi.md
 arize/_generated/api_client/docs/RolesApi.md
 arize/_generated/api_client/docs/RunConfiguration.md
+arize/_generated/api_client/docs/RunConfigurationRequest.md
 arize/_generated/api_client/docs/ScheduledRuntimeConfig.md
 arize/_generated/api_client/docs/ServiceApiKeyCreated.md
 arize/_generated/api_client/docs/ServiceKeyBotUser.md
@@ -349,6 +352,7 @@ arize/_generated/api_client/docs/TasksApi.md
 arize/_generated/api_client/docs/TemplateConfig.md
 arize/_generated/api_client/docs/TemplateConfigInput.md
 arize/_generated/api_client/docs/TemplateEvaluationRunConfig.md
+arize/_generated/api_client/docs/TemplateEvaluationRunConfigRequest.md
 arize/_generated/api_client/docs/ThresholdCalculation.md
 arize/_generated/api_client/docs/ThresholdConfig.md
 arize/_generated/api_client/docs/ThresholdOperator.md
@@ -358,6 +362,7 @@ arize/_generated/api_client/docs/ToolCallFunctionRequest.md
 arize/_generated/api_client/docs/ToolCallRequest.md
 arize/_generated/api_client/docs/ToolCallType.md
 arize/_generated/api_client/docs/ToolConfig.md
+arize/_generated/api_client/docs/ToolConfigRequest.md
 arize/_generated/api_client/docs/Trace.md
 arize/_generated/api_client/docs/TracesApi.md
 arize/_generated/api_client/docs/TracingDataQualityMetric.md
@@ -408,6 +413,7 @@ arize/_generated/api_client/models/add_annotation_queue_records_request.py
 arize/_generated/api_client/models/add_organization_user_request.py
 arize/_generated/api_client/models/add_space_user_request.py
 arize/_generated/api_client/models/agent_call_run_config.py
+arize/_generated/api_client/models/agent_call_run_config_request.py
 arize/_generated/api_client/models/agent_config.py
 arize/_generated/api_client/models/agent_integration.py
 arize/_generated/api_client/models/agent_request_preset.py
@@ -615,6 +621,7 @@ arize/_generated/api_client/models/list_traces_response.py
 arize/_generated/api_client/models/list_users_response.py
 arize/_generated/api_client/models/llm_config.py
 arize/_generated/api_client/models/llm_generation_run_config.py
+arize/_generated/api_client/models/llm_generation_run_config_request.py
 arize/_generated/api_client/models/llm_integration.py
 arize/_generated/api_client/models/llm_integration_provider.py
 arize/_generated/api_client/models/llm_message.py
@@ -678,6 +685,7 @@ arize/_generated/api_client/models/role.py
 arize/_generated/api_client/models/role_binding.py
 arize/_generated/api_client/models/role_binding_resource_type.py
 arize/_generated/api_client/models/run_configuration.py
+arize/_generated/api_client/models/run_configuration_request.py
 arize/_generated/api_client/models/scheduled_runtime_config.py
 arize/_generated/api_client/models/service_api_key_created.py
 arize/_generated/api_client/models/service_key_bot_user.py
@@ -709,6 +717,7 @@ arize/_generated/api_client/models/task_type.py
 arize/_generated/api_client/models/template_config.py
 arize/_generated/api_client/models/template_config_input.py
 arize/_generated/api_client/models/template_evaluation_run_config.py
+arize/_generated/api_client/models/template_evaluation_run_config_request.py
 arize/_generated/api_client/models/threshold_calculation.py
 arize/_generated/api_client/models/threshold_config.py
 arize/_generated/api_client/models/threshold_operator.py
@@ -718,6 +727,7 @@ arize/_generated/api_client/models/tool_call_function_request.py
 arize/_generated/api_client/models/tool_call_request.py
 arize/_generated/api_client/models/tool_call_type.py
 arize/_generated/api_client/models/tool_config.py
+arize/_generated/api_client/models/tool_config_request.py
 arize/_generated/api_client/models/trace.py
 arize/_generated/api_client/models/tracing_data_quality_metric.py
 arize/_generated/api_client/models/tracing_monitor.py
@@ -762,6 +772,7 @@ arize/_generated/api_client/models/vertex_ai_config.py
 arize/_generated/api_client/models/webhook_notification_config.py
 arize/_generated/api_client/rest.py
 arize/_generated/api_client/test/__init__.py
+arize/_generated/api_client/test/test_agent_call_run_config_request.py
 arize/_generated/api_client/test/test_ai_integration.py
 arize/_generated/api_client/test/test_ai_integration_auth_type.py
 arize/_generated/api_client/test/test_ai_integration_provider.py
@@ -841,6 +852,7 @@ arize/_generated/api_client/test/test_json_schema_config_request.py
 arize/_generated/api_client/test/test_list_spans_request.py
 arize/_generated/api_client/test/test_list_traces_request.py
 arize/_generated/api_client/test/test_llm_config.py
+arize/_generated/api_client/test/test_llm_generation_run_config_request.py
 arize/_generated/api_client/test/test_llm_integration.py
 arize/_generated/api_client/test/test_llm_integration_provider.py
 arize/_generated/api_client/test/test_llm_message.py
@@ -876,6 +888,7 @@ arize/_generated/api_client/test/test_response_format_request.py
 arize/_generated/api_client/test/test_role.py
 arize/_generated/api_client/test/test_role_binding.py
 arize/_generated/api_client/test/test_role_binding_resource_type.py
+arize/_generated/api_client/test/test_run_configuration_request.py
 arize/_generated/api_client/test/test_service_api_key_created.py
 arize/_generated/api_client/test/test_service_key_bot_user.py
 arize/_generated/api_client/test/test_service_key_bot_user_org_assignment.py
@@ -893,12 +906,14 @@ arize/_generated/api_client/test/test_task_evaluator.py
 arize/_generated/api_client/test/test_task_run.py
 arize/_generated/api_client/test/test_task_run_status.py
 arize/_generated/api_client/test/test_task_type.py
+arize/_generated/api_client/test/test_template_evaluation_run_config_request.py
 arize/_generated/api_client/test/test_tool_call.py
 arize/_generated/api_client/test/test_tool_call_function.py
 arize/_generated/api_client/test/test_tool_call_function_request.py
 arize/_generated/api_client/test/test_tool_call_request.py
 arize/_generated/api_client/test/test_tool_call_type.py
 arize/_generated/api_client/test/test_tool_config.py
+arize/_generated/api_client/test/test_tool_config_request.py
 arize/_generated/api_client/test/test_trace.py
 arize/_generated/api_client/test/test_traces_api.py
 arize/_generated/api_client/test/test_update_llm_config.py

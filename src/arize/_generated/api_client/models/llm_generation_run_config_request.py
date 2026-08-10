@@ -21,26 +21,25 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from arize._generated.api_client.models.input_variable_format import InputVariableFormat
-from arize._generated.api_client.models.invocation_params import InvocationParams
-from arize._generated.api_client.models.llm_message import LLMMessage
-from arize._generated.api_client.models.tool_config import ToolConfig
+from arize._generated.api_client.models.invocation_params_request import InvocationParamsRequest
+from arize._generated.api_client.models.llm_message_request import LLMMessageRequest
+from arize._generated.api_client.models.tool_config_request import ToolConfigRequest
 from typing import Optional, Set
 from typing_extensions import Self
 
-class LlmGenerationRunConfig(BaseModel):
+class LlmGenerationRunConfigRequest(BaseModel):
     """
-    Configuration for running an LLM prompt against each dataset example.
+    Strict request configuration for running an LLM prompt against each dataset example.
     """ # noqa: E501
     experiment_type: StrictStr = Field(description="Discriminator. Must be `\"LLM_GENERATION\"`.")
     ai_integration_id: StrictStr = Field(description="AI integration identifier (base64).")
     model_name: Optional[StrictStr] = Field(default=None, description="Model name (e.g. `gpt-4o`). Falls back to the integration's default if omitted.")
-    messages: Annotated[List[LLMMessage], Field(min_length=1)] = Field(description="Array of message objects (at least one).")
+    messages: Annotated[List[LLMMessageRequest], Field(min_length=1)] = Field(description="Array of message objects (at least one).")
     input_variable_format: InputVariableFormat
-    invocation_parameters: Optional[InvocationParams] = None
+    invocation_parameters: Optional[InvocationParamsRequest] = None
     provider_parameters: Optional[Dict[str, Any]] = Field(default=None, description="Provider-specific parameters. Defaults to `{}` (no overrides) if omitted.")
-    tool_config: Optional[ToolConfig] = None
+    tool_config: Optional[ToolConfigRequest] = None
     prompt_version_id: Optional[StrictStr] = Field(default=None, description="Prompt version identifier (base64). Links to a Prompt Hub version for traceability.")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["experiment_type", "ai_integration_id", "model_name", "messages", "input_variable_format", "invocation_parameters", "provider_parameters", "tool_config", "prompt_version_id"]
 
     @field_validator('experiment_type')
@@ -68,7 +67,7 @@ class LlmGenerationRunConfig(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of LlmGenerationRunConfig from a JSON string"""
+        """Create an instance of LlmGenerationRunConfigRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -80,10 +79,8 @@ class LlmGenerationRunConfig(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -104,11 +101,6 @@ class LlmGenerationRunConfig(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of tool_config
         if self.tool_config:
             _dict['tool_config'] = self.tool_config.to_dict()
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         # set to None if prompt_version_id (nullable) is None
         # and model_fields_set contains the field
         if self.prompt_version_id is None and "prompt_version_id" in self.model_fields_set:
@@ -118,29 +110,29 @@ class LlmGenerationRunConfig(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of LlmGenerationRunConfig from a dict"""
+        """Create an instance of LlmGenerationRunConfigRequest from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
+        # raise errors for additional fields in the input
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                raise ValueError("Error due to additional fields (not defined in LlmGenerationRunConfigRequest) in the input: " + _key)
+
         _obj = cls.model_validate({
             "experiment_type": obj.get("experiment_type"),
             "ai_integration_id": obj.get("ai_integration_id"),
             "model_name": obj.get("model_name"),
-            "messages": [LLMMessage.from_dict(_item) for _item in obj["messages"]] if obj.get("messages") is not None else None,
+            "messages": [LLMMessageRequest.from_dict(_item) for _item in obj["messages"]] if obj.get("messages") is not None else None,
             "input_variable_format": obj.get("input_variable_format"),
-            "invocation_parameters": InvocationParams.from_dict(obj["invocation_parameters"]) if obj.get("invocation_parameters") is not None else None,
+            "invocation_parameters": InvocationParamsRequest.from_dict(obj["invocation_parameters"]) if obj.get("invocation_parameters") is not None else None,
             "provider_parameters": obj.get("provider_parameters"),
-            "tool_config": ToolConfig.from_dict(obj["tool_config"]) if obj.get("tool_config") is not None else None,
+            "tool_config": ToolConfigRequest.from_dict(obj["tool_config"]) if obj.get("tool_config") is not None else None,
             "prompt_version_id": obj.get("prompt_version_id")
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 
