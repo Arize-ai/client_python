@@ -99,6 +99,7 @@ class TestLazyLoadingRealSubclients:
             ),
             ("spaces", "arize.spaces.client.SpacesClient"),
             ("evaluators", "arize.evaluators.client.EvaluatorsClient"),
+            ("traces", "arize.traces.client.TracesClient"),
         ],
     )
     def test_lazy_loading_subclients(

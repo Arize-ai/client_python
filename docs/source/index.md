@@ -32,6 +32,7 @@ roles
 spaces
 spans
 tasks
+traces
 users
 ```
 

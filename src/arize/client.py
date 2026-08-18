@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from arize.spaces.client import SpacesClient
     from arize.spans.client import SpansClient
     from arize.tasks.client import TasksClient
+    from arize.traces.client import TracesClient
     from arize.users.client import UsersClient
 
 logger = logging.getLogger(__name__)
@@ -116,6 +117,10 @@ class ArizeClient(LazySubclientsMixin):
         "spans": (
             "arize.spans.client",
             "SpansClient",
+        ),
+        "traces": (
+            "arize.traces.client",
+            "TracesClient",
         ),
         "annotation_configs": (
             "arize.annotation_configs.client",
@@ -402,6 +407,11 @@ class ArizeClient(LazySubclientsMixin):
     def spans(self) -> SpansClient:
         """Access the spans client for tracing and span operations (lazy-loaded)."""
         return cast("SpansClient", self.__getattr__("spans"))
+
+    @property
+    def traces(self) -> TracesClient:
+        """Access the traces client for listing traces (lazy-loaded)."""
+        return cast("TracesClient", self.__getattr__("traces"))
 
     @property
     def annotation_configs(self) -> AnnotationConfigsClient:

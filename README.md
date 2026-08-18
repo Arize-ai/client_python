@@ -30,6 +30,8 @@
     - [Logging spans](#logging-spans)
     - [Update spans Evaluations, Annotations, and Metadata](#update-spans-evaluations-annotations-and-metadata)
     - [Exporting spans](#exporting-spans)
+  - [Traces](#traces)
+    - [List Traces](#list-traces)
   - [Operations on ML Models](#operations-on-ml-models)
     - [Stream log ML Data for a Classification use-case](#stream-log-ml-data-for-a-classification-use-case)
     - [Log a batch of ML Data for a Object Detection use-case](#log-a-batch-of-ml-data-for-a-object-detection-use-case)
@@ -307,6 +309,50 @@ df = client.spans.export_to_df(
     start_time=start_time,
     end_time=end_time,
 )
+```
+
+## Traces
+
+Use `client.traces` to list traces for a project. Each returned trace carries
+its full (flat) list of spans plus lightweight roll-up metadata, including
+`root_span_id` and a `spans_truncated` flag. Traces are returned newest-first.
+
+### List Traces
+
+You can list traces for a project using `client.traces.list()`. Pass `project`
+as a name (with `space`) or as an ID. Optional `start_time`/`end_time`,
+`filter`, `limit`, and `cursor` (opaque pagination token) narrow the results.
+
+The `filter` uses the same expression syntax as `client.spans.list()`, but the
+semantics differ: a `filter` selects traces that contain at least one matching
+span (the matching span is usually a child, not the root), rather than only
+traces whose root span matches.
+
+> **Note:** This is a **beta** endpoint and may change without notice.
+
+```python
+from arize import ArizeClient
+
+client = ArizeClient(api_key=API_KEY)
+SPACE = "<your-space-id-or-name>"
+PROJECT = "<your-project-name-or-id>"
+
+resp = client.traces.list(
+    project=PROJECT,
+    space=SPACE, # Optional when PROJECT is an ID
+    # start_time=..., # Optional, inclusive lower bound (defaults to 7 days ago)
+    # end_time=...,   # Optional, exclusive upper bound (defaults to now)
+    # filter="status_code = 'ERROR'",
+    # limit=...,      # Optional, defaults to 50
+    # cursor=...,     # Optional, opaque pagination cursor
+)
+
+traces = resp.traces
+for trace in traces:
+    print(trace.trace_id, trace.root_span_id, trace.spans_truncated, len(trace.spans))
+
+# Paginate using the opaque cursor returned by the server
+next_cursor = resp.pagination.next_cursor
 ```
 
 ## Operations on ML Models

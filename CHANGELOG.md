@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.48.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.47.0...arize-python-sdk/v8.48.0) (2026-08-18)
+
+
+### 🎁 New Features
+
+* **traces:** add client.traces.list for /v2/traces ([#82771](https://github.com/Arize-ai/arize/issues/82771)) ([885d6c2](https://github.com/Arize-ai/arize/commit/885d6c239bdb312158a1735620f36cf2577a302a)), closes [#82765](https://github.com/Arize-ai/arize/issues/82765)
+
 ## [8.47.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.46.0...arize-python-sdk/v8.47.0) (2026-08-18)
 
 
