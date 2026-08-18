@@ -71,7 +71,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.TracesApi(api_client)
     list_traces_request = {"project_id":"my-project","start_time":"2024-01-01T00:00:00Z","end_time":"2024-01-02T00:00:00Z","filter":"status_code = 'ERROR'"} # ListTracesRequest | Body containing trace query parameters
-    limit = 25 # int | Maximum items to return (optional) (default to 25)
+    limit = 25 # int | Maximum items to return. Defaults to 25 if omitted; maximum is 50. (optional) (default to 25)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
@@ -91,7 +91,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **list_traces_request** | [**ListTracesRequest**](ListTracesRequest.md)| Body containing trace query parameters | 
- **limit** | **int**| Maximum items to return | [optional] [default to 25]
+ **limit** | **int**| Maximum items to return. Defaults to 25 if omitted; maximum is 50. | [optional] [default to 25]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
 ### Return type

@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.service_api_key_created import ServiceApiKeyCreated
+from arize._generated.api_client.models.created_service_api_key import CreatedServiceApiKey
 
-class TestServiceApiKeyCreated(unittest.TestCase):
-    """ServiceApiKeyCreated unit test stubs"""
+class TestCreatedServiceApiKey(unittest.TestCase):
+    """CreatedServiceApiKey unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,16 +25,16 @@ class TestServiceApiKeyCreated(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> ServiceApiKeyCreated:
-        """Test ServiceApiKeyCreated
+    def make_instance(self, include_optional) -> CreatedServiceApiKey:
+        """Test CreatedServiceApiKey
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `ServiceApiKeyCreated`
+        # uncomment below to create an instance of `CreatedServiceApiKey`
         """
-        model = ServiceApiKeyCreated()
+        model = CreatedServiceApiKey()
         if include_optional:
-            return ServiceApiKeyCreated(
+            return CreatedServiceApiKey(
                 id = '',
                 name = '',
                 description = '',
@@ -62,7 +62,7 @@ class TestServiceApiKeyCreated(unittest.TestCase):
                         ], )
             )
         else:
-            return ServiceApiKeyCreated(
+            return CreatedServiceApiKey(
                 id = '',
                 name = '',
                 key_type = 'SERVICE',
@@ -88,8 +88,8 @@ class TestServiceApiKeyCreated(unittest.TestCase):
         )
         """
 
-    def testServiceApiKeyCreated(self):
-        """Test ServiceApiKeyCreated"""
+    def testCreatedServiceApiKey(self):
+        """Test CreatedServiceApiKey"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

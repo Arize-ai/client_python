@@ -11,7 +11,6 @@ from arize.annotation_configs.types import (
     ListAnnotationConfigsResponse,
 )
 from arize.constants.config import DEFAULT_LIST_LIMIT
-from arize.pre_releases import ReleaseStage, prerelease_endpoint
 from arize.utils.resolve import (
     _find_annotation_config_id,
     _find_space_id,
@@ -63,7 +62,6 @@ class AnnotationConfigsClient:
         self._api = gen.AnnotationConfigsApi(generated_client)
         self._spaces_api = gen.SpacesApi(generated_client)
 
-    @prerelease_endpoint(key="annotation_configs.list", stage=ReleaseStage.BETA)
     def list(
         self,
         *,
@@ -105,9 +103,6 @@ class AnnotationConfigsClient:
             result, from_attributes=True
         )
 
-    @prerelease_endpoint(
-        key="annotation_configs.create", stage=ReleaseStage.BETA
-    )
     def create_continuous(
         self,
         *,
@@ -156,9 +151,6 @@ class AnnotationConfigsClient:
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
 
-    @prerelease_endpoint(
-        key="annotation_configs.create", stage=ReleaseStage.BETA
-    )
     def create_categorical(
         self,
         *,
@@ -203,9 +195,6 @@ class AnnotationConfigsClient:
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
 
-    @prerelease_endpoint(
-        key="annotation_configs.create", stage=ReleaseStage.BETA
-    )
     def create_freeform(
         self,
         *,
@@ -243,7 +232,6 @@ class AnnotationConfigsClient:
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
 
-    @prerelease_endpoint(key="annotation_configs.get", stage=ReleaseStage.BETA)
     def get(
         self, *, annotation_config: str, space: str | None = None
     ) -> (
@@ -277,9 +265,6 @@ class AnnotationConfigsClient:
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
 
-    @prerelease_endpoint(
-        key="annotation_configs.update", stage=ReleaseStage.BETA
-    )
     def update_continuous(
         self,
         *,
@@ -335,9 +320,6 @@ class AnnotationConfigsClient:
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
 
-    @prerelease_endpoint(
-        key="annotation_configs.update", stage=ReleaseStage.BETA
-    )
     def update_categorical(
         self,
         *,
@@ -391,9 +373,6 @@ class AnnotationConfigsClient:
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
 
-    @prerelease_endpoint(
-        key="annotation_configs.update", stage=ReleaseStage.BETA
-    )
     def update_freeform(
         self,
         *,
@@ -440,9 +419,6 @@ class AnnotationConfigsClient:
         )
         return unwrap_oneof(result)  # type: ignore[return-value]
 
-    @prerelease_endpoint(
-        key="annotation_configs.delete", stage=ReleaseStage.BETA
-    )
     def delete(
         self, *, annotation_config: str, space: str | None = None
     ) -> None:

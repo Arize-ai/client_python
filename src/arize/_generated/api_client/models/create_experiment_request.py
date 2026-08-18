@@ -17,8 +17,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from arize._generated.api_client.models.experiment_run_input import ExperimentRunInput
 from typing import Optional, Set
 from typing_extensions import Self
@@ -27,11 +28,18 @@ class CreateExperimentRequest(BaseModel):
     """
     Experiment creation parameters with an initial set of runs.  An experiment belongs to a space and may optionally be associated with a dataset. Provide exactly one of: - `dataset_id` — associate the experiment with a dataset; it's created in   that dataset's space, and its runs may reference the dataset's examples   via `example_id`. - `space_id` — the space to create the experiment in, when it isn't   associated with a dataset.  Providing both, or neither, is a validation error. 
     """ # noqa: E501
-    name: StrictStr = Field(description="Name of the experiment")
+    name: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Name of the experiment. Must not contain double quotes (`\"`) or backslashes (`\\`). ")
     dataset_id: Optional[StrictStr] = Field(default=None, description="ID of the dataset to associate the experiment with. Provide `space_id` instead when the experiment isn't associated with a dataset.")
     space_id: Optional[StrictStr] = Field(default=None, description="ID of the space to create the experiment in. Provide instead of `dataset_id`.")
     experiment_runs: List[ExperimentRunInput] = Field(description="Array of experiment run data")
     __properties: ClassVar[List[str]] = ["name", "dataset_id", "space_id", "experiment_runs"]
+
+    @field_validator('name')
+    def name_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[^\"\\]*$", value):
+            raise ValueError(r"must validate the regular expression /^[^\"\\]*$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

@@ -715,7 +715,7 @@ class AnnotationQueuesApi:
     ) -> AnnotationQueue:
         """Create an annotation queue
 
-        Create a new annotation queue.  **Payload Requirements** - The annotation queue name must be unique within the given space (among active queues). - At least one `annotation_config_id` is required, and all configs must belong to the specified space. - Do not include system-managed fields on input: `id`, `created_at`, `updated_at`. - If `assignment_method` is not provided, it defaults to `\"all\"`.  **Valid example** ```json {   \"name\": \"Quality Review Queue\",   \"space_id\": \"spc_xyz789\",   \"annotation_config_ids\": [\"ac_abc123\"],   \"annotator_emails\": [\"reviewer@example.com\"],   \"assignment_method\": \"all\" } ```  **Valid example with records** ```json {   \"name\": \"Quality Review Queue\",   \"space_id\": \"spc_xyz789\",   \"annotation_config_ids\": [\"ac_abc123\"],   \"annotator_emails\": [\"reviewer@example.com\"],   \"records\": [     {\"record_type\": \"SPAN\", \"project_id\": \"prj_abc\", \"start_time\": \"2024-01-15T00:00:00Z\", \"end_time\": \"2024-01-16T00:00:00Z\", \"span_ids\": [\"span_001\"]},     {\"record_type\": \"EXAMPLE\", \"dataset_id\": \"ds_xyz\", \"example_ids\": [\"ex_001\", \"ex_002\"]}   ] } ```  **Invalid example** (missing required annotation_config_ids) ```json {   \"name\": \"My Queue\",   \"space_id\": \"spc_xyz789\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new annotation queue.  **Payload Requirements** - The annotation queue name must be unique within the given space (among active queues). - At least one `annotation_config_id` is required, and all configs must belong to the specified space. - Do not include system-managed fields on input: `id`, `created_at`, `updated_at`. - If `assignment_method` is not provided, it defaults to `\"all\"`.  **Valid example** ```json {   \"name\": \"Quality Review Queue\",   \"space_id\": \"spc_xyz789\",   \"annotation_config_ids\": [\"ac_abc123\"],   \"annotator_emails\": [\"reviewer@example.com\"],   \"assignment_method\": \"all\" } ```  **Valid example with records** ```json {   \"name\": \"Quality Review Queue\",   \"space_id\": \"spc_xyz789\",   \"annotation_config_ids\": [\"ac_abc123\"],   \"annotator_emails\": [\"reviewer@example.com\"],   \"records\": [     {\"record_type\": \"SPAN\", \"project_id\": \"prj_abc\", \"start_time\": \"2024-01-15T00:00:00Z\", \"end_time\": \"2024-01-16T00:00:00Z\", \"span_ids\": [\"span_001\"]},     {\"record_type\": \"EXAMPLE\", \"dataset_id\": \"ds_xyz\", \"example_ids\": [\"ex_001\", \"ex_002\"]}   ] } ```  **Invalid example** (missing required annotation_config_ids) ```json {   \"name\": \"My Queue\",   \"space_id\": \"spc_xyz789\" } ``` 
 
         :param create_annotation_queue_request: Body containing annotation queue creation parameters (required)
         :type create_annotation_queue_request: CreateAnnotationQueueRequest
@@ -789,7 +789,7 @@ class AnnotationQueuesApi:
     ) -> ApiResponse[AnnotationQueue]:
         """Create an annotation queue
 
-        Create a new annotation queue.  **Payload Requirements** - The annotation queue name must be unique within the given space (among active queues). - At least one `annotation_config_id` is required, and all configs must belong to the specified space. - Do not include system-managed fields on input: `id`, `created_at`, `updated_at`. - If `assignment_method` is not provided, it defaults to `\"all\"`.  **Valid example** ```json {   \"name\": \"Quality Review Queue\",   \"space_id\": \"spc_xyz789\",   \"annotation_config_ids\": [\"ac_abc123\"],   \"annotator_emails\": [\"reviewer@example.com\"],   \"assignment_method\": \"all\" } ```  **Valid example with records** ```json {   \"name\": \"Quality Review Queue\",   \"space_id\": \"spc_xyz789\",   \"annotation_config_ids\": [\"ac_abc123\"],   \"annotator_emails\": [\"reviewer@example.com\"],   \"records\": [     {\"record_type\": \"SPAN\", \"project_id\": \"prj_abc\", \"start_time\": \"2024-01-15T00:00:00Z\", \"end_time\": \"2024-01-16T00:00:00Z\", \"span_ids\": [\"span_001\"]},     {\"record_type\": \"EXAMPLE\", \"dataset_id\": \"ds_xyz\", \"example_ids\": [\"ex_001\", \"ex_002\"]}   ] } ```  **Invalid example** (missing required annotation_config_ids) ```json {   \"name\": \"My Queue\",   \"space_id\": \"spc_xyz789\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new annotation queue.  **Payload Requirements** - The annotation queue name must be unique within the given space (among active queues). - At least one `annotation_config_id` is required, and all configs must belong to the specified space. - Do not include system-managed fields on input: `id`, `created_at`, `updated_at`. - If `assignment_method` is not provided, it defaults to `\"all\"`.  **Valid example** ```json {   \"name\": \"Quality Review Queue\",   \"space_id\": \"spc_xyz789\",   \"annotation_config_ids\": [\"ac_abc123\"],   \"annotator_emails\": [\"reviewer@example.com\"],   \"assignment_method\": \"all\" } ```  **Valid example with records** ```json {   \"name\": \"Quality Review Queue\",   \"space_id\": \"spc_xyz789\",   \"annotation_config_ids\": [\"ac_abc123\"],   \"annotator_emails\": [\"reviewer@example.com\"],   \"records\": [     {\"record_type\": \"SPAN\", \"project_id\": \"prj_abc\", \"start_time\": \"2024-01-15T00:00:00Z\", \"end_time\": \"2024-01-16T00:00:00Z\", \"span_ids\": [\"span_001\"]},     {\"record_type\": \"EXAMPLE\", \"dataset_id\": \"ds_xyz\", \"example_ids\": [\"ex_001\", \"ex_002\"]}   ] } ```  **Invalid example** (missing required annotation_config_ids) ```json {   \"name\": \"My Queue\",   \"space_id\": \"spc_xyz789\" } ``` 
 
         :param create_annotation_queue_request: Body containing annotation queue creation parameters (required)
         :type create_annotation_queue_request: CreateAnnotationQueueRequest
@@ -863,7 +863,7 @@ class AnnotationQueuesApi:
     ) -> RESTResponseType:
         """Create an annotation queue
 
-        Create a new annotation queue.  **Payload Requirements** - The annotation queue name must be unique within the given space (among active queues). - At least one `annotation_config_id` is required, and all configs must belong to the specified space. - Do not include system-managed fields on input: `id`, `created_at`, `updated_at`. - If `assignment_method` is not provided, it defaults to `\"all\"`.  **Valid example** ```json {   \"name\": \"Quality Review Queue\",   \"space_id\": \"spc_xyz789\",   \"annotation_config_ids\": [\"ac_abc123\"],   \"annotator_emails\": [\"reviewer@example.com\"],   \"assignment_method\": \"all\" } ```  **Valid example with records** ```json {   \"name\": \"Quality Review Queue\",   \"space_id\": \"spc_xyz789\",   \"annotation_config_ids\": [\"ac_abc123\"],   \"annotator_emails\": [\"reviewer@example.com\"],   \"records\": [     {\"record_type\": \"SPAN\", \"project_id\": \"prj_abc\", \"start_time\": \"2024-01-15T00:00:00Z\", \"end_time\": \"2024-01-16T00:00:00Z\", \"span_ids\": [\"span_001\"]},     {\"record_type\": \"EXAMPLE\", \"dataset_id\": \"ds_xyz\", \"example_ids\": [\"ex_001\", \"ex_002\"]}   ] } ```  **Invalid example** (missing required annotation_config_ids) ```json {   \"name\": \"My Queue\",   \"space_id\": \"spc_xyz789\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new annotation queue.  **Payload Requirements** - The annotation queue name must be unique within the given space (among active queues). - At least one `annotation_config_id` is required, and all configs must belong to the specified space. - Do not include system-managed fields on input: `id`, `created_at`, `updated_at`. - If `assignment_method` is not provided, it defaults to `\"all\"`.  **Valid example** ```json {   \"name\": \"Quality Review Queue\",   \"space_id\": \"spc_xyz789\",   \"annotation_config_ids\": [\"ac_abc123\"],   \"annotator_emails\": [\"reviewer@example.com\"],   \"assignment_method\": \"all\" } ```  **Valid example with records** ```json {   \"name\": \"Quality Review Queue\",   \"space_id\": \"spc_xyz789\",   \"annotation_config_ids\": [\"ac_abc123\"],   \"annotator_emails\": [\"reviewer@example.com\"],   \"records\": [     {\"record_type\": \"SPAN\", \"project_id\": \"prj_abc\", \"start_time\": \"2024-01-15T00:00:00Z\", \"end_time\": \"2024-01-16T00:00:00Z\", \"span_ids\": [\"span_001\"]},     {\"record_type\": \"EXAMPLE\", \"dataset_id\": \"ds_xyz\", \"example_ids\": [\"ex_001\", \"ex_002\"]}   ] } ```  **Invalid example** (missing required annotation_config_ids) ```json {   \"name\": \"My Queue\",   \"space_id\": \"spc_xyz789\" } ``` 
 
         :param create_annotation_queue_request: Body containing annotation queue creation parameters (required)
         :type create_annotation_queue_request: CreateAnnotationQueueRequest
@@ -1012,7 +1012,7 @@ class AnnotationQueuesApi:
     ) -> CreateAnnotationQueueRecordResponse:
         """Create annotation queue records
 
-        Add new records from spans, traces, or dataset examples to an existing annotation queue.  **Payload Requirements**   - At least one record source is required.   - At most 2 record sources are allowed per request   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.   - For dataset record source: all `example_ids` must be non-empty strings.   - For project record source:     - span records: all `span_ids` must be non-empty strings.     - trace records: all `trace_ids` must be non-empty strings.   - At most 500 records total may be added in one request  **Valid example (span record)** ```json {   \"record_sources\": [     {       \"record_type\": \"SPAN\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  **Valid example (trace record)** ```json {   \"record_sources\": [     {       \"record_type\": \"TRACE\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"trace_ids\": [\"8fe3373f-0da4-4a8e-b57f-5c8878cfb747\"]     }   ] } ```  **Invalid example** (span record with `start_time` after `end_time`) ```json {   \"record_sources\": [     {       \"record_type\": \"SPAN\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-20T00:00:00Z\",       \"end_time\": \"2026-01-15T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue only when the total records from all sources does not exceed 500.</Note>  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Add new records from spans, traces, or dataset examples to an existing annotation queue.  **Payload Requirements**   - At least one record source is required.   - At most 2 record sources are allowed per request   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.   - For dataset record source: all `example_ids` must be non-empty strings.   - For project record source:     - span records: all `span_ids` must be non-empty strings.     - trace records: all `trace_ids` must be non-empty strings.   - At most 500 records total may be added in one request  **Valid example (span record)** ```json {   \"record_sources\": [     {       \"record_type\": \"SPAN\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  **Valid example (trace record)** ```json {   \"record_sources\": [     {       \"record_type\": \"TRACE\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"trace_ids\": [\"8fe3373f-0da4-4a8e-b57f-5c8878cfb747\"]     }   ] } ```  **Invalid example** (span record with `start_time` after `end_time`) ```json {   \"record_sources\": [     {       \"record_type\": \"SPAN\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-20T00:00:00Z\",       \"end_time\": \"2026-01-15T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue only when the total records from all sources does not exceed 500.</Note>  **Response codes** - `201 Created`: at least one new record was added to the queue. - `200 OK`: the request was valid but all record sources were already present   in the queue — no new records were inserted. The `record_sources` array in   the response body will be empty. 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
@@ -1090,7 +1090,7 @@ class AnnotationQueuesApi:
     ) -> ApiResponse[CreateAnnotationQueueRecordResponse]:
         """Create annotation queue records
 
-        Add new records from spans, traces, or dataset examples to an existing annotation queue.  **Payload Requirements**   - At least one record source is required.   - At most 2 record sources are allowed per request   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.   - For dataset record source: all `example_ids` must be non-empty strings.   - For project record source:     - span records: all `span_ids` must be non-empty strings.     - trace records: all `trace_ids` must be non-empty strings.   - At most 500 records total may be added in one request  **Valid example (span record)** ```json {   \"record_sources\": [     {       \"record_type\": \"SPAN\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  **Valid example (trace record)** ```json {   \"record_sources\": [     {       \"record_type\": \"TRACE\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"trace_ids\": [\"8fe3373f-0da4-4a8e-b57f-5c8878cfb747\"]     }   ] } ```  **Invalid example** (span record with `start_time` after `end_time`) ```json {   \"record_sources\": [     {       \"record_type\": \"SPAN\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-20T00:00:00Z\",       \"end_time\": \"2026-01-15T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue only when the total records from all sources does not exceed 500.</Note>  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Add new records from spans, traces, or dataset examples to an existing annotation queue.  **Payload Requirements**   - At least one record source is required.   - At most 2 record sources are allowed per request   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.   - For dataset record source: all `example_ids` must be non-empty strings.   - For project record source:     - span records: all `span_ids` must be non-empty strings.     - trace records: all `trace_ids` must be non-empty strings.   - At most 500 records total may be added in one request  **Valid example (span record)** ```json {   \"record_sources\": [     {       \"record_type\": \"SPAN\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  **Valid example (trace record)** ```json {   \"record_sources\": [     {       \"record_type\": \"TRACE\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"trace_ids\": [\"8fe3373f-0da4-4a8e-b57f-5c8878cfb747\"]     }   ] } ```  **Invalid example** (span record with `start_time` after `end_time`) ```json {   \"record_sources\": [     {       \"record_type\": \"SPAN\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-20T00:00:00Z\",       \"end_time\": \"2026-01-15T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue only when the total records from all sources does not exceed 500.</Note>  **Response codes** - `201 Created`: at least one new record was added to the queue. - `200 OK`: the request was valid but all record sources were already present   in the queue — no new records were inserted. The `record_sources` array in   the response body will be empty. 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
@@ -1168,7 +1168,7 @@ class AnnotationQueuesApi:
     ) -> RESTResponseType:
         """Create annotation queue records
 
-        Add new records from spans, traces, or dataset examples to an existing annotation queue.  **Payload Requirements**   - At least one record source is required.   - At most 2 record sources are allowed per request   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.   - For dataset record source: all `example_ids` must be non-empty strings.   - For project record source:     - span records: all `span_ids` must be non-empty strings.     - trace records: all `trace_ids` must be non-empty strings.   - At most 500 records total may be added in one request  **Valid example (span record)** ```json {   \"record_sources\": [     {       \"record_type\": \"SPAN\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  **Valid example (trace record)** ```json {   \"record_sources\": [     {       \"record_type\": \"TRACE\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"trace_ids\": [\"8fe3373f-0da4-4a8e-b57f-5c8878cfb747\"]     }   ] } ```  **Invalid example** (span record with `start_time` after `end_time`) ```json {   \"record_sources\": [     {       \"record_type\": \"SPAN\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-20T00:00:00Z\",       \"end_time\": \"2026-01-15T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue only when the total records from all sources does not exceed 500.</Note>  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Add new records from spans, traces, or dataset examples to an existing annotation queue.  **Payload Requirements**   - At least one record source is required.   - At most 2 record sources are allowed per request   - For span record source: `start_time` must be before `end_time`, and the range must not exceed 7 days.   - For dataset record source: all `example_ids` must be non-empty strings.   - For project record source:     - span records: all `span_ids` must be non-empty strings.     - trace records: all `trace_ids` must be non-empty strings.   - At most 500 records total may be added in one request  **Valid example (span record)** ```json {   \"record_sources\": [     {       \"record_type\": \"SPAN\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  **Valid example (trace record)** ```json {   \"record_sources\": [     {       \"record_type\": \"TRACE\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-15T00:00:00Z\",       \"end_time\": \"2026-01-16T00:00:00Z\",       \"trace_ids\": [\"8fe3373f-0da4-4a8e-b57f-5c8878cfb747\"]     }   ] } ```  **Invalid example** (span record with `start_time` after `end_time`) ```json {   \"record_sources\": [     {       \"record_type\": \"SPAN\",       \"project_id\": \"TW9kZWw6MTIzOmFCY0Q=\",       \"start_time\": \"2026-01-20T00:00:00Z\",       \"end_time\": \"2026-01-15T00:00:00Z\",       \"span_ids\": [\"U3BhbjoxOmFCY0Q=\"]     }   ] } ```  <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue only when the total records from all sources does not exceed 500.</Note>  **Response codes** - `201 Created`: at least one new record was added to the queue. - `200 OK`: the request was valid but all record sources were already present   in the queue — no new records were inserted. The `record_sources` array in   the response body will be empty. 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
@@ -1322,7 +1322,7 @@ class AnnotationQueuesApi:
     ) -> None:
         """Delete an annotation queue
 
-        Delete an annotation queue by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete an annotation queue by its ID. This operation is irreversible. 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
@@ -1394,7 +1394,7 @@ class AnnotationQueuesApi:
     ) -> ApiResponse[None]:
         """Delete an annotation queue
 
-        Delete an annotation queue by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete an annotation queue by its ID. This operation is irreversible. 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
@@ -1466,7 +1466,7 @@ class AnnotationQueuesApi:
     ) -> RESTResponseType:
         """Delete an annotation queue
 
-        Delete an annotation queue by its ID. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete an annotation queue by its ID. This operation is irreversible. 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
@@ -1599,7 +1599,7 @@ class AnnotationQueuesApi:
     ) -> None:
         """Delete annotation queue records
 
-        Delete one or more records from an annotation queue by their IDs.  If one or more record IDs are not found or do not belong to the specified queue, they are silently ignored. A 204 response does not guarantee that all provided IDs were deleted.  Returns 404 if the annotation queue specified by `annotation_queue_id` is not found. Individual missing record IDs do not trigger a 404.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete one or more records from an annotation queue by their IDs.  If one or more record IDs are not found or do not belong to the specified queue, they are silently ignored. A 204 response does not guarantee that all provided IDs were deleted.  Returns 404 if the annotation queue specified by `annotation_queue_id` is not found. Individual missing record IDs do not trigger a 404. 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
@@ -1676,7 +1676,7 @@ class AnnotationQueuesApi:
     ) -> ApiResponse[None]:
         """Delete annotation queue records
 
-        Delete one or more records from an annotation queue by their IDs.  If one or more record IDs are not found or do not belong to the specified queue, they are silently ignored. A 204 response does not guarantee that all provided IDs were deleted.  Returns 404 if the annotation queue specified by `annotation_queue_id` is not found. Individual missing record IDs do not trigger a 404.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete one or more records from an annotation queue by their IDs.  If one or more record IDs are not found or do not belong to the specified queue, they are silently ignored. A 204 response does not guarantee that all provided IDs were deleted.  Returns 404 if the annotation queue specified by `annotation_queue_id` is not found. Individual missing record IDs do not trigger a 404. 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
@@ -1753,7 +1753,7 @@ class AnnotationQueuesApi:
     ) -> RESTResponseType:
         """Delete annotation queue records
 
-        Delete one or more records from an annotation queue by their IDs.  If one or more record IDs are not found or do not belong to the specified queue, they are silently ignored. A 204 response does not guarantee that all provided IDs were deleted.  Returns 404 if the annotation queue specified by `annotation_queue_id` is not found. Individual missing record IDs do not trigger a 404.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete one or more records from an annotation queue by their IDs.  If one or more record IDs are not found or do not belong to the specified queue, they are silently ignored. A 204 response does not guarantee that all provided IDs were deleted.  Returns 404 if the annotation queue specified by `annotation_queue_id` is not found. Individual missing record IDs do not trigger a 404. 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
@@ -1905,7 +1905,7 @@ class AnnotationQueuesApi:
     ) -> AnnotationQueue:
         """Get an annotation queue
 
-        Get an annotation queue object by its ID.  This includes the annotation queue's annotation configs, which define the structure of annotations that can be created in this queue.  This endpoint does not include queue records or annotation progress. To manage records in a queue, use the Annotation Queue Items endpoints.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Get an annotation queue object by its ID.  This includes the annotation queue's annotation configs, which define the structure of annotations that can be created in this queue.  This endpoint does not include queue records or annotation progress. To manage records in a queue, use the Annotation Queue Items endpoints. 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
@@ -1976,7 +1976,7 @@ class AnnotationQueuesApi:
     ) -> ApiResponse[AnnotationQueue]:
         """Get an annotation queue
 
-        Get an annotation queue object by its ID.  This includes the annotation queue's annotation configs, which define the structure of annotations that can be created in this queue.  This endpoint does not include queue records or annotation progress. To manage records in a queue, use the Annotation Queue Items endpoints.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Get an annotation queue object by its ID.  This includes the annotation queue's annotation configs, which define the structure of annotations that can be created in this queue.  This endpoint does not include queue records or annotation progress. To manage records in a queue, use the Annotation Queue Items endpoints. 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
@@ -2047,7 +2047,7 @@ class AnnotationQueuesApi:
     ) -> RESTResponseType:
         """Get an annotation queue
 
-        Get an annotation queue object by its ID.  This includes the annotation queue's annotation configs, which define the structure of annotations that can be created in this queue.  This endpoint does not include queue records or annotation progress. To manage records in a queue, use the Annotation Queue Items endpoints.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Get an annotation queue object by its ID.  This includes the annotation queue's annotation configs, which define the structure of annotations that can be created in this queue.  This endpoint does not include queue records or annotation progress. To manage records in a queue, use the Annotation Queue Items endpoints. 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
@@ -2165,7 +2165,7 @@ class AnnotationQueuesApi:
         self,
         annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 500.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2181,13 +2181,13 @@ class AnnotationQueuesApi:
     ) -> ListAnnotationQueueRecordsResponse:
         """List annotation queue records
 
-        List the records in an annotation queue with their data and annotations.  Each record includes: - The record's data as flat key-value pairs - Any annotations that have been added to the record - The users assigned to annotate the record and their completion status - The record's granularity, applicable when the source type is spans  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List the records in an annotation queue with their data and annotations.  Each record includes: - The record's data as flat key-value pairs - Any annotations that have been added to the record - The users assigned to annotate the record and their completion status - The record's granularity, applicable when the source type is spans  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests. 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 500.
         :type limit: int
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2245,7 +2245,7 @@ class AnnotationQueuesApi:
         self,
         annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 500.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2261,13 +2261,13 @@ class AnnotationQueuesApi:
     ) -> ApiResponse[ListAnnotationQueueRecordsResponse]:
         """List annotation queue records
 
-        List the records in an annotation queue with their data and annotations.  Each record includes: - The record's data as flat key-value pairs - Any annotations that have been added to the record - The users assigned to annotate the record and their completion status - The record's granularity, applicable when the source type is spans  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List the records in an annotation queue with their data and annotations.  Each record includes: - The record's data as flat key-value pairs - Any annotations that have been added to the record - The users assigned to annotate the record and their completion status - The record's granularity, applicable when the source type is spans  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests. 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 500.
         :type limit: int
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2325,7 +2325,7 @@ class AnnotationQueuesApi:
         self,
         annotation_queue_id: Annotated[StrictStr, Field(description="The unique annotation queue identifier (base64)")],
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 500.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2341,13 +2341,13 @@ class AnnotationQueuesApi:
     ) -> RESTResponseType:
         """List annotation queue records
 
-        List the records in an annotation queue with their data and annotations.  Each record includes: - The record's data as flat key-value pairs - Any annotations that have been added to the record - The users assigned to annotate the record and their completion status - The record's granularity, applicable when the source type is spans  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List the records in an annotation queue with their data and annotations.  Each record includes: - The record's data as flat key-value pairs - Any annotations that have been added to the record - The users assigned to annotate the record and their completion status - The record's granularity, applicable when the source type is spans  **Pagination**: - Response includes `pagination` with `has_more` and `next_cursor`. - Use cursor-based pagination by passing the returned `next_cursor` value as the `cursor` query parameter in subsequent requests. 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 500.
         :type limit: int
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2477,7 +2477,7 @@ class AnnotationQueuesApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -2494,7 +2494,7 @@ class AnnotationQueuesApi:
     ) -> ListAnnotationQueuesResponse:
         """List annotation queues
 
-        List annotation queues the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List annotation queues the user has access to. 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -2502,7 +2502,7 @@ class AnnotationQueuesApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -2565,7 +2565,7 @@ class AnnotationQueuesApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -2582,7 +2582,7 @@ class AnnotationQueuesApi:
     ) -> ApiResponse[ListAnnotationQueuesResponse]:
         """List annotation queues
 
-        List annotation queues the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List annotation queues the user has access to. 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -2590,7 +2590,7 @@ class AnnotationQueuesApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -2653,7 +2653,7 @@ class AnnotationQueuesApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -2670,7 +2670,7 @@ class AnnotationQueuesApi:
     ) -> RESTResponseType:
         """List annotation queues
 
-        List annotation queues the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List annotation queues the user has access to. 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -2678,7 +2678,7 @@ class AnnotationQueuesApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -2838,7 +2838,7 @@ class AnnotationQueuesApi:
     ) -> AnnotationQueue:
         """Update an annotation queue
 
-        Update an annotation queue by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `instructions`, `annotation_config_ids`, or `annotator_emails` must be provided - `name` must be unique within the space (409 Conflict if duplicate) - `annotation_config_ids` replaces all existing config associations; all configs must belong to the same space as the queue - `annotator_emails` replaces all existing user assignments; all users must have active accounts  **Valid example** ```json {   \"name\": \"Updated Review Queue\",   \"annotation_config_ids\": [\"QW5ub3RhdGlvbkNvbmZpZzoxOmFCY0Q=\", \"QW5ub3RhdGlvbkNvbmZpZzoyOmFCY0Q=\"],   \"annotator_emails\": [\"reviewer@example.com\"] } ```  **Invalid example** (empty body — no fields provided) ```json {} ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update an annotation queue by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `instructions`, `annotation_config_ids`, or `annotator_emails` must be provided - `name` must be unique within the space (409 Conflict if duplicate) - `annotation_config_ids` replaces all existing config associations; all configs must belong to the same space as the queue - `annotator_emails` replaces all existing user assignments; all users must have active accounts  **Valid example** ```json {   \"name\": \"Updated Review Queue\",   \"annotation_config_ids\": [\"QW5ub3RhdGlvbkNvbmZpZzoxOmFCY0Q=\", \"QW5ub3RhdGlvbkNvbmZpZzoyOmFCY0Q=\"],   \"annotator_emails\": [\"reviewer@example.com\"] } ```  **Invalid example** (empty body — no fields provided) ```json {} ``` 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
@@ -2916,7 +2916,7 @@ class AnnotationQueuesApi:
     ) -> ApiResponse[AnnotationQueue]:
         """Update an annotation queue
 
-        Update an annotation queue by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `instructions`, `annotation_config_ids`, or `annotator_emails` must be provided - `name` must be unique within the space (409 Conflict if duplicate) - `annotation_config_ids` replaces all existing config associations; all configs must belong to the same space as the queue - `annotator_emails` replaces all existing user assignments; all users must have active accounts  **Valid example** ```json {   \"name\": \"Updated Review Queue\",   \"annotation_config_ids\": [\"QW5ub3RhdGlvbkNvbmZpZzoxOmFCY0Q=\", \"QW5ub3RhdGlvbkNvbmZpZzoyOmFCY0Q=\"],   \"annotator_emails\": [\"reviewer@example.com\"] } ```  **Invalid example** (empty body — no fields provided) ```json {} ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update an annotation queue by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `instructions`, `annotation_config_ids`, or `annotator_emails` must be provided - `name` must be unique within the space (409 Conflict if duplicate) - `annotation_config_ids` replaces all existing config associations; all configs must belong to the same space as the queue - `annotator_emails` replaces all existing user assignments; all users must have active accounts  **Valid example** ```json {   \"name\": \"Updated Review Queue\",   \"annotation_config_ids\": [\"QW5ub3RhdGlvbkNvbmZpZzoxOmFCY0Q=\", \"QW5ub3RhdGlvbkNvbmZpZzoyOmFCY0Q=\"],   \"annotator_emails\": [\"reviewer@example.com\"] } ```  **Invalid example** (empty body — no fields provided) ```json {} ``` 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str
@@ -2994,7 +2994,7 @@ class AnnotationQueuesApi:
     ) -> RESTResponseType:
         """Update an annotation queue
 
-        Update an annotation queue by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `instructions`, `annotation_config_ids`, or `annotator_emails` must be provided - `name` must be unique within the space (409 Conflict if duplicate) - `annotation_config_ids` replaces all existing config associations; all configs must belong to the same space as the queue - `annotator_emails` replaces all existing user assignments; all users must have active accounts  **Valid example** ```json {   \"name\": \"Updated Review Queue\",   \"annotation_config_ids\": [\"QW5ub3RhdGlvbkNvbmZpZzoxOmFCY0Q=\", \"QW5ub3RhdGlvbkNvbmZpZzoyOmFCY0Q=\"],   \"annotator_emails\": [\"reviewer@example.com\"] } ```  **Invalid example** (empty body — no fields provided) ```json {} ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update an annotation queue by its ID. At least one field must be provided.  **Payload Requirements** - At least one of `name`, `instructions`, `annotation_config_ids`, or `annotator_emails` must be provided - `name` must be unique within the space (409 Conflict if duplicate) - `annotation_config_ids` replaces all existing config associations; all configs must belong to the same space as the queue - `annotator_emails` replaces all existing user assignments; all users must have active accounts  **Valid example** ```json {   \"name\": \"Updated Review Queue\",   \"annotation_config_ids\": [\"QW5ub3RhdGlvbkNvbmZpZzoxOmFCY0Q=\", \"QW5ub3RhdGlvbkNvbmZpZzoyOmFCY0Q=\"],   \"annotator_emails\": [\"reviewer@example.com\"] } ```  **Invalid example** (empty body — no fields provided) ```json {} ``` 
 
         :param annotation_queue_id: The unique annotation queue identifier (base64) (required)
         :type annotation_queue_id: str

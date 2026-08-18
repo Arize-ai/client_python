@@ -113,8 +113,11 @@ Class | Method | HTTP request | Description
 *EvaluatorsApi* | [**delete_evaluator**](arize/_generated/api_client/docs/EvaluatorsApi.md#delete_evaluator) | **DELETE** /v2/evaluators/{evaluator_id} | Delete evaluator
 *EvaluatorsApi* | [**get_evaluator**](arize/_generated/api_client/docs/EvaluatorsApi.md#get_evaluator) | **GET** /v2/evaluators/{evaluator_id} | Get evaluator
 *EvaluatorsApi* | [**get_evaluator_version**](arize/_generated/api_client/docs/EvaluatorsApi.md#get_evaluator_version) | **GET** /v2/evaluator-versions/{version_id} | Get evaluator version
+*EvaluatorsApi* | [**get_evaluator_webhook_subscriptions**](arize/_generated/api_client/docs/EvaluatorsApi.md#get_evaluator_webhook_subscriptions) | **GET** /v2/evaluators/{evaluator_id}/webhook-subscriptions | Get an evaluator&#39;s webhook subscriptions
+*EvaluatorsApi* | [**list_evaluator_templates**](arize/_generated/api_client/docs/EvaluatorsApi.md#list_evaluator_templates) | **GET** /v2/evaluator-templates | List evaluator templates
 *EvaluatorsApi* | [**list_evaluator_versions**](arize/_generated/api_client/docs/EvaluatorsApi.md#list_evaluator_versions) | **GET** /v2/evaluators/{evaluator_id}/versions | List evaluator versions
 *EvaluatorsApi* | [**list_evaluators**](arize/_generated/api_client/docs/EvaluatorsApi.md#list_evaluators) | **GET** /v2/evaluators | List evaluators
+*EvaluatorsApi* | [**set_evaluator_webhook_subscriptions**](arize/_generated/api_client/docs/EvaluatorsApi.md#set_evaluator_webhook_subscriptions) | **PUT** /v2/evaluators/{evaluator_id}/webhook-subscriptions | Set an evaluator&#39;s webhook subscriptions
 *EvaluatorsApi* | [**update_evaluator**](arize/_generated/api_client/docs/EvaluatorsApi.md#update_evaluator) | **PATCH** /v2/evaluators/{evaluator_id} | Update evaluator
 *ExperimentsApi* | [**annotate_experiment_runs**](arize/_generated/api_client/docs/ExperimentsApi.md#annotate_experiment_runs) | **POST** /v2/experiments/{experiment_id}/runs/annotate | Annotate a batch of experiment runs
 *ExperimentsApi* | [**create_experiment**](arize/_generated/api_client/docs/ExperimentsApi.md#create_experiment) | **POST** /v2/experiments | Create an experiment
@@ -128,7 +131,8 @@ Class | Method | HTTP request | Description
 *IntegrationsApi* | [**get_integration**](arize/_generated/api_client/docs/IntegrationsApi.md#get_integration) | **GET** /v2/integrations/{integration_id} | Get an integration
 *IntegrationsApi* | [**list_integrations**](arize/_generated/api_client/docs/IntegrationsApi.md#list_integrations) | **GET** /v2/integrations | List integrations
 *IntegrationsApi* | [**update_integration**](arize/_generated/api_client/docs/IntegrationsApi.md#update_integration) | **PATCH** /v2/integrations/{integration_id} | Update an integration
-*MonitorsApi* | [**get_monitors**](arize/_generated/api_client/docs/MonitorsApi.md#get_monitors) | **GET** /v2/monitors/{monitor_id} | Get a monitor
+*MonitorsApi* | [**get_monitor**](arize/_generated/api_client/docs/MonitorsApi.md#get_monitor) | **GET** /v2/monitors/{monitor_id} | Get a monitor
+*MonitorsApi* | [**list_monitors**](arize/_generated/api_client/docs/MonitorsApi.md#list_monitors) | **GET** /v2/monitors | List monitors
 *OrganizationsApi* | [**add_organization_user**](arize/_generated/api_client/docs/OrganizationsApi.md#add_organization_user) | **POST** /v2/organizations/{org_id}/users | Add a user to an organization
 *OrganizationsApi* | [**create_organization**](arize/_generated/api_client/docs/OrganizationsApi.md#create_organization) | **POST** /v2/organizations | Create an organization
 *OrganizationsApi* | [**delete_organization**](arize/_generated/api_client/docs/OrganizationsApi.md#delete_organization) | **DELETE** /v2/organizations/{org_id} | Delete an organization
@@ -148,9 +152,11 @@ Class | Method | HTTP request | Description
 *PromptsApi* | [**get_prompt**](arize/_generated/api_client/docs/PromptsApi.md#get_prompt) | **GET** /v2/prompts/{prompt_id} | Get a prompt
 *PromptsApi* | [**get_prompt_label**](arize/_generated/api_client/docs/PromptsApi.md#get_prompt_label) | **GET** /v2/prompts/{prompt_id}/labels/{label_name} | Resolve a label to a prompt version
 *PromptsApi* | [**get_prompt_version**](arize/_generated/api_client/docs/PromptsApi.md#get_prompt_version) | **GET** /v2/prompt-versions/{version_id} | Get a prompt version
+*PromptsApi* | [**get_prompt_webhook_subscriptions**](arize/_generated/api_client/docs/PromptsApi.md#get_prompt_webhook_subscriptions) | **GET** /v2/prompts/{prompt_id}/webhook-subscriptions | Get a prompt&#39;s webhook subscriptions
 *PromptsApi* | [**list_prompt_versions**](arize/_generated/api_client/docs/PromptsApi.md#list_prompt_versions) | **GET** /v2/prompts/{prompt_id}/versions | List prompt versions
 *PromptsApi* | [**list_prompts**](arize/_generated/api_client/docs/PromptsApi.md#list_prompts) | **GET** /v2/prompts | List prompts
 *PromptsApi* | [**set_prompt_version_label**](arize/_generated/api_client/docs/PromptsApi.md#set_prompt_version_label) | **PUT** /v2/prompt-versions/{version_id}/labels | Set labels on a prompt version
+*PromptsApi* | [**set_prompt_webhook_subscriptions**](arize/_generated/api_client/docs/PromptsApi.md#set_prompt_webhook_subscriptions) | **PUT** /v2/prompts/{prompt_id}/webhook-subscriptions | Set a prompt&#39;s webhook subscriptions
 *PromptsApi* | [**update_prompt**](arize/_generated/api_client/docs/PromptsApi.md#update_prompt) | **PATCH** /v2/prompts/{prompt_id} | Update a prompt
 *ResourceRestrictionsApi* | [**create_resource_restriction**](arize/_generated/api_client/docs/ResourceRestrictionsApi.md#create_resource_restriction) | **POST** /v2/resource-restrictions | Restrict a resource
 *ResourceRestrictionsApi* | [**delete_resource_restriction**](arize/_generated/api_client/docs/ResourceRestrictionsApi.md#delete_resource_restriction) | **DELETE** /v2/resource-restrictions/{resource_id} | Unrestrict a resource
@@ -175,6 +181,9 @@ Class | Method | HTTP request | Description
 *SpansApi* | [**annotate_spans**](arize/_generated/api_client/docs/SpansApi.md#annotate_spans) | **POST** /v2/spans/annotate | Annotate a batch of project spans
 *SpansApi* | [**delete_spans**](arize/_generated/api_client/docs/SpansApi.md#delete_spans) | **DELETE** /v2/spans | Delete spans
 *SpansApi* | [**list_spans**](arize/_generated/api_client/docs/SpansApi.md#list_spans) | **POST** /v2/spans | List spans
+*TagsApi* | [**create_tag**](arize/_generated/api_client/docs/TagsApi.md#create_tag) | **POST** /v2/tags | Create a tag
+*TagsApi* | [**delete_tag**](arize/_generated/api_client/docs/TagsApi.md#delete_tag) | **DELETE** /v2/tags/{tag_id} | Delete a tag
+*TagsApi* | [**update_tag**](arize/_generated/api_client/docs/TagsApi.md#update_tag) | **PATCH** /v2/tags/{tag_id} | Update a tag
 *TasksApi* | [**cancel_task_run**](arize/_generated/api_client/docs/TasksApi.md#cancel_task_run) | **POST** /v2/task-runs/{run_id}/cancel | Cancel task run
 *TasksApi* | [**create_task**](arize/_generated/api_client/docs/TasksApi.md#create_task) | **POST** /v2/tasks | Create task
 *TasksApi* | [**delete_task**](arize/_generated/api_client/docs/TasksApi.md#delete_task) | **DELETE** /v2/tasks/{task_id} | Delete task
@@ -192,6 +201,13 @@ Class | Method | HTTP request | Description
 *UsersApi* | [**resend_user_invitation**](arize/_generated/api_client/docs/UsersApi.md#resend_user_invitation) | **POST** /v2/users/{user_id}/resend-invitation | Resend a user invitation
 *UsersApi* | [**reset_user_password**](arize/_generated/api_client/docs/UsersApi.md#reset_user_password) | **POST** /v2/users/{user_id}/reset-password | Trigger a password-reset email for a user
 *UsersApi* | [**update_user**](arize/_generated/api_client/docs/UsersApi.md#update_user) | **PATCH** /v2/users/{user_id} | Update a user
+*WebhooksApi* | [**create_webhook**](arize/_generated/api_client/docs/WebhooksApi.md#create_webhook) | **POST** /v2/webhooks | Create a webhook
+*WebhooksApi* | [**delete_webhook**](arize/_generated/api_client/docs/WebhooksApi.md#delete_webhook) | **DELETE** /v2/webhooks/{webhook_id} | Delete a webhook
+*WebhooksApi* | [**get_webhook**](arize/_generated/api_client/docs/WebhooksApi.md#get_webhook) | **GET** /v2/webhooks/{webhook_id} | Get a webhook
+*WebhooksApi* | [**list_webhook_delivery_attempts**](arize/_generated/api_client/docs/WebhooksApi.md#list_webhook_delivery_attempts) | **GET** /v2/webhooks/{webhook_id}/delivery-attempts | List a webhook&#39;s delivery attempts
+*WebhooksApi* | [**list_webhooks**](arize/_generated/api_client/docs/WebhooksApi.md#list_webhooks) | **GET** /v2/webhooks | List webhooks
+*WebhooksApi* | [**test_webhook**](arize/_generated/api_client/docs/WebhooksApi.md#test_webhook) | **POST** /v2/webhooks/{webhook_id}/test | Send a test event to a webhook
+*WebhooksApi* | [**update_webhook**](arize/_generated/api_client/docs/WebhooksApi.md#update_webhook) | **PATCH** /v2/webhooks/{webhook_id} | Update a webhook
 
 
 ## Documentation For Models
@@ -302,6 +318,7 @@ Class | Method | HTTP request | Description
  - [CreateRunExperimentTaskRequest](arize/_generated/api_client/docs/CreateRunExperimentTaskRequest.md)
  - [CreateServiceApiKeyRequest](arize/_generated/api_client/docs/CreateServiceApiKeyRequest.md)
  - [CreateSpaceRequest](arize/_generated/api_client/docs/CreateSpaceRequest.md)
+ - [CreateTagRequest](arize/_generated/api_client/docs/CreateTagRequest.md)
  - [CreateTaskRequest](arize/_generated/api_client/docs/CreateTaskRequest.md)
  - [CreateTemplateEvaluationTaskRequest](arize/_generated/api_client/docs/CreateTemplateEvaluationTaskRequest.md)
  - [CreateTemplateEvaluatorVersionRequest](arize/_generated/api_client/docs/CreateTemplateEvaluatorVersionRequest.md)
@@ -309,6 +326,10 @@ Class | Method | HTTP request | Description
  - [CreateUserRequest](arize/_generated/api_client/docs/CreateUserRequest.md)
  - [CreateUserResponse](arize/_generated/api_client/docs/CreateUserResponse.md)
  - [CreateVertexAiConfig](arize/_generated/api_client/docs/CreateVertexAiConfig.md)
+ - [CreateWebhookRequest](arize/_generated/api_client/docs/CreateWebhookRequest.md)
+ - [CreateWebhookResponse](arize/_generated/api_client/docs/CreateWebhookResponse.md)
+ - [CreatedServiceApiKey](arize/_generated/api_client/docs/CreatedServiceApiKey.md)
+ - [CreatedUserApiKey](arize/_generated/api_client/docs/CreatedUserApiKey.md)
  - [CustomBaselineConfig](arize/_generated/api_client/docs/CustomBaselineConfig.md)
  - [CustomBaselineWindow](arize/_generated/api_client/docs/CustomBaselineWindow.md)
  - [CustomCodeConfig](arize/_generated/api_client/docs/CustomCodeConfig.md)
@@ -346,6 +367,7 @@ Class | Method | HTTP request | Description
  - [Evaluator](arize/_generated/api_client/docs/Evaluator.md)
  - [EvaluatorLlmConfig](arize/_generated/api_client/docs/EvaluatorLlmConfig.md)
  - [EvaluatorLlmConfigRequest](arize/_generated/api_client/docs/EvaluatorLlmConfigRequest.md)
+ - [EvaluatorTemplate](arize/_generated/api_client/docs/EvaluatorTemplate.md)
  - [EvaluatorType](arize/_generated/api_client/docs/EvaluatorType.md)
  - [EvaluatorVersion](arize/_generated/api_client/docs/EvaluatorVersion.md)
  - [EvaluatorVersionCode](arize/_generated/api_client/docs/EvaluatorVersionCode.md)
@@ -388,11 +410,13 @@ Class | Method | HTTP request | Description
  - [ListAuditLogsResponse](arize/_generated/api_client/docs/ListAuditLogsResponse.md)
  - [ListDatasetExamplesResponse](arize/_generated/api_client/docs/ListDatasetExamplesResponse.md)
  - [ListDatasetsResponse](arize/_generated/api_client/docs/ListDatasetsResponse.md)
+ - [ListEvaluatorTemplatesResponse](arize/_generated/api_client/docs/ListEvaluatorTemplatesResponse.md)
  - [ListEvaluatorVersionsResponse](arize/_generated/api_client/docs/ListEvaluatorVersionsResponse.md)
  - [ListEvaluatorsResponse](arize/_generated/api_client/docs/ListEvaluatorsResponse.md)
  - [ListExperimentRunsResponse](arize/_generated/api_client/docs/ListExperimentRunsResponse.md)
  - [ListExperimentsResponse](arize/_generated/api_client/docs/ListExperimentsResponse.md)
  - [ListIntegrationsResponse](arize/_generated/api_client/docs/ListIntegrationsResponse.md)
+ - [ListMonitorsResponse](arize/_generated/api_client/docs/ListMonitorsResponse.md)
  - [ListOrganizationsResponse](arize/_generated/api_client/docs/ListOrganizationsResponse.md)
  - [ListProjectsResponse](arize/_generated/api_client/docs/ListProjectsResponse.md)
  - [ListPromptVersionsResponse](arize/_generated/api_client/docs/ListPromptVersionsResponse.md)
@@ -408,6 +432,8 @@ Class | Method | HTTP request | Description
  - [ListTracesRequest](arize/_generated/api_client/docs/ListTracesRequest.md)
  - [ListTracesResponse](arize/_generated/api_client/docs/ListTracesResponse.md)
  - [ListUsersResponse](arize/_generated/api_client/docs/ListUsersResponse.md)
+ - [ListWebhookDeliveryAttemptsResponse](arize/_generated/api_client/docs/ListWebhookDeliveryAttemptsResponse.md)
+ - [ListWebhooksResponse](arize/_generated/api_client/docs/ListWebhooksResponse.md)
  - [LlmConfig](arize/_generated/api_client/docs/LlmConfig.md)
  - [LlmGenerationRunConfig](arize/_generated/api_client/docs/LlmGenerationRunConfig.md)
  - [LlmGenerationRunConfigRequest](arize/_generated/api_client/docs/LlmGenerationRunConfigRequest.md)
@@ -474,13 +500,13 @@ Class | Method | HTTP request | Description
  - [RunConfiguration](arize/_generated/api_client/docs/RunConfiguration.md)
  - [RunConfigurationRequest](arize/_generated/api_client/docs/RunConfigurationRequest.md)
  - [ScheduledRuntimeConfig](arize/_generated/api_client/docs/ScheduledRuntimeConfig.md)
- - [ServiceApiKeyCreated](arize/_generated/api_client/docs/ServiceApiKeyCreated.md)
  - [ServiceKeyBotUser](arize/_generated/api_client/docs/ServiceKeyBotUser.md)
  - [ServiceKeyBotUserOrgAssignment](arize/_generated/api_client/docs/ServiceKeyBotUserOrgAssignment.md)
  - [ServiceKeyBotUserSpaceAssignment](arize/_generated/api_client/docs/ServiceKeyBotUserSpaceAssignment.md)
  - [ServiceKeyOrgAssignment](arize/_generated/api_client/docs/ServiceKeyOrgAssignment.md)
  - [ServiceKeySpaceAssignment](arize/_generated/api_client/docs/ServiceKeySpaceAssignment.md)
  - [SetPromptVersionLabelsRequest](arize/_generated/api_client/docs/SetPromptVersionLabelsRequest.md)
+ - [SetWebhookSubscriptionsRequest](arize/_generated/api_client/docs/SetWebhookSubscriptionsRequest.md)
  - [Space](arize/_generated/api_client/docs/Space.md)
  - [SpaceMembership](arize/_generated/api_client/docs/SpaceMembership.md)
  - [SpaceRoleAssignment](arize/_generated/api_client/docs/SpaceRoleAssignment.md)
@@ -495,6 +521,8 @@ Class | Method | HTTP request | Description
  - [StaticParamDefaultValue](arize/_generated/api_client/docs/StaticParamDefaultValue.md)
  - [StaticParamRequest](arize/_generated/api_client/docs/StaticParamRequest.md)
  - [StaticParamType](arize/_generated/api_client/docs/StaticParamType.md)
+ - [Tag](arize/_generated/api_client/docs/Tag.md)
+ - [TagColor](arize/_generated/api_client/docs/TagColor.md)
  - [Task](arize/_generated/api_client/docs/Task.md)
  - [TaskEvaluator](arize/_generated/api_client/docs/TaskEvaluator.md)
  - [TaskEvaluatorInput](arize/_generated/api_client/docs/TaskEvaluatorInput.md)
@@ -505,6 +533,7 @@ Class | Method | HTTP request | Description
  - [TemplateConfigInput](arize/_generated/api_client/docs/TemplateConfigInput.md)
  - [TemplateEvaluationRunConfig](arize/_generated/api_client/docs/TemplateEvaluationRunConfig.md)
  - [TemplateEvaluationRunConfigRequest](arize/_generated/api_client/docs/TemplateEvaluationRunConfigRequest.md)
+ - [TestWebhookResponse](arize/_generated/api_client/docs/TestWebhookResponse.md)
  - [ThresholdCalculation](arize/_generated/api_client/docs/ThresholdCalculation.md)
  - [ThresholdConfig](arize/_generated/api_client/docs/ThresholdConfig.md)
  - [ThresholdOperator](arize/_generated/api_client/docs/ThresholdOperator.md)
@@ -545,10 +574,11 @@ Class | Method | HTTP request | Description
  - [UpdateRoleRequest](arize/_generated/api_client/docs/UpdateRoleRequest.md)
  - [UpdateRunExperimentTaskRequest](arize/_generated/api_client/docs/UpdateRunExperimentTaskRequest.md)
  - [UpdateSpaceRequest](arize/_generated/api_client/docs/UpdateSpaceRequest.md)
+ - [UpdateTagRequest](arize/_generated/api_client/docs/UpdateTagRequest.md)
  - [UpdateTaskRequest](arize/_generated/api_client/docs/UpdateTaskRequest.md)
  - [UpdateUserRequest](arize/_generated/api_client/docs/UpdateUserRequest.md)
+ - [UpdateWebhookRequest](arize/_generated/api_client/docs/UpdateWebhookRequest.md)
  - [User](arize/_generated/api_client/docs/User.md)
- - [UserApiKeyCreated](arize/_generated/api_client/docs/UserApiKeyCreated.md)
  - [UserRole](arize/_generated/api_client/docs/UserRole.md)
  - [UserRoleAssignment](arize/_generated/api_client/docs/UserRoleAssignment.md)
  - [UserRoleAssignmentRequest](arize/_generated/api_client/docs/UserRoleAssignmentRequest.md)
@@ -556,7 +586,14 @@ Class | Method | HTTP request | Description
  - [UserSpaceRole](arize/_generated/api_client/docs/UserSpaceRole.md)
  - [UserStatus](arize/_generated/api_client/docs/UserStatus.md)
  - [VertexAiConfig](arize/_generated/api_client/docs/VertexAiConfig.md)
+ - [Webhook](arize/_generated/api_client/docs/Webhook.md)
+ - [WebhookAuthType](arize/_generated/api_client/docs/WebhookAuthType.md)
+ - [WebhookDeliveryAttempt](arize/_generated/api_client/docs/WebhookDeliveryAttempt.md)
+ - [WebhookEventType](arize/_generated/api_client/docs/WebhookEventType.md)
  - [WebhookNotificationConfig](arize/_generated/api_client/docs/WebhookNotificationConfig.md)
+ - [WebhookSubscription](arize/_generated/api_client/docs/WebhookSubscription.md)
+ - [WebhookSubscriptionInput](arize/_generated/api_client/docs/WebhookSubscriptionInput.md)
+ - [WebhookSubscriptions](arize/_generated/api_client/docs/WebhookSubscriptions.md)
 
 
 <a id="documentation-for-authorization"></a>

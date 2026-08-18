@@ -380,7 +380,6 @@ Name | Type | Description  | Notes
 **200** | A space object |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
-**403** | Insufficient permissions to access this resource |  -  |
 **404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
@@ -426,9 +425,9 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.SpacesApi(api_client)
-    org_id = 'T3JnYW5pemF0aW9uOjEyMzQ1' # str | The unique organization identifier (base64). When provided, only spaces belonging to this organization are returned. (optional)
+    org_id = 'T3JnYW5pemF0aW9uOjEyMzQ1' # str | The unique organization identifier (base64). When provided, only resources belonging to this organization are returned. (optional)
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
@@ -447,9 +446,9 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **org_id** | **str**| The unique organization identifier (base64). When provided, only spaces belonging to this organization are returned. | [optional] 
+ **org_id** | **str**| The unique organization identifier (base64). When provided, only resources belonging to this organization are returned. | [optional] 
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
 ### Return type

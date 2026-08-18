@@ -371,7 +371,7 @@ class ExperimentsApi:
     ) -> Experiment:
         """Create an experiment
 
-        Create a new experiment. Empty experiments are not allowed.  An experiment belongs to a space and may optionally be associated with a dataset.  Experiments are composed of \"runs\". Each experiment run (JSON object) must include an `output` field containing the task's output. When the experiment is associated with a dataset, each run must also include an `example_id` referencing an example in that dataset.  Payload Requirements - Provide exactly one of `dataset_id` or `space_id`. - The `name` must be unique within the dataset it's associated with, or   within the space when it isn't associated with a dataset. - Provide at least one run in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- the ID of an existing example in the dataset,   required only when the experiment is associated with a dataset   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new experiment. Empty experiments are not allowed.  An experiment belongs to a space and may optionally be associated with a dataset.  Experiments are composed of \"runs\". Each experiment run (JSON object) must include an `output` field containing the task's output. When the experiment is associated with a dataset, each run must also include an `example_id` referencing an example in that dataset.  Payload Requirements - Provide exactly one of `dataset_id` or `space_id`. - The `name` must be unique within the dataset it's associated with, or   within the space when it isn't associated with a dataset, and must not   contain double quotes (`\"`) or backslashes (`\\`). - Provide at least one run in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- the ID of an existing example in the dataset,   required only when the experiment is associated with a dataset   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_experiment_request: Body containing experiment creation parameters (required)
         :type create_experiment_request: CreateExperimentRequest
@@ -445,7 +445,7 @@ class ExperimentsApi:
     ) -> ApiResponse[Experiment]:
         """Create an experiment
 
-        Create a new experiment. Empty experiments are not allowed.  An experiment belongs to a space and may optionally be associated with a dataset.  Experiments are composed of \"runs\". Each experiment run (JSON object) must include an `output` field containing the task's output. When the experiment is associated with a dataset, each run must also include an `example_id` referencing an example in that dataset.  Payload Requirements - Provide exactly one of `dataset_id` or `space_id`. - The `name` must be unique within the dataset it's associated with, or   within the space when it isn't associated with a dataset. - Provide at least one run in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- the ID of an existing example in the dataset,   required only when the experiment is associated with a dataset   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new experiment. Empty experiments are not allowed.  An experiment belongs to a space and may optionally be associated with a dataset.  Experiments are composed of \"runs\". Each experiment run (JSON object) must include an `output` field containing the task's output. When the experiment is associated with a dataset, each run must also include an `example_id` referencing an example in that dataset.  Payload Requirements - Provide exactly one of `dataset_id` or `space_id`. - The `name` must be unique within the dataset it's associated with, or   within the space when it isn't associated with a dataset, and must not   contain double quotes (`\"`) or backslashes (`\\`). - Provide at least one run in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- the ID of an existing example in the dataset,   required only when the experiment is associated with a dataset   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_experiment_request: Body containing experiment creation parameters (required)
         :type create_experiment_request: CreateExperimentRequest
@@ -519,7 +519,7 @@ class ExperimentsApi:
     ) -> RESTResponseType:
         """Create an experiment
 
-        Create a new experiment. Empty experiments are not allowed.  An experiment belongs to a space and may optionally be associated with a dataset.  Experiments are composed of \"runs\". Each experiment run (JSON object) must include an `output` field containing the task's output. When the experiment is associated with a dataset, each run must also include an `example_id` referencing an example in that dataset.  Payload Requirements - Provide exactly one of `dataset_id` or `space_id`. - The `name` must be unique within the dataset it's associated with, or   within the space when it isn't associated with a dataset. - Provide at least one run in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- the ID of an existing example in the dataset,   required only when the experiment is associated with a dataset   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new experiment. Empty experiments are not allowed.  An experiment belongs to a space and may optionally be associated with a dataset.  Experiments are composed of \"runs\". Each experiment run (JSON object) must include an `output` field containing the task's output. When the experiment is associated with a dataset, each run must also include an `example_id` referencing an example in that dataset.  Payload Requirements - Provide exactly one of `dataset_id` or `space_id`. - The `name` must be unique within the dataset it's associated with, or   within the space when it isn't associated with a dataset, and must not   contain double quotes (`\"`) or backslashes (`\\`). - Provide at least one run in `experiment_runs`. - Each run must include:   - `output` -- model/task output for the run   - `example_id` -- the ID of an existing example in the dataset,   required only when the experiment is associated with a dataset   - You may include any additional fields per run that can be used for   analysis or filtering. For example: `model`, `latency_ms`,   `temperature`, `prompt`, `tool_calls`, etc.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param create_experiment_request: Body containing experiment creation parameters (required)
         :type create_experiment_request: CreateExperimentRequest
@@ -1510,7 +1510,7 @@ class ExperimentsApi:
     def list_experiment_runs(
         self,
         experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
-        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 500.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1531,7 +1531,7 @@ class ExperimentsApi:
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 500.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1590,7 +1590,7 @@ class ExperimentsApi:
     def list_experiment_runs_with_http_info(
         self,
         experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
-        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 500.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1611,7 +1611,7 @@ class ExperimentsApi:
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 500.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1670,7 +1670,7 @@ class ExperimentsApi:
     def list_experiment_runs_without_preload_content(
         self,
         experiment_id: Annotated[StrictStr, Field(description="The unique experiment identifier (base64)")],
-        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 500.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1691,7 +1691,7 @@ class ExperimentsApi:
 
         :param experiment_id: The unique experiment identifier (base64) (required)
         :type experiment_id: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 500.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1823,7 +1823,7 @@ class ExperimentsApi:
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1848,7 +1848,7 @@ class ExperimentsApi:
         :type space_id: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1911,7 +1911,7 @@ class ExperimentsApi:
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1936,7 +1936,7 @@ class ExperimentsApi:
         :type space_id: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1999,7 +1999,7 @@ class ExperimentsApi:
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -2024,7 +2024,7 @@ class ExperimentsApi:
         :type space_id: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str

@@ -360,7 +360,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.UsersApi(api_client)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
     email = 'jane@example.com' # str | Filter users by email address (case-insensitive partial match, up to 255 characters). Results are scoped to users visible to the caller.  (optional)
     status = [arize._generated.api_client.UserStatus()] # List[UserStatus] | Filter users by account status. When omitted, `ACTIVE`, `INVITED`, and `EXPIRED` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=ACTIVE&status=INVITED`).  (optional)
@@ -381,7 +381,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
  **email** | **str**| Filter users by email address (case-insensitive partial match, up to 255 characters). Results are scoped to users visible to the caller.  | [optional] 
  **status** | [**List[UserStatus]**](UserStatus.md)| Filter users by account status. When omitted, &#x60;ACTIVE&#x60;, &#x60;INVITED&#x60;, and &#x60;EXPIRED&#x60; users are returned. Can be specified multiple times to filter by multiple statuses (e.g., &#x60;?status&#x3D;ACTIVE&amp;status&#x3D;INVITED&#x60;).  | [optional] 

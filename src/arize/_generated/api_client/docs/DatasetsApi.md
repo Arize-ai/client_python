@@ -265,6 +265,7 @@ Name | Type | Description  | Notes
 **404** | Not found |  -  |
 **409** | Resource conflict |  -  |
 **422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -752,7 +753,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     api_instance = arize._generated.api_client.DatasetsApi(api_client)
     dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique dataset identifier (base64)
     dataset_version_id = 'RGF0YXNldFZlcnNpb246MTIzNDU=' # str | The unique identifier of the dataset version (optional)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 500. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
@@ -773,7 +774,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **dataset_id** | **str**| The unique dataset identifier (base64) | 
  **dataset_version_id** | **str**| The unique identifier of the dataset version | [optional] 
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 500. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
 ### Return type
@@ -851,7 +852,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
     space_name = 'my-space' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
@@ -873,7 +874,7 @@ Name | Type | Description  | Notes
  **space_id** | **str**| Filter search results to a particular space ID | [optional] 
  **space_name** | **str**| Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  | [optional] 
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
 ### Return type

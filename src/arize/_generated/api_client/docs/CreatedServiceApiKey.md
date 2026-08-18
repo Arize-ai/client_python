@@ -1,6 +1,5 @@
-# ApiKeyCreated
+# CreatedServiceApiKey
 
-Response for a newly created or refreshed API key. The `key_type` field discriminates the variant: - `user` — standard user key; no bot user. - `service` — service key backed by a bot user; includes a `bot_user` with the bot user's resolved role assignments. 
 
 ## Properties
 
@@ -22,19 +21,19 @@ Name | Type | Description | Notes
 ## Example
 
 ```python
-from arize._generated.api_client.models.api_key_created import ApiKeyCreated
+from arize._generated.api_client.models.created_service_api_key import CreatedServiceApiKey
 
 # TODO update the JSON string below
 json = "{}"
-# create an instance of ApiKeyCreated from a JSON string
-api_key_created_instance = ApiKeyCreated.from_json(json)
+# create an instance of CreatedServiceApiKey from a JSON string
+created_service_api_key_instance = CreatedServiceApiKey.from_json(json)
 # print the JSON string representation of the object
-print(ApiKeyCreated.to_json())
+print(CreatedServiceApiKey.to_json())
 
 # convert the object into a dict
-api_key_created_dict = api_key_created_instance.to_dict()
-# create an instance of ApiKeyCreated from a dict
-api_key_created_from_dict = ApiKeyCreated.from_dict(api_key_created_dict)
+created_service_api_key_dict = created_service_api_key_instance.to_dict()
+# create an instance of CreatedServiceApiKey from a dict
+created_service_api_key_from_dict = CreatedServiceApiKey.from_dict(created_service_api_key_dict)
 ```
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

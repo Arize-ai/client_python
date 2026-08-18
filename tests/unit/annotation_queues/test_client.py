@@ -143,25 +143,6 @@ class TestAnnotationQueuesClientList:
 
         assert result is expected
 
-    def test_emits_beta_prerelease_warning(
-        self,
-        annotation_queues_client: AnnotationQueuesClient,
-        caplog: pytest.LogCaptureFixture,
-    ) -> None:
-        """First call to list() should emit the BETA prerelease warning."""
-        from arize import pre_releases
-
-        pre_releases._WARNED.clear()
-        caplog.set_level(logging.WARNING)
-
-        annotation_queues_client.list()
-
-        assert any(
-            "BETA" in record.message
-            and "annotation_queues.list" in record.message
-            for record in caplog.records
-        )
-
 
 @pytest.mark.unit
 class TestAnnotationQueuesClientGet:
@@ -277,31 +258,6 @@ class TestAnnotationQueuesClientCreate:
             )
 
         assert result is expected
-
-    def test_emits_beta_prerelease_warning(
-        self,
-        annotation_queues_client: AnnotationQueuesClient,
-        caplog: pytest.LogCaptureFixture,
-    ) -> None:
-        """First call to create() should emit the BETA prerelease warning."""
-        from arize import pre_releases
-
-        pre_releases._WARNED.clear()
-        caplog.set_level(logging.WARNING)
-
-        with patch("arize._generated.api_client.CreateAnnotationQueueRequest"):
-            annotation_queues_client.create(
-                name="Q",
-                space="U3BhY2U6OTA1MDoxSmtS",
-                annotation_config_ids=["ac_001"],
-                annotator_emails=["reviewer@example.com"],
-            )
-
-        assert any(
-            "BETA" in record.message
-            and "annotation_queues.create" in record.message
-            for record in caplog.records
-        )
 
 
 @pytest.mark.unit

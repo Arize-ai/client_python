@@ -249,7 +249,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ResourceRestrictionsApi(api_client)
     resource_type = arize._generated.api_client.ResourceRestrictionType() # ResourceRestrictionType | Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`).  (optional)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
@@ -269,7 +269,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **resource_type** | [**ResourceRestrictionType**](.md)| Filter restrictions to a single resource type. - &#x60;PROJECT&#x60; — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only &#x60;PROJECT&#x60;).  | [optional] 
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
 ### Return type

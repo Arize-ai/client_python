@@ -895,7 +895,7 @@ class UsersApi:
     @validate_call
     def list_users(
         self,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         email: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Filter users by email address (case-insensitive partial match, up to 255 characters). Results are scoped to users visible to the caller. ")] = None,
         status: Annotated[Optional[List[UserStatus]], Field(description="Filter users by account status. When omitted, `ACTIVE`, `INVITED`, and `EXPIRED` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=ACTIVE&status=INVITED`). ")] = None,
@@ -916,7 +916,7 @@ class UsersApi:
 
         List users in the account with cursor-based pagination. Results are sorted by creation date ascending (oldest first).  Requires account admin role, account member role, or USER_READ permission at the account level.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -978,7 +978,7 @@ class UsersApi:
     @validate_call
     def list_users_with_http_info(
         self,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         email: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Filter users by email address (case-insensitive partial match, up to 255 characters). Results are scoped to users visible to the caller. ")] = None,
         status: Annotated[Optional[List[UserStatus]], Field(description="Filter users by account status. When omitted, `ACTIVE`, `INVITED`, and `EXPIRED` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=ACTIVE&status=INVITED`). ")] = None,
@@ -999,7 +999,7 @@ class UsersApi:
 
         List users in the account with cursor-based pagination. Results are sorted by creation date ascending (oldest first).  Requires account admin role, account member role, or USER_READ permission at the account level.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1061,7 +1061,7 @@ class UsersApi:
     @validate_call
     def list_users_without_preload_content(
         self,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         email: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Filter users by email address (case-insensitive partial match, up to 255 characters). Results are scoped to users visible to the caller. ")] = None,
         status: Annotated[Optional[List[UserStatus]], Field(description="Filter users by account status. When omitted, `ACTIVE`, `INVITED`, and `EXPIRED` users are returned. Can be specified multiple times to filter by multiple statuses (e.g., `?status=ACTIVE&status=INVITED`). ")] = None,
@@ -1082,7 +1082,7 @@ class UsersApi:
 
         List users in the account with cursor-based pagination. Results are sorted by creation date ascending (oldest first).  Requires account admin role, account member role, or USER_READ permission at the account level.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str

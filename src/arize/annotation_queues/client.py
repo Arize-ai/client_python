@@ -107,7 +107,6 @@ class AnnotationQueuesClient:
     # Queue management
     # ------------------------------------------------------------------
 
-    @prerelease_endpoint(key="annotation_queues.list", stage=ReleaseStage.BETA)
     def list(
         self,
         *,
@@ -146,7 +145,6 @@ class AnnotationQueuesClient:
             cursor=cursor,
         )
 
-    @prerelease_endpoint(key="annotation_queues.get", stage=ReleaseStage.BETA)
     def get(
         self, *, annotation_queue: str, space: str | None = None
     ) -> AnnotationQueue:
@@ -175,9 +173,6 @@ class AnnotationQueuesClient:
             annotation_queue_id=annotation_queue_id
         )
 
-    @prerelease_endpoint(
-        key="annotation_queues.create", stage=ReleaseStage.BETA
-    )
     def create(
         self,
         *,
@@ -243,9 +238,6 @@ class AnnotationQueuesClient:
             create_annotation_queue_request=body
         )
 
-    @prerelease_endpoint(
-        key="annotation_queues.update", stage=ReleaseStage.BETA
-    )
     def update(
         self,
         *,
@@ -315,9 +307,6 @@ class AnnotationQueuesClient:
             update_annotation_queue_request=body,
         )
 
-    @prerelease_endpoint(
-        key="annotation_queues.delete", stage=ReleaseStage.BETA
-    )
     def delete(
         self, *, annotation_queue: str, space: str | None = None
     ) -> None:
@@ -352,9 +341,6 @@ class AnnotationQueuesClient:
     # Record management
     # ------------------------------------------------------------------
 
-    @prerelease_endpoint(
-        key="annotation_queues.list_records", stage=ReleaseStage.BETA
-    )
     def list_records(
         self,
         *,
@@ -396,9 +382,6 @@ class AnnotationQueuesClient:
             cursor=cursor,
         )
 
-    @prerelease_endpoint(
-        key="annotation_queues.add_records", stage=ReleaseStage.BETA
-    )
     def add_records(
         self,
         *,
@@ -454,9 +437,6 @@ class AnnotationQueuesClient:
             add_annotation_queue_records_request=body,
         )
 
-    @prerelease_endpoint(
-        key="annotation_queues.delete_records", stage=ReleaseStage.BETA
-    )
     def delete_records(
         self,
         *,

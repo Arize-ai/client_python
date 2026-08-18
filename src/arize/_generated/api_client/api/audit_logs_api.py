@@ -48,7 +48,7 @@ class AuditLogsApi:
         end_time: Annotated[Optional[datetime], Field(description="Inclusive upper bound on `created_at` (ISO 8601 datetime). Defaults to the current time when omitted. ")] = None,
         user_id: Annotated[Optional[StrictStr], Field(description="Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. ")] = None,
         operation_type: Annotated[Optional[AuditLogOperationType], Field(description="Filter results to a specific operation type.")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -75,7 +75,7 @@ class AuditLogsApi:
         :type user_id: str
         :param operation_type: Filter results to a specific operation type.
         :type operation_type: AuditLogOperationType
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -139,7 +139,7 @@ class AuditLogsApi:
         end_time: Annotated[Optional[datetime], Field(description="Inclusive upper bound on `created_at` (ISO 8601 datetime). Defaults to the current time when omitted. ")] = None,
         user_id: Annotated[Optional[StrictStr], Field(description="Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. ")] = None,
         operation_type: Annotated[Optional[AuditLogOperationType], Field(description="Filter results to a specific operation type.")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -166,7 +166,7 @@ class AuditLogsApi:
         :type user_id: str
         :param operation_type: Filter results to a specific operation type.
         :type operation_type: AuditLogOperationType
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -230,7 +230,7 @@ class AuditLogsApi:
         end_time: Annotated[Optional[datetime], Field(description="Inclusive upper bound on `created_at` (ISO 8601 datetime). Defaults to the current time when omitted. ")] = None,
         user_id: Annotated[Optional[StrictStr], Field(description="Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. ")] = None,
         operation_type: Annotated[Optional[AuditLogOperationType], Field(description="Filter results to a specific operation type.")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -257,7 +257,7 @@ class AuditLogsApi:
         :type user_id: str
         :param operation_type: Filter results to a specific operation type.
         :type operation_type: AuditLogOperationType
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str

@@ -615,7 +615,7 @@ class ResourceRestrictionsApi:
     def list_resource_restrictions(
         self,
         resource_type: Annotated[Optional[ResourceRestrictionType], Field(description="Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -636,7 +636,7 @@ class ResourceRestrictionsApi:
 
         :param resource_type: Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). 
         :type resource_type: ResourceRestrictionType
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -693,7 +693,7 @@ class ResourceRestrictionsApi:
     def list_resource_restrictions_with_http_info(
         self,
         resource_type: Annotated[Optional[ResourceRestrictionType], Field(description="Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -714,7 +714,7 @@ class ResourceRestrictionsApi:
 
         :param resource_type: Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). 
         :type resource_type: ResourceRestrictionType
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -771,7 +771,7 @@ class ResourceRestrictionsApi:
     def list_resource_restrictions_without_preload_content(
         self,
         resource_type: Annotated[Optional[ResourceRestrictionType], Field(description="Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -792,7 +792,7 @@ class ResourceRestrictionsApi:
 
         :param resource_type: Filter restrictions to a single resource type. - `PROJECT` — Return only restricted projects.  When not specified, restrictions of all supported resource types are returned (currently only `PROJECT`). 
         :type resource_type: ResourceRestrictionType
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str

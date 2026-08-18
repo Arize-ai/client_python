@@ -417,6 +417,7 @@ class DatasetsApi:
             '404': "Problem",
             '409': "Problem",
             '422': "Problem",
+            '429': "Problem",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -490,6 +491,7 @@ class DatasetsApi:
             '404': "Problem",
             '409': "Problem",
             '422': "Problem",
+            '429': "Problem",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -563,6 +565,7 @@ class DatasetsApi:
             '404': "Problem",
             '409': "Problem",
             '422': "Problem",
+            '429': "Problem",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1840,7 +1843,7 @@ class DatasetsApi:
         self,
         dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
         dataset_version_id: Annotated[Optional[StrictStr], Field(description="The unique identifier of the dataset version")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 500.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1863,7 +1866,7 @@ class DatasetsApi:
         :type dataset_id: str
         :param dataset_version_id: The unique identifier of the dataset version
         :type dataset_version_id: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 500.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1924,7 +1927,7 @@ class DatasetsApi:
         self,
         dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
         dataset_version_id: Annotated[Optional[StrictStr], Field(description="The unique identifier of the dataset version")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 500.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1947,7 +1950,7 @@ class DatasetsApi:
         :type dataset_id: str
         :param dataset_version_id: The unique identifier of the dataset version
         :type dataset_version_id: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 500.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -2008,7 +2011,7 @@ class DatasetsApi:
         self,
         dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
         dataset_version_id: Annotated[Optional[StrictStr], Field(description="The unique identifier of the dataset version")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 500.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -2031,7 +2034,7 @@ class DatasetsApi:
         :type dataset_id: str
         :param dataset_version_id: The unique identifier of the dataset version
         :type dataset_version_id: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 500.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -2169,7 +2172,7 @@ class DatasetsApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -2194,7 +2197,7 @@ class DatasetsApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -2257,7 +2260,7 @@ class DatasetsApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -2282,7 +2285,7 @@ class DatasetsApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -2345,7 +2348,7 @@ class DatasetsApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -2370,7 +2373,7 @@ class DatasetsApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str

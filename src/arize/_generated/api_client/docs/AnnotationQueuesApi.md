@@ -313,8 +313,6 @@ Create a new annotation queue.
 }
 ```
 
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
-
 
 ### Example
 
@@ -459,7 +457,11 @@ Add new records from spans, traces, or dataset examples to an existing annotatio
 
 <Note>If no example_ids are provided for a dataset record source, all examples in the dataset will be added to the queue only when the total records from all sources does not exceed 500.</Note>
 
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
+**Response codes**
+- `201 Created`: at least one new record was added to the queue.
+- `200 OK`: the request was valid but all record sources were already present
+  in the queue — no new records were inserted. The `record_sources` array in
+  the response body will be empty.
 
 
 ### Example
@@ -550,8 +552,6 @@ Delete an annotation queue
 
 Delete an annotation queue by its ID. This operation is irreversible.
 
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
-
 
 ### Example
 
@@ -639,8 +639,6 @@ all provided IDs were deleted.
 
 Returns 404 if the annotation queue specified by `annotation_queue_id` is not found.
 Individual missing record IDs do not trigger a 404.
-
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -732,8 +730,6 @@ structure of annotations that can be created in this queue.
 
 This endpoint does not include queue records or annotation progress. To
 manage records in a queue, use the Annotation Queue Items endpoints.
-
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -829,8 +825,6 @@ Each record includes:
 - Use cursor-based pagination by passing the returned `next_cursor`
 value as the `cursor` query parameter in subsequent requests.
 
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
-
 
 ### Example
 
@@ -864,7 +858,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     api_instance = arize._generated.api_client.AnnotationQueuesApi(api_client)
     annotation_queue_id = 'QW5ub3RhdGlvblF1ZXVlOjEyMzQ1' # str | The unique annotation queue identifier (base64)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 500. (optional) (default to 50)
 
     try:
         # List annotation queue records
@@ -884,7 +878,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **annotation_queue_id** | **str**| The unique annotation queue identifier (base64) | 
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 500. | [optional] [default to 50]
 
 ### Return type
 
@@ -918,8 +912,6 @@ Name | Type | Description  | Notes
 List annotation queues
 
 List annotation queues the user has access to.
-
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example
@@ -955,7 +947,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
     space_name = 'my-space' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
@@ -977,7 +969,7 @@ Name | Type | Description  | Notes
  **space_id** | **str**| Filter search results to a particular space ID | [optional] 
  **space_name** | **str**| Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  | [optional] 
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
 ### Return type
@@ -1032,8 +1024,6 @@ Update an annotation queue by its ID. At least one field must be provided.
 ```json
 {}
 ```
-
-<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
 ### Example

@@ -36,9 +36,11 @@ __all__ = [
     "RolesApi",
     "SpacesApi",
     "SpansApi",
+    "TagsApi",
     "TasksApi",
     "TracesApi",
     "UsersApi",
+    "WebhooksApi",
     "ApiResponse",
     "ApiClient",
     "Configuration",
@@ -154,6 +156,7 @@ __all__ = [
     "CreateRunExperimentTaskRequest",
     "CreateServiceApiKeyRequest",
     "CreateSpaceRequest",
+    "CreateTagRequest",
     "CreateTaskRequest",
     "CreateTemplateEvaluationTaskRequest",
     "CreateTemplateEvaluatorVersionRequest",
@@ -161,6 +164,10 @@ __all__ = [
     "CreateUserRequest",
     "CreateUserResponse",
     "CreateVertexAiConfig",
+    "CreateWebhookRequest",
+    "CreateWebhookResponse",
+    "CreatedServiceApiKey",
+    "CreatedUserApiKey",
     "CustomBaselineConfig",
     "CustomBaselineWindow",
     "CustomCodeConfig",
@@ -198,6 +205,7 @@ __all__ = [
     "Evaluator",
     "EvaluatorLlmConfig",
     "EvaluatorLlmConfigRequest",
+    "EvaluatorTemplate",
     "EvaluatorType",
     "EvaluatorVersion",
     "EvaluatorVersionCode",
@@ -240,11 +248,13 @@ __all__ = [
     "ListAuditLogsResponse",
     "ListDatasetExamplesResponse",
     "ListDatasetsResponse",
+    "ListEvaluatorTemplatesResponse",
     "ListEvaluatorVersionsResponse",
     "ListEvaluatorsResponse",
     "ListExperimentRunsResponse",
     "ListExperimentsResponse",
     "ListIntegrationsResponse",
+    "ListMonitorsResponse",
     "ListOrganizationsResponse",
     "ListProjectsResponse",
     "ListPromptVersionsResponse",
@@ -260,6 +270,8 @@ __all__ = [
     "ListTracesRequest",
     "ListTracesResponse",
     "ListUsersResponse",
+    "ListWebhookDeliveryAttemptsResponse",
+    "ListWebhooksResponse",
     "LlmConfig",
     "LlmGenerationRunConfig",
     "LlmGenerationRunConfigRequest",
@@ -326,13 +338,13 @@ __all__ = [
     "RunConfiguration",
     "RunConfigurationRequest",
     "ScheduledRuntimeConfig",
-    "ServiceApiKeyCreated",
     "ServiceKeyBotUser",
     "ServiceKeyBotUserOrgAssignment",
     "ServiceKeyBotUserSpaceAssignment",
     "ServiceKeyOrgAssignment",
     "ServiceKeySpaceAssignment",
     "SetPromptVersionLabelsRequest",
+    "SetWebhookSubscriptionsRequest",
     "Space",
     "SpaceMembership",
     "SpaceRoleAssignment",
@@ -347,6 +359,8 @@ __all__ = [
     "StaticParamDefaultValue",
     "StaticParamRequest",
     "StaticParamType",
+    "Tag",
+    "TagColor",
     "Task",
     "TaskEvaluator",
     "TaskEvaluatorInput",
@@ -357,6 +371,7 @@ __all__ = [
     "TemplateConfigInput",
     "TemplateEvaluationRunConfig",
     "TemplateEvaluationRunConfigRequest",
+    "TestWebhookResponse",
     "ThresholdCalculation",
     "ThresholdConfig",
     "ThresholdOperator",
@@ -397,10 +412,11 @@ __all__ = [
     "UpdateRoleRequest",
     "UpdateRunExperimentTaskRequest",
     "UpdateSpaceRequest",
+    "UpdateTagRequest",
     "UpdateTaskRequest",
     "UpdateUserRequest",
+    "UpdateWebhookRequest",
     "User",
-    "UserApiKeyCreated",
     "UserRole",
     "UserRoleAssignment",
     "UserRoleAssignmentRequest",
@@ -408,7 +424,14 @@ __all__ = [
     "UserSpaceRole",
     "UserStatus",
     "VertexAiConfig",
+    "Webhook",
+    "WebhookAuthType",
+    "WebhookDeliveryAttempt",
+    "WebhookEventType",
     "WebhookNotificationConfig",
+    "WebhookSubscription",
+    "WebhookSubscriptionInput",
+    "WebhookSubscriptions",
 ]
 
 # import apis into sdk package
@@ -430,9 +453,11 @@ from arize._generated.api_client.api.role_bindings_api import RoleBindingsApi as
 from arize._generated.api_client.api.roles_api import RolesApi as RolesApi
 from arize._generated.api_client.api.spaces_api import SpacesApi as SpacesApi
 from arize._generated.api_client.api.spans_api import SpansApi as SpansApi
+from arize._generated.api_client.api.tags_api import TagsApi as TagsApi
 from arize._generated.api_client.api.tasks_api import TasksApi as TasksApi
 from arize._generated.api_client.api.traces_api import TracesApi as TracesApi
 from arize._generated.api_client.api.users_api import UsersApi as UsersApi
+from arize._generated.api_client.api.webhooks_api import WebhooksApi as WebhooksApi
 
 # import ApiClient
 from arize._generated.api_client.api_response import ApiResponse as ApiResponse
@@ -552,6 +577,7 @@ from arize._generated.api_client.models.create_role_request import CreateRoleReq
 from arize._generated.api_client.models.create_run_experiment_task_request import CreateRunExperimentTaskRequest as CreateRunExperimentTaskRequest
 from arize._generated.api_client.models.create_service_api_key_request import CreateServiceApiKeyRequest as CreateServiceApiKeyRequest
 from arize._generated.api_client.models.create_space_request import CreateSpaceRequest as CreateSpaceRequest
+from arize._generated.api_client.models.create_tag_request import CreateTagRequest as CreateTagRequest
 from arize._generated.api_client.models.create_task_request import CreateTaskRequest as CreateTaskRequest
 from arize._generated.api_client.models.create_template_evaluation_task_request import CreateTemplateEvaluationTaskRequest as CreateTemplateEvaluationTaskRequest
 from arize._generated.api_client.models.create_template_evaluator_version_request import CreateTemplateEvaluatorVersionRequest as CreateTemplateEvaluatorVersionRequest
@@ -559,6 +585,10 @@ from arize._generated.api_client.models.create_user_api_key_request import Creat
 from arize._generated.api_client.models.create_user_request import CreateUserRequest as CreateUserRequest
 from arize._generated.api_client.models.create_user_response import CreateUserResponse as CreateUserResponse
 from arize._generated.api_client.models.create_vertex_ai_config import CreateVertexAiConfig as CreateVertexAiConfig
+from arize._generated.api_client.models.create_webhook_request import CreateWebhookRequest as CreateWebhookRequest
+from arize._generated.api_client.models.create_webhook_response import CreateWebhookResponse as CreateWebhookResponse
+from arize._generated.api_client.models.created_service_api_key import CreatedServiceApiKey as CreatedServiceApiKey
+from arize._generated.api_client.models.created_user_api_key import CreatedUserApiKey as CreatedUserApiKey
 from arize._generated.api_client.models.custom_baseline_config import CustomBaselineConfig as CustomBaselineConfig
 from arize._generated.api_client.models.custom_baseline_window import CustomBaselineWindow as CustomBaselineWindow
 from arize._generated.api_client.models.custom_code_config import CustomCodeConfig as CustomCodeConfig
@@ -596,6 +626,7 @@ from arize._generated.api_client.models.evaluation import Evaluation as Evaluati
 from arize._generated.api_client.models.evaluator import Evaluator as Evaluator
 from arize._generated.api_client.models.evaluator_llm_config import EvaluatorLlmConfig as EvaluatorLlmConfig
 from arize._generated.api_client.models.evaluator_llm_config_request import EvaluatorLlmConfigRequest as EvaluatorLlmConfigRequest
+from arize._generated.api_client.models.evaluator_template import EvaluatorTemplate as EvaluatorTemplate
 from arize._generated.api_client.models.evaluator_type import EvaluatorType as EvaluatorType
 from arize._generated.api_client.models.evaluator_version import EvaluatorVersion as EvaluatorVersion
 from arize._generated.api_client.models.evaluator_version_code import EvaluatorVersionCode as EvaluatorVersionCode
@@ -638,11 +669,13 @@ from arize._generated.api_client.models.list_api_keys_response import ListApiKey
 from arize._generated.api_client.models.list_audit_logs_response import ListAuditLogsResponse as ListAuditLogsResponse
 from arize._generated.api_client.models.list_dataset_examples_response import ListDatasetExamplesResponse as ListDatasetExamplesResponse
 from arize._generated.api_client.models.list_datasets_response import ListDatasetsResponse as ListDatasetsResponse
+from arize._generated.api_client.models.list_evaluator_templates_response import ListEvaluatorTemplatesResponse as ListEvaluatorTemplatesResponse
 from arize._generated.api_client.models.list_evaluator_versions_response import ListEvaluatorVersionsResponse as ListEvaluatorVersionsResponse
 from arize._generated.api_client.models.list_evaluators_response import ListEvaluatorsResponse as ListEvaluatorsResponse
 from arize._generated.api_client.models.list_experiment_runs_response import ListExperimentRunsResponse as ListExperimentRunsResponse
 from arize._generated.api_client.models.list_experiments_response import ListExperimentsResponse as ListExperimentsResponse
 from arize._generated.api_client.models.list_integrations_response import ListIntegrationsResponse as ListIntegrationsResponse
+from arize._generated.api_client.models.list_monitors_response import ListMonitorsResponse as ListMonitorsResponse
 from arize._generated.api_client.models.list_organizations_response import ListOrganizationsResponse as ListOrganizationsResponse
 from arize._generated.api_client.models.list_projects_response import ListProjectsResponse as ListProjectsResponse
 from arize._generated.api_client.models.list_prompt_versions_response import ListPromptVersionsResponse as ListPromptVersionsResponse
@@ -658,6 +691,8 @@ from arize._generated.api_client.models.list_tasks_response import ListTasksResp
 from arize._generated.api_client.models.list_traces_request import ListTracesRequest as ListTracesRequest
 from arize._generated.api_client.models.list_traces_response import ListTracesResponse as ListTracesResponse
 from arize._generated.api_client.models.list_users_response import ListUsersResponse as ListUsersResponse
+from arize._generated.api_client.models.list_webhook_delivery_attempts_response import ListWebhookDeliveryAttemptsResponse as ListWebhookDeliveryAttemptsResponse
+from arize._generated.api_client.models.list_webhooks_response import ListWebhooksResponse as ListWebhooksResponse
 from arize._generated.api_client.models.llm_config import LlmConfig as LlmConfig
 from arize._generated.api_client.models.llm_generation_run_config import LlmGenerationRunConfig as LlmGenerationRunConfig
 from arize._generated.api_client.models.llm_generation_run_config_request import LlmGenerationRunConfigRequest as LlmGenerationRunConfigRequest
@@ -724,13 +759,13 @@ from arize._generated.api_client.models.role_binding_resource_type import RoleBi
 from arize._generated.api_client.models.run_configuration import RunConfiguration as RunConfiguration
 from arize._generated.api_client.models.run_configuration_request import RunConfigurationRequest as RunConfigurationRequest
 from arize._generated.api_client.models.scheduled_runtime_config import ScheduledRuntimeConfig as ScheduledRuntimeConfig
-from arize._generated.api_client.models.service_api_key_created import ServiceApiKeyCreated as ServiceApiKeyCreated
 from arize._generated.api_client.models.service_key_bot_user import ServiceKeyBotUser as ServiceKeyBotUser
 from arize._generated.api_client.models.service_key_bot_user_org_assignment import ServiceKeyBotUserOrgAssignment as ServiceKeyBotUserOrgAssignment
 from arize._generated.api_client.models.service_key_bot_user_space_assignment import ServiceKeyBotUserSpaceAssignment as ServiceKeyBotUserSpaceAssignment
 from arize._generated.api_client.models.service_key_org_assignment import ServiceKeyOrgAssignment as ServiceKeyOrgAssignment
 from arize._generated.api_client.models.service_key_space_assignment import ServiceKeySpaceAssignment as ServiceKeySpaceAssignment
 from arize._generated.api_client.models.set_prompt_version_labels_request import SetPromptVersionLabelsRequest as SetPromptVersionLabelsRequest
+from arize._generated.api_client.models.set_webhook_subscriptions_request import SetWebhookSubscriptionsRequest as SetWebhookSubscriptionsRequest
 from arize._generated.api_client.models.space import Space as Space
 from arize._generated.api_client.models.space_membership import SpaceMembership as SpaceMembership
 from arize._generated.api_client.models.space_role_assignment import SpaceRoleAssignment as SpaceRoleAssignment
@@ -745,6 +780,8 @@ from arize._generated.api_client.models.static_param import StaticParam as Stati
 from arize._generated.api_client.models.static_param_default_value import StaticParamDefaultValue as StaticParamDefaultValue
 from arize._generated.api_client.models.static_param_request import StaticParamRequest as StaticParamRequest
 from arize._generated.api_client.models.static_param_type import StaticParamType as StaticParamType
+from arize._generated.api_client.models.tag import Tag as Tag
+from arize._generated.api_client.models.tag_color import TagColor as TagColor
 from arize._generated.api_client.models.task import Task as Task
 from arize._generated.api_client.models.task_evaluator import TaskEvaluator as TaskEvaluator
 from arize._generated.api_client.models.task_evaluator_input import TaskEvaluatorInput as TaskEvaluatorInput
@@ -755,6 +792,7 @@ from arize._generated.api_client.models.template_config import TemplateConfig as
 from arize._generated.api_client.models.template_config_input import TemplateConfigInput as TemplateConfigInput
 from arize._generated.api_client.models.template_evaluation_run_config import TemplateEvaluationRunConfig as TemplateEvaluationRunConfig
 from arize._generated.api_client.models.template_evaluation_run_config_request import TemplateEvaluationRunConfigRequest as TemplateEvaluationRunConfigRequest
+from arize._generated.api_client.models.test_webhook_response import TestWebhookResponse as TestWebhookResponse
 from arize._generated.api_client.models.threshold_calculation import ThresholdCalculation as ThresholdCalculation
 from arize._generated.api_client.models.threshold_config import ThresholdConfig as ThresholdConfig
 from arize._generated.api_client.models.threshold_operator import ThresholdOperator as ThresholdOperator
@@ -795,10 +833,11 @@ from arize._generated.api_client.models.update_role_binding_request import Updat
 from arize._generated.api_client.models.update_role_request import UpdateRoleRequest as UpdateRoleRequest
 from arize._generated.api_client.models.update_run_experiment_task_request import UpdateRunExperimentTaskRequest as UpdateRunExperimentTaskRequest
 from arize._generated.api_client.models.update_space_request import UpdateSpaceRequest as UpdateSpaceRequest
+from arize._generated.api_client.models.update_tag_request import UpdateTagRequest as UpdateTagRequest
 from arize._generated.api_client.models.update_task_request import UpdateTaskRequest as UpdateTaskRequest
 from arize._generated.api_client.models.update_user_request import UpdateUserRequest as UpdateUserRequest
+from arize._generated.api_client.models.update_webhook_request import UpdateWebhookRequest as UpdateWebhookRequest
 from arize._generated.api_client.models.user import User as User
-from arize._generated.api_client.models.user_api_key_created import UserApiKeyCreated as UserApiKeyCreated
 from arize._generated.api_client.models.user_role import UserRole as UserRole
 from arize._generated.api_client.models.user_role_assignment import UserRoleAssignment as UserRoleAssignment
 from arize._generated.api_client.models.user_role_assignment_request import UserRoleAssignmentRequest as UserRoleAssignmentRequest
@@ -806,5 +845,12 @@ from arize._generated.api_client.models.user_role_assignment_type import UserRol
 from arize._generated.api_client.models.user_space_role import UserSpaceRole as UserSpaceRole
 from arize._generated.api_client.models.user_status import UserStatus as UserStatus
 from arize._generated.api_client.models.vertex_ai_config import VertexAiConfig as VertexAiConfig
+from arize._generated.api_client.models.webhook import Webhook as Webhook
+from arize._generated.api_client.models.webhook_auth_type import WebhookAuthType as WebhookAuthType
+from arize._generated.api_client.models.webhook_delivery_attempt import WebhookDeliveryAttempt as WebhookDeliveryAttempt
+from arize._generated.api_client.models.webhook_event_type import WebhookEventType as WebhookEventType
 from arize._generated.api_client.models.webhook_notification_config import WebhookNotificationConfig as WebhookNotificationConfig
+from arize._generated.api_client.models.webhook_subscription import WebhookSubscription as WebhookSubscription
+from arize._generated.api_client.models.webhook_subscription_input import WebhookSubscriptionInput as WebhookSubscriptionInput
+from arize._generated.api_client.models.webhook_subscriptions import WebhookSubscriptions as WebhookSubscriptions
 

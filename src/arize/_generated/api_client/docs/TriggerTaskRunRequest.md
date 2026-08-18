@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 **max_spans** | **int** | Maximum number of spans to process (default 10000). | [optional] 
 **override_evaluations** | **bool** | Whether to re-evaluate data that already has evaluation labels (default &#x60;false&#x60;).  | [optional] 
 **experiment_ids** | **List[str]** | Experiment identifiers (base64) to run against. Only for dataset-based &#x60;TEMPLATE_EVALUATION&#x60; / &#x60;CODE_EVALUATION&#x60; tasks.  | [optional] 
-**experiment_name** | **str** | Display name for the experiment to be created. Must be unique within the dataset.  | 
+**experiment_name** | **str** | Display name for the experiment to be created. Must be unique within the dataset and must not contain double quotes (&#x60;\&quot;&#x60;) or backslashes (&#x60;\\&#x60;).  | 
 **dataset_version_id** | **str** | Dataset version identifier (base64). Defaults to the latest version when omitted.  | [optional] 
 **example_ids** | **List[str]** | Specific example IDs to run against. Mutually exclusive with &#x60;max_examples&#x60;. When both are omitted, all examples are used.  | [optional] 
 **max_examples** | **int** | Maximum number of examples to run (dataset order). Mutually exclusive with &#x60;example_ids&#x60;. When both are omitted, all examples are used.  | [optional] 

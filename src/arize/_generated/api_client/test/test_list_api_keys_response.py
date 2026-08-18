@@ -36,7 +36,7 @@ class TestListApiKeysResponse(unittest.TestCase):
         if include_optional:
             return ListApiKeysResponse(
                 api_keys = [
-                    arize._generated.api_client.models.api_key_redacted.ApiKeyRedacted(
+                    arize._generated.api_client.models.api_key.ApiKey(
                         id = '', 
                         name = '', 
                         description = '', 
@@ -55,7 +55,7 @@ class TestListApiKeysResponse(unittest.TestCase):
         else:
             return ListApiKeysResponse(
                 api_keys = [
-                    arize._generated.api_client.models.api_key_redacted.ApiKeyRedacted(
+                    arize._generated.api_client.models.api_key.ApiKey(
                         id = '', 
                         name = '', 
                         description = '', 

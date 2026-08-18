@@ -9,8 +9,10 @@ from unittest.mock import MagicMock, Mock, create_autospec, patch
 
 import pytest
 
+from arize._flight.types import FlightRequestType
 from arize._generated.api_client import SpansApi
-from arize.spans.client import SpansClient
+from arize._generated.protocol.flight import flight_pb2
+from arize.spans.client import SpansClient, _log_flight_update_summary
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -52,6 +54,93 @@ def spans_client(mock_sdk_config: Mock, mock_api: Mock) -> SpansClient:
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    ("request_type", "response"),
+    [
+        (
+            FlightRequestType.ANNOTATION,
+            flight_pb2.WriteSpanAnnotationResponse(records_updated=1),
+        ),
+        (
+            FlightRequestType.EVALUATION,
+            flight_pb2.WriteSpanEvaluationResponse(records_updated=1),
+        ),
+    ],
+)
+def test_flight_record_update_response_logs_complete_summary(
+    request_type: FlightRequestType,
+    response: flight_pb2.WriteSpanAnnotationResponse
+    | flight_pb2.WriteSpanEvaluationResponse,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Record-update responses must not emit a missing-counts warning."""
+    caplog.set_level(logging.INFO, logger="arize.spans.client")
+    _log_flight_update_summary(
+        project_name="test-project",
+        total_spans=1,
+        request_type=request_type,
+        response=response,
+    )
+
+    assert len(caplog.records) == 1
+    summary = caplog.records[0]
+    assert summary.levelno == logging.INFO
+    assert summary.message == "All spans processed"
+    assert summary.spans_processed == 1
+    assert summary.spans_updated == 1
+    assert summary.spans_failed == 0
+    assert summary.success_rate == 100.0
+    assert summary.error_count == 0
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    ("request_type", "response"),
+    [
+        (
+            FlightRequestType.ANNOTATION,
+            flight_pb2.WriteSpanAnnotationResponse(
+                records_updated=1, unmatched_ids=["span-1", "span-2"]
+            ),
+        ),
+        (
+            FlightRequestType.EVALUATION,
+            flight_pb2.WriteSpanEvaluationResponse(
+                records_updated=1, unmatched_ids=["span-1", "span-2"]
+            ),
+        ),
+    ],
+)
+def test_flight_record_update_response_logs_unmatched_ids_as_errors(
+    request_type: FlightRequestType,
+    response: flight_pb2.WriteSpanAnnotationResponse
+    | flight_pb2.WriteSpanEvaluationResponse,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Unmatched row ids must surface as per-row errors, not a silent 0-error partial success."""
+    caplog.set_level(logging.INFO, logger="arize.spans.client")
+    _log_flight_update_summary(
+        project_name="test-project",
+        total_spans=3,
+        request_type=request_type,
+        response=response,
+    )
+
+    assert len(caplog.records) == 3
+    summary = caplog.records[0]
+    assert summary.levelno == logging.INFO
+    assert summary.spans_processed == 3
+    assert summary.spans_updated == 1
+    assert summary.spans_failed == 2
+    assert summary.success_rate == pytest.approx(33.33)
+    assert summary.error_count == 2
+
+    error_records = caplog.records[1:]
+    assert all(r.levelno == logging.ERROR for r in error_records)
+    assert {r.span_id for r in error_records} == {"span-1", "span-2"}
 
 
 @pytest.mark.unit

@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -27,13 +27,20 @@ class TriggerRunExperimentTaskRunRequest(BaseModel):
     """
     Trigger request for `RUN_EXPERIMENT` tasks. `example_ids` and `max_examples` are mutually exclusive; at most one may be provided. 
     """ # noqa: E501
-    experiment_name: StrictStr = Field(description="Display name for the experiment to be created. Must be unique within the dataset. ")
+    experiment_name: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Display name for the experiment to be created. Must be unique within the dataset and must not contain double quotes (`\"`) or backslashes (`\\`). ")
     dataset_version_id: Optional[StrictStr] = Field(default=None, description="Dataset version identifier (base64). Defaults to the latest version when omitted. ")
     example_ids: Optional[List[StrictStr]] = Field(default=None, description="Specific example IDs to run against. Mutually exclusive with `max_examples`. When both are omitted, all examples are used. ")
     max_examples: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Maximum number of examples to run (dataset order). Mutually exclusive with `example_ids`. When both are omitted, all examples are used. ")
     tracing_metadata: Optional[Dict[str, StrictStr]] = Field(default=None, description="Arbitrary key-value metadata. Providing this enables tracing for the run. ")
     evaluation_task_ids: Optional[List[StrictStr]] = Field(default=None, description="Task identifiers (base64) of evaluation tasks to trigger after the experiment run completes. Supported for all `RUN_EXPERIMENT` experiment types. ")
     __properties: ClassVar[List[str]] = ["experiment_name", "dataset_version_id", "example_ids", "max_examples", "tracing_metadata", "evaluation_task_ids"]
+
+    @field_validator('experiment_name')
+    def experiment_name_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[^\"\\]*$", value):
+            raise ValueError(r"must validate the regular expression /^[^\"\\]*$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

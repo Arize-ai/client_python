@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 from unittest.mock import Mock, create_autospec, patch
 
 import pytest
@@ -156,25 +155,6 @@ class TestAnnotationConfigsClientList:
 
         assert result is expected
 
-    def test_list_emits_beta_prerelease_warning(
-        self,
-        annotation_configs_client: AnnotationConfigsClient,
-        caplog: pytest.LogCaptureFixture,
-    ) -> None:
-        """First call should emit the BETA prerelease warning."""
-        from arize import pre_releases
-
-        pre_releases._WARNED.clear()
-        caplog.set_level(logging.WARNING)
-
-        annotation_configs_client.list()
-
-        assert any(
-            "BETA" in record.message
-            and "annotation_configs.list" in record.message
-            for record in caplog.records
-        )
-
 
 @pytest.mark.unit
 class TestAnnotationConfigsClientCreateContinuous:
@@ -265,36 +245,6 @@ class TestAnnotationConfigsClientCreateContinuous:
         )
         assert result is expected
 
-    def test_emits_beta_prerelease_warning(
-        self,
-        annotation_configs_client: AnnotationConfigsClient,
-        caplog: pytest.LogCaptureFixture,
-    ) -> None:
-        """First call should emit the BETA prerelease warning."""
-        from arize import pre_releases
-
-        pre_releases._WARNED.clear()
-        caplog.set_level(logging.WARNING)
-
-        with (
-            patch(
-                "arize._generated.api_client.CreateContinuousAnnotationConfigRequest"
-            ),
-            patch("arize._generated.api_client.CreateAnnotationConfigRequest"),
-        ):
-            annotation_configs_client.create_continuous(
-                name="score-config",
-                space="U3BhY2U6OTA1MDoxSmtS",
-                minimum_score=0.0,
-                maximum_score=1.0,
-            )
-
-        assert any(
-            "BETA" in record.message
-            and "annotation_configs.create" in record.message
-            for record in caplog.records
-        )
-
 
 @pytest.mark.unit
 class TestAnnotationConfigsClientCreateCategorical:
@@ -384,35 +334,6 @@ class TestAnnotationConfigsClientCreateCategorical:
             create_annotation_config_request=mock_body
         )
         assert result is expected
-
-    def test_emits_beta_prerelease_warning(
-        self,
-        annotation_configs_client: AnnotationConfigsClient,
-        caplog: pytest.LogCaptureFixture,
-    ) -> None:
-        """First call should emit the BETA prerelease warning."""
-        from arize import pre_releases
-
-        pre_releases._WARNED.clear()
-        caplog.set_level(logging.WARNING)
-
-        with (
-            patch(
-                "arize._generated.api_client.CreateCategoricalAnnotationConfigRequest"
-            ),
-            patch("arize._generated.api_client.CreateAnnotationConfigRequest"),
-        ):
-            annotation_configs_client.create_categorical(
-                name="cat-config",
-                space="U3BhY2U6OTA1MDoxSmtS",
-                values=[Mock(spec=CategoricalAnnotationValueRequest)],
-            )
-
-        assert any(
-            "BETA" in record.message
-            and "annotation_configs.create" in record.message
-            for record in caplog.records
-        )
 
 
 # base64("AnnotationConfig:1234:xYz") — passes is_resource_id()
@@ -630,31 +551,3 @@ class TestAnnotationConfigsClientCreateFreeform:
             create_annotation_config_request=mock_body
         )
         assert result is expected
-
-    def test_emits_beta_prerelease_warning(
-        self,
-        annotation_configs_client: AnnotationConfigsClient,
-        caplog: pytest.LogCaptureFixture,
-    ) -> None:
-        """First call to create_*() should emit the BETA prerelease warning."""
-        from arize import pre_releases
-
-        pre_releases._WARNED.clear()
-        caplog.set_level(logging.WARNING)
-
-        with (
-            patch(
-                "arize._generated.api_client.CreateFreeformAnnotationConfigRequest"
-            ),
-            patch("arize._generated.api_client.CreateAnnotationConfigRequest"),
-        ):
-            annotation_configs_client.create_freeform(
-                name="feedback",
-                space="U3BhY2U6OTA1MDoxSmtS",
-            )
-
-        assert any(
-            "BETA" in record.message
-            and "annotation_configs.create" in record.message
-            for record in caplog.records
-        )

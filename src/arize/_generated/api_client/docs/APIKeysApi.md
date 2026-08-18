@@ -179,7 +179,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     status = arize._generated.api_client.ApiKeyStatus() # ApiKeyStatus | Filter by API key status. - ACTIVE - Only return keys that are valid for use. - REVOKED - Only return keys that have been revoked.  When not specified, defaults to `ACTIVE`.  (optional)
     space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
     user_id = 'VXNlcjoxMjM0NQ==' # str | Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins.  (optional)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
@@ -202,7 +202,7 @@ Name | Type | Description  | Notes
  **status** | [**ApiKeyStatus**](.md)| Filter by API key status. - ACTIVE - Only return keys that are valid for use. - REVOKED - Only return keys that have been revoked.  When not specified, defaults to &#x60;ACTIVE&#x60;.  | [optional] 
  **space_id** | **str**| Filter search results to a particular space ID | [optional] 
  **user_id** | **str**| Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins.  | [optional] 
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
 ### Return type

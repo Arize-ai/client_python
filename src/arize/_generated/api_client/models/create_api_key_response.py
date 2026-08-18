@@ -17,24 +17,24 @@ import json
 import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
-from arize._generated.api_client.models.service_api_key_created import ServiceApiKeyCreated
-from arize._generated.api_client.models.user_api_key_created import UserApiKeyCreated
+from arize._generated.api_client.models.created_service_api_key import CreatedServiceApiKey
+from arize._generated.api_client.models.created_user_api_key import CreatedUserApiKey
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-CREATEAPIKEYRESPONSE_ONE_OF_SCHEMAS = ["ServiceApiKeyCreated", "UserApiKeyCreated"]
+CREATEAPIKEYRESPONSE_ONE_OF_SCHEMAS = ["CreatedServiceApiKey", "CreatedUserApiKey"]
 
 class CreateApiKeyResponse(BaseModel):
     """
     Response for a newly created or refreshed API key. The `key_type` field discriminates the variant: - `USER` — standard user key; no bot user. - `SERVICE` — service key tied to a service account; includes a `bot_user` with the service account's resolved role assignments. 
     """
-    # data type: UserApiKeyCreated
-    oneof_schema_1_validator: Optional[UserApiKeyCreated] = None
-    # data type: ServiceApiKeyCreated
-    oneof_schema_2_validator: Optional[ServiceApiKeyCreated] = None
-    actual_instance: Optional[Union[ServiceApiKeyCreated, UserApiKeyCreated]] = None
-    one_of_schemas: Set[str] = { "ServiceApiKeyCreated", "UserApiKeyCreated" }
+    # data type: CreatedUserApiKey
+    oneof_schema_1_validator: Optional[CreatedUserApiKey] = None
+    # data type: CreatedServiceApiKey
+    oneof_schema_2_validator: Optional[CreatedServiceApiKey] = None
+    actual_instance: Optional[Union[CreatedServiceApiKey, CreatedUserApiKey]] = None
+    one_of_schemas: Set[str] = { "CreatedServiceApiKey", "CreatedUserApiKey" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -60,22 +60,22 @@ class CreateApiKeyResponse(BaseModel):
         instance = CreateApiKeyResponse.model_construct()
         error_messages = []
         match = 0
-        # validate data type: UserApiKeyCreated
-        if not isinstance(v, UserApiKeyCreated):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `UserApiKeyCreated`")
+        # validate data type: CreatedUserApiKey
+        if not isinstance(v, CreatedUserApiKey):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreatedUserApiKey`")
         else:
             match += 1
-        # validate data type: ServiceApiKeyCreated
-        if not isinstance(v, ServiceApiKeyCreated):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `ServiceApiKeyCreated`")
+        # validate data type: CreatedServiceApiKey
+        if not isinstance(v, CreatedServiceApiKey):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CreatedServiceApiKey`")
         else:
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in CreateApiKeyResponse with oneOf schemas: ServiceApiKeyCreated, UserApiKeyCreated. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in CreateApiKeyResponse with oneOf schemas: CreatedServiceApiKey, CreatedUserApiKey. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in CreateApiKeyResponse with oneOf schemas: ServiceApiKeyCreated, UserApiKeyCreated. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in CreateApiKeyResponse with oneOf schemas: CreatedServiceApiKey, CreatedUserApiKey. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -90,25 +90,25 @@ class CreateApiKeyResponse(BaseModel):
         error_messages = []
         match = 0
 
-        # deserialize data into UserApiKeyCreated
+        # deserialize data into CreatedUserApiKey
         try:
-            instance.actual_instance = UserApiKeyCreated.from_json(json_str)
+            instance.actual_instance = CreatedUserApiKey.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
-        # deserialize data into ServiceApiKeyCreated
+        # deserialize data into CreatedServiceApiKey
         try:
-            instance.actual_instance = ServiceApiKeyCreated.from_json(json_str)
+            instance.actual_instance = CreatedServiceApiKey.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into CreateApiKeyResponse with oneOf schemas: ServiceApiKeyCreated, UserApiKeyCreated. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into CreateApiKeyResponse with oneOf schemas: CreatedServiceApiKey, CreatedUserApiKey. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into CreateApiKeyResponse with oneOf schemas: ServiceApiKeyCreated, UserApiKeyCreated. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into CreateApiKeyResponse with oneOf schemas: CreatedServiceApiKey, CreatedUserApiKey. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -122,7 +122,7 @@ class CreateApiKeyResponse(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], ServiceApiKeyCreated, UserApiKeyCreated]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], CreatedServiceApiKey, CreatedUserApiKey]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

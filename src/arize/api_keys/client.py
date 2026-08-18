@@ -18,11 +18,11 @@ if TYPE_CHECKING:
     from arize._generated.api_client.api_client import ApiClient
     from arize.api_keys.types import (
         ApiKeyStatus,
+        CreatedServiceApiKey,
+        CreatedUserApiKey,
         ListApiKeysResponse,
         OrgBinding,
         RefreshApiKeyResponse,
-        ServiceApiKeyCreated,
-        UserApiKeyCreated,
         UserRoleAssignmentRequest,
     )
     from arize.config import SDKConfiguration
@@ -125,14 +125,14 @@ class ApiKeysClient:
         name: str,
         description: str | None = None,
         expires_at: datetime | None = None,
-    ) -> UserApiKeyCreated:
+    ) -> CreatedUserApiKey:
         """Create a new user API key.
 
         Creates a user-type key that authenticates as the creating user with
         their full permissions. To create a space-scoped service key, use
         :meth:`create_service_key` instead.
 
-        The returned :class:`UserApiKeyCreated` object contains the full raw
+        The returned :class:`CreatedUserApiKey` object contains the full raw
         key value in its ``key`` field. **This is the only time the raw key
         is returned.** Store it securely.
 
@@ -173,7 +173,7 @@ class ApiKeysClient:
         account_role: UserRoleAssignmentRequest | None = None,
         description: str | None = None,
         expires_at: datetime | None = None,
-    ) -> ServiceApiKeyCreated:
+    ) -> CreatedServiceApiKey:
         """Create a service-type API key with org and space bindings.
 
         Service keys are tied to a dedicated service account scoped to one or
@@ -182,7 +182,7 @@ class ApiKeysClient:
         org, the server applies the default predefined role (``MEMBER`` for
         spaces, ``READ_ONLY`` for orgs, ``MEMBER`` for accounts).
 
-        The returned :class:`ServiceApiKeyCreated` object contains the full
+        The returned :class:`CreatedServiceApiKey` object contains the full
         raw key value in its ``key`` field. **This is the only time the raw
         key is returned.** Store it securely.
 

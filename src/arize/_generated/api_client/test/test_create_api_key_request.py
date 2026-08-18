@@ -35,19 +35,36 @@ class TestCreateApiKeyRequest(unittest.TestCase):
         model = CreateApiKeyRequest()
         if include_optional:
             return CreateApiKeyRequest(
+                key_type = 'USER',
                 name = 'CI pipeline key',
                 description = 'Key used by the CI pipeline to upload evaluation results.',
-                key_type = 'USER',
                 expires_at = '2026-01-01T00:00Z',
-                space_id = 'U3BhY2UxMjM',
-                roles = arize._generated.api_client.models.api_key_roles.ApiKeyRoles(
-                    space_role = null, 
-                    org_role = null, 
-                    account_role = null, )
+                account_role = None,
+                organizations = [
+                    arize._generated.api_client.models.service_key_org_assignment.ServiceKeyOrgAssignment(
+                        org_id = 'T3JnYW5pemF0aW9uOjEwMDE6eFl6Vw', 
+                        role = null, 
+                        spaces = [
+                            arize._generated.api_client.models.service_key_space_assignment.ServiceKeySpaceAssignment(
+                                space_id = 'U3BhY2U6MjAwMTphQmNE', 
+                                role = null, )
+                            ], )
+                    ]
             )
         else:
             return CreateApiKeyRequest(
+                key_type = 'USER',
                 name = 'CI pipeline key',
+                organizations = [
+                    arize._generated.api_client.models.service_key_org_assignment.ServiceKeyOrgAssignment(
+                        org_id = 'T3JnYW5pemF0aW9uOjEwMDE6eFl6Vw', 
+                        role = null, 
+                        spaces = [
+                            arize._generated.api_client.models.service_key_space_assignment.ServiceKeySpaceAssignment(
+                                space_id = 'U3BhY2U6MjAwMTphQmNE', 
+                                role = null, )
+                            ], )
+                    ],
         )
         """
 

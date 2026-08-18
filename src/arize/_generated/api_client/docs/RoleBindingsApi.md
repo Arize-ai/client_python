@@ -316,6 +316,9 @@ The `resource_type` query parameter is **required** and must be one of
 authenticated account member. Use `user_id` to narrow to a specific
 user.
 
+Returns `404` if `user_id` is supplied and does not correspond to a
+user in the account.
+
   <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
@@ -351,7 +354,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.RoleBindingsApi(api_client)
     resource_type = arize._generated.api_client.RoleBindingResourceType() # RoleBindingResourceType | Filter role bindings by resource type. - `SPACE` — Return only space-level bindings. - `PROJECT` — Return only project-level bindings. 
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
     user_id = 'VXNlcjoxOmxQZzI=' # str | Filter role bindings by user. When provided, only bindings assigned to this user are returned. Must be a valid global user ID.  (optional)
 
@@ -372,7 +375,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **resource_type** | [**RoleBindingResourceType**](.md)| Filter role bindings by resource type. - &#x60;SPACE&#x60; — Return only space-level bindings. - &#x60;PROJECT&#x60; — Return only project-level bindings.  | 
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
  **user_id** | **str**| Filter role bindings by user. When provided, only bindings assigned to this user are returned. Must be a valid global user ID.  | [optional] 
 

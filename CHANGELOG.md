@@ -1,5 +1,23 @@
 # Changelog
 
+## [8.47.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.46.0...arize-python-sdk/v8.47.0) (2026-08-18)
+
+
+### 🎁 New Features
+
+* **annotation-config/annotation-queue:** promoting endpoints to stable ([#83303](https://github.com/Arize-ai/arize/issues/83303)) ([2e72879](https://github.com/Arize-ai/arize/commit/2e72879c5c4eac2285996efa6e39dfc9fa09267e))
+
+
+### 🐛 Bug Fixes
+
+*  pin transformers &lt; 4.53 to avoid global TracerProvider ([#82471](https://github.com/Arize-ai/arize/issues/82471)) ([515d46c](https://github.com/Arize-ai/arize/commit/515d46cea13285f3086d3cf758a9ab1f81fef1e8))
+* **spans:** stop warning on successful annotation/evaluation updates ([#82773](https://github.com/Arize-ai/arize/issues/82773)) ([278d4b5](https://github.com/Arize-ai/arize/commit/278d4b5dc021480abc9cfac84473581b26650bcf))
+
+
+### 💫 Code Refactoring
+
+* **api-keys:** use verb-first CreatedUserApiKey and CreatedServiceApiKey [1/2] ([#83091](https://github.com/Arize-ai/arize/issues/83091)) ([d43d445](https://github.com/Arize-ai/arize/commit/d43d4458bf820c1711a13a40743d6c5ab65d5cdc))
+
 ## [8.46.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.45.0...arize-python-sdk/v8.46.0) (2026-08-10)
 
 

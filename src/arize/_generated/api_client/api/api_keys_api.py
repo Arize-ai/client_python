@@ -345,7 +345,7 @@ class APIKeysApi:
         status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - ACTIVE - Only return keys that are valid for use. - REVOKED - Only return keys that have been revoked.  When not specified, defaults to `ACTIVE`. ")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         user_id: Annotated[Optional[StrictStr], Field(description="Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -372,7 +372,7 @@ class APIKeysApi:
         :type space_id: str
         :param user_id: Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. 
         :type user_id: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -437,7 +437,7 @@ class APIKeysApi:
         status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - ACTIVE - Only return keys that are valid for use. - REVOKED - Only return keys that have been revoked.  When not specified, defaults to `ACTIVE`. ")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         user_id: Annotated[Optional[StrictStr], Field(description="Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -464,7 +464,7 @@ class APIKeysApi:
         :type space_id: str
         :param user_id: Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. 
         :type user_id: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -529,7 +529,7 @@ class APIKeysApi:
         status: Annotated[Optional[ApiKeyStatus], Field(description="Filter by API key status. - ACTIVE - Only return keys that are valid for use. - REVOKED - Only return keys that have been revoked.  When not specified, defaults to `ACTIVE`. ")] = None,
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         user_id: Annotated[Optional[StrictStr], Field(description="Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -556,7 +556,7 @@ class APIKeysApi:
         :type space_id: str
         :param user_id: Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins. 
         :type user_id: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str

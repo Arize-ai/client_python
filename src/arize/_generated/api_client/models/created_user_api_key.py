@@ -21,18 +21,17 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from arize._generated.api_client.models.api_key_status import ApiKeyStatus
-from arize._generated.api_client.models.service_key_bot_user import ServiceKeyBotUser
 from typing import Optional, Set
 from typing_extensions import Self
 
-class ServiceApiKeyCreated(BaseModel):
+class CreatedUserApiKey(BaseModel):
     """
-    ServiceApiKeyCreated
+    CreatedUserApiKey
     """ # noqa: E501
     id: StrictStr = Field(description="Unique identifier for the API key.")
     name: StrictStr = Field(description="User-defined name for the API key.")
     description: Optional[StrictStr] = Field(default=None, description="Optional user-defined description for the API key.")
-    key_type: StrictStr = Field(description="Discriminator value for service keys.")
+    key_type: StrictStr = Field(description="Discriminator value for user keys.")
     status: ApiKeyStatus
     redacted_key: StrictStr = Field(description="Redacted version of the key suitable for display (e.g., \"ak-abc...xyz\").")
     created_at: datetime = Field(description="Timestamp when the key was created.")
@@ -40,14 +39,13 @@ class ServiceApiKeyCreated(BaseModel):
     created_by_user_id: StrictStr = Field(description="ID of the user who created the key.")
     last_used_at: Optional[datetime] = Field(default=None, description="Approximate timestamp when the key was last used for authentication. This value is periodically updated and may not reflect the most recent usage.")
     key: StrictStr = Field(description="The full API key value. **Only returned once** at creation or refresh time. Store it securely — it cannot be retrieved again. ")
-    bot_user: ServiceKeyBotUser
-    __properties: ClassVar[List[str]] = ["id", "name", "description", "key_type", "status", "redacted_key", "created_at", "expires_at", "created_by_user_id", "last_used_at", "key", "bot_user"]
+    __properties: ClassVar[List[str]] = ["id", "name", "description", "key_type", "status", "redacted_key", "created_at", "expires_at", "created_by_user_id", "last_used_at", "key"]
 
     @field_validator('key_type')
     def key_type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['SERVICE']):
-            raise ValueError("must be one of enum values ('SERVICE')")
+        if value not in set(['USER']):
+            raise ValueError("must be one of enum values ('USER')")
         return value
 
     model_config = ConfigDict(
@@ -68,7 +66,7 @@ class ServiceApiKeyCreated(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ServiceApiKeyCreated from a JSON string"""
+        """Create an instance of CreatedUserApiKey from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -89,14 +87,11 @@ class ServiceApiKeyCreated(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of bot_user
-        if self.bot_user:
-            _dict['bot_user'] = self.bot_user.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ServiceApiKeyCreated from a dict"""
+        """Create an instance of CreatedUserApiKey from a dict"""
         if obj is None:
             return None
 
@@ -115,8 +110,7 @@ class ServiceApiKeyCreated(BaseModel):
             "expires_at": obj.get("expires_at"),
             "created_by_user_id": obj.get("created_by_user_id"),
             "last_used_at": obj.get("last_used_at"),
-            "key": obj.get("key"),
-            "bot_user": ServiceKeyBotUser.from_dict(obj["bot_user"]) if obj.get("bot_user") is not None else None
+            "key": obj.get("key")
         })
         return _obj
 

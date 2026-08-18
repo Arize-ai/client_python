@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.api_key_roles import ApiKeyRoles
+from arize._generated.api_client.models.create_tag_request import CreateTagRequest
 
-class TestApiKeyRoles(unittest.TestCase):
-    """ApiKeyRoles unit test stubs"""
+class TestCreateTagRequest(unittest.TestCase):
+    """CreateTagRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,27 +25,30 @@ class TestApiKeyRoles(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> ApiKeyRoles:
-        """Test ApiKeyRoles
+    def make_instance(self, include_optional) -> CreateTagRequest:
+        """Test CreateTagRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `ApiKeyRoles`
+        # uncomment below to create an instance of `CreateTagRequest`
         """
-        model = ApiKeyRoles()
+        model = CreateTagRequest()
         if include_optional:
-            return ApiKeyRoles(
-                space_role = 'ADMIN',
-                org_role = 'ADMIN',
-                account_role = 'ADMIN'
+            return CreateTagRequest(
+                name = '0',
+                description = '',
+                color = 'GRAY',
+                space_id = 'RW50aXR5OjEyMzQ1'
             )
         else:
-            return ApiKeyRoles(
+            return CreateTagRequest(
+                name = '0',
+                space_id = 'RW50aXR5OjEyMzQ1',
         )
         """
 
-    def testApiKeyRoles(self):
-        """Test ApiKeyRoles"""
+    def testCreateTagRequest(self):
+        """Test CreateTagRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

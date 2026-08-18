@@ -75,7 +75,7 @@ embeddings = [
     "datasets>=2.8, <3, !=2.14.*",
     "tokenizers>=0.13, <1",
     "torch>=1.13, <3",
-    "transformers>=4.25, <5",
+    "transformers>=4.25, <4.53",
 ]
 docs = [
     "sphinx>=7.0.0, <8.0.0",
@@ -95,7 +95,7 @@ Changelog = "https://github.com/Arize-ai/client_python/blob/main/CHANGELOG.md"
 
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.26.0,<2"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]

@@ -33,6 +33,13 @@ class TestMonitorsApi(unittest.TestCase):
         """
         pass
 
+    def test_list_monitors(self) -> None:
+        """Test case for list_monitors
+
+        List monitors
+        """
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()

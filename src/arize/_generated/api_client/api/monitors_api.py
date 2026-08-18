@@ -16,9 +16,17 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from pydantic import Field, StrictStr
+from pydantic import Field, StrictBool, StrictStr
+from typing import Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.data_quality_metric import DataQualityMetric
+from arize._generated.api_client.models.dimension_category import DimensionCategory
+from arize._generated.api_client.models.drift_metric import DriftMetric
+from arize._generated.api_client.models.list_monitors_response import ListMonitorsResponse
 from arize._generated.api_client.models.monitor import Monitor
+from arize._generated.api_client.models.monitor_status import MonitorStatus
+from arize._generated.api_client.models.monitor_type import MonitorType
+from arize._generated.api_client.models.performance_metric import PerformanceMetric
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -39,7 +47,7 @@ class MonitorsApi:
 
 
     @validate_call
-    def get_monitors(
+    def get_monitor(
         self,
         monitor_id: Annotated[StrictStr, Field(description="The unique monitor identifier (base64)")],
         _request_timeout: Union[
@@ -83,7 +91,7 @@ class MonitorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_monitors_serialize(
+        _param = self._get_monitor_serialize(
             monitor_id=monitor_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -110,7 +118,7 @@ class MonitorsApi:
 
 
     @validate_call
-    def get_monitors_with_http_info(
+    def get_monitor_with_http_info(
         self,
         monitor_id: Annotated[StrictStr, Field(description="The unique monitor identifier (base64)")],
         _request_timeout: Union[
@@ -154,7 +162,7 @@ class MonitorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_monitors_serialize(
+        _param = self._get_monitor_serialize(
             monitor_id=monitor_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -181,7 +189,7 @@ class MonitorsApi:
 
 
     @validate_call
-    def get_monitors_without_preload_content(
+    def get_monitor_without_preload_content(
         self,
         monitor_id: Annotated[StrictStr, Field(description="The unique monitor identifier (base64)")],
         _request_timeout: Union[
@@ -225,7 +233,7 @@ class MonitorsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_monitors_serialize(
+        _param = self._get_monitor_serialize(
             monitor_id=monitor_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -247,7 +255,7 @@ class MonitorsApi:
         return response_data.response
 
 
-    def _get_monitors_serialize(
+    def _get_monitor_serialize(
         self,
         monitor_id,
         _request_auth,
@@ -297,6 +305,540 @@ class MonitorsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/monitors/{monitor_id}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def list_monitors(
+        self,
+        space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
+        project_id: Annotated[Optional[StrictStr], Field(description="Filter results to resources associated with a specific project (base64 identifier). If omitted, results are not filtered by project. ")] = None,
+        project_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Exact-match filter on the name of the project the monitor's primary metric is computed over. Unlike `name` and `space_name`, this is an exact (case-sensitive) match, not a substring search. If omitted, no project name filtering is applied. ")] = None,
+        type: Annotated[Optional[MonitorType], Field(description="Filter by monitor type. Types are exact: `DATA_QUALITY` does not include `TRACING` monitors, and `PERFORMANCE` does not include `CUSTOM_METRIC` monitors. If omitted, monitors of all types are returned. ")] = None,
+        status: Annotated[Optional[MonitorStatus], Field(description="Filter by the monitor's current evaluation state (`TRIGGERED`, `CLEARED`, or `NO_DATA`). If omitted, monitors in every state are returned. ")] = None,
+        notifications_enabled: Annotated[Optional[StrictBool], Field(description="Filter by whether notifications fire on a triggered transition. `true` returns only monitors with notifications enabled; `false` returns only monitors with notifications disabled. If omitted, monitors are returned regardless of notification state. ")] = None,
+        dimension_category: Annotated[Optional[DimensionCategory], Field(description="Filter to monitors whose metric is computed over a dimension of this category. Values copied from a returned monitor's `dimension.category` work as filters. If omitted, no dimension category filtering is applied. ")] = None,
+        dimension_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Exact-match filter on the name of the dimension the monitor's metric is computed over. Values copied from a returned monitor's `dimension.name` work as filters. If omitted, no dimension name filtering is applied. ")] = None,
+        data_quality_metric: Annotated[Optional[DataQualityMetric], Field(description="Filter to monitors computing this data quality metric. Matches both `DATA_QUALITY` and `TRACING` monitors; combine with `type` to narrow to one of them. If omitted, no data quality metric filtering is applied. ")] = None,
+        performance_metric: Annotated[Optional[PerformanceMetric], Field(description="Filter to `PERFORMANCE` monitors computing this performance metric. Does not match `CUSTOM_METRIC` monitors. If omitted, no performance metric filtering is applied. ")] = None,
+        drift_metric: Annotated[Optional[DriftMetric], Field(description="Filter to `DRIFT` monitors computing this drift metric. If omitted, no drift metric filtering is applied. ")] = None,
+        custom_metric_id: Annotated[Optional[StrictStr], Field(description="Filter to `CUSTOM_METRIC` monitors evaluating this custom metric (base64 identifier). If omitted, no custom metric filtering is applied. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ListMonitorsResponse:
+        """List monitors
+
+        List monitors the caller can read, with filtering and cursor-based pagination. Results are ordered by creation time, newest first. Deleted and draft monitors are excluded.  The shape of each returned monitor varies by `type` (`DATA_QUALITY`, `PERFORMANCE`, `DRIFT`, `CUSTOM_METRIC`, `TRACING`).  All filters are optional and compose with AND semantics (a monitor must match every provided filter). When a filter is omitted, no filtering is applied for that field. Filters that cannot be satisfied together — a metric filter from one family combined with a `type` from another, or two metric filters from different families — are valid input and return a `200` with an empty `monitors` array, as does any other combination that simply matches nothing.  The four name filters do not all match the same way. `name` and `space_name` are case-insensitive substring searches, so `name=prod` matches \"production\". `project_name` and `dimension_name` are exact, case-sensitive matches, so they need the full name as stored — for `dimension_name`, the value copied verbatim from a returned monitor's `dimension.name`.  An identifier that is not a well-formed ID of the expected kind returns a `400`. A well-formed `space_id`, `project_id`, or `custom_metric_id` that either does not exist or is not readable by the caller returns the same `404` in both cases, so the response never reveals whether the referenced resource exists.  A caller whose credentials grant monitor read access in no space at all receives a `403`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param space_id: Filter search results to a particular space ID
+        :type space_id: str
+        :param space_name: Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. 
+        :type space_name: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
+        :type name: str
+        :param project_id: Filter results to resources associated with a specific project (base64 identifier). If omitted, results are not filtered by project. 
+        :type project_id: str
+        :param project_name: Exact-match filter on the name of the project the monitor's primary metric is computed over. Unlike `name` and `space_name`, this is an exact (case-sensitive) match, not a substring search. If omitted, no project name filtering is applied. 
+        :type project_name: str
+        :param type: Filter by monitor type. Types are exact: `DATA_QUALITY` does not include `TRACING` monitors, and `PERFORMANCE` does not include `CUSTOM_METRIC` monitors. If omitted, monitors of all types are returned. 
+        :type type: MonitorType
+        :param status: Filter by the monitor's current evaluation state (`TRIGGERED`, `CLEARED`, or `NO_DATA`). If omitted, monitors in every state are returned. 
+        :type status: MonitorStatus
+        :param notifications_enabled: Filter by whether notifications fire on a triggered transition. `true` returns only monitors with notifications enabled; `false` returns only monitors with notifications disabled. If omitted, monitors are returned regardless of notification state. 
+        :type notifications_enabled: bool
+        :param dimension_category: Filter to monitors whose metric is computed over a dimension of this category. Values copied from a returned monitor's `dimension.category` work as filters. If omitted, no dimension category filtering is applied. 
+        :type dimension_category: DimensionCategory
+        :param dimension_name: Exact-match filter on the name of the dimension the monitor's metric is computed over. Values copied from a returned monitor's `dimension.name` work as filters. If omitted, no dimension name filtering is applied. 
+        :type dimension_name: str
+        :param data_quality_metric: Filter to monitors computing this data quality metric. Matches both `DATA_QUALITY` and `TRACING` monitors; combine with `type` to narrow to one of them. If omitted, no data quality metric filtering is applied. 
+        :type data_quality_metric: DataQualityMetric
+        :param performance_metric: Filter to `PERFORMANCE` monitors computing this performance metric. Does not match `CUSTOM_METRIC` monitors. If omitted, no performance metric filtering is applied. 
+        :type performance_metric: PerformanceMetric
+        :param drift_metric: Filter to `DRIFT` monitors computing this drift metric. If omitted, no drift metric filtering is applied. 
+        :type drift_metric: DriftMetric
+        :param custom_metric_id: Filter to `CUSTOM_METRIC` monitors evaluating this custom metric (base64 identifier). If omitted, no custom metric filtering is applied. 
+        :type custom_metric_id: str
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
+        :type limit: int
+        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
+        :type cursor: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_monitors_serialize(
+            space_id=space_id,
+            space_name=space_name,
+            name=name,
+            project_id=project_id,
+            project_name=project_name,
+            type=type,
+            status=status,
+            notifications_enabled=notifications_enabled,
+            dimension_category=dimension_category,
+            dimension_name=dimension_name,
+            data_quality_metric=data_quality_metric,
+            performance_metric=performance_metric,
+            drift_metric=drift_metric,
+            custom_metric_id=custom_metric_id,
+            limit=limit,
+            cursor=cursor,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListMonitorsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_monitors_with_http_info(
+        self,
+        space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
+        project_id: Annotated[Optional[StrictStr], Field(description="Filter results to resources associated with a specific project (base64 identifier). If omitted, results are not filtered by project. ")] = None,
+        project_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Exact-match filter on the name of the project the monitor's primary metric is computed over. Unlike `name` and `space_name`, this is an exact (case-sensitive) match, not a substring search. If omitted, no project name filtering is applied. ")] = None,
+        type: Annotated[Optional[MonitorType], Field(description="Filter by monitor type. Types are exact: `DATA_QUALITY` does not include `TRACING` monitors, and `PERFORMANCE` does not include `CUSTOM_METRIC` monitors. If omitted, monitors of all types are returned. ")] = None,
+        status: Annotated[Optional[MonitorStatus], Field(description="Filter by the monitor's current evaluation state (`TRIGGERED`, `CLEARED`, or `NO_DATA`). If omitted, monitors in every state are returned. ")] = None,
+        notifications_enabled: Annotated[Optional[StrictBool], Field(description="Filter by whether notifications fire on a triggered transition. `true` returns only monitors with notifications enabled; `false` returns only monitors with notifications disabled. If omitted, monitors are returned regardless of notification state. ")] = None,
+        dimension_category: Annotated[Optional[DimensionCategory], Field(description="Filter to monitors whose metric is computed over a dimension of this category. Values copied from a returned monitor's `dimension.category` work as filters. If omitted, no dimension category filtering is applied. ")] = None,
+        dimension_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Exact-match filter on the name of the dimension the monitor's metric is computed over. Values copied from a returned monitor's `dimension.name` work as filters. If omitted, no dimension name filtering is applied. ")] = None,
+        data_quality_metric: Annotated[Optional[DataQualityMetric], Field(description="Filter to monitors computing this data quality metric. Matches both `DATA_QUALITY` and `TRACING` monitors; combine with `type` to narrow to one of them. If omitted, no data quality metric filtering is applied. ")] = None,
+        performance_metric: Annotated[Optional[PerformanceMetric], Field(description="Filter to `PERFORMANCE` monitors computing this performance metric. Does not match `CUSTOM_METRIC` monitors. If omitted, no performance metric filtering is applied. ")] = None,
+        drift_metric: Annotated[Optional[DriftMetric], Field(description="Filter to `DRIFT` monitors computing this drift metric. If omitted, no drift metric filtering is applied. ")] = None,
+        custom_metric_id: Annotated[Optional[StrictStr], Field(description="Filter to `CUSTOM_METRIC` monitors evaluating this custom metric (base64 identifier). If omitted, no custom metric filtering is applied. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ListMonitorsResponse]:
+        """List monitors
+
+        List monitors the caller can read, with filtering and cursor-based pagination. Results are ordered by creation time, newest first. Deleted and draft monitors are excluded.  The shape of each returned monitor varies by `type` (`DATA_QUALITY`, `PERFORMANCE`, `DRIFT`, `CUSTOM_METRIC`, `TRACING`).  All filters are optional and compose with AND semantics (a monitor must match every provided filter). When a filter is omitted, no filtering is applied for that field. Filters that cannot be satisfied together — a metric filter from one family combined with a `type` from another, or two metric filters from different families — are valid input and return a `200` with an empty `monitors` array, as does any other combination that simply matches nothing.  The four name filters do not all match the same way. `name` and `space_name` are case-insensitive substring searches, so `name=prod` matches \"production\". `project_name` and `dimension_name` are exact, case-sensitive matches, so they need the full name as stored — for `dimension_name`, the value copied verbatim from a returned monitor's `dimension.name`.  An identifier that is not a well-formed ID of the expected kind returns a `400`. A well-formed `space_id`, `project_id`, or `custom_metric_id` that either does not exist or is not readable by the caller returns the same `404` in both cases, so the response never reveals whether the referenced resource exists.  A caller whose credentials grant monitor read access in no space at all receives a `403`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param space_id: Filter search results to a particular space ID
+        :type space_id: str
+        :param space_name: Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. 
+        :type space_name: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
+        :type name: str
+        :param project_id: Filter results to resources associated with a specific project (base64 identifier). If omitted, results are not filtered by project. 
+        :type project_id: str
+        :param project_name: Exact-match filter on the name of the project the monitor's primary metric is computed over. Unlike `name` and `space_name`, this is an exact (case-sensitive) match, not a substring search. If omitted, no project name filtering is applied. 
+        :type project_name: str
+        :param type: Filter by monitor type. Types are exact: `DATA_QUALITY` does not include `TRACING` monitors, and `PERFORMANCE` does not include `CUSTOM_METRIC` monitors. If omitted, monitors of all types are returned. 
+        :type type: MonitorType
+        :param status: Filter by the monitor's current evaluation state (`TRIGGERED`, `CLEARED`, or `NO_DATA`). If omitted, monitors in every state are returned. 
+        :type status: MonitorStatus
+        :param notifications_enabled: Filter by whether notifications fire on a triggered transition. `true` returns only monitors with notifications enabled; `false` returns only monitors with notifications disabled. If omitted, monitors are returned regardless of notification state. 
+        :type notifications_enabled: bool
+        :param dimension_category: Filter to monitors whose metric is computed over a dimension of this category. Values copied from a returned monitor's `dimension.category` work as filters. If omitted, no dimension category filtering is applied. 
+        :type dimension_category: DimensionCategory
+        :param dimension_name: Exact-match filter on the name of the dimension the monitor's metric is computed over. Values copied from a returned monitor's `dimension.name` work as filters. If omitted, no dimension name filtering is applied. 
+        :type dimension_name: str
+        :param data_quality_metric: Filter to monitors computing this data quality metric. Matches both `DATA_QUALITY` and `TRACING` monitors; combine with `type` to narrow to one of them. If omitted, no data quality metric filtering is applied. 
+        :type data_quality_metric: DataQualityMetric
+        :param performance_metric: Filter to `PERFORMANCE` monitors computing this performance metric. Does not match `CUSTOM_METRIC` monitors. If omitted, no performance metric filtering is applied. 
+        :type performance_metric: PerformanceMetric
+        :param drift_metric: Filter to `DRIFT` monitors computing this drift metric. If omitted, no drift metric filtering is applied. 
+        :type drift_metric: DriftMetric
+        :param custom_metric_id: Filter to `CUSTOM_METRIC` monitors evaluating this custom metric (base64 identifier). If omitted, no custom metric filtering is applied. 
+        :type custom_metric_id: str
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
+        :type limit: int
+        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
+        :type cursor: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_monitors_serialize(
+            space_id=space_id,
+            space_name=space_name,
+            name=name,
+            project_id=project_id,
+            project_name=project_name,
+            type=type,
+            status=status,
+            notifications_enabled=notifications_enabled,
+            dimension_category=dimension_category,
+            dimension_name=dimension_name,
+            data_quality_metric=data_quality_metric,
+            performance_metric=performance_metric,
+            drift_metric=drift_metric,
+            custom_metric_id=custom_metric_id,
+            limit=limit,
+            cursor=cursor,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListMonitorsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def list_monitors_without_preload_content(
+        self,
+        space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
+        space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
+        name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
+        project_id: Annotated[Optional[StrictStr], Field(description="Filter results to resources associated with a specific project (base64 identifier). If omitted, results are not filtered by project. ")] = None,
+        project_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Exact-match filter on the name of the project the monitor's primary metric is computed over. Unlike `name` and `space_name`, this is an exact (case-sensitive) match, not a substring search. If omitted, no project name filtering is applied. ")] = None,
+        type: Annotated[Optional[MonitorType], Field(description="Filter by monitor type. Types are exact: `DATA_QUALITY` does not include `TRACING` monitors, and `PERFORMANCE` does not include `CUSTOM_METRIC` monitors. If omitted, monitors of all types are returned. ")] = None,
+        status: Annotated[Optional[MonitorStatus], Field(description="Filter by the monitor's current evaluation state (`TRIGGERED`, `CLEARED`, or `NO_DATA`). If omitted, monitors in every state are returned. ")] = None,
+        notifications_enabled: Annotated[Optional[StrictBool], Field(description="Filter by whether notifications fire on a triggered transition. `true` returns only monitors with notifications enabled; `false` returns only monitors with notifications disabled. If omitted, monitors are returned regardless of notification state. ")] = None,
+        dimension_category: Annotated[Optional[DimensionCategory], Field(description="Filter to monitors whose metric is computed over a dimension of this category. Values copied from a returned monitor's `dimension.category` work as filters. If omitted, no dimension category filtering is applied. ")] = None,
+        dimension_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Exact-match filter on the name of the dimension the monitor's metric is computed over. Values copied from a returned monitor's `dimension.name` work as filters. If omitted, no dimension name filtering is applied. ")] = None,
+        data_quality_metric: Annotated[Optional[DataQualityMetric], Field(description="Filter to monitors computing this data quality metric. Matches both `DATA_QUALITY` and `TRACING` monitors; combine with `type` to narrow to one of them. If omitted, no data quality metric filtering is applied. ")] = None,
+        performance_metric: Annotated[Optional[PerformanceMetric], Field(description="Filter to `PERFORMANCE` monitors computing this performance metric. Does not match `CUSTOM_METRIC` monitors. If omitted, no performance metric filtering is applied. ")] = None,
+        drift_metric: Annotated[Optional[DriftMetric], Field(description="Filter to `DRIFT` monitors computing this drift metric. If omitted, no drift metric filtering is applied. ")] = None,
+        custom_metric_id: Annotated[Optional[StrictStr], Field(description="Filter to `CUSTOM_METRIC` monitors evaluating this custom metric (base64 identifier). If omitted, no custom metric filtering is applied. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List monitors
+
+        List monitors the caller can read, with filtering and cursor-based pagination. Results are ordered by creation time, newest first. Deleted and draft monitors are excluded.  The shape of each returned monitor varies by `type` (`DATA_QUALITY`, `PERFORMANCE`, `DRIFT`, `CUSTOM_METRIC`, `TRACING`).  All filters are optional and compose with AND semantics (a monitor must match every provided filter). When a filter is omitted, no filtering is applied for that field. Filters that cannot be satisfied together — a metric filter from one family combined with a `type` from another, or two metric filters from different families — are valid input and return a `200` with an empty `monitors` array, as does any other combination that simply matches nothing.  The four name filters do not all match the same way. `name` and `space_name` are case-insensitive substring searches, so `name=prod` matches \"production\". `project_name` and `dimension_name` are exact, case-sensitive matches, so they need the full name as stored — for `dimension_name`, the value copied verbatim from a returned monitor's `dimension.name`.  An identifier that is not a well-formed ID of the expected kind returns a `400`. A well-formed `space_id`, `project_id`, or `custom_metric_id` that either does not exist or is not readable by the caller returns the same `404` in both cases, so the response never reveals whether the referenced resource exists.  A caller whose credentials grant monitor read access in no space at all receives a `403`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param space_id: Filter search results to a particular space ID
+        :type space_id: str
+        :param space_name: Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. 
+        :type space_name: str
+        :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
+        :type name: str
+        :param project_id: Filter results to resources associated with a specific project (base64 identifier). If omitted, results are not filtered by project. 
+        :type project_id: str
+        :param project_name: Exact-match filter on the name of the project the monitor's primary metric is computed over. Unlike `name` and `space_name`, this is an exact (case-sensitive) match, not a substring search. If omitted, no project name filtering is applied. 
+        :type project_name: str
+        :param type: Filter by monitor type. Types are exact: `DATA_QUALITY` does not include `TRACING` monitors, and `PERFORMANCE` does not include `CUSTOM_METRIC` monitors. If omitted, monitors of all types are returned. 
+        :type type: MonitorType
+        :param status: Filter by the monitor's current evaluation state (`TRIGGERED`, `CLEARED`, or `NO_DATA`). If omitted, monitors in every state are returned. 
+        :type status: MonitorStatus
+        :param notifications_enabled: Filter by whether notifications fire on a triggered transition. `true` returns only monitors with notifications enabled; `false` returns only monitors with notifications disabled. If omitted, monitors are returned regardless of notification state. 
+        :type notifications_enabled: bool
+        :param dimension_category: Filter to monitors whose metric is computed over a dimension of this category. Values copied from a returned monitor's `dimension.category` work as filters. If omitted, no dimension category filtering is applied. 
+        :type dimension_category: DimensionCategory
+        :param dimension_name: Exact-match filter on the name of the dimension the monitor's metric is computed over. Values copied from a returned monitor's `dimension.name` work as filters. If omitted, no dimension name filtering is applied. 
+        :type dimension_name: str
+        :param data_quality_metric: Filter to monitors computing this data quality metric. Matches both `DATA_QUALITY` and `TRACING` monitors; combine with `type` to narrow to one of them. If omitted, no data quality metric filtering is applied. 
+        :type data_quality_metric: DataQualityMetric
+        :param performance_metric: Filter to `PERFORMANCE` monitors computing this performance metric. Does not match `CUSTOM_METRIC` monitors. If omitted, no performance metric filtering is applied. 
+        :type performance_metric: PerformanceMetric
+        :param drift_metric: Filter to `DRIFT` monitors computing this drift metric. If omitted, no drift metric filtering is applied. 
+        :type drift_metric: DriftMetric
+        :param custom_metric_id: Filter to `CUSTOM_METRIC` monitors evaluating this custom metric (base64 identifier). If omitted, no custom metric filtering is applied. 
+        :type custom_metric_id: str
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
+        :type limit: int
+        :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
+        :type cursor: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_monitors_serialize(
+            space_id=space_id,
+            space_name=space_name,
+            name=name,
+            project_id=project_id,
+            project_name=project_name,
+            type=type,
+            status=status,
+            notifications_enabled=notifications_enabled,
+            dimension_category=dimension_category,
+            dimension_name=dimension_name,
+            data_quality_metric=data_quality_metric,
+            performance_metric=performance_metric,
+            drift_metric=drift_metric,
+            custom_metric_id=custom_metric_id,
+            limit=limit,
+            cursor=cursor,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListMonitorsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_monitors_serialize(
+        self,
+        space_id,
+        space_name,
+        name,
+        project_id,
+        project_name,
+        type,
+        status,
+        notifications_enabled,
+        dimension_category,
+        dimension_name,
+        data_quality_metric,
+        performance_metric,
+        drift_metric,
+        custom_metric_id,
+        limit,
+        cursor,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if space_id is not None:
+            
+            _query_params.append(('space_id', space_id))
+            
+        if space_name is not None:
+            
+            _query_params.append(('space_name', space_name))
+            
+        if name is not None:
+            
+            _query_params.append(('name', name))
+            
+        if project_id is not None:
+            
+            _query_params.append(('project_id', project_id))
+            
+        if project_name is not None:
+            
+            _query_params.append(('project_name', project_name))
+            
+        if type is not None:
+            
+            _query_params.append(('type', type.value))
+            
+        if status is not None:
+            
+            _query_params.append(('status', status.value))
+            
+        if notifications_enabled is not None:
+            
+            _query_params.append(('notifications_enabled', notifications_enabled))
+            
+        if dimension_category is not None:
+            
+            _query_params.append(('dimension_category', dimension_category.value))
+            
+        if dimension_name is not None:
+            
+            _query_params.append(('dimension_name', dimension_name))
+            
+        if data_quality_metric is not None:
+            
+            _query_params.append(('data_quality_metric', data_quality_metric.value))
+            
+        if performance_metric is not None:
+            
+            _query_params.append(('performance_metric', performance_metric.value))
+            
+        if drift_metric is not None:
+            
+            _query_params.append(('drift_metric', drift_metric.value))
+            
+        if custom_metric_id is not None:
+            
+            _query_params.append(('custom_metric_id', custom_metric_id))
+            
+        if limit is not None:
+            
+            _query_params.append(('limit', limit))
+            
+        if cursor is not None:
+            
+            _query_params.append(('cursor', cursor))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/monitors',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

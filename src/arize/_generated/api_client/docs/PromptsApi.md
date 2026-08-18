@@ -11,9 +11,11 @@ Method | HTTP request | Description
 [**get_prompt**](PromptsApi.md#get_prompt) | **GET** /v2/prompts/{prompt_id} | Get a prompt
 [**get_prompt_label**](PromptsApi.md#get_prompt_label) | **GET** /v2/prompts/{prompt_id}/labels/{label_name} | Resolve a label to a prompt version
 [**get_prompt_version**](PromptsApi.md#get_prompt_version) | **GET** /v2/prompt-versions/{version_id} | Get a prompt version
+[**get_prompt_webhook_subscriptions**](PromptsApi.md#get_prompt_webhook_subscriptions) | **GET** /v2/prompts/{prompt_id}/webhook-subscriptions | Get a prompt&#39;s webhook subscriptions
 [**list_prompt_versions**](PromptsApi.md#list_prompt_versions) | **GET** /v2/prompts/{prompt_id}/versions | List prompt versions
 [**list_prompts**](PromptsApi.md#list_prompts) | **GET** /v2/prompts | List prompts
 [**set_prompt_version_label**](PromptsApi.md#set_prompt_version_label) | **PUT** /v2/prompt-versions/{version_id}/labels | Set labels on a prompt version
+[**set_prompt_webhook_subscriptions**](PromptsApi.md#set_prompt_webhook_subscriptions) | **PUT** /v2/prompts/{prompt_id}/webhook-subscriptions | Set a prompt&#39;s webhook subscriptions
 [**update_prompt**](PromptsApi.md#update_prompt) | **PATCH** /v2/prompts/{prompt_id} | Update a prompt
 
 
@@ -673,6 +675,91 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **get_prompt_webhook_subscriptions**
+> WebhookSubscriptions get_prompt_webhook_subscriptions(prompt_id)
+
+Get a prompt's webhook subscriptions
+
+Get the webhooks attached to a prompt and the events each receives.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.webhook_subscriptions import WebhookSubscriptions
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.PromptsApi(api_client)
+    prompt_id = 'UHJvbXB0OjEyMzQ1' # str | The unique prompt identifier (base64)
+
+    try:
+        # Get a prompt's webhook subscriptions
+        api_response = api_instance.get_prompt_webhook_subscriptions(prompt_id)
+        print("The response of PromptsApi->get_prompt_webhook_subscriptions:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling PromptsApi->get_prompt_webhook_subscriptions: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **prompt_id** | **str**| The unique prompt identifier (base64) | 
+
+### Return type
+
+[**WebhookSubscriptions**](WebhookSubscriptions.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | The complete set of webhook subscriptions attached to the resource |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **list_prompt_versions**
 > ListPromptVersionsResponse list_prompt_versions(prompt_id, limit=limit, cursor=cursor)
 
@@ -715,7 +802,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.PromptsApi(api_client)
     prompt_id = 'UHJvbXB0OjEyMzQ1' # str | The unique prompt identifier (base64)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
@@ -735,7 +822,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **prompt_id** | **str**| The unique prompt identifier (base64) | 
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
 ### Return type
@@ -810,7 +897,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
     space_name = 'my-space' # str | Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  (optional)
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
@@ -832,7 +919,7 @@ Name | Type | Description  | Notes
  **space_id** | **str**| Filter search results to a particular space ID | [optional] 
  **space_name** | **str**| Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned.  | [optional] 
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
 ### Return type
@@ -946,6 +1033,110 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | A prompt version object |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **set_prompt_webhook_subscriptions**
+> WebhookSubscriptions set_prompt_webhook_subscriptions(prompt_id, set_webhook_subscriptions_request)
+
+Set a prompt's webhook subscriptions
+
+Set (replace) all webhook subscriptions on a prompt. This is an
+idempotent operation.
+
+**Payload Requirements**
+- `subscriptions` is required, with at most one entry per `webhook_id`.
+- Each entry must subscribe to at least one prompt event
+  (`PROMPT_VERSION_CREATED`, `PROMPT_VERSION_LABELED`,
+  `PROMPT_VERSION_UNLABELED`); other events are rejected with a 422.
+- Each `webhook_id` must be a webhook in the prompt's organization;
+  unknown webhooks yield a 404.
+- At most 200 webhooks may subscribe to the same event on a prompt;
+  requests that would exceed this limit are rejected with a 422.
+
+Subscriptions not included in the request are removed. Pass an empty
+array to detach every webhook from the prompt.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.set_webhook_subscriptions_request import SetWebhookSubscriptionsRequest
+from arize._generated.api_client.models.webhook_subscriptions import WebhookSubscriptions
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.PromptsApi(api_client)
+    prompt_id = 'UHJvbXB0OjEyMzQ1' # str | The unique prompt identifier (base64)
+    set_webhook_subscriptions_request = {"subscriptions":[{"webhook_id":"V2ViaG9vazoxMjM0NQ==","subscribed_events":["PROMPT_VERSION_CREATED","PROMPT_VERSION_LABELED"]}]} # SetWebhookSubscriptionsRequest | Body containing the complete set of webhook subscriptions for the resource
+
+    try:
+        # Set a prompt's webhook subscriptions
+        api_response = api_instance.set_prompt_webhook_subscriptions(prompt_id, set_webhook_subscriptions_request)
+        print("The response of PromptsApi->set_prompt_webhook_subscriptions:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling PromptsApi->set_prompt_webhook_subscriptions: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **prompt_id** | **str**| The unique prompt identifier (base64) | 
+ **set_webhook_subscriptions_request** | [**SetWebhookSubscriptionsRequest**](SetWebhookSubscriptionsRequest.md)| Body containing the complete set of webhook subscriptions for the resource | 
+
+### Return type
+
+[**WebhookSubscriptions**](WebhookSubscriptions.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | The complete set of webhook subscriptions attached to the resource |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |

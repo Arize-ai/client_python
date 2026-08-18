@@ -890,7 +890,7 @@ class RoleBindingsApi:
     def list_role_bindings(
         self,
         resource_type: Annotated[RoleBindingResourceType, Field(description="Filter role bindings by resource type. - `SPACE` — Return only space-level bindings. - `PROJECT` — Return only project-level bindings. ")],
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         user_id: Annotated[Optional[StrictStr], Field(description="Filter role bindings by user. When provided, only bindings assigned to this user are returned. Must be a valid global user ID. ")] = None,
         _request_timeout: Union[
@@ -908,11 +908,11 @@ class RoleBindingsApi:
     ) -> ListRoleBindingsResponse:
         """List role bindings
 
-        List role bindings for the authenticated user's account, filtered by resource type. Results are paginated; use `limit` and `cursor` for subsequent pages.  The `resource_type` query parameter is **required** and must be one of `SPACE` or `PROJECT`. All bindings in the account are visible to any authenticated account member. Use `user_id` to narrow to a specific user.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List role bindings for the authenticated user's account, filtered by resource type. Results are paginated; use `limit` and `cursor` for subsequent pages.  The `resource_type` query parameter is **required** and must be one of `SPACE` or `PROJECT`. All bindings in the account are visible to any authenticated account member. Use `user_id` to narrow to a specific user.  Returns `404` if `user_id` is supplied and does not correspond to a user in the account.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param resource_type: Filter role bindings by resource type. - `SPACE` — Return only space-level bindings. - `PROJECT` — Return only project-level bindings.  (required)
         :type resource_type: RoleBindingResourceType
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -973,7 +973,7 @@ class RoleBindingsApi:
     def list_role_bindings_with_http_info(
         self,
         resource_type: Annotated[RoleBindingResourceType, Field(description="Filter role bindings by resource type. - `SPACE` — Return only space-level bindings. - `PROJECT` — Return only project-level bindings. ")],
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         user_id: Annotated[Optional[StrictStr], Field(description="Filter role bindings by user. When provided, only bindings assigned to this user are returned. Must be a valid global user ID. ")] = None,
         _request_timeout: Union[
@@ -991,11 +991,11 @@ class RoleBindingsApi:
     ) -> ApiResponse[ListRoleBindingsResponse]:
         """List role bindings
 
-        List role bindings for the authenticated user's account, filtered by resource type. Results are paginated; use `limit` and `cursor` for subsequent pages.  The `resource_type` query parameter is **required** and must be one of `SPACE` or `PROJECT`. All bindings in the account are visible to any authenticated account member. Use `user_id` to narrow to a specific user.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List role bindings for the authenticated user's account, filtered by resource type. Results are paginated; use `limit` and `cursor` for subsequent pages.  The `resource_type` query parameter is **required** and must be one of `SPACE` or `PROJECT`. All bindings in the account are visible to any authenticated account member. Use `user_id` to narrow to a specific user.  Returns `404` if `user_id` is supplied and does not correspond to a user in the account.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param resource_type: Filter role bindings by resource type. - `SPACE` — Return only space-level bindings. - `PROJECT` — Return only project-level bindings.  (required)
         :type resource_type: RoleBindingResourceType
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1056,7 +1056,7 @@ class RoleBindingsApi:
     def list_role_bindings_without_preload_content(
         self,
         resource_type: Annotated[RoleBindingResourceType, Field(description="Filter role bindings by resource type. - `SPACE` — Return only space-level bindings. - `PROJECT` — Return only project-level bindings. ")],
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         user_id: Annotated[Optional[StrictStr], Field(description="Filter role bindings by user. When provided, only bindings assigned to this user are returned. Must be a valid global user ID. ")] = None,
         _request_timeout: Union[
@@ -1074,11 +1074,11 @@ class RoleBindingsApi:
     ) -> RESTResponseType:
         """List role bindings
 
-        List role bindings for the authenticated user's account, filtered by resource type. Results are paginated; use `limit` and `cursor` for subsequent pages.  The `resource_type` query parameter is **required** and must be one of `SPACE` or `PROJECT`. All bindings in the account are visible to any authenticated account member. Use `user_id` to narrow to a specific user.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List role bindings for the authenticated user's account, filtered by resource type. Results are paginated; use `limit` and `cursor` for subsequent pages.  The `resource_type` query parameter is **required** and must be one of `SPACE` or `PROJECT`. All bindings in the account are visible to any authenticated account member. Use `user_id` to narrow to a specific user.  Returns `404` if `user_id` is supplied and does not correspond to a user in the account.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param resource_type: Filter role bindings by resource type. - `SPACE` — Return only space-level bindings. - `PROJECT` — Return only project-level bindings.  (required)
         :type resource_type: RoleBindingResourceType
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str

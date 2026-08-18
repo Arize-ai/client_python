@@ -24,9 +24,12 @@ from arize._generated.api_client.models.create_evaluator_version_request import 
 from arize._generated.api_client.models.evaluator import Evaluator
 from arize._generated.api_client.models.evaluator_version import EvaluatorVersion
 from arize._generated.api_client.models.evaluator_with_version import EvaluatorWithVersion
+from arize._generated.api_client.models.list_evaluator_templates_response import ListEvaluatorTemplatesResponse
 from arize._generated.api_client.models.list_evaluator_versions_response import ListEvaluatorVersionsResponse
 from arize._generated.api_client.models.list_evaluators_response import ListEvaluatorsResponse
+from arize._generated.api_client.models.set_webhook_subscriptions_request import SetWebhookSubscriptionsRequest
 from arize._generated.api_client.models.update_evaluator_request import UpdateEvaluatorRequest
+from arize._generated.api_client.models.webhook_subscriptions import WebhookSubscriptions
 
 from arize._generated.api_client.api_client import ApiClient, RequestSerialized
 from arize._generated.api_client.api_response import ApiResponse
@@ -1492,10 +1495,540 @@ class EvaluatorsApi:
 
 
     @validate_call
+    def get_evaluator_webhook_subscriptions(
+        self,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> WebhookSubscriptions:
+        """Get an evaluator's webhook subscriptions
+
+        Get the webhooks attached to an evaluator and the events each receives.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
+        :type evaluator_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_evaluator_webhook_subscriptions_serialize(
+            evaluator_id=evaluator_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "WebhookSubscriptions",
+            '400': "Problem",
+            '401': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def get_evaluator_webhook_subscriptions_with_http_info(
+        self,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[WebhookSubscriptions]:
+        """Get an evaluator's webhook subscriptions
+
+        Get the webhooks attached to an evaluator and the events each receives.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
+        :type evaluator_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_evaluator_webhook_subscriptions_serialize(
+            evaluator_id=evaluator_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "WebhookSubscriptions",
+            '400': "Problem",
+            '401': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def get_evaluator_webhook_subscriptions_without_preload_content(
+        self,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get an evaluator's webhook subscriptions
+
+        Get the webhooks attached to an evaluator and the events each receives.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
+        :type evaluator_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_evaluator_webhook_subscriptions_serialize(
+            evaluator_id=evaluator_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "WebhookSubscriptions",
+            '400': "Problem",
+            '401': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_evaluator_webhook_subscriptions_serialize(
+        self,
+        evaluator_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if evaluator_id is not None:
+            _path_params['evaluator_id'] = evaluator_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/evaluators/{evaluator_id}/webhook-subscriptions',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def list_evaluator_templates(
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ListEvaluatorTemplatesResponse:
+        """List evaluator templates
+
+        Retrieve the built-in LLM-as-a-judge evaluator templates. This is the same catalog the product offers when creating an evaluator, spanning response quality, code quality, trajectory, RAG, security, and session evals.  Each template carries the judge prompt, the labels it returns, the score for each label, its optimization direction, and the granularity it evaluates at.  **Creating an evaluator from a template.** Pick a template, then call `POST /v2/evaluators` with its fields mapped onto the request:  | Template field | Where it goes in `POST /v2/evaluators` | | --- | --- | | `column_name` | `version.template_config.name` | | `template` | `version.template_config.template` | | `classification_choices` | `version.template_config.classification_choices` | | `direction` | `version.template_config.direction` | | `data_granularity` | `version.template_config.data_granularity`. Send `SPAN`, or omit it, when the template's value is `null` | | `display_name` | a label for your own use; reuse it for the evaluator's `name` or `description` | | `rails` | no destination; `classification_choices` already carries the same labels |  Then add the fields a template doesn't carry: `space_id`, `name`, and `type: TEMPLATE` on the evaluator; a `version.commit_message`; and the execution settings `template_config.include_explanations`, `use_function_calling_if_available`, and `llm_config`. Finally, create a task to run the evaluator.  A complete request built from the `hallucination` template:  ```json {   \"space_id\": \"U3BhY2U6NDkzOkJaSkc=\",   \"name\": \"hallucination\",   \"description\": \"Built from the hallucination template\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Initial version from built-in template\",     \"template_config\": {       \"name\": \"hallucination\",       \"template\": \"You are evaluating whether an answer is factual given reference text...\\n{input}\\n{output}\",       \"classification_choices\": { \"hallucinated\": 1, \"factual\": 0 },       \"direction\": \"MINIMIZE\",       \"data_granularity\": \"SPAN\",       \"include_explanations\": true,       \"use_function_calling_if_available\": true,       \"llm_config\": {         \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",         \"model_name\": \"gpt-4o\",         \"invocation_parameters\": { \"temperature\": 0 },         \"provider_parameters\": {}       }     }   } } ```  **Scope:** this returns only the built-in catalog, which is identical for every caller and contains no space, account, or user data. It does not include the evaluators that already exist in your space. List those with `GET /v2/evaluators`.  **Pagination:** not paginated. The catalog is a small fixed list (28 templates, roughly 32 KB of JSON) and the full set is always returned, so there is no `cursor` or `limit`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_evaluator_templates_serialize(
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListEvaluatorTemplatesResponse",
+            '401': "Problem",
+            '403': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_evaluator_templates_with_http_info(
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ListEvaluatorTemplatesResponse]:
+        """List evaluator templates
+
+        Retrieve the built-in LLM-as-a-judge evaluator templates. This is the same catalog the product offers when creating an evaluator, spanning response quality, code quality, trajectory, RAG, security, and session evals.  Each template carries the judge prompt, the labels it returns, the score for each label, its optimization direction, and the granularity it evaluates at.  **Creating an evaluator from a template.** Pick a template, then call `POST /v2/evaluators` with its fields mapped onto the request:  | Template field | Where it goes in `POST /v2/evaluators` | | --- | --- | | `column_name` | `version.template_config.name` | | `template` | `version.template_config.template` | | `classification_choices` | `version.template_config.classification_choices` | | `direction` | `version.template_config.direction` | | `data_granularity` | `version.template_config.data_granularity`. Send `SPAN`, or omit it, when the template's value is `null` | | `display_name` | a label for your own use; reuse it for the evaluator's `name` or `description` | | `rails` | no destination; `classification_choices` already carries the same labels |  Then add the fields a template doesn't carry: `space_id`, `name`, and `type: TEMPLATE` on the evaluator; a `version.commit_message`; and the execution settings `template_config.include_explanations`, `use_function_calling_if_available`, and `llm_config`. Finally, create a task to run the evaluator.  A complete request built from the `hallucination` template:  ```json {   \"space_id\": \"U3BhY2U6NDkzOkJaSkc=\",   \"name\": \"hallucination\",   \"description\": \"Built from the hallucination template\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Initial version from built-in template\",     \"template_config\": {       \"name\": \"hallucination\",       \"template\": \"You are evaluating whether an answer is factual given reference text...\\n{input}\\n{output}\",       \"classification_choices\": { \"hallucinated\": 1, \"factual\": 0 },       \"direction\": \"MINIMIZE\",       \"data_granularity\": \"SPAN\",       \"include_explanations\": true,       \"use_function_calling_if_available\": true,       \"llm_config\": {         \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",         \"model_name\": \"gpt-4o\",         \"invocation_parameters\": { \"temperature\": 0 },         \"provider_parameters\": {}       }     }   } } ```  **Scope:** this returns only the built-in catalog, which is identical for every caller and contains no space, account, or user data. It does not include the evaluators that already exist in your space. List those with `GET /v2/evaluators`.  **Pagination:** not paginated. The catalog is a small fixed list (28 templates, roughly 32 KB of JSON) and the full set is always returned, so there is no `cursor` or `limit`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_evaluator_templates_serialize(
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListEvaluatorTemplatesResponse",
+            '401': "Problem",
+            '403': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def list_evaluator_templates_without_preload_content(
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List evaluator templates
+
+        Retrieve the built-in LLM-as-a-judge evaluator templates. This is the same catalog the product offers when creating an evaluator, spanning response quality, code quality, trajectory, RAG, security, and session evals.  Each template carries the judge prompt, the labels it returns, the score for each label, its optimization direction, and the granularity it evaluates at.  **Creating an evaluator from a template.** Pick a template, then call `POST /v2/evaluators` with its fields mapped onto the request:  | Template field | Where it goes in `POST /v2/evaluators` | | --- | --- | | `column_name` | `version.template_config.name` | | `template` | `version.template_config.template` | | `classification_choices` | `version.template_config.classification_choices` | | `direction` | `version.template_config.direction` | | `data_granularity` | `version.template_config.data_granularity`. Send `SPAN`, or omit it, when the template's value is `null` | | `display_name` | a label for your own use; reuse it for the evaluator's `name` or `description` | | `rails` | no destination; `classification_choices` already carries the same labels |  Then add the fields a template doesn't carry: `space_id`, `name`, and `type: TEMPLATE` on the evaluator; a `version.commit_message`; and the execution settings `template_config.include_explanations`, `use_function_calling_if_available`, and `llm_config`. Finally, create a task to run the evaluator.  A complete request built from the `hallucination` template:  ```json {   \"space_id\": \"U3BhY2U6NDkzOkJaSkc=\",   \"name\": \"hallucination\",   \"description\": \"Built from the hallucination template\",   \"type\": \"TEMPLATE\",   \"version\": {     \"commit_message\": \"Initial version from built-in template\",     \"template_config\": {       \"name\": \"hallucination\",       \"template\": \"You are evaluating whether an answer is factual given reference text...\\n{input}\\n{output}\",       \"classification_choices\": { \"hallucinated\": 1, \"factual\": 0 },       \"direction\": \"MINIMIZE\",       \"data_granularity\": \"SPAN\",       \"include_explanations\": true,       \"use_function_calling_if_available\": true,       \"llm_config\": {         \"ai_integration_id\": \"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==\",         \"model_name\": \"gpt-4o\",         \"invocation_parameters\": { \"temperature\": 0 },         \"provider_parameters\": {}       }     }   } } ```  **Scope:** this returns only the built-in catalog, which is identical for every caller and contains no space, account, or user data. It does not include the evaluators that already exist in your space. List those with `GET /v2/evaluators`.  **Pagination:** not paginated. The catalog is a small fixed list (28 templates, roughly 32 KB of JSON) and the full set is always returned, so there is no `cursor` or `limit`.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_evaluator_templates_serialize(
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListEvaluatorTemplatesResponse",
+            '401': "Problem",
+            '403': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_evaluator_templates_serialize(
+        self,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/evaluator-templates',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def list_evaluator_versions(
         self,
         evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1516,7 +2049,7 @@ class EvaluatorsApi:
 
         :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1575,7 +2108,7 @@ class EvaluatorsApi:
     def list_evaluator_versions_with_http_info(
         self,
         evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1596,7 +2129,7 @@ class EvaluatorsApi:
 
         :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1655,7 +2188,7 @@ class EvaluatorsApi:
     def list_evaluator_versions_without_preload_content(
         self,
         evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1676,7 +2209,7 @@ class EvaluatorsApi:
 
         :param evaluator_id: The unique evaluator identifier (base64) (required)
         :type evaluator_id: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1808,7 +2341,7 @@ class EvaluatorsApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1833,7 +2366,7 @@ class EvaluatorsApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1896,7 +2429,7 @@ class EvaluatorsApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1921,7 +2454,7 @@ class EvaluatorsApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1984,7 +2517,7 @@ class EvaluatorsApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -2009,7 +2542,7 @@ class EvaluatorsApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -2134,6 +2667,314 @@ class EvaluatorsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/evaluators',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def set_evaluator_webhook_subscriptions(
+        self,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        set_webhook_subscriptions_request: Annotated[SetWebhookSubscriptionsRequest, Field(description="Body containing the complete set of webhook subscriptions for the resource")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> WebhookSubscriptions:
+        """Set an evaluator's webhook subscriptions
+
+        Set (replace) all webhook subscriptions on an evaluator. This is an idempotent operation.  **Payload Requirements** - `subscriptions` is required, with at most one entry per `webhook_id`. - Each entry must subscribe to at least one evaluator event   (`EVALUATOR_VERSION_CREATED`); other events are rejected with a 422. - Each `webhook_id` must be a webhook in the evaluator's organization;   unknown webhooks yield a 404. - At most 200 webhooks may subscribe to the same event on an   evaluator; requests that would exceed this limit are rejected with a   422.  Subscriptions not included in the request are removed. Pass an empty array to detach every webhook from the evaluator.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
+        :type evaluator_id: str
+        :param set_webhook_subscriptions_request: Body containing the complete set of webhook subscriptions for the resource (required)
+        :type set_webhook_subscriptions_request: SetWebhookSubscriptionsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._set_evaluator_webhook_subscriptions_serialize(
+            evaluator_id=evaluator_id,
+            set_webhook_subscriptions_request=set_webhook_subscriptions_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "WebhookSubscriptions",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def set_evaluator_webhook_subscriptions_with_http_info(
+        self,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        set_webhook_subscriptions_request: Annotated[SetWebhookSubscriptionsRequest, Field(description="Body containing the complete set of webhook subscriptions for the resource")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[WebhookSubscriptions]:
+        """Set an evaluator's webhook subscriptions
+
+        Set (replace) all webhook subscriptions on an evaluator. This is an idempotent operation.  **Payload Requirements** - `subscriptions` is required, with at most one entry per `webhook_id`. - Each entry must subscribe to at least one evaluator event   (`EVALUATOR_VERSION_CREATED`); other events are rejected with a 422. - Each `webhook_id` must be a webhook in the evaluator's organization;   unknown webhooks yield a 404. - At most 200 webhooks may subscribe to the same event on an   evaluator; requests that would exceed this limit are rejected with a   422.  Subscriptions not included in the request are removed. Pass an empty array to detach every webhook from the evaluator.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
+        :type evaluator_id: str
+        :param set_webhook_subscriptions_request: Body containing the complete set of webhook subscriptions for the resource (required)
+        :type set_webhook_subscriptions_request: SetWebhookSubscriptionsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._set_evaluator_webhook_subscriptions_serialize(
+            evaluator_id=evaluator_id,
+            set_webhook_subscriptions_request=set_webhook_subscriptions_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "WebhookSubscriptions",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def set_evaluator_webhook_subscriptions_without_preload_content(
+        self,
+        evaluator_id: Annotated[StrictStr, Field(description="The unique evaluator identifier (base64)")],
+        set_webhook_subscriptions_request: Annotated[SetWebhookSubscriptionsRequest, Field(description="Body containing the complete set of webhook subscriptions for the resource")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Set an evaluator's webhook subscriptions
+
+        Set (replace) all webhook subscriptions on an evaluator. This is an idempotent operation.  **Payload Requirements** - `subscriptions` is required, with at most one entry per `webhook_id`. - Each entry must subscribe to at least one evaluator event   (`EVALUATOR_VERSION_CREATED`); other events are rejected with a 422. - Each `webhook_id` must be a webhook in the evaluator's organization;   unknown webhooks yield a 404. - At most 200 webhooks may subscribe to the same event on an   evaluator; requests that would exceed this limit are rejected with a   422.  Subscriptions not included in the request are removed. Pass an empty array to detach every webhook from the evaluator.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param evaluator_id: The unique evaluator identifier (base64) (required)
+        :type evaluator_id: str
+        :param set_webhook_subscriptions_request: Body containing the complete set of webhook subscriptions for the resource (required)
+        :type set_webhook_subscriptions_request: SetWebhookSubscriptionsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._set_evaluator_webhook_subscriptions_serialize(
+            evaluator_id=evaluator_id,
+            set_webhook_subscriptions_request=set_webhook_subscriptions_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "WebhookSubscriptions",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _set_evaluator_webhook_subscriptions_serialize(
+        self,
+        evaluator_id,
+        set_webhook_subscriptions_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if evaluator_id is not None:
+            _path_params['evaluator_id'] = evaluator_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if set_webhook_subscriptions_request is not None:
+            _body_params = set_webhook_subscriptions_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='PUT',
+            resource_path='/v2/evaluators/{evaluator_id}/webhook-subscriptions',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

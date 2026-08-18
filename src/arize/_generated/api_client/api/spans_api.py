@@ -635,7 +635,7 @@ class SpansApi:
     def list_spans(
         self,
         list_spans_request: Annotated[ListSpansRequest, Field(description="Body containing span query parameters")],
-        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 500.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -656,7 +656,7 @@ class SpansApi:
 
         :param list_spans_request: Body containing span query parameters (required)
         :type list_spans_request: ListSpansRequest
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 500.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -716,7 +716,7 @@ class SpansApi:
     def list_spans_with_http_info(
         self,
         list_spans_request: Annotated[ListSpansRequest, Field(description="Body containing span query parameters")],
-        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 500.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -737,7 +737,7 @@ class SpansApi:
 
         :param list_spans_request: Body containing span query parameters (required)
         :type list_spans_request: ListSpansRequest
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 500.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -797,7 +797,7 @@ class SpansApi:
     def list_spans_without_preload_content(
         self,
         list_spans_request: Annotated[ListSpansRequest, Field(description="Body containing span query parameters")],
-        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 500.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -818,7 +818,7 @@ class SpansApi:
 
         :param list_spans_request: Body containing span query parameters (required)
         :type list_spans_request: ListSpansRequest
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 500.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str

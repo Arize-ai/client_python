@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.user_api_key_created import UserApiKeyCreated
+from arize._generated.api_client.models.created_user_api_key import CreatedUserApiKey
 
-class TestUserApiKeyCreated(unittest.TestCase):
-    """UserApiKeyCreated unit test stubs"""
+class TestCreatedUserApiKey(unittest.TestCase):
+    """CreatedUserApiKey unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,16 +25,16 @@ class TestUserApiKeyCreated(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> UserApiKeyCreated:
-        """Test UserApiKeyCreated
+    def make_instance(self, include_optional) -> CreatedUserApiKey:
+        """Test CreatedUserApiKey
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `UserApiKeyCreated`
+        # uncomment below to create an instance of `CreatedUserApiKey`
         """
-        model = UserApiKeyCreated()
+        model = CreatedUserApiKey()
         if include_optional:
-            return UserApiKeyCreated(
+            return CreatedUserApiKey(
                 id = '',
                 name = '',
                 description = '',
@@ -48,7 +48,7 @@ class TestUserApiKeyCreated(unittest.TestCase):
                 key = ''
             )
         else:
-            return UserApiKeyCreated(
+            return CreatedUserApiKey(
                 id = '',
                 name = '',
                 key_type = 'USER',
@@ -60,8 +60,8 @@ class TestUserApiKeyCreated(unittest.TestCase):
         )
         """
 
-    def testUserApiKeyCreated(self):
-        """Test UserApiKeyCreated"""
+    def testCreatedUserApiKey(self):
+        """Test CreatedUserApiKey"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

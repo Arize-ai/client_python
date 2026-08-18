@@ -59,7 +59,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     end_time = '2026-05-18T23:59:59Z' # datetime | Inclusive upper bound on `created_at` (ISO 8601 datetime). Defaults to the current time when omitted.  (optional)
     user_id = 'VXNlcjoxMjM0NQ==' # str | Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins.  (optional)
     operation_type = arize._generated.api_client.AuditLogOperationType() # AuditLogOperationType | Filter results to a specific operation type. (optional)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
@@ -82,7 +82,7 @@ Name | Type | Description  | Notes
  **end_time** | **datetime**| Inclusive upper bound on &#x60;created_at&#x60; (ISO 8601 datetime). Defaults to the current time when omitted.  | [optional] 
  **user_id** | **str**| Filter results by user (base64 global user ID). When provided, only records associated with this user are returned. Access requirements vary by endpoint — some endpoints restrict this filter to account admins.  | [optional] 
  **operation_type** | [**AuditLogOperationType**](.md)| Filter results to a specific operation type. | [optional] 
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
 ### Return type

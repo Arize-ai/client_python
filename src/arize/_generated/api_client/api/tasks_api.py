@@ -1446,7 +1446,7 @@ class TasksApi:
         self,
         task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
         status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1469,7 +1469,7 @@ class TasksApi:
         :type task_id: str
         :param status: Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED
         :type status: TaskRunStatus
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1530,7 +1530,7 @@ class TasksApi:
         self,
         task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
         status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1553,7 +1553,7 @@ class TasksApi:
         :type task_id: str
         :param status: Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED
         :type status: TaskRunStatus
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1614,7 +1614,7 @@ class TasksApi:
         self,
         task_id: Annotated[StrictStr, Field(description="The unique task identifier (base64)")],
         status: Annotated[Optional[TaskRunStatus], Field(description="Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1637,7 +1637,7 @@ class TasksApi:
         :type task_id: str
         :param status: Filter by run status: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED
         :type status: TaskRunStatus
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1775,10 +1775,10 @@ class TasksApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 identifier (base64))")] = None,
+        project_id: Annotated[Optional[StrictStr], Field(description="Filter results to resources associated with a specific project (base64 identifier). If omitted, results are not filtered by project. ")] = None,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
         type: Annotated[Optional[TaskType], Field(description="Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, or RUN_EXPERIMENT")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1803,13 +1803,13 @@ class TasksApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param project_id: Filter to tasks for a specific project (base64 identifier (base64))
+        :param project_id: Filter results to resources associated with a specific project (base64 identifier). If omitted, results are not filtered by project. 
         :type project_id: str
         :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
         :type dataset_id: str
         :param type: Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, or RUN_EXPERIMENT
         :type type: TaskType
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1875,10 +1875,10 @@ class TasksApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 identifier (base64))")] = None,
+        project_id: Annotated[Optional[StrictStr], Field(description="Filter results to resources associated with a specific project (base64 identifier). If omitted, results are not filtered by project. ")] = None,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
         type: Annotated[Optional[TaskType], Field(description="Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, or RUN_EXPERIMENT")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1903,13 +1903,13 @@ class TasksApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param project_id: Filter to tasks for a specific project (base64 identifier (base64))
+        :param project_id: Filter results to resources associated with a specific project (base64 identifier). If omitted, results are not filtered by project. 
         :type project_id: str
         :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
         :type dataset_id: str
         :param type: Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, or RUN_EXPERIMENT
         :type type: TaskType
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1975,10 +1975,10 @@ class TasksApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        project_id: Annotated[Optional[StrictStr], Field(description="Filter to tasks for a specific project (base64 identifier (base64))")] = None,
+        project_id: Annotated[Optional[StrictStr], Field(description="Filter results to resources associated with a specific project (base64 identifier). If omitted, results are not filtered by project. ")] = None,
         dataset_id: Annotated[Optional[StrictStr], Field(description="Filter to a specific dataset (base64 identifier (base64))")] = None,
         type: Annotated[Optional[TaskType], Field(description="Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, or RUN_EXPERIMENT")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -2003,13 +2003,13 @@ class TasksApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param project_id: Filter to tasks for a specific project (base64 identifier (base64))
+        :param project_id: Filter results to resources associated with a specific project (base64 identifier). If omitted, results are not filtered by project. 
         :type project_id: str
         :param dataset_id: Filter to a specific dataset (base64 identifier (base64))
         :type dataset_id: str
         :param type: Filter by task type: TEMPLATE_EVALUATION, CODE_EVALUATION, or RUN_EXPERIMENT
         :type type: TaskType
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str

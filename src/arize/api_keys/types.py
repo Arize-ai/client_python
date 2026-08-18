@@ -17,6 +17,12 @@ from arize._generated.api_client.models.api_key_type import ApiKeyType
 from arize._generated.api_client.models.create_api_key_response import (
     CreateApiKeyResponse,
 )
+from arize._generated.api_client.models.created_service_api_key import (
+    CreatedServiceApiKey,
+)
+from arize._generated.api_client.models.created_user_api_key import (
+    CreatedUserApiKey,
+)
 from arize._generated.api_client.models.custom_role_assignment import (
     CustomRoleAssignment,
 )
@@ -53,9 +59,6 @@ from arize._generated.api_client.models.predefined_role_assignment_request impor
 from arize._generated.api_client.models.refresh_api_key_response import (
     RefreshApiKeyResponse,
 )
-from arize._generated.api_client.models.service_api_key_created import (
-    ServiceApiKeyCreated,
-)
 from arize._generated.api_client.models.service_key_bot_user import (
     ServiceKeyBotUser,
 )
@@ -73,9 +76,6 @@ from arize._generated.api_client.models.space_role_assignment import (
 )
 from arize._generated.api_client.models.space_role_assignment_request import (
     SpaceRoleAssignmentRequest,
-)
-from arize._generated.api_client.models.user_api_key_created import (
-    UserApiKeyCreated,
 )
 from arize._generated.api_client.models.user_role_assignment import (
     UserRoleAssignment,
@@ -145,6 +145,8 @@ __all__ = [
     "ApiKeyStatus",
     "ApiKeyType",
     "CreateApiKeyResponse",
+    "CreatedServiceApiKey",
+    "CreatedUserApiKey",
     "CustomRoleAssignment",
     "CustomRoleAssignmentRequest",
     "ListApiKeysResponse",
@@ -158,7 +160,6 @@ __all__ = [
     "PredefinedRoleAssignment",
     "PredefinedRoleAssignmentRequest",
     "RefreshApiKeyResponse",
-    "ServiceApiKeyCreated",
     "ServiceKeyBotUser",
     "ServiceKeyBotUserOrgAssignment",
     "ServiceKeyBotUserSpaceAssignment",
@@ -166,7 +167,6 @@ __all__ = [
     "SpaceBinding",
     "SpaceRoleAssignment",
     "SpaceRoleAssignmentRequest",
-    "UserApiKeyCreated",
     "UserRoleAssignment",
     "UserRoleAssignmentRequest",
 ]

@@ -1499,11 +1499,17 @@ def _log_flight_update_summary(
         for any failed span updates. Metrics include success rate, spans processed,
         and failure counts.
     """
+    spans_processed: int | None
+    unmatched_ids: list[str] = []
     spans_updated = getattr(response, "spans_updated", None)
     if spans_updated is None:
-        # Fallback for older response types
+        # Annotation and evaluation responses report records_updated and
+        # unmatched_ids instead of spans_updated/errors.
         spans_updated = getattr(response, "records_updated", None)
-    spans_processed = getattr(response, "spans_processed", None)
+        spans_processed = total_spans
+        unmatched_ids = list(getattr(response, "unmatched_ids", None) or [])
+    else:
+        spans_processed = getattr(response, "spans_processed", None)
     raw_errors = getattr(response, "errors", None)
     errors = (
         [
@@ -1512,6 +1518,13 @@ def _log_flight_update_summary(
         ]
         if raw_errors
         else []
+    )
+    errors.extend(
+        {
+            "span_id": row_id,
+            "error_message": "No matching span found for row identifier",
+        }
+        for row_id in unmatched_ids
     )
 
     # Normalize request_type to a readable string

@@ -61,7 +61,7 @@ class AnnotationConfigsApi:
     ) -> AnnotationConfig:
         """Create an annotation config
 
-        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"CATEGORICAL\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"MAXIMIZE\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"CATEGORICAL\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"MAXIMIZE\" } ``` 
 
         :param create_annotation_config_request: Body containing annotation config creation parameters (required)
         :type create_annotation_config_request: CreateAnnotationConfigRequest
@@ -135,7 +135,7 @@ class AnnotationConfigsApi:
     ) -> ApiResponse[AnnotationConfig]:
         """Create an annotation config
 
-        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"CATEGORICAL\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"MAXIMIZE\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"CATEGORICAL\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"MAXIMIZE\" } ``` 
 
         :param create_annotation_config_request: Body containing annotation config creation parameters (required)
         :type create_annotation_config_request: CreateAnnotationConfigRequest
@@ -209,7 +209,7 @@ class AnnotationConfigsApi:
     ) -> RESTResponseType:
         """Create an annotation config
 
-        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"CATEGORICAL\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"MAXIMIZE\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Create a new annotation config.  **Payload Requirements** - The annotation config name must be unique within the given space.  **Valid example** ```json {   \"name\": \"my-annotation-config\",   \"space_id\": \"spc_123\",   \"annotation_config_type\": \"CATEGORICAL\",   \"values\": [     {       \"label\": \"value1\",       \"score\": 0     },     {       \"label\": \"value2\",       \"score\": 1     }   ],   \"optimization_direction\": \"MAXIMIZE\" } ``` 
 
         :param create_annotation_config_request: Body containing annotation config creation parameters (required)
         :type create_annotation_config_request: CreateAnnotationConfigRequest
@@ -357,7 +357,7 @@ class AnnotationConfigsApi:
     ) -> None:
         """Delete an annotation config
 
-        Delete an annotation config by its ID. The annotation config must not be associated with an active annotation queue; remove it from those queues before deleting it. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete an annotation config by its ID. The annotation config must not be associated with an active annotation queue; remove it from those queues before deleting it. This operation is irreversible. 
 
         :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
@@ -430,7 +430,7 @@ class AnnotationConfigsApi:
     ) -> ApiResponse[None]:
         """Delete an annotation config
 
-        Delete an annotation config by its ID. The annotation config must not be associated with an active annotation queue; remove it from those queues before deleting it. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete an annotation config by its ID. The annotation config must not be associated with an active annotation queue; remove it from those queues before deleting it. This operation is irreversible. 
 
         :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
@@ -503,7 +503,7 @@ class AnnotationConfigsApi:
     ) -> RESTResponseType:
         """Delete an annotation config
 
-        Delete an annotation config by its ID. The annotation config must not be associated with an active annotation queue; remove it from those queues before deleting it. This operation is irreversible.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Delete an annotation config by its ID. The annotation config must not be associated with an active annotation queue; remove it from those queues before deleting it. This operation is irreversible. 
 
         :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
@@ -636,7 +636,7 @@ class AnnotationConfigsApi:
     ) -> AnnotationConfig:
         """Get an annotation config
 
-        Get an annotation config object by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Get an annotation config object by its ID. 
 
         :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
@@ -707,7 +707,7 @@ class AnnotationConfigsApi:
     ) -> ApiResponse[AnnotationConfig]:
         """Get an annotation config
 
-        Get an annotation config object by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Get an annotation config object by its ID. 
 
         :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
@@ -778,7 +778,7 @@ class AnnotationConfigsApi:
     ) -> RESTResponseType:
         """Get an annotation config
 
-        Get an annotation config object by its ID.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Get an annotation config object by its ID. 
 
         :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
@@ -897,7 +897,7 @@ class AnnotationConfigsApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -914,7 +914,7 @@ class AnnotationConfigsApi:
     ) -> ListAnnotationConfigsResponse:
         """List annotation configs
 
-        List annotation configs the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List annotation configs the user has access to. 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -922,7 +922,7 @@ class AnnotationConfigsApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -985,7 +985,7 @@ class AnnotationConfigsApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1002,7 +1002,7 @@ class AnnotationConfigsApi:
     ) -> ApiResponse[ListAnnotationConfigsResponse]:
         """List annotation configs
 
-        List annotation configs the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List annotation configs the user has access to. 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -1010,7 +1010,7 @@ class AnnotationConfigsApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1073,7 +1073,7 @@ class AnnotationConfigsApi:
         space_id: Annotated[Optional[StrictStr], Field(description="Filter search results to a particular space ID")] = None,
         space_name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the space name. Narrows results to resources in spaces whose name contains the given string. If omitted, no space name filtering is applied and all resources are returned. ")] = None,
         name: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. ")] = None,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         _request_timeout: Union[
             None,
@@ -1090,7 +1090,7 @@ class AnnotationConfigsApi:
     ) -> RESTResponseType:
         """List annotation configs
 
-        List annotation configs the user has access to.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List annotation configs the user has access to. 
 
         :param space_id: Filter search results to a particular space ID
         :type space_id: str
@@ -1098,7 +1098,7 @@ class AnnotationConfigsApi:
         :type space_name: str
         :param name: Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned. 
         :type name: str
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1258,7 +1258,7 @@ class AnnotationConfigsApi:
     ) -> AnnotationConfig:
         """Update an annotation config
 
-        Update an annotation config by its ID.  **Payload Requirements** - `annotation_config_type` is required and must match the stored config's type. The   type is immutable and cannot be changed. - The updatable fields depend on the type:   - `CATEGORICAL`: `name`, `values`, `optimization_direction`.   - `CONTINUOUS`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.   - `FREEFORM`: `name`. - All fields other than `annotation_config_type` are optional; omitted fields are left   unchanged. - `name`, if provided, must be unique within the space (409 Conflict if duplicate). - `values` replaces the full label set (2-100 labels). - System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.  **Valid example** (categorical config) ```json {   \"annotation_config_type\": \"CATEGORICAL\",   \"name\": \"quality-v2\",   \"values\": [     { \"label\": \"good\", \"score\": 1 },     { \"label\": \"bad\", \"score\": 0 }   ],   \"optimization_direction\": \"MAXIMIZE\" } ```  **Invalid example** (missing `annotation_config_type`) ```json {   \"name\": \"quality-v2\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update an annotation config by its ID.  **Payload Requirements** - `annotation_config_type` is required and must match the stored config's type. The   type is immutable and cannot be changed. - The updatable fields depend on the type:   - `CATEGORICAL`: `name`, `values`, `optimization_direction`.   - `CONTINUOUS`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.   - `FREEFORM`: `name`. - All fields other than `annotation_config_type` are optional; omitted fields are left   unchanged. - `name`, if provided, must be unique within the space (409 Conflict if duplicate). - `values` replaces the full label set (2-100 labels). - System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.  **Valid example** (categorical config) ```json {   \"annotation_config_type\": \"CATEGORICAL\",   \"name\": \"quality-v2\",   \"values\": [     { \"label\": \"good\", \"score\": 1 },     { \"label\": \"bad\", \"score\": 0 }   ],   \"optimization_direction\": \"MAXIMIZE\" } ```  **Invalid example** (missing `annotation_config_type`) ```json {   \"name\": \"quality-v2\" } ``` 
 
         :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
@@ -1336,7 +1336,7 @@ class AnnotationConfigsApi:
     ) -> ApiResponse[AnnotationConfig]:
         """Update an annotation config
 
-        Update an annotation config by its ID.  **Payload Requirements** - `annotation_config_type` is required and must match the stored config's type. The   type is immutable and cannot be changed. - The updatable fields depend on the type:   - `CATEGORICAL`: `name`, `values`, `optimization_direction`.   - `CONTINUOUS`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.   - `FREEFORM`: `name`. - All fields other than `annotation_config_type` are optional; omitted fields are left   unchanged. - `name`, if provided, must be unique within the space (409 Conflict if duplicate). - `values` replaces the full label set (2-100 labels). - System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.  **Valid example** (categorical config) ```json {   \"annotation_config_type\": \"CATEGORICAL\",   \"name\": \"quality-v2\",   \"values\": [     { \"label\": \"good\", \"score\": 1 },     { \"label\": \"bad\", \"score\": 0 }   ],   \"optimization_direction\": \"MAXIMIZE\" } ```  **Invalid example** (missing `annotation_config_type`) ```json {   \"name\": \"quality-v2\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update an annotation config by its ID.  **Payload Requirements** - `annotation_config_type` is required and must match the stored config's type. The   type is immutable and cannot be changed. - The updatable fields depend on the type:   - `CATEGORICAL`: `name`, `values`, `optimization_direction`.   - `CONTINUOUS`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.   - `FREEFORM`: `name`. - All fields other than `annotation_config_type` are optional; omitted fields are left   unchanged. - `name`, if provided, must be unique within the space (409 Conflict if duplicate). - `values` replaces the full label set (2-100 labels). - System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.  **Valid example** (categorical config) ```json {   \"annotation_config_type\": \"CATEGORICAL\",   \"name\": \"quality-v2\",   \"values\": [     { \"label\": \"good\", \"score\": 1 },     { \"label\": \"bad\", \"score\": 0 }   ],   \"optimization_direction\": \"MAXIMIZE\" } ```  **Invalid example** (missing `annotation_config_type`) ```json {   \"name\": \"quality-v2\" } ``` 
 
         :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str
@@ -1414,7 +1414,7 @@ class AnnotationConfigsApi:
     ) -> RESTResponseType:
         """Update an annotation config
 
-        Update an annotation config by its ID.  **Payload Requirements** - `annotation_config_type` is required and must match the stored config's type. The   type is immutable and cannot be changed. - The updatable fields depend on the type:   - `CATEGORICAL`: `name`, `values`, `optimization_direction`.   - `CONTINUOUS`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.   - `FREEFORM`: `name`. - All fields other than `annotation_config_type` are optional; omitted fields are left   unchanged. - `name`, if provided, must be unique within the space (409 Conflict if duplicate). - `values` replaces the full label set (2-100 labels). - System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.  **Valid example** (categorical config) ```json {   \"annotation_config_type\": \"CATEGORICAL\",   \"name\": \"quality-v2\",   \"values\": [     { \"label\": \"good\", \"score\": 1 },     { \"label\": \"bad\", \"score\": 0 }   ],   \"optimization_direction\": \"MAXIMIZE\" } ```  **Invalid example** (missing `annotation_config_type`) ```json {   \"name\": \"quality-v2\" } ```  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        Update an annotation config by its ID.  **Payload Requirements** - `annotation_config_type` is required and must match the stored config's type. The   type is immutable and cannot be changed. - The updatable fields depend on the type:   - `CATEGORICAL`: `name`, `values`, `optimization_direction`.   - `CONTINUOUS`: `name`, `minimum_score`, `maximum_score`, `optimization_direction`.   - `FREEFORM`: `name`. - All fields other than `annotation_config_type` are optional; omitted fields are left   unchanged. - `name`, if provided, must be unique within the space (409 Conflict if duplicate). - `values` replaces the full label set (2-100 labels). - System-managed fields (`id`, `space_id`, `created_at`) cannot be modified.  **Valid example** (categorical config) ```json {   \"annotation_config_type\": \"CATEGORICAL\",   \"name\": \"quality-v2\",   \"values\": [     { \"label\": \"good\", \"score\": 1 },     { \"label\": \"bad\", \"score\": 0 }   ],   \"optimization_direction\": \"MAXIMIZE\" } ```  **Invalid example** (missing `annotation_config_type`) ```json {   \"name\": \"quality-v2\" } ``` 
 
         :param annotation_config_id: The unique annotation config identifier (base64) (required)
         :type annotation_config_id: str

@@ -135,7 +135,7 @@ class BaseEmbeddingGenerator(ABC):
         self, batch: dict[str, torch.Tensor], method: str
     ) -> dict[str, torch.Tensor]:
         with torch.no_grad():
-            outputs = self.model(**batch)
+            outputs = self.model(**batch)  # type: ignore[operator]
         # (batch_size, seq_length/or/num_tokens, hidden_size)
         if method == "cls_token":  # Select CLS token vector
             embeddings = outputs.last_hidden_state[:, 0, :]
@@ -270,7 +270,7 @@ class CVEmbeddingGenerator(BaseEmbeddingGenerator):
         self, batch: dict[str, list[str]], local_image_feat_name: str
     ) -> BatchFeature:
         """Preprocess a batch of images for model input."""
-        return self.image_processor(
+        return self.image_processor(  # type: ignore[operator]
             [
                 self.open_image(image_path)
                 for image_path in batch[local_image_feat_name]

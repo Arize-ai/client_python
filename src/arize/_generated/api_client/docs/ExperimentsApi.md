@@ -154,7 +154,8 @@ experiment is associated with a dataset, each run must also include an
 Payload Requirements
 - Provide exactly one of `dataset_id` or `space_id`.
 - The `name` must be unique within the dataset it's associated with, or
-  within the space when it isn't associated with a dataset.
+  within the space when it isn't associated with a dataset, and must not
+  contain double quotes (`"`) or backslashes (`\`).
 - Provide at least one run in `experiment_runs`.
 - Each run must include:
   - `output` -- model/task output for the run
@@ -588,7 +589,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.ExperimentsApi(api_client)
     experiment_id = 'RXhwZXJpbWVudDoxMjM0NQ==' # str | The unique experiment identifier (base64)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 500. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
@@ -608,7 +609,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **experiment_id** | **str**| The unique experiment identifier (base64) | 
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 500. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
 ### Return type
@@ -689,7 +690,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | Filter to a specific dataset (base64 identifier (base64)) (optional)
     space_id = 'U3BhY2U6MTIzNDU=' # str | Filter search results to a particular space ID (optional)
     name = 'production' # str | Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, `name=prod` matches \"production\", \"my-prod-dataset\", etc. If omitted, no name filtering is applied and all resources are returned.  (optional)
-    limit = 50 # int | Maximum items to return (optional) (default to 50)
+    limit = 50 # int | Maximum items to return. Defaults to 50 if omitted; maximum is 100. (optional) (default to 50)
     cursor = 'cursor_example' # str | Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it.  (optional)
 
     try:
@@ -711,7 +712,7 @@ Name | Type | Description  | Notes
  **dataset_id** | **str**| Filter to a specific dataset (base64 identifier (base64)) | [optional] 
  **space_id** | **str**| Filter search results to a particular space ID | [optional] 
  **name** | **str**| Case-insensitive substring filter on the resource name. Returns only resources whose name contains the given string. For example, &#x60;name&#x3D;prod&#x60; matches \&quot;production\&quot;, \&quot;my-prod-dataset\&quot;, etc. If omitted, no name filtering is applied and all resources are returned.  | [optional] 
- **limit** | **int**| Maximum items to return | [optional] [default to 50]
+ **limit** | **int**| Maximum items to return. Defaults to 50 if omitted; maximum is 100. | [optional] [default to 50]
  **cursor** | **str**| Opaque pagination cursor returned from a previous response (&#x60;pagination.next_cursor&#x60;). Treat it as an unreadable token; do not attempt to parse or construct it.  | [optional] 
 
 ### Return type

@@ -888,7 +888,7 @@ class RolesApi:
     @validate_call
     def list_roles(
         self,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         is_predefined: Annotated[Optional[StrictBool], Field(description="Filter roles by predefined status. - `true` - Return only system-defined predefined roles. - `false` - Return only custom (account-defined) roles.  When not specified, returns all roles (both predefined and custom). ")] = None,
         _request_timeout: Union[
@@ -908,7 +908,7 @@ class RolesApi:
 
         List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -967,7 +967,7 @@ class RolesApi:
     @validate_call
     def list_roles_with_http_info(
         self,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         is_predefined: Annotated[Optional[StrictBool], Field(description="Filter roles by predefined status. - `true` - Return only system-defined predefined roles. - `false` - Return only custom (account-defined) roles.  When not specified, returns all roles (both predefined and custom). ")] = None,
         _request_timeout: Union[
@@ -987,7 +987,7 @@ class RolesApi:
 
         List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
@@ -1046,7 +1046,7 @@ class RolesApi:
     @validate_call
     def list_roles_without_preload_content(
         self,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Maximum items to return. Defaults to 50 if omitted; maximum is 100.")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. ")] = None,
         is_predefined: Annotated[Optional[StrictBool], Field(description="Filter roles by predefined status. - `true` - Return only system-defined predefined roles. - `false` - Return only custom (account-defined) roles.  When not specified, returns all roles (both predefined and custom). ")] = None,
         _request_timeout: Union[
@@ -1066,7 +1066,7 @@ class RolesApi:
 
         List custom and predefined roles for the authenticated user's account. Results are paginated; use `limit` and `cursor` for subsequent pages.  <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
-        :param limit: Maximum items to return
+        :param limit: Maximum items to return. Defaults to 50 if omitted; maximum is 100.
         :type limit: int
         :param cursor: Opaque pagination cursor returned from a previous response (`pagination.next_cursor`). Treat it as an unreadable token; do not attempt to parse or construct it. 
         :type cursor: str
