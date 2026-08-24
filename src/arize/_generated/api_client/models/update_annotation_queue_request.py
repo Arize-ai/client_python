@@ -31,7 +31,8 @@ class UpdateAnnotationQueueRequest(BaseModel):
     instructions: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=5000)]] = Field(default=None, description="The instructions for annotators working on this queue. Set to `null` to clear the instructions. ")
     annotation_config_ids: Optional[List[StrictStr]] = Field(default=None, description="The full list of annotation config IDs to associate with this queue. This replaces all existing annotation config associations. All annotation configs must belong to the same space as the queue. ")
     annotator_emails: Optional[List[StrictStr]] = Field(default=None, description="The full list of user emails to assign to this queue. This replaces all existing user assignments. All users must have an active account and access to the queue's space. ")
-    __properties: ClassVar[List[str]] = ["name", "instructions", "annotation_config_ids", "annotator_emails"]
+    column_allowlist: Optional[Annotated[List[Annotated[str, Field(strict=True, max_length=512)]], Field(max_length=1000)]] = Field(default=None, description="The full list of record column names annotators assigned to this queue are allowed to see. This replaces the existing allowlist. Set to `null` to remove the restriction so annotators see every column. Omit to leave it unchanged. ")
+    __properties: ClassVar[List[str]] = ["name", "instructions", "annotation_config_ids", "annotator_emails", "column_allowlist"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -77,6 +78,11 @@ class UpdateAnnotationQueueRequest(BaseModel):
         if self.instructions is None and "instructions" in self.model_fields_set:
             _dict['instructions'] = None
 
+        # set to None if column_allowlist (nullable) is None
+        # and model_fields_set contains the field
+        if self.column_allowlist is None and "column_allowlist" in self.model_fields_set:
+            _dict['column_allowlist'] = None
+
         return _dict
 
     @classmethod
@@ -97,7 +103,8 @@ class UpdateAnnotationQueueRequest(BaseModel):
             "name": obj.get("name"),
             "instructions": obj.get("instructions"),
             "annotation_config_ids": obj.get("annotation_config_ids"),
-            "annotator_emails": obj.get("annotator_emails")
+            "annotator_emails": obj.get("annotator_emails"),
+            "column_allowlist": obj.get("column_allowlist")
         })
         return _obj
 

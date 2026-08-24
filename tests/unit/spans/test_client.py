@@ -354,6 +354,7 @@ class TestSpansClientList:
                 start_time=start,
                 end_time=end,
                 filter="status_code = 'ERROR'",
+                included_columns=["attributes.llm.model_name"],
                 limit=50,
                 cursor="cursor-abc",
             )
@@ -363,6 +364,8 @@ class TestSpansClientList:
             start_time=start,
             end_time=end,
             filter="status_code = 'ERROR'",
+            included_columns=["attributes.llm.model_name"],
+            excluded_columns=None,
         )
 
     def test_list_calls_api_with_request_and_pagination(
@@ -411,6 +414,8 @@ class TestSpansClientList:
             start_time=None,
             end_time=None,
             filter=None,
+            included_columns=None,
+            excluded_columns=None,
         )
         mock_api.list_spans.assert_called_once_with(
             list_spans_request=mock_request_cls.return_value,
@@ -521,6 +526,34 @@ class TestSpansClientList:
             start_time=None,
             end_time=None,
             filter=None,
+            included_columns=None,
+            excluded_columns=None,
+        )
+
+    def test_list_builds_request_with_excluded_columns(
+        self, spans_client: SpansClient
+    ) -> None:
+        """list() should forward excluded columns into ListSpansRequest."""
+        from arize import pre_releases
+
+        pre_releases._WARNED.clear()
+
+        with patch(
+            "arize._generated.api_client.ListSpansRequest"
+        ) as mock_request_cls:
+            mock_request_cls.return_value = Mock()
+            spans_client.list(
+                project=_PROJECT_ID,
+                excluded_columns=["attributes.embedding.vectors"],
+            )
+
+        mock_request_cls.assert_called_once_with(
+            project_id=_PROJECT_ID,
+            start_time=None,
+            end_time=None,
+            filter=None,
+            included_columns=None,
+            excluded_columns=["attributes.embedding.vectors"],
         )
 
 

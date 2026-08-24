@@ -4,12 +4,138 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**add_annotation_config_tags**](AnnotationConfigsApi.md#add_annotation_config_tags) | **POST** /v2/annotation-configs/{annotation_config_id}/tags | Attach tags to a annotation config
 [**create_annotation_config**](AnnotationConfigsApi.md#create_annotation_config) | **POST** /v2/annotation-configs | Create an annotation config
 [**delete_annotation_config**](AnnotationConfigsApi.md#delete_annotation_config) | **DELETE** /v2/annotation-configs/{annotation_config_id} | Delete an annotation config
 [**get_annotation_config**](AnnotationConfigsApi.md#get_annotation_config) | **GET** /v2/annotation-configs/{annotation_config_id} | Get an annotation config
+[**list_annotation_config_tags**](AnnotationConfigsApi.md#list_annotation_config_tags) | **GET** /v2/annotation-configs/{annotation_config_id}/tags | List tags on an annotation config
 [**list_annotation_configs**](AnnotationConfigsApi.md#list_annotation_configs) | **GET** /v2/annotation-configs | List annotation configs
 [**update_annotation_config**](AnnotationConfigsApi.md#update_annotation_config) | **PATCH** /v2/annotation-configs/{annotation_config_id} | Update an annotation config
 
+
+# **add_annotation_config_tags**
+> ListTagsResponse add_annotation_config_tags(annotation_config_id, add_tags_request)
+
+Attach tags to a annotation config
+
+Attach one or more existing tags to a annotation config.
+
+**Payload Requirements**
+- `tag_ids` is required and must contain between 1 and 100 tag IDs.
+- Every tag must already exist and belong to the same space as the
+  annotation config. A tag from another space returns `422`.
+- Attaching a tag that is already attached is idempotent, so the same
+  request can be retried safely.
+- Unrecognized fields are rejected with `422` rather than ignored.
+
+Returns `200` with the annotation config's complete tag list, not `201`: attaching
+an existing tag creates no new resource.
+
+**Valid example**
+```json
+{
+  "tag_ids": ["VGFnOjEyMzQ1", "VGFnOjEyMzQ2"]
+}
+```
+
+**Invalid example** (empty list)
+```json
+{
+  "tag_ids": []
+}
+```
+```json
+{
+  "type": "https://arize.com/docs/ax/rest-reference/errors#validation-error",
+  "title": "Unprocessable Entity",
+  "status": 422,
+  "detail": "tag_ids must contain at least 1 tag ID",
+  "request_id": "req_01HZY6X8E7"
+}
+```
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.add_tags_request import AddTagsRequest
+from arize._generated.api_client.models.list_tags_response import ListTagsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.AnnotationConfigsApi(api_client)
+    annotation_config_id = 'QW5ub3RhdGlvbkNvbmZpZzoxMjM0NQ==' # str | The unique annotation config identifier (base64)
+    add_tags_request = {"tag_ids":["VGFnOjEyMzQ1","VGFnOjEyMzQ2"]} # AddTagsRequest | Body containing the IDs of the tags to attach to the resource
+
+    try:
+        # Attach tags to a annotation config
+        api_response = api_instance.add_annotation_config_tags(annotation_config_id, add_tags_request)
+        print("The response of AnnotationConfigsApi->add_annotation_config_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling AnnotationConfigsApi->add_annotation_config_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **annotation_config_id** | **str**| The unique annotation config identifier (base64) | 
+ **add_tags_request** | [**AddTagsRequest**](AddTagsRequest.md)| Body containing the IDs of the tags to attach to the resource | 
+
+### Return type
+
+[**ListTagsResponse**](ListTagsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns the tags attached to the resource |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **create_annotation_config**
 > AnnotationConfig create_annotation_config(create_annotation_config_request)
@@ -281,6 +407,98 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | An annotation config object |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_annotation_config_tags**
+> ListTagsResponse list_annotation_config_tags(annotation_config_id)
+
+List tags on an annotation config
+
+List the tags attached to an annotation config.
+
+Tags are shared within the space, so the same tag may appear on many
+resources. An annotation config with no tags returns an empty list rather than a
+404.
+
+Requires read access to the annotation config. A caller who cannot read it receives
+`404`, identical to the response for an annotation config that does not exist.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.list_tags_response import ListTagsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.AnnotationConfigsApi(api_client)
+    annotation_config_id = 'QW5ub3RhdGlvbkNvbmZpZzoxMjM0NQ==' # str | The unique annotation config identifier (base64)
+
+    try:
+        # List tags on an annotation config
+        api_response = api_instance.list_annotation_config_tags(annotation_config_id)
+        print("The response of AnnotationConfigsApi->list_annotation_config_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling AnnotationConfigsApi->list_annotation_config_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **annotation_config_id** | **str**| The unique annotation config identifier (base64) | 
+
+### Return type
+
+[**ListTagsResponse**](ListTagsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns the tags attached to the resource |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **404** | Not found |  -  |

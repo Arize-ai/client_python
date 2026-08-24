@@ -32,6 +32,7 @@ arize/_generated/api_client/docs/APIKeysApi.md
 arize/_generated/api_client/docs/AddAnnotationQueueRecordsRequest.md
 arize/_generated/api_client/docs/AddOrganizationUserRequest.md
 arize/_generated/api_client/docs/AddSpaceUserRequest.md
+arize/_generated/api_client/docs/AddTagsRequest.md
 arize/_generated/api_client/docs/AgentCallRunConfig.md
 arize/_generated/api_client/docs/AgentCallRunConfigRequest.md
 arize/_generated/api_client/docs/AgentConfig.md
@@ -172,6 +173,8 @@ arize/_generated/api_client/docs/DeleteAnnotationQueueRecordsRequest.md
 arize/_generated/api_client/docs/DeleteDatasetExamplesProblem.md
 arize/_generated/api_client/docs/DeleteDatasetExamplesRequest.md
 arize/_generated/api_client/docs/DeleteDatasetExamplesResponse.md
+arize/_generated/api_client/docs/DeleteEvaluatorVersionsRequest.md
+arize/_generated/api_client/docs/DeleteEvaluatorVersionsResponse.md
 arize/_generated/api_client/docs/DeleteSpansProblem.md
 arize/_generated/api_client/docs/DeleteSpansRequest.md
 arize/_generated/api_client/docs/DeleteSpansResponse.md
@@ -251,6 +254,7 @@ arize/_generated/api_client/docs/ListRolesResponse.md
 arize/_generated/api_client/docs/ListSpacesResponse.md
 arize/_generated/api_client/docs/ListSpansRequest.md
 arize/_generated/api_client/docs/ListSpansResponse.md
+arize/_generated/api_client/docs/ListTagsResponse.md
 arize/_generated/api_client/docs/ListTaskRunsResponse.md
 arize/_generated/api_client/docs/ListTasksResponse.md
 arize/_generated/api_client/docs/ListTracesRequest.md
@@ -437,6 +441,7 @@ arize/_generated/api_client/models/__init__.py
 arize/_generated/api_client/models/add_annotation_queue_records_request.py
 arize/_generated/api_client/models/add_organization_user_request.py
 arize/_generated/api_client/models/add_space_user_request.py
+arize/_generated/api_client/models/add_tags_request.py
 arize/_generated/api_client/models/agent_call_run_config.py
 arize/_generated/api_client/models/agent_call_run_config_request.py
 arize/_generated/api_client/models/agent_config.py
@@ -573,6 +578,8 @@ arize/_generated/api_client/models/delete_annotation_queue_records_request.py
 arize/_generated/api_client/models/delete_dataset_examples_problem.py
 arize/_generated/api_client/models/delete_dataset_examples_request.py
 arize/_generated/api_client/models/delete_dataset_examples_response.py
+arize/_generated/api_client/models/delete_evaluator_versions_request.py
+arize/_generated/api_client/models/delete_evaluator_versions_response.py
 arize/_generated/api_client/models/delete_spans_problem.py
 arize/_generated/api_client/models/delete_spans_request.py
 arize/_generated/api_client/models/delete_spans_response.py
@@ -647,6 +654,7 @@ arize/_generated/api_client/models/list_roles_response.py
 arize/_generated/api_client/models/list_spaces_response.py
 arize/_generated/api_client/models/list_spans_request.py
 arize/_generated/api_client/models/list_spans_response.py
+arize/_generated/api_client/models/list_tags_response.py
 arize/_generated/api_client/models/list_task_runs_response.py
 arize/_generated/api_client/models/list_tasks_response.py
 arize/_generated/api_client/models/list_traces_request.py
@@ -818,6 +826,7 @@ arize/_generated/api_client/models/webhook_subscription_input.py
 arize/_generated/api_client/models/webhook_subscriptions.py
 arize/_generated/api_client/rest.py
 arize/_generated/api_client/test/__init__.py
+arize/_generated/api_client/test/test_add_tags_request.py
 arize/_generated/api_client/test/test_ai_integration.py
 arize/_generated/api_client/test/test_ai_integration_auth_type.py
 arize/_generated/api_client/test/test_ai_integration_provider.py
@@ -866,6 +875,8 @@ arize/_generated/api_client/test/test_custom_code_config.py
 arize/_generated/api_client/test/test_data_granularity.py
 arize/_generated/api_client/test/test_dataset_example.py
 arize/_generated/api_client/test/test_dataset_version_with_example_ids.py
+arize/_generated/api_client/test/test_delete_evaluator_versions_request.py
+arize/_generated/api_client/test/test_delete_evaluator_versions_response.py
 arize/_generated/api_client/test/test_delete_spans_request.py
 arize/_generated/api_client/test/test_evaluation.py
 arize/_generated/api_client/test/test_evaluator_llm_config.py
@@ -886,6 +897,7 @@ arize/_generated/api_client/test/test_integrations_api.py
 arize/_generated/api_client/test/test_invocation_params.py
 arize/_generated/api_client/test/test_list_monitors_response.py
 arize/_generated/api_client/test/test_list_spans_request.py
+arize/_generated/api_client/test/test_list_tags_response.py
 arize/_generated/api_client/test/test_list_traces_request.py
 arize/_generated/api_client/test/test_list_webhook_delivery_attempts_response.py
 arize/_generated/api_client/test/test_list_webhooks_response.py

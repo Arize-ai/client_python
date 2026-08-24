@@ -17,24 +17,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
-from arize._generated.api_client.models.invite_mode import InviteMode
-from arize._generated.api_client.models.user_role_assignment_request import UserRoleAssignmentRequest
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Any, ClassVar, Dict, List
+from arize._generated.api_client.models.pagination_metadata import PaginationMetadata
+from arize._generated.api_client.models.tag import Tag
 from typing import Optional, Set
 from typing_extensions import Self
 
-class CreateUserRequest(BaseModel):
+class ListTagsResponse(BaseModel):
     """
-    CreateUserRequest
+    ListTagsResponse
     """ # noqa: E501
-    name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(description="Full name of the new user")
-    email: StrictStr = Field(description="Email address of the user to invite")
-    role: UserRoleAssignmentRequest
-    invite_mode: InviteMode = Field(description="Controls whether and how an invitation is sent")
-    is_developer: Optional[StrictBool] = Field(default=None, description="Whether the user should have developer permissions (can use the Arize API). When omitted, developer access follows the account's default developer access setting for `MEMBER` roles. `ADMIN` users always receive developer access regardless of this field. `ANNOTATOR` users never receive developer access regardless of this field. ")
-    __properties: ClassVar[List[str]] = ["name", "email", "role", "invite_mode", "is_developer"]
+    tags: List[Tag] = Field(description="The tags attached to the resource, most recently updated first. Empty when the resource has no tags. ")
+    pagination: PaginationMetadata = Field(description="Pagination metadata. Tag lists are not paginated yet, so `has_more` is always `false` and `next_cursor` is always omitted. The field is present so that adding pagination later does not change the response shape. ")
+    __properties: ClassVar[List[str]] = ["tags", "pagination"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -54,7 +50,7 @@ class CreateUserRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of CreateUserRequest from a JSON string"""
+        """Create an instance of ListTagsResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -75,31 +71,31 @@ class CreateUserRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of role
-        if self.role:
-            _dict['role'] = self.role.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in tags (list)
+        _items = []
+        if self.tags:
+            for _item_tags in self.tags:
+                if _item_tags:
+                    _items.append(_item_tags.to_dict())
+            _dict['tags'] = _items
+        # override the default output from pydantic by calling `to_dict()` of pagination
+        if self.pagination:
+            _dict['pagination'] = self.pagination.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of CreateUserRequest from a dict"""
+        """Create an instance of ListTagsResponse from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in CreateUserRequest) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "name": obj.get("name"),
-            "email": obj.get("email"),
-            "role": UserRoleAssignmentRequest.from_dict(obj["role"]) if obj.get("role") is not None else None,
-            "invite_mode": obj.get("invite_mode"),
-            "is_developer": obj.get("is_developer")
+            "tags": [Tag.from_dict(_item) for _item in obj["tags"]] if obj.get("tags") is not None else None,
+            "pagination": PaginationMetadata.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
         })
         return _obj
 

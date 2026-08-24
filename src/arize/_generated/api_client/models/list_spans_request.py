@@ -20,6 +20,7 @@ import json
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -31,7 +32,9 @@ class ListSpansRequest(BaseModel):
     start_time: Optional[datetime] = Field(default=None, description="Filter to spans starting at or after this timestamp (inclusive). ISO 8601 format (e.g., `2024-01-01T00:00:00Z`). Defaults to 1 week ago. ")
     end_time: Optional[datetime] = Field(default=None, description="Filter to spans starting before this timestamp (exclusive). ISO 8601 format (e.g., `2024-01-02T00:00:00Z`). Defaults to the current time. ")
     filter: Optional[StrictStr] = Field(default=None, description="Filter expression to apply to the query. Supports SQL-like syntax for filtering spans by attributes (e.g., `status_code = 'ERROR'`). Optional; omit it to apply no filter. If provided, it must not be empty or whitespace-only. ")
-    __properties: ClassVar[List[str]] = ["project_id", "start_time", "end_time", "filter"]
+    included_columns: Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True)]], Field(min_length=1, max_length=1000)]] = Field(default=None, description="Columns to include in each span. When set, only these columns (plus fixed span fields) are returned. Mutually exclusive with `excluded_columns` — providing both returns 422.  Values must be full dotted column paths (e.g., `attributes.llm.model_name`, `eval.hallucination.score`). Unknown column names are silently ignored.  Fixed span fields — name, context (trace_id, span_id), kind, parent_id, start_time, end_time, status_code, status_message, latency_ms, and events — are always returned regardless of this parameter. ")
+    excluded_columns: Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True)]], Field(min_length=1, max_length=1000)]] = Field(default=None, description="Columns to exclude from each span. When set, all columns except these are returned. Mutually exclusive with `included_columns` — providing both returns 422.  Values must be full dotted column paths (e.g., `attributes.embedding.vectors`, `eval.toxicity.score`). Unknown column names are silently ignored. Attempts to exclude fixed span fields (name, context, kind, parent_id, start_time, end_time, status_code, status_message, latency_ms, events) are silently ignored. ")
+    __properties: ClassVar[List[str]] = ["project_id", "start_time", "end_time", "filter", "included_columns", "excluded_columns"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -92,7 +95,9 @@ class ListSpansRequest(BaseModel):
             "project_id": obj.get("project_id"),
             "start_time": obj.get("start_time"),
             "end_time": obj.get("end_time"),
-            "filter": obj.get("filter")
+            "filter": obj.get("filter"),
+            "included_columns": obj.get("included_columns"),
+            "excluded_columns": obj.get("excluded_columns")
         })
         return _obj
 

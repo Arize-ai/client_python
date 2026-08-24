@@ -56,7 +56,7 @@ def _make_template_config(eval_name: str, ai_integration_id: str) -> Any:
             "Score (0-1):"
         ),
         include_explanations=False,
-        use_function_calling_if_available=False,
+        use_function_calling=False,
         llm_config=gen.EvaluatorLlmConfig(
             ai_integration_id=ai_integration_id,
             model_name="gpt-4o-mini",

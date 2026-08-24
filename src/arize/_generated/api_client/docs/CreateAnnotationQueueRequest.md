@@ -12,6 +12,7 @@ Name | Type | Description | Notes
 **annotator_emails** | **List[str]** | Email addresses of annotators to assign to the queue. Emails are resolved to user IDs server-side. | 
 **assignment_method** | [**AssignmentMethod**](AssignmentMethod.md) | How records are assigned to annotators. Defaults to &#x60;ALL&#x60; when omitted. | [optional] 
 **record_sources** | [**List[AnnotationQueueRecordInput]**](AnnotationQueueRecordInput.md) | Record sources to add to the annotation queue on creation. At most 2 record sources (projects or datasets) may be provided in a single create request. The total number of records resolved from all sources must not exceed 500. Additional records from other sources can be added after creation. | [optional] 
+**column_allowlist** | **List[str]** | The record column names annotators assigned to this queue are allowed to see. Omit or send an empty list to leave the queue unrestricted, so annotators see every column. Because this is an allowlist, columns introduced by records added to the queue later stay hidden until an admin allows them.  | [optional] 
 
 ## Example
 

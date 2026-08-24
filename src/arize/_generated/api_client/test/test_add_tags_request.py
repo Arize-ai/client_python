@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.anthropic_config import AnthropicConfig
+from arize._generated.api_client.models.add_tags_request import AddTagsRequest
 
-class TestAnthropicConfig(unittest.TestCase):
-    """AnthropicConfig unit test stubs"""
+class TestAddTagsRequest(unittest.TestCase):
+    """AddTagsRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,32 +25,30 @@ class TestAnthropicConfig(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> AnthropicConfig:
-        """Test AnthropicConfig
+    def make_instance(self, include_optional) -> AddTagsRequest:
+        """Test AddTagsRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `AnthropicConfig`
+        # uncomment below to create an instance of `AddTagsRequest`
         """
-        model = AnthropicConfig()
+        model = AddTagsRequest()
         if include_optional:
-            return AnthropicConfig(
-                is_function_calling_enabled = True,
-                provider = 'ANTHROPIC',
-                has_api_key = True,
-                base_url = ''
+            return AddTagsRequest(
+                tag_ids = [
+                    'RW50aXR5OjEyMzQ1'
+                    ]
             )
         else:
-            return AnthropicConfig(
-                is_function_calling_enabled = True,
-                provider = 'ANTHROPIC',
-                has_api_key = True,
-                base_url = '',
+            return AddTagsRequest(
+                tag_ids = [
+                    'RW50aXR5OjEyMzQ1'
+                    ],
         )
         """
 
-    def testAnthropicConfig(self):
-        """Test AnthropicConfig"""
+    def testAddTagsRequest(self):
+        """Test AddTagsRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

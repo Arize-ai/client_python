@@ -4,9 +4,135 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**add_monitor_tags**](MonitorsApi.md#add_monitor_tags) | **POST** /v2/monitors/{monitor_id}/tags | Attach tags to a monitor
 [**get_monitor**](MonitorsApi.md#get_monitor) | **GET** /v2/monitors/{monitor_id} | Get a monitor
+[**list_monitor_tags**](MonitorsApi.md#list_monitor_tags) | **GET** /v2/monitors/{monitor_id}/tags | List tags on a monitor
 [**list_monitors**](MonitorsApi.md#list_monitors) | **GET** /v2/monitors | List monitors
 
+
+# **add_monitor_tags**
+> ListTagsResponse add_monitor_tags(monitor_id, add_tags_request)
+
+Attach tags to a monitor
+
+Attach one or more existing tags to a monitor.
+
+**Payload Requirements**
+- `tag_ids` is required and must contain between 1 and 100 tag IDs.
+- Every tag must already exist and belong to the same space as the
+  monitor. A tag from another space returns `422`.
+- Attaching a tag that is already attached is idempotent, so the same
+  request can be retried safely.
+- Unrecognized fields are rejected with `422` rather than ignored.
+
+Returns `200` with the monitor's complete tag list, not `201`: attaching
+an existing tag creates no new resource.
+
+**Valid example**
+```json
+{
+  "tag_ids": ["VGFnOjEyMzQ1", "VGFnOjEyMzQ2"]
+}
+```
+
+**Invalid example** (empty list)
+```json
+{
+  "tag_ids": []
+}
+```
+```json
+{
+  "type": "https://arize.com/docs/ax/rest-reference/errors#validation-error",
+  "title": "Unprocessable Entity",
+  "status": 422,
+  "detail": "tag_ids must contain at least 1 tag ID",
+  "request_id": "req_01HZY6X8E7"
+}
+```
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.add_tags_request import AddTagsRequest
+from arize._generated.api_client.models.list_tags_response import ListTagsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.MonitorsApi(api_client)
+    monitor_id = 'TW9uaXRvcjoxMjM=' # str | The unique monitor identifier (base64)
+    add_tags_request = {"tag_ids":["VGFnOjEyMzQ1","VGFnOjEyMzQ2"]} # AddTagsRequest | Body containing the IDs of the tags to attach to the resource
+
+    try:
+        # Attach tags to a monitor
+        api_response = api_instance.add_monitor_tags(monitor_id, add_tags_request)
+        print("The response of MonitorsApi->add_monitor_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling MonitorsApi->add_monitor_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **monitor_id** | **str**| The unique monitor identifier (base64) | 
+ **add_tags_request** | [**AddTagsRequest**](AddTagsRequest.md)| Body containing the IDs of the tags to attach to the resource | 
+
+### Return type
+
+[**ListTagsResponse**](ListTagsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns the tags attached to the resource |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **get_monitor**
 > Monitor get_monitor(monitor_id)
@@ -89,6 +215,98 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Returns a single monitor object |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_monitor_tags**
+> ListTagsResponse list_monitor_tags(monitor_id)
+
+List tags on a monitor
+
+List the tags attached to a monitor.
+
+Tags are shared within the space, so the same tag may appear on many
+resources. A monitor with no tags returns an empty list rather than a
+404.
+
+Requires read access to the monitor. A caller who cannot read it receives
+`404`, identical to the response for a monitor that does not exist.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.list_tags_response import ListTagsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.MonitorsApi(api_client)
+    monitor_id = 'TW9uaXRvcjoxMjM=' # str | The unique monitor identifier (base64)
+
+    try:
+        # List tags on a monitor
+        api_response = api_instance.list_monitor_tags(monitor_id)
+        print("The response of MonitorsApi->list_monitor_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling MonitorsApi->list_monitor_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **monitor_id** | **str**| The unique monitor identifier (base64) | 
+
+### Return type
+
+[**ListTagsResponse**](ListTagsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns the tags attached to the resource |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **404** | Not found |  -  |

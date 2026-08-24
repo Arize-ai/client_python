@@ -4,18 +4,145 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**add_evaluator_tags**](EvaluatorsApi.md#add_evaluator_tags) | **POST** /v2/evaluators/{evaluator_id}/tags | Attach tags to a evaluator
 [**create_evaluator**](EvaluatorsApi.md#create_evaluator) | **POST** /v2/evaluators | Create evaluator
 [**create_evaluator_version**](EvaluatorsApi.md#create_evaluator_version) | **POST** /v2/evaluators/{evaluator_id}/versions | Create evaluator version
 [**delete_evaluator**](EvaluatorsApi.md#delete_evaluator) | **DELETE** /v2/evaluators/{evaluator_id} | Delete evaluator
+[**delete_evaluator_versions**](EvaluatorsApi.md#delete_evaluator_versions) | **DELETE** /v2/evaluators/{evaluator_id}/versions | Delete evaluator versions
 [**get_evaluator**](EvaluatorsApi.md#get_evaluator) | **GET** /v2/evaluators/{evaluator_id} | Get evaluator
 [**get_evaluator_version**](EvaluatorsApi.md#get_evaluator_version) | **GET** /v2/evaluator-versions/{version_id} | Get evaluator version
 [**get_evaluator_webhook_subscriptions**](EvaluatorsApi.md#get_evaluator_webhook_subscriptions) | **GET** /v2/evaluators/{evaluator_id}/webhook-subscriptions | Get an evaluator&#39;s webhook subscriptions
+[**list_evaluator_tags**](EvaluatorsApi.md#list_evaluator_tags) | **GET** /v2/evaluators/{evaluator_id}/tags | List tags on an evaluator
 [**list_evaluator_templates**](EvaluatorsApi.md#list_evaluator_templates) | **GET** /v2/evaluator-templates | List evaluator templates
 [**list_evaluator_versions**](EvaluatorsApi.md#list_evaluator_versions) | **GET** /v2/evaluators/{evaluator_id}/versions | List evaluator versions
 [**list_evaluators**](EvaluatorsApi.md#list_evaluators) | **GET** /v2/evaluators | List evaluators
 [**set_evaluator_webhook_subscriptions**](EvaluatorsApi.md#set_evaluator_webhook_subscriptions) | **PUT** /v2/evaluators/{evaluator_id}/webhook-subscriptions | Set an evaluator&#39;s webhook subscriptions
 [**update_evaluator**](EvaluatorsApi.md#update_evaluator) | **PATCH** /v2/evaluators/{evaluator_id} | Update evaluator
 
+
+# **add_evaluator_tags**
+> ListTagsResponse add_evaluator_tags(evaluator_id, add_tags_request)
+
+Attach tags to a evaluator
+
+Attach one or more existing tags to a evaluator.
+
+**Payload Requirements**
+- `tag_ids` is required and must contain between 1 and 100 tag IDs.
+- Every tag must already exist and belong to the same space as the
+  evaluator. A tag from another space returns `422`.
+- Attaching a tag that is already attached is idempotent, so the same
+  request can be retried safely.
+- Unrecognized fields are rejected with `422` rather than ignored.
+
+Returns `200` with the evaluator's complete tag list, not `201`: attaching
+an existing tag creates no new resource.
+
+**Valid example**
+```json
+{
+  "tag_ids": ["VGFnOjEyMzQ1", "VGFnOjEyMzQ2"]
+}
+```
+
+**Invalid example** (empty list)
+```json
+{
+  "tag_ids": []
+}
+```
+```json
+{
+  "type": "https://arize.com/docs/ax/rest-reference/errors#validation-error",
+  "title": "Unprocessable Entity",
+  "status": 422,
+  "detail": "tag_ids must contain at least 1 tag ID",
+  "request_id": "req_01HZY6X8E7"
+}
+```
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.add_tags_request import AddTagsRequest
+from arize._generated.api_client.models.list_tags_response import ListTagsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
+    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
+    add_tags_request = {"tag_ids":["VGFnOjEyMzQ1","VGFnOjEyMzQ2"]} # AddTagsRequest | Body containing the IDs of the tags to attach to the resource
+
+    try:
+        # Attach tags to a evaluator
+        api_response = api_instance.add_evaluator_tags(evaluator_id, add_tags_request)
+        print("The response of EvaluatorsApi->add_evaluator_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling EvaluatorsApi->add_evaluator_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **evaluator_id** | **str**| The unique evaluator identifier (base64) | 
+ **add_tags_request** | [**AddTagsRequest**](AddTagsRequest.md)| Body containing the IDs of the tags to attach to the resource | 
+
+### Return type
+
+[**ListTagsResponse**](ListTagsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns the tags attached to the resource |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **create_evaluator**
 > EvaluatorWithVersion create_evaluator(create_evaluator_request)
@@ -47,7 +174,7 @@ Creates a new evaluator with an initial version.
       "name": "hallucination",
       "template": "Given the input: {input}\nand the output: {output}\nIs the output a hallucination?",
       "include_explanations": true,
-      "use_function_calling_if_available": true,
+      "use_function_calling": true,
       "classification_choices": {"hallucinated": 0, "factual": 1},
       "llm_config": {
         "ai_integration_id": "TGxtSW50ZWdyYXRpb246MTI6YUJjRA==",
@@ -112,7 +239,7 @@ configuration = arize._generated.api_client.Configuration(
 with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
-    create_evaluator_request = {"space_id":"U3BhY2U6NDkzOkJaSkc=","name":"Hallucination Eval","description":"Detects hallucinated content in LLM responses","type":"TEMPLATE","version":{"commit_message":"Initial version","template_config":{"name":"hallucination","template":"You are an evaluation assistant. Given the following input and output, determine if the output contains hallucinated content.\n\nInput: {input}\nOutput: {output}\nReference: {reference}","include_explanations":true,"use_function_calling_if_available":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"MAXIMIZE","data_granularity":"SPAN","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}}} # CreateEvaluatorRequest | Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation. 
+    create_evaluator_request = {"space_id":"U3BhY2U6NDkzOkJaSkc=","name":"Hallucination Eval","description":"Detects hallucinated content in LLM responses","type":"TEMPLATE","version":{"commit_message":"Initial version","template_config":{"name":"hallucination","template":"You are an evaluation assistant. Given the following input and output, determine if the output contains hallucinated content.\n\nInput: {input}\nOutput: {output}\nReference: {reference}","include_explanations":true,"use_function_calling":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"MAXIMIZE","data_granularity":"SPAN","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}}} # CreateEvaluatorRequest | Body containing evaluator creation parameters with an initial version.  Only `type: TEMPLATE` and `type: CODE` are currently accepted on creation. 
 
     try:
         # Create evaluator
@@ -165,6 +292,8 @@ Name | Type | Description  | Notes
 
 Create evaluator version
 
+**Endpoint:** `POST /v2/evaluators/{evaluator_id}/versions`
+
 Create a new version of an existing evaluator. The new version becomes the latest
 version immediately (versioning is append-only).
 
@@ -173,6 +302,25 @@ version immediately (versioning is append-only).
 - Provide either `template_config` or `code_config` to match the evaluator's `type`.
   `code_config.type` is a separate inner discriminator (`MANAGED` or `CUSTOM`) and is unrelated to the top-level `type`.
   Schema and constraints match Create Evaluator.
+- For a template version, `template_config.llm_config.ai_integration_id` must
+  reference an AI integration that exists and is accessible to the evaluator's
+  space; otherwise the request fails with `404`.
+
+**Responses**
+- `201` — version created; returns the new `EvaluatorVersion`.
+- `400` — malformed request: `evaluator_id` fails ID-format validation, the
+  request body fails schema validation (e.g. malformed JSON), or
+  `type`/`config` mismatch a documented invalid shape.
+- `401` — missing or invalid credentials.
+- `403` — the evaluator is readable but the caller lacks permission to
+  create a version on it.
+- `404` — `evaluator_id` does not exist or is not readable by the caller
+  (`Evaluator not found`), or `template_config.llm_config.ai_integration_id`
+  does not exist or is not accessible to this space
+  (`LLM integration not found or not accessible to this space`).
+- `422` — the body is well-formed JSON but fails business validation
+  (e.g. missing `commit_message`, invalid template column name).
+- `429` — rate limit exceeded.
 
 **Valid example** (template version)
 ```json
@@ -182,7 +330,7 @@ version immediately (versioning is append-only).
     "name": "hallucination",
     "template": "Given the input: {input}\nand output: {output}\nIs the output a hallucination? Explain your reasoning.",
     "include_explanations": true,
-    "use_function_calling_if_available": true,
+    "use_function_calling": true,
     "classification_choices": {"hallucinated": 0, "factual": 1},
     "llm_config": {
       "ai_integration_id": "TGxtSW50ZWdyYXRpb246MTI6YUJjRA==",
@@ -201,7 +349,7 @@ version immediately (versioning is append-only).
     "name": "hallucination",
     "template": "Is this a hallucination?",
     "include_explanations": false,
-    "use_function_calling_if_available": false,
+    "use_function_calling": false,
     "llm_config": {
       "ai_integration_id": "TGxtSW50ZWdyYXRpb246MTI6YUJjRA==",
       "model_name": "gpt-4o",
@@ -209,6 +357,45 @@ version immediately (versioning is append-only).
       "provider_parameters": {}
     }
   }
+}
+```
+Response `422`:
+```json
+{
+  "status": 422,
+  "title": "Unprocessable Entity",
+  "type": "https://arize.com/docs/ax/rest-reference/errors#validation-error",
+  "detail": "Invalid input"
+}
+```
+
+**Invalid example** (`ai_integration_id` does not exist or is not
+accessible to this space)
+```json
+{
+  "commit_message": "Try a nonexistent integration",
+  "template_config": {
+    "name": "hallucination",
+    "template": "Given {input} and {output}, is it a hallucination?",
+    "include_explanations": true,
+    "use_function_calling_if_available": true,
+    "classification_choices": {"hallucinated": 0, "factual": 1},
+    "llm_config": {
+      "ai_integration_id": "TGxtSW50ZWdyYXRpb246OTk5OTk6ZmFrZQ==",
+      "model_name": "gpt-4o",
+      "invocation_parameters": {},
+      "provider_parameters": {}
+    }
+  }
+}
+```
+Response `404`:
+```json
+{
+  "status": 404,
+  "title": "Not Found",
+  "type": "https://arize.com/docs/ax/rest-reference/errors#resource-not-found",
+  "detail": "LLM integration not found or not accessible to this space"
 }
 ```
 
@@ -247,7 +434,7 @@ with arize._generated.api_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
     evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
-    create_evaluator_version_request = {"commit_message":"Improve template wording","template_config":{"name":"hallucination","template":"Evaluate whether the output is factually grounded.\n\nInput: {input}\nOutput: {output}","include_explanations":true,"use_function_calling_if_available":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"MAXIMIZE","data_granularity":"SPAN","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}} # CreateEvaluatorVersionRequest | Body containing evaluator version creation parameters
+    create_evaluator_version_request = {"commit_message":"Improve template wording","template_config":{"name":"hallucination","template":"Evaluate whether the output is factually grounded.\n\nInput: {input}\nOutput: {output}","include_explanations":true,"use_function_calling":true,"classification_choices":{"hallucinated":0,"factual":1},"direction":"MAXIMIZE","data_granularity":"SPAN","llm_config":{"ai_integration_id":"TGxtSW50ZWdyYXRpb246MTI6YUJjRA==","model_name":"gpt-4o","invocation_parameters":{"temperature":0},"provider_parameters":{}}}} # CreateEvaluatorVersionRequest | Body containing evaluator version creation parameters
 
     try:
         # Create evaluator version
@@ -370,6 +557,160 @@ void (empty response body)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **204** | Evaluator deleted successfully |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **delete_evaluator_versions**
+> DeleteEvaluatorVersionsResponse delete_evaluator_versions(evaluator_id, delete_evaluator_versions_request)
+
+Delete evaluator versions
+
+**Endpoint:** `DELETE /v2/evaluators/{evaluator_id}/versions`
+
+Deletes a batch of versions belonging to the evaluator identified by the
+`evaluator_id` path parameter. This operation is irreversible.
+
+The delete is partial-tolerant: versions that exist and belong to
+`evaluator_id` are deleted; every requested ID that was not deleted is
+reported back in `not_deleted_version_ids` (for example, because a version
+was not found or belongs to a different evaluator). This is not an error —
+the response is still `200`.
+
+Deleting a version currently pinned to a running online task un-pins that
+task; it falls back to resolving the evaluator's latest version.
+
+**Payload Requirements**
+- `version_ids` must contain between 1 and 100 IDs. Duplicate IDs are accepted
+  and silently collapsed so each version is processed at most once.
+
+**Responses**
+- `200` — request processed. Check `deleted_version_ids` /
+  `not_deleted_version_ids` for the outcome of each requested ID.
+- `400` — malformed request: `evaluator_id` fails ID-format validation
+  (`Invalid evaluator ID format`), or `version_ids` is missing/empty
+  (`version_ids must contain at least one evaluator version ID`), not an
+  array (`version_ids must be an array`), exceeds 100 entries
+  (`version_ids cannot contain more than 100 evaluator version IDs`), or
+  one entry fails ID-format validation
+  (`Invalid evaluator version ID format`).
+- `401` — missing or invalid credentials.
+- `403` — the evaluator is readable but the caller lacks permission to
+  delete its versions.
+- `404` — `evaluator_id` does not exist or is not readable by the caller
+  (`Evaluator not found`).
+- `429` — rate limit exceeded.
+
+**Valid example** — evaluator `RXZhbHVhdG9yOjEyOkI3cmk=` with a single
+version `RXZhbHVhdG9yVmVyc2lvbjozMjpBQ0Q2`:
+```json
+{
+  "version_ids": ["RXZhbHVhdG9yVmVyc2lvbjozMjpBQ0Q2"]
+}
+```
+Response `200`:
+```json
+{
+  "completed": true,
+  "deleted_version_ids": ["RXZhbHVhdG9yVmVyc2lvbjozMjpBQ0Q2"],
+  "not_deleted_version_ids": []
+}
+```
+
+**Invalid example** (empty `version_ids`)
+```json
+{
+  "version_ids": []
+}
+```
+Response `400`:
+```json
+{
+  "status": 400,
+  "title": "Bad Request",
+  "type": "https://arize.com/docs/ax/rest-reference/errors#invalid-request",
+  "detail": "version_ids must contain at least one evaluator version ID"
+}
+```
+
+<Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.delete_evaluator_versions_request import DeleteEvaluatorVersionsRequest
+from arize._generated.api_client.models.delete_evaluator_versions_response import DeleteEvaluatorVersionsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
+    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
+    delete_evaluator_versions_request = arize._generated.api_client.DeleteEvaluatorVersionsRequest() # DeleteEvaluatorVersionsRequest | 
+
+    try:
+        # Delete evaluator versions
+        api_response = api_instance.delete_evaluator_versions(evaluator_id, delete_evaluator_versions_request)
+        print("The response of EvaluatorsApi->delete_evaluator_versions:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling EvaluatorsApi->delete_evaluator_versions: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **evaluator_id** | **str**| The unique evaluator identifier (base64) | 
+ **delete_evaluator_versions_request** | [**DeleteEvaluatorVersionsRequest**](DeleteEvaluatorVersionsRequest.md)|  | 
+
+### Return type
+
+[**DeleteEvaluatorVersionsResponse**](DeleteEvaluatorVersionsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Evaluator versions processed. A successful response includes &#x60;completed: true&#x60; because both result lists are complete. This does not indicate whether every requested version existed or was deleted. The delete is idempotent.  |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
@@ -629,6 +970,98 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | The complete set of webhook subscriptions attached to the resource |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_evaluator_tags**
+> ListTagsResponse list_evaluator_tags(evaluator_id)
+
+List tags on an evaluator
+
+List the tags attached to an evaluator.
+
+Tags are shared within the space, so the same tag may appear on many
+resources. An evaluator with no tags returns an empty list rather than a
+404.
+
+Requires read access to the evaluator. A caller who cannot read it receives
+`404`, identical to the response for an evaluator that does not exist.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.list_tags_response import ListTagsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.EvaluatorsApi(api_client)
+    evaluator_id = 'RXZhbHVhdG9yOjEyMzQ1' # str | The unique evaluator identifier (base64)
+
+    try:
+        # List tags on an evaluator
+        api_response = api_instance.list_evaluator_tags(evaluator_id)
+        print("The response of EvaluatorsApi->list_evaluator_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling EvaluatorsApi->list_evaluator_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **evaluator_id** | **str**| The unique evaluator identifier (base64) | 
+
+### Return type
+
+[**ListTagsResponse**](ListTagsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns the tags attached to the resource |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **404** | Not found |  -  |

@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **name** | **str** | Eval column name. Must match ^[a-zA-Z0-9_\\s\\-&amp;()]+$ | 
 **template** | **str** | The prompt template with variable placeholders | 
 **include_explanations** | **bool** | Whether to include explanations in the evaluation output | 
-**use_function_calling_if_available** | **bool** | Whether to use function calling if the model supports it | 
+**use_function_calling** | **bool** | Whether to use function calling if the model supports it. | [optional] 
 **use_structured_output** | **bool** | Whether to use structured output if the model supports it | [optional] [default to True]
 **classification_choices** | **Dict[str, float]** | Map of choice label to numeric score (e.g. {\&quot;relevant\&quot;: 1, \&quot;irrelevant\&quot;: 0}). Null for legacy freeform evaluators that predate required choices. | [optional] 
 **direction** | [**OptimizationDirection**](OptimizationDirection.md) | Direction for optimization applied to this template&#39;s evaluation scores. Defaults to &#x60;MAXIMIZE&#x60; when omitted. | [optional] 

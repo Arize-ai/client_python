@@ -4,6 +4,7 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**add_prompt_tags**](PromptsApi.md#add_prompt_tags) | **POST** /v2/prompts/{prompt_id}/tags | Attach tags to a prompt
 [**create_prompt**](PromptsApi.md#create_prompt) | **POST** /v2/prompts | Create a prompt
 [**create_prompt_version**](PromptsApi.md#create_prompt_version) | **POST** /v2/prompts/{prompt_id}/versions | Create a prompt version
 [**delete_prompt**](PromptsApi.md#delete_prompt) | **DELETE** /v2/prompts/{prompt_id} | Delete a prompt
@@ -12,12 +13,137 @@ Method | HTTP request | Description
 [**get_prompt_label**](PromptsApi.md#get_prompt_label) | **GET** /v2/prompts/{prompt_id}/labels/{label_name} | Resolve a label to a prompt version
 [**get_prompt_version**](PromptsApi.md#get_prompt_version) | **GET** /v2/prompt-versions/{version_id} | Get a prompt version
 [**get_prompt_webhook_subscriptions**](PromptsApi.md#get_prompt_webhook_subscriptions) | **GET** /v2/prompts/{prompt_id}/webhook-subscriptions | Get a prompt&#39;s webhook subscriptions
+[**list_prompt_tags**](PromptsApi.md#list_prompt_tags) | **GET** /v2/prompts/{prompt_id}/tags | List tags on a prompt
 [**list_prompt_versions**](PromptsApi.md#list_prompt_versions) | **GET** /v2/prompts/{prompt_id}/versions | List prompt versions
 [**list_prompts**](PromptsApi.md#list_prompts) | **GET** /v2/prompts | List prompts
 [**set_prompt_version_label**](PromptsApi.md#set_prompt_version_label) | **PUT** /v2/prompt-versions/{version_id}/labels | Set labels on a prompt version
 [**set_prompt_webhook_subscriptions**](PromptsApi.md#set_prompt_webhook_subscriptions) | **PUT** /v2/prompts/{prompt_id}/webhook-subscriptions | Set a prompt&#39;s webhook subscriptions
 [**update_prompt**](PromptsApi.md#update_prompt) | **PATCH** /v2/prompts/{prompt_id} | Update a prompt
 
+
+# **add_prompt_tags**
+> ListTagsResponse add_prompt_tags(prompt_id, add_tags_request)
+
+Attach tags to a prompt
+
+Attach one or more existing tags to a prompt.
+
+**Payload Requirements**
+- `tag_ids` is required and must contain between 1 and 100 tag IDs.
+- Every tag must already exist and belong to the same space as the
+  prompt. A tag from another space returns `422`.
+- Attaching a tag that is already attached is idempotent, so the same
+  request can be retried safely.
+- Unrecognized fields are rejected with `422` rather than ignored.
+
+Returns `200` with the prompt's complete tag list, not `201`: attaching
+an existing tag creates no new resource.
+
+**Valid example**
+```json
+{
+  "tag_ids": ["VGFnOjEyMzQ1", "VGFnOjEyMzQ2"]
+}
+```
+
+**Invalid example** (empty list)
+```json
+{
+  "tag_ids": []
+}
+```
+```json
+{
+  "type": "https://arize.com/docs/ax/rest-reference/errors#validation-error",
+  "title": "Unprocessable Entity",
+  "status": 422,
+  "detail": "tag_ids must contain at least 1 tag ID",
+  "request_id": "req_01HZY6X8E7"
+}
+```
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.add_tags_request import AddTagsRequest
+from arize._generated.api_client.models.list_tags_response import ListTagsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.PromptsApi(api_client)
+    prompt_id = 'UHJvbXB0OjEyMzQ1' # str | The unique prompt identifier (base64)
+    add_tags_request = {"tag_ids":["VGFnOjEyMzQ1","VGFnOjEyMzQ2"]} # AddTagsRequest | Body containing the IDs of the tags to attach to the resource
+
+    try:
+        # Attach tags to a prompt
+        api_response = api_instance.add_prompt_tags(prompt_id, add_tags_request)
+        print("The response of PromptsApi->add_prompt_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling PromptsApi->add_prompt_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **prompt_id** | **str**| The unique prompt identifier (base64) | 
+ **add_tags_request** | [**AddTagsRequest**](AddTagsRequest.md)| Body containing the IDs of the tags to attach to the resource | 
+
+### Return type
+
+[**ListTagsResponse**](ListTagsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns the tags attached to the resource |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **create_prompt**
 > PromptWithVersion create_prompt(create_prompt_request)
@@ -753,6 +879,98 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | The complete set of webhook subscriptions attached to the resource |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_prompt_tags**
+> ListTagsResponse list_prompt_tags(prompt_id)
+
+List tags on a prompt
+
+List the tags attached to a prompt.
+
+Tags are shared within the space, so the same tag may appear on many
+resources. A prompt with no tags returns an empty list rather than a
+404.
+
+Requires read access to the prompt. A caller who cannot read it receives
+`404`, identical to the response for a prompt that does not exist.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.list_tags_response import ListTagsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.PromptsApi(api_client)
+    prompt_id = 'UHJvbXB0OjEyMzQ1' # str | The unique prompt identifier (base64)
+
+    try:
+        # List tags on a prompt
+        api_response = api_instance.list_prompt_tags(prompt_id)
+        print("The response of PromptsApi->list_prompt_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling PromptsApi->list_prompt_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **prompt_id** | **str**| The unique prompt identifier (base64) | 
+
+### Return type
+
+[**ListTagsResponse**](ListTagsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns the tags attached to the resource |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **404** | Not found |  -  |

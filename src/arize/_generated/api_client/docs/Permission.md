@@ -4,6 +4,14 @@ A permission identifier following the pattern {RESOURCE}_{ACTION}. Auto-generate
 
 ## Enum
 
+* `AGENT_ROLE_CREATE` (value: `'AGENT_ROLE_CREATE'`)
+
+* `AGENT_ROLE_DELETE` (value: `'AGENT_ROLE_DELETE'`)
+
+* `AGENT_ROLE_READ` (value: `'AGENT_ROLE_READ'`)
+
+* `AGENT_ROLE_UPDATE` (value: `'AGENT_ROLE_UPDATE'`)
+
 * `AI_PROVIDER_READ` (value: `'AI_PROVIDER_READ'`)
 
 * `ALYX_RUN` (value: `'ALYX_RUN'`)
@@ -227,6 +235,14 @@ A permission identifier following the pattern {RESOURCE}_{ACTION}. Auto-generate
 * `ROLE_BINDING_DELETE` (value: `'ROLE_BINDING_DELETE'`)
 
 * `ROLE_BINDING_READ` (value: `'ROLE_BINDING_READ'`)
+
+* `ROLE_CREATE` (value: `'ROLE_CREATE'`)
+
+* `ROLE_DELETE` (value: `'ROLE_DELETE'`)
+
+* `ROLE_READ` (value: `'ROLE_READ'`)
+
+* `ROLE_UPDATE` (value: `'ROLE_UPDATE'`)
 
 * `SERVICE_KEY_CREATE` (value: `'SERVICE_KEY_CREATE'`)
 

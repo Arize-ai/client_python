@@ -204,9 +204,8 @@ class EvaluatorsClient:
                   placeholders referencing span/trace attributes.
                 - ``include_explanations`` — whether the LLM should include a
                   reasoning explanation alongside the score.
-                - ``use_function_calling_if_available`` — prefer structured
-                  function-call output over free-text parsing when the model
-                  supports it.
+                - ``use_function_calling`` — prefer structured function-call
+                  output over free-text parsing when the model supports it.
                 - ``classification_choices`` — required map of choice label to
                   numeric score, e.g. ``{"relevant": 1, "irrelevant": 0}``.
                 - ``llm_config`` — :class:`arize.evaluators.types.EvaluatorLlmConfigRequest`
@@ -304,8 +303,8 @@ class EvaluatorsClient:
         *,
         evaluator: str,
         space: str | None = None,
-        name: str | None | UNSET = _UNSET,
-        description: str | None | UNSET = _UNSET,
+        name: str | UNSET | None = _UNSET,
+        description: str | UNSET | None = _UNSET,
     ) -> Evaluator:
         """Update an evaluator's metadata.
 

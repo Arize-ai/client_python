@@ -38,7 +38,7 @@ class TestTemplateConfig(unittest.TestCase):
                 name = '',
                 template = '',
                 include_explanations = True,
-                use_function_calling_if_available = True,
+                use_function_calling = True, 
                 use_structured_output = True,
                 classification_choices = {
                     'key' : 1.337
@@ -56,7 +56,7 @@ class TestTemplateConfig(unittest.TestCase):
                 name = '',
                 template = '',
                 include_explanations = True,
-                use_function_calling_if_available = True,
+                use_function_calling = True, 
                 llm_config = arize._generated.api_client.models.evaluator_llm_config.EvaluatorLlmConfig(
                     ai_integration_id = '', 
                     model_name = '', 

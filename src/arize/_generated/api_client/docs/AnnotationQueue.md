@@ -13,6 +13,7 @@ Name | Type | Description | Notes
 **annotators** | [**List[AnnotatorUser]**](AnnotatorUser.md) | Users assigned as annotators to this queue | 
 **created_at** | **datetime** | The timestamp for when the annotation queue was created | 
 **updated_at** | **datetime** | The timestamp for when the annotation queue was last updated | 
+**column_allowlist** | **List[str]** | The record column names annotators assigned to this queue are allowed to see. Absent or &#x60;null&#x60; means the queue is unrestricted and annotators see every column.  | [optional] 
 
 ## Example
 

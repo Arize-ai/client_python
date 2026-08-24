@@ -4,12 +4,138 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**add_project_tags**](ProjectsApi.md#add_project_tags) | **POST** /v2/projects/{project_id}/tags | Attach tags to a project
 [**create_project**](ProjectsApi.md#create_project) | **POST** /v2/projects | Create a project
 [**delete_project**](ProjectsApi.md#delete_project) | **DELETE** /v2/projects/{project_id} | Delete a project
 [**get_project**](ProjectsApi.md#get_project) | **GET** /v2/projects/{project_id} | Get a project
+[**list_project_tags**](ProjectsApi.md#list_project_tags) | **GET** /v2/projects/{project_id}/tags | List tags on a project
 [**list_projects**](ProjectsApi.md#list_projects) | **GET** /v2/projects | List projects
 [**update_project**](ProjectsApi.md#update_project) | **PATCH** /v2/projects/{project_id} | Update a project
 
+
+# **add_project_tags**
+> ListTagsResponse add_project_tags(project_id, add_tags_request)
+
+Attach tags to a project
+
+Attach one or more existing tags to a project.
+
+**Payload Requirements**
+- `tag_ids` is required and must contain between 1 and 100 tag IDs.
+- Every tag must already exist and belong to the same space as the
+  project. A tag from another space returns `422`.
+- Attaching a tag that is already attached is idempotent, so the same
+  request can be retried safely.
+- Unrecognized fields are rejected with `422` rather than ignored.
+
+Returns `200` with the project's complete tag list, not `201`: attaching
+an existing tag creates no new resource.
+
+**Valid example**
+```json
+{
+  "tag_ids": ["VGFnOjEyMzQ1", "VGFnOjEyMzQ2"]
+}
+```
+
+**Invalid example** (empty list)
+```json
+{
+  "tag_ids": []
+}
+```
+```json
+{
+  "type": "https://arize.com/docs/ax/rest-reference/errors#validation-error",
+  "title": "Unprocessable Entity",
+  "status": 422,
+  "detail": "tag_ids must contain at least 1 tag ID",
+  "request_id": "req_01HZY6X8E7"
+}
+```
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.add_tags_request import AddTagsRequest
+from arize._generated.api_client.models.list_tags_response import ListTagsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.ProjectsApi(api_client)
+    project_id = 'TW9kZWw6MTIzOmFCY0Q=' # str | The unique project identifier (base64)
+    add_tags_request = {"tag_ids":["VGFnOjEyMzQ1","VGFnOjEyMzQ2"]} # AddTagsRequest | Body containing the IDs of the tags to attach to the resource
+
+    try:
+        # Attach tags to a project
+        api_response = api_instance.add_project_tags(project_id, add_tags_request)
+        print("The response of ProjectsApi->add_project_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling ProjectsApi->add_project_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **project_id** | **str**| The unique project identifier (base64) | 
+ **add_tags_request** | [**AddTagsRequest**](AddTagsRequest.md)| Body containing the IDs of the tags to attach to the resource | 
+
+### Return type
+
+[**ListTagsResponse**](ListTagsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns the tags attached to the resource |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **create_project**
 > Project create_project(create_project_request)
@@ -263,6 +389,98 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | A project object |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_project_tags**
+> ListTagsResponse list_project_tags(project_id)
+
+List tags on a project
+
+List the tags attached to a project.
+
+Tags are shared within the space, so the same tag may appear on many
+resources. A project with no tags returns an empty list rather than a
+404.
+
+Requires read access to the project. A caller who cannot read it receives
+`404`, identical to the response for a project that does not exist.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.list_tags_response import ListTagsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.ProjectsApi(api_client)
+    project_id = 'TW9kZWw6MTIzOmFCY0Q=' # str | The unique project identifier (base64)
+
+    try:
+        # List tags on a project
+        api_response = api_instance.list_project_tags(project_id)
+        print("The response of ProjectsApi->list_project_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling ProjectsApi->list_project_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **project_id** | **str**| The unique project identifier (base64) | 
+
+### Return type
+
+[**ListTagsResponse**](ListTagsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns the tags attached to the resource |  -  |
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **404** | Not found |  -  |

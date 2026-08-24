@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **instructions** | **str** | The instructions for annotators working on this queue. Set to &#x60;null&#x60; to clear the instructions.  | [optional] 
 **annotation_config_ids** | **List[str]** | The full list of annotation config IDs to associate with this queue. This replaces all existing annotation config associations. All annotation configs must belong to the same space as the queue.  | [optional] 
 **annotator_emails** | **List[str]** | The full list of user emails to assign to this queue. This replaces all existing user assignments. All users must have an active account and access to the queue&#39;s space.  | [optional] 
+**column_allowlist** | **List[str]** | The full list of record column names annotators assigned to this queue are allowed to see. This replaces the existing allowlist. Set to &#x60;null&#x60; to remove the restriction so annotators see every column. Omit to leave it unchanged.  | [optional] 
 
 ## Example
 

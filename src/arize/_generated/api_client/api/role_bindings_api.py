@@ -908,7 +908,7 @@ class RoleBindingsApi:
     ) -> ListRoleBindingsResponse:
         """List role bindings
 
-        List role bindings for the authenticated user's account, filtered by resource type. Results are paginated; use `limit` and `cursor` for subsequent pages.  The `resource_type` query parameter is **required** and must be one of `SPACE` or `PROJECT`. All bindings in the account are visible to any authenticated account member. Use `user_id` to narrow to a specific user.  Returns `404` if `user_id` is supplied and does not correspond to a user in the account.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List role bindings for the authenticated user's account, filtered by resource type. Results are paginated; use `limit` and `cursor` for subsequent pages.  The `resource_type` query parameter is **required** and must be one of `SPACE` or `PROJECT`. Results include only bindings for spaces where the caller has the `ROLE_BINDING_READ` permission. If the caller has no authorized spaces, the response contains an empty list. Use `user_id` to narrow to a specific user.  Returns `404` if `user_id` is supplied and does not correspond to a user in the account.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param resource_type: Filter role bindings by resource type. - `SPACE` — Return only space-level bindings. - `PROJECT` — Return only project-level bindings.  (required)
         :type resource_type: RoleBindingResourceType
@@ -991,7 +991,7 @@ class RoleBindingsApi:
     ) -> ApiResponse[ListRoleBindingsResponse]:
         """List role bindings
 
-        List role bindings for the authenticated user's account, filtered by resource type. Results are paginated; use `limit` and `cursor` for subsequent pages.  The `resource_type` query parameter is **required** and must be one of `SPACE` or `PROJECT`. All bindings in the account are visible to any authenticated account member. Use `user_id` to narrow to a specific user.  Returns `404` if `user_id` is supplied and does not correspond to a user in the account.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List role bindings for the authenticated user's account, filtered by resource type. Results are paginated; use `limit` and `cursor` for subsequent pages.  The `resource_type` query parameter is **required** and must be one of `SPACE` or `PROJECT`. Results include only bindings for spaces where the caller has the `ROLE_BINDING_READ` permission. If the caller has no authorized spaces, the response contains an empty list. Use `user_id` to narrow to a specific user.  Returns `404` if `user_id` is supplied and does not correspond to a user in the account.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param resource_type: Filter role bindings by resource type. - `SPACE` — Return only space-level bindings. - `PROJECT` — Return only project-level bindings.  (required)
         :type resource_type: RoleBindingResourceType
@@ -1074,7 +1074,7 @@ class RoleBindingsApi:
     ) -> RESTResponseType:
         """List role bindings
 
-        List role bindings for the authenticated user's account, filtered by resource type. Results are paginated; use `limit` and `cursor` for subsequent pages.  The `resource_type` query parameter is **required** and must be one of `SPACE` or `PROJECT`. All bindings in the account are visible to any authenticated account member. Use `user_id` to narrow to a specific user.  Returns `404` if `user_id` is supplied and does not correspond to a user in the account.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
+        List role bindings for the authenticated user's account, filtered by resource type. Results are paginated; use `limit` and `cursor` for subsequent pages.  The `resource_type` query parameter is **required** and must be one of `SPACE` or `PROJECT`. Results include only bindings for spaces where the caller has the `ROLE_BINDING_READ` permission. If the caller has no authorized spaces, the response contains an empty list. Use `user_id` to narrow to a specific user.  Returns `404` if `user_id` is supplied and does not correspond to a user in the account.    <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note> 
 
         :param resource_type: Filter role bindings by resource type. - `SPACE` — Return only space-level bindings. - `PROJECT` — Return only project-level bindings.  (required)
         :type resource_type: RoleBindingResourceType

@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **email** | **str** | Email address of the user to invite | 
 **role** | [**UserRoleAssignmentRequest**](UserRoleAssignmentRequest.md) |  | 
 **invite_mode** | [**InviteMode**](InviteMode.md) | Controls whether and how an invitation is sent | 
-**is_developer** | **bool** | Whether the user should have developer permissions (can use the Arize API). Defaults to &#x60;true&#x60; for &#x60;ADMIN&#x60; and &#x60;MEMBER&#x60; roles, and &#x60;false&#x60; for &#x60;ANNOTATOR&#x60;.  | [optional] 
+**is_developer** | **bool** | Whether the user should have developer permissions (can use the Arize API). When omitted, developer access follows the account&#39;s default developer access setting for &#x60;MEMBER&#x60; roles. &#x60;ADMIN&#x60; users always receive developer access regardless of this field. &#x60;ANNOTATOR&#x60; users never receive developer access regardless of this field.  | [optional] 
 
 ## Example
 

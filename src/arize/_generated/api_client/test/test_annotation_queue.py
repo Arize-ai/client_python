@@ -48,7 +48,8 @@ class TestAnnotationQueue(unittest.TestCase):
                         email = 'user@example.com', )
                     ],
                 created_at = '2024-01-15T10:30Z',
-                updated_at = '2024-01-20T14:45Z'
+                updated_at = '2024-01-20T14:45Z',
+                column_allowlist = ["context.trace_id","attributes.llm.input_messages","column with spaces"]
             )
         else:
             return AnnotationQueue(

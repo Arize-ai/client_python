@@ -1,5 +1,16 @@
 # Changelog
 
+## [8.49.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.48.0...arize-python-sdk/v8.49.0) (2026-08-24)
+
+
+### 🎁 New Features
+
+* **spans:** add column projection to list spans ([#83787](https://github.com/Arize-ai/arize/issues/83787)) ([7437a5f](https://github.com/Arize-ai/arize/commit/7437a5f8ad808fbda16198a3f70ad6d5ed237db1))
+
+### 💫 Code Refactoring
+
+* **openapi:** remove use_function_calling_if_available; replace with required use_function_calling ([#82394](https://github.com/Arize-ai/arize/issues/82394)) ([7938126](https://github.com/Arize-ai/arize/commit/7938126f6a201ec810dd1fda7cee7e663bb2dc0d))
+
 ## [8.48.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.47.0...arize-python-sdk/v8.48.0) (2026-08-18)
 
 

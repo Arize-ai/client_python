@@ -4,6 +4,7 @@ All URIs are relative to *https://api.arize.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**add_dataset_tags**](DatasetsApi.md#add_dataset_tags) | **POST** /v2/datasets/{dataset_id}/tags | Attach tags to a dataset
 [**annotate_dataset_examples**](DatasetsApi.md#annotate_dataset_examples) | **POST** /v2/datasets/{dataset_id}/examples/annotate | Annotate a batch of dataset examples
 [**create_dataset**](DatasetsApi.md#create_dataset) | **POST** /v2/datasets | Create a dataset
 [**delete_dataset**](DatasetsApi.md#delete_dataset) | **DELETE** /v2/datasets/{dataset_id} | Delete a dataset
@@ -11,10 +12,135 @@ Method | HTTP request | Description
 [**get_dataset**](DatasetsApi.md#get_dataset) | **GET** /v2/datasets/{dataset_id} | Get a dataset
 [**insert_dataset_examples**](DatasetsApi.md#insert_dataset_examples) | **POST** /v2/datasets/{dataset_id}/examples | Add new examples to a dataset
 [**list_dataset_examples**](DatasetsApi.md#list_dataset_examples) | **GET** /v2/datasets/{dataset_id}/examples | List dataset examples
+[**list_dataset_tags**](DatasetsApi.md#list_dataset_tags) | **GET** /v2/datasets/{dataset_id}/tags | List tags on a dataset
 [**list_datasets**](DatasetsApi.md#list_datasets) | **GET** /v2/datasets | List datasets
 [**update_dataset**](DatasetsApi.md#update_dataset) | **PATCH** /v2/datasets/{dataset_id} | Update a dataset
 [**update_dataset_examples**](DatasetsApi.md#update_dataset_examples) | **PATCH** /v2/datasets/{dataset_id}/examples | Update existing examples in a dataset
 
+
+# **add_dataset_tags**
+> ListTagsResponse add_dataset_tags(dataset_id, add_tags_request)
+
+Attach tags to a dataset
+
+Attach one or more existing tags to a dataset.
+
+**Payload Requirements**
+- `tag_ids` is required and must contain between 1 and 100 tag IDs.
+- Every tag must already exist and belong to the same space as the
+  dataset. A tag from another space returns `422`.
+- Attaching a tag that is already attached is idempotent, so the same
+  request can be retried safely.
+- Unrecognized fields are rejected with `422` rather than ignored.
+
+Returns `200` with the dataset's complete tag list, not `201`: attaching
+an existing tag creates no new resource.
+
+**Valid example**
+```json
+{
+  "tag_ids": ["VGFnOjEyMzQ1", "VGFnOjEyMzQ2"]
+}
+```
+
+**Invalid example** (empty list)
+```json
+{
+  "tag_ids": []
+}
+```
+```json
+{
+  "type": "https://arize.com/docs/ax/rest-reference/errors#validation-error",
+  "title": "Unprocessable Entity",
+  "status": 422,
+  "detail": "tag_ids must contain at least 1 tag ID",
+  "request_id": "req_01HZY6X8E7"
+}
+```
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.add_tags_request import AddTagsRequest
+from arize._generated.api_client.models.list_tags_response import ListTagsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.DatasetsApi(api_client)
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique dataset identifier (base64)
+    add_tags_request = {"tag_ids":["VGFnOjEyMzQ1","VGFnOjEyMzQ2"]} # AddTagsRequest | Body containing the IDs of the tags to attach to the resource
+
+    try:
+        # Attach tags to a dataset
+        api_response = api_instance.add_dataset_tags(dataset_id, add_tags_request)
+        print("The response of DatasetsApi->add_dataset_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling DatasetsApi->add_dataset_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **dataset_id** | **str**| The unique dataset identifier (base64) | 
+ **add_tags_request** | [**AddTagsRequest**](AddTagsRequest.md)| Body containing the IDs of the tags to attach to the resource | 
+
+### Return type
+
+[**ListTagsResponse**](ListTagsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns the tags attached to the resource |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
+**403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**422** | Unprocessable entity |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **annotate_dataset_examples**
 > annotate_dataset_examples(dataset_id, annotate_dataset_examples_request)
@@ -798,6 +924,98 @@ Name | Type | Description  | Notes
 **400** | Invalid request |  -  |
 **401** | Authentication is required |  -  |
 **403** | Insufficient permissions to access this resource |  -  |
+**404** | Not found |  -  |
+**429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_dataset_tags**
+> ListTagsResponse list_dataset_tags(dataset_id)
+
+List tags on a dataset
+
+List the tags attached to a dataset.
+
+Tags are shared within the space, so the same tag may appear on many
+resources. A dataset with no tags returns an empty list rather than a
+404.
+
+Requires read access to the dataset. A caller who cannot read it receives
+`404`, identical to the response for a dataset that does not exist.
+
+<Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
+
+
+### Example
+
+* Bearer (<api-key>) Authentication (bearerAuth):
+
+```python
+import arize._generated.api_client
+from arize._generated.api_client.models.list_tags_response import ListTagsResponse
+from arize._generated.api_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.arize.com
+# See configuration.py for a list of all supported configuration parameters.
+configuration = arize._generated.api_client.Configuration(
+    host = "https://api.arize.com"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (<api-key>): bearerAuth
+configuration = arize._generated.api_client.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with arize._generated.api_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = arize._generated.api_client.DatasetsApi(api_client)
+    dataset_id = 'RGF0YXNldDoxMjM0NQ==' # str | The unique dataset identifier (base64)
+
+    try:
+        # List tags on a dataset
+        api_response = api_instance.list_dataset_tags(dataset_id)
+        print("The response of DatasetsApi->list_dataset_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling DatasetsApi->list_dataset_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **dataset_id** | **str**| The unique dataset identifier (base64) | 
+
+### Return type
+
+[**ListTagsResponse**](ListTagsResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Returns the tags attached to the resource |  -  |
+**400** | Invalid request |  -  |
+**401** | Authentication is required |  -  |
 **404** | Not found |  -  |
 **429** | Rate limit exceeded |  * Retry-After - When throttled (429), how long to wait before retrying. Value is either a delta-seconds integer.  <br>  |
 

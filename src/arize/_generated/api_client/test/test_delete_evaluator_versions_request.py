@@ -14,10 +14,10 @@
 
 import unittest
 
-from arize._generated.api_client.models.anthropic_config import AnthropicConfig
+from arize._generated.api_client.models.delete_evaluator_versions_request import DeleteEvaluatorVersionsRequest
 
-class TestAnthropicConfig(unittest.TestCase):
-    """AnthropicConfig unit test stubs"""
+class TestDeleteEvaluatorVersionsRequest(unittest.TestCase):
+    """DeleteEvaluatorVersionsRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,32 +25,30 @@ class TestAnthropicConfig(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> AnthropicConfig:
-        """Test AnthropicConfig
+    def make_instance(self, include_optional) -> DeleteEvaluatorVersionsRequest:
+        """Test DeleteEvaluatorVersionsRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `AnthropicConfig`
+        # uncomment below to create an instance of `DeleteEvaluatorVersionsRequest`
         """
-        model = AnthropicConfig()
+        model = DeleteEvaluatorVersionsRequest()
         if include_optional:
-            return AnthropicConfig(
-                is_function_calling_enabled = True,
-                provider = 'ANTHROPIC',
-                has_api_key = True,
-                base_url = ''
+            return DeleteEvaluatorVersionsRequest(
+                version_ids = [
+                    ''
+                    ]
             )
         else:
-            return AnthropicConfig(
-                is_function_calling_enabled = True,
-                provider = 'ANTHROPIC',
-                has_api_key = True,
-                base_url = '',
+            return DeleteEvaluatorVersionsRequest(
+                version_ids = [
+                    ''
+                    ],
         )
         """
 
-    def testAnthropicConfig(self):
-        """Test AnthropicConfig"""
+    def testDeleteEvaluatorVersionsRequest(self):
+        """Test DeleteEvaluatorVersionsRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

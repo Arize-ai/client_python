@@ -18,7 +18,8 @@ Create an integration
 
 Create a new integration. The `type` field selects the config shape;
 for `LLM`, `config.provider` selects the per-provider config. v1
-supports `type=LLM` (provider `OPEN_AI`) and `type=AGENT`.
+supports `type=LLM` (providers `OPEN_AI`, `ANTHROPIC`, `GEMINI`,
+`AWS_BEDROCK`, `CUSTOM`, `VERTEX_AI`, `NVIDIA_NIM`) and `type=AGENT`.
 
 <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning>
 

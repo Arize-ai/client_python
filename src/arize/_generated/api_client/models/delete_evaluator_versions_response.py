@@ -18,23 +18,18 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
-from arize._generated.api_client.models.invite_mode import InviteMode
-from arize._generated.api_client.models.user_role_assignment_request import UserRoleAssignmentRequest
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 
-class CreateUserRequest(BaseModel):
+class DeleteEvaluatorVersionsResponse(BaseModel):
     """
-    CreateUserRequest
+    Result of a DELETE /v2/evaluators/{evaluator_id}/versions request.  The delete is partial-tolerant: requested versions that exist and belong to `evaluator_id` are deleted; every requested ID that was not deleted is reported in `not_deleted_version_ids`. An ID may be not-deleted because it does not exist or belongs to a different evaluator.  `completed` is `true` when this response is returned because the synchronous delete has fully processed the request. It does not mean every requested version was found and deleted: each requested ID appears in exactly one of `deleted_version_ids` or `not_deleted_version_ids`.  The delete operation is idempotent — re-submitting already-deleted IDs is safe and simply reports them as not deleted.  Deleting a version that is currently pinned to a running online task un-pins that task, which then falls back to resolving the evaluator's latest version. 
     """ # noqa: E501
-    name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(description="Full name of the new user")
-    email: StrictStr = Field(description="Email address of the user to invite")
-    role: UserRoleAssignmentRequest
-    invite_mode: InviteMode = Field(description="Controls whether and how an invitation is sent")
-    is_developer: Optional[StrictBool] = Field(default=None, description="Whether the user should have developer permissions (can use the Arize API). When omitted, developer access follows the account's default developer access setting for `MEMBER` roles. `ADMIN` users always receive developer access regardless of this field. `ANNOTATOR` users never receive developer access regardless of this field. ")
-    __properties: ClassVar[List[str]] = ["name", "email", "role", "invite_mode", "is_developer"]
+    completed: StrictBool = Field(description="Always `true` in a successful response, indicating both result lists are complete. This does not indicate whether all requested versions existed. ")
+    deleted_version_ids: List[StrictStr] = Field(description="Evaluator version IDs confirmed deleted in this request.")
+    not_deleted_version_ids: List[StrictStr] = Field(description="Requested evaluator version IDs that were not deleted.")
+    __properties: ClassVar[List[str]] = ["completed", "deleted_version_ids", "not_deleted_version_ids"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -54,7 +49,7 @@ class CreateUserRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of CreateUserRequest from a JSON string"""
+        """Create an instance of DeleteEvaluatorVersionsResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -75,31 +70,22 @@ class CreateUserRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of role
-        if self.role:
-            _dict['role'] = self.role.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of CreateUserRequest from a dict"""
+        """Create an instance of DeleteEvaluatorVersionsResponse from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        # raise errors for additional fields in the input
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in CreateUserRequest) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "name": obj.get("name"),
-            "email": obj.get("email"),
-            "role": UserRoleAssignmentRequest.from_dict(obj["role"]) if obj.get("role") is not None else None,
-            "invite_mode": obj.get("invite_mode"),
-            "is_developer": obj.get("is_developer")
+            "completed": obj.get("completed"),
+            "deleted_version_ids": obj.get("deleted_version_ids"),
+            "not_deleted_version_ids": obj.get("not_deleted_version_ids")
         })
         return _obj
 

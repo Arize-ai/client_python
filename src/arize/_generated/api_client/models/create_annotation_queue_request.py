@@ -36,7 +36,8 @@ class CreateAnnotationQueueRequest(BaseModel):
     annotator_emails: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="Email addresses of annotators to assign to the queue. Emails are resolved to user IDs server-side.")
     assignment_method: Optional[AssignmentMethod] = Field(default=None, description="How records are assigned to annotators. Defaults to `ALL` when omitted.")
     record_sources: Optional[Annotated[List[AnnotationQueueRecordInput], Field(max_length=2)]] = Field(default=None, description="Record sources to add to the annotation queue on creation. At most 2 record sources (projects or datasets) may be provided in a single create request. The total number of records resolved from all sources must not exceed 500. Additional records from other sources can be added after creation.")
-    __properties: ClassVar[List[str]] = ["name", "space_id", "instructions", "annotation_config_ids", "annotator_emails", "assignment_method", "record_sources"]
+    column_allowlist: Optional[Annotated[List[Annotated[str, Field(strict=True, max_length=512)]], Field(max_length=1000)]] = Field(default=None, description="The record column names annotators assigned to this queue are allowed to see. Omit or send an empty list to leave the queue unrestricted, so annotators see every column. Because this is an allowlist, columns introduced by records added to the queue later stay hidden until an admin allows them. ")
+    __properties: ClassVar[List[str]] = ["name", "space_id", "instructions", "annotation_config_ids", "annotator_emails", "assignment_method", "record_sources", "column_allowlist"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -107,7 +108,8 @@ class CreateAnnotationQueueRequest(BaseModel):
             "annotation_config_ids": obj.get("annotation_config_ids"),
             "annotator_emails": obj.get("annotator_emails"),
             "assignment_method": obj.get("assignment_method"),
-            "record_sources": [AnnotationQueueRecordInput.from_dict(_item) for _item in obj["record_sources"]] if obj.get("record_sources") is not None else None
+            "record_sources": [AnnotationQueueRecordInput.from_dict(_item) for _item in obj["record_sources"]] if obj.get("record_sources") is not None else None,
+            "column_allowlist": obj.get("column_allowlist")
         })
         return _obj
 

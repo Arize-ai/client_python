@@ -82,11 +82,14 @@ Class | Method | HTTP request | Description
 *APIKeysApi* | [**list_api_keys**](arize/_generated/api_client/docs/APIKeysApi.md#list_api_keys) | **GET** /v2/api-keys | List API keys
 *APIKeysApi* | [**refresh_api_key**](arize/_generated/api_client/docs/APIKeysApi.md#refresh_api_key) | **POST** /v2/api-keys/{api_key_id}/refresh | Refresh an API key
 *APIKeysApi* | [**revoke_api_key**](arize/_generated/api_client/docs/APIKeysApi.md#revoke_api_key) | **PUT** /v2/api-keys/{api_key_id}/revoke | Revoke an API key
+*AnnotationConfigsApi* | [**add_annotation_config_tags**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#add_annotation_config_tags) | **POST** /v2/annotation-configs/{annotation_config_id}/tags | Attach tags to a annotation config
 *AnnotationConfigsApi* | [**create_annotation_config**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#create_annotation_config) | **POST** /v2/annotation-configs | Create an annotation config
 *AnnotationConfigsApi* | [**delete_annotation_config**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#delete_annotation_config) | **DELETE** /v2/annotation-configs/{annotation_config_id} | Delete an annotation config
 *AnnotationConfigsApi* | [**get_annotation_config**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#get_annotation_config) | **GET** /v2/annotation-configs/{annotation_config_id} | Get an annotation config
+*AnnotationConfigsApi* | [**list_annotation_config_tags**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#list_annotation_config_tags) | **GET** /v2/annotation-configs/{annotation_config_id}/tags | List tags on an annotation config
 *AnnotationConfigsApi* | [**list_annotation_configs**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#list_annotation_configs) | **GET** /v2/annotation-configs | List annotation configs
 *AnnotationConfigsApi* | [**update_annotation_config**](arize/_generated/api_client/docs/AnnotationConfigsApi.md#update_annotation_config) | **PATCH** /v2/annotation-configs/{annotation_config_id} | Update an annotation config
+*AnnotationQueuesApi* | [**add_annotation_queue_tags**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#add_annotation_queue_tags) | **POST** /v2/annotation-queues/{annotation_queue_id}/tags | Attach tags to a annotation queue
 *AnnotationQueuesApi* | [**annotate_annotation_queue_record**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#annotate_annotation_queue_record) | **POST** /v2/annotation-queues/{annotation_queue_id}/records/{annotation_queue_record_id}/annotate | Annotate a record
 *AnnotationQueuesApi* | [**assign_annotation_queue_record**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#assign_annotation_queue_record) | **POST** /v2/annotation-queues/{annotation_queue_id}/records/{annotation_queue_record_id}/assign | Assign users to a record
 *AnnotationQueuesApi* | [**create_annotation_queue**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#create_annotation_queue) | **POST** /v2/annotation-queues | Create an annotation queue
@@ -95,9 +98,11 @@ Class | Method | HTTP request | Description
 *AnnotationQueuesApi* | [**delete_annotation_queue_record**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#delete_annotation_queue_record) | **DELETE** /v2/annotation-queues/{annotation_queue_id}/records | Delete annotation queue records
 *AnnotationQueuesApi* | [**get_annotation_queue**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#get_annotation_queue) | **GET** /v2/annotation-queues/{annotation_queue_id} | Get an annotation queue
 *AnnotationQueuesApi* | [**list_annotation_queue_records**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#list_annotation_queue_records) | **GET** /v2/annotation-queues/{annotation_queue_id}/records | List annotation queue records
+*AnnotationQueuesApi* | [**list_annotation_queue_tags**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#list_annotation_queue_tags) | **GET** /v2/annotation-queues/{annotation_queue_id}/tags | List tags on an annotation queue
 *AnnotationQueuesApi* | [**list_annotation_queues**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#list_annotation_queues) | **GET** /v2/annotation-queues | List annotation queues
 *AnnotationQueuesApi* | [**update_annotation_queue**](arize/_generated/api_client/docs/AnnotationQueuesApi.md#update_annotation_queue) | **PATCH** /v2/annotation-queues/{annotation_queue_id} | Update an annotation queue
 *AuditLogsApi* | [**list_audit_logs**](arize/_generated/api_client/docs/AuditLogsApi.md#list_audit_logs) | **GET** /v2/audit-logs | List audit logs
+*DatasetsApi* | [**add_dataset_tags**](arize/_generated/api_client/docs/DatasetsApi.md#add_dataset_tags) | **POST** /v2/datasets/{dataset_id}/tags | Attach tags to a dataset
 *DatasetsApi* | [**annotate_dataset_examples**](arize/_generated/api_client/docs/DatasetsApi.md#annotate_dataset_examples) | **POST** /v2/datasets/{dataset_id}/examples/annotate | Annotate a batch of dataset examples
 *DatasetsApi* | [**create_dataset**](arize/_generated/api_client/docs/DatasetsApi.md#create_dataset) | **POST** /v2/datasets | Create a dataset
 *DatasetsApi* | [**delete_dataset**](arize/_generated/api_client/docs/DatasetsApi.md#delete_dataset) | **DELETE** /v2/datasets/{dataset_id} | Delete a dataset
@@ -105,33 +110,41 @@ Class | Method | HTTP request | Description
 *DatasetsApi* | [**get_dataset**](arize/_generated/api_client/docs/DatasetsApi.md#get_dataset) | **GET** /v2/datasets/{dataset_id} | Get a dataset
 *DatasetsApi* | [**insert_dataset_examples**](arize/_generated/api_client/docs/DatasetsApi.md#insert_dataset_examples) | **POST** /v2/datasets/{dataset_id}/examples | Add new examples to a dataset
 *DatasetsApi* | [**list_dataset_examples**](arize/_generated/api_client/docs/DatasetsApi.md#list_dataset_examples) | **GET** /v2/datasets/{dataset_id}/examples | List dataset examples
+*DatasetsApi* | [**list_dataset_tags**](arize/_generated/api_client/docs/DatasetsApi.md#list_dataset_tags) | **GET** /v2/datasets/{dataset_id}/tags | List tags on a dataset
 *DatasetsApi* | [**list_datasets**](arize/_generated/api_client/docs/DatasetsApi.md#list_datasets) | **GET** /v2/datasets | List datasets
 *DatasetsApi* | [**update_dataset**](arize/_generated/api_client/docs/DatasetsApi.md#update_dataset) | **PATCH** /v2/datasets/{dataset_id} | Update a dataset
 *DatasetsApi* | [**update_dataset_examples**](arize/_generated/api_client/docs/DatasetsApi.md#update_dataset_examples) | **PATCH** /v2/datasets/{dataset_id}/examples | Update existing examples in a dataset
+*EvaluatorsApi* | [**add_evaluator_tags**](arize/_generated/api_client/docs/EvaluatorsApi.md#add_evaluator_tags) | **POST** /v2/evaluators/{evaluator_id}/tags | Attach tags to a evaluator
 *EvaluatorsApi* | [**create_evaluator**](arize/_generated/api_client/docs/EvaluatorsApi.md#create_evaluator) | **POST** /v2/evaluators | Create evaluator
 *EvaluatorsApi* | [**create_evaluator_version**](arize/_generated/api_client/docs/EvaluatorsApi.md#create_evaluator_version) | **POST** /v2/evaluators/{evaluator_id}/versions | Create evaluator version
 *EvaluatorsApi* | [**delete_evaluator**](arize/_generated/api_client/docs/EvaluatorsApi.md#delete_evaluator) | **DELETE** /v2/evaluators/{evaluator_id} | Delete evaluator
+*EvaluatorsApi* | [**delete_evaluator_versions**](arize/_generated/api_client/docs/EvaluatorsApi.md#delete_evaluator_versions) | **DELETE** /v2/evaluators/{evaluator_id}/versions | Delete evaluator versions
 *EvaluatorsApi* | [**get_evaluator**](arize/_generated/api_client/docs/EvaluatorsApi.md#get_evaluator) | **GET** /v2/evaluators/{evaluator_id} | Get evaluator
 *EvaluatorsApi* | [**get_evaluator_version**](arize/_generated/api_client/docs/EvaluatorsApi.md#get_evaluator_version) | **GET** /v2/evaluator-versions/{version_id} | Get evaluator version
 *EvaluatorsApi* | [**get_evaluator_webhook_subscriptions**](arize/_generated/api_client/docs/EvaluatorsApi.md#get_evaluator_webhook_subscriptions) | **GET** /v2/evaluators/{evaluator_id}/webhook-subscriptions | Get an evaluator&#39;s webhook subscriptions
+*EvaluatorsApi* | [**list_evaluator_tags**](arize/_generated/api_client/docs/EvaluatorsApi.md#list_evaluator_tags) | **GET** /v2/evaluators/{evaluator_id}/tags | List tags on an evaluator
 *EvaluatorsApi* | [**list_evaluator_templates**](arize/_generated/api_client/docs/EvaluatorsApi.md#list_evaluator_templates) | **GET** /v2/evaluator-templates | List evaluator templates
 *EvaluatorsApi* | [**list_evaluator_versions**](arize/_generated/api_client/docs/EvaluatorsApi.md#list_evaluator_versions) | **GET** /v2/evaluators/{evaluator_id}/versions | List evaluator versions
 *EvaluatorsApi* | [**list_evaluators**](arize/_generated/api_client/docs/EvaluatorsApi.md#list_evaluators) | **GET** /v2/evaluators | List evaluators
 *EvaluatorsApi* | [**set_evaluator_webhook_subscriptions**](arize/_generated/api_client/docs/EvaluatorsApi.md#set_evaluator_webhook_subscriptions) | **PUT** /v2/evaluators/{evaluator_id}/webhook-subscriptions | Set an evaluator&#39;s webhook subscriptions
 *EvaluatorsApi* | [**update_evaluator**](arize/_generated/api_client/docs/EvaluatorsApi.md#update_evaluator) | **PATCH** /v2/evaluators/{evaluator_id} | Update evaluator
+*ExperimentsApi* | [**add_experiment_tags**](arize/_generated/api_client/docs/ExperimentsApi.md#add_experiment_tags) | **POST** /v2/experiments/{experiment_id}/tags | Attach tags to a experiment
 *ExperimentsApi* | [**annotate_experiment_runs**](arize/_generated/api_client/docs/ExperimentsApi.md#annotate_experiment_runs) | **POST** /v2/experiments/{experiment_id}/runs/annotate | Annotate a batch of experiment runs
 *ExperimentsApi* | [**create_experiment**](arize/_generated/api_client/docs/ExperimentsApi.md#create_experiment) | **POST** /v2/experiments | Create an experiment
 *ExperimentsApi* | [**delete_experiment**](arize/_generated/api_client/docs/ExperimentsApi.md#delete_experiment) | **DELETE** /v2/experiments/{experiment_id} | Delete an experiment
 *ExperimentsApi* | [**get_experiment**](arize/_generated/api_client/docs/ExperimentsApi.md#get_experiment) | **GET** /v2/experiments/{experiment_id} | Get an experiment
 *ExperimentsApi* | [**insert_experiment_runs**](arize/_generated/api_client/docs/ExperimentsApi.md#insert_experiment_runs) | **POST** /v2/experiments/{experiment_id}/runs | Append runs to an experiment
 *ExperimentsApi* | [**list_experiment_runs**](arize/_generated/api_client/docs/ExperimentsApi.md#list_experiment_runs) | **GET** /v2/experiments/{experiment_id}/runs | List experiment runs
+*ExperimentsApi* | [**list_experiment_tags**](arize/_generated/api_client/docs/ExperimentsApi.md#list_experiment_tags) | **GET** /v2/experiments/{experiment_id}/tags | List tags on an experiment
 *ExperimentsApi* | [**list_experiments**](arize/_generated/api_client/docs/ExperimentsApi.md#list_experiments) | **GET** /v2/experiments | List experiments
 *IntegrationsApi* | [**create_integration**](arize/_generated/api_client/docs/IntegrationsApi.md#create_integration) | **POST** /v2/integrations | Create an integration
 *IntegrationsApi* | [**delete_integration**](arize/_generated/api_client/docs/IntegrationsApi.md#delete_integration) | **DELETE** /v2/integrations/{integration_id} | Delete an integration
 *IntegrationsApi* | [**get_integration**](arize/_generated/api_client/docs/IntegrationsApi.md#get_integration) | **GET** /v2/integrations/{integration_id} | Get an integration
 *IntegrationsApi* | [**list_integrations**](arize/_generated/api_client/docs/IntegrationsApi.md#list_integrations) | **GET** /v2/integrations | List integrations
 *IntegrationsApi* | [**update_integration**](arize/_generated/api_client/docs/IntegrationsApi.md#update_integration) | **PATCH** /v2/integrations/{integration_id} | Update an integration
+*MonitorsApi* | [**add_monitor_tags**](arize/_generated/api_client/docs/MonitorsApi.md#add_monitor_tags) | **POST** /v2/monitors/{monitor_id}/tags | Attach tags to a monitor
 *MonitorsApi* | [**get_monitor**](arize/_generated/api_client/docs/MonitorsApi.md#get_monitor) | **GET** /v2/monitors/{monitor_id} | Get a monitor
+*MonitorsApi* | [**list_monitor_tags**](arize/_generated/api_client/docs/MonitorsApi.md#list_monitor_tags) | **GET** /v2/monitors/{monitor_id}/tags | List tags on a monitor
 *MonitorsApi* | [**list_monitors**](arize/_generated/api_client/docs/MonitorsApi.md#list_monitors) | **GET** /v2/monitors | List monitors
 *OrganizationsApi* | [**add_organization_user**](arize/_generated/api_client/docs/OrganizationsApi.md#add_organization_user) | **POST** /v2/organizations/{org_id}/users | Add a user to an organization
 *OrganizationsApi* | [**create_organization**](arize/_generated/api_client/docs/OrganizationsApi.md#create_organization) | **POST** /v2/organizations | Create an organization
@@ -140,11 +153,14 @@ Class | Method | HTTP request | Description
 *OrganizationsApi* | [**list_organizations**](arize/_generated/api_client/docs/OrganizationsApi.md#list_organizations) | **GET** /v2/organizations | List organizations
 *OrganizationsApi* | [**remove_organization_user**](arize/_generated/api_client/docs/OrganizationsApi.md#remove_organization_user) | **DELETE** /v2/organizations/{org_id}/users/{user_id} | Remove a user from an organization
 *OrganizationsApi* | [**update_organization**](arize/_generated/api_client/docs/OrganizationsApi.md#update_organization) | **PATCH** /v2/organizations/{org_id} | Update an organization
+*ProjectsApi* | [**add_project_tags**](arize/_generated/api_client/docs/ProjectsApi.md#add_project_tags) | **POST** /v2/projects/{project_id}/tags | Attach tags to a project
 *ProjectsApi* | [**create_project**](arize/_generated/api_client/docs/ProjectsApi.md#create_project) | **POST** /v2/projects | Create a project
 *ProjectsApi* | [**delete_project**](arize/_generated/api_client/docs/ProjectsApi.md#delete_project) | **DELETE** /v2/projects/{project_id} | Delete a project
 *ProjectsApi* | [**get_project**](arize/_generated/api_client/docs/ProjectsApi.md#get_project) | **GET** /v2/projects/{project_id} | Get a project
+*ProjectsApi* | [**list_project_tags**](arize/_generated/api_client/docs/ProjectsApi.md#list_project_tags) | **GET** /v2/projects/{project_id}/tags | List tags on a project
 *ProjectsApi* | [**list_projects**](arize/_generated/api_client/docs/ProjectsApi.md#list_projects) | **GET** /v2/projects | List projects
 *ProjectsApi* | [**update_project**](arize/_generated/api_client/docs/ProjectsApi.md#update_project) | **PATCH** /v2/projects/{project_id} | Update a project
+*PromptsApi* | [**add_prompt_tags**](arize/_generated/api_client/docs/PromptsApi.md#add_prompt_tags) | **POST** /v2/prompts/{prompt_id}/tags | Attach tags to a prompt
 *PromptsApi* | [**create_prompt**](arize/_generated/api_client/docs/PromptsApi.md#create_prompt) | **POST** /v2/prompts | Create a prompt
 *PromptsApi* | [**create_prompt_version**](arize/_generated/api_client/docs/PromptsApi.md#create_prompt_version) | **POST** /v2/prompts/{prompt_id}/versions | Create a prompt version
 *PromptsApi* | [**delete_prompt**](arize/_generated/api_client/docs/PromptsApi.md#delete_prompt) | **DELETE** /v2/prompts/{prompt_id} | Delete a prompt
@@ -153,6 +169,7 @@ Class | Method | HTTP request | Description
 *PromptsApi* | [**get_prompt_label**](arize/_generated/api_client/docs/PromptsApi.md#get_prompt_label) | **GET** /v2/prompts/{prompt_id}/labels/{label_name} | Resolve a label to a prompt version
 *PromptsApi* | [**get_prompt_version**](arize/_generated/api_client/docs/PromptsApi.md#get_prompt_version) | **GET** /v2/prompt-versions/{version_id} | Get a prompt version
 *PromptsApi* | [**get_prompt_webhook_subscriptions**](arize/_generated/api_client/docs/PromptsApi.md#get_prompt_webhook_subscriptions) | **GET** /v2/prompts/{prompt_id}/webhook-subscriptions | Get a prompt&#39;s webhook subscriptions
+*PromptsApi* | [**list_prompt_tags**](arize/_generated/api_client/docs/PromptsApi.md#list_prompt_tags) | **GET** /v2/prompts/{prompt_id}/tags | List tags on a prompt
 *PromptsApi* | [**list_prompt_versions**](arize/_generated/api_client/docs/PromptsApi.md#list_prompt_versions) | **GET** /v2/prompts/{prompt_id}/versions | List prompt versions
 *PromptsApi* | [**list_prompts**](arize/_generated/api_client/docs/PromptsApi.md#list_prompts) | **GET** /v2/prompts | List prompts
 *PromptsApi* | [**set_prompt_version_label**](arize/_generated/api_client/docs/PromptsApi.md#set_prompt_version_label) | **PUT** /v2/prompt-versions/{version_id}/labels | Set labels on a prompt version
@@ -215,6 +232,7 @@ Class | Method | HTTP request | Description
  - [AddAnnotationQueueRecordsRequest](arize/_generated/api_client/docs/AddAnnotationQueueRecordsRequest.md)
  - [AddOrganizationUserRequest](arize/_generated/api_client/docs/AddOrganizationUserRequest.md)
  - [AddSpaceUserRequest](arize/_generated/api_client/docs/AddSpaceUserRequest.md)
+ - [AddTagsRequest](arize/_generated/api_client/docs/AddTagsRequest.md)
  - [AgentCallRunConfig](arize/_generated/api_client/docs/AgentCallRunConfig.md)
  - [AgentCallRunConfigRequest](arize/_generated/api_client/docs/AgentCallRunConfigRequest.md)
  - [AgentConfig](arize/_generated/api_client/docs/AgentConfig.md)
@@ -351,6 +369,8 @@ Class | Method | HTTP request | Description
  - [DeleteDatasetExamplesProblem](arize/_generated/api_client/docs/DeleteDatasetExamplesProblem.md)
  - [DeleteDatasetExamplesRequest](arize/_generated/api_client/docs/DeleteDatasetExamplesRequest.md)
  - [DeleteDatasetExamplesResponse](arize/_generated/api_client/docs/DeleteDatasetExamplesResponse.md)
+ - [DeleteEvaluatorVersionsRequest](arize/_generated/api_client/docs/DeleteEvaluatorVersionsRequest.md)
+ - [DeleteEvaluatorVersionsResponse](arize/_generated/api_client/docs/DeleteEvaluatorVersionsResponse.md)
  - [DeleteSpansProblem](arize/_generated/api_client/docs/DeleteSpansProblem.md)
  - [DeleteSpansRequest](arize/_generated/api_client/docs/DeleteSpansRequest.md)
  - [DeleteSpansResponse](arize/_generated/api_client/docs/DeleteSpansResponse.md)
@@ -427,6 +447,7 @@ Class | Method | HTTP request | Description
  - [ListSpacesResponse](arize/_generated/api_client/docs/ListSpacesResponse.md)
  - [ListSpansRequest](arize/_generated/api_client/docs/ListSpansRequest.md)
  - [ListSpansResponse](arize/_generated/api_client/docs/ListSpansResponse.md)
+ - [ListTagsResponse](arize/_generated/api_client/docs/ListTagsResponse.md)
  - [ListTaskRunsResponse](arize/_generated/api_client/docs/ListTaskRunsResponse.md)
  - [ListTasksResponse](arize/_generated/api_client/docs/ListTasksResponse.md)
  - [ListTracesRequest](arize/_generated/api_client/docs/ListTracesRequest.md)

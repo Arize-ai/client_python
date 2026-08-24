@@ -28,6 +28,7 @@
   - [Instrumentation](#instrumentation)
   - [Operations on Spans](#operations-on-spans)
     - [Logging spans](#logging-spans)
+    - [Listing spans](#listing-spans)
     - [Update spans Evaluations, Annotations, and Metadata](#update-spans-evaluations-annotations-and-metadata)
     - [Exporting spans](#exporting-spans)
   - [Traces](#traces)
@@ -256,6 +257,24 @@ client.spans.log(
     dataframe=spans_df,
     # evals_df=evals_df, # Optionally pass the evaluations together with the spans
 )
+```
+
+### Listing spans
+
+Use `list` to retrieve a page of spans. Set `included_columns` to return only
+the columns you need, or set `excluded_columns` to omit large columns. Do not
+set both. Fixed span fields are always returned.
+
+```python
+from arize import ArizeClient
+
+client = ArizeClient(api_key=API_KEY)
+spans = client.spans.list(
+    project="<your-project-id>",
+    excluded_columns=["attributes.embedding.vectors"],
+)
+for span in spans.spans:
+    print(span.name)
 ```
 
 ### Update spans Evaluations, Annotations, and Metadata

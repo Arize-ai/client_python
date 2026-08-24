@@ -983,7 +983,7 @@ def _make_real_template_config() -> object:
         name="relevance",
         template="Is {{output}} relevant?",
         include_explanations=True,
-        use_function_calling_if_available=False,
+        use_function_calling=False,
         classification_choices={"relevant": 1, "irrelevant": 0},
         llm_config=_make_real_llm_config(),
     )

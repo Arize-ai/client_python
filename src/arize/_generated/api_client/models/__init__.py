@@ -16,6 +16,7 @@
 from arize._generated.api_client.models.add_annotation_queue_records_request import AddAnnotationQueueRecordsRequest
 from arize._generated.api_client.models.add_organization_user_request import AddOrganizationUserRequest
 from arize._generated.api_client.models.add_space_user_request import AddSpaceUserRequest
+from arize._generated.api_client.models.add_tags_request import AddTagsRequest
 from arize._generated.api_client.models.agent_call_run_config import AgentCallRunConfig
 from arize._generated.api_client.models.agent_call_run_config_request import AgentCallRunConfigRequest
 from arize._generated.api_client.models.agent_config import AgentConfig
@@ -152,6 +153,8 @@ from arize._generated.api_client.models.delete_annotation_queue_records_request 
 from arize._generated.api_client.models.delete_dataset_examples_problem import DeleteDatasetExamplesProblem
 from arize._generated.api_client.models.delete_dataset_examples_request import DeleteDatasetExamplesRequest
 from arize._generated.api_client.models.delete_dataset_examples_response import DeleteDatasetExamplesResponse
+from arize._generated.api_client.models.delete_evaluator_versions_request import DeleteEvaluatorVersionsRequest
+from arize._generated.api_client.models.delete_evaluator_versions_response import DeleteEvaluatorVersionsResponse
 from arize._generated.api_client.models.delete_spans_problem import DeleteSpansProblem
 from arize._generated.api_client.models.delete_spans_request import DeleteSpansRequest
 from arize._generated.api_client.models.delete_spans_response import DeleteSpansResponse
@@ -228,6 +231,7 @@ from arize._generated.api_client.models.list_roles_response import ListRolesResp
 from arize._generated.api_client.models.list_spaces_response import ListSpacesResponse
 from arize._generated.api_client.models.list_spans_request import ListSpansRequest
 from arize._generated.api_client.models.list_spans_response import ListSpansResponse
+from arize._generated.api_client.models.list_tags_response import ListTagsResponse
 from arize._generated.api_client.models.list_task_runs_response import ListTaskRunsResponse
 from arize._generated.api_client.models.list_tasks_response import ListTasksResponse
 from arize._generated.api_client.models.list_traces_request import ListTracesRequest

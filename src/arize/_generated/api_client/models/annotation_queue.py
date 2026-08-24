@@ -37,7 +37,8 @@ class AnnotationQueue(BaseModel):
     annotators: List[AnnotatorUser] = Field(description="Users assigned as annotators to this queue")
     created_at: datetime = Field(description="The timestamp for when the annotation queue was created")
     updated_at: datetime = Field(description="The timestamp for when the annotation queue was last updated")
-    __properties: ClassVar[List[str]] = ["id", "name", "space_id", "instructions", "annotation_configs", "annotators", "created_at", "updated_at"]
+    column_allowlist: Optional[List[StrictStr]] = Field(default=None, description="The record column names annotators assigned to this queue are allowed to see. Absent or `null` means the queue is unrestricted and annotators see every column. ")
+    __properties: ClassVar[List[str]] = ["id", "name", "space_id", "instructions", "annotation_configs", "annotators", "created_at", "updated_at", "column_allowlist"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -97,6 +98,11 @@ class AnnotationQueue(BaseModel):
         if self.instructions is None and "instructions" in self.model_fields_set:
             _dict['instructions'] = None
 
+        # set to None if column_allowlist (nullable) is None
+        # and model_fields_set contains the field
+        if self.column_allowlist is None and "column_allowlist" in self.model_fields_set:
+            _dict['column_allowlist'] = None
+
         return _dict
 
     @classmethod
@@ -117,7 +123,8 @@ class AnnotationQueue(BaseModel):
             "annotation_configs": [AnnotationConfig.from_dict(_item) for _item in obj["annotation_configs"]] if obj.get("annotation_configs") is not None else None,
             "annotators": [AnnotatorUser.from_dict(_item) for _item in obj["annotators"]] if obj.get("annotators") is not None else None,
             "created_at": obj.get("created_at"),
-            "updated_at": obj.get("updated_at")
+            "updated_at": obj.get("updated_at"),
+            "column_allowlist": obj.get("column_allowlist")
         })
         return _obj
 

@@ -153,6 +153,8 @@ class SpansClient:
         start_time: datetime | None = None,
         end_time: datetime | None = None,
         filter: str | None = None,
+        included_columns: builtins.list[str] | None = None,
+        excluded_columns: builtins.list[str] | None = None,
         limit: int = DEFAULT_LIST_LIMIT,
         cursor: str | None = None,
     ) -> ListSpansResponse:
@@ -181,6 +183,12 @@ class SpansClient:
                     "latency_ms > 1789"
                     "status_code = 'ERROR' AND eval.Custom_eval_correctness.label = 'correct'"
                     "status_code = 'ERROR' OR eval.Custom_eval_correctness.label = 'correct'"
+            included_columns: Optional list of full dotted column paths to
+                return for each span. Fixed span fields are always returned.
+                Cannot be used with ``excluded_columns``.
+            excluded_columns: Optional list of full dotted column paths to omit
+                from each span. Fixed span fields are always returned. Cannot
+                be used with ``included_columns``.
             limit: Maximum number of spans to return. The server enforces an
                 upper bound. Defaults to 50.
             cursor: Opaque pagination cursor returned from a previous response.
@@ -208,6 +216,8 @@ class SpansClient:
             start_time=start_time,
             end_time=end_time,
             filter=filter,
+            included_columns=included_columns,
+            excluded_columns=excluded_columns,
         )
         return self._api.list_spans(
             list_spans_request=body,

@@ -29,7 +29,7 @@ class AnthropicConfig(BaseModel):
     is_function_calling_enabled: StrictBool = Field(description="Whether function/tool calling is enabled.")
     provider: StrictStr = Field(description="Discriminator identifying the Anthropic provider.")
     has_api_key: StrictBool = Field(description="Whether an API key is configured (the key itself is never returned).")
-    base_url: Optional[StrictStr] = Field(default=None, description="Endpoint URL serving the Anthropic Messages API, including the version path. Null when not set.")
+    base_url: Optional[StrictStr] = Field(description="Endpoint URL serving the Anthropic Messages API, including the version path. Null when not set.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["is_function_calling_enabled", "provider", "has_api_key", "base_url"]
 

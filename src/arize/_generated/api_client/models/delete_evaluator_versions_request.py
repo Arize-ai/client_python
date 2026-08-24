@@ -17,24 +17,18 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
-from arize._generated.api_client.models.invite_mode import InviteMode
-from arize._generated.api_client.models.user_role_assignment_request import UserRoleAssignmentRequest
 from typing import Optional, Set
 from typing_extensions import Self
 
-class CreateUserRequest(BaseModel):
+class DeleteEvaluatorVersionsRequest(BaseModel):
     """
-    CreateUserRequest
+    Body identifying the versions to delete from the evaluator named by the `evaluator_id` path parameter. 
     """ # noqa: E501
-    name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(description="Full name of the new user")
-    email: StrictStr = Field(description="Email address of the user to invite")
-    role: UserRoleAssignmentRequest
-    invite_mode: InviteMode = Field(description="Controls whether and how an invitation is sent")
-    is_developer: Optional[StrictBool] = Field(default=None, description="Whether the user should have developer permissions (can use the Arize API). When omitted, developer access follows the account's default developer access setting for `MEMBER` roles. `ADMIN` users always receive developer access regardless of this field. `ANNOTATOR` users never receive developer access regardless of this field. ")
-    __properties: ClassVar[List[str]] = ["name", "email", "role", "invite_mode", "is_developer"]
+    version_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=100)] = Field(description="IDs of the evaluator versions to delete (up to 100 per request). IDs that do not belong to `evaluator_id` are reported as not deleted. Duplicate IDs are accepted and silently collapsed so each version is processed at most once. ")
+    __properties: ClassVar[List[str]] = ["version_ids"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -54,7 +48,7 @@ class CreateUserRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of CreateUserRequest from a JSON string"""
+        """Create an instance of DeleteEvaluatorVersionsRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -75,14 +69,11 @@ class CreateUserRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of role
-        if self.role:
-            _dict['role'] = self.role.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of CreateUserRequest from a dict"""
+        """Create an instance of DeleteEvaluatorVersionsRequest from a dict"""
         if obj is None:
             return None
 
@@ -92,14 +83,10 @@ class CreateUserRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in CreateUserRequest) in the input: " + _key)
+                raise ValueError("Error due to additional fields (not defined in DeleteEvaluatorVersionsRequest) in the input: " + _key)
 
         _obj = cls.model_validate({
-            "name": obj.get("name"),
-            "email": obj.get("email"),
-            "role": UserRoleAssignmentRequest.from_dict(obj["role"]) if obj.get("role") is not None else None,
-            "invite_mode": obj.get("invite_mode"),
-            "is_developer": obj.get("is_developer")
+            "version_ids": obj.get("version_ids")
         })
         return _obj
 

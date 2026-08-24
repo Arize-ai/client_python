@@ -312,9 +312,10 @@ resource type. Results are paginated; use `limit` and `cursor` for
 subsequent pages.
 
 The `resource_type` query parameter is **required** and must be one of
-`SPACE` or `PROJECT`. All bindings in the account are visible to any
-authenticated account member. Use `user_id` to narrow to a specific
-user.
+`SPACE` or `PROJECT`. Results include only bindings for spaces where the
+caller has the `ROLE_BINDING_READ` permission. If the caller has no
+authorized spaces, the response contains an empty list. Use `user_id` to
+narrow to a specific user.
 
 Returns `404` if `user_id` is supplied and does not correspond to a
 user in the account.

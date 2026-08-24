@@ -19,6 +19,7 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
+from arize._generated.api_client.models.add_tags_request import AddTagsRequest
 from arize._generated.api_client.models.annotate_dataset_examples_request import AnnotateDatasetExamplesRequest
 from arize._generated.api_client.models.create_dataset_request import CreateDatasetRequest
 from arize._generated.api_client.models.dataset import Dataset
@@ -28,6 +29,7 @@ from arize._generated.api_client.models.delete_dataset_examples_response import 
 from arize._generated.api_client.models.insert_dataset_examples_request import InsertDatasetExamplesRequest
 from arize._generated.api_client.models.list_dataset_examples_response import ListDatasetExamplesResponse
 from arize._generated.api_client.models.list_datasets_response import ListDatasetsResponse
+from arize._generated.api_client.models.list_tags_response import ListTagsResponse
 from arize._generated.api_client.models.update_dataset_examples_request import UpdateDatasetExamplesRequest
 from arize._generated.api_client.models.update_dataset_request import UpdateDatasetRequest
 
@@ -47,6 +49,314 @@ class DatasetsApi:
         if api_client is None:
             api_client = ApiClient.get_default()
         self.api_client = api_client
+
+
+    @validate_call
+    def add_dataset_tags(
+        self,
+        dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
+        add_tags_request: Annotated[AddTagsRequest, Field(description="Body containing the IDs of the tags to attach to the resource")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ListTagsResponse:
+        """Attach tags to a dataset
+
+        Attach one or more existing tags to a dataset.  **Payload Requirements** - `tag_ids` is required and must contain between 1 and 100 tag IDs. - Every tag must already exist and belong to the same space as the   dataset. A tag from another space returns `422`. - Attaching a tag that is already attached is idempotent, so the same   request can be retried safely. - Unrecognized fields are rejected with `422` rather than ignored.  Returns `200` with the dataset's complete tag list, not `201`: attaching an existing tag creates no new resource.  **Valid example** ```json {   \"tag_ids\": [\"VGFnOjEyMzQ1\", \"VGFnOjEyMzQ2\"] } ```  **Invalid example** (empty list) ```json {   \"tag_ids\": [] } ``` ```json {   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#validation-error\",   \"title\": \"Unprocessable Entity\",   \"status\": 422,   \"detail\": \"tag_ids must contain at least 1 tag ID\",   \"request_id\": \"req_01HZY6X8E7\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param dataset_id: The unique dataset identifier (base64) (required)
+        :type dataset_id: str
+        :param add_tags_request: Body containing the IDs of the tags to attach to the resource (required)
+        :type add_tags_request: AddTagsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._add_dataset_tags_serialize(
+            dataset_id=dataset_id,
+            add_tags_request=add_tags_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListTagsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def add_dataset_tags_with_http_info(
+        self,
+        dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
+        add_tags_request: Annotated[AddTagsRequest, Field(description="Body containing the IDs of the tags to attach to the resource")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ListTagsResponse]:
+        """Attach tags to a dataset
+
+        Attach one or more existing tags to a dataset.  **Payload Requirements** - `tag_ids` is required and must contain between 1 and 100 tag IDs. - Every tag must already exist and belong to the same space as the   dataset. A tag from another space returns `422`. - Attaching a tag that is already attached is idempotent, so the same   request can be retried safely. - Unrecognized fields are rejected with `422` rather than ignored.  Returns `200` with the dataset's complete tag list, not `201`: attaching an existing tag creates no new resource.  **Valid example** ```json {   \"tag_ids\": [\"VGFnOjEyMzQ1\", \"VGFnOjEyMzQ2\"] } ```  **Invalid example** (empty list) ```json {   \"tag_ids\": [] } ``` ```json {   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#validation-error\",   \"title\": \"Unprocessable Entity\",   \"status\": 422,   \"detail\": \"tag_ids must contain at least 1 tag ID\",   \"request_id\": \"req_01HZY6X8E7\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param dataset_id: The unique dataset identifier (base64) (required)
+        :type dataset_id: str
+        :param add_tags_request: Body containing the IDs of the tags to attach to the resource (required)
+        :type add_tags_request: AddTagsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._add_dataset_tags_serialize(
+            dataset_id=dataset_id,
+            add_tags_request=add_tags_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListTagsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def add_dataset_tags_without_preload_content(
+        self,
+        dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
+        add_tags_request: Annotated[AddTagsRequest, Field(description="Body containing the IDs of the tags to attach to the resource")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Attach tags to a dataset
+
+        Attach one or more existing tags to a dataset.  **Payload Requirements** - `tag_ids` is required and must contain between 1 and 100 tag IDs. - Every tag must already exist and belong to the same space as the   dataset. A tag from another space returns `422`. - Attaching a tag that is already attached is idempotent, so the same   request can be retried safely. - Unrecognized fields are rejected with `422` rather than ignored.  Returns `200` with the dataset's complete tag list, not `201`: attaching an existing tag creates no new resource.  **Valid example** ```json {   \"tag_ids\": [\"VGFnOjEyMzQ1\", \"VGFnOjEyMzQ2\"] } ```  **Invalid example** (empty list) ```json {   \"tag_ids\": [] } ``` ```json {   \"type\": \"https://arize.com/docs/ax/rest-reference/errors#validation-error\",   \"title\": \"Unprocessable Entity\",   \"status\": 422,   \"detail\": \"tag_ids must contain at least 1 tag ID\",   \"request_id\": \"req_01HZY6X8E7\" } ```  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param dataset_id: The unique dataset identifier (base64) (required)
+        :type dataset_id: str
+        :param add_tags_request: Body containing the IDs of the tags to attach to the resource (required)
+        :type add_tags_request: AddTagsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._add_dataset_tags_serialize(
+            dataset_id=dataset_id,
+            add_tags_request=add_tags_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListTagsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '422': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _add_dataset_tags_serialize(
+        self,
+        dataset_id,
+        add_tags_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if dataset_id is not None:
+            _path_params['dataset_id'] = dataset_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if add_tags_request is not None:
+            _body_params = add_tags_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/datasets/{dataset_id}/tags',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
 
 
     @validate_call
@@ -2151,6 +2461,280 @@ class DatasetsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/datasets/{dataset_id}/examples',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def list_dataset_tags(
+        self,
+        dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ListTagsResponse:
+        """List tags on a dataset
+
+        List the tags attached to a dataset.  Tags are shared within the space, so the same tag may appear on many resources. A dataset with no tags returns an empty list rather than a 404.  Requires read access to the dataset. A caller who cannot read it receives `404`, identical to the response for a dataset that does not exist.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param dataset_id: The unique dataset identifier (base64) (required)
+        :type dataset_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_dataset_tags_serialize(
+            dataset_id=dataset_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListTagsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_dataset_tags_with_http_info(
+        self,
+        dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ListTagsResponse]:
+        """List tags on a dataset
+
+        List the tags attached to a dataset.  Tags are shared within the space, so the same tag may appear on many resources. A dataset with no tags returns an empty list rather than a 404.  Requires read access to the dataset. A caller who cannot read it receives `404`, identical to the response for a dataset that does not exist.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param dataset_id: The unique dataset identifier (base64) (required)
+        :type dataset_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_dataset_tags_serialize(
+            dataset_id=dataset_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListTagsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def list_dataset_tags_without_preload_content(
+        self,
+        dataset_id: Annotated[StrictStr, Field(description="The unique dataset identifier (base64)")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List tags on a dataset
+
+        List the tags attached to a dataset.  Tags are shared within the space, so the same tag may appear on many resources. A dataset with no tags returns an empty list rather than a 404.  Requires read access to the dataset. A caller who cannot read it receives `404`, identical to the response for a dataset that does not exist.  <Warning>This endpoint is in alpha, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Warning> 
+
+        :param dataset_id: The unique dataset identifier (base64) (required)
+        :type dataset_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_dataset_tags_serialize(
+            dataset_id=dataset_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListTagsResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '404': "Problem",
+            '429': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_dataset_tags_serialize(
+        self,
+        dataset_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if dataset_id is not None:
+            _path_params['dataset_id'] = dataset_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/datasets/{dataset_id}/tags',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

@@ -53,6 +53,7 @@ __all__ = [
     "AddAnnotationQueueRecordsRequest",
     "AddOrganizationUserRequest",
     "AddSpaceUserRequest",
+    "AddTagsRequest",
     "AgentCallRunConfig",
     "AgentCallRunConfigRequest",
     "AgentConfig",
@@ -189,6 +190,8 @@ __all__ = [
     "DeleteDatasetExamplesProblem",
     "DeleteDatasetExamplesRequest",
     "DeleteDatasetExamplesResponse",
+    "DeleteEvaluatorVersionsRequest",
+    "DeleteEvaluatorVersionsResponse",
     "DeleteSpansProblem",
     "DeleteSpansRequest",
     "DeleteSpansResponse",
@@ -265,6 +268,7 @@ __all__ = [
     "ListSpacesResponse",
     "ListSpansRequest",
     "ListSpansResponse",
+    "ListTagsResponse",
     "ListTaskRunsResponse",
     "ListTasksResponse",
     "ListTracesRequest",
@@ -474,6 +478,7 @@ from arize._generated.api_client.exceptions import ApiException as ApiException
 from arize._generated.api_client.models.add_annotation_queue_records_request import AddAnnotationQueueRecordsRequest as AddAnnotationQueueRecordsRequest
 from arize._generated.api_client.models.add_organization_user_request import AddOrganizationUserRequest as AddOrganizationUserRequest
 from arize._generated.api_client.models.add_space_user_request import AddSpaceUserRequest as AddSpaceUserRequest
+from arize._generated.api_client.models.add_tags_request import AddTagsRequest as AddTagsRequest
 from arize._generated.api_client.models.agent_call_run_config import AgentCallRunConfig as AgentCallRunConfig
 from arize._generated.api_client.models.agent_call_run_config_request import AgentCallRunConfigRequest as AgentCallRunConfigRequest
 from arize._generated.api_client.models.agent_config import AgentConfig as AgentConfig
@@ -610,6 +615,8 @@ from arize._generated.api_client.models.delete_annotation_queue_records_request 
 from arize._generated.api_client.models.delete_dataset_examples_problem import DeleteDatasetExamplesProblem as DeleteDatasetExamplesProblem
 from arize._generated.api_client.models.delete_dataset_examples_request import DeleteDatasetExamplesRequest as DeleteDatasetExamplesRequest
 from arize._generated.api_client.models.delete_dataset_examples_response import DeleteDatasetExamplesResponse as DeleteDatasetExamplesResponse
+from arize._generated.api_client.models.delete_evaluator_versions_request import DeleteEvaluatorVersionsRequest as DeleteEvaluatorVersionsRequest
+from arize._generated.api_client.models.delete_evaluator_versions_response import DeleteEvaluatorVersionsResponse as DeleteEvaluatorVersionsResponse
 from arize._generated.api_client.models.delete_spans_problem import DeleteSpansProblem as DeleteSpansProblem
 from arize._generated.api_client.models.delete_spans_request import DeleteSpansRequest as DeleteSpansRequest
 from arize._generated.api_client.models.delete_spans_response import DeleteSpansResponse as DeleteSpansResponse
@@ -686,6 +693,7 @@ from arize._generated.api_client.models.list_roles_response import ListRolesResp
 from arize._generated.api_client.models.list_spaces_response import ListSpacesResponse as ListSpacesResponse
 from arize._generated.api_client.models.list_spans_request import ListSpansRequest as ListSpansRequest
 from arize._generated.api_client.models.list_spans_response import ListSpansResponse as ListSpansResponse
+from arize._generated.api_client.models.list_tags_response import ListTagsResponse as ListTagsResponse
 from arize._generated.api_client.models.list_task_runs_response import ListTaskRunsResponse as ListTaskRunsResponse
 from arize._generated.api_client.models.list_tasks_response import ListTasksResponse as ListTasksResponse
 from arize._generated.api_client.models.list_traces_request import ListTracesRequest as ListTracesRequest
