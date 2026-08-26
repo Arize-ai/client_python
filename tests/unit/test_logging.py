@@ -472,6 +472,38 @@ class TestModuleFunctions:
         url = get_arize_project_url(response)
         assert url == ""
 
+    def test_get_arize_project_url_empty_body(self) -> None:
+        """Should return empty string on empty response body."""
+        response = Mock()
+        response.content = b""
+
+        url = get_arize_project_url(response)
+        assert url == ""
+
+    def test_get_arize_project_url_non_json_body(self) -> None:
+        """Should return empty string when response body is not JSON."""
+        response = Mock()
+        response.content = b"OK"
+
+        url = get_arize_project_url(response)
+        assert url == ""
+
+    def test_get_arize_project_url_non_dict_json(self) -> None:
+        """Should return empty string when response body is JSON but not a dict."""
+        response = Mock()
+        response.content = json.dumps([1, 2, 3]).encode()
+
+        url = get_arize_project_url(response)
+        assert url == ""
+
+    def test_get_arize_project_url_invalid_utf8(self) -> None:
+        """Should return empty string when response body is not valid UTF-8."""
+        response = Mock()
+        response.content = b"\x80\x81"  # invalid UTF-8
+
+        url = get_arize_project_url(response)
+        assert url == ""
+
     def test_coerce_mapping_dict(self) -> None:
         """Dict should be converted to dict with string keys."""
         result = _coerce_mapping({"key": "value", 123: "numeric"})

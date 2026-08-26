@@ -604,7 +604,7 @@ class MLModelsClient:
             - Data is sent via Apache Arrow for efficient large batch transfers
         """
         require(_BATCH_EXTRA, _BATCH_DEPS)
-        import pandas.api.types as ptypes
+        import pandas as pd
         import pyarrow as pa
 
         from arize.ml.batch_validation.validator import Validator
@@ -676,10 +676,11 @@ class MLModelsClient:
         dataframe = remove_extraneous_columns(df=dataframe, schema=schema)
 
         # always validate pd.Category is not present, if yes, convert to string
-        # Type ignore: pandas.api.types.is_categorical_dtype exists but stubs may be incomplete
+        # is_categorical_dtype is deprecated (pandas 2.1) and emits a
+        # DeprecationWarning; isinstance(x, pd.CategoricalDtype) is the
+        # pandas-recommended replacement.
         has_cat_col = any(
-            ptypes.is_categorical_dtype(x)  # type: ignore[attr-defined]
-            for x in dataframe.dtypes
+            isinstance(x, pd.CategoricalDtype) for x in dataframe.dtypes
         )
         if has_cat_col:
             cat_cols = [

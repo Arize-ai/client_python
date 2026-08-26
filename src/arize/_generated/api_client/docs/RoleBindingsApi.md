@@ -50,6 +50,14 @@ Create a new role binding that assigns a role to a user on a resource.
 This fails because `resource_id` must encode a `PROJECT` ID when
 `resource_type` is `PROJECT`.
 
+**Authorization**
+Requires `ROLE_BINDING_CREATE` permission on the resource. This grants
+administrator-level authority on the resource, including the ability
+to assign any role visible in the account. If authorization fails, the
+endpoint returns `403`, including when the resource is nonexistent or
+outside the caller's account. If the target user or role is outside the
+caller's account, the endpoint returns `404` after store validation.
+
 Use `PATCH /v2/role-bindings/{binding_id}` to change the assigned role
 for an existing binding.
 
@@ -142,6 +150,11 @@ Delete a role binding
 
 Delete a role binding by its ID.
 
+**Authorization**
+Requires `ROLE_BINDING_DELETE` permission on the binding's resource. If
+the binding does not exist, belongs to another account, or the caller
+lacks this permission, the endpoint returns `404`.
+
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
 
@@ -223,6 +236,11 @@ void (empty response body)
 Get a role binding
 
 Get a single role binding by its ID.
+
+**Authorization**
+Requires `ROLE_BINDING_READ` permission on the binding's resource. If
+the binding does not exist, belongs to another account, or the caller
+lacks this permission, the endpoint returns `404`.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 
@@ -316,6 +334,11 @@ The `resource_type` query parameter is **required** and must be one of
 caller has the `ROLE_BINDING_READ` permission. If the caller has no
 authorized spaces, the response contains an empty list. Use `user_id` to
 narrow to a specific user.
+
+**Authorization**
+Results are limited to bindings on spaces where the caller has
+`ROLE_BINDING_READ`. If the caller has no authorized spaces, this
+endpoint returns `200` with an empty list rather than `403`.
 
 Returns `404` if `user_id` is supplied and does not correspond to a
 user in the account.
@@ -435,6 +458,13 @@ Update an existing role binding by changing its assigned role.
 }
 ```
 This fails because only `role_id` can be updated on an existing binding.
+
+**Authorization**
+Requires both `ROLE_BINDING_CREATE` and `ROLE_BINDING_DELETE` permissions
+on the binding's resource. Together, these permissions grant
+administrator-level authority on the resource. If the binding does not
+exist, belongs to another account, or the caller lacks either permission,
+the endpoint returns `404`.
 
 <Note>This endpoint is in beta, read more [here](https://arize.com/docs/ax/rest-reference#api-version-stages).</Note>
 

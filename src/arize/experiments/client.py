@@ -647,6 +647,7 @@ class ExperimentsClient:
             annotate_experiment_runs_request=body,
         )
 
+    @prerelease_endpoint(key="experiments.run", stage=ReleaseStage.BETA)
     def run(
         self,
         *,

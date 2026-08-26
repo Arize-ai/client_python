@@ -240,6 +240,7 @@ models.ListAnnotationConfigsResponse.to_df = annotation_configs_to_df  # type: i
 models.ListSpansResponse.to_df = make_to_df(  # type: ignore[attr-defined]
     "spans", flatten_annotations=True
 )
+models.ListTracesResponse.to_df = make_to_df("traces")  # type: ignore[attr-defined]
 models.ListSpacesResponse.to_df = make_to_df("spaces")  # type: ignore[attr-defined]
 models.ListApiKeysResponse.to_df = make_to_df("api_keys")  # type: ignore[attr-defined]
 models.ListAnnotationQueueRecordsResponse.to_df = make_to_df("records")  # type: ignore[attr-defined]

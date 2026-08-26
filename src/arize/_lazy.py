@@ -20,15 +20,20 @@ class LazySubclientsMixin:
     _SUBCLIENTS: ClassVar[dict[str, tuple[str, str]]] = {}
     _EXTRAS: ClassVar[dict[str, tuple[str | None, tuple[str, ...]]]] = {}
 
-    def __init__(self, sdk_config: SDKConfiguration) -> None:
+    def __init__(
+        self,
+        sdk_config: SDKConfiguration,
+        connection_pool_maxsize: int | None = None,
+    ) -> None:
         self.sdk_config = sdk_config
         self._lazy_cache: dict[str, object] = {}
         self._lazy_lock = threading.Lock()
 
-        # Add generated client factory
         from arize._client_factory import GeneratedClientFactory
 
-        self._gen_client_factory = GeneratedClientFactory(sdk_config)
+        self._gen_client_factory = GeneratedClientFactory(
+            sdk_config, connection_pool_maxsize=connection_pool_maxsize
+        )
 
     def __getattr__(self, name: str) -> object:
         subs = self._SUBCLIENTS

@@ -1,5 +1,19 @@
 # Changelog
 
+## [8.50.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.49.0...arize-python-sdk/v8.50.0) (2026-08-26)
+
+
+### 🎁 New Features
+
+* add `connection_pool_maxsize` to ArizeClient ([#84559](https://github.com/Arize-ai/arize/issues/84559)) ([d408e1a](https://github.com/Arize-ai/arize/commit/d408e1aec31ec419ba49225f7e1b97d5452aa47d))
+* **traces:** default to a branch-graph view ([#82776](https://github.com/Arize-ai/arize/issues/82776)) ([798fc79](https://github.com/Arize-ai/arize/commit/798fc7980566c711b621a5e16373b06d351a5296))
+
+
+### 🐛 Bug Fixes
+
+* **experiments:** mark experiments.run as beta prerelease endpoint ([#84561](https://github.com/Arize-ai/arize/issues/84561)) ([d28d5a6](https://github.com/Arize-ai/arize/commit/d28d5a6233d3f8c3e2194c42e21fe5df943575b1))
+* **ml:** handle empty response body in ml.log + pandas 2.2 categorical compat ([#82476](https://github.com/Arize-ai/arize/issues/82476)) ([d2d7365](https://github.com/Arize-ai/arize/commit/d2d73653ebf9f8d2dbba0d3b8033355b0ba17799))
+
 ## [8.49.0](https://github.com/Arize-ai/arize/compare/arize-python-sdk/v8.48.0...arize-python-sdk/v8.49.0) (2026-08-24)
 
 
@@ -530,7 +544,10 @@ These renames flow from the OpenAPI spec into the generated v2 REST client. **Pu
 
 ### 🎁 New Features
 
+<<<<<<< HEAD
+=======
 * **annotations:** add annotate_examples and annotate_runs methods ([#69280](https://github.com/Arize-ai/arize/issues/69280)) ([5909e21](https://github.com/Arize-ai/arize/commit/5909e218032252bf5b3a057a64ccc111d005e57d))
+>>>>>>> fee7274871cfb616fc38a91b9ff7dc00363c53dd
 * **prompts:** prompts v2 API audit improvements ([#68525](https://github.com/Arize-ai/arize/issues/68525)) ([4583acc](https://github.com/Arize-ai/arize/commit/4583acc426e4e5d2491dc97117e13cb4d0050b36))
 * **tasks:** add update() and delete() to Python SDK TasksClient ([#69115](https://github.com/Arize-ai/arize/issues/69115)) ([eec7a38](https://github.com/Arize-ai/arize/commit/eec7a38e011eed0a85cf2cd6c68908da3adc8570))
 

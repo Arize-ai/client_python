@@ -206,6 +206,7 @@ class ArizeClient(LazySubclientsMixin):
         base_domain: str | None = None,
         max_past_years: int | None = None,
         default_headers: dict[str, str] | None = None,
+        connection_pool_maxsize: int | None = None,
     ) -> None:
         """Initialize the Arize client with configuration parameters.
 
@@ -299,6 +300,11 @@ class ArizeClient(LazySubclientsMixin):
                 auto-prefixed with "Grpc-Metadata-". Keys may not collide with the SDK's
                 built-in headers or start with "Grpc-Metadata-". Programmatic-only (no ENV).
                 Default: None ({} empty).
+            connection_pool_maxsize: Maximum number of connections in the urllib3 pool
+                used for REST API calls. Useful when running many clients concurrently
+                (e.g., one client per tenant) to bound total open sockets.
+                When None, the urllib3 default applies (cpu_count * 5).
+                Programmatic-only (no ENV).
 
         Raises:
             MissingAPIKeyError: If api_key is not provided via argument or environment variable.
@@ -365,7 +371,10 @@ class ArizeClient(LazySubclientsMixin):
 
         # Only the explicitly provided fields are passed; the rest use
         # SDKConfiguration's default factories / defaults.
-        super().__init__(SDKConfiguration(**cfg_kwargs))
+        super().__init__(
+            SDKConfiguration(**cfg_kwargs),
+            connection_pool_maxsize=connection_pool_maxsize,
+        )
 
     # typed properties for IDE completion
     @property

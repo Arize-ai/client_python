@@ -307,9 +307,14 @@ def get_arize_project_url(response: requests.Response) -> str:
     Returns:
         The real-time ingestion URI if present, otherwise an empty string.
     """
-    if "realTimeIngestionUri" in json.loads(response.content.decode()):
-        return json.loads(response.content.decode())["realTimeIngestionUri"]
-    return ""
+    content = response.content
+    try:
+        data = json.loads(content.decode())
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return ""
+    if not isinstance(data, dict):
+        return ""
+    return data.get("realTimeIngestionUri", "")
 
 
 def _coerce_mapping(obj: object) -> dict[str, object]:

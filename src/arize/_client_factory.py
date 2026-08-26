@@ -17,13 +17,20 @@ class GeneratedClientFactory:
     initialization of the OpenAPI client used by various subclients.
     """
 
-    def __init__(self, sdk_config: SDKConfiguration) -> None:
+    def __init__(
+        self,
+        sdk_config: SDKConfiguration,
+        connection_pool_maxsize: int | None = None,
+    ) -> None:
         """Initialize the factory.
 
         Args:
             sdk_config: SDK configuration containing API settings.
+            connection_pool_maxsize: urllib3 connection pool size per client.
+                When None, the urllib3 default applies.
         """
         self._sdk_config = sdk_config
+        self._connection_pool_maxsize = connection_pool_maxsize
         self._client: ApiClient | None = None
         self._lock = threading.Lock()
 
@@ -51,6 +58,8 @@ class GeneratedClientFactory:
                 cfg.ssl_ca_cert = self._sdk_config.ssl_ca_cert
             if self._sdk_config.proxy_url:
                 cfg.proxy = self._sdk_config.proxy_url
+            if self._connection_pool_maxsize is not None:
+                cfg.connection_pool_maxsize = self._connection_pool_maxsize
             self._client = gen.ApiClient(cfg)
 
             for key, value in self._sdk_config.headers.items():

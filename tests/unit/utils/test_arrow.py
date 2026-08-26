@@ -667,17 +667,18 @@ class TestMaybeLogProjectUrl:
     def test_logs_nothing_on_extraction_failure(
         self, mock_response: MagicMock
     ) -> None:
-        """Should not log when URL extraction returns None."""
+        """Should log a diagnostic when the response has no project URL."""
         with (
             patch("arize.utils.arrow.get_arize_project_url") as mock_get_url,
-            patch("arize.utils.arrow.logger.info") as mock_info,
+            patch("arize.utils.arrow.logger.debug") as mock_debug,
         ):
             mock_get_url.return_value = None
 
             _maybe_log_project_url(mock_response)
 
             mock_get_url.assert_called_once_with(mock_response)
-            mock_info.assert_not_called()
+            mock_debug.assert_called_once()
+            assert "without a project URL" in str(mock_debug.call_args)
 
     def test_never_raises_exception(self, mock_response: MagicMock) -> None:
         """Should never raise exception even if extraction fails."""

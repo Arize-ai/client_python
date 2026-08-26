@@ -197,6 +197,11 @@ def _maybe_log_project_url(response: requests.Response) -> None:
         url = get_arize_project_url(response)
         if url:
             logger.info("✅ Success! Check out your data at %s", url)
+        else:
+            logger.debug(
+                "Upload completed without a project URL in the response. "
+                "Verify ingestion in the Arize UI."
+            )
     except Exception as e:
         logger.warning("Failed to get project URL: %s", e)
 
